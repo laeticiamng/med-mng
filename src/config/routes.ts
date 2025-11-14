@@ -162,6 +162,7 @@ export const ROUTE_PATHS = {
   badgeDetail: '/badges/:badgeId',
   auras: '/auras',
   auraDetail: '/auras/:auraId',
+  gamificationDashboard: '/gamification',
 
   // ==================== NOUVELLES ROUTES PRIORITÉ 3 🟢 ====================
 

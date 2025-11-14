@@ -108,6 +108,7 @@ const Achievements = lazy(() => import('@/pages/Achievements'));
 const Favorites = lazy(() => import('@/pages/Favorites'));
 const ViewingHistory = lazy(() => import('@/pages/ViewingHistory'));
 const Collections = lazy(() => import('@/pages/Collections'));
+const GamificationDashboard = lazy(() => import('@/pages/GamificationDashboard'));
 const UserSettings = lazy(() => import('@/pages/UserSettings'));
 const PWAAnalytics = lazy(() => import('@/pages/PWAAnalytics'));
 const OptimizedIndex = lazy(() => import('@/pages/OptimizedIndex'));
@@ -499,6 +500,7 @@ export const contentRoutes: RouteObject[] = [
   { path: ROUTE_PATHS.favorites, element: wrapRoute(Favorites) },
   { path: ROUTE_PATHS.viewingHistory, element: wrapRoute(ViewingHistory) },
   { path: ROUTE_PATHS.collections, element: wrapRoute(Collections) },
+  { path: ROUTE_PATHS.gamificationDashboard, element: wrapRoute(GamificationDashboard) },
   { path: ROUTE_PATHS.settings, element: wrapRoute(UserSettings) },
   { path: ROUTE_PATHS.designSystem, element: wrapRoute(DesignSystemPage) },
   { path: ROUTE_PATHS.performanceDashboard, element: wrapRoute(PerformanceDashboard) },
