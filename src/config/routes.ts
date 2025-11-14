@@ -51,6 +51,8 @@ export const ROUTE_PATHS = {
   adminComplete: '/admin/complete',
   adminPanel: '/admin-panel',
   adminRoles: '/admin/roles',
+  adminDashboardAnalytics: '/admin/dashboard',
+  performanceDashboard: '/performance-dashboard',
   auditSecurity: '/audit-security',
   sharedTemplates: '/shared-templates',
   templateAnalytics: '/template-analytics',
@@ -80,6 +82,115 @@ export const ROUTE_PATHS = {
   auditIc2: '/audit-ic2',
   auditIc4: '/audit-ic4',
   auditCompleteLegacy: '/audit-complete',
+
+  // ==================== NOUVELLES ROUTES PRIORITÉ 1 🔥 ====================
+
+  // Journal & Notes
+  journal: '/journal',
+  journalNew: '/journal/new',
+  journalEntry: '/journal/:entryId',
+  journalEdit: '/journal/:entryId/edit',
+
+  // Challenges Quotidiens
+  challenges: '/challenges',
+  challengesDaily: '/challenges/daily',
+  challengeDetail: '/challenges/:challengeId',
+  challengesHistory: '/challenges/history',
+
+  // Leaderboard
+  leaderboard: '/leaderboard',
+  leaderboardFocus: '/leaderboard/focus',
+  leaderboardLearning: '/leaderboard/learning',
+  leaderboardWeekly: '/leaderboard/weekly',
+
+  // Profils Utilisateurs
+  users: '/users',
+  userProfile: '/users/:userId',
+  profileEdit: '/profile/edit',
+  profilePrivacy: '/profile/privacy',
+
+  // Sessions & Activités
+  sessions: '/sessions',
+  sessionsStudy: '/sessions/study',
+  sessionsFocus: '/sessions/focus',
+  sessionsMeditation: '/sessions/meditation',
+  sessionDetail: '/sessions/:sessionId',
+
+  // Notifications
+  notifications: '/notifications',
+  notificationsSettings: '/notifications/settings',
+  notificationDetail: '/notifications/:notifId',
+
+  // Quests & Ambitions
+  quests: '/quests',
+  questDetail: '/quests/:questId',
+  questStart: '/quests/:questId/start',
+  ambitions: '/ambitions',
+
+  // ==================== NOUVELLES ROUTES PRIORITÉ 2 🟡 ====================
+
+  // Help & Support
+  help: '/help',
+  helpFaq: '/help/faq',
+  helpTutorials: '/help/tutorials',
+  helpContact: '/help/contact',
+  helpSearch: '/help/search',
+
+  // Activity Feed
+  activity: '/activity',
+  activityMe: '/activity/me',
+  activityUser: '/activity/:userId',
+
+  // Posts & Community
+  posts: '/posts',
+  postsNew: '/posts/new',
+  postDetail: '/posts/:postId',
+  postEdit: '/posts/:postId/edit',
+
+  // Wellness & Rituals
+  wellness: '/wellness',
+  wellnessStreak: '/wellness/streak',
+  wellnessRituals: '/wellness/rituals',
+  ritualDetail: '/wellness/rituals/:ritualId',
+
+  // Badges & Auras
+  badges: '/badges',
+  badgeDetail: '/badges/:badgeId',
+  auras: '/auras',
+  auraDetail: '/auras/:auraId',
+
+  // ==================== NOUVELLES ROUTES PRIORITÉ 3 🟢 ====================
+
+  // API Developer Portal
+  developers: '/developers',
+  developersDocs: '/developers/docs',
+  developersKeys: '/developers/keys',
+  developersWebhooks: '/developers/webhooks',
+
+  // Reporting & Export
+  reports: '/reports',
+  reportsGenerate: '/reports/generate',
+  reportViewer: '/reports/:reportId',
+  dataExport: '/export',
+
+  // Advanced Search
+  search: '/search',
+  searchGlobal: '/search/global',
+  searchSaved: '/search/saved',
+
+  // Teams & Collaboration
+  teams: '/teams',
+  teamsCreate: '/teams/create',
+  teamDashboard: '/teams/:teamId',
+  teamMembers: '/teams/:teamId/members',
+  teamChallenges: '/teams/:teamId/challenges',
+
+  // Events & Calendar
+  events: '/events',
+  eventDetail: '/events/:eventId',
+  eventCreate: '/events/create',
+  calendar: '/calendar',
+
   notFound: '*',
 } as const;
 

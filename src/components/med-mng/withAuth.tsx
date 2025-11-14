@@ -56,3 +56,28 @@ export const ProtectedRoute: React.FC<WithAuthProps> = ({
 
   return <>{children}</>;
 };
+
+export const GuestOnlyRoute: React.FC<WithAuthProps> = ({
+  children,
+  fallback = "/dashboard"
+}) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-blue-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    // Redirect logged-in users away from guest-only pages (like login/signup)
+    return <Navigate to={fallback} replace />;
+  }
+
+  return <>{children}</>;
+};
