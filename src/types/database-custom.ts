@@ -14,6 +14,7 @@ export type DeviceType = 'web' | 'mobile' | 'desktop'
 export type SessionStatus = 'active' | 'expired' | 'revoked' | 'logged_out'
 export type ExportType = 'csv' | 'excel' | 'pdf' | 'json'
 export type ExportStatus = 'pending' | 'processing' | 'completed' | 'failed'
+export type PostStatus = 'draft' | 'published' | 'archived'
 
 // ============================================================================
 // USER FAVORITES
@@ -296,4 +297,125 @@ export interface ExportJobUpdate {
   row_count?: number | null
   error_message?: string | null
   completed_at?: string | null
+}
+
+// ============================================================================
+// POSTS
+// ============================================================================
+export interface Post {
+  id: string
+  user_id: string
+  title: string
+  content: string
+  excerpt: string | null
+  tags: string[]
+  thumbnail_url: string | null
+  status: PostStatus
+  view_count: number
+  comment_count: number
+  like_count: number
+  created_at: string
+  updated_at: string
+  published_at: string | null
+}
+
+export interface PostInsert {
+  user_id: string
+  title: string
+  content: string
+  excerpt?: string | null
+  tags?: string[]
+  thumbnail_url?: string | null
+  status?: PostStatus
+  published_at?: string | null
+}
+
+export interface PostUpdate {
+  title?: string
+  content?: string
+  excerpt?: string | null
+  tags?: string[]
+  thumbnail_url?: string | null
+  status?: PostStatus
+  published_at?: string | null
+}
+
+export interface PostWithAuthor extends Post {
+  author: {
+    id: string
+    email: string
+    user_metadata?: {
+      full_name?: string
+      avatar_url?: string
+    }
+  }
+}
+
+// ============================================================================
+// POST COMMENTS
+// ============================================================================
+export interface PostComment {
+  id: string
+  post_id: string
+  user_id: string
+  parent_comment_id: string | null
+  content: string
+  like_count: number
+  created_at: string
+  updated_at: string
+  edited_at: string | null
+}
+
+export interface PostCommentInsert {
+  post_id: string
+  user_id: string
+  parent_comment_id?: string | null
+  content: string
+}
+
+export interface PostCommentUpdate {
+  content?: string
+  edited_at?: string
+}
+
+export interface PostCommentWithAuthor extends PostComment {
+  author: {
+    id: string
+    email: string
+    user_metadata?: {
+      full_name?: string
+      avatar_url?: string
+    }
+  }
+  replies?: PostCommentWithAuthor[]
+}
+
+// ============================================================================
+// POST LIKES
+// ============================================================================
+export interface PostLike {
+  id: string
+  post_id: string
+  user_id: string
+  created_at: string
+}
+
+export interface PostLikeInsert {
+  post_id: string
+  user_id: string
+}
+
+// ============================================================================
+// COMMENT LIKES
+// ============================================================================
+export interface CommentLike {
+  id: string
+  comment_id: string
+  user_id: string
+  created_at: string
+}
+
+export interface CommentLikeInsert {
+  comment_id: string
+  user_id: string
 }
