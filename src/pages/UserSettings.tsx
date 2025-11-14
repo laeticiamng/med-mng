@@ -8,13 +8,16 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  User, Bell, Shield, Eye, Palette, Database, 
+import {
+  User, Bell, Shield, Eye, Palette, Database,
   Download, Upload, Trash2, Save, AlertTriangle,
-  Mail, Phone, MapPin, Calendar, Globe, Lock
+  Mail, Phone, MapPin, Calendar, Globe, Lock, Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
+import { TwoFactorAuth } from '@/components/auth/TwoFactorAuth';
+import { ConnectedDevices } from '@/components/auth/ConnectedDevices';
+import { ActivityLog } from '@/components/user/ActivityLog';
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -94,8 +97,10 @@ const UserSettings: React.FC = () => {
   const sections = [
     { id: 'profile', label: 'Profil', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'security', label: 'Sécurité', icon: Lock },
     { id: 'privacy', label: 'Confidentialité', icon: Shield },
     { id: 'appearance', label: 'Apparence', icon: Palette },
+    { id: 'activity', label: 'Activité', icon: Activity },
     { id: 'data', label: 'Données', icon: Database },
     { id: 'feedback', label: 'Feedback', icon: Mail }
   ];
@@ -303,6 +308,35 @@ const UserSettings: React.FC = () => {
                 </Card>
               )}
 
+              {/* Security Section */}
+              {activeSection === 'security' && (
+                <div className="space-y-6">
+                  <Card className="medical-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Lock className="w-5 h-5 text-primary" />
+                        Sécurité du Compte
+                      </CardTitle>
+                      <CardDescription>
+                        Gérez les paramètres de sécurité de votre compte, y compris l'authentification à deux facteurs
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <h4 className="font-medium text-sm mb-4">Authentification Deux Facteurs (2FA)</h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Activez l'authentification à deux facteurs pour renforcer la sécurité de votre compte.
+                          Vous aurez besoin d'un code supplémentaire de votre application authenticateur en plus de votre mot de passe.
+                        </p>
+                        <TwoFactorAuth variant="inline" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <ConnectedDevices />
+                </div>
+              )}
+
               {/* Privacy Section */}
               {activeSection === 'privacy' && (
                 <Card className="medical-card">
@@ -376,6 +410,11 @@ const UserSettings: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Activity Section */}
+              {activeSection === 'activity' && (
+                <ActivityLog limit={20} showPagination={true} />
               )}
 
               {/* Data Management Section */}
