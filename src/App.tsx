@@ -27,7 +27,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
   default: module.DynamicOnboarding
 })));
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
@@ -35,6 +36,7 @@ import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { AdminRoute } from "./components/auth/AdminRoute";
 import { queryClient } from "@/lib/queryClient";
+import { createIDBPersister } from "@/lib/persistQueryClient";
 
 // ⚡ CRITICAL PAGES - Chargement immédiat
 import Index from "./pages/Index";
@@ -137,9 +139,15 @@ const App = () => {
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
   
+  // ⚡ CACHE PERSISTANT: Créer le persister IndexedDB pour React Query
+  const persister = React.useMemo(() => createIDBPersister(), []);
+  
   return (
     <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider 
+        client={queryClient} 
+        persistOptions={{ persister, maxAge: 24 * 60 * 60 * 1000 }}
+      >
         <BrowserRouter>
         <HelmetProvider>
           <AuthProvider>
@@ -297,7 +305,7 @@ const App = () => {
           </AuthProvider>
         </HelmetProvider>
         </BrowserRouter>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ThemeProvider>
   );
 };
