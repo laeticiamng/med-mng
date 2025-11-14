@@ -39,9 +39,9 @@ import { AdminRoute } from "./components/auth/AdminRoute";
 import { queryClient } from "@/lib/queryClient";
 import { createIDBPersister } from "@/lib/persistQueryClient";
 
-// ⚡ CRITICAL PAGES - Chargement immédiat
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+// ⚡ CRITICAL PAGES - Lazy loaded for better performance
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // 🎵 EDN PAGES - Lazy loaded
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
@@ -135,6 +135,9 @@ const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibi
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
+
+// 📊 PERFORMANCE DASHBOARD - Lazy loaded
+const PerformanceDashboard = lazy(() => import("./pages/PerformanceDashboard"));
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
@@ -246,6 +249,9 @@ const App = () => {
           <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
            <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
+           
+           {/* 📊 Performance Dashboard */}
+           <Route path="/performance-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PerformanceDashboard /></Suspense>} />
            
           {/* Routes Admin - Protégées par AdminRoute */}
             <Route path={ROUTE_PATHS.adminIndex} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminIndex /></Suspense></AdminRoute>} />
