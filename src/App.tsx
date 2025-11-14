@@ -11,6 +11,7 @@ import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { CookieBanner } from "@/components/common/CookieBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Bell } from 'lucide-react';
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { Footer } from '@/components/layout/Footer';
