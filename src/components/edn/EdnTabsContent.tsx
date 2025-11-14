@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Sparkles } from 'lucide-react';
 import { TabsContent } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
-import { PricingPlans } from "@/components/med-mng/PricingPlans";
-import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
-import { RevisionGuide } from "@/components/edn/RevisionGuide";
-import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
-import { FaqSection } from "@/components/help/FaqSection";
+import { Skeleton } from '@/components/ui/skeleton';
 import { EdnItemsGrid } from './EdnItemsGrid';
 import type { EdnItemUnified } from '@/types/edn';
+
+// 🚀 LAZY LOADING - Composants non-critiques chargés à la demande
+const RevisionDashboard = lazy(() => import('@/components/revision/RevisionDashboard').then(m => ({ default: m.RevisionDashboard })));
+const RevisionGuide = lazy(() => import('@/components/edn/RevisionGuide').then(m => ({ default: m.RevisionGuide })));
+const FaqSection = lazy(() => import('@/components/help/FaqSection').then(m => ({ default: m.FaqSection })));
+const LyricsCompletionStatus = lazy(() => import('@/components/LyricsCompletionStatus').then(m => ({ default: m.LyricsCompletionStatus })));
+const QuotaIndicator = lazy(() => import('@/components/quota/QuotaIndicator').then(m => ({ default: m.QuotaIndicator })));
+const PricingPlans = lazy(() => import('@/components/med-mng/PricingPlans').then(m => ({ default: m.PricingPlans })));
 
 interface EdnTabsContentProps {
   filteredItems: EdnItemUnified[];
@@ -24,6 +24,15 @@ interface EdnTabsContentProps {
   quota: number | null;
   subscription: any;
 }
+
+// Composant de chargement réutilisable
+const TabLoadingFallback = () => (
+  <div className="space-y-4 p-6">
+    <Skeleton className="h-8 w-64" />
+    <Skeleton className="h-32 w-full" />
+    <Skeleton className="h-32 w-full" />
+  </div>
+);
 
 export const EdnTabsContent: React.FC<EdnTabsContentProps> = ({
   filteredItems,
@@ -40,10 +49,12 @@ export const EdnTabsContent: React.FC<EdnTabsContentProps> = ({
     <>
       {/* Tab: Révision */}
       <TabsContent value="revision">
-        <div className="space-y-6">
-          <RevisionGuide />
-          <RevisionDashboard />
-        </div>
+        <Suspense fallback={<TabLoadingFallback />}>
+          <div className="space-y-6">
+            <RevisionGuide />
+            <RevisionDashboard />
+          </div>
+        </Suspense>
       </TabsContent>
 
       {/* Tab: Mode Visuel (Immersive) */}
@@ -63,62 +74,76 @@ export const EdnTabsContent: React.FC<EdnTabsContentProps> = ({
 
       {/* Tab: Tous les items (Complete) */}
       <TabsContent value="complete">
-        <div className="space-y-6">
-          <FaqSection />
-          <EdnItemsGrid
-            items={filteredItems}
-            onOpenItem={onOpenItem}
-            onPrefetch={onPrefetch}
-            hasMore={hasMore}
-            loading={loading && page > 0}
-            onLoadMore={onLoadMore}
-            showAnimations={false}
-          />
-        </div>
+        <Suspense fallback={<TabLoadingFallback />}>
+          <div className="space-y-6">
+            <FaqSection />
+            <EdnItemsGrid
+              items={filteredItems}
+              onOpenItem={onOpenItem}
+              onPrefetch={onPrefetch}
+              hasMore={hasMore}
+              loading={loading && page > 0}
+              onLoadMore={onLoadMore}
+              showAnimations={false}
+            />
+          </div>
+        </Suspense>
       </TabsContent>
 
       {/* Tab: Musiques */}
       <TabsContent value="music">
-        <LyricsCompletionStatus />
+        <Suspense fallback={<TabLoadingFallback />}>
+          <LyricsCompletionStatus />
+        </Suspense>
       </TabsContent>
 
       {/* Tab: Premium/Subscription */}
       <TabsContent value="subscription">
-        <div className="space-y-6">
-          {/* Quota Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <QuotaIndicator showDetails />
-            <Card>
-              <CardHeader>
-                <CardTitle>Plan actuel</CardTitle>
-                <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Plan</span>
-                    <Badge variant={subscription?.is_premium ? "default" : "secondary"}>
-                      {subscription?.is_premium ? "Premium ⭐" : "Gratuit"}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Crédits IA</span>
-                    <span className="text-sm text-muted-foreground">{quota || 80}/160</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Génération musique</span>
-                    <Badge variant={subscription?.can_generate_music ? "default" : "destructive"}>
-                      {subscription?.can_generate_music ? "✅ Actif" : "❌ Épuisé"}
-                    </Badge>
+        <Suspense fallback={<TabLoadingFallback />}>
+          <div className="space-y-6">
+            {/* Quota Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <QuotaIndicator showDetails />
+              <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-col space-y-1.5 p-6">
+                  <h3 className="text-2xl font-semibold leading-none tracking-tight">Plan actuel</h3>
+                  <p className="text-sm text-muted-foreground">Votre abonnement et fonctionnalités</p>
+                </div>
+                <div className="p-6 pt-0">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Plan</span>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        subscription?.is_premium 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-secondary text-secondary-foreground'
+                      }`}>
+                        {subscription?.is_premium ? "Premium ⭐" : "Gratuit"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Crédits IA</span>
+                      <span className="text-sm text-muted-foreground">{quota || 80}/160</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Génération musique</span>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        subscription?.can_generate_music
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-destructive text-destructive-foreground'
+                      }`}>
+                        {subscription?.can_generate_music ? "✅ Actif" : "❌ Épuisé"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
 
-          {/* Pricing Plans */}
-          <PricingPlans />
-        </div>
+            {/* Pricing Plans */}
+            <PricingPlans />
+          </div>
+        </Suspense>
       </TabsContent>
     </>
   );
