@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TrendingUp, Clock, Award, Activity, BarChart3 } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export const ProgressCharts: React.FC = () => {
   const { user } = useAuth();
@@ -54,6 +55,69 @@ export const ProgressCharts: React.FC = () => {
   const avgScore = progressHistory.length > 0
     ? progressHistory.reduce((acc: number, item: any) => acc + (item.score || 0), 0) / progressHistory.length
     : 0;
+
+  // Prepare chart data
+  const dailyData = useMemo(() => {
+    const last14Days = Array.from({ length: 14 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (13 - i));
+      return date.toISOString().split('T')[0];
+    });
+
+    const dataMap: Record<string, { date: string; completed: number; time: number }> = {};
+    last14Days.forEach(date => {
+      dataMap[date] = { date: new Date(date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }), completed: 0, time: 0 };
+    });
+
+    progressHistory.forEach((item: any) => {
+      const itemDate = new Date(item.updated_at).toISOString().split('T')[0];
+      if (dataMap[itemDate]) {
+        if (item.status === 'completed' || item.status === 'mastered') {
+          dataMap[itemDate].completed += 1;
+        }
+        dataMap[itemDate].time += item.time_spent_minutes || 0;
+      }
+    });
+
+    return Object.values(dataMap);
+  }, [progressHistory]);
+
+  const statusData = [
+    { name: 'En cours', value: statusDistribution.in_progress, color: '#3b82f6' },
+    { name: 'Complétés', value: statusDistribution.completed, color: '#10b981' },
+    { name: 'Maîtrisés', value: statusDistribution.mastered, color: '#8b5cf6' },
+  ];
+
+  const specialtyData = useMemo(() => {
+    const specialties: Record<string, { total: number; time: number }> = {};
+    
+    progressHistory.forEach((item: any) => {
+      // Extract specialty from item_number (first 3 digits usually indicate category)
+      const itemNum = parseInt(item.item_number);
+      let specialty = 'Autres';
+      
+      if (itemNum >= 1 && itemNum <= 50) specialty = 'Cardiologie';
+      else if (itemNum >= 51 && itemNum <= 100) specialty = 'Pneumologie';
+      else if (itemNum >= 101 && itemNum <= 150) specialty = 'Néphrologie';
+      else if (itemNum >= 151 && itemNum <= 200) specialty = 'Gastro-entérologie';
+      else if (itemNum >= 201 && itemNum <= 250) specialty = 'Endocrinologie';
+
+      if (!specialties[specialty]) {
+        specialties[specialty] = { total: 0, time: 0 };
+      }
+      
+      if (item.status === 'completed' || item.status === 'mastered') {
+        specialties[specialty].total += 1;
+      }
+      specialties[specialty].time += item.time_spent_minutes || 0;
+    });
+
+    return Object.entries(specialties).map(([name, data]) => ({
+      specialty: name,
+      items: data.total,
+      temps: Math.round(data.time),
+    }));
+  }, [progressHistory]);
 
   return (
     <div className="space-y-6">
@@ -108,23 +172,149 @@ export const ProgressCharts: React.FC = () => {
         </Card>
       </div>
 
-      {/* Charts Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            Graphiques de progression
-          </CardTitle>
-          <CardDescription>
-            Visualisez votre évolution sur les 14 derniers jours
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-12 text-muted-foreground">
-          <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-          <p>Les graphiques détaillés seront bientôt disponibles</p>
-          <p className="text-sm mt-2">Continuez à réviser pour générer plus de données</p>
-        </CardContent>
-      </Card>
+      {/* Daily Activity Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Items complétés (14 jours)</CardTitle>
+            <CardDescription>Évolution quotidienne de vos révisions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="completed" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(var(--primary))' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Temps de révision (14 jours)</CardTitle>
+            <CardDescription>Minutes passées chaque jour</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar 
+                  dataKey="time" 
+                  fill="hsl(var(--accent))"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Status Distribution & Specialty Time */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Répartition par statut</CardTitle>
+            <CardDescription>Distribution de vos items EDN</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Temps par spécialité</CardTitle>
+            <CardDescription>Minutes investies par domaine</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={specialtyData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis 
+                  type="number" 
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <YAxis 
+                  type="category" 
+                  dataKey="specialty" 
+                  width={120}
+                  tick={{ fontSize: 12 }}
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar 
+                  dataKey="temps" 
+                  fill="hsl(var(--primary))"
+                  radius={[0, 8, 8, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
