@@ -52,7 +52,7 @@ export default function Leaderboard() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold">Classement Communautaire</h1>
           <p className="text-muted-foreground mt-2">
-            Compétez avec les autres membres de la communauté
+            CompÃ©tez avec les autres membres de la communautÃ©
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export default function Leaderboard() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground">Aucune donnée de classement disponible</p>
+                      <p className="text-muted-foreground">Aucune donnÃ©e de classement disponible</p>
                     )}
                   </div>
                 ) : (
@@ -159,7 +159,7 @@ export default function Leaderboard() {
                           <div className="flex items-center gap-6 mr-4">
                             <div className="text-right">
                               <Badge variant="secondary" className="mb-2">
-                                =% {score.toLocaleString()} pts
+                                {score.toLocaleString()} pts
                               </Badge>
                             </div>
                           </div>
@@ -184,7 +184,7 @@ export default function Leaderboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Flame className="h-5 w-5 text-orange-500" />
-              Comment ça fonctionne?
+              Comment Ã§a fonctionne?
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -192,11 +192,11 @@ export default function Leaderboard() {
               <div>
                 <h4 className="font-semibold mb-2">Gagner des points</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>" Créer un post: 10 points</li>
-                  <li>" Écrire un commentaire: 5 points</li>
+                  <li>" CrÃ©er un post: 10 points</li>
+                  <li>" Ã‰crire un commentaire: 5 points</li>
                   <li>" Obtenir un badge: 50 points</li>
-                  <li>" Compléter un objectif: 100 points</li>
-                  <li>" Maintenir une série: 25 points par jour</li>
+                  <li>" ComplÃ©ter un objectif: 100 points</li>
+                  <li>" Maintenir une sÃ©rie: 25 points par jour</li>
                 </ul>
               </div>
               <div>
@@ -204,7 +204,7 @@ export default function Leaderboard() {
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>" Accumulez 1000 XP par niveau</li>
                   <li>" Gagnez de l'XP avec chaque action</li>
-                  <li>" Votre aura change à chaque niveau</li>
+                  <li>" Votre aura change Ã  chaque niveau</li>
                   <li>" Plus de couleurs disponibles</li>
                 </ul>
               </div>
