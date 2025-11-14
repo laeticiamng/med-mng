@@ -17,10 +17,17 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="mask-icon" href="/mask-icon.svg" color="#3B82F6" />
 
-    <!-- Google Fonts -->
+    <!-- Preload Critical Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/jetbrainsmono/v13/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yK1jPVmUsaaDhw.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Google Fonts (async loading) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
     <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
     <meta property="og:description" content="Et si la médecine devenait une expérience sensorielle ? Découvrez les items EDN et situations ECOS dans un univers immersif unique." />
@@ -31,7 +38,43 @@
     <meta name="twitter:site" content="@medmng" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
+    <!-- Critical CSS Inline (Above-the-fold) -->
     <style>
+      /* Critical CSS - Base Reset & Layout */
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      body { line-height: 1.5; -webkit-font-smoothing: antialiased; }
+      img, picture, video, canvas, svg { display: block; max-width: 100%; }
+      input, button, textarea, select { font: inherit; }
+      p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+      
+      /* Critical Theme Variables */
+      :root {
+        --background: 0 0% 98%;
+        --foreground: 213 32% 19%;
+        --primary: 213 94% 68%;
+        --primary-foreground: 0 0% 100%;
+        --card: 0 0% 100%;
+        --radius: 0.75rem;
+      }
+      
+      .dark {
+        --background: 213 32% 12%;
+        --foreground: 0 0% 98%;
+        --primary: 213 94% 75%;
+        --card: 215 28% 16%;
+      }
+      
+      /* Critical Layout */
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      /* Loading State */
+      #root { min-height: 100vh; }
+      
       /* Navigation mobile premium optimisée */
       @media (max-width: 768px) {
         body {
