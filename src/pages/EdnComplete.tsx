@@ -34,6 +34,9 @@ import { useEdnFilters } from "@/hooks/useEdnFilters";
 import { useEdnItems, useFullEdnItem, usePrefetchFullItem, useRefreshEdnView } from "@/hooks/useEdnItems";
 import { useEdnModal } from "@/hooks/useEdnModal";
 import { getCompletionPercentage, calculateItemsStats } from "@/utils/completionScore";
+import { useTrackSearch, useTrackItemView } from "@/hooks/useEdnAnalytics";
+import { usePerformanceMetrics, usePageLoadTime } from "@/hooks/usePerformanceMetrics";
+import { AnalyticsDashboard } from "@/components/edn/AnalyticsDashboard";
 import { 
   EdnItem, 
   EdnItemUnified, 
@@ -67,6 +70,14 @@ export default function EdnComplete() {
   const { data: pageData, isLoading: loading, error: queryError, refetch } = useEdnItems(page);
   const { mutate: refreshView } = useRefreshEdnView();
   const prefetchItem = usePrefetchFullItem();
+  
+  // ⚡ ANALYTICS: Tracker les recherches et consultations
+  const trackSearchTerm = useTrackSearch();
+  useTrackItemView(modalState.item?.item_code || null);
+  
+  // 📊 PERFORMANCE: Mesurer le temps de chargement
+  usePageLoadTime('EdnComplete');
+  usePerformanceMetrics();
   
   const unifiedItems = useMemo(() => {
     if (!pageData) return [];
@@ -136,6 +147,13 @@ export default function EdnComplete() {
     hasActiveFilters,
     filteredItems
   } = useEdnFilters(allItems);
+  
+  // ⚡ ANALYTICS: Tracker les recherches
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      trackSearchTerm(searchTerm, filteredItems.length);
+    }
+  }, [searchTerm, filteredItems.length, trackSearchTerm]);
 
   const isItemComplete = (item: EdnItemUnified) => {
     return getCompletionPercentage(item) === 100;
@@ -254,6 +272,11 @@ export default function EdnComplete() {
             </div>
           </AlertDescription>
         </Alert>
+
+        {/* 📊 ANALYTICS Dashboard */}
+        <div className="mb-6">
+          <AnalyticsDashboard />
+        </div>
 
         {/* Indicateur de chargement */}
         <div className="mb-4 flex items-center justify-between p-3 bg-muted/50 rounded-lg">
