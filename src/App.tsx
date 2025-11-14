@@ -107,6 +107,7 @@ const MigrationDashboardPage = lazy(() => import("./pages/MigrationDashboard"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const ModularDashboard = lazy(() => import("./pages/ModularDashboard"));
 const LearningDashboard = lazy(() => import("./pages/LearningDashboard"));
+const GamificationDashboard = lazy(() => import("./pages/GamificationDashboard"));
 const PlatformStatusPage = lazy(() => import("./pages/PlatformStatusPage"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const SystemManagement = lazy(() => import("./pages/SystemManagement"));
@@ -295,6 +296,7 @@ const App = () => {
         <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.dashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.learningDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningDashboard /></Suspense>} />
+           <Route path={ROUTE_PATHS.gamificationDashboard} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GamificationDashboard /></Suspense></ProtectedRoute>} />
            <Route path={ROUTE_PATHS.platformStatus} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformStatusPage /></Suspense>} />
            <Route path={ROUTE_PATHS.monitoring} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Monitoring /></Suspense>} />
            <Route path={ROUTE_PATHS.systemManagement} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SystemManagement /></Suspense>} />
