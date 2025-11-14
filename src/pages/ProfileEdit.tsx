@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ROUTE_PATHS } from '@/config/routes'
 import { ArrowLeft, Upload, Loader } from 'lucide-react'
@@ -29,20 +29,19 @@ export default function ProfileEdit() {
     education: '',
   })
 
-  const [isFormReady, setIsFormReady] = useState(false)
-
   // Initialize form data when profile loads
-  if (profile && !isFormReady) {
-    setFormData({
-      displayName: profile.display_name || '',
-      bio: profile.bio || '',
-      location: profile.location || '',
-      occupation: profile.occupation || '',
-      website: profile.website || '',
-      education: profile.education || '',
-    })
-    setIsFormReady(true)
-  }
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        displayName: profile.display_name || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        occupation: profile.occupation || '',
+        website: profile.website || '',
+        education: profile.education || '',
+      })
+    }
+  }, [profile])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
