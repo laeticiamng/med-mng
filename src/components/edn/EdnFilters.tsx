@@ -34,7 +34,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-4">
+    <div data-testid="edn-filters" className="space-y-4">
       {/* Reset Button */}
       {hasActiveFilters && (
         <div className="flex justify-end">
@@ -65,7 +65,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
       <div className="flex gap-2 items-center justify-between">
         <div className="flex gap-2">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger data-testid="category-filter" className="w-[120px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -76,7 +76,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
           </Select>
 
           <Select value={sortBy} onValueChange={(value: SortByType) => setSortBy(value)}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger data-testid="sort-filter" className="w-[120px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -103,6 +103,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
               size="sm"
               onClick={() => setViewMode('grid')}
               className="rounded-r-none"
+              aria-label="Grid view"
             >
               <Grid className="h-4 w-4" />
             </Button>
@@ -111,6 +112,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
               size="sm"
               onClick={() => setViewMode('list')}
               className="rounded-l-none"
+              aria-label="List view"
             >
               <List className="h-4 w-4" />
             </Button>
