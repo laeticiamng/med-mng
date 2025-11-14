@@ -26,7 +26,7 @@ export const EdnItemsGrid: React.FC<EdnItemsGridProps> = ({
   showAnimations = true
 }) => {
   return (
-    <div className="space-y-6">
+    <div data-testid="edn-items-grid" className="space-y-6">
       {showAnimations ? (
         <AnimatePresence mode="popLayout">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -44,6 +44,7 @@ export const EdnItemsGrid: React.FC<EdnItemsGridProps> = ({
                 layout
               >
                 <EdnItemCard
+                  data-testid={`edn-item-${item.id}`}
                   item={item as any}
                   completionPercentage={getCompletionPercentage(item)}
                   onOpen={(tab) => onOpenItem(item, tab)}
@@ -58,6 +59,7 @@ export const EdnItemsGrid: React.FC<EdnItemsGridProps> = ({
           {items.map(item => (
             <EdnItemCard
               key={item.id}
+              data-testid={`edn-item-${item.id}`}
               item={item as any}
               completionPercentage={item.completeness_score || getCompletionPercentage(item)}
               onOpen={(tab) => onOpenItem(item, tab)}
