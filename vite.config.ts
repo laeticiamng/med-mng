@@ -177,10 +177,61 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
+
+    // ⚡ OPTIMIZATION: Chunk splitting for better caching
+    chunkSizeWarningLimit: 1000,
+
+    // ⚡ MINIFICATION & SOURCE MAPS
+    minify: 'terser',
+    sourcemap: mode === 'development',
+
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;
         warn(warning);
+      },
+
+      // ⚡ ADVANCED CHUNKING STRATEGY
+      // Separates code into smaller, independently cacheable chunks
+      output: {
+        manualChunks: {
+          // React and core dependencies
+          'react-core': ['react', 'react-dom', 'react-router-dom'],
+
+          // Query and state management
+          'react-query': ['@tanstack/react-query', '@tanstack/react-query-persist-client'],
+          'state': ['zustand'],
+
+          // UI Components
+          'ui-core': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-scroll-area'
+          ],
+          'ui-form': ['react-hook-form', 'zod'],
+
+          // Utilities
+          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+
+          // Heavy libraries
+          'charts': ['recharts', 'chart.js'],
+          'icons': ['lucide-react'],
+          'animations': ['framer-motion'],
+
+          // Audio & Media
+          'audio': [],
+
+          // Large third-party packages
+          'xlsx': ['xlsx'],
+          'pdf': ['jspdf', 'html2canvas'],
+        },
+
+        // Optimize chunk names for production
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       }
     }
   }
