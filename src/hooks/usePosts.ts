@@ -1,217 +1,306 @@
-/**
- * Hook: usePosts
- * Manages post operations with React Query caching
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { postsService } from '@/services/posts.service'
-import { Post, PostStatus } from '@/types/database-custom'
-import { useAuth } from '@/contexts/AuthContext'
+import { postsService, Post, PostCategory } from '@/services/posts.service'
 
-export const usePosts = () => {
-  const { user } = useAuth()
+// Query keys for cache invalidation
+const postsKeys = {
+  all: ['posts'] as const,
+  feed: () => [...postsKeys.all, 'feed'] as const,
+  userPosts: (userId: string) => [...postsKeys.all, 'user', userId] as const,
+  post: (postId: string) => [...postsKeys.all, 'post', postId] as const,
+  comments: (postId: string) => [...postsKeys.all, 'comments', postId] as const,
+  search: (query: string) => [...postsKeys.all, 'search', query] as const,
+  trending: () => [...postsKeys.all, 'trending'] as const,
+  category: (category: PostCategory) => [...postsKeys.all, 'category', category] as const,
+  bookmarks: (userId: string) => [...postsKeys.all, 'bookmarks', userId] as const,
+}
+
+/**
+ * Fetch feed posts
+ */
+export function useFetchFeedPosts(limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.feed(), limit, offset],
+    queryFn: () => postsService.getFeedPosts(limit, offset),
+    staleTime: 1000 * 60, // 1 minute
+  })
+}
+
+/**
+ * Fetch user's posts
+ */
+export function useFetchUserPosts(userId: string, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.userPosts(userId), limit, offset],
+    queryFn: () => postsService.getUserPosts(userId, limit, offset),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!userId,
+  })
+}
+
+/**
+ * Fetch a specific post
+ */
+export function useFetchPost(postId: string) {
+  return useQuery({
+    queryKey: postsKeys.post(postId),
+    queryFn: () => postsService.getPost(postId),
+    staleTime: 1000 * 60, // 1 minute
+    enabled: !!postId,
+  })
+}
+
+/**
+ * Create a post
+ */
+export function useCreatePost() {
   const queryClient = useQueryClient()
-  const userId = user?.id
 
-  // Fetch all published posts
-  const useFetchPublishedPosts = (options?: {
-    limit?: number
-    offset?: number
-    tags?: string[]
-    sortBy?: 'recent' | 'popular' | 'mostliked'
-  }) => {
-    return useQuery({
-      queryKey: ['posts', 'published', options?.sortBy, options?.tags, options?.offset],
-      queryFn: () => postsService.getPublishedPosts(options),
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    })
-  }
+  return useMutation({
+    mutationFn: (params: {
+      title: string
+      content: string
+      description?: string
+      imageUrl?: string
+      category?: PostCategory
+      tags?: string[]
+    }) =>
+      postsService.createPost(params.title, params.content, {
+        description: params.description,
+        imageUrl: params.imageUrl,
+        category: params.category,
+        tags: params.tags,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+    },
+  })
+}
 
-  // Fetch user's posts
-  const useFetchUserPosts = (targetUserId?: string, status?: PostStatus) => {
-    const fetchUserId = targetUserId || userId
-    return useQuery({
-      queryKey: ['posts', 'user', fetchUserId, status],
-      queryFn: () => postsService.getUserPosts(fetchUserId!, { status }),
-      enabled: !!fetchUserId,
-    })
-  }
+/**
+ * Update a post
+ */
+export function useUpdatePost(postId: string) {
+  const queryClient = useQueryClient()
 
-  // Fetch single post
-  const useFetchPost = (postId: string) => {
-    return useQuery({
-      queryKey: ['posts', postId],
-      queryFn: () => postsService.getPost(postId),
-      enabled: !!postId,
-    })
-  }
+  return useMutation({
+    mutationFn: (updates: Partial<Post>) => postsService.updatePost(postId, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
+      queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+    },
+  })
+}
 
-  // Fetch posts by tag
-  const useFetchPostsByTag = (tag: string, limit?: number) => {
-    return useQuery({
-      queryKey: ['posts', 'tag', tag],
-      queryFn: () => postsService.getPostsByTag(tag, limit || 20),
-      enabled: !!tag,
-    })
-  }
+/**
+ * Delete a post
+ */
+export function useDeletePost() {
+  const queryClient = useQueryClient()
 
-  // Fetch trending posts
-  const useFetchTrendingPosts = (limit?: number) => {
-    return useQuery({
-      queryKey: ['posts', 'trending'],
-      queryFn: () => postsService.getTrendingPosts(limit || 10),
-      staleTime: 1000 * 60 * 10, // 10 minutes
-    })
-  }
+  return useMutation({
+    mutationFn: (postId: string) => postsService.deletePost(postId),
+    onSuccess: (_, postId) => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
+      queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+    },
+  })
+}
 
-  // Search posts
-  const useSearchPosts = (keyword: string, options?: {
-    limit?: number
-    offset?: number
-  }) => {
-    return useQuery({
-      queryKey: ['posts', 'search', keyword, options?.offset],
-      queryFn: () => postsService.searchPosts(keyword, options),
-      enabled: keyword.length > 0,
-      staleTime: 1000 * 60 * 2, // 2 minutes
-    })
-  }
+/**
+ * Like a post
+ */
+export function useLikePost(postId: string) {
+  const queryClient = useQueryClient()
 
-  // Create post mutation
-  const useCreatePost = () => {
-    return useMutation({
-      mutationFn: (params: {
-        title: string
-        content: string
-        excerpt?: string
-        tags?: string[]
-        thumbnailUrl?: string
-        status?: PostStatus
-      }) => {
-        if (!userId) throw new Error('User not authenticated')
-        return postsService.createPost(userId, params.title, params.content, {
-          excerpt: params.excerpt,
-          tags: params.tags,
-          thumbnailUrl: params.thumbnailUrl,
-          status: params.status,
-        })
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', 'user', userId] })
-      },
-    })
-  }
+  return useMutation({
+    mutationFn: () => postsService.likePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
+    },
+  })
+}
 
-  // Update post mutation
-  const useUpdatePost = (postId: string) => {
-    return useMutation({
-      mutationFn: (updates: any) => postsService.updatePost(postId, updates),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'user', userId] })
-      },
-    })
-  }
+/**
+ * Unlike a post
+ */
+export function useUnlikePost(postId: string) {
+  const queryClient = useQueryClient()
 
-  // Delete post mutation
-  const useDeletePost = (postId: string) => {
-    return useMutation({
-      mutationFn: () => postsService.deletePost(postId),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'user', userId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'published'] })
-      },
-    })
-  }
+  return useMutation({
+    mutationFn: () => postsService.unlikePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
+    },
+  })
+}
 
-  // Publish post mutation
-  const usePublishPost = (postId: string) => {
-    return useMutation({
-      mutationFn: () => postsService.publishPost(postId),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'user', userId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'published'] })
-      },
-    })
-  }
+/**
+ * Create a comment
+ */
+export function useCreateComment(postId: string) {
+  const queryClient = useQueryClient()
 
-  // Like post mutation
-  const useLikePost = (postId: string) => {
-    return useMutation({
-      mutationFn: () => {
-        if (!userId) throw new Error('User not authenticated')
-        return postsService.likePost(postId, userId)
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'likes', postId, userId] })
-      },
-    })
-  }
+  return useMutation({
+    mutationFn: (params: { content: string; parentCommentId?: string }) =>
+      postsService.createComment(postId, params.content, params.parentCommentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
+    },
+  })
+}
 
-  // Unlike post mutation
-  const useUnlikePost = (postId: string) => {
-    return useMutation({
-      mutationFn: () => {
-        if (!userId) throw new Error('User not authenticated')
-        return postsService.unlikePost(postId, userId)
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'likes', postId, userId] })
-      },
-    })
-  }
+/**
+ * Fetch post comments
+ */
+export function useFetchPostComments(postId: string, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.comments(postId), limit, offset],
+    queryFn: () => postsService.getPostComments(postId, limit, offset),
+    staleTime: 1000 * 30, // 30 seconds
+    enabled: !!postId,
+  })
+}
 
-  // Check if user liked post
-  const useHasUserLikedPost = (postId: string) => {
-    return useQuery({
-      queryKey: ['posts', 'likes', postId, userId],
-      queryFn: () => {
-        if (!userId) return false
-        return postsService.hasUserLikedPost(postId, userId)
-      },
-      enabled: !!userId && !!postId,
-    })
-  }
+/**
+ * Fetch comment replies
+ */
+export function useFetchCommentReplies(commentId: string) {
+  return useQuery({
+    queryKey: [...postsKeys.comments(''), 'replies', commentId],
+    queryFn: () => postsService.getCommentReplies(commentId),
+    staleTime: 1000 * 30, // 30 seconds
+    enabled: !!commentId,
+  })
+}
 
-  // Toggle like post
-  const useToggleLikePost = (postId: string) => {
-    const hasLiked = useHasUserLikedPost(postId)
+/**
+ * Update a comment
+ */
+export function useUpdateComment(postId: string) {
+  const queryClient = useQueryClient()
 
-    return useMutation({
-      mutationFn: async () => {
-        if (!userId) throw new Error('User not authenticated')
-        const liked = await postsService.hasUserLikedPost(postId, userId)
-        if (liked) {
-          return postsService.unlikePost(postId, userId)
-        } else {
-          return postsService.likePost(postId, userId)
-        }
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['posts', postId] })
-        queryClient.invalidateQueries({ queryKey: ['posts', 'likes', postId, userId] })
-      },
-    })
-  }
+  return useMutation({
+    mutationFn: (params: { commentId: string; content: string }) =>
+      postsService.updateComment(params.commentId, params.content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
+    },
+  })
+}
 
-  return {
-    useFetchPublishedPosts,
-    useFetchUserPosts,
-    useFetchPost,
-    useFetchPostsByTag,
-    useFetchTrendingPosts,
-    useSearchPosts,
-    useCreatePost,
-    useUpdatePost,
-    useDeletePost,
-    usePublishPost,
-    useLikePost,
-    useUnlikePost,
-    useHasUserLikedPost,
-    useToggleLikePost,
-  }
+/**
+ * Delete a comment
+ */
+export function useDeleteComment(postId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (commentId: string) => postsService.deleteComment(commentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
+    },
+  })
+}
+
+/**
+ * Bookmark a post
+ */
+export function useBookmarkPost(userId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (postId: string) => postsService.bookmarkPost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks(userId) })
+    },
+  })
+}
+
+/**
+ * Remove bookmark
+ */
+export function useRemoveBookmark(userId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (postId: string) => postsService.removeBookmark(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks(userId) })
+    },
+  })
+}
+
+/**
+ * Fetch user's bookmarks
+ */
+export function useFetchBookmarks(userId: string, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.bookmarks(userId), limit, offset],
+    queryFn: () => postsService.getUserBookmarks(userId, limit, offset),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!userId,
+  })
+}
+
+/**
+ * Search posts
+ */
+export function useSearchPosts(query: string, enabled = false, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.search(query), limit, offset],
+    queryFn: () => postsService.searchPosts(query, limit, offset),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: enabled && query.length > 2,
+  })
+}
+
+/**
+ * Fetch trending posts
+ */
+export function useFetchTrendingPosts(limit = 10) {
+  return useQuery({
+    queryKey: [...postsKeys.trending(), limit],
+    queryFn: () => postsService.getTrendingPosts(limit),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
+
+/**
+ * Fetch posts by category
+ */
+export function useFetchPostsByCategory(category: PostCategory, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: [...postsKeys.category(category), limit, offset],
+    queryFn: () => postsService.getPostsByCategory(category, limit, offset),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!category,
+  })
+}
+
+/**
+ * Increment post views
+ */
+export function useIncrementPostViews(postId: string) {
+  return useMutation({
+    mutationFn: () => postsService.incrementViews(postId),
+  })
+}
+
+/**
+ * Share a post
+ */
+export function useSharePost() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (params: {
+      postId: string
+      sharedTo: 'followers' | 'direct' | 'public'
+      message?: string
+    }) => postsService.sharePost(params.postId, params.sharedTo, params.message),
+    onSuccess: (_, params) => {
+      queryClient.invalidateQueries({ queryKey: postsKeys.post(params.postId) })
+    },
+  })
 }
