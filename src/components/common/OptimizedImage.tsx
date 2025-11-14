@@ -14,6 +14,8 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   priority?: boolean; // Si true, pas de lazy loading
   placeholder?: 'blur' | 'empty';
   className?: string;
+  sizes?: string; // Pour srcset responsive
+  srcSet?: string; // srcSet personnalisé
 }
 
 export const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -24,6 +26,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   placeholder = 'empty',
   className,
+  sizes,
+  srcSet,
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -39,7 +43,19 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
     return url;
   };
 
+  // Générer srcSet responsive si non fourni
+  const generateSrcSet = (url: string) => {
+    if (srcSet) return srcSet;
+    
+    // Si l'image est locale et en WebP, générer des variantes
+    const baseUrl = url.replace(/\.(jpg|jpeg|png|webp)$/i, '');
+    const ext = url.match(/\.(webp)$/i) ? 'webp' : 'jpg';
+    
+    return `${baseUrl}-640w.${ext} 640w, ${baseUrl}-1024w.${ext} 1024w, ${baseUrl}-1920w.${ext} 1920w`;
+  };
+
   const webpSrc = getWebPUrl(src);
+  const responsiveSrcSet = generateSrcSet(webpSrc);
 
   return (
     <div
@@ -51,8 +67,12 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       style={{ width, height }}
     >
       <picture>
-        {/* Source WebP pour navigateurs modernes */}
-        <source srcSet={webpSrc} type="image/webp" />
+        {/* Source WebP pour navigateurs modernes avec srcSet responsive */}
+        <source 
+          srcSet={srcSet || responsiveSrcSet} 
+          sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+          type="image/webp" 
+        />
         
         {/* Fallback image originale */}
         <img
@@ -62,6 +82,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
           height={height}
           loading={priority ? 'eager' : 'lazy'}
           decoding={priority ? 'sync' : 'async'}
+          fetchPriority={priority ? 'high' : 'low'}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
           className={cn(
