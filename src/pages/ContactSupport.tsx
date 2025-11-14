@@ -26,22 +26,71 @@ export default function ContactSupport() {
     priority: 'normal',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual form submission
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        category: '',
-        subject: '',
-        message: '',
-        priority: 'normal',
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      // Import contact support service
+      const { contactSupportService } = await import('@/services/contact-support.service');
+
+      // Validate form
+      if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+        throw new Error('Tous les champs sont requis');
+      }
+
+      // Create ticket
+      await contactSupportService.createTicket({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+        category: (formData.category as any) || 'other',
+        priority: (formData.priority as any) || 'medium',
       });
-    }, 3000);
+
+      // Send email notification
+      try {
+        await contactSupportService.sendEmailNotification({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          category: (formData.category as any) || 'other',
+        });
+      } catch (emailErr) {
+        console.warn('Email notification failed but ticket was created', emailErr);
+      }
+
+      // Log submission
+      await contactSupportService.logContactSubmission({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          category: '',
+          subject: '',
+          message: '',
+          priority: 'normal',
+        });
+      }, 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const supportCategories = [
