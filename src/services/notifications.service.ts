@@ -321,3 +321,116 @@ export const notificationsService = {
     }
   },
 }
+
+// Extended notification preferences management
+export interface NotificationPreferencesExt {
+  id: string
+  userId: string
+  emailNotifications: boolean
+  pushNotifications: boolean
+  inAppNotifications: boolean
+  smsNotifications: boolean
+  newsletter: boolean
+  instantAlerts: boolean
+  quietHoursStart?: string
+  quietHoursEnd?: string
+  quietHoursEnabled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AlertRule {
+  id: string
+  userId: string
+  name: string
+  description?: string
+  ruleType: string
+  triggerCondition: Record<string, any>
+  actionType: 'email' | 'push' | 'in_app' | 'sms'
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export const alertService = {
+  // Alert Rules Management
+  async createAlertRule(userId: string, ruleData: Partial<AlertRule>): Promise<AlertRule> {
+    try {
+      const { data, error } = await supabase
+        .from('alert_rules')
+        .insert({
+          user_id: userId,
+          name: ruleData.name,
+          description: ruleData.description,
+          rule_type: ruleData.ruleType,
+          trigger_condition: ruleData.triggerCondition,
+          action_type: ruleData.actionType,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as AlertRule
+    } catch (err) {
+      throw new Error(
+        err instanceof Error ? err.message : 'Failed to create alert rule'
+      )
+    }
+  },
+
+  async getUserAlertRules(userId: string): Promise<AlertRule[]> {
+    try {
+      const { data, error } = await supabase
+        .from('alert_rules')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return (data || []) as AlertRule[]
+    } catch (err) {
+      console.error('Error fetching alert rules:', err)
+      return []
+    }
+  },
+
+  async updateAlertRule(ruleId: string, updates: Partial<AlertRule>): Promise<AlertRule> {
+    try {
+      const updateData: Record<string, any> = {}
+      if (updates.name) updateData.name = updates.name
+      if (updates.description !== undefined) updateData.description = updates.description
+      if (updates.isActive !== undefined) updateData.is_active = updates.isActive
+      if (updates.triggerCondition) updateData.trigger_condition = updates.triggerCondition
+      if (updates.actionType) updateData.action_type = updates.actionType
+
+      const { data, error } = await supabase
+        .from('alert_rules')
+        .update(updateData)
+        .eq('id', ruleId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as AlertRule
+    } catch (err) {
+      throw new Error(
+        err instanceof Error ? err.message : 'Failed to update alert rule'
+      )
+    }
+  },
+
+  async deleteAlertRule(ruleId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('alert_rules')
+        .delete()
+        .eq('id', ruleId)
+
+      if (error) throw error
+    } catch (err) {
+      throw new Error(
+        err instanceof Error ? err.message : 'Failed to delete alert rule'
+      )
+    }
+  },
+}
