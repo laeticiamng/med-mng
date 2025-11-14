@@ -3,6 +3,7 @@ import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { ProgressCharts } from '@/components/dashboard/ProgressCharts';
 import { DifficultyAnalysis } from '@/components/dashboard/DifficultyAnalysis';
 import { AIRecommendations } from '@/components/dashboard/AIRecommendations';
+import { StreaksAndBadges } from '@/components/dashboard/StreaksAndBadges';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -48,6 +49,10 @@ const Dashboard: React.FC = () => {
                 <Sparkles className="h-4 w-4" />
                 Recommandations
               </TabsTrigger>
+              <TabsTrigger value="badges" className="gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Badges
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -64,6 +69,10 @@ const Dashboard: React.FC = () => {
 
             <TabsContent value="recommendations" className="space-y-6">
               <AIRecommendations />
+            </TabsContent>
+
+            <TabsContent value="badges" className="space-y-6">
+              <StreaksAndBadges />
             </TabsContent>
           </Tabs>
         </div>

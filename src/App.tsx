@@ -52,6 +52,7 @@ const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
+const EdnItemDetail = lazy(() => import("./pages/EdnItemDetail"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const ShareTestPage = lazy(() => import("./pages/ShareTestPage"));
@@ -209,6 +210,13 @@ const App = () => {
             <ErrorBoundary>
               <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                 <EdnComplete />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/edn/item/:itemNumber" element={
+            <ErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <EdnItemDetail />
               </Suspense>
             </ErrorBoundary>
           } />
