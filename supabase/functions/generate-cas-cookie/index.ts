@@ -6,11 +6,27 @@ serve(async (req) => {
   try {
     logs.push("🔐 ÉTAPE 3.2: Génération cookie CAS");
     logs.push("=" .repeat(50));
-    
+
+    // ✅ SÉCURISÉ: Récupération credentials depuis variables d'environnement
+    const CAS_USERNAME = Deno.env.get('CAS_USERNAME');
+    const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD');
+
+    if (!CAS_USERNAME || !CAS_PASSWORD) {
+      logs.push("❌ ERREUR: CAS_USERNAME et CAS_PASSWORD requis dans les secrets Supabase");
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Missing CAS credentials in environment",
+        logs: logs
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // Simuler la génération du cookie CAS
     // Dans un vrai environnement, il faudrait utiliser Puppeteer/Playwright
     logs.push("⚠️ Simulation génération cookie CAS");
-    logs.push("📝 Credentials: laeticia.moto-ngane@etud.u-picardie.fr");
+    logs.push(`📝 Credentials: ${CAS_USERNAME.substring(0, 3)}***`);
     
     // Test direct avec tentative d'authentification
     logs.push("🌐 Tentative d'accès à la page protégée...");
