@@ -252,6 +252,7 @@ const TeamChallenges = lazy(() => import("./pages/TeamChallenges"));
 
 // Events & Calendar
 const EventsDashboard = lazy(() => import("./pages/EventsDashboard"));
+const EventsCalendar = lazy(() => import("./pages/EventsCalendar"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const EventCreate = lazy(() => import("./pages/EventCreate"));
 const CalendarView = lazy(() => import("./pages/CalendarView"));
@@ -518,6 +519,7 @@ const App = () => {
 
              {/* Events & Calendar - PUBLIC read, PROTECTED write */}
              <Route path={ROUTE_PATHS.events} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventsDashboard /></Suspense>} />
+             <Route path="/events/calendar" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventsCalendar /></Suspense>} />
              <Route path={ROUTE_PATHS.eventDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventDetail /></Suspense>} />
              <Route path={ROUTE_PATHS.eventCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventCreate /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.calendar} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CalendarView /></Suspense>} />
