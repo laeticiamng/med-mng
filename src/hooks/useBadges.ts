@@ -1,187 +1,277 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  getAllBadges,
+  getBadgesByCategory,
+  getUserBadges,
+  getUserBadgesCount,
+  awardBadge,
+  checkBadgeEligibility,
+  getUserAura,
+  addXP,
+  setAuraColor,
+  getGamificationStats,
+  updateGamificationStats,
+  addPoints,
+  incrementBadgesEarned,
+  getLeaderboard,
+  getLeaderboardByScore,
+  getWeeklyLeaderboard,
+  getMonthlyLeaderboard,
+  getUserRank,
+  updateLeaderboardEntry,
+  checkAndAwardBadges,
+  BadgeDefinition,
+  UserBadge,
+  UserAura,
+  GamificationStats,
+  LeaderboardEntry,
+} from '@/services/badges.service'
 
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  earned: boolean;
-  progress: number;
-  target: number;
-  category: 'completion' | 'specialty' | 'streak' | 'score';
+// Badge Definition Queries
+export function useFetchAllBadges() {
+  return useQuery({
+    queryKey: ['badges', 'all'],
+    queryFn: getAllBadges,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  })
 }
 
-const SPECIALTY_MAPPING: Record<string, string[]> = {
-  'Cardiologie': ['001', '002', '003', '004', '005', '197', '198', '199', '200', '201', '228', '229', '230', '231', '232', '233', '234', '235', '236', '237', '281', '334', '335', '339'],
-  'Pneumologie': ['006', '007', '008', '009', '010', '086', '087', '088', '089', '090', '091', '092', '093', '094', '095', '096', '097', '098', '099', '100'],
-  'Néphrologie': ['011', '012', '013', '014', '015', '252', '253', '254', '255', '256', '257', '258', '259', '260', '261', '262', '263'],
-  'Gastro-entérologie': ['016', '017', '018', '019', '020', '021', '022', '023', '024', '025', '026', '027', '028', '029', '030', '031', '032', '033', '034', '035', '036', '037', '264', '265', '266', '267', '268', '269', '270', '271', '272', '273', '274', '275', '276', '277'],
-  'Endocrinologie': ['038', '039', '040', '041', '042', '043', '044', '045', '046', '047', '048', '049', '050', '051', '052', '241', '242', '243', '244', '245', '246', '247', '248', '249', '250', '251'],
-};
+export function useFetchBadgesByCategory(category: string) {
+  return useQuery({
+    queryKey: ['badges', 'category', category],
+    queryFn: () => getBadgesByCategory(category),
+    staleTime: 1000 * 60 * 30,
+  })
+}
 
-export const useBadges = () => {
-  const { user } = useAuth();
+// User Badge Queries
+export function useFetchUserBadges(userId: string) {
+  return useQuery({
+    queryKey: ['badges', 'user', userId],
+    queryFn: () => getUserBadges(userId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
 
-  const { data: progressData = [] } = useQuery({
-    queryKey: ['badges-progress', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
+export function useFetchUserBadgesCount(userId: string) {
+  return useQuery({
+    queryKey: ['badges', 'user', userId, 'count'],
+    queryFn: () => getUserBadgesCount(userId),
+    staleTime: 1000 * 60 * 5,
+  })
+}
 
-      const { data, error } = await (supabase as any)
-        .from('user_edn_progress')
-        .select('item_number, status, score')
-        .eq('user_id', user.id);
+// User Badge Mutations
+export function useAwardBadge() {
+  const queryClient = useQueryClient()
 
-      if (error) {
-        console.error('Error fetching badges progress:', error);
-        return [];
-      }
-
-      return data || [];
+  return useMutation({
+    mutationFn: ({ userId, badgeId }: { userId: string; badgeId: string }) =>
+      awardBadge(userId, badgeId),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['badges', 'user', variables.userId] })
+      queryClient.invalidateQueries({
+        queryKey: ['badges', 'user', variables.userId, 'count'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'stats', variables.userId],
+      })
     },
-    enabled: !!user,
-  });
+  })
+}
 
-  const badges = useMemo((): Badge[] => {
-    const completedCount = progressData.filter(
-      (p: any) => p.status === 'completed' || p.status === 'mastered'
-    ).length;
-    const masteredCount = progressData.filter(
-      (p: any) => p.status === 'mastered'
-    ).length;
-    const avgScore = progressData.length > 0
-      ? progressData.reduce((acc: number, item: any) => acc + (item.score || 0), 0) / progressData.length
-      : 0;
+export function useCheckBadgeEligibility(userId: string, criteriaType: string, currentValue: number) {
+  return useQuery({
+    queryKey: ['badges', 'eligible', userId, criteriaType, currentValue],
+    queryFn: () => checkBadgeEligibility(userId, criteriaType, currentValue),
+    staleTime: 0, // Always fresh
+  })
+}
 
-    const specialtyProgress: Record<string, number> = {};
-    Object.entries(SPECIALTY_MAPPING).forEach(([specialty, items]) => {
-      const completedInSpecialty = progressData.filter(
-        (p: any) => items.includes(p.item_number) && 
-                    (p.status === 'completed' || p.status === 'mastered')
-      ).length;
-      specialtyProgress[specialty] = completedInSpecialty;
-    });
+// User Aura Queries
+export function useFetchUserAura(userId: string) {
+  return useQuery({
+    queryKey: ['aura', 'user', userId],
+    queryFn: () => getUserAura(userId),
+    staleTime: 1000 * 60 * 5,
+  })
+}
 
-    return [
-      // Completion badges
-      {
-        id: 'first-steps',
-        name: 'Premiers Pas',
-        description: 'Complétez votre premier item EDN',
-        icon: '🎯',
-        earned: completedCount >= 1,
-        progress: Math.min(completedCount, 1),
-        target: 1,
-        category: 'completion',
-      },
-      {
-        id: 'dedicated-learner',
-        name: 'Apprenant Dévoué',
-        description: 'Complétez 10 items EDN',
-        icon: '📚',
-        earned: completedCount >= 10,
-        progress: Math.min(completedCount, 10),
-        target: 10,
-        category: 'completion',
-      },
-      {
-        id: 'knowledge-seeker',
-        name: 'Chercheur de Savoir',
-        description: 'Complétez 50 items EDN',
-        icon: '🔍',
-        earned: completedCount >= 50,
-        progress: Math.min(completedCount, 50),
-        target: 50,
-        category: 'completion',
-      },
-      {
-        id: 'master-scholar',
-        name: 'Maître Érudit',
-        description: 'Complétez 100 items EDN',
-        icon: '👑',
-        earned: completedCount >= 100,
-        progress: Math.min(completedCount, 100),
-        target: 100,
-        category: 'completion',
-      },
-      {
-        id: 'legend',
-        name: 'Légende EDN',
-        description: 'Complétez tous les 367 items EDN',
-        icon: '🏆',
-        earned: completedCount >= 367,
-        progress: Math.min(completedCount, 367),
-        target: 367,
-        category: 'completion',
-      },
+// User Aura Mutations
+export function useAddXP() {
+  const queryClient = useQueryClient()
 
-      // Specialty badges
-      {
-        id: 'cardiology-master',
-        name: 'Maître en Cardiologie',
-        description: 'Maîtrisez tous les items de Cardiologie',
-        icon: '❤️',
-        earned: specialtyProgress['Cardiologie'] >= (SPECIALTY_MAPPING['Cardiologie']?.length || 0),
-        progress: specialtyProgress['Cardiologie'] || 0,
-        target: SPECIALTY_MAPPING['Cardiologie']?.length || 0,
-        category: 'specialty',
-      },
-      {
-        id: 'pneumology-master',
-        name: 'Maître en Pneumologie',
-        description: 'Maîtrisez tous les items de Pneumologie',
-        icon: '🫁',
-        earned: specialtyProgress['Pneumologie'] >= (SPECIALTY_MAPPING['Pneumologie']?.length || 0),
-        progress: specialtyProgress['Pneumologie'] || 0,
-        target: SPECIALTY_MAPPING['Pneumologie']?.length || 0,
-        category: 'specialty',
-      },
-      {
-        id: 'nephrology-master',
-        name: 'Maître en Néphrologie',
-        description: 'Maîtrisez tous les items de Néphrologie',
-        icon: '🩺',
-        earned: specialtyProgress['Néphrologie'] >= (SPECIALTY_MAPPING['Néphrologie']?.length || 0),
-        progress: specialtyProgress['Néphrologie'] || 0,
-        target: SPECIALTY_MAPPING['Néphrologie']?.length || 0,
-        category: 'specialty',
-      },
+  return useMutation({
+    mutationFn: ({ userId, xpAmount }: { userId: string; xpAmount: number }) =>
+      addXP(userId, xpAmount),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['aura', 'user', variables.userId] })
+      queryClient.invalidateQueries({
+        queryKey: ['leaderboard', 'entries', variables.userId],
+      })
+    },
+  })
+}
 
-      // Score badges
-      {
-        id: 'high-performer',
-        name: 'Haute Performance',
-        description: 'Obtenez une moyenne de 80% ou plus',
-        icon: '⭐',
-        earned: avgScore >= 80,
-        progress: Math.min(avgScore, 80),
-        target: 80,
-        category: 'score',
-      },
-      {
-        id: 'perfectionist',
-        name: 'Perfectionniste',
-        description: 'Obtenez une moyenne de 95% ou plus',
-        icon: '💎',
-        earned: avgScore >= 95,
-        progress: Math.min(avgScore, 95),
-        target: 95,
-        category: 'score',
-      },
-    ];
-  }, [progressData]);
+export function useSetAuraColor() {
+  const queryClient = useQueryClient()
 
-  const earnedBadges = badges.filter(b => b.earned);
-  const totalBadges = badges.length;
-  const progressPercentage = (earnedBadges.length / totalBadges) * 100;
+  return useMutation({
+    mutationFn: ({ userId, color }: { userId: string; color: string }) =>
+      setAuraColor(userId, color),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['aura', 'user', variables.userId] })
+    },
+  })
+}
 
-  return {
-    badges,
-    earnedBadges,
-    totalBadges,
-    progressPercentage,
-  };
-};
+// Gamification Stats Queries
+export function useFetchGamificationStats(userId: string) {
+  return useQuery({
+    queryKey: ['gamification', 'stats', userId],
+    queryFn: () => getGamificationStats(userId),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
+
+// Gamification Stats Mutations
+export function useUpdateGamificationStats() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      updates,
+    }: {
+      userId: string
+      updates: Partial<GamificationStats>
+    }) => updateGamificationStats(userId, updates),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'stats', variables.userId],
+      })
+    },
+  })
+}
+
+export function useAddPoints() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ userId, points }: { userId: string; points: number }) =>
+      addPoints(userId, points),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'stats', variables.userId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['leaderboard', 'entries', variables.userId],
+      })
+    },
+  })
+}
+
+export function useIncrementBadgesEarned() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: string) => incrementBadgesEarned(userId),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'stats', variables],
+      })
+    },
+  })
+}
+
+// Leaderboard Queries
+export function useFetchLeaderboard(limit: number = 50) {
+  return useQuery({
+    queryKey: ['leaderboard', 'entries', limit],
+    queryFn: () => getLeaderboard(limit),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFetchLeaderboardByScore(limit: number = 50) {
+  return useQuery({
+    queryKey: ['leaderboard', 'score', limit],
+    queryFn: () => getLeaderboardByScore(limit),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFetchWeeklyLeaderboard(limit: number = 50) {
+  return useQuery({
+    queryKey: ['leaderboard', 'weekly', limit],
+    queryFn: () => getWeeklyLeaderboard(limit),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFetchMonthlyLeaderboard(limit: number = 50) {
+  return useQuery({
+    queryKey: ['leaderboard', 'monthly', limit],
+    queryFn: () => getMonthlyLeaderboard(limit),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFetchUserRank(userId: string) {
+  return useQuery({
+    queryKey: ['leaderboard', 'user', userId],
+    queryFn: () => getUserRank(userId),
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+// Leaderboard Mutations
+export function useUpdateLeaderboardEntry() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      updates,
+    }: {
+      userId: string
+      updates: Partial<LeaderboardEntry>
+    }) => updateLeaderboardEntry(userId, updates),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['leaderboard', 'user', variables.userId],
+      })
+      queryClient.invalidateQueries({ queryKey: ['leaderboard', 'entries'] })
+      queryClient.invalidateQueries({ queryKey: ['leaderboard', 'score'] })
+    },
+  })
+}
+
+// Complex mutations
+export function useCheckAndAwardBadges() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      criteriaType,
+      currentValue,
+    }: {
+      userId: string
+      criteriaType: string
+      currentValue: number
+    }) => checkAndAwardBadges(userId, criteriaType, currentValue),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['badges', 'user', variables.userId] })
+      queryClient.invalidateQueries({
+        queryKey: ['badges', 'user', variables.userId, 'count'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'stats', variables.userId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['leaderboard', 'user', variables.userId],
+      })
+    },
+  })
+}
