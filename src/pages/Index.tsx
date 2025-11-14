@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from "react";
+import { GlobalHeader } from "@/components/layout/GlobalHeader";
 import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
@@ -30,15 +31,33 @@ const Index = () => {
       <SEOHead
         title="MED MNG - Plateforme d'apprentissage médical avec IA"
         description="Révolutionnez votre apprentissage médical avec MED-MNG : 367 items EDN complets, génération musicale IA, et outils d'étude avancés pour réussir vos examens."
-        keywords="médecine, EDN, apprentissage, IA, formation médicale, ECOS, révision"
+        keywords="médecine, EDN, apprentissage, IA, formation médicale, ECOS, révision, items EDN 2024, musique médicale, intelligence artificielle médicale"
         canonical="/"
+        ogType="website"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "MED-MNG",
+          "url": "https://med-mng.lovable.app",
+          "description": "Plateforme d'apprentissage médical innovante avec IA pour la préparation aux examens EDN",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://med-mng.lovable.app/edn-complete?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "MED-MNG",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://med-mng.lovable.app/og-image.jpg"
+            }
+          }
+        }}
       />
+      <GlobalHeader />
       <PremiumBackground>
       
-      {/* Header premium avec effet glassmorphism */}
-      <div className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-lg">
-        
-      </div>
 
       {/* Contenu principal avec design premium */}
       <div className="container mx-auto px-4">
