@@ -1,311 +1,328 @@
-import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState, useMemo } from 'react'
+import { Heart, MessageCircle, UserPlus, Share2, FolderPlus, Trash2, MoreVertical } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
 import {
-  Trophy, Award, BookOpen, Target, Heart, MessageCircle,
-  Share2, Clock, TrendingUp, Users, Sparkles
-} from 'lucide-react';
-import { useState } from 'react';
+  useFetchActivityFeed,
+  useMarkActivityAsRead,
+  useMarkAllActivitiesAsRead,
+  useDeleteActivity,
+  useDeleteAllActivities,
+  useUnreadActivityCount,
+} from '@/hooks/useActivityFeed'
+import { useAuth } from '@/contexts/AuthContext'
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { Link, useNavigate } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function ActivityFeed() {
-  const [filter, setFilter] = useState<'all' | 'following' | 'popular'>('all');
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<string>('all')
+  const [limit, setLimit] = useState(50)
 
-  const activities = [
-    {
-      id: 1,
-      user: {
-        name: 'Sophie Martin',
-        username: '@sophie_m',
-        avatar: null,
-      },
-      type: 'achievement',
-      icon: Trophy,
-      iconColor: 'text-yellow-600',
-      iconBg: 'bg-yellow-100',
-      content: 'a débloqué le badge "100 jours de suite"',
-      timestamp: '5 min',
-      likes: 24,
-      comments: 3,
-      isFollowing: true,
-    },
-    {
-      id: 2,
-      user: {
-        name: 'Marc Dubois',
-        username: '@marc_d',
-        avatar: null,
-      },
-      type: 'challenge',
-      icon: Target,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      content: 'a complété le challenge "Focus Intense" avec un score parfait',
-      timestamp: '12 min',
-      likes: 18,
-      comments: 5,
-      isFollowing: true,
-    },
-    {
-      id: 3,
-      user: {
-        name: 'Emma Laurent',
-        username: '@emma_l',
-        avatar: null,
-      },
-      type: 'streak',
-      icon: Sparkles,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100',
-      content: 'maintient une série de 45 jours de méditation',
-      timestamp: '24 min',
-      likes: 32,
-      comments: 7,
-      isFollowing: false,
-    },
-    {
-      id: 4,
-      user: {
-        name: 'Thomas Bernard',
-        username: '@thomas_b',
-        avatar: null,
-      },
-      type: 'journal',
-      icon: BookOpen,
-      iconColor: 'text-green-600',
-      iconBg: 'bg-green-100',
-      content: 'a publié une nouvelle entrée de journal "Réflexions du matin"',
-      timestamp: '1h',
-      likes: 15,
-      comments: 2,
-      isFollowing: true,
-    },
-    {
-      id: 5,
-      user: {
-        name: 'Julie Petit',
-        username: '@julie_p',
-        avatar: null,
-      },
-      type: 'leaderboard',
-      icon: TrendingUp,
-      iconColor: 'text-red-600',
-      iconBg: 'bg-red-100',
-      content: 'est montée au Top 5 du leaderboard hebdomadaire',
-      timestamp: '2h',
-      likes: 42,
-      comments: 8,
-      isFollowing: true,
-    },
-    {
-      id: 6,
-      user: {
-        name: 'Pierre Moreau',
-        username: '@pierre_m',
-        avatar: null,
-      },
-      type: 'badge',
-      icon: Award,
-      iconColor: 'text-indigo-600',
-      iconBg: 'bg-indigo-100',
-      content: 'a collecté 25 badges différents',
-      timestamp: '3h',
-      likes: 28,
-      comments: 4,
-      isFollowing: false,
-    },
-  ];
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              Veuillez vous connecter pour voir votre flux d'activité.
+            </p>
+            <Link to={ROUTE_PATHS.medMngLogin}>
+              <Button className="w-full">Se connecter</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-  const filteredActivities = activities.filter((activity) => {
-    if (filter === 'following') return activity.isFollowing;
-    if (filter === 'popular') return activity.likes > 20;
-    return true;
-  });
+  // Queries
+  const { data: activities = [], isLoading } = useFetchActivityFeed(user.id, limit)
+  const { data: unreadCount = 0 } = useUnreadActivityCount(user.id)
 
-  const stats = [
-    { label: 'Activités', value: '1,234', icon: TrendingUp, color: 'text-blue-600' },
-    { label: 'Abonnements', value: '89', icon: Users, color: 'text-green-600' },
-    { label: 'Cette semaine', value: '+24', icon: Sparkles, color: 'text-purple-600' },
-  ];
+  // Mutations
+  const markAsReadMutation = useMarkActivityAsRead(user.id)
+  const markAllAsReadMutation = useMarkAllActivitiesAsRead(user.id)
+  const deleteActivityMutation = useDeleteActivity(user.id)
+  const deleteAllMutation = useDeleteAllActivities(user.id)
+
+  // Filter activities
+  const filteredActivities = useMemo(() => {
+    if (activeTab === 'all') return activities
+    return activities.filter((a) => a.activity_type === activeTab)
+  }, [activities, activeTab])
+
+  const activityCounts = {
+    post_created: activities.filter((a) => a.activity_type === 'post_created').length,
+    comment_created: activities.filter((a) => a.activity_type === 'comment_created').length,
+    post_liked: activities.filter((a) => a.activity_type === 'post_liked').length,
+    comment_liked: activities.filter((a) => a.activity_type === 'comment_liked').length,
+    user_followed: activities.filter((a) => a.activity_type === 'user_followed').length,
+    post_shared: activities.filter((a) => a.activity_type === 'post_shared').length,
+  }
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'post_created':
+        return '📝'
+      case 'comment_created':
+        return <MessageCircle className="h-4 w-4 text-blue-500" />
+      case 'post_liked':
+        return <Heart className="h-4 w-4 text-red-500" />
+      case 'comment_liked':
+        return <Heart className="h-4 w-4 text-red-500" />
+      case 'user_followed':
+        return <UserPlus className="h-4 w-4 text-green-500" />
+      case 'post_shared':
+        return <Share2 className="h-4 w-4 text-purple-500" />
+      case 'collection_created':
+        return <FolderPlus className="h-4 w-4 text-orange-500" />
+      default:
+        return '📌'
+    }
+  }
+
+  const getActivityTitle = (activity: any) => {
+    switch (activity.activity_type) {
+      case 'post_created':
+        return 'Vous avez créé un post'
+      case 'comment_created':
+        return 'Vous avez commenté'
+      case 'post_liked':
+        return 'Quelqu\'un a aimé votre post'
+      case 'comment_liked':
+        return 'Quelqu\'un a aimé votre commentaire'
+      case 'user_followed':
+        return 'Quelqu\'un vous suit'
+      case 'post_shared':
+        return 'Quelqu\'un a partagé votre post'
+      case 'collection_created':
+        return 'Vous avez créé une collection'
+      case 'item_added_to_collection':
+        return 'Un élément a été ajouté à votre collection'
+      default:
+        return 'Nouvelle activité'
+    }
+  }
+
+  const handleMarkAsRead = (activityId: string) => {
+    markAsReadMutation.mutate(activityId)
+  }
+
+  const handleDelete = (activityId: string) => {
+    deleteActivityMutation.mutate(activityId)
+  }
+
+  const handleDeleteAll = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer tout votre historique d\'activité ?')) {
+      deleteAllMutation.mutate()
+    }
+  }
 
   return (
-    <>
-      <Helmet>
-        <title>Fil d'Activité | Med-Mng</title>
-        <meta name="description" content="Découvrez les dernières activités de la communauté Med-Mng" />
-      </Helmet>
-
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Fil d'Activité
-            </h1>
-            <p className="text-lg text-gray-600">
-              Restez connecté avec la communauté Med-Mng
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="container max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Flux d'activité</h1>
+            <p className="text-muted-foreground mt-2">
+              Suivez votre activité et celle de votre communauté
             </p>
           </div>
+          {unreadCount > 0 && (
+            <Badge variant="destructive" className="text-base px-3 py-1">
+              {unreadCount} non lu{unreadCount > 1 ? 's' : ''}
+            </Badge>
+          )}
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Feed */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Filter Tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                <Button
-                  variant={filter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setFilter('all')}
-                >
-                  Tout
-                </Button>
-                <Button
-                  variant={filter === 'following' ? 'default' : 'outline'}
-                  onClick={() => setFilter('following')}
-                >
-                  Abonnements
-                </Button>
-                <Button
-                  variant={filter === 'popular' ? 'default' : 'outline'}
-                  onClick={() => setFilter('popular')}
-                >
-                  Populaire
-                </Button>
+        {/* Actions Bar */}
+        <div className="flex gap-2 mb-6">
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllAsReadMutation.mutate()}
+              disabled={markAllAsReadMutation.isPending}
+              data-testid="mark-all-read-button"
+            >
+              Marquer tout comme lu
+            </Button>
+          )}
+          {activities.length > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteAll}
+              disabled={deleteAllMutation.isPending}
+              data-testid="delete-all-button"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Tout supprimer
+            </Button>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="all">
+              Tous ({activities.length})
+            </TabsTrigger>
+            <TabsTrigger value="post_created">
+              Posts ({activityCounts.post_created})
+            </TabsTrigger>
+            <TabsTrigger value="comment_created">
+              Commentaires ({activityCounts.comment_created})
+            </TabsTrigger>
+            <TabsTrigger value="post_liked">
+              Likes posts ({activityCounts.post_liked})
+            </TabsTrigger>
+            <TabsTrigger value="comment_liked">
+              Likes coms ({activityCounts.comment_liked})
+            </TabsTrigger>
+            <TabsTrigger value="user_followed">
+              Follows ({activityCounts.user_followed})
+            </TabsTrigger>
+            <TabsTrigger value="post_shared">
+              Partages ({activityCounts.post_shared})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab} className="mt-6">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-20 w-full rounded" />
+                ))}
               </div>
-
-              {/* Activities */}
-              <div className="space-y-4">
-                {filteredActivities.map((activity) => {
-                  const Icon = activity.icon;
-                  return (
-                    <Card key={activity.id} className="hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start gap-4">
-                          <Link to={`/users/${activity.user.username.slice(1)}`}>
-                            <Avatar className="w-12 h-12">
-                              <AvatarImage src={activity.user.avatar || undefined} />
-                              <AvatarFallback>{activity.user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                          </Link>
+            ) : filteredActivities.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <p className="text-muted-foreground">
+                    {activeTab === 'all'
+                      ? 'Aucune activité pour le moment'
+                      : `Aucune activité de ce type`}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {filteredActivities.map((activity) => (
+                  <Card
+                    key={activity.id}
+                    className={`transition-all ${
+                      !activity.is_read
+                        ? 'border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800'
+                        : ''
+                    }`}
+                    onClick={() => handleMarkAsRead(activity.id)}
+                    data-testid={`activity-item-${activity.id}`}
+                  >
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-4 justify-between">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="mt-1 flex-shrink-0">
+                            {getActivityIcon(activity.activity_type)}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Link to={`/users/${activity.user.username.slice(1)}`}>
-                                <span className="font-semibold text-gray-900 hover:underline">
-                                  {activity.user.name}
-                                </span>
-                              </Link>
-                              <span className="text-gray-500">{activity.user.username}</span>
-                              <span className="text-gray-400">·</span>
-                              <span className="text-sm text-gray-500 flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {activity.timestamp}
-                              </span>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-base">
+                                {getActivityTitle(activity)}
+                              </p>
+                              {!activity.is_read && (
+                                <Badge variant="default" className="text-xs">
+                                  Nouveau
+                                </Badge>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${activity.iconBg}`}>
-                                <Icon className={`w-4 h-4 ${activity.iconColor}`} />
-                              </div>
-                              <span className="text-gray-900">{activity.content}</span>
-                            </div>
+                            {activity.metadata?.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                {activity.metadata.description}
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-3">
+                              {formatDistanceToNow(new Date(activity.created_at), {
+                                addSuffix: true,
+                                locale: fr,
+                              })}
+                            </p>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex items-center gap-6 text-sm text-gray-500">
-                          <button className="flex items-center gap-2 hover:text-red-600 transition-colors">
-                            <Heart className="w-4 h-4" />
-                            {activity.likes}
-                          </button>
-                          <button className="flex items-center gap-2 hover:text-blue-600 transition-colors">
-                            <MessageCircle className="w-4 h-4" />
-                            {activity.comments}
-                          </button>
-                          <button className="flex items-center gap-2 hover:text-green-600 transition-colors">
-                            <Share2 className="w-4 h-4" />
-                            Partager
-                          </button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
 
-              {/* Load More */}
-              <div className="text-center">
-                <Button variant="outline" size="lg">
-                  Charger plus d'activités
-                </Button>
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Quick Stats */}
-              <Card>
-                <CardHeader>
-                  <h3 className="font-semibold text-gray-900">Vos Statistiques</h3>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {stats.map((stat, index) => {
-                    const Icon = stat.icon;
-                    return (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Icon className={`w-5 h-5 ${stat.color}`} />
-                          <span className="text-gray-600">{stat.label}</span>
-                        </div>
-                        <span className="font-semibold text-gray-900">{stat.value}</span>
+                        {/* Actions Menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              data-testid={`activity-menu-${activity.id}`}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {!activity.is_read && (
+                              <DropdownMenuItem onClick={() => handleMarkAsRead(activity.id)}>
+                                Marquer comme lu
+                              </DropdownMenuItem>
+                            )}
+                            {activity.target_id && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  // Navigate to the target item
+                                  if (activity.target_type === 'post') {
+                                    navigate(`/posts/${activity.target_id}`)
+                                  }
+                                }}
+                              >
+                                Voir le détail
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDelete(activity.id)}
+                            >
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                ))}
 
-              {/* Quick Links */}
-              <Card>
-                <CardHeader>
-                  <h3 className="font-semibold text-gray-900">Navigation Rapide</h3>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Link to={ROUTE_PATHS.activityMe}>
-                    <Button variant="outline" className="w-full justify-start">
-                      Mon Activité
+                {/* Load more button */}
+                {filteredActivities.length >= limit && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setLimit(limit + 50)}
+                      data-testid="load-more-button"
+                    >
+                      Charger plus d'activités
                     </Button>
-                  </Link>
-                  <Link to={ROUTE_PATHS.users}>
-                    <Button variant="outline" className="w-full justify-start">
-                      Découvrir des Utilisateurs
-                    </Button>
-                  </Link>
-                  <Link to={ROUTE_PATHS.posts}>
-                    <Button variant="outline" className="w-full justify-start">
-                      Fil de Posts
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Trending Topics */}
-              <Card>
-                <CardHeader>
-                  <h3 className="font-semibold text-gray-900">Tendances</h3>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {['#100DaysChallenge', '#MeditationDaily', '#FocusTime', '#LearningGoals'].map((tag, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <Badge variant="secondary">{tag}</Badge>
-                      <span className="text-sm text-gray-500">{Math.floor(Math.random() * 500 + 100)} posts</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-    </>
-  );
+    </div>
+  )
 }
