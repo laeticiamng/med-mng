@@ -69,6 +69,7 @@ export const ROUTE_PATHS = {
   achievements: '/achievements',
   favorites: '/favorites',
   settings: '/settings',
+  viewingHistory: '/viewing-history',
   designSystem: '/design-system',
   mesDonneesRgpd: '/mes-donnees-rgpd',
   installPwa: '/install',

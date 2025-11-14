@@ -23,6 +23,7 @@ import { usePosts } from '@/hooks/usePosts'
 import { usePostComments } from '@/hooks/usePostComments'
 import { useAuth } from '@/contexts/AuthContext'
 import { FavoritesButton } from '@/components/favorites/FavoritesButton'
+import { ViewingHistoryTracker } from '@/components/viewing-history/ViewingHistoryTracker'
 
 export default function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
@@ -117,6 +118,15 @@ export default function PostDetail() {
 
   return (
     <>
+      {/* Track this view in user's viewing history */}
+      <ViewingHistoryTracker
+        itemId={post.id}
+        itemType="post"
+        itemTitle={post.title}
+        itemDescription={post.excerpt || post.content.substring(0, 160)}
+        viewSource="detail"
+      />
+
       <Helmet>
         <title>{post.title} | Med-Mng</title>
         <meta name="description" content={post.excerpt || post.content.substring(0, 160)} />
