@@ -15,6 +15,7 @@ export const ROUTE_PATHS = {
   ednCompleteDetail: '/edn-complete/:slug',
   ednImmersive: '/edn/:slug/immersive',
   ednMusicLibrary: '/edn/music-library',
+  ednQualityDashboard: '/edn/quality-dashboard',
   ecosIndex: '/ecos',
   ecosScenario: '/ecos/:scenarioId',
   store: '/store',
