@@ -127,6 +127,38 @@ export const ROUTE_PATHS = {
   questStart: '/quests/:questId/start',
   ambitions: '/ambitions',
 
+  // ==================== NOUVELLES ROUTES PRIORITÉ 2 🟡 ====================
+
+  // Help & Support
+  help: '/help',
+  helpFaq: '/help/faq',
+  helpTutorials: '/help/tutorials',
+  helpContact: '/help/contact',
+  helpSearch: '/help/search',
+
+  // Activity Feed
+  activity: '/activity',
+  activityMe: '/activity/me',
+  activityUser: '/activity/:userId',
+
+  // Posts & Community
+  posts: '/posts',
+  postsNew: '/posts/new',
+  postDetail: '/posts/:postId',
+  postEdit: '/posts/:postId/edit',
+
+  // Wellness & Rituals
+  wellness: '/wellness',
+  wellnessStreak: '/wellness/streak',
+  wellnessRituals: '/wellness/rituals',
+  ritualDetail: '/wellness/rituals/:ritualId',
+
+  // Badges & Auras
+  badges: '/badges',
+  badgeDetail: '/badges/:badgeId',
+  auras: '/auras',
+  auraDetail: '/auras/:auraId',
+
   notFound: '*',
 } as const;
 

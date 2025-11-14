@@ -187,6 +187,37 @@ const QuestDetail = lazy(() => import("./pages/QuestDetail"));
 const QuestStart = lazy(() => import("./pages/QuestStart"));
 const AmbitionsManager = lazy(() => import("./pages/AmbitionsManager"));
 
+// 🆕 NOUVELLES PAGES PRIORITÉ 2 - Lazy loaded
+// Help & Support
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Tutorials = lazy(() => import("./pages/Tutorials"));
+const ContactSupport = lazy(() => import("./pages/ContactSupport"));
+const HelpSearch = lazy(() => import("./pages/HelpSearch"));
+
+// Activity Feed
+const ActivityFeed = lazy(() => import("./pages/ActivityFeed"));
+const MyActivity = lazy(() => import("./pages/MyActivity"));
+const UserActivity = lazy(() => import("./pages/UserActivity"));
+
+// Posts & Community
+const PostsFeed = lazy(() => import("./pages/PostsFeed"));
+const CreatePost = lazy(() => import("./pages/CreatePost"));
+const PostDetail = lazy(() => import("./pages/PostDetail"));
+const PostEdit = lazy(() => import("./pages/PostEdit"));
+
+// Wellness & Rituals
+const WellnessDashboard = lazy(() => import("./pages/WellnessDashboard"));
+const WellnessStreak = lazy(() => import("./pages/WellnessStreak"));
+const RitualsManager = lazy(() => import("./pages/RitualsManager"));
+const RitualDetail = lazy(() => import("./pages/RitualDetail"));
+
+// Badges & Auras
+const BadgesGallery = lazy(() => import("./pages/BadgesGallery"));
+const BadgeDetail = lazy(() => import("./pages/BadgeDetail"));
+const AurasCollection = lazy(() => import("./pages/AurasCollection"));
+const AuraDetail = lazy(() => import("./pages/AuraDetail"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -386,6 +417,37 @@ const App = () => {
              <Route path={ROUTE_PATHS.questDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestDetail /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.questStart} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestStart /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.ambitions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AmbitionsManager /></Suspense></ProtectedRoute>} />
+
+             {/* 🆕 NOUVELLES ROUTES PRIORITÉ 2 */}
+             {/* Help & Support - PUBLIC */}
+             <Route path={ROUTE_PATHS.help} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpCenter /></Suspense>} />
+             <Route path={ROUTE_PATHS.helpFaq} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FAQ /></Suspense>} />
+             <Route path={ROUTE_PATHS.helpTutorials} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Tutorials /></Suspense>} />
+             <Route path={ROUTE_PATHS.helpContact} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ContactSupport /></Suspense>} />
+             <Route path={ROUTE_PATHS.helpSearch} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpSearch /></Suspense>} />
+
+             {/* Activity Feed - PUBLIC/PROTECTED mix */}
+             <Route path={ROUTE_PATHS.activity} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ActivityFeed /></Suspense>} />
+             <Route path={ROUTE_PATHS.activityMe} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MyActivity /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.activityUser} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserActivity /></Suspense>} />
+
+             {/* Posts & Community - PUBLIC read, PROTECTED write */}
+             <Route path={ROUTE_PATHS.posts} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PostsFeed /></Suspense>} />
+             <Route path={ROUTE_PATHS.postsNew} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CreatePost /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.postDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PostDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.postEdit} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PostEdit /></Suspense></ProtectedRoute>} />
+
+             {/* Wellness & Rituals - PROTECTED */}
+             <Route path={ROUTE_PATHS.wellness} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><WellnessDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.wellnessStreak} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><WellnessStreak /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.wellnessRituals} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><RitualsManager /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.ritualDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><RitualDetail /></Suspense></ProtectedRoute>} />
+
+             {/* Badges & Auras - PUBLIC read, progression tracking */}
+             <Route path={ROUTE_PATHS.badges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgesGallery /></Suspense>} />
+             <Route path={ROUTE_PATHS.badgeDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgeDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.auras} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AurasCollection /></Suspense>} />
+             <Route path={ROUTE_PATHS.auraDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuraDetail /></Suspense>} />
 
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
