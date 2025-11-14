@@ -38,7 +38,7 @@ export const FEATURE_FLAGS = {
     description: "Export données en CSV",
   },
   exportToPDF: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - pdfExport.ts avec jsPDF
     description: "Export rapports en PDF",
   },
   exportToExcel: {
@@ -94,7 +94,7 @@ export const FEATURE_FLAGS = {
     description: "Suivi des streaks d'étude",
   },
   leaderboard: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - LeaderboardDashboard + 4 pages leaderboard
     description: "Classement global utilisateurs",
   },
 
@@ -114,7 +114,7 @@ export const FEATURE_FLAGS = {
 
   // 🔍 Search Features
   globalSearch: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - CommandPalette.tsx avec Fuse.js
     description: "Recherche globale (⌘K)",
   },
   advancedSearch: {
@@ -142,7 +142,7 @@ export const FEATURE_FLAGS = {
     description: "Gestion des sessions utilisateur",
   },
   activityLogging: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - user-activity.service.ts avec audit trail complet
     description: "Logging complet des activités",
   },
   connectedDevices: {
