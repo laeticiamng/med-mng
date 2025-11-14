@@ -118,11 +118,27 @@ describe('EdnComplete - Flux d\'intégration complet', () => {
       });
     });
 
-    it('devrait afficher les statistiques globales', async () => {
+    it('devrait afficher les statistiques globales dans le header', async () => {
       renderWithProviders(<EdnComplete />);
       
       await waitFor(() => {
-        expect(screen.getByText(/3/)).toBeInTheDocument(); // Total items
+        expect(screen.getByText(/3 items/i)).toBeInTheDocument();
+      });
+    });
+
+    it('devrait afficher le header EdnHeader avec le titre', async () => {
+      renderWithProviders(<EdnComplete />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Interface EDN')).toBeInTheDocument();
+      });
+    });
+
+    it('devrait afficher les contrôles de filtrage EdnFilters', async () => {
+      renderWithProviders(<EdnComplete />);
+      
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/rechercher un item/i)).toBeInTheDocument();
       });
     });
   });
