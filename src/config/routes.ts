@@ -70,6 +70,8 @@ export const ROUTE_PATHS = {
   favorites: '/favorites',
   settings: '/settings',
   viewingHistory: '/viewing-history',
+  collections: '/collections',
+  collectionDetail: '/collections/:collectionId',
   designSystem: '/design-system',
   mesDonneesRgpd: '/mes-donnees-rgpd',
   installPwa: '/install',
