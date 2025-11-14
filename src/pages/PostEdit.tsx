@@ -1,99 +1,158 @@
-import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, X, Hash, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { Helmet } from 'react-helmet-async'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ArrowLeft, Send, X, Hash, AlertCircle, CheckCircle, Loader } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { usePosts } from '@/hooks/usePosts'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function PostEdit() {
-  const { postId } = useParams<{ postId: string }>();
-  const navigate = useNavigate();
-  const [content, setContent] = useState('');
-  const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { postId } = useParams<{ postId: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { useFetchPost, useUpdatePost } = usePosts()
 
-  // Load post data (mock)
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [excerpt, setExcerpt] = useState('')
+  const [tagInput, setTagInput] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  const { data: post, isLoading } = useFetchPost(postId || '')
+  const updateMutation = useUpdatePost(postId || '')
+
+  // Populate form with post data
   useEffect(() => {
-    // TODO: Fetch actual post data
-    setContent('Incroyable! J\'ai réussi à maintenir ma série de 100 jours de méditation quotidienne. C\'est fou comme cette pratique a transformé ma vie. Je me sens plus calme, plus concentré et plus heureux. 🧘‍♀️✨');
-    setTags(['meditation', 'wellness', '100days']);
-  }, [postId]);
+    if (post) {
+      if (post.user_id !== user?.id) {
+        setError('Vous n\'avez pas la permission de modifier ce post')
+        return
+      }
+      setTitle(post.title)
+      setContent(post.content)
+      setExcerpt(post.excerpt || '')
+      setTags(post.tags)
+    }
+  }, [post, user])
 
   const handleAddTag = () => {
     if (tagInput && !tags.includes(tagInput) && tags.length < 5) {
-      setTags([...tags, tagInput.toLowerCase().replace(/\s+/g, '')]);
-      setTagInput('');
+      setTags([...tags, tagInput.toLowerCase().replace(/\s+/g, '')])
+      setTagInput('')
     }
-  };
+  }
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
+    setTags(tags.filter((tag) => tag !== tagToRemove))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setError(null)
+    setSuccess(false)
 
-    // TODO: Implement actual post update
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!title.trim()) {
+      setError('Le titre est requis')
+      return
+    }
+    if (!content.trim()) {
+      setError('Le contenu est requis')
+      return
+    }
 
-    navigate(ROUTE_PATHS.postDetail.replace(':postId', postId!));
-  };
+    try {
+      await updateMutation.mutateAsync({
+        title: title.trim(),
+        content: content.trim(),
+        excerpt: excerpt.trim() || content.substring(0, 160),
+        tags,
+      })
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
+      setSuccess(true)
+      setTimeout(() => {
+        navigate(`${ROUTE_PATHS.posts}/${postId}`)
+      }, 1500)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour')
+    }
+  }
 
-    // TODO: Implement actual post deletion
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const characterCount = content.length
 
-    navigate(ROUTE_PATHS.posts);
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
 
-  const characterCount = content.length;
-  const maxCharacters = 2000;
+  if (error && !post) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <Link to={ROUTE_PATHS.posts}>
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour
+            </Button>
+          </Link>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
       <Helmet>
-        <title>Éditer le Post | Med-Mng</title>
-        <meta name="description" content="Modifier votre post" />
+        <title>Éditer Post | Med-Mng</title>
+        <meta name="description" content="Modifiez votre post" />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           {/* Header */}
           <div className="mb-8">
-            <Link to={ROUTE_PATHS.postDetail.replace(':postId', postId!)}>
+            <Link to={ROUTE_PATHS.posts}>
               <Button variant="ghost" className="mb-4">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour au Post
+                Retour
               </Button>
             </Link>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Éditer le Post
             </h1>
-            <p className="text-lg text-gray-600">
-              Modifiez le contenu ou les tags de votre post
-            </p>
           </div>
+
+          {/* Alerts */}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="mb-6 border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                Post mis à jour avec succès! Redirection...
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
@@ -101,10 +160,41 @@ export default function PostEdit() {
               <CardHeader>
                 <CardTitle>Modifier le Post</CardTitle>
                 <CardDescription>
-                  Apportez vos modifications et enregistrez
+                  Mettez à jour votre contenu
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">Titre *</Label>
+                  <Input
+                    id="title"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    disabled={updateMutation.isPending}
+                    maxLength={200}
+                  />
+                  <div className="text-sm text-gray-500">
+                    {title.length}/200 caractères
+                  </div>
+                </div>
+
+                {/* Excerpt */}
+                <div className="space-y-2">
+                  <Label htmlFor="excerpt">Résumé (optionnel)</Label>
+                  <Input
+                    id="excerpt"
+                    value={excerpt}
+                    onChange={(e) => setExcerpt(e.target.value)}
+                    disabled={updateMutation.isPending}
+                    maxLength={160}
+                  />
+                  <div className="text-sm text-gray-500">
+                    {excerpt.length}/160 caractères
+                  </div>
+                </div>
+
                 {/* Content */}
                 <div className="space-y-2">
                   <Label htmlFor="content">Contenu *</Label>
@@ -113,16 +203,16 @@ export default function PostEdit() {
                     required
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="Contenu de votre post..."
-                    rows={10}
-                    maxLength={maxCharacters}
+                    rows={12}
+                    maxLength={2000}
                     className="resize-none"
+                    disabled={updateMutation.isPending}
                   />
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">
-                      {characterCount}/{maxCharacters} caractères
+                      {characterCount}/2000 caractères
                     </span>
-                    {characterCount > maxCharacters * 0.9 && (
+                    {characterCount > 2000 * 0.9 && (
                       <span className="text-orange-600 font-medium">
                         Limite bientôt atteinte
                       </span>
@@ -142,19 +232,19 @@ export default function PostEdit() {
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddTag();
+                            e.preventDefault()
+                            handleAddTag()
                           }
                         }}
                         placeholder="Ajouter un tag"
                         className="pl-9"
-                        disabled={tags.length >= 5}
+                        disabled={tags.length >= 5 || updateMutation.isPending}
                       />
                     </div>
                     <Button
                       type="button"
                       onClick={handleAddTag}
-                      disabled={!tagInput || tags.length >= 5}
+                      disabled={!tagInput || tags.length >= 5 || updateMutation.isPending}
                       variant="outline"
                     >
                       Ajouter
@@ -169,6 +259,7 @@ export default function PostEdit() {
                             type="button"
                             onClick={() => handleRemoveTag(tag)}
                             className="ml-2 hover:bg-gray-300 rounded-full p-0.5"
+                            disabled={updateMutation.isPending}
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -183,25 +274,25 @@ export default function PostEdit() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate(ROUTE_PATHS.postDetail.replace(':postId', postId!))}
-                    disabled={isSubmitting}
+                    onClick={() => navigate(`${ROUTE_PATHS.posts}/${postId}`)}
+                    disabled={updateMutation.isPending}
                   >
                     Annuler
                   </Button>
                   <Button
                     type="submit"
                     className="flex-1"
-                    disabled={!content.trim() || isSubmitting}
+                    disabled={!title.trim() || !content.trim() || updateMutation.isPending}
                   >
-                    {isSubmitting ? (
+                    {updateMutation.isPending ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Enregistrement...
+                        Mise à jour...
                       </>
                     ) : (
                       <>
-                        <Save className="w-4 h-4 mr-2" />
-                        Enregistrer
+                        <Send className="w-4 h-4 mr-2" />
+                        Mettre à jour
                       </>
                     )}
                   </Button>
@@ -209,46 +300,8 @@ export default function PostEdit() {
               </CardContent>
             </Card>
           </form>
-
-          {/* Delete Section */}
-          <Card className="mt-6 border-red-200 bg-red-50">
-            <CardHeader>
-              <CardTitle className="text-red-900">Zone Dangereuse</CardTitle>
-              <CardDescription className="text-red-700">
-                Cette action est irréversible
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" disabled={isDeleting}>
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer le Post
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Cette action est définitive. Votre post sera supprimé de manière permanente
-                      et ne pourra pas être récupéré.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      Supprimer définitivement
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </>
-  );
+  )
 }

@@ -1,150 +1,174 @@
-import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ArrowLeft, Send, Edit } from 'lucide-react';
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import { ArrowLeft, Heart, Share2, Bookmark, Loader, MessageCircle } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { CommentThread } from '@/components/posts/CommentThread'
+import {
+  useFetchPost,
+  useFetchPostComments,
+  useLikePost,
+  useUnlikePost,
+  useCreateComment,
+} from '@/hooks/usePosts'
+import { useAuth } from '@/contexts/AuthContext'
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { toast } from 'sonner'
 
 export default function PostDetail() {
-  const { postId } = useParams<{ postId: string }>();
-  const { user } = useAuth();
-  const [newComment, setNewComment] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { postId } = useParams<{ postId: string }>()
+  const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
+  const [newComment, setNewComment] = useState('')
 
-  // Mock data
-  const post = {
-    id: postId,
-    author: {
-      name: 'Sophie Martin',
-      username: 'sophie_m',
-      avatar: null,
-      isCurrentUser: false,
-    },
-    content: 'Incroyable! J\'ai réussi à maintenir ma série de 100 jours de méditation quotidienne. C\'est fou comme cette pratique a transformé ma vie. Je me sens plus calme, plus concentré et plus heureux. 🧘‍♀️✨\n\nPour ceux qui veulent commencer:\n1. Commencez petit (5 min/jour)\n2. Trouvez un endroit calme\n3. Utilisez une app guidée\n4. Soyez régulier\n\nN\'abandonnez pas, les résultats viennent avec le temps!',
-    tags: ['meditation', 'wellness', '100days'],
-    timestamp: '2 heures',
-    likes: 142,
-    comments: 28,
-    shares: 15,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  };
+  const { data: post, isLoading: postLoading } = useFetchPost(postId || '')
+  const { data: comments = [], isLoading: commentsLoading } = useFetchPostComments(postId || '')
+  const likePost = useLikePost(postId || '')
+  const unlikePost = useUnlikePost(postId || '')
+  const createComment = useCreateComment(postId || '')
 
-  const comments = [
-    {
-      id: 1,
-      author: {
-        name: 'Marc Dubois',
-        username: 'marc_d',
-        avatar: null,
-      },
-      content: 'Bravo Sophie! C\'est super inspirant. Je viens de commencer moi aussi, j\'en suis à 15 jours 😊',
-      timestamp: '1h',
-      likes: 12,
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Emma Laurent',
-        username: 'emma_l',
-        avatar: null,
-      },
-      content: 'Félicitations! 100 jours c\'est énorme. Quel changement as-tu remarqué le plus ?',
-      timestamp: '45 min',
-      likes: 8,
-    },
-    {
-      id: 3,
-      author: {
-        name: 'Thomas Bernard',
-        username: 'thomas_b',
-        avatar: null,
-      },
-      content: 'Merci pour les conseils! J\'avais du mal à être régulier mais ton post me motive à recommencer 💪',
-      timestamp: '30 min',
-      likes: 5,
-    },
-  ];
-
-  const handleSubmitComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newComment.trim()) {
-      // TODO: Implement comment submission
-      setNewComment('');
-    }
-  };
-
-  return (
-    <>
-      <Helmet>
-        <title>{post.author.name} sur Med-Mng | Post</title>
-        <meta name="description" content={post.content.substring(0, 160)} />
-      </Helmet>
-
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          {/* Header */}
-          <div className="mb-8">
+  if (!postId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-12">
+            <p className="text-muted-foreground">Post non trouvé</p>
             <Link to={ROUTE_PATHS.posts}>
-              <Button variant="ghost" className="mb-4">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour aux Posts
+              <Button variant="outline" className="mt-4">
+                Retour aux posts
               </Button>
             </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (postLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+        <div className="container max-w-2xl mx-auto px-4">
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32 w-full rounded-lg" />
+            ))}
           </div>
+        </div>
+      </div>
+    )
+  }
 
-          {/* Post Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Link to={`/users/${post.author.username}`}>
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={post.author.avatar || undefined} />
-                      <AvatarFallback>
-                        {post.author.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                  <div>
-                    <Link to={`/users/${post.author.username}`}>
-                      <span className="font-semibold text-gray-900 hover:underline">
-                        {post.author.name}
-                      </span>
-                    </Link>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span>@{post.author.username}</span>
-                      <span>·</span>
-                      <span>{post.timestamp}</span>
-                    </div>
-                  </div>
+  if (!post) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-12">
+            <p className="text-muted-foreground">Post introuvable</p>
+            <Link to={ROUTE_PATHS.posts}>
+              <Button variant="outline" className="mt-4">
+                Retour aux posts
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const handleLike = () => {
+    if (post.is_liked) {
+      unlikePost.mutate()
+    } else {
+      likePost.mutate()
+    }
+  }
+
+  const handleComment = () => {
+    if (!newComment.trim()) {
+      toast.error('Veuillez écrire un commentaire')
+      return
+    }
+
+    createComment.mutate(
+      { content: newComment },
+      {
+        onSuccess: () => {
+          setNewComment('')
+          toast.success('Commentaire ajouté')
+        },
+        onError: () => {
+          toast.error('Erreur lors de l\'ajout du commentaire')
+        },
+      }
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="container max-w-2xl mx-auto px-4">
+        {/* Back Button */}
+        <Link to={ROUTE_PATHS.posts}>
+          <Button variant="ghost" size="sm" className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour aux posts
+          </Button>
+        </Link>
+
+        {/* Post Card */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-4">
+              <Link
+                to={ROUTE_PATHS.userProfile.replace(':userId', post.user_id)}
+                className="flex items-center gap-3 flex-1"
+              >
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">Utilisateur {post.user_id.slice(0, 8)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(post.created_at), {
+                      addSuffix: true,
+                      locale: fr,
+                    })}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  {user && post.author.isCurrentUser && (
-                    <Link to={ROUTE_PATHS.postEdit.replace(':postId', postId!)}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="w-4 h-4 mr-2" />
-                        Éditer
-                      </Button>
-                    </Link>
-                  )}
-                  <Button variant="ghost" size="sm">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </div>
+              </Link>
+              {post.category && (
+                <Badge variant="outline">{post.category}</Badge>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
+              {post.description && (
+                <p className="text-muted-foreground mb-4">{post.description}</p>
+              )}
+              <div className="prose prose-invert max-w-none mb-4">
+                <p>{post.content}</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-900 text-lg mb-4 whitespace-pre-line">
-                {post.content}
-              </p>
+            </div>
 
-              {/* Tags */}
+            {/* Image */}
+            {post.image_url && (
+              <img
+                src={post.image_url}
+                alt={post.title}
+                className="w-full h-96 object-cover rounded-lg mb-6"
+              />
+            )}
+
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {post.tags.map((tag) => (
                   <Badge key={tag} variant="secondary">
@@ -152,120 +176,114 @@ export default function PostDetail() {
                   </Badge>
                 ))}
               </div>
+            )}
 
-              {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-gray-500 pb-4 border-b">
-                <span>{post.likes} likes</span>
-                <span>{post.comments} commentaires</span>
-                <span>{post.shares} partages</span>
-              </div>
+            {/* Stats */}
+            <div className="flex items-center gap-6 py-4 border-y text-sm text-muted-foreground mb-6">
+              <span>{post.likes_count} j'aimes</span>
+              <span>{post.comments_count} commentaires</span>
+              <span>{post.shares_count} partages</span>
+              <span>{post.views_count} vues</span>
+            </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-6 text-gray-500 pt-4">
-                <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`flex items-center gap-2 transition-colors ${
-                    isLiked ? 'text-red-600' : 'hover:text-red-600'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="text-sm font-medium">J'aime</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-blue-600 transition-colors">
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Commenter</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-green-600 transition-colors">
-                  <Share2 className="w-5 h-5" />
-                  <span className="text-sm font-medium">Partager</span>
-                </button>
-                <button
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  className={`ml-auto transition-colors ${
-                    isBookmarked ? 'text-blue-600' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
-                </button>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={handleLike}
+                disabled={likePost.isPending || unlikePost.isPending}
+                className={post.is_liked ? 'text-red-500' : ''}
+              >
+                <Heart
+                  className={`h-4 w-4 mr-2 ${post.is_liked ? 'fill-current' : ''}`}
+                />
+                {post.likes_count}
+              </Button>
+              <Button variant="ghost">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                {post.comments_count}
+              </Button>
+              <Button variant="ghost">
+                <Share2 className="h-4 w-4 mr-2" />
+                Partager
+              </Button>
+              <Button variant="ghost">
+                <Bookmark className="h-4 w-4 mr-2" />
+                Sauvegarder
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Comments Section */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Commentaires ({comments.length})
-              </h2>
-            </CardHeader>
-            <CardContent>
-              {/* Add Comment */}
-              {user && (
-                <form onSubmit={handleSubmitComment} className="mb-6 pb-6 border-b">
-                  <div className="flex gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar_url || undefined} />
-                      <AvatarFallback>
-                        {user.user_metadata?.display_name?.charAt(0) || user.email?.charAt(0) || '?'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Textarea
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Ajoutez un commentaire..."
-                        rows={3}
-                        className="mb-2"
-                      />
-                      <div className="flex justify-end">
-                        <Button type="submit" disabled={!newComment.trim()}>
-                          <Send className="w-4 h-4 mr-2" />
-                          Commenter
-                        </Button>
-                      </div>
-                    </div>
+        {/* Comments Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Commentaires</CardTitle>
+            <CardDescription>
+              {comments.length} commentaire{comments.length !== 1 ? 's' : ''}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Comment Form */}
+            {currentUser && (
+              <div className="space-y-4 pb-6 border-b">
+                <div className="flex gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      placeholder="Écrivez un commentaire..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      data-testid="new-comment-input"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleComment}
+                      disabled={createComment.isPending || !newComment.trim()}
+                    >
+                      {createComment.isPending ? (
+                        <>
+                          <Loader className="h-4 w-4 mr-2 animate-spin" />
+                          Envoi...
+                        </>
+                      ) : (
+                        'Commenter'
+                      )}
+                    </Button>
                   </div>
-                </form>
-              )}
+                </div>
+              </div>
+            )}
 
-              {/* Comments List */}
-              <div className="space-y-6">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
-                    <Link to={`/users/${comment.author.username}`}>
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={comment.author.avatar || undefined} />
-                        <AvatarFallback>
-                          {comment.author.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <div className="flex-1">
-                      <div className="bg-gray-100 rounded-lg p-3 mb-2">
-                        <Link to={`/users/${comment.author.username}`}>
-                          <span className="font-semibold text-gray-900 hover:underline">
-                            {comment.author.name}
-                          </span>
-                        </Link>
-                        <p className="text-gray-700 mt-1">{comment.content}</p>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 px-3">
-                        <span>{comment.timestamp}</span>
-                        <button className="hover:text-red-600 transition-colors">
-                          J'aime ({comment.likes})
-                        </button>
-                        <button className="hover:text-blue-600 transition-colors">
-                          Répondre
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+            {/* Comments List */}
+            {commentsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-20 w-full rounded" />
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            ) : comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <CommentThread
+                    key={comment.id}
+                    comment={comment}
+                    postId={postId}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  Aucun commentaire pour le moment. Soyez le premier!
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </>
-  );
+    </div>
+  )
 }

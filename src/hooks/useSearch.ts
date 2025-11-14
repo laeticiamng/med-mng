@@ -1,228 +1,216 @@
-import { useState, useCallback, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useCache } from './useCache';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  globalSearch,
+  searchPosts,
+  searchUsers,
+  searchTeams,
+  searchWellness,
+  getSearchSuggestions,
+  getSearchHistory,
+  getTrendingSearches,
+  getRecentSearches,
+  getPopularSearches,
+  logSearch,
+  logSearchResultClick,
+  deleteSearchHistoryItem,
+  clearSearchHistory,
+  SearchResult,
+  PostSearchResult,
+  UserSearchResult,
+  TeamSearchResult,
+  SearchSuggestion,
+  SearchHistory,
+  SearchFilters,
+} from '@/services/search.service'
 
-export interface SearchFilters {
-  category?: string;
-  dateRange?: {
-    start: Date;
-    end: Date;
-  };
-  author?: string;
-  tags?: string[];
-  rating?: number;
-  duration?: {
-    min: number;
-    max: number;
-  };
+// Global search hook
+export function useGlobalSearch(query: string, limit: number = 50) {
+  return useQuery({
+    queryKey: ['search', 'global', query],
+    queryFn: () => globalSearch(query, limit),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
 }
 
-export interface SearchResult {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  author?: string;
-  tags: string[];
-  rating?: number;
-  duration?: number;
-  thumbnail?: string;
-  createdAt: Date;
-  url: string;
-  relevanceScore: number;
+// Post search hook with filters
+export function useSearchPosts(query: string, filters?: SearchFilters) {
+  return useQuery({
+    queryKey: ['search', 'posts', query, filters],
+    queryFn: () => searchPosts(query, filters),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5,
+  })
 }
 
-export interface SearchOptions {
-  limit?: number;
-  offset?: number;
-  sortBy?: 'relevance' | 'date' | 'rating' | 'popularity';
-  sortOrder?: 'asc' | 'desc';
+// User search hook
+export function useSearchUsers(query: string, limit: number = 50) {
+  return useQuery({
+    queryKey: ['search', 'users', query],
+    queryFn: () => searchUsers(query, limit),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5,
+  })
 }
 
-export function useSearch() {
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalResults, setTotalResults] = useState(0);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  
-  const cache = useCache<SearchResult[]>('search-cache');
+// Team search hook
+export function useSearchTeams(query: string, limit: number = 50) {
+  return useQuery({
+    queryKey: ['search', 'teams', query],
+    queryFn: () => searchTeams(query, limit),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5,
+  })
+}
 
-  const search = useCallback(async (
-    query: string,
-    filters: SearchFilters = {},
-    options: SearchOptions = {}
-  ) => {
-    if (!query.trim()) {
-      setResults([]);
-      setTotalResults(0);
-      return;
-    }
+// Wellness search hook
+export function useSearchWellness(query: string, limit: number = 50) {
+  return useQuery({
+    queryKey: ['search', 'wellness', query],
+    queryFn: () => searchWellness(query, limit),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5,
+  })
+}
 
-    try {
-      setLoading(true);
-      setError(null);
+// Search suggestions hook
+export function useSearchSuggestions(limit: number = 10, suggestionType?: 'trending' | 'recent' | 'popular') {
+  return useQuery({
+    queryKey: ['search', 'suggestions', suggestionType],
+    queryFn: () => getSearchSuggestions(limit, suggestionType),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
 
-      // Créer une clé de cache
-      const cacheKey = JSON.stringify({ query, filters, options });
-      
-      // Vérifier le cache
-      const cachedResults = cache.get<SearchResult[]>(cacheKey);
-      if (cachedResults) {
-        setResults(cachedResults);
-        setTotalResults(cachedResults.length);
-        return;
-      }
+// Trending searches hook
+export function useTrendingSearches(limit: number = 10) {
+  return useQuery({
+    queryKey: ['search', 'trending'],
+    queryFn: () => getTrendingSearches(limit),
+    staleTime: 1000 * 60 * 10,
+  })
+}
 
-      // Recherche via Supabase fonction
-      const { data, error: searchError } = await supabase.functions.invoke('advanced-search', {
-        body: {
-          query: query.trim(),
-          filters,
-          options: {
-            limit: 20,
-            offset: 0,
-            sortBy: 'relevance',
-            sortOrder: 'desc',
-            ...options
-          }
-        }
-      });
+// Recent searches hook
+export function useRecentSearches(limit: number = 5) {
+  return useQuery({
+    queryKey: ['search', 'recent'],
+    queryFn: () => getRecentSearches(limit),
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  })
+}
 
-      if (searchError) throw searchError;
+// Popular searches hook
+export function usePopularSearches(days: number = 7, limit: number = 10) {
+  return useQuery({
+    queryKey: ['search', 'popular', days],
+    queryFn: () => getPopularSearches(days, limit),
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  })
+}
 
-      const searchResults: SearchResult[] = data.results || [];
-      
-      setResults(searchResults);
-      setTotalResults(data.totalCount || 0);
-      
-      // Mettre en cache
-      cache.set(cacheKey, searchResults, { ttl: 5 * 60 * 1000 }); // 5 minutes
+// Search history hook
+export function useFetchSearchHistory(limit: number = 20) {
+  return useQuery({
+    queryKey: ['search', 'history'],
+    queryFn: () => getSearchHistory(limit),
+    staleTime: 1000 * 60 * 2,
+  })
+}
 
-      // Ajouter à l'historique
-      setSearchHistory(prev => {
-        const newHistory = [query, ...prev.filter(item => item !== query)];
-        return newHistory.slice(0, 10); // Garder 10 dernières recherches
-      });
+// Log search mutation
+export function useLogSearch() {
+  const queryClient = useQueryClient()
 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur de recherche');
-      console.error('Erreur recherche:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [cache]);
+  return useMutation({
+    mutationFn: ({
+      query,
+      searchType,
+      resultsCount,
+      filters,
+    }: {
+      query: string
+      searchType: string
+      resultsCount: number
+      filters?: Record<string, any>
+    }) => logSearch(query, searchType, resultsCount, filters),
+    onSuccess: () => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['search', 'history'] })
+      queryClient.invalidateQueries({ queryKey: ['search', 'suggestions'] })
+    },
+  })
+}
 
-  const searchSuggestions = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSuggestions([]);
-      return;
-    }
+// Log search result click mutation
+export function useLogSearchResultClick() {
+  const queryClient = useQueryClient()
 
-    try {
-      const { data, error } = await supabase.functions.invoke('search-suggestions', {
-        body: { query: query.trim() }
-      });
+  return useMutation({
+    mutationFn: ({
+      searchHistoryId,
+      resultId,
+      resultType,
+    }: {
+      searchHistoryId: string
+      resultId: string
+      resultType: string
+    }) => logSearchResultClick(searchHistoryId, resultId, resultType),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search', 'history'] })
+    },
+  })
+}
 
-      if (error) throw error;
+// Delete search history item mutation
+export function useDeleteSearchHistoryItem() {
+  const queryClient = useQueryClient()
 
-      setSuggestions(data.suggestions || []);
-    } catch (error) {
-      console.error('Erreur suggestions:', error);
-      setSuggestions([]);
-    }
-  }, []);
+  return useMutation({
+    mutationFn: (historyId: string) => deleteSearchHistoryItem(historyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search', 'history'] })
+    },
+  })
+}
 
-  const clearHistory = useCallback(() => {
-    setSearchHistory([]);
-    localStorage.removeItem('search-history');
-  }, []);
+// Clear search history mutation
+export function useClearSearchHistory() {
+  const queryClient = useQueryClient()
 
-  const removeFromHistory = useCallback((query: string) => {
-    setSearchHistory(prev => prev.filter(item => item !== query));
-  }, []);
+  return useMutation({
+    mutationFn: () => clearSearchHistory(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search', 'history'] })
+    },
+  })
+}
 
-  const quickSearch = useCallback(async (category: string) => {
-    return search('', { category }, { limit: 10, sortBy: 'popularity' });
-  }, [search]);
-
-  const searchByTags = useCallback(async (tags: string[]) => {
-    return search('', { tags }, { limit: 20, sortBy: 'relevance' });
-  }, [search]);
-
-  const searchSimilar = useCallback(async (itemId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('similar-search', {
-        body: { itemId }
-      });
-
-      if (error) throw error;
-
-      return data.results || [];
-    } catch (error) {
-      console.error('Erreur recherche similaire:', error);
-      return [];
-    }
-  }, []);
-
-  const getPopularSearches = useCallback(async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('popular-searches', {
-        body: { limit: 10 }
-      });
-
-      if (error) throw error;
-
-      return data.searches || [];
-    } catch (error) {
-      console.error('Erreur recherches populaires:', error);
-      return [];
-    }
-  }, []);
-
-  // Recherche en temps réel avec debounce
-  const realtimeSearch = useMemo(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    return (query: string, filters?: SearchFilters, options?: SearchOptions) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (query.trim()) {
-          search(query, filters, options);
-        }
-      }, 300);
-    };
-  }, [search]);
-
-  // Charger l'historique depuis localStorage
-  useState(() => {
-    const savedHistory = localStorage.getItem('search-history');
-    if (savedHistory) {
-      setSearchHistory(JSON.parse(savedHistory));
-    }
-  });
-
-  // Sauvegarder l'historique
-  useState(() => {
-    localStorage.setItem('search-history', JSON.stringify(searchHistory));
-  });
+// Combined search hook (searches multiple types at once)
+export function useMultiTypeSearch(query: string) {
+  const globalResults = useGlobalSearch(query, 20)
+  const isLoading = globalResults.isLoading
+  const isError = globalResults.isError
 
   return {
-    results,
-    loading,
-    error,
-    totalResults,
-    searchHistory,
-    suggestions,
-    search,
-    realtimeSearch,
-    searchSuggestions,
-    clearHistory,
-    removeFromHistory,
-    quickSearch,
-    searchByTags,
-    searchSimilar,
-    getPopularSearches
-  };
+    data: globalResults.data || [],
+    isLoading,
+    isError,
+    error: globalResults.error,
+  }
+}
+
+// Search with pagination
+export function usePaginatedSearch(query: string, pageSize: number = 50) {
+  const queryClient = useQueryClient()
+
+  const execute = async (pageIndex: number) => {
+    const offset = pageIndex * pageSize
+    return globalSearch(query, pageSize, offset)
+  }
+
+  return {
+    execute,
+    queryClient,
+  }
 }

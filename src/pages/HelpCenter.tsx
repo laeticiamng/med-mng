@@ -1,166 +1,248 @@
-import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { BookOpen, MessageCircle, Search, Video, HelpCircle, Mail } from 'lucide-react';
-import { useState } from 'react';
+import { useState } from 'react'
+import { Search, HelpCircle, Book, MessageSquare, Zap } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { Link } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import { useFetchFeaturedArticles, useSearchArticles } from '@/hooks/useHelp'
 
 export default function HelpCenter() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchResults, setShowSearchResults] = useState(false)
 
-  const helpCategories = [
-    {
-      icon: BookOpen,
-      title: 'FAQ',
-      description: 'Réponses aux questions fréquemment posées',
-      link: ROUTE_PATHS.helpFaq,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      icon: Video,
-      title: 'Tutoriels',
-      description: 'Guides vidéo et tutoriels pas à pas',
-      link: ROUTE_PATHS.helpTutorials,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-    },
-    {
-      icon: MessageCircle,
-      title: 'Contact Support',
-      description: 'Contactez notre équipe d\'assistance',
-      link: ROUTE_PATHS.helpContact,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      icon: Search,
-      title: 'Recherche Avancée',
-      description: 'Recherchez dans notre base de connaissances',
-      link: ROUTE_PATHS.helpSearch,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-    },
-  ];
+  const { data: featuredArticles = [], isLoading: featuredLoading } = useFetchFeaturedArticles(6)
+  const { data: searchResults = [], isLoading: searchLoading } = useSearchArticles(
+    searchQuery,
+    showSearchResults && searchQuery.length > 2
+  )
 
-  const popularTopics = [
-    { title: 'Comment débuter sur la plateforme ?', views: 1250 },
-    { title: 'Gérer mes notifications', views: 980 },
-    { title: 'Participer aux challenges', views: 875 },
-    { title: 'Suivre ma progression', views: 760 },
-    { title: 'Paramètres de confidentialité', views: 650 },
-  ];
+  const categories = [
+    {
+      title: 'Premiers pas',
+      description: 'Commencez votre parcours',
+      icon: Zap,
+      color: 'bg-blue-50 dark:bg-blue-950',
+      path: '#getting-started',
+    },
+    {
+      title: 'Fonctionnalités',
+      description: 'Explorez toutes nos fonctionnalités',
+      icon: Book,
+      color: 'bg-green-50 dark:bg-green-950',
+      path: '#features',
+    },
+    {
+      title: 'Questions fréquentes',
+      description: 'Trouvez les réponses rapides',
+      icon: HelpCircle,
+      color: 'bg-purple-50 dark:bg-purple-950',
+      path: ROUTE_PATHS.helpFaq,
+    },
+    {
+      title: 'Support',
+      description: 'Contactez notre équipe',
+      icon: MessageSquare,
+      color: 'bg-orange-50 dark:bg-orange-950',
+      path: ROUTE_PATHS.helpContact,
+    },
+  ]
 
   return (
-    <>
-      <Helmet>
-        <title>Centre d'Aide | Med-Mng</title>
-        <meta name="description" content="Trouvez de l'aide et des réponses à vos questions sur Med-Mng" />
-      </Helmet>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="container max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold mb-4">Centre d'aide</h1>
+          <p className="text-xl text-muted-foreground">
+            Trouvez les réponses à vos questions et explorez notre documentation
+          </p>
+        </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="container mx-auto px-4 py-12">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4">
-              <HelpCircle className="w-8 h-8" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Centre d'Aide
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comment pouvons-nous vous aider aujourd'hui ?
-            </p>
-          </div>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-12">
+        {/* Search Bar */}
+        <Card className="mb-12">
+          <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
-                type="text"
-                placeholder="Rechercher dans l'aide..."
+                placeholder="Cherchez des articles, tutoriels, FAQs..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 py-6 text-lg"
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  if (e.target.value.length > 2) {
+                    setShowSearchResults(true)
+                  }
+                }}
+                className="pl-10 h-12 text-base"
+                data-testid="help-search-input"
               />
             </div>
-          </div>
+            {searchQuery.length > 0 && searchQuery.length <= 2 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Tapez au moins 3 caractères pour rechercher
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Help Categories */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {helpCategories.map((category) => {
-              const Icon = category.icon;
-              return (
-                <Link key={category.title} to={category.link}>
-                  <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 h-full">
-                    <CardHeader>
-                      <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${category.bgColor} ${category.color} mb-4`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <CardTitle className="text-lg">{category.title}</CardTitle>
-                      <CardDescription>{category.description}</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Popular Topics */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Sujets Populaires
-              </CardTitle>
-              <CardDescription>
-                Les articles les plus consultés cette semaine
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {popularTopics.map((topic, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
-                        {index + 1}
-                      </div>
-                      <span className="text-gray-900 font-medium">{topic.title}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">{topic.views} vues</span>
-                  </div>
+        {/* Search Results */}
+        {showSearchResults && searchQuery.length > 2 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">
+              Résultats pour "{searchQuery}"
+            </h2>
+            {searchLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
                 ))}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Contact CTA */}
-          <Card className="mt-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
-            <CardHeader className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/20 mx-auto mb-4">
-                <Mail className="w-6 h-6" />
+            ) : searchResults.length > 0 ? (
+              <div className="grid gap-4">
+                {searchResults.map((article) => (
+                  <Card
+                    key={article.id}
+                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                  >
+                    <CardContent className="pt-6">
+                      <h3 className="font-semibold text-lg mb-2">{article.title}</h3>
+                      {article.description && (
+                        <p className="text-muted-foreground mb-3">{article.description}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline">{article.category}</Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {article.views_count} vues
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <CardTitle className="text-white text-2xl">Besoin d'aide supplémentaire ?</CardTitle>
-              <CardDescription className="text-white/90">
-                Notre équipe d'assistance est disponible pour répondre à vos questions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Link to={ROUTE_PATHS.helpContact}>
-                <Button size="lg" variant="secondary">
-                  Contacter le Support
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">Aucun résultat trouvé</p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery('')
+                    setShowSearchResults(false)
+                  }}
+                >
+                  Effacer la recherche
                 </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!showSearchResults && (
+          <>
+            {/* Quick Links */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Parcourir par catégorie</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {categories.map((category) => {
+                  const Icon = category.icon
+                  return (
+                    <Link key={category.title} to={category.path}>
+                      <Card className={`${category.color} hover:shadow-lg transition-shadow cursor-pointer h-full`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            <Icon className="h-8 w-8 flex-shrink-0 mt-1" />
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg">{category.title}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {category.description}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Featured Articles */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Articles populaires</h2>
+                <Link to={ROUTE_PATHS.helpTutorials}>
+                  <Button variant="outline">Voir tout</Button>
+                </Link>
+              </div>
+
+              {featuredLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <Skeleton key={i} className="h-40 w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : featuredArticles.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {featuredArticles.map((article) => (
+                    <Card
+                      key={article.id}
+                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-semibold text-base flex-1">
+                            {article.title}
+                          </h3>
+                          {article.is_pinned && (
+                            <Badge variant="secondary" className="ml-2">
+                              Pin
+                            </Badge>
+                          )}
+                        </div>
+                        {article.description && (
+                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                            {article.description}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline">{article.category}</Badge>
+                          <div className="flex gap-4 text-xs text-muted-foreground">
+                            <span>👍 {article.helpful_count}</span>
+                            <span>👁️ {article.views_count}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Aucun article en ce moment</p>
+                </div>
+              )}
+            </div>
+
+            {/* Info Section */}
+            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-blue-200 dark:border-blue-800">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-2">Besoin d'aide supplémentaire?</h3>
+                <p className="text-muted-foreground mb-4">
+                  Notre équipe de support est disponible pour répondre à vos questions.
+                </p>
+                <div className="flex gap-3">
+                  <Link to={ROUTE_PATHS.helpContact}>
+                    <Button>Nous contacter</Button>
+                  </Link>
+                  <Link to={ROUTE_PATHS.helpSearch}>
+                    <Button variant="outline">Recherche avancée</Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
-    </>
-  );
+    </div>
+  )
 }

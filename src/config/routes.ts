@@ -63,12 +63,16 @@ export const ROUTE_PATHS = {
   rlsDocumentation: '/rls-documentation',
   securityMonitoring: '/security-monitoring',
   statistics: '/statistics',
+  advancedAnalytics: '/advanced-analytics',
   studyPlanner: '/study-planner',
   community: '/community',
   homepage: '/homepage',
   achievements: '/achievements',
   favorites: '/favorites',
   settings: '/settings',
+  viewingHistory: '/viewing-history',
+  collections: '/collections',
+  collectionDetail: '/collections/:collectionId',
   designSystem: '/design-system',
   mesDonneesRgpd: '/mes-donnees-rgpd',
   installPwa: '/install',
@@ -159,6 +163,9 @@ export const ROUTE_PATHS = {
   badgeDetail: '/badges/:badgeId',
   auras: '/auras',
   auraDetail: '/auras/:auraId',
+  gamificationDashboard: '/gamification',
+  badgeCollection: '/badges/collection',
+  communityLeaderboard: '/leaderboard/community',
 
   // ==================== NOUVELLES ROUTES PRIORITÉ 3 🟢 ====================
 

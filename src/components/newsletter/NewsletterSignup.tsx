@@ -25,19 +25,23 @@ export const NewsletterSignup: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement newsletter subscription (e.g., via Supabase or external service)
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
+      // Import newsletter service at top level (add this at imports)
+      const { newsletterService } = await import('@/services/newsletter.service');
+
+      const result = await newsletterService.subscribe({
+        email: email.trim(),
+      });
+
       toast({
         title: 'Inscription réussie !',
-        description: 'Vous recevrez bientôt nos actualités.',
+        description: result.message,
       });
-      
+
       setEmail('');
     } catch (error) {
       toast({
         title: 'Erreur',
-        description: 'Une erreur est survenue lors de l\'inscription',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription',
         variant: 'destructive',
       });
     } finally {
