@@ -153,7 +153,9 @@ const WeeklyLeaderboard = lazy(() => import("./pages/WeeklyLeaderboard"));
 
 // Notifications
 const NotificationsCenter = lazy(() => import("./pages/NotificationsCenter"));
+const NotificationsPage = lazy(() => import("./pages/Notifications"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const NotificationSettingsPage = lazy(() => import("./pages/NotificationSettingsPage"));
 const NotificationDetail = lazy(() => import("./pages/NotificationDetail"));
 
 // Challenges
@@ -413,8 +415,8 @@ const App = () => {
              <Route path={ROUTE_PATHS.leaderboardWeekly} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><WeeklyLeaderboard /></Suspense>} />
 
              {/* Notifications - PROTECTED */}
-             <Route path={ROUTE_PATHS.notifications} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationsCenter /></Suspense></ProtectedRoute>} />
-             <Route path={ROUTE_PATHS.notificationsSettings} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationSettings /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.notifications} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationsPage /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.notificationsSettings} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationSettingsPage /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.notificationDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationDetail /></Suspense></ProtectedRoute>} />
 
              {/* Challenges - PUBLIC avec historique PROTECTED */}
