@@ -159,6 +159,38 @@ export const ROUTE_PATHS = {
   auras: '/auras',
   auraDetail: '/auras/:auraId',
 
+  // ==================== NOUVELLES ROUTES PRIORITÉ 3 🟢 ====================
+
+  // API Developer Portal
+  developers: '/developers',
+  developersDocs: '/developers/docs',
+  developersKeys: '/developers/keys',
+  developersWebhooks: '/developers/webhooks',
+
+  // Reporting & Export
+  reports: '/reports',
+  reportsGenerate: '/reports/generate',
+  reportViewer: '/reports/:reportId',
+  dataExport: '/export',
+
+  // Advanced Search
+  search: '/search',
+  searchGlobal: '/search/global',
+  searchSaved: '/search/saved',
+
+  // Teams & Collaboration
+  teams: '/teams',
+  teamsCreate: '/teams/create',
+  teamDashboard: '/teams/:teamId',
+  teamMembers: '/teams/:teamId/members',
+  teamChallenges: '/teams/:teamId/challenges',
+
+  // Events & Calendar
+  events: '/events',
+  eventDetail: '/events/:eventId',
+  eventCreate: '/events/create',
+  calendar: '/calendar',
+
   notFound: '*',
 } as const;
 

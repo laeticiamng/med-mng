@@ -218,6 +218,37 @@ const BadgeDetail = lazy(() => import("./pages/BadgeDetail"));
 const AurasCollection = lazy(() => import("./pages/AurasCollection"));
 const AuraDetail = lazy(() => import("./pages/AuraDetail"));
 
+// 🆕 NOUVELLES PAGES PRIORITÉ 3 - Lazy loaded
+// API Developer Portal
+const DevelopersPortal = lazy(() => import("./pages/DevelopersPortal"));
+const DevelopersDocs = lazy(() => import("./pages/DevelopersDocs"));
+const DevelopersKeys = lazy(() => import("./pages/DevelopersKeys"));
+const DevelopersWebhooks = lazy(() => import("./pages/DevelopersWebhooks"));
+
+// Reporting & Export
+const ReportsDashboard = lazy(() => import("./pages/ReportsDashboard"));
+const ReportsGenerate = lazy(() => import("./pages/ReportsGenerate"));
+const ReportViewer = lazy(() => import("./pages/ReportViewer"));
+const DataExport = lazy(() => import("./pages/DataExport"));
+
+// Advanced Search
+const GlobalSearch = lazy(() => import("./pages/GlobalSearch"));
+const SearchGlobal = lazy(() => import("./pages/SearchGlobal"));
+const SearchSaved = lazy(() => import("./pages/SearchSaved"));
+
+// Teams & Collaboration
+const TeamsDashboard = lazy(() => import("./pages/TeamsDashboard"));
+const TeamsCreate = lazy(() => import("./pages/TeamsCreate"));
+const TeamDashboard = lazy(() => import("./pages/TeamDashboard"));
+const TeamMembers = lazy(() => import("./pages/TeamMembers"));
+const TeamChallenges = lazy(() => import("./pages/TeamChallenges"));
+
+// Events & Calendar
+const EventsDashboard = lazy(() => import("./pages/EventsDashboard"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const EventCreate = lazy(() => import("./pages/EventCreate"));
+const CalendarView = lazy(() => import("./pages/CalendarView"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -448,6 +479,37 @@ const App = () => {
              <Route path={ROUTE_PATHS.badgeDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgeDetail /></Suspense>} />
              <Route path={ROUTE_PATHS.auras} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AurasCollection /></Suspense>} />
              <Route path={ROUTE_PATHS.auraDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuraDetail /></Suspense>} />
+
+             {/* 🆕 NOUVELLES ROUTES PRIORITÉ 3 */}
+             {/* API Developer Portal - PROTECTED (developer accounts) */}
+             <Route path={ROUTE_PATHS.developers} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DevelopersPortal /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.developersDocs} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DevelopersDocs /></Suspense>} />
+             <Route path={ROUTE_PATHS.developersKeys} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DevelopersKeys /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.developersWebhooks} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DevelopersWebhooks /></Suspense></ProtectedRoute>} />
+
+             {/* Reporting & Export - PROTECTED */}
+             <Route path={ROUTE_PATHS.reports} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ReportsDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.reportsGenerate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ReportsGenerate /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.reportViewer} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ReportViewer /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.dataExport} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DataExport /></Suspense></ProtectedRoute>} />
+
+             {/* Advanced Search - PUBLIC */}
+             <Route path={ROUTE_PATHS.search} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GlobalSearch /></Suspense>} />
+             <Route path={ROUTE_PATHS.searchGlobal} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SearchGlobal /></Suspense>} />
+             <Route path={ROUTE_PATHS.searchSaved} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SearchSaved /></Suspense></ProtectedRoute>} />
+
+             {/* Teams & Collaboration - PROTECTED */}
+             <Route path={ROUTE_PATHS.teams} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamsDashboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.teamsCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamsCreate /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.teamDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamDashboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.teamMembers} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamMembers /></Suspense>} />
+             <Route path={ROUTE_PATHS.teamChallenges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamChallenges /></Suspense>} />
+
+             {/* Events & Calendar - PUBLIC read, PROTECTED write */}
+             <Route path={ROUTE_PATHS.events} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventsDashboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.eventDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.eventCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventCreate /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.calendar} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CalendarView /></Suspense>} />
 
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
