@@ -28,7 +28,7 @@ export default function SearchResults() {
         resultsCount: results.length,
       })
     }
-  }, [query, results.length])
+  }, [query, results.length, logSearch.mutate])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
