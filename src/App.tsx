@@ -24,6 +24,9 @@ import { ThemeProvider } from '@/components/ui/theme-provider';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 import { ROUTE_PATHS } from '@/config/routes';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
@@ -143,6 +146,7 @@ const PerformanceDashboard = lazy(() => import("./pages/PerformanceDashboard"));
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
+  const { isOpen: sidebarOpen, setIsOpen: setSidebarOpen } = useSidebarState();
   
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
@@ -166,10 +170,16 @@ const App = () => {
                     <AccessibilityProvider>
                       <InternationalizationProvider>
                         <PerformanceProvider>
-                          <SkipLinks />
-                          <div id="app-root" className="min-h-screen bg-background">
-                            {/* Show GlobalHeader on homepage only, MainNavigation on other pages */}
-                            <MainNavigation />
+                          <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                            <SkipLinks />
+                            <div id="app-root" className="min-h-screen bg-background flex w-full">
+                              {/* Sidebar - Collapsible with Cmd+B */}
+                              <AppSidebar />
+                              
+                              {/* Main Content Area */}
+                              <div className="flex-1 flex flex-col min-w-0">
+                                {/* Show GlobalHeader on homepage only, MainNavigation on other pages */}
+                                <MainNavigation />
                             <main id="main-content" tabIndex={-1} className="pt-16">
                               <Routes>
         <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
@@ -317,9 +327,11 @@ const App = () => {
                             {/* Bannière Cookies RGPD */}
                             <CookieBanner />
                             
-                            {/* DevTools pour inspection du design system */}
-                            <DesignSystemDevTools />
-                          </div>
+                                {/* DevTools pour inspection du design system */}
+                                <DesignSystemDevTools />
+                              </div>
+                            </div>
+                          </SidebarProvider>
                           <Toaster />
                           <Sonner />
                         </PerformanceProvider>
