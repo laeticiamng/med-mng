@@ -22,6 +22,7 @@ import { useState } from 'react'
 import { usePosts } from '@/hooks/usePosts'
 import { usePostComments } from '@/hooks/usePostComments'
 import { useAuth } from '@/contexts/AuthContext'
+import { FavoritesButton } from '@/components/favorites/FavoritesButton'
 
 export default function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
@@ -156,25 +157,33 @@ export default function PostDetail() {
                 </div>
 
                 {/* Actions */}
-                {isAuthor && (
-                  <div className="flex gap-2">
-                    <Link to={`${ROUTE_PATHS.posts}/${post.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="w-4 h-4 mr-1" />
-                        Éditer
+                <div className="flex gap-2 flex-wrap justify-end">
+                  <FavoritesButton
+                    itemId={post.id}
+                    itemType="post"
+                    showLabel={true}
+                    size="md"
+                  />
+                  {isAuthor && (
+                    <>
+                      <Link to={`${ROUTE_PATHS.posts}/${post.id}/edit`}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4 mr-1" />
+                          Éditer
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeletePost}
+                        disabled={deletePostMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Supprimer
                       </Button>
-                    </Link>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleDeletePost}
-                      disabled={deletePostMutation.isPending}
-                    >
-                      <Trash2 className="w-4 h-4 mr-1" />
-                      Supprimer
-                    </Button>
-                  </div>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
             </CardHeader>
 

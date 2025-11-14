@@ -19,6 +19,7 @@ import { useState, useMemo } from 'react'
 import { usePosts } from '@/hooks/usePosts'
 import { useAuth } from '@/contexts/AuthContext'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { FavoritesButton } from '@/components/favorites/FavoritesButton'
 
 export default function PostsFeed() {
   const navigate = useNavigate()
@@ -187,18 +188,25 @@ export default function PostsFeed() {
               {filteredPosts.map((post) => (
                 <Card
                   key={post.id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`${ROUTE_PATHS.posts}/${post.id}`)}
+                  className="hover:shadow-lg transition-shadow"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                      <div className="flex-1 cursor-pointer min-w-0" onClick={() => navigate(`${ROUTE_PATHS.posts}/${post.id}`)}>
                         <CardTitle className="text-2xl mb-2">
                           {post.title}
                         </CardTitle>
                         <p className="text-gray-600 line-clamp-2">
                           {post.excerpt || post.content.substring(0, 160)}...
                         </p>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <FavoritesButton
+                          itemId={post.id}
+                          itemType="post"
+                          size="md"
+                          variant="ghost"
+                        />
                       </div>
                     </div>
 
