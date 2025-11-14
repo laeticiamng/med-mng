@@ -144,6 +144,24 @@ const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
 // 📊 PERFORMANCE DASHBOARD - Lazy loaded
 const PerformanceDashboard = lazy(() => import("./pages/PerformanceDashboard"));
 
+// 🆕 NOUVELLES PAGES PRIORITÉ 1 - Lazy loaded
+// Leaderboard
+const LeaderboardDashboard = lazy(() => import("./pages/LeaderboardDashboard"));
+const FocusLeaderboard = lazy(() => import("./pages/FocusLeaderboard"));
+const LearningLeaderboard = lazy(() => import("./pages/LearningLeaderboard"));
+const WeeklyLeaderboard = lazy(() => import("./pages/WeeklyLeaderboard"));
+
+// Notifications
+const NotificationsCenter = lazy(() => import("./pages/NotificationsCenter"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const NotificationDetail = lazy(() => import("./pages/NotificationDetail"));
+
+// Challenges
+const ChallengesDashboard = lazy(() => import("./pages/ChallengesDashboard"));
+const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
+const ChallengeDetail = lazy(() => import("./pages/ChallengeDetail"));
+const ChallengesHistory = lazy(() => import("./pages/ChallengesHistory"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -229,7 +247,7 @@ const App = () => {
           <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
           
           {/* 📊 Admin Dashboard Analytics */}
-          <Route path="/admin/dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminDashboard /></Suspense>} />
+          <Route path={ROUTE_PATHS.adminDashboardAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminDashboard /></Suspense>} />
           
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
@@ -271,7 +289,7 @@ const App = () => {
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
            
            {/* 📊 Performance Dashboard */}
-           <Route path="/performance-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PerformanceDashboard /></Suspense>} />
+           <Route path={ROUTE_PATHS.performanceDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PerformanceDashboard /></Suspense>} />
            
           {/* Routes Admin - Protégées par AdminRoute */}
             <Route path={ROUTE_PATHS.adminIndex} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminIndex /></Suspense></AdminRoute>} />
@@ -299,6 +317,25 @@ const App = () => {
             <Route path={ROUTE_PATHS.favorites} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
              <Route path={ROUTE_PATHS.settings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
              <Route path={ROUTE_PATHS.designSystem} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DesignSystemPage /></Suspense>} />
+
+             {/* 🆕 NOUVELLES ROUTES PRIORITÉ 1 */}
+             {/* Leaderboard - PUBLIC */}
+             <Route path={ROUTE_PATHS.leaderboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LeaderboardDashboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.leaderboardFocus} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FocusLeaderboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.leaderboardLearning} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningLeaderboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.leaderboardWeekly} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><WeeklyLeaderboard /></Suspense>} />
+
+             {/* Notifications - PROTECTED */}
+             <Route path={ROUTE_PATHS.notifications} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationsCenter /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.notificationsSettings} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationSettings /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.notificationDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationDetail /></Suspense></ProtectedRoute>} />
+
+             {/* Challenges - PUBLIC avec historique PROTECTED */}
+             <Route path={ROUTE_PATHS.challenges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChallengesDashboard /></Suspense>} />
+             <Route path={ROUTE_PATHS.challengesDaily} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DailyChallenges /></Suspense>} />
+             <Route path={ROUTE_PATHS.challengeDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChallengeDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.challengesHistory} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChallengesHistory /></Suspense></ProtectedRoute>} />
+
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
             <Route path={ROUTE_PATHS.installPwa} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />

@@ -51,6 +51,8 @@ export const ROUTE_PATHS = {
   adminComplete: '/admin/complete',
   adminPanel: '/admin-panel',
   adminRoles: '/admin/roles',
+  adminDashboardAnalytics: '/admin/dashboard',
+  performanceDashboard: '/performance-dashboard',
   auditSecurity: '/audit-security',
   sharedTemplates: '/shared-templates',
   templateAnalytics: '/template-analytics',
@@ -80,6 +82,51 @@ export const ROUTE_PATHS = {
   auditIc2: '/audit-ic2',
   auditIc4: '/audit-ic4',
   auditCompleteLegacy: '/audit-complete',
+
+  // ==================== NOUVELLES ROUTES PRIORITÉ 1 🔥 ====================
+
+  // Journal & Notes
+  journal: '/journal',
+  journalNew: '/journal/new',
+  journalEntry: '/journal/:entryId',
+  journalEdit: '/journal/:entryId/edit',
+
+  // Challenges Quotidiens
+  challenges: '/challenges',
+  challengesDaily: '/challenges/daily',
+  challengeDetail: '/challenges/:challengeId',
+  challengesHistory: '/challenges/history',
+
+  // Leaderboard
+  leaderboard: '/leaderboard',
+  leaderboardFocus: '/leaderboard/focus',
+  leaderboardLearning: '/leaderboard/learning',
+  leaderboardWeekly: '/leaderboard/weekly',
+
+  // Profils Utilisateurs
+  users: '/users',
+  userProfile: '/users/:userId',
+  profileEdit: '/profile/edit',
+  profilePrivacy: '/profile/privacy',
+
+  // Sessions & Activités
+  sessions: '/sessions',
+  sessionsStudy: '/sessions/study',
+  sessionsFocus: '/sessions/focus',
+  sessionsMeditation: '/sessions/meditation',
+  sessionDetail: '/sessions/:sessionId',
+
+  // Notifications
+  notifications: '/notifications',
+  notificationsSettings: '/notifications/settings',
+  notificationDetail: '/notifications/:notifId',
+
+  // Quests & Ambitions
+  quests: '/quests',
+  questDetail: '/quests/:questId',
+  questStart: '/quests/:questId/start',
+  ambitions: '/ambitions',
+
   notFound: '*',
 } as const;
 
