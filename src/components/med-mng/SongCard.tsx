@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { usePlaylists } from '@/hooks/usePlaylists';
 import { useItemTitle } from '@/hooks/useItemTitle';
 import { AIGeneratedBadge } from '@/components/common/AIGeneratedBadge';
+import { FavoriteButton } from '@/components/common/FavoriteButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -253,7 +254,7 @@ export const SongCard: React.FC<SongCardProps> = ({
                 <Heart className={`h-4 w-4 ${song.is_liked ? 'fill-current' : ''}`} />
               )}
             </Button>
-            
+
             <Button
               onClick={onPlay}
               size="sm"
@@ -263,6 +264,20 @@ export const SongCard: React.FC<SongCardProps> = ({
               <span className="hidden sm:inline">Écouter</span>
               <span className="sm:hidden">Play</span>
             </Button>
+
+            <FavoriteButton
+              itemId={song.id}
+              itemType="song"
+              size="sm"
+              variant="ghost"
+              tooltipText="Ajouter aux favoris"
+              metadata={{
+                songTitle: song.title,
+                duration: getDuration(),
+                itemTitle: itemTitle || fallbackTitle,
+                itemCode: itemCode || fallbackItemCode
+              }}
+            />
           </div>
         </div>
       </CardContent>

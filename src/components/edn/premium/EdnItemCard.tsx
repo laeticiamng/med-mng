@@ -11,6 +11,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
+import { FavoriteButton } from "@/components/common/FavoriteButton";
 
 interface EdnItemCardProps {
   item: {
@@ -182,8 +183,8 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           {isMobile ? (
             // Boutons secondaires sur mobile
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={(e) => {
                   e.preventDefault();
@@ -196,8 +197,8 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 <Music className="h-4 w-4 mr-1" />
                 🎵 Musique
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={(e) => {
                   e.preventDefault();
@@ -210,22 +211,39 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 <Brain className="h-4 w-4 mr-1" />
                 ✅ Quiz
               </Button>
+              <FavoriteButton
+                itemId={item.id}
+                itemType="edn"
+                size="sm"
+                variant="outline"
+                metadata={{ itemCode: item.item_code, title: item.title }}
+              />
             </div>
           ) : (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onOpen('music');
-              }}
-              className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
-              type="button"
-              title="Écouter la musique mnémotechnique"
-            >
-              <Music className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onOpen('music');
+                }}
+                className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+                type="button"
+                title="Écouter la musique mnémotechnique"
+              >
+                <Music className="h-4 w-4" />
+              </Button>
+              <FavoriteButton
+                itemId={item.id}
+                itemType="edn"
+                size="sm"
+                variant="ghost"
+                tooltipText="Ajouter aux favoris"
+                metadata={{ itemCode: item.item_code, title: item.title }}
+              />
+            </div>
           )}
         </div>
       </CardContent>

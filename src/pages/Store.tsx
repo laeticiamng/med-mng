@@ -9,6 +9,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { toast } from 'sonner';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
+import { FavoriteButton } from '@/components/common/FavoriteButton';
 
 export default function Store() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -151,7 +152,7 @@ export default function Store() {
                           Détails
                         </Button>
                       </Link>
-                      <Button 
+                      <Button
                         variant="default"
                         size="default"
                         onClick={() => handleAddToCart(product)}
@@ -161,6 +162,18 @@ export default function Store() {
                         <ShoppingBag className="h-4 w-4 mr-2" />
                         Panier
                       </Button>
+                      <FavoriteButton
+                        itemId={product.node.id}
+                        itemType="product"
+                        size="sm"
+                        variant="outline"
+                        tooltipText="Ajouter aux favoris"
+                        metadata={{
+                          productTitle: product.node.title,
+                          handle: product.node.handle,
+                          price: variant?.price
+                        }}
+                      />
                     </div>
                   </div>
                 </PremiumCard>

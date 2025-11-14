@@ -28,6 +28,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { useSidebarState } from '@/hooks/useSidebarState';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
+import { PageTracker } from '@/components/analytics/PageTracker';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
@@ -158,11 +159,13 @@ const App = () => {
   
   return (
     <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
-      <PersistQueryClientProvider 
-        client={queryClient} 
+      <PersistQueryClientProvider
+        client={queryClient}
         persistOptions={{ persister, maxAge: 24 * 60 * 60 * 1000 }}
       >
         <BrowserRouter>
+        {/* 📊 Page Analytics Tracker - Auto track page views, time, scroll, etc. */}
+        <PageTracker />
         <HelmetProvider>
           <AuthProvider>
             <LanguageProvider>
