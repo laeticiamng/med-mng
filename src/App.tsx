@@ -257,6 +257,9 @@ const EventDetail = lazy(() => import("./pages/EventDetail"));
 const EventCreate = lazy(() => import("./pages/EventCreate"));
 const CalendarView = lazy(() => import("./pages/CalendarView"));
 
+// 🛡️ MODERATION & SAFETY - Lazy loaded
+const ModerationWorkflow = lazy(() => import("./pages/ModerationWorkflow"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -523,6 +526,9 @@ const App = () => {
              <Route path={ROUTE_PATHS.eventDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventDetail /></Suspense>} />
              <Route path={ROUTE_PATHS.eventCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventCreate /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.calendar} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CalendarView /></Suspense>} />
+
+             {/* Moderation & Safety */}
+             <Route path="/admin/moderation" element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModerationWorkflow /></Suspense></AdminRoute>} />
 
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
