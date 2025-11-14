@@ -240,6 +240,8 @@ const DataExport = lazy(() => import("./pages/DataExport"));
 const GlobalSearch = lazy(() => import("./pages/GlobalSearch"));
 const SearchGlobal = lazy(() => import("./pages/SearchGlobal"));
 const SearchSaved = lazy(() => import("./pages/SearchSaved"));
+const SearchResults = lazy(() => import("./pages/SearchResults"));
+const AdvancedSearch = lazy(() => import("./pages/AdvancedSearch"));
 
 // Teams & Collaboration
 const TeamsDashboard = lazy(() => import("./pages/TeamsDashboard"));
@@ -502,7 +504,8 @@ const App = () => {
              <Route path={ROUTE_PATHS.dataExport} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DataExport /></Suspense></ProtectedRoute>} />
 
              {/* Advanced Search - PUBLIC */}
-             <Route path={ROUTE_PATHS.search} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GlobalSearch /></Suspense>} />
+             <Route path={ROUTE_PATHS.search} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SearchResults /></Suspense>} />
+             <Route path="/search/advanced" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdvancedSearch /></Suspense>} />
              <Route path={ROUTE_PATHS.searchGlobal} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SearchGlobal /></Suspense>} />
              <Route path={ROUTE_PATHS.searchSaved} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SearchSaved /></Suspense></ProtectedRoute>} />
 
