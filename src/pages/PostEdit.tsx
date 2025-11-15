@@ -10,14 +10,13 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ArrowLeft, Send, X, Hash, AlertCircle, CheckCircle, Loader } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { usePosts } from '@/hooks/usePosts'
-import { useAuth } from '@/contexts/AuthContext'
+import { useFetchPost, useUpdatePost } from '@/hooks/usePosts'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function PostEdit() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { useFetchPost, useUpdatePost } = usePosts()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')

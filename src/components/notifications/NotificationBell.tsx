@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useUnreadCount } from '@/hooks/useNotificationsService'
 import NotificationPanel from './NotificationPanel'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 
 export const NotificationBell: React.FC = () => {
   const { user } = useAuth()
