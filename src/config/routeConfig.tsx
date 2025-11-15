@@ -83,6 +83,8 @@ const MedChat = lazy(() =>
 
 // Dashboard Pages
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const DashboardHub = lazy(() => import('@/pages/DashboardHub'));
+const Onboarding = lazy(() => import('@/pages/Onboarding'));
 const ModularDashboard = lazy(() => import('@/pages/ModularDashboard'));
 const LearningDashboard = lazy(() => import('@/pages/LearningDashboard'));
 const PlatformStatusPage = lazy(() => import('@/pages/PlatformStatusPage'));
@@ -293,7 +295,9 @@ export const wrapRoute = (
  */
 export const coreRoutes: RouteObject[] = [
   { path: ROUTE_PATHS.home, element: <Index /> },
+  { path: ROUTE_PATHS.onboarding, element: wrapRoute(Onboarding) },
   { path: ROUTE_PATHS.dashboard, element: wrapRoute(Dashboard) },
+  { path: ROUTE_PATHS.dashboardHub, element: wrapRoute(DashboardHub) },
   { path: ROUTE_PATHS.modularDashboard, element: wrapRoute(ModularDashboard) },
   { path: ROUTE_PATHS.learningDashboard, element: wrapRoute(LearningDashboard) },
   { path: ROUTE_PATHS.platformStatus, element: wrapRoute(PlatformStatusPage) },

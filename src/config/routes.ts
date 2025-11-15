@@ -1,9 +1,11 @@
 export const ROUTE_PATHS = {
   home: '/',
+  onboarding: '/onboarding',
   sitemap: '/sitemap',
   shareTest: '/share-test',
   modularDashboard: '/modular-dashboard',
   dashboard: '/dashboard',
+  dashboardHub: '/dashboards',
   learningDashboard: '/learning-dashboard',
   platformStatus: '/platform-status',
   monitoring: '/monitoring',
