@@ -183,7 +183,7 @@ export default function ShareTestPage() {
     // Test: Can read all shares
     try {
       const { data } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .select('*')
         .eq('owner_id', user.id);
       addTestResult('Gestion partages', 'admin', 'success', `✓ Peut gérer ${data?.length || 0} partages`);

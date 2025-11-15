@@ -25,13 +25,13 @@ export function useSitemapShares() {
       if (!user) return [];
 
       const { data, error } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .select('*')
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as unknown as SitemapShare[];
+      return data;
     },
   });
 
@@ -43,13 +43,13 @@ export function useSitemapShares() {
       if (!user) return [];
 
       const { data, error } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .select('*')
-        .eq('shared_with_id', user.id)
+        .eq('shared_with_user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as unknown as SitemapShare[];
+      return data;
     },
   });
 
@@ -60,11 +60,11 @@ export function useSitemapShares() {
       if (!user) throw new Error('Non authentifié');
 
       const { error } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .insert({
           owner_id: user.id,
           shared_with_email: email,
-          shared_with_id: null,
+          shared_with_user_id: null,
           permission,
         });
 
@@ -83,7 +83,7 @@ export function useSitemapShares() {
   const updateShare = useMutation({
     mutationFn: async ({ shareId, permission }: { shareId: string; permission: SharePermission }) => {
       const { error } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .update({ permission })
         .eq('id', shareId);
 
@@ -102,7 +102,7 @@ export function useSitemapShares() {
   const deleteShare = useMutation({
     mutationFn: async (shareId: string) => {
       const { error } = await supabase
-        .from('sitemap_shares' as any)
+        .from('sitemap_shares')
         .delete()
         .eq('id', shareId);
 
