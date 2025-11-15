@@ -4,6 +4,8 @@
  */
 
 import { supabase } from '@/integrations/supabase/client'
+import { Result, success, failure } from '@/types/result'
+import { extractErrorMessage, RESOURCE_ERRORS, SERVER_ERRORS } from '@/lib/error-messages'
 
 export type ActivityType = 'meditation' | 'exercise' | 'journaling' | 'stretching' | 'breathing' | 'yoga' | 'walking' | 'other'
 export type IntensityLevel = 'low' | 'medium' | 'high'
@@ -127,7 +129,7 @@ export const wellnessService = {
       activity_date?: string
       activity_time?: string
     }
-  ): Promise<string> {
+  ): Promise<Result<string, Error>> {
     try {
       const { data, error } = await supabase.rpc('log_wellness_activity', {
         activity_type_param: activityType,
@@ -136,10 +138,13 @@ export const wellnessService = {
         activity_date_param: options?.activity_date || new Date().toISOString().split('T')[0],
       })
 
-      if (error) throw error
-      return data as string
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as string)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to log activity')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -152,7 +157,7 @@ export const wellnessService = {
     activityType?: ActivityType,
     startDate?: string,
     endDate?: string
-  ): Promise<WellnessActivity[]> {
+  ): Promise<Result<WellnessActivity[], Error>> {
     try {
       let query = supabase.from('wellness_activities').select('*')
 
@@ -172,18 +177,21 @@ export const wellnessService = {
         .order('activity_date', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as WellnessActivity[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as WellnessActivity[])
     } catch (err) {
       console.error('Error fetching activities:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get activity summary for date range
    */
-  async getActivitySummary(startDate: string, endDate: string): Promise<Record<string, number>> {
+  async getActivitySummary(startDate: string, endDate: string): Promise<Result<Record<string, number>, Error>> {
     try {
       const { data, error } = await supabase
         .from('wellness_activities')
@@ -191,7 +199,9 @@ export const wellnessService = {
         .gte('activity_date', startDate)
         .lte('activity_date', endDate)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
 
       const summary: Record<string, number> = {}
       data?.forEach((activity: any) => {
@@ -199,10 +209,10 @@ export const wellnessService = {
         summary[type] = (summary[type] || 0) + (activity.duration_minutes || 1)
       })
 
-      return summary
+      return success(summary)
     } catch (err) {
       console.error('Error getting activity summary:', err)
-      return {}
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -220,7 +230,7 @@ export const wellnessService = {
       color?: string
       icon?: string
     }
-  ): Promise<string> {
+  ): Promise<Result<string, Error>> {
     try {
       const { data, error } = await supabase
         .from('rituals')
@@ -241,17 +251,20 @@ export const wellnessService = {
         .select('id')
         .single()
 
-      if (error) throw error
-      return data.id as string
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data.id as string)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to create ritual')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user's rituals
    */
-  async getUserRituals(category?: RitualCategory, activeOnly = true): Promise<Ritual[]> {
+  async getUserRituals(category?: RitualCategory, activeOnly = true): Promise<Result<Ritual[], Error>> {
     try {
       let query = supabase.from('rituals').select('*')
 
@@ -265,11 +278,14 @@ export const wellnessService = {
 
       const { data, error } = await query.order('order_index', { ascending: true })
 
-      if (error) throw error
-      return (data || []) as Ritual[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Ritual[])
     } catch (err) {
       console.error('Error fetching rituals:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -284,7 +300,7 @@ export const wellnessService = {
       mood_before?: MoodLevel
       mood_after?: MoodLevel
     }
-  ): Promise<void> {
+  ): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('complete_ritual', {
         ritual_id_param: ritualId,
@@ -294,16 +310,20 @@ export const wellnessService = {
         mood_after_param: options?.mood_after,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to complete ritual')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get ritual completion history
    */
-  async getRitualCompletions(ritualId: string, limit = 30, offset = 0): Promise<RitualCompletion[]> {
+  async getRitualCompletions(ritualId: string, limit = 30, offset = 0): Promise<Result<RitualCompletion[], Error>> {
     try {
       const { data, error } = await supabase
         .from('ritual_completions')
@@ -312,36 +332,42 @@ export const wellnessService = {
         .order('completed_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as RitualCompletion[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as RitualCompletion[])
     } catch (err) {
       console.error('Error fetching completions:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get wellness streaks
    */
-  async getWellnessStreaks(): Promise<WellnessStreak[]> {
+  async getWellnessStreaks(): Promise<Result<WellnessStreak[], Error>> {
     try {
       const { data, error } = await supabase
         .from('wellness_streaks')
         .select('*')
         .order('current_streak', { ascending: false })
 
-      if (error) throw error
-      return (data || []) as WellnessStreak[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as WellnessStreak[])
     } catch (err) {
       console.error('Error fetching streaks:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get streak for specific activity type
    */
-  async getActivityStreak(activityType: string): Promise<WellnessStreak | null> {
+  async getActivityStreak(activityType: string): Promise<Result<WellnessStreak | null, Error>> {
     try {
       const { data, error } = await supabase
         .from('wellness_streaks')
@@ -349,11 +375,15 @@ export const wellnessService = {
         .eq('activity_type', activityType)
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as WellnessStreak | null
+      // PGRST116 means no rows found - this is not an error
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || null) as WellnessStreak | null)
     } catch (err) {
       console.error('Error fetching streak:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -370,7 +400,7 @@ export const wellnessService = {
       frequency?: GoalFrequency
       end_date?: string
     }
-  ): Promise<string> {
+  ): Promise<Result<string, Error>> {
     try {
       const { data, error } = await supabase
         .from('wellness_goals')
@@ -390,17 +420,20 @@ export const wellnessService = {
         .select('id')
         .single()
 
-      if (error) throw error
-      return data.id as string
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data.id as string)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to create goal')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user's wellness goals
    */
-  async getUserGoals(status?: GoalStatus): Promise<WellnessGoal[]> {
+  async getUserGoals(status?: GoalStatus): Promise<Result<WellnessGoal[], Error>> {
     try {
       let query = supabase.from('wellness_goals').select('*')
 
@@ -410,61 +443,76 @@ export const wellnessService = {
 
       const { data, error } = await query.order('start_date', { ascending: false })
 
-      if (error) throw error
-      return (data || []) as WellnessGoal[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as WellnessGoal[])
     } catch (err) {
       console.error('Error fetching goals:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Update goal progress
    */
-  async updateGoalProgress(goalId: string, progress: number): Promise<void> {
+  async updateGoalProgress(goalId: string, progress: number): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('wellness_goals')
         .update({ current_progress: progress })
         .eq('id', goalId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to update goal')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get wellness statistics
    */
-  async getWellnessStats(): Promise<WellnessStats | null> {
+  async getWellnessStats(): Promise<Result<WellnessStats | null, Error>> {
     try {
       const { data, error } = await supabase
         .from('wellness_stats')
         .select('*')
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as WellnessStats | null
+      // PGRST116 means no rows found - this is not an error
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || null) as WellnessStats | null)
     } catch (err) {
       console.error('Error fetching stats:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Delete ritual
    */
-  async deleteRitual(ritualId: string): Promise<void> {
+  async deleteRitual(ritualId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('rituals')
         .update({ is_active: false })
         .eq('id', ritualId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to delete ritual')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 }

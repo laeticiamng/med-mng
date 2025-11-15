@@ -4,6 +4,8 @@
  */
 
 import { supabase } from '@/integrations/supabase/client'
+import { Result, success, failure } from '@/types/result'
+import { extractErrorMessage } from '@/lib/error-messages'
 
 export type PostVisibility = 'public' | 'followers' | 'private'
 export type PostStatus = 'draft' | 'published' | 'archived'
@@ -73,7 +75,7 @@ export const postsService = {
       allowsComments?: boolean
       allowsLikes?: boolean
     }
-  ): Promise<string> {
+  ): Promise<Result<string, Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -95,17 +97,20 @@ export const postsService = {
         .select('id')
         .single()
 
-      if (error) throw error
-      return data.id as string
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data.id as string)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to create post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user's posts
    */
-  async getUserPosts(userId: string, limit = 20, offset = 0): Promise<Post[]> {
+  async getUserPosts(userId: string, limit = 20, offset = 0): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -116,36 +121,42 @@ export const postsService = {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as Post[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Post[])
     } catch (err) {
       console.error('Error fetching user posts:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get feed posts
    */
-  async getFeedPosts(limit = 20, offset = 0): Promise<Post[]> {
+  async getFeedPosts(limit = 20, offset = 0): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase.rpc('get_feed_posts', {
         limit_param: limit,
         offset_param: offset,
       })
 
-      if (error) throw error
-      return (data || []) as Post[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Post[])
     } catch (err) {
       console.error('Error fetching feed posts:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get a specific post
    */
-  async getPost(postId: string): Promise<Post | null> {
+  async getPost(postId: string): Promise<Result<Post | null, Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -154,80 +165,100 @@ export const postsService = {
         .is('deleted_at', null)
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as Post | null
+      // PGRST116 means no rows found - this is not an error
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || null) as Post | null)
     } catch (err) {
       console.error('Error fetching post:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Update post
    */
-  async updatePost(postId: string, updates: Partial<Post>): Promise<void> {
+  async updatePost(postId: string, updates: Partial<Post>): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('posts')
         .update(updates)
         .eq('id', postId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to update post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Delete post (soft delete)
    */
-  async deletePost(postId: string): Promise<void> {
+  async deletePost(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('posts')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', postId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to delete post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Like a post
    */
-  async likePost(postId: string): Promise<void> {
+  async likePost(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('like_post', {
         post_id_param: postId,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to like post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Unlike a post
    */
-  async unlikePost(postId: string): Promise<void> {
+  async unlikePost(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('unlike_post', {
         post_id_param: postId,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to unlike post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Check if user has liked a post
    */
-  async isPostLiked(postId: string): Promise<boolean> {
+  async isPostLiked(postId: string): Promise<Result<boolean, Error>> {
     try {
       const { data, error } = await supabase
         .from('post_likes')
@@ -235,18 +266,22 @@ export const postsService = {
         .eq('post_id', postId)
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return !!data
+      // PGRST116 means no rows found - not an error, just not liked
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(!!data)
     } catch (err) {
       console.error('Error checking like status:', err)
-      return false
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Create a comment
    */
-  async createComment(postId: string, content: string, parentCommentId?: string): Promise<string> {
+  async createComment(postId: string, content: string, parentCommentId?: string): Promise<Result<string, Error>> {
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -261,23 +296,25 @@ export const postsService = {
         .select('id')
         .single()
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
 
       // Update post comments count
       await supabase.rpc('increment_post_comments', {
         post_id_param: postId,
       })
 
-      return data.id as string
+      return success(data.id as string)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to create comment')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get post comments
    */
-  async getPostComments(postId: string, limit = 20, offset = 0): Promise<Comment[]> {
+  async getPostComments(postId: string, limit = 20, offset = 0): Promise<Result<Comment[], Error>> {
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -288,18 +325,21 @@ export const postsService = {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as Comment[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Comment[])
     } catch (err) {
       console.error('Error fetching comments:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get comment replies
    */
-  async getCommentReplies(commentId: string): Promise<Comment[]> {
+  async getCommentReplies(commentId: string): Promise<Result<Comment[], Error>> {
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -309,82 +349,102 @@ export const postsService = {
         .is('deleted_at', null)
         .order('created_at', { ascending: true })
 
-      if (error) throw error
-      return (data || []) as Comment[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Comment[])
     } catch (err) {
       console.error('Error fetching replies:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Update comment
    */
-  async updateComment(commentId: string, content: string): Promise<void> {
+  async updateComment(commentId: string, content: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('comments')
         .update({ content, is_edited: true, edited_at: new Date().toISOString() })
         .eq('id', commentId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to update comment')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Delete comment (soft delete)
    */
-  async deleteComment(commentId: string): Promise<void> {
+  async deleteComment(commentId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('comments')
         .update({ deleted_at: new Date().toISOString(), status: 'deleted' })
         .eq('id', commentId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to delete comment')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Bookmark a post
    */
-  async bookmarkPost(postId: string): Promise<void> {
+  async bookmarkPost(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('post_bookmarks')
         .insert([{ post_id: postId }])
         .on('conflict', 'post_id,user_id', 'DO NOTHING')
 
-      if (error && error.code !== '23505') throw error
+      // 23505 is duplicate key error - acceptable for bookmarks
+      if (error && error.code !== '23505') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to bookmark post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Remove bookmark
    */
-  async removeBookmark(postId: string): Promise<void> {
+  async removeBookmark(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('post_bookmarks')
         .delete()
         .eq('post_id', postId)
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to remove bookmark')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user's bookmarks
    */
-  async getUserBookmarks(userId: string, limit = 20, offset = 0): Promise<Post[]> {
+  async getUserBookmarks(userId: string, limit = 20, offset = 0): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase
         .from('post_bookmarks')
@@ -393,18 +453,21 @@ export const postsService = {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return data?.map((item: any) => item.posts) || []
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data?.map((item: any) => item.posts) || [])
     } catch (err) {
       console.error('Error fetching bookmarks:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Search posts
    */
-  async searchPosts(query: string, limit = 20, offset = 0): Promise<Post[]> {
+  async searchPosts(query: string, limit = 20, offset = 0): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -415,18 +478,21 @@ export const postsService = {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as Post[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Post[])
     } catch (err) {
       console.error('Error searching posts:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get trending posts
    */
-  async getTrendingPosts(limit = 10): Promise<Post[]> {
+  async getTrendingPosts(limit = 10): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -436,18 +502,21 @@ export const postsService = {
         .order('engagement_score', { ascending: false })
         .limit(limit)
 
-      if (error) throw error
-      return (data || []) as Post[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Post[])
     } catch (err) {
       console.error('Error fetching trending posts:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get posts by category
    */
-  async getPostsByCategory(category: PostCategory, limit = 20, offset = 0): Promise<Post[]> {
+  async getPostsByCategory(category: PostCategory, limit = 20, offset = 0): Promise<Result<Post[], Error>> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -458,26 +527,34 @@ export const postsService = {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
-      if (error) throw error
-      return (data || []) as Post[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as Post[])
     } catch (err) {
       console.error('Error fetching posts by category:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Increment post views
    */
-  async incrementViews(postId: string): Promise<void> {
+  async incrementViews(postId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('increment_post_views', {
         post_id_param: postId,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
       console.error('Error incrementing views:', err)
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -488,7 +565,7 @@ export const postsService = {
     postId: string,
     sharedTo: 'followers' | 'direct' | 'public',
     message?: string
-  ): Promise<void> {
+  ): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase
         .from('post_shares')
@@ -500,14 +577,18 @@ export const postsService = {
           },
         ])
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
 
       // Update post shares count
       await supabase.rpc('increment_post_shares', {
         post_id_param: postId,
       })
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to share post')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 }
