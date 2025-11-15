@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Bell, Trash2, Heart, MessageCircle, UserPlus, Mention } from 'lucide-react'
+import { Bell, Trash2, Heart, MessageCircle, UserPlus, AtSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -40,7 +40,7 @@ export default function NotificationPanel({ userId, onClose }: NotificationPanel
       case 'follow':
         return <UserPlus className="h-4 w-4 text-green-500" />
       case 'mention':
-        return <Mention className="h-4 w-4 text-purple-500" />
+        return <AtSign className="h-4 w-4 text-purple-500" />
       default:
         return <Bell className="h-4 w-4 text-gray-500" />
     }

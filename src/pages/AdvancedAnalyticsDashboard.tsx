@@ -33,7 +33,7 @@ import {
   Loader,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 // Sample data for charts

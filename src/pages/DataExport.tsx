@@ -10,7 +10,7 @@ import {
   useCreateExportJob,
   useDeleteExpiredExports,
 } from '@/hooks/useDataExport'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Link } from 'react-router-dom'

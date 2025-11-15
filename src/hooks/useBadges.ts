@@ -275,3 +275,14 @@ export function useCheckAndAwardBadges() {
     },
   })
 }
+
+// Combined hook for dashboard usage
+export function useBadges() {
+  // Return empty/demo data structure for compatibility
+  return {
+    badges: [],
+    earnedBadges: [],
+    totalBadges: 0,
+    progressPercentage: 0,
+  }
+}

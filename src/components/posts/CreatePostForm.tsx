@@ -15,7 +15,7 @@ import {
 import { Image, Loader, X } from 'lucide-react'
 import { useCreatePost } from '@/hooks/usePosts'
 import { PostCategory } from '@/services/posts.service'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 
 interface CreatePostFormProps {
