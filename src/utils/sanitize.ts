@@ -6,10 +6,10 @@ import DOMPurify from 'dompurify';
  * @param options - Optional DOMPurify configuration
  * @returns Sanitized HTML string safe for rendering
  */
-export function sanitizeHtml(html: string, options?: any): string {
+export function sanitizeHtml(html: string, options?: DOMPurify.Config): string {
   if (!html) return '';
-  
-  const defaultConfig: any = {
+
+  const defaultConfig: DOMPurify.Config = {
     // Allow basic formatting tags
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'ul', 'ol', 'li', 'span', 'div'],
     // Allow safe attributes
@@ -22,7 +22,7 @@ export function sanitizeHtml(html: string, options?: any): string {
     ...options
   };
 
-  return DOMPurify.sanitize(html, defaultConfig) as unknown as string;
+  return DOMPurify.sanitize(html, defaultConfig) as string;
 }
 
 /**
@@ -51,7 +51,7 @@ export function sanitizeTextWithBreaks(text: string): string {
  * @param options - Optional DOMPurify configuration
  * @returns Object with __html property safe for React
  */
-export function createSafeHtml(html: string, options?: any): { __html: string } {
+export function createSafeHtml(html: string, options?: DOMPurify.Config): { __html: string } {
   return {
     __html: sanitizeHtml(html, options)
   };

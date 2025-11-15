@@ -9,7 +9,7 @@ export interface StandardErrorResponse {
   message: string;        // Human-readable message
   timestamp: string;      // ISO string
   path?: string;          // Request path for debugging
-  details?: any;          // Additional context
+  details?: unknown;      // Additional context
   requestId?: string;     // Unique request identifier
 }
 
@@ -22,7 +22,7 @@ export interface ErrorContext {
   method?: string;
   ip?: string;
   requestId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export enum ErrorSeverity {
@@ -117,10 +117,11 @@ export class AuthorizationError extends AppError {
 
 export class ValidationError extends AppError {
   constructor(message: string, fields?: string[], context?: ErrorContext) {
-    super(message, 400, ErrorCategory.VALIDATION, ErrorSeverity.LOW, context);
-    if (fields && this.context) {
-      (this as any).context = { ...this.context, metadata: { invalidFields: fields } };
-    }
+    const contextWithFields = fields ? {
+      ...context,
+      metadata: { ...context?.metadata, invalidFields: fields }
+    } : context;
+    super(message, 400, ErrorCategory.VALIDATION, ErrorSeverity.LOW, contextWithFields);
   }
 }
 

@@ -3,7 +3,17 @@ import { handleLibrary } from '../supabase/functions/med-mng-api/routes/library.
 import { handleQuota } from '../supabase/functions/med-mng-api/routes/quota.ts';
 import { handleSubscriptions } from '../supabase/functions/med-mng-api/routes/subscriptions.ts';
 
-const createRequest = (path: string, method: string, body?: any) =>
+// Extend global namespace to include Deno for tests
+declare global {
+  // eslint-disable-next-line no-var
+  var Deno: {
+    env: {
+      get: (key: string) => string | undefined;
+    };
+  };
+}
+
+const createRequest = (path: string, method: string, body?: unknown) =>
   new Request(`https://example.com${path}`, {
     method,
     headers: { 'Content-Type': 'application/json' },
@@ -13,7 +23,6 @@ const createRequest = (path: string, method: string, body?: any) =>
 describe('med-mng-api route handlers', () => {
   beforeAll(() => {
     // Provide Deno.env.get in Node tests
-    // @ts-ignore
     global.Deno = { env: { get: (k: string) => process.env[k] } };
   });
 

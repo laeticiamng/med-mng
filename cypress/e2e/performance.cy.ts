@@ -1,3 +1,18 @@
+// Extend Window interface to include non-standard performance.memory API
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface ExtendedPerformance extends Performance {
+  memory?: PerformanceMemory;
+}
+
+interface ExtendedWindow extends Window {
+  performance: ExtendedPerformance;
+}
+
 describe('Performance Tests - MED-MNG', () => {
   beforeEach(() => {
     cy.visit('/')
@@ -74,27 +89,26 @@ describe('Performance Tests - MED-MNG', () => {
   describe('Memory Usage', () => {
     it('should not have memory leaks during navigation', () => {
       let initialMemory: number
-      
+
       cy.window().then((win) => {
-        // @ts-ignore - performance.memory might not be available in all browsers
-        initialMemory = win.performance.memory?.usedJSHeapSize || 0
+        // performance.memory is a non-standard API available in Chrome
+        initialMemory = (win as unknown as ExtendedWindow).performance.memory?.usedJSHeapSize || 0
       })
-      
+
       // Navigate through multiple pages
       cy.visit('/edn')
       cy.visit('/music')
       cy.visit('/library')
       cy.visit('/profile')
       cy.visit('/')
-      
+
       cy.window().then((win) => {
-        // @ts-ignore
-        const finalMemory = win.performance.memory?.usedJSHeapSize || 0
-        
+        const finalMemory = (win as unknown as ExtendedWindow).performance.memory?.usedJSHeapSize || 0
+
         if (initialMemory > 0 && finalMemory > 0) {
           const memoryIncrease = finalMemory - initialMemory
           const percentageIncrease = (memoryIncrease / initialMemory) * 100
-          
+
           // Memory should not increase by more than 50% during navigation
           expect(percentageIncrease).to.be.lessThan(50)
         }

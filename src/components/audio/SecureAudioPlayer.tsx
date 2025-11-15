@@ -123,12 +123,15 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
 
   // Bloquer les tentatives de téléchargement via DevTools
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const blockDevTools = () => {
       // Détecter l'ouverture des DevTools
       let devtools = { open: false, orientation: null };
-      
+
       setInterval(() => {
-        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        if (typeof window !== 'undefined' && (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160)) {
           if (!devtools.open) {
             devtools.open = true;
             console.clear();
@@ -140,12 +143,14 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       }, 500);
 
       // Bloquer les tentatives de copie d'URL
-      document.addEventListener('copy', (e) => {
-        if (window.getSelection()?.toString().includes('blob:')) {
-          e.clipboardData?.setData('text/plain', 'Contenu protégé - Téléchargement non autorisé');
-          e.preventDefault();
-        }
-      });
+      if (typeof document !== 'undefined') {
+        document.addEventListener('copy', (e) => {
+          if (typeof window !== 'undefined' && window.getSelection()?.toString().includes('blob:')) {
+            e.clipboardData?.setData('text/plain', 'Contenu protégé - Téléchargement non autorisé');
+            e.preventDefault();
+          }
+        });
+      }
     };
 
     blockDevTools();
@@ -175,9 +180,8 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         onDragStart={(e) => e.preventDefault()}
         style={{
           // CSS pour masquer les boutons de téléchargement
-          //@ts-ignore
-          '--webkit-media-controls-download-button': 'none'
-        }}
+          ['--webkit-media-controls-download-button' as string]: 'none'
+        } as React.CSSProperties}
       />
       
       {/* Métadonnées affichées de manière sécurisée */}

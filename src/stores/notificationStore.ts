@@ -10,7 +10,7 @@ export interface TrendNotification {
   type: 'trending-item' | 'popular-search' | 'performance-alert';
   title: string;
   message: string;
-  data?: any;
+  data?: unknown;
   timestamp: number;
   read: boolean;
 }
