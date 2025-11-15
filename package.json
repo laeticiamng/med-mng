@@ -14,8 +14,10 @@
     "test": "jest",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
+    "extract-oic": "node --loader ts-node/esm scripts/extract-oic-to-json.ts",
     "import-oic": "node --loader ts-node/esm scripts/import-oic-from-uness.ts",
-    "generate-quiz": "node --loader ts-node/esm scripts/generate-quiz-questions.ts"
+    "generate-quiz": "node --loader ts-node/esm scripts/generate-quiz-questions.ts",
+    "validate-migrations": "node --loader ts-node/esm scripts/validate-migrations.ts"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
