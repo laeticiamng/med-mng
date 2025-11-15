@@ -23,12 +23,12 @@ interface HelpArticle {
   title: string;
   content: string;
   category: string;
-  author: string;
+  author_id: string | null;
   created_at: string;
   updated_at: string;
-  views: number;
+  views_count: number;
   helpful_count: number;
-  not_helpful_count: number;
+  unhelpful_count: number;
 }
 
 interface RelatedArticle {
@@ -116,7 +116,7 @@ export const HelpArticle = () => {
 
   const handleFeedback = async (isHelpful: boolean) => {
     try {
-      const column = isHelpful ? 'helpful_count' : 'not_helpful_count';
+      const column = isHelpful ? 'helpful_count' : 'unhelpful_count';
       const feedbackType = isHelpful ? 'helpful' : 'not-helpful';
 
       // Prevent duplicate feedback
@@ -261,7 +261,7 @@ export const HelpArticle = () => {
                   <CardDescription className="flex items-center gap-4 text-sm">
                     <span className="flex items-center gap-1">
                       <User className="h-3 w-3" />
-                      {article.author}
+                      Auteur
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -271,7 +271,7 @@ export const HelpArticle = () => {
                         day: 'numeric'
                       })}
                     </span>
-                    <span>{article.views} vues</span>
+                    <span>{article.views_count} vues</span>
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -310,7 +310,7 @@ export const HelpArticle = () => {
                     disabled={userFeedback !== null}
                   >
                     <ThumbsDown className="mr-2 h-4 w-4" />
-                    Non ({article.not_helpful_count})
+                    Non ({article.unhelpful_count})
                   </Button>
                 </div>
                 {userFeedback && (

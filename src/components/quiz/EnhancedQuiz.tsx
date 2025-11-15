@@ -47,6 +47,7 @@ interface QuizSession {
   endTime?: Date;
   score: number;
   completed: boolean;
+  timeSpent?: number; // Total time in milliseconds
 }
 
 interface EnhancedQuizProps {
@@ -120,6 +121,9 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   };
 
   const completeQuiz = () => {
+    // Calculate total time spent across all answers
+    const totalTimeSpent = answers.reduce((sum, answer) => sum + answer.timeSpent, 0);
+
     const session: QuizSession = {
       sessionId: crypto.randomUUID(),
       itemCode,
@@ -129,12 +133,13 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       startTime: sessionStartTime,
       endTime: new Date(),
       score: totalScore,
-      completed: true
+      completed: true,
+      timeSpent: totalTimeSpent
     };
 
     setIsCompleted(true);
     onComplete?.(session);
-    
+
     // Sauvegarder la session
     saveQuizSession(session);
   };
@@ -148,24 +153,33 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         return;
       }
 
+      // Map 'mix' rang to 'AB' for database compatibility
+      const dbRang = session.rang === 'mix' ? 'AB' : session.rang;
+
+      // Convert milliseconds to seconds for database
+      const timeInSeconds = session.timeSpent ? Math.round(session.timeSpent / 1000) : null;
+
       const { error } = await supabase.from('quiz_sessions').insert({
         user_id: user.id,
         item_code: session.itemCode,
-        rang: session.rang,
+        rang: dbRang,
         score: session.score,
         questions_count: session.questions.length,
         correct_answers: session.answers.filter(a => a.isCorrect).length,
         session_data: session,
-        time_spent_seconds: session.timeSpent || null
+        time_spent_seconds: timeInSeconds
       });
 
       if (error) {
         console.error('Error saving quiz session:', error);
+        toast.error('Impossible de sauvegarder la session de quiz');
       } else {
         console.log('✅ Quiz session saved successfully');
+        toast.success('Session de quiz sauvegardée');
       }
     } catch (error) {
       console.error('Error saving quiz session:', error);
+      toast.error('Erreur lors de la sauvegarde');
     }
   };
 

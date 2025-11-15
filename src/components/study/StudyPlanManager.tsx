@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface StudyPlan {
   id: string;
+  user_id?: string; // Optional as it's managed by Supabase
   title: string;
   description: string;
   target_date: string;
@@ -24,6 +25,7 @@ interface StudyPlan {
 interface StudySession {
   id: string;
   plan_id: string;
+  user_id?: string; // Optional as it's managed by Supabase
   title: string;
   duration_minutes: number;
   completed: boolean;
