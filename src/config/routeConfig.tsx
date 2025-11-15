@@ -182,6 +182,9 @@ const QuestDetail = lazy(() => import('@/pages/QuestDetail'));
 const QuestStart = lazy(() => import('@/pages/QuestStart'));
 const AmbitionsManager = lazy(() => import('@/pages/AmbitionsManager'));
 
+// Priority 1 - Goals
+const Goals = lazy(() => import('@/pages/Goals'));
+
 // Priority 2 - Help & Support
 const HelpCenter = lazy(() => import('@/pages/HelpCenter'));
 const FAQ = lazy(() => import('@/pages/FAQ'));

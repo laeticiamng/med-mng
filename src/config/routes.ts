@@ -132,6 +132,11 @@ export const ROUTE_PATHS = {
   questStart: '/quests/:questId/start',
   ambitions: '/ambitions',
 
+  // Goals & Objectives
+  goals: '/goals',
+  goalDetail: '/goals/:goalId',
+  goalsCreate: '/goals/create',
+
   // ==================== NOUVELLES ROUTES PRIORITÉ 2 🟡 ====================
 
   // Help & Support

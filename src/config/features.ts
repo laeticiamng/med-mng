@@ -128,7 +128,7 @@ export const FEATURE_FLAGS = {
     description: "Planificateur d'études",
   },
   goalSetting: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - GoalManager + GoalTrackerWidget + useGoals hooks
     description: "Définition d'objectifs d'apprentissage",
   },
   practiceMode: {
