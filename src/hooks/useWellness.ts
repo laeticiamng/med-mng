@@ -22,7 +22,7 @@ export function useLogActivity() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       activityType: ActivityType
       name: string
       duration_minutes?: number
@@ -32,8 +32,8 @@ export function useLogActivity() {
       location?: string
       notes?: string
       activity_date?: string
-    }) =>
-      wellnessService.logActivity(params.activityType, params.name, {
+    }) => {
+      const result = await wellnessService.logActivity(params.activityType, params.name, {
         duration_minutes: params.duration_minutes,
         intensity_level: params.intensity_level as any,
         mood_before: params.mood_before as any,
@@ -41,7 +41,12 @@ export function useLogActivity() {
         location: params.location,
         notes: params.notes,
         activity_date: params.activity_date,
-      }),
+      })
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.activities() })
       queryClient.invalidateQueries({ queryKey: wellnessKeys.stats() })
@@ -62,7 +67,13 @@ export function useFetchActivities(
 ) {
   return useQuery({
     queryKey: [...wellnessKeys.activities(), limit, offset, activityType, startDate, endDate],
-    queryFn: () => wellnessService.getUserActivities(limit, offset, activityType, startDate, endDate),
+    queryFn: async () => {
+      const result = await wellnessService.getUserActivities(limit, offset, activityType, startDate, endDate)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
@@ -73,7 +84,13 @@ export function useFetchActivities(
 export function useFetchActivitySummary(startDate: string, endDate: string) {
   return useQuery({
     queryKey: wellnessKeys.summary(startDate, endDate),
-    queryFn: () => wellnessService.getActivitySummary(startDate, endDate),
+    queryFn: async () => {
+      const result = await wellnessService.getActivitySummary(startDate, endDate)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
     enabled: !!startDate && !!endDate,
   })
@@ -86,7 +103,7 @@ export function useCreateRitual() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       name: string
       category: RitualCategory
       description?: string
@@ -95,15 +112,20 @@ export function useCreateRitual() {
       reminder_time?: string
       color?: string
       icon?: string
-    }) =>
-      wellnessService.createRitual(params.name, params.category, {
+    }) => {
+      const result = await wellnessService.createRitual(params.name, params.category, {
         description: params.description,
         frequency: params.frequency as any,
         duration_minutes: params.duration_minutes,
         reminder_time: params.reminder_time,
         color: params.color,
         icon: params.icon,
-      }),
+      })
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.rituals() })
     },
@@ -116,7 +138,13 @@ export function useCreateRitual() {
 export function useFetchRituals(category?: RitualCategory, activeOnly = true) {
   return useQuery({
     queryKey: [...wellnessKeys.rituals(), category, activeOnly],
-    queryFn: () => wellnessService.getUserRituals(category, activeOnly),
+    queryFn: async () => {
+      const result = await wellnessService.getUserRituals(category, activeOnly)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
@@ -128,12 +156,17 @@ export function useCompleteRitual(ritualId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: { durationMinutes?: number; notes?: string; mood_before?: string; mood_after?: string }) =>
-      wellnessService.completeRitual(ritualId, params.durationMinutes, {
+    mutationFn: async (params: { durationMinutes?: number; notes?: string; mood_before?: string; mood_after?: string }) => {
+      const result = await wellnessService.completeRitual(ritualId, params.durationMinutes, {
         notes: params.notes,
         mood_before: params.mood_before as any,
         mood_after: params.mood_after as any,
-      }),
+      })
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.completions(ritualId) })
       queryClient.invalidateQueries({ queryKey: wellnessKeys.stats() })
@@ -147,7 +180,13 @@ export function useCompleteRitual(ritualId: string) {
 export function useFetchRitualCompletions(ritualId: string, limit = 30, offset = 0) {
   return useQuery({
     queryKey: [...wellnessKeys.completions(ritualId), limit, offset],
-    queryFn: () => wellnessService.getRitualCompletions(ritualId, limit, offset),
+    queryFn: async () => {
+      const result = await wellnessService.getRitualCompletions(ritualId, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!ritualId,
   })
@@ -159,7 +198,13 @@ export function useFetchRitualCompletions(ritualId: string, limit = 30, offset =
 export function useFetchWellnessStreaks() {
   return useQuery({
     queryKey: wellnessKeys.streaks(),
-    queryFn: () => wellnessService.getWellnessStreaks(),
+    queryFn: async () => {
+      const result = await wellnessService.getWellnessStreaks()
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
   })
 }
@@ -170,7 +215,13 @@ export function useFetchWellnessStreaks() {
 export function useFetchActivityStreak(activityType: string) {
   return useQuery({
     queryKey: wellnessKeys.streak(activityType),
-    queryFn: () => wellnessService.getActivityStreak(activityType),
+    queryFn: async () => {
+      const result = await wellnessService.getActivityStreak(activityType)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
     enabled: !!activityType,
   })
@@ -183,7 +234,7 @@ export function useCreateGoal() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       goalType: GoalType
       title: string
       targetValue?: number
@@ -191,13 +242,18 @@ export function useCreateGoal() {
       target_unit?: string
       frequency?: string
       end_date?: string
-    }) =>
-      wellnessService.createGoal(params.goalType, params.title, params.targetValue, {
+    }) => {
+      const result = await wellnessService.createGoal(params.goalType, params.title, params.targetValue, {
         description: params.description,
         target_unit: params.target_unit,
         frequency: params.frequency as any,
         end_date: params.end_date,
-      }),
+      })
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.goals() })
     },
@@ -210,7 +266,13 @@ export function useCreateGoal() {
 export function useFetchGoals(status?: GoalStatus) {
   return useQuery({
     queryKey: [...wellnessKeys.goals(), status],
-    queryFn: () => wellnessService.getUserGoals(status),
+    queryFn: async () => {
+      const result = await wellnessService.getUserGoals(status)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
   })
 }
@@ -222,7 +284,13 @@ export function useUpdateGoalProgress(goalId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (progress: number) => wellnessService.updateGoalProgress(goalId, progress),
+    mutationFn: async (progress: number) => {
+      const result = await wellnessService.updateGoalProgress(goalId, progress)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.goals() })
     },
@@ -235,7 +303,13 @@ export function useUpdateGoalProgress(goalId: string) {
 export function useFetchWellnessStats() {
   return useQuery({
     queryKey: wellnessKeys.stats(),
-    queryFn: () => wellnessService.getWellnessStats(),
+    queryFn: async () => {
+      const result = await wellnessService.getWellnessStats()
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 15, // 15 minutes
   })
 }
@@ -247,7 +321,13 @@ export function useDeleteRitual() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (ritualId: string) => wellnessService.deleteRitual(ritualId),
+    mutationFn: async (ritualId: string) => {
+      const result = await wellnessService.deleteRitual(ritualId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wellnessKeys.rituals() })
     },

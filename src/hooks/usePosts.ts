@@ -20,7 +20,13 @@ const postsKeys = {
 export function useFetchFeedPosts(limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.feed(), limit, offset],
-    queryFn: () => postsService.getFeedPosts(limit, offset),
+    queryFn: async () => {
+      const result = await postsService.getFeedPosts(limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60, // 1 minute
   })
 }
@@ -31,7 +37,13 @@ export function useFetchFeedPosts(limit = 20, offset = 0) {
 export function useFetchUserPosts(userId: string, limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.userPosts(userId), limit, offset],
-    queryFn: () => postsService.getUserPosts(userId, limit, offset),
+    queryFn: async () => {
+      const result = await postsService.getUserPosts(userId, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -43,7 +55,13 @@ export function useFetchUserPosts(userId: string, limit = 20, offset = 0) {
 export function useFetchPost(postId: string) {
   return useQuery({
     queryKey: postsKeys.post(postId),
-    queryFn: () => postsService.getPost(postId),
+    queryFn: async () => {
+      const result = await postsService.getPost(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60, // 1 minute
     enabled: !!postId,
   })
@@ -56,20 +74,25 @@ export function useCreatePost() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       title: string
       content: string
       description?: string
       imageUrl?: string
       category?: PostCategory
       tags?: string[]
-    }) =>
-      postsService.createPost(params.title, params.content, {
+    }) => {
+      const result = await postsService.createPost(params.title, params.content, {
         description: params.description,
         imageUrl: params.imageUrl,
         category: params.category,
         tags: params.tags,
-      }),
+      })
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
     },
@@ -83,7 +106,13 @@ export function useUpdatePost(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (updates: Partial<Post>) => postsService.updatePost(postId, updates),
+    mutationFn: async (updates: Partial<Post>) => {
+      const result = await postsService.updatePost(postId, updates)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
       queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
@@ -98,7 +127,13 @@ export function useDeletePost() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (postId: string) => postsService.deletePost(postId),
+    mutationFn: async (postId: string) => {
+      const result = await postsService.deletePost(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
       queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
@@ -113,7 +148,13 @@ export function useLikePost(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => postsService.likePost(postId),
+    mutationFn: async () => {
+      const result = await postsService.likePost(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
     },
@@ -127,7 +168,13 @@ export function useUnlikePost(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => postsService.unlikePost(postId),
+    mutationFn: async () => {
+      const result = await postsService.unlikePost(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
     },
@@ -141,8 +188,13 @@ export function useCreateComment(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: { content: string; parentCommentId?: string }) =>
-      postsService.createComment(postId, params.content, params.parentCommentId),
+    mutationFn: async (params: { content: string; parentCommentId?: string }) => {
+      const result = await postsService.createComment(postId, params.content, params.parentCommentId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
       queryClient.invalidateQueries({ queryKey: postsKeys.post(postId) })
@@ -156,7 +208,13 @@ export function useCreateComment(postId: string) {
 export function useFetchPostComments(postId: string, limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.comments(postId), limit, offset],
-    queryFn: () => postsService.getPostComments(postId, limit, offset),
+    queryFn: async () => {
+      const result = await postsService.getPostComments(postId, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 30, // 30 seconds
     enabled: !!postId,
   })
@@ -168,7 +226,13 @@ export function useFetchPostComments(postId: string, limit = 20, offset = 0) {
 export function useFetchCommentReplies(commentId: string) {
   return useQuery({
     queryKey: [...postsKeys.comments(''), 'replies', commentId],
-    queryFn: () => postsService.getCommentReplies(commentId),
+    queryFn: async () => {
+      const result = await postsService.getCommentReplies(commentId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 30, // 30 seconds
     enabled: !!commentId,
   })
@@ -181,8 +245,13 @@ export function useUpdateComment(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: { commentId: string; content: string }) =>
-      postsService.updateComment(params.commentId, params.content),
+    mutationFn: async (params: { commentId: string; content: string }) => {
+      const result = await postsService.updateComment(params.commentId, params.content)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
     },
@@ -196,7 +265,13 @@ export function useDeleteComment(postId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (commentId: string) => postsService.deleteComment(commentId),
+    mutationFn: async (commentId: string) => {
+      const result = await postsService.deleteComment(commentId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.comments(postId) })
     },
@@ -210,7 +285,13 @@ export function useBookmarkPost(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (postId: string) => postsService.bookmarkPost(postId),
+    mutationFn: async (postId: string) => {
+      const result = await postsService.bookmarkPost(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks(userId) })
     },
@@ -224,7 +305,13 @@ export function useRemoveBookmark(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (postId: string) => postsService.removeBookmark(postId),
+    mutationFn: async (postId: string) => {
+      const result = await postsService.removeBookmark(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks(userId) })
     },
@@ -237,7 +324,13 @@ export function useRemoveBookmark(userId: string) {
 export function useFetchBookmarks(userId: string, limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.bookmarks(userId), limit, offset],
-    queryFn: () => postsService.getUserBookmarks(userId, limit, offset),
+    queryFn: async () => {
+      const result = await postsService.getUserBookmarks(userId, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -249,7 +342,13 @@ export function useFetchBookmarks(userId: string, limit = 20, offset = 0) {
 export function useSearchPosts(query: string, enabled = false, limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.search(query), limit, offset],
-    queryFn: () => postsService.searchPosts(query, limit, offset),
+    queryFn: async () => {
+      const result = await postsService.searchPosts(query, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: enabled && query.length > 2,
   })
@@ -261,7 +360,13 @@ export function useSearchPosts(query: string, enabled = false, limit = 20, offse
 export function useFetchTrendingPosts(limit = 10) {
   return useQuery({
     queryKey: [...postsKeys.trending(), limit],
-    queryFn: () => postsService.getTrendingPosts(limit),
+    queryFn: async () => {
+      const result = await postsService.getTrendingPosts(limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
   })
 }
@@ -272,7 +377,13 @@ export function useFetchTrendingPosts(limit = 10) {
 export function useFetchPostsByCategory(category: PostCategory, limit = 20, offset = 0) {
   return useQuery({
     queryKey: [...postsKeys.category(category), limit, offset],
-    queryFn: () => postsService.getPostsByCategory(category, limit, offset),
+    queryFn: async () => {
+      const result = await postsService.getPostsByCategory(category, limit, offset)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!category,
   })
@@ -283,7 +394,13 @@ export function useFetchPostsByCategory(category: PostCategory, limit = 20, offs
  */
 export function useIncrementPostViews(postId: string) {
   return useMutation({
-    mutationFn: () => postsService.incrementViews(postId),
+    mutationFn: async () => {
+      const result = await postsService.incrementViews(postId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
   })
 }
 
@@ -294,11 +411,17 @@ export function useSharePost() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       postId: string
       sharedTo: 'followers' | 'direct' | 'public'
       message?: string
-    }) => postsService.sharePost(params.postId, params.sharedTo, params.message),
+    }) => {
+      const result = await postsService.sharePost(params.postId, params.sharedTo, params.message)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: postsKeys.post(params.postId) })
     },

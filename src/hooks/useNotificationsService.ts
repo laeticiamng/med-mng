@@ -18,7 +18,13 @@ const notificationKeys = {
 export function useFetchNotifications(userId: string, limit = 20) {
   return useQuery({
     queryKey: notificationKeys.list(userId),
-    queryFn: () => notificationsService.getUserNotifications(userId, limit),
+    queryFn: async () => {
+      const result = await notificationsService.getUserNotifications(userId, limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: !!userId,
   })
@@ -30,7 +36,13 @@ export function useFetchNotifications(userId: string, limit = 20) {
 export function useUnreadCount(userId: string) {
   return useQuery({
     queryKey: notificationKeys.unread(userId),
-    queryFn: () => notificationsService.getUnreadCount(userId),
+    queryFn: async () => {
+      const result = await notificationsService.getUnreadCount(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 30, // 30 seconds
     enabled: !!userId,
   })
@@ -43,8 +55,13 @@ export function useMarkAsRead(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (notificationId: string) =>
-      notificationsService.markAsRead(notificationId),
+    mutationFn: async (notificationId: string) => {
+      const result = await notificationsService.markAsRead(notificationId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       // Invalidate related queries
       queryClient.invalidateQueries({
@@ -64,7 +81,13 @@ export function useMarkAllAsRead(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => notificationsService.markAllAsRead(userId),
+    mutationFn: async () => {
+      const result = await notificationsService.markAllAsRead(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       // Invalidate related queries
       queryClient.invalidateQueries({
@@ -84,8 +107,13 @@ export function useDeleteNotification(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (notificationId: string) =>
-      notificationsService.deleteNotification(notificationId),
+    mutationFn: async (notificationId: string) => {
+      const result = await notificationsService.deleteNotification(notificationId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       // Invalidate related queries
       queryClient.invalidateQueries({
@@ -105,7 +133,13 @@ export function useDeleteAllNotifications(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => notificationsService.deleteAllNotifications(userId),
+    mutationFn: async () => {
+      const result = await notificationsService.deleteAllNotifications(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       // Invalidate related queries
       queryClient.invalidateQueries({
@@ -124,7 +158,13 @@ export function useDeleteAllNotifications(userId: string) {
 export function useFetchPreferences(userId: string) {
   return useQuery({
     queryKey: notificationKeys.preferences(userId),
-    queryFn: () => notificationsService.getPreferences(userId),
+    queryFn: async () => {
+      const result = await notificationsService.getPreferences(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -137,8 +177,13 @@ export function useUpdatePreferences(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (updates: Partial<NotificationPreferences>) =>
-      notificationsService.updatePreferences(userId, updates),
+    mutationFn: async (updates: Partial<NotificationPreferences>) => {
+      const result = await notificationsService.updatePreferences(userId, updates)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.preferences(userId),
@@ -153,7 +198,13 @@ export function useUpdatePreferences(userId: string) {
 export function useFetchRecentActivity(userId: string, days = 7) {
   return useQuery({
     queryKey: notificationKeys.recent(userId),
-    queryFn: () => notificationsService.getRecentActivity(userId, days),
+    queryFn: async () => {
+      const result = await notificationsService.getRecentActivity(userId, days)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -165,7 +216,13 @@ export function useFetchRecentActivity(userId: string, days = 7) {
 export function useFetchNotificationsByType(userId: string, type: NotificationType) {
   return useQuery({
     queryKey: notificationKeys.byType(userId, type),
-    queryFn: () => notificationsService.getNotificationsByType(userId, type),
+    queryFn: async () => {
+      const result = await notificationsService.getNotificationsByType(userId, type)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: !!userId,
   })
@@ -178,8 +235,13 @@ export function useCreateNotification(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: Parameters<typeof notificationsService.createNotification>[0]) =>
-      notificationsService.createNotification(params),
+    mutationFn: async (params: Parameters<typeof notificationsService.createNotification>[0]) => {
+      const result = await notificationsService.createNotification(params)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.list(userId),

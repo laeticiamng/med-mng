@@ -21,7 +21,13 @@ const profileKeys = {
 export function useFetchProfile(userId: string) {
   return useQuery({
     queryKey: profileKeys.profile(userId),
-    queryFn: () => userProfileService.getProfile(userId),
+    queryFn: async () => {
+      const result = await userProfileService.getProfile(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -34,8 +40,13 @@ export function useUpdateProfile(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (updates: Parameters<typeof userProfileService.updateProfile>[1]) =>
-      userProfileService.updateProfile(userId, updates),
+    mutationFn: async (updates: Parameters<typeof userProfileService.updateProfile>[1]) => {
+      const result = await userProfileService.updateProfile(userId, updates)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.profile(userId),
@@ -53,7 +64,13 @@ export function useUpdateProfile(userId: string) {
 export function useFetchStatistics(userId: string) {
   return useQuery({
     queryKey: profileKeys.stats(userId),
-    queryFn: () => userProfileService.getStatistics(userId),
+    queryFn: async () => {
+      const result = await userProfileService.getStatistics(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
     enabled: !!userId,
   })
@@ -65,7 +82,13 @@ export function useFetchStatistics(userId: string) {
 export function useFetchAchievements(userId: string) {
   return useQuery({
     queryKey: profileKeys.achievements(userId),
-    queryFn: () => userProfileService.getAchievements(userId),
+    queryFn: async () => {
+      const result = await userProfileService.getAchievements(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 15, // 15 minutes
     enabled: !!userId,
   })
@@ -78,12 +101,17 @@ export function useAwardAchievement(userId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       type: AchievementType
       title: string
       description?: string
-    }) =>
-      userProfileService.awardAchievement(userId, params.type, params.title, params.description),
+    }) => {
+      const result = await userProfileService.awardAchievement(userId, params.type, params.title, params.description)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.achievements(userId),
@@ -99,7 +127,13 @@ export function useFollowUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (targetUserId: string) => userProfileService.followUser(targetUserId),
+    mutationFn: async (targetUserId: string) => {
+      const result = await userProfileService.followUser(targetUserId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: (_, targetUserId) => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.isFollowing(targetUserId),
@@ -118,7 +152,13 @@ export function useUnfollowUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (targetUserId: string) => userProfileService.unfollowUser(targetUserId),
+    mutationFn: async (targetUserId: string) => {
+      const result = await userProfileService.unfollowUser(targetUserId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     onSuccess: (_, targetUserId) => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.isFollowing(targetUserId),
@@ -136,7 +176,13 @@ export function useUnfollowUser() {
 export function useIsFollowing(targetUserId: string) {
   return useQuery({
     queryKey: profileKeys.isFollowing(targetUserId),
-    queryFn: () => userProfileService.isFollowing(targetUserId),
+    queryFn: async () => {
+      const result = await userProfileService.isFollowing(targetUserId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60, // 1 minute
     enabled: !!targetUserId,
   })
@@ -148,7 +194,13 @@ export function useIsFollowing(targetUserId: string) {
 export function useFetchFollowers(userId: string, limit = 50) {
   return useQuery({
     queryKey: profileKeys.followers(userId),
-    queryFn: () => userProfileService.getFollowers(userId, limit),
+    queryFn: async () => {
+      const result = await userProfileService.getFollowers(userId, limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -160,7 +212,13 @@ export function useFetchFollowers(userId: string, limit = 50) {
 export function useFetchFollowing(userId: string, limit = 50) {
   return useQuery({
     queryKey: profileKeys.following(userId),
-    queryFn: () => userProfileService.getFollowing(userId, limit),
+    queryFn: async () => {
+      const result = await userProfileService.getFollowing(userId, limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -172,7 +230,13 @@ export function useFetchFollowing(userId: string, limit = 50) {
 export function useFetchProfileWithStats(userId: string) {
   return useQuery({
     queryKey: profileKeys.profileWithStats(userId),
-    queryFn: () => userProfileService.getProfileWithStats(userId),
+    queryFn: async () => {
+      const result = await userProfileService.getProfileWithStats(userId)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!userId,
   })
@@ -184,7 +248,13 @@ export function useFetchProfileWithStats(userId: string) {
 export function useSearchProfiles(query: string, limit = 20) {
   return useQuery({
     queryKey: profileKeys.search(query),
-    queryFn: () => userProfileService.searchProfiles(query, limit),
+    queryFn: async () => {
+      const result = await userProfileService.searchProfiles(query, limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
     enabled: !!query && query.length > 0,
   })
@@ -196,7 +266,13 @@ export function useSearchProfiles(query: string, limit = 20) {
 export function useFetchTrendingUsers(limit = 10) {
   return useQuery({
     queryKey: profileKeys.trending(),
-    queryFn: () => userProfileService.getTrendingUsers(limit),
+    queryFn: async () => {
+      const result = await userProfileService.getTrendingUsers(limit)
+      if (!result.success) {
+        throw result.error
+      }
+      return result.data
+    },
     staleTime: 1000 * 60 * 15, // 15 minutes
   })
 }
