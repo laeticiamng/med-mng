@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUpdateProgressAfterQuiz } from '@/hooks/useQuizProgress';
 
 interface QuizQuestion {
   id: number;
@@ -47,6 +48,7 @@ interface QuizSession {
   endTime?: Date;
   score: number;
   completed: boolean;
+  timeSpent?: number; // Total time in milliseconds
 }
 
 interface EnhancedQuizProps {
@@ -74,6 +76,9 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [timeSpent, setTimeSpent] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isGeneratingErrorSong, setIsGeneratingErrorSong] = useState(false);
+
+  // Hook to update EDN progress after quiz completion
+  const updateProgress = useUpdateProgressAfterQuiz();
 
   // Timer pour chaque question
   useEffect(() => {
@@ -120,6 +125,9 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   };
 
   const completeQuiz = () => {
+    // Calculate total time spent across all answers
+    const totalTimeSpent = answers.reduce((sum, answer) => sum + answer.timeSpent, 0);
+
     const session: QuizSession = {
       sessionId: crypto.randomUUID(),
       itemCode,
@@ -129,31 +137,61 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       startTime: sessionStartTime,
       endTime: new Date(),
       score: totalScore,
-      completed: true
+      completed: true,
+      timeSpent: totalTimeSpent
     };
 
     setIsCompleted(true);
     onComplete?.(session);
-    
+
     // Sauvegarder la session
     saveQuizSession(session);
   };
 
   const saveQuizSession = async (session: QuizSession) => {
     try {
-      // TODO: Créer la table quiz_sessions via migration
-      console.log('Quiz session completed:', session);
-      // await supabase.from('quiz_sessions').insert({
-      //   user_id: (await supabase.auth.getUser()).data.user?.id,
-      //   item_code: session.itemCode,
-      //   rang: session.rang,
-      //   score: session.score,
-      //   questions_count: session.questions.length,
-      //   correct_answers: session.answers.filter(a => a.isCorrect).length,
-      //   session_data: session
-      // });
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.warn('No user logged in, skipping quiz session save');
+        return;
+      }
+
+      // Map 'mix' rang to 'AB' for database compatibility
+      const dbRang = session.rang === 'mix' ? 'AB' : session.rang;
+
+      // Convert milliseconds to seconds for database
+      const timeInSeconds = session.timeSpent ? Math.round(session.timeSpent / 1000) : null;
+
+      const { error } = await supabase.from('quiz_sessions').insert({
+        user_id: user.id,
+        item_code: session.itemCode,
+        rang: dbRang,
+        score: session.score,
+        questions_count: session.questions.length,
+        correct_answers: session.answers.filter(a => a.isCorrect).length,
+        session_data: session,
+        time_spent_seconds: timeInSeconds
+      });
+
+      if (error) {
+        console.error('Error saving quiz session:', error);
+        toast.error('Impossible de sauvegarder la session de quiz');
+      } else {
+        console.log('✅ Quiz session saved successfully');
+        toast.success('Session de quiz sauvegardée');
+
+        // Update EDN progress after successful quiz save
+        const timeInMinutes = timeInSeconds ? Math.round(timeInSeconds / 60) : 0;
+        updateProgress.mutate({
+          itemCode: session.itemCode,
+          score: session.score,
+          timeSpentMinutes: timeInMinutes,
+        });
+      }
     } catch (error) {
       console.error('Error saving quiz session:', error);
+      toast.error('Erreur lors de la sauvegarde');
     }
   };
 

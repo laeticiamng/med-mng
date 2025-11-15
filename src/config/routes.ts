@@ -1,9 +1,11 @@
 export const ROUTE_PATHS = {
   home: '/',
+  onboarding: '/onboarding',
   sitemap: '/sitemap',
   shareTest: '/share-test',
   modularDashboard: '/modular-dashboard',
   dashboard: '/dashboard',
+  dashboardHub: '/dashboards',
   learningDashboard: '/learning-dashboard',
   platformStatus: '/platform-status',
   monitoring: '/monitoring',
@@ -132,6 +134,11 @@ export const ROUTE_PATHS = {
   questStart: '/quests/:questId/start',
   ambitions: '/ambitions',
 
+  // Goals & Objectives
+  goals: '/goals',
+  goalDetail: '/goals/:goalId',
+  goalsCreate: '/goals/create',
+
   // ==================== NOUVELLES ROUTES PRIORITÉ 2 🟡 ====================
 
   // Help & Support
@@ -140,6 +147,7 @@ export const ROUTE_PATHS = {
   helpTutorials: '/help/tutorials',
   helpContact: '/help/contact',
   helpSearch: '/help/search',
+  helpArticle: '/help/article/:articleId',
 
   // Activity Feed
   activity: '/activity',

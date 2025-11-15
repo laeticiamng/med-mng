@@ -51,8 +51,8 @@
 ```typescript
 // ❌ DANGEREUX (à corriger)
 credentials: {
-  username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-  password: 'Aiciteal1!'
+  username: 'votre-email@etud.institution.fr',
+  password: 'votre-mot-de-passe'
 }
 
 // ✅ SÉCURISÉ (à implémenter)

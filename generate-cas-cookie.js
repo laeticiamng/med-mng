@@ -2,12 +2,22 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs/promises');
 
-const CAS_USERNAME = process.env.CAS_USERNAME || 'laeticia.moto-ngane@etud.u-picardie.fr';
-const CAS_PASSWORD = process.env.CAS_PASSWORD || 'Aiciteal1!';
+// ✅ SÉCURISÉ: Variables d'environnement obligatoires
+const CAS_USERNAME = process.env.CAS_USERNAME;
+const CAS_PASSWORD = process.env.CAS_PASSWORD;
+
+// Validation des variables d'environnement
+if (!CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('❌ ERREUR SÉCURITÉ: CAS_USERNAME et CAS_PASSWORD requis dans les variables d\'environnement');
+  console.error('💡 Définissez ces variables avant de lancer le script:');
+  console.error('   export CAS_USERNAME=votre-email@etud.institution.fr');
+  console.error('   export CAS_PASSWORD=votre-mot-de-passe');
+  process.exit(1);
+}
 
 async function generateCASCookie() {
   console.log('🔐 Génération cookie CAS avec Puppeteer...');
-  console.log(`🔑 Utilisateur: ${CAS_USERNAME}`);
+  console.log(`🔑 Utilisateur: ${CAS_USERNAME.substring(0, 3)}***`);
   
   let browser;
   try {

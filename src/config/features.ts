@@ -10,7 +10,7 @@ export const FEATURE_FLAGS = {
     description: "Two-factor authentication (TOTP)",
   },
   rememberMe: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Session persistence avec localStorage + checkbox UI
     description: "Remember me sur la connexion",
   },
   socialLogin: {
@@ -24,11 +24,11 @@ export const FEATURE_FLAGS = {
     description: "Playlists collaboratives avec partage et édition en temps réel",
   },
   directMessaging: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - DM system complet (4 tables, 13 RLS policies, real-time)
     description: "Messagerie directe entre utilisateurs",
   },
   groupCreation: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Teams system complet (7 tables, 17 RLS policies)
     description: "Création de groupes d'étude",
   },
 
@@ -38,7 +38,7 @@ export const FEATURE_FLAGS = {
     description: "Export données en CSV",
   },
   exportToPDF: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - pdfExport.ts avec jsPDF
     description: "Export rapports en PDF",
   },
   exportToExcel: {
@@ -66,7 +66,7 @@ export const FEATURE_FLAGS = {
     description: "Analytics détaillées et dashboards",
   },
   customReports: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Reports system avec filters JSONB (3 tables, 6 RLS policies)
     description: "Rapports personnalisés",
   },
   exportReports: {
@@ -94,7 +94,7 @@ export const FEATURE_FLAGS = {
     description: "Suivi des streaks d'étude",
   },
   leaderboard: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - LeaderboardDashboard + 4 pages leaderboard
     description: "Classement global utilisateurs",
   },
 
@@ -114,7 +114,7 @@ export const FEATURE_FLAGS = {
 
   // 🔍 Search Features
   globalSearch: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - CommandPalette.tsx avec Fuse.js
     description: "Recherche globale (⌘K)",
   },
   advancedSearch: {
@@ -128,7 +128,7 @@ export const FEATURE_FLAGS = {
     description: "Planificateur d'études",
   },
   goalSetting: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - GoalManager + GoalTrackerWidget + useGoals hooks
     description: "Définition d'objectifs d'apprentissage",
   },
   practiceMode: {
@@ -142,7 +142,7 @@ export const FEATURE_FLAGS = {
     description: "Gestion des sessions utilisateur",
   },
   activityLogging: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - user-activity.service.ts avec audit trail complet
     description: "Logging complet des activités",
   },
   connectedDevices: {
