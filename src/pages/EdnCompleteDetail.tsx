@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock, Eye, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock, Eye, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,13 +7,32 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
+import { useEdnItems } from '@/hooks/useEdnItems';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function EdnCompleteDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { item, loading, error } = useEdnItemComplete(slug!);
+  const { data: allItems } = useEdnItems();
+
+  // Trouver l'item précédent et suivant
+  const { prevItem, nextItem, currentIndex } = useMemo(() => {
+    if (!allItems || !item) return { prevItem: null, nextItem: null, currentIndex: -1 };
+
+    const index = allItems.findIndex(i =>
+      i.slug?.toLowerCase() === slug?.toLowerCase() ||
+      i.item_code.toLowerCase() === slug?.toLowerCase()
+    );
+
+    return {
+      currentIndex: index,
+      prevItem: index > 0 ? allItems[index - 1] : null,
+      nextItem: index < allItems.length - 1 ? allItems[index + 1] : null
+    };
+  }, [allItems, item, slug]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -38,6 +57,40 @@ export default function EdnCompleteDetail() {
     if (score >= 70) return 'Bon';
     return 'À améliorer';
   };
+
+  // Raccourcis clavier pour navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore si on est dans un input/textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (prevItem) {
+            e.preventDefault();
+            const slug = prevItem.slug || prevItem.item_code;
+            navigate(`/edn-complete/${slug}`);
+          }
+          break;
+        case 'ArrowRight':
+          if (nextItem) {
+            e.preventDefault();
+            const slug = nextItem.slug || nextItem.item_code;
+            navigate(`/edn-complete/${slug}`);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          navigate('/edn-complete');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [prevItem, nextItem, navigate]);
 
   if (loading) {
     return (
@@ -82,7 +135,7 @@ export default function EdnCompleteDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header avec navigation */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <Link to="/edn-complete">
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -90,11 +143,10 @@ export default function EdnCompleteDetail() {
               </Button>
             </Link>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 variant="outline"
                 onClick={() => {
-                  // Naviguer vers la page d'immersion si disponible
                   const itemSlug = item.slug || item.item_code;
                   navigate(`/edn/${itemSlug}/immersive`);
                 }}
@@ -103,6 +155,60 @@ export default function EdnCompleteDetail() {
                 Mode Immersif
               </Button>
             </div>
+          </div>
+
+          {/* Navigation entre items */}
+          <div className="flex items-center justify-between gap-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (prevItem) {
+                  const slug = prevItem.slug || prevItem.item_code;
+                  navigate(`/edn-complete/${slug}`);
+                }
+              }}
+              disabled={!prevItem}
+              className="flex-1 max-w-[200px]"
+              title="Raccourci: Flèche gauche (←)"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              {prevItem ? `${prevItem.item_code}` : 'Précédent'}
+            </Button>
+
+            <div className="text-center flex-1">
+              <div className="text-sm text-muted-foreground">
+                Item {currentIndex >= 0 ? currentIndex + 1 : '?'} / {allItems?.length || '?'}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-2 flex-wrap">
+                <Badge variant="outline" className="text-xs">
+                  ← Précédent
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  → Suivant
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Esc Liste
+                </Badge>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (nextItem) {
+                  const slug = nextItem.slug || nextItem.item_code;
+                  navigate(`/edn-complete/${slug}`);
+                }
+              }}
+              disabled={!nextItem}
+              className="flex-1 max-w-[200px]"
+              title="Raccourci: Flèche droite (→)"
+            >
+              {nextItem ? `${nextItem.item_code}` : 'Suivant'}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         </div>
 
