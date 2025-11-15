@@ -3,22 +3,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Brain, 
-  Calendar, 
-  Target, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
+import { Badge } from '@/components/ui/badge';
+import {
+  Brain,
+  Calendar,
+  Target,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
   BookOpen,
   Zap,
-  Trophy
+  Trophy,
+  Settings,
+  Compass
 } from 'lucide-react';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
+import { useUserRevisionMethod, useTodayRevisions, useOverdueRevisions } from '@/hooks/useRevisionMethods';
+import { REVISION_METHODS } from '@/types/revision-methods';
 import { RevisionPlanCreator } from './RevisionPlanCreator';
 import { TodayRevisionSession } from './TodayRevisionSession';
 import { ProgressAnalytics } from './ProgressAnalytics';
+import { MethodSelector } from './MethodSelector';
+import { TodayRevisionsView } from './TodayRevisionsView';
 
 export const RevisionDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('today');
@@ -32,8 +39,19 @@ export const RevisionDashboard: React.FC = () => {
     analyzeUserWeaknesses
   } = usePersonalizedRevision();
 
+  // New revision methods hooks
+  const { data: activeMethod, isLoading: methodLoading } = useUserRevisionMethod();
+  const { data: todayRevisions, isLoading: revisionsLoading } = useTodayRevisions();
+  const { data: overdueRevisions } = useOverdueRevisions();
+
   const todayItems = getTodayRevisionItems();
   const stats = getProgressStats();
+
+  // Compute stats from new system
+  const newSystemTodayCount = todayRevisions
+    ? todayRevisions.pending.length + todayRevisions.missed.length
+    : 0;
+  const newSystemOverdueCount = overdueRevisions?.length || 0;
 
   if (loading) {
     return (
@@ -66,6 +84,33 @@ export const RevisionDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Méthode active banner */}
+      {activeMethod && (
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Compass className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Méthode actuelle</p>
+                  <p className="font-semibold text-blue-900 dark:text-blue-100">
+                    {REVISION_METHODS[activeMethod].name}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveTab('method')}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Changer
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* En-tête avec statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
@@ -97,10 +142,19 @@ export const RevisionDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 font-medium">À réviser aujourd'hui</p>
-                <p className="text-2xl font-bold text-orange-800">{todayItems.length}</p>
+                <p className="text-2xl font-bold text-orange-800">
+                  {activeMethod ? newSystemTodayCount : todayItems.length}
+                </p>
               </div>
               <Calendar className="h-8 w-8 text-orange-500" />
             </div>
+            {newSystemOverdueCount > 0 && activeMethod && (
+              <div className="mt-2 pt-2 border-t border-orange-200">
+                <p className="text-xs text-orange-600">
+                  + {newSystemOverdueCount} en retard
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -119,14 +173,18 @@ export const RevisionDashboard: React.FC = () => {
 
       {/* Contenu principal avec onglets */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="today" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
             Aujourd'hui
           </TabsTrigger>
+          <TabsTrigger value="method" className="flex items-center gap-2">
+            <Compass className="h-4 w-4" />
+            Méthode
+          </TabsTrigger>
           <TabsTrigger value="plan" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Plan de révision
+            Plan
           </TabsTrigger>
           <TabsTrigger value="progress" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
@@ -139,33 +197,59 @@ export const RevisionDashboard: React.FC = () => {
         </TabsList>
 
         <TabsContent value="today" className="space-y-4">
+          {/* Use new system if method is active, otherwise use old system */}
+          {activeMethod ? (
+            <TodayRevisionsView method={activeMethod} />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Session de révision du jour
+                </CardTitle>
+                <CardDescription>
+                  {todayItems.length > 0
+                    ? `${todayItems.length} concept(s) à réviser selon votre planning personnalisé`
+                    : "Aucune révision programmée pour aujourd'hui - Excellent travail !"
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {todayItems.length > 0 ? (
+                  <TodayRevisionSession items={todayItems} />
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
+                    <p className="text-lg font-medium text-green-800">
+                      Toutes vos révisions sont à jour !
+                    </p>
+                    <p className="text-green-600 mt-2">
+                      Revenez demain pour continuer votre progression.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="method" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Session de révision du jour
+                <Compass className="h-5 w-5" />
+                Choisir ma méthode de révision
               </CardTitle>
               <CardDescription>
-                {todayItems.length > 0 
-                  ? `${todayItems.length} concept(s) à réviser selon votre planning personnalisé`
-                  : "Aucune révision programmée pour aujourd'hui - Excellent travail !"
-                }
+                Sélectionne la méthode qui correspond le mieux à ton style d'apprentissage
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {todayItems.length > 0 ? (
-                <TodayRevisionSession items={todayItems} />
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <p className="text-lg font-medium text-green-800">
-                    Toutes vos révisions sont à jour !
-                  </p>
-                  <p className="text-green-600 mt-2">
-                    Revenez demain pour continuer votre progression.
-                  </p>
-                </div>
-              )}
+              <MethodSelector
+                currentMethod={activeMethod}
+                showCurrentBadge={true}
+                allowChange={true}
+              />
             </CardContent>
           </Card>
         </TabsContent>
