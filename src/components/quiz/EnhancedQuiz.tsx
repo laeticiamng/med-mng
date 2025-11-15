@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUpdateProgressAfterQuiz } from '@/hooks/useQuizProgress';
 
 interface QuizQuestion {
   id: number;
@@ -75,6 +76,9 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [timeSpent, setTimeSpent] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isGeneratingErrorSong, setIsGeneratingErrorSong] = useState(false);
+
+  // Hook to update EDN progress after quiz completion
+  const updateProgress = useUpdateProgressAfterQuiz();
 
   // Timer pour chaque question
   useEffect(() => {
@@ -176,6 +180,14 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       } else {
         console.log('✅ Quiz session saved successfully');
         toast.success('Session de quiz sauvegardée');
+
+        // Update EDN progress after successful quiz save
+        const timeInMinutes = timeInSeconds ? Math.round(timeInSeconds / 60) : 0;
+        updateProgress.mutate({
+          itemCode: session.itemCode,
+          score: session.score,
+          timeSpentMinutes: timeInMinutes,
+        });
       }
     } catch (error) {
       console.error('Error saving quiz session:', error);
