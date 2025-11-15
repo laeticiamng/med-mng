@@ -25,6 +25,7 @@ import {
   Activity,
   ChevronDown,
   Map,
+  Heart,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -43,6 +44,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { useState } from 'react';
 import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useEmotionsCareAccess } from '@/hooks/useEmotionsCareAccess';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -50,6 +52,7 @@ export const MainNavigation: React.FC = () => {
   const { user, signOut } = useAuth();
   const { isAdmin, isSecurityAnalyst } = useUserRoles();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { hasAccess: hasEmotionsCareAccess, navigateToEmotionsCare } = useEmotionsCareAccess();
 
   const mainNavItems = MAIN_NAV_ITEMS;
 
@@ -139,6 +142,20 @@ export const MainNavigation: React.FC = () => {
                 )}
               </Link>
             ))}
+
+            {/* EmotionsCare - Module Bien-être (Premium uniquement) */}
+            {user && hasEmotionsCareAccess && (
+              <button
+                onClick={navigateToEmotionsCare}
+                className="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Bien-être
+                <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-700">
+                  Premium
+                </Badge>
+              </button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -282,6 +299,24 @@ export const MainNavigation: React.FC = () => {
                   )}
                 </Link>
               ))}
+
+              {/* EmotionsCare - Module Bien-être (Mobile) */}
+              {user && hasEmotionsCareAccess && (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigateToEmotionsCare();
+                  }}
+                  className="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                >
+                  <Heart className="w-4 h-4 mr-3" />
+                  Bien-être
+                  <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700">
+                    Premium
+                  </Badge>
+                </button>
+              )}
+
               <div className="pt-3 border-t border-gray-200/60">
                 <p className="px-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Outils
