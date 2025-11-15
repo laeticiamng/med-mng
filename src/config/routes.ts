@@ -140,6 +140,7 @@ export const ROUTE_PATHS = {
   helpTutorials: '/help/tutorials',
   helpContact: '/help/contact',
   helpSearch: '/help/search',
+  helpArticle: '/help/article/:articleId',
 
   // Activity Feed
   activity: '/activity',

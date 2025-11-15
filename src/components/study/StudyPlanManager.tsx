@@ -51,58 +51,47 @@ export const StudyPlanManager = () => {
   }, []);
 
   const fetchStudyPlans = async () => {
-    // Mock data - Replace with real Supabase query when tables are created
-    const mockPlans: StudyPlan[] = [
-      {
-        id: '1',
-        title: 'EDN 2025 - Cardiologie',
-        description: 'Plan d\'étude complet pour les items de cardiologie',
-        target_date: '2025-06-15',
-        status: 'active',
-        priority: 'high',
-        progress: 65,
-        sessions_completed: 13,
-        total_sessions: 20,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Neurologie - Items essentiels',
-        description: 'Révision des items clés en neurologie',
-        target_date: '2025-05-20',
-        status: 'active',
-        priority: 'medium',
-        progress: 40,
-        sessions_completed: 8,
-        total_sessions: 15,
-        created_at: new Date().toISOString()
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('study_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching study plans:', error);
+        return;
       }
-    ];
-    setStudyPlans(mockPlans);
+
+      setStudyPlans(data || []);
+    } catch (error) {
+      console.error('Error fetching study plans:', error);
+    }
   };
 
   const fetchSessions = async () => {
-    // Mock data - Replace with real Supabase query
-    const mockSessions: StudySession[] = [
-      {
-        id: '1',
-        plan_id: '1',
-        title: 'Insuffisance cardiaque',
-        duration_minutes: 45,
-        completed: true,
-        scheduled_date: '2025-01-15',
-        notes: 'Révision des classifications NYHA'
-      },
-      {
-        id: '2',
-        plan_id: '1',
-        title: 'Arythmies cardiaques',
-        duration_minutes: 60,
-        completed: false,
-        scheduled_date: '2025-01-16'
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('scheduled_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching study sessions:', error);
+        return;
       }
-    ];
-    setSessions(mockSessions);
+
+      setSessions(data || []);
+    } catch (error) {
+      console.error('Error fetching study sessions:', error);
+    }
   };
 
   const createStudyPlan = async () => {
@@ -116,17 +105,30 @@ export const StudyPlanManager = () => {
     }
 
     try {
-      // TODO: Replace with real Supabase insert
-      const plan: StudyPlan = {
-        id: Date.now().toString(),
-        ...newPlan,
-        status: 'active',
-        progress: 0,
-        sessions_completed: 0,
-        created_at: new Date().toISOString()
-      };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Erreur',
+          description: 'Vous devez être connecté pour créer un plan',
+          variant: 'destructive'
+        });
+        return;
+      }
 
-      setStudyPlans(prev => [...prev, plan]);
+      const { data, error } = await supabase
+        .from('study_plans')
+        .insert({
+          user_id: user.id,
+          ...newPlan
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setStudyPlans(prev => [...prev, data]);
       setNewPlan({
         title: '',
         description: '',
@@ -141,6 +143,7 @@ export const StudyPlanManager = () => {
         description: 'Votre plan d\'étude a été créé avec succès'
       });
     } catch (error) {
+      console.error('Error creating study plan:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer le plan d\'étude',

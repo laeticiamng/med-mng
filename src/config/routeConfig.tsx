@@ -188,6 +188,7 @@ const FAQ = lazy(() => import('@/pages/FAQ'));
 const Tutorials = lazy(() => import('@/pages/Tutorials'));
 const ContactSupport = lazy(() => import('@/pages/ContactSupport'));
 const HelpSearch = lazy(() => import('@/pages/HelpSearch'));
+const HelpArticle = lazy(() => import('@/pages/HelpArticle'));
 
 // Priority 2 - Activity Feed
 const ActivityFeed = lazy(() => import('@/pages/ActivityFeed'));
@@ -413,6 +414,7 @@ export const priority2Routes: RouteObject[] = [
   { path: ROUTE_PATHS.helpTutorials, element: wrapRoute(Tutorials) },
   { path: ROUTE_PATHS.helpContact, element: wrapRoute(ContactSupport) },
   { path: ROUTE_PATHS.helpSearch, element: wrapRoute(HelpSearch) },
+  { path: ROUTE_PATHS.helpArticle, element: wrapRoute(HelpArticle) },
 
   // Activity Feed (mixed)
   { path: ROUTE_PATHS.activity, element: wrapRoute(ActivityFeed) },
