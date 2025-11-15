@@ -14,6 +14,7 @@
     "test": "jest",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
+    "extract-oic": "node --loader ts-node/esm scripts/extract-oic-to-json.ts",
     "import-oic": "node --loader ts-node/esm scripts/import-oic-from-uness.ts",
     "generate-quiz": "node --loader ts-node/esm scripts/generate-quiz-questions.ts"
   },
