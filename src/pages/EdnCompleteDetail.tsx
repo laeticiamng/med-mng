@@ -1,5 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock, Eye, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function EdnCompleteDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { item, loading, error } = useEdnItemComplete(slug!);
 
   const formatDate = (dateString: string) => {
@@ -81,12 +82,28 @@ export default function EdnCompleteDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header avec navigation */}
         <div className="mb-6">
-          <Link to="/edn-complete">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour à la liste
-            </Button>
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link to="/edn-complete">
+              <Button variant="ghost">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour à la liste
+              </Button>
+            </Link>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Naviguer vers la page d'immersion si disponible
+                  const itemSlug = item.slug || item.item_code;
+                  navigate(`/edn/${itemSlug}/immersive`);
+                }}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Mode Immersif
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Titre et informations principales */}
@@ -124,6 +141,73 @@ export default function EdnCompleteDetail() {
                 className="w-32"
               />
             </div>
+          </div>
+
+          {/* Barre d'actions rapides */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const element = document.getElementById('competences');
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <Award className="h-3 w-3 mr-1" />
+              Compétences
+            </Button>
+            {item.tableau_rang_a && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('contenu');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <BookOpen className="h-3 w-3 mr-1" />
+                Contenu
+              </Button>
+            )}
+            {item.quiz_questions && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('quiz');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Brain className="h-3 w-3 mr-1" />
+                Quiz
+              </Button>
+            )}
+            {item.scene_immersive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('scene');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Users className="h-3 w-3 mr-1" />
+                Scène
+              </Button>
+            )}
+            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('paroles');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Music className="h-3 w-3 mr-1" />
+                Paroles
+              </Button>
+            )}
           </div>
 
           {/* Métadonnées */}
@@ -188,7 +272,7 @@ export default function EdnCompleteDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contenu principal */}
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="competences" className="w-full">
+            <Tabs defaultValue="competences" className="w-full" id="competences">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="competences">Compétences</TabsTrigger>
                 <TabsTrigger value="contenu">Contenu</TabsTrigger>
@@ -196,7 +280,7 @@ export default function EdnCompleteDetail() {
                 <TabsTrigger value="scene">Scène</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="competences" className="space-y-6">
+              <TabsContent value="competences" className="space-y-6" id="competences-content">
                 {/* Compétences Rang A */}
                 <Card>
                   <CardHeader>
@@ -278,7 +362,7 @@ export default function EdnCompleteDetail() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="contenu" className="space-y-6">
+              <TabsContent value="contenu" className="space-y-6" id="contenu">
                 {/* Pitch d'introduction */}
                 {item.pitch_intro && (
                   <Card>
@@ -319,7 +403,7 @@ export default function EdnCompleteDetail() {
                 )}
               </TabsContent>
 
-              <TabsContent value="quiz">
+              <TabsContent value="quiz" id="quiz">
                 <Card>
                   <CardHeader>
                     <CardTitle>Questions de Quiz</CardTitle>
@@ -336,7 +420,7 @@ export default function EdnCompleteDetail() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="scene">
+              <TabsContent value="scene" id="scene">
                 <Card>
                   <CardHeader>
                     <CardTitle>Scène Immersive</CardTitle>
@@ -359,7 +443,7 @@ export default function EdnCompleteDetail() {
           <div className="space-y-6">
             {/* Paroles musicales */}
             {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-              <Card>
+              <Card id="paroles">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Music className="h-5 w-5 text-pink-500" />

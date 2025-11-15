@@ -36,7 +36,7 @@ export const EdnItemsGrid: React.FC<EdnItemsGridProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ 
+                transition={{
                   duration: 0.3,
                   delay: Math.min(index * 0.03, 0.5),
                   ease: "easeOut"
@@ -46,7 +46,7 @@ export const EdnItemsGrid: React.FC<EdnItemsGridProps> = ({
                 <EdnItemCard
                   data-testid={`edn-item-${item.id}`}
                   item={item as any}
-                  completionPercentage={getCompletionPercentage(item)}
+                  completionPercentage={item.completeness_score || getCompletionPercentage(item)}
                   onOpen={(tab) => onOpenItem(item, tab)}
                   onPrefetch={onPrefetch}
                 />

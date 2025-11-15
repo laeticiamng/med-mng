@@ -49,6 +49,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 // 🎵 EDN PAGES - Lazy loaded
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
+const EdnCompleteDetail = lazy(() => import("./pages/EdnCompleteDetail"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
@@ -330,7 +331,7 @@ const App = () => {
           <Route path={ROUTE_PATHS.ednCompleteDetail} element={
             <ErrorBoundary>
               <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <EdnComplete />
+                <EdnCompleteDetail />
               </Suspense>
             </ErrorBoundary>
           } />
