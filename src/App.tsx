@@ -193,7 +193,7 @@ const AmbitionsManager = lazy(() => import("./pages/AmbitionsManager"));
 
 // 🆕 NOUVELLES PAGES PRIORITÉ 2 - Lazy loaded
 // Help & Support
-const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const HelpCenterPage = lazy(() => import("./pages/HelpCenter"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Tutorials = lazy(() => import("./pages/Tutorials"));
 const ContactSupport = lazy(() => import("./pages/ContactSupport"));
@@ -466,9 +466,9 @@ const App = () => {
              <Route path={ROUTE_PATHS.questStart} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestStart /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.ambitions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AmbitionsManager /></Suspense></ProtectedRoute>} />
 
-             {/* 🆕 NOUVELLES ROUTES PRIORITÉ 2 */}
-             {/* Help & Support - PUBLIC */}
-             <Route path={ROUTE_PATHS.help} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpCenter /></Suspense>} />
+              {/* 🆕 NOUVELLES ROUTES PRIORITÉ 2 */}
+              {/* Help & Support - PUBLIC */}
+              <Route path={ROUTE_PATHS.help} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpCenterPage /></Suspense>} />
              <Route path={ROUTE_PATHS.helpFaq} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FAQ /></Suspense>} />
              <Route path={ROUTE_PATHS.helpTutorials} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Tutorials /></Suspense>} />
              <Route path={ROUTE_PATHS.helpContact} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ContactSupport /></Suspense>} />
