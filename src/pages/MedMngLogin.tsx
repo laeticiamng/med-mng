@@ -7,12 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Music } from 'lucide-react';
+import { setRememberMe, isRememberMeEnabled } from '@/utils/rememberMe';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMeState] = useState(isRememberMeEnabled());
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,12 +28,15 @@ export const MedMngLogin = () => {
     setLoading(true);
     setError('');
 
+    // Set remember me preference before signing in
+    setRememberMe(rememberMe);
+
     const { error } = await signIn(email, password);
-    
+
     if (error) {
       setError(error.message);
     }
-    
+
     setLoading(false);
   };
 
@@ -94,7 +100,21 @@ export const MedMngLogin = () => {
                 required
               />
             </div>
-            
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="rememberMe"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMeState(checked === true)}
+              />
+              <Label
+                htmlFor="rememberMe"
+                className="text-sm font-normal cursor-pointer"
+              >
+                Se souvenir de moi (session de 30 jours)
+              </Label>
+            </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Connexion...' : 'Se connecter'}
             </Button>

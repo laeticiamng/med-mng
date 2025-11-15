@@ -10,7 +10,7 @@ export const FEATURE_FLAGS = {
     description: "Two-factor authentication (TOTP)",
   },
   rememberMe: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Session persistence avec localStorage + checkbox UI
     description: "Remember me sur la connexion",
   },
   socialLogin: {
@@ -24,11 +24,11 @@ export const FEATURE_FLAGS = {
     description: "Playlists collaboratives avec partage et édition en temps réel",
   },
   directMessaging: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - DM system complet (4 tables, 13 RLS policies, real-time)
     description: "Messagerie directe entre utilisateurs",
   },
   groupCreation: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Teams system complet (7 tables, 17 RLS policies)
     description: "Création de groupes d'étude",
   },
 
@@ -66,7 +66,7 @@ export const FEATURE_FLAGS = {
     description: "Analytics détaillées et dashboards",
   },
   customReports: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Reports system avec filters JSONB (3 tables, 6 RLS policies)
     description: "Rapports personnalisés",
   },
   exportReports: {
