@@ -4,6 +4,8 @@
  */
 
 import { supabase } from '@/integrations/supabase/client'
+import { Result, success, failure } from '@/types/result'
+import { extractErrorMessage } from '@/lib/error-messages'
 
 export type AchievementType =
   | 'first_post'
@@ -77,7 +79,7 @@ export const userProfileService = {
   /**
    * Get user profile
    */
-  async getProfile(userId: string): Promise<UserProfile | null> {
+  async getProfile(userId: string): Promise<Result<UserProfile | null, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -85,18 +87,22 @@ export const userProfileService = {
         .eq('user_id', userId)
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as UserProfile | null
+      // PGRST116 means no rows found - not an error
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || null) as UserProfile | null)
     } catch (err) {
       console.error('Error fetching user profile:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Update user profile
    */
-  async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+  async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<Result<UserProfile, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -108,17 +114,20 @@ export const userProfileService = {
         .select()
         .single()
 
-      if (error) throw error
-      return data as UserProfile
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as UserProfile)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to update profile')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Create user profile
    */
-  async createProfile(userId: string, profile: Partial<UserProfile>): Promise<UserProfile> {
+  async createProfile(userId: string, profile: Partial<UserProfile>): Promise<Result<UserProfile, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -129,17 +138,20 @@ export const userProfileService = {
         .select()
         .single()
 
-      if (error) throw error
-      return data as UserProfile
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as UserProfile)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to create profile')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user statistics
    */
-  async getStatistics(userId: string): Promise<UserStatistics | null> {
+  async getStatistics(userId: string): Promise<Result<UserStatistics | null, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_statistics')
@@ -147,18 +159,22 @@ export const userProfileService = {
         .eq('user_id', userId)
         .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as UserStatistics | null
+      // PGRST116 means no rows found - not an error
+      if (error && error.code !== 'PGRST116') {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || null) as UserStatistics | null)
     } catch (err) {
       console.error('Error fetching user statistics:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Update user statistics
    */
-  async updateStatistics(userId: string, updates: Partial<UserStatistics>): Promise<UserStatistics> {
+  async updateStatistics(userId: string, updates: Partial<UserStatistics>): Promise<Result<UserStatistics, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_statistics')
@@ -170,17 +186,20 @@ export const userProfileService = {
         .select()
         .single()
 
-      if (error) throw error
-      return data as UserStatistics
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as UserStatistics)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to update statistics')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user achievements
    */
-  async getAchievements(userId: string): Promise<UserAchievement[]> {
+  async getAchievements(userId: string): Promise<Result<UserAchievement[], Error>> {
     try {
       const { data, error } = await supabase
         .from('user_achievements')
@@ -188,11 +207,14 @@ export const userProfileService = {
         .eq('user_id', userId)
         .order('earned_at', { ascending: false })
 
-      if (error) throw error
-      return (data || []) as UserAchievement[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as UserAchievement[])
     } catch (err) {
       console.error('Error fetching achievements:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
@@ -204,7 +226,7 @@ export const userProfileService = {
     achievementType: AchievementType,
     title: string,
     description?: string
-  ): Promise<UserAchievement> {
+  ): Promise<Result<UserAchievement, Error>> {
     try {
       const { data, error } = await supabase
         .from('user_achievements')
@@ -217,64 +239,78 @@ export const userProfileService = {
         .select()
         .single()
 
-      if (error) throw error
-      return data as UserAchievement
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as UserAchievement)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to award achievement')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Follow a user
    */
-  async followUser(targetUserId: string): Promise<void> {
+  async followUser(targetUserId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('follow_user', {
         following_id_param: targetUserId,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to follow user')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Unfollow a user
    */
-  async unfollowUser(targetUserId: string): Promise<void> {
+  async unfollowUser(targetUserId: string): Promise<Result<void, Error>> {
     try {
       const { error } = await supabase.rpc('unfollow_user', {
         following_id_param: targetUserId,
       })
 
-      if (error) throw error
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(undefined)
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Failed to unfollow user')
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Check if user is following another user
    */
-  async isFollowing(targetUserId: string): Promise<boolean> {
+  async isFollowing(targetUserId: string): Promise<Result<boolean, Error>> {
     try {
       const { data, error } = await supabase.rpc('is_user_following', {
         target_user_id: targetUserId,
       })
 
-      if (error) throw error
-      return data as boolean
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data as boolean)
     } catch (err) {
       console.error('Error checking follow status:', err)
-      return false
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user followers
    */
-  async getFollowers(userId: string, limit = 50): Promise<UserFollowing[]> {
+  async getFollowers(userId: string, limit = 50): Promise<Result<UserFollowing[], Error>> {
     try {
       const { data, error } = await supabase
         .from('user_following')
@@ -283,18 +319,21 @@ export const userProfileService = {
         .order('created_at', { ascending: false })
         .limit(limit)
 
-      if (error) throw error
-      return (data || []) as UserFollowing[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as UserFollowing[])
     } catch (err) {
       console.error('Error fetching followers:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get users that a user is following
    */
-  async getFollowing(userId: string, limit = 50): Promise<UserFollowing[]> {
+  async getFollowing(userId: string, limit = 50): Promise<Result<UserFollowing[], Error>> {
     try {
       const { data, error } = await supabase
         .from('user_following')
@@ -303,35 +342,41 @@ export const userProfileService = {
         .order('created_at', { ascending: false })
         .limit(limit)
 
-      if (error) throw error
-      return (data || []) as UserFollowing[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as UserFollowing[])
     } catch (err) {
       console.error('Error fetching following:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get user profile with statistics
    */
-  async getProfileWithStats(userId: string): Promise<any> {
+  async getProfileWithStats(userId: string): Promise<Result<any, Error>> {
     try {
       const { data, error } = await supabase.rpc('get_user_profile_with_stats', {
         user_id_param: userId,
       })
 
-      if (error) throw error
-      return data?.[0] || null
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success(data?.[0] || null)
     } catch (err) {
       console.error('Error fetching profile with stats:', err)
-      return null
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Search user profiles
    */
-  async searchProfiles(query: string, limit = 20): Promise<UserProfile[]> {
+  async searchProfiles(query: string, limit = 20): Promise<Result<UserProfile[], Error>> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -340,18 +385,21 @@ export const userProfileService = {
         .eq('is_public', true)
         .limit(limit)
 
-      if (error) throw error
-      return (data || []) as UserProfile[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as UserProfile[])
     } catch (err) {
       console.error('Error searching profiles:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 
   /**
    * Get trending users
    */
-  async getTrendingUsers(limit = 10): Promise<any[]> {
+  async getTrendingUsers(limit = 10): Promise<Result<any[], Error>> {
     try {
       const { data, error } = await supabase
         .from('user_statistics')
@@ -359,11 +407,14 @@ export const userProfileService = {
         .order('followers_count', { ascending: false })
         .limit(limit)
 
-      if (error) throw error
-      return (data || []) as any[]
+      if (error) {
+        return failure(new Error(extractErrorMessage(error)))
+      }
+
+      return success((data || []) as any[])
     } catch (err) {
       console.error('Error fetching trending users:', err)
-      return []
+      return failure(new Error(extractErrorMessage(err)))
     }
   },
 }
