@@ -1,5 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock, Eye, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,12 +7,32 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
+import { useEdnItems } from '@/hooks/useEdnItems';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function EdnCompleteDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { item, loading, error } = useEdnItemComplete(slug!);
+  const { data: allItems } = useEdnItems();
+
+  // Trouver l'item précédent et suivant
+  const { prevItem, nextItem, currentIndex } = useMemo(() => {
+    if (!allItems || !item) return { prevItem: null, nextItem: null, currentIndex: -1 };
+
+    const index = allItems.findIndex(i =>
+      i.slug?.toLowerCase() === slug?.toLowerCase() ||
+      i.item_code.toLowerCase() === slug?.toLowerCase()
+    );
+
+    return {
+      currentIndex: index,
+      prevItem: index > 0 ? allItems[index - 1] : null,
+      nextItem: index < allItems.length - 1 ? allItems[index + 1] : null
+    };
+  }, [allItems, item, slug]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -37,6 +57,40 @@ export default function EdnCompleteDetail() {
     if (score >= 70) return 'Bon';
     return 'À améliorer';
   };
+
+  // Raccourcis clavier pour navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore si on est dans un input/textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (prevItem) {
+            e.preventDefault();
+            const slug = prevItem.slug || prevItem.item_code;
+            navigate(`/edn-complete/${slug}`);
+          }
+          break;
+        case 'ArrowRight':
+          if (nextItem) {
+            e.preventDefault();
+            const slug = nextItem.slug || nextItem.item_code;
+            navigate(`/edn-complete/${slug}`);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          navigate('/edn-complete');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [prevItem, nextItem, navigate]);
 
   if (loading) {
     return (
@@ -81,12 +135,81 @@ export default function EdnCompleteDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header avec navigation */}
         <div className="mb-6">
-          <Link to="/edn-complete">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour à la liste
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <Link to="/edn-complete">
+              <Button variant="ghost">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour à la liste
+              </Button>
+            </Link>
+
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const itemSlug = item.slug || item.item_code;
+                  navigate(`/edn/${itemSlug}/immersive`);
+                }}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Mode Immersif
+              </Button>
+            </div>
+          </div>
+
+          {/* Navigation entre items */}
+          <div className="flex items-center justify-between gap-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (prevItem) {
+                  const slug = prevItem.slug || prevItem.item_code;
+                  navigate(`/edn-complete/${slug}`);
+                }
+              }}
+              disabled={!prevItem}
+              className="flex-1 max-w-[200px]"
+              title="Raccourci: Flèche gauche (←)"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              {prevItem ? `${prevItem.item_code}` : 'Précédent'}
             </Button>
-          </Link>
+
+            <div className="text-center flex-1">
+              <div className="text-sm text-muted-foreground">
+                Item {currentIndex >= 0 ? currentIndex + 1 : '?'} / {allItems?.length || '?'}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-2 flex-wrap">
+                <Badge variant="outline" className="text-xs">
+                  ← Précédent
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  → Suivant
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Esc Liste
+                </Badge>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (nextItem) {
+                  const slug = nextItem.slug || nextItem.item_code;
+                  navigate(`/edn-complete/${slug}`);
+                }
+              }}
+              disabled={!nextItem}
+              className="flex-1 max-w-[200px]"
+              title="Raccourci: Flèche droite (→)"
+            >
+              {nextItem ? `${nextItem.item_code}` : 'Suivant'}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
         </div>
 
         {/* Titre et informations principales */}
@@ -124,6 +247,73 @@ export default function EdnCompleteDetail() {
                 className="w-32"
               />
             </div>
+          </div>
+
+          {/* Barre d'actions rapides */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const element = document.getElementById('competences');
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <Award className="h-3 w-3 mr-1" />
+              Compétences
+            </Button>
+            {item.tableau_rang_a && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('contenu');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <BookOpen className="h-3 w-3 mr-1" />
+                Contenu
+              </Button>
+            )}
+            {item.quiz_questions && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('quiz');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Brain className="h-3 w-3 mr-1" />
+                Quiz
+              </Button>
+            )}
+            {item.scene_immersive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('scene');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Users className="h-3 w-3 mr-1" />
+                Scène
+              </Button>
+            )}
+            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const element = document.getElementById('paroles');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Music className="h-3 w-3 mr-1" />
+                Paroles
+              </Button>
+            )}
           </div>
 
           {/* Métadonnées */}
@@ -188,7 +378,7 @@ export default function EdnCompleteDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contenu principal */}
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="competences" className="w-full">
+            <Tabs defaultValue="competences" className="w-full" id="competences">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="competences">Compétences</TabsTrigger>
                 <TabsTrigger value="contenu">Contenu</TabsTrigger>
@@ -196,7 +386,7 @@ export default function EdnCompleteDetail() {
                 <TabsTrigger value="scene">Scène</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="competences" className="space-y-6">
+              <TabsContent value="competences" className="space-y-6" id="competences-content">
                 {/* Compétences Rang A */}
                 <Card>
                   <CardHeader>
@@ -278,7 +468,7 @@ export default function EdnCompleteDetail() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="contenu" className="space-y-6">
+              <TabsContent value="contenu" className="space-y-6" id="contenu">
                 {/* Pitch d'introduction */}
                 {item.pitch_intro && (
                   <Card>
@@ -319,7 +509,7 @@ export default function EdnCompleteDetail() {
                 )}
               </TabsContent>
 
-              <TabsContent value="quiz">
+              <TabsContent value="quiz" id="quiz">
                 <Card>
                   <CardHeader>
                     <CardTitle>Questions de Quiz</CardTitle>
@@ -336,7 +526,7 @@ export default function EdnCompleteDetail() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="scene">
+              <TabsContent value="scene" id="scene">
                 <Card>
                   <CardHeader>
                     <CardTitle>Scène Immersive</CardTitle>
@@ -359,7 +549,7 @@ export default function EdnCompleteDetail() {
           <div className="space-y-6">
             {/* Paroles musicales */}
             {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-              <Card>
+              <Card id="paroles">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Music className="h-5 w-5 text-pink-500" />

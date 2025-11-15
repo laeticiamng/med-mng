@@ -1,16 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  BookOpen, Music, Users, Brain, Play, Headphones, 
+import {
+  BookOpen, Music, Users, Brain, Play, Headphones,
   Image, FileText, Volume2, Gamepad2, Maximize2,
-  Star, CheckCircle, AlertCircle
+  Star, CheckCircle, AlertCircle, ExternalLink, Eye
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
+import { ROUTE_PATHS } from "@/config/routes";
 
 interface EdnItemCardProps {
   item: {
@@ -38,6 +40,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   onPrefetch
 }) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
@@ -165,68 +168,126 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         )}
 
         {/* Action Buttons Premium Mobile */}
-        <div className={`flex gap-2 pt-2 ${isMobile ? 'flex-col' : ''}`}>
-          <Button 
+        <div className="space-y-2 pt-2">
+          {/* Bouton principal - Révision rapide (Modal) */}
+          <Button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onOpen();
             }}
-            className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
+            className={`${isMobile ? 'w-full py-3' : 'w-full'} bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
             type="button"
           >
-            <BookOpen className="h-4 w-4 mr-2" />
-            {isMobile ? '📖 Réviser cet item' : '📖 Réviser le contenu'}
+            <Eye className="h-4 w-4 mr-2" />
+            {isMobile ? '👁️ Révision rapide' : '👁️ Révision rapide (Modal)'}
           </Button>
-          
-          {isMobile ? (
-            // Boutons secondaires sur mobile
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+
+          {/* Bouton secondaire - Voir page complète */}
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const slug = finalItem.slug || finalItem.item_code;
+              navigate(`/edn-complete/${slug}`);
+            }}
+            className={`${isMobile ? 'w-full' : 'w-full'} hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95`}
+            type="button"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            {isMobile ? '📄 Page complète' : '📄 Voir page complète'}
+          </Button>
+
+          {/* Boutons d'accès rapide aux sections */}
+          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-2`}>
+            {finalItem.tableau_rang_a && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onOpen('rang-a');
+                }}
+                className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
+                type="button"
+                title="Tableau Rang A"
+              >
+                <BookOpen className="h-3 w-3 mr-1" />
+                {isMobile ? 'Rang A' : 'A'}
+              </Button>
+            )}
+            {finalItem.tableau_rang_b && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onOpen('rang-b');
+                }}
+                className="hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+                type="button"
+                title="Tableau Rang B"
+              >
+                <BookOpen className="h-3 w-3 mr-1" />
+                {isMobile ? 'Rang B' : 'B'}
+              </Button>
+            )}
+            {((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) ||
+              finalItem.paroles_rang_a || finalItem.paroles_rang_b) && (
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   onOpen('music');
                 }}
-                className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+                className="hover:bg-pink-50 hover:border-pink-300 transition-all duration-200 active:scale-95"
                 type="button"
+                title="Paroles musicales"
               >
-                <Music className="h-4 w-4 mr-1" />
-                🎵 Musique
+                <Music className="h-3 w-3 mr-1" />
+                {isMobile ? 'Musique' : '🎵'}
               </Button>
-              <Button 
-                variant="outline" 
+            )}
+            {finalItem.quiz_questions && (
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   onOpen('quiz');
                 }}
-                className="flex-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
+                className="hover:bg-orange-50 hover:border-orange-300 transition-all duration-200 active:scale-95"
                 type="button"
+                title="Quiz"
               >
-                <Brain className="h-4 w-4 mr-1" />
-                ✅ Quiz
+                <Brain className="h-3 w-3 mr-1" />
+                {isMobile ? 'Quiz' : '✅'}
               </Button>
-            </div>
-          ) : (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onOpen('music');
-              }}
-              className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
-              type="button"
-              title="Écouter la musique mnémotechnique"
-            >
-              <Music className="h-4 w-4" />
-            </Button>
-          )}
+            )}
+            {finalItem.scene_immersive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onOpen('scene');
+                }}
+                className="hover:bg-green-50 hover:border-green-300 transition-all duration-200 active:scale-95"
+                type="button"
+                title="Scène immersive"
+              >
+                <Users className="h-3 w-3 mr-1" />
+                {isMobile ? 'Scène' : '🎬'}
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

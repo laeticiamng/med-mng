@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  X, BookOpen, Music, Users, Brain, Play, Pause, Volume2, 
-  VolumeX, Maximize2, Minimize2, FileText, Image, 
-  CheckCircle, Star, Download, Share2
+import {
+  X, BookOpen, Music, Users, Brain, Play, Pause, Volume2,
+  VolumeX, Maximize2, Minimize2, FileText, Image,
+  CheckCircle, Star, Download, Share2, ExternalLink
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TableauRangA } from "@/components/edn/TableauRangA";
@@ -40,6 +41,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [completeItemData, setCompleteItemData] = useState<any>(null);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
@@ -132,6 +134,20 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const slug = finalItem.slug || finalItem.item_code;
+                  navigate(`/edn-complete/${slug}`);
+                  onClose();
+                }}
+                className="text-white hover:bg-white/20"
+                title="Voir la page complète"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {!isMobile && <span className="ml-2">Page complète</span>}
+              </Button>
               {!isMobile && (
                 <Button
                   variant="ghost"
