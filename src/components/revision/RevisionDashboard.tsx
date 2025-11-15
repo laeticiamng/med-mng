@@ -2,26 +2,49 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Brain, 
-  Calendar, 
-  Target, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Brain,
+  Calendar,
+  Target,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
   BookOpen,
   Zap,
-  Trophy
+  Trophy,
+  Settings
 } from 'lucide-react';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
+import { useRevisionMethods } from '@/hooks/useRevisionMethods';
+import { REVISION_METHODS } from '@/types/revision-methods';
+import { RevisionMethodSelector } from './RevisionMethodSelector';
+import { JMethodView } from './JMethodView';
+import { BlockMethodView } from './BlockMethodView';
+import { QCMFirstView } from './QCMFirstView';
 import { RevisionPlanCreator } from './RevisionPlanCreator';
 import { TodayRevisionSession } from './TodayRevisionSession';
 import { ProgressAnalytics } from './ProgressAnalytics';
 
 export const RevisionDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('today');
+  const [showMethodSelector, setShowMethodSelector] = useState(false);
+
+  // New revision methods hook
+  const {
+    loading: methodsLoading,
+    error: methodsError,
+    currentMethod,
+    todayItems: methodTodayItems,
+    overdueItems,
+    stats: methodStats,
+    blockConfig,
+    todayQCMSession
+  } = useRevisionMethods();
+
+  // Legacy personalized revision hook (for backwards compatibility)
   const {
     loading,
     error,
@@ -35,7 +58,12 @@ export const RevisionDashboard: React.FC = () => {
   const todayItems = getTodayRevisionItems();
   const stats = getProgressStats();
 
-  if (loading) {
+  // Use new system if available, fall back to legacy
+  const isUsingNewSystem = currentMethod !== null;
+  const displayLoading = isUsingNewSystem ? methodsLoading : loading;
+  const displayError = isUsingNewSystem ? methodsError : error;
+
+  if (displayLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -44,17 +72,17 @@ export const RevisionDashboard: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (displayError) {
     return (
       <Card className="border-red-200 bg-red-50">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 text-red-600">
             <AlertCircle className="h-5 w-5" />
-            <span>Erreur: {error}</span>
+            <span>Erreur: {displayError}</span>
           </div>
-          <Button 
-            onClick={analyzeUserWeaknesses} 
-            variant="outline" 
+          <Button
+            onClick={analyzeUserWeaknesses}
+            variant="outline"
             className="mt-4"
           >
             Réessayer
@@ -64,16 +92,77 @@ export const RevisionDashboard: React.FC = () => {
     );
   }
 
+  // Show method selector if no method is selected
+  if (!currentMethod) {
+    return (
+      <div className="space-y-6">
+        <RevisionMethodSelector />
+      </div>
+    );
+  }
+
+  const currentMethodInfo = REVISION_METHODS[currentMethod];
+
   return (
     <div className="space-y-6">
+      {/* Method Indicator */}
+      <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{currentMethodInfo.emoji}</span>
+              <div>
+                <p className="text-sm text-gray-600">Méthode actuelle</p>
+                <p className="text-lg font-bold text-gray-900">{currentMethodInfo.name}</p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowMethodSelector(true)}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Changer de méthode
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Method Selector Dialog */}
+      {showMethodSelector && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Changer de méthode de révision</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMethodSelector(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+              <RevisionMethodSelector
+                currentMethod={currentMethod}
+                onMethodSelected={() => setShowMethodSelector(false)}
+                showCancelButton
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* En-tête avec statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 font-medium">Maîtrise globale</p>
-                <p className="text-2xl font-bold text-blue-800">{stats.masteryRate}%</p>
+                <p className="text-sm text-blue-600 font-medium">Taux de complétion</p>
+                <p className="text-2xl font-bold text-blue-800">
+                  {methodStats?.completion_rate || stats.masteryRate || 0}%
+                </p>
               </div>
               <Trophy className="h-8 w-8 text-blue-500" />
             </div>
@@ -84,8 +173,10 @@ export const RevisionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 font-medium">Concepts maîtrisés</p>
-                <p className="text-2xl font-bold text-green-800">{stats.masteredItems}</p>
+                <p className="text-sm text-green-600 font-medium">Complétées aujourd'hui</p>
+                <p className="text-2xl font-bold text-green-800">
+                  {methodStats?.completed_today || stats.todayCompleted || 0}
+                </p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
@@ -97,7 +188,9 @@ export const RevisionDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 font-medium">À réviser aujourd'hui</p>
-                <p className="text-2xl font-bold text-orange-800">{todayItems.length}</p>
+                <p className="text-2xl font-bold text-orange-800">
+                  {methodStats?.pending_today || methodTodayItems.length || todayItems.length}
+                </p>
               </div>
               <Calendar className="h-8 w-8 text-orange-500" />
             </div>
@@ -108,10 +201,12 @@ export const RevisionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-purple-600 font-medium">Objectif quotidien</p>
-                <p className="text-2xl font-bold text-purple-800">{currentPlan?.daily_target || 0}</p>
+                <p className="text-sm text-purple-600 font-medium">En retard</p>
+                <p className="text-2xl font-bold text-purple-800">
+                  {methodStats?.overdue_count || 0}
+                </p>
               </div>
-              <Target className="h-8 w-8 text-purple-500" />
+              <AlertCircle className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
@@ -139,35 +234,27 @@ export const RevisionDashboard: React.FC = () => {
         </TabsList>
 
         <TabsContent value="today" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Session de révision du jour
-              </CardTitle>
-              <CardDescription>
-                {todayItems.length > 0 
-                  ? `${todayItems.length} concept(s) à réviser selon votre planning personnalisé`
-                  : "Aucune révision programmée pour aujourd'hui - Excellent travail !"
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {todayItems.length > 0 ? (
-                <TodayRevisionSession items={todayItems} />
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <p className="text-lg font-medium text-green-800">
-                    Toutes vos révisions sont à jour !
-                  </p>
-                  <p className="text-green-600 mt-2">
-                    Revenez demain pour continuer votre progression.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Render method-specific view */}
+          {currentMethod === 'J_METHOD' && (
+            <JMethodView
+              todayItems={methodTodayItems}
+              overdueItems={overdueItems}
+            />
+          )}
+
+          {currentMethod === 'BLOCK_METHOD' && (
+            <BlockMethodView
+              todayItems={methodTodayItems}
+              blockConfig={blockConfig}
+            />
+          )}
+
+          {currentMethod === 'QCM_FIRST' && (
+            <QCMFirstView
+              todayItems={methodTodayItems}
+              todaySession={todayQCMSession}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="plan" className="space-y-4">
