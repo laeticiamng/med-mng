@@ -190,7 +190,7 @@ export const GoalTrackerWidget: React.FC = () => {
                     </p>
                   )}
                 </div>
-              </CardHeader>
+              </CardContent>
             </Card>
           )}
 
