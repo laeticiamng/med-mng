@@ -304,3 +304,23 @@ export function useSharePost() {
     },
   })
 }
+
+/**
+ * Combined hook for post operations
+ * Provides commonly needed post CRUD operations
+ */
+export function usePosts() {
+  const queryClient = useQueryClient()
+
+  const createPost = useCreatePost()
+  const deletePost = useDeletePost()
+
+  return {
+    createPost: createPost.mutate,
+    deletePost: deletePost.mutate,
+    isCreating: createPost.isPending,
+    isDeleting: deletePost.isPending,
+    createError: createPost.error,
+    deleteError: deletePost.error,
+  }
+}

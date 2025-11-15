@@ -16,7 +16,7 @@ import {
   useUnlikePost,
   useCreateComment,
 } from '@/hooks/usePosts'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'

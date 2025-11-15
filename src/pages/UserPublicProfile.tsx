@@ -16,7 +16,7 @@ import {
   useUnfollowUser,
   useIsFollowing,
 } from '@/hooks/useUserProfile'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'

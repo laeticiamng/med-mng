@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ArrowLeft, Send, X, Hash, AlertCircle, CheckCircle, Loader } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { usePosts } from '@/hooks/usePosts'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 
 export default function PostEdit() {
   const { postId } = useParams<{ postId: string }>()

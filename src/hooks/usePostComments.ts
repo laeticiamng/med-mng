@@ -5,7 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { postCommentsService } from '@/services/post-comments.service'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 
 export const usePostComments = () => {
   const { user } = useAuth()

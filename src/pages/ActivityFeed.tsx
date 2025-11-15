@@ -13,7 +13,7 @@ import {
   useDeleteAllActivities,
   useUnreadActivityCount,
 } from '@/hooks/useActivityFeed'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Link, useNavigate } from 'react-router-dom'

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Heart, MessageCircle, UserPlus, Mention, Bell, Search, Trash2, Settings } from 'lucide-react'
+import { Heart, MessageCircle, UserPlus, AtSign, Bell, Search, Trash2, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -14,7 +14,7 @@ import {
   useDeleteNotification,
   useDeleteAllNotifications,
 } from '@/hooks/useNotificationsService'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
       case 'follow':
         return <UserPlus className="h-4 w-4 text-green-500" />
       case 'mention':
-        return <Mention className="h-4 w-4 text-purple-500" />
+        return <AtSign className="h-4 w-4 text-purple-500" />
       default:
         return <Bell className="h-4 w-4 text-gray-500" />
     }

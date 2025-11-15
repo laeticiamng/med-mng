@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { ROUTE_PATHS } from '@/config/routes'
 import { Button } from '@/components/ui/button'
 import { CreatePostForm } from '@/components/posts/CreatePostForm'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default function CreatePost() {

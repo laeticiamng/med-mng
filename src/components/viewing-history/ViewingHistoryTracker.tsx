@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
 
 interface ViewingHistoryTrackerProps {

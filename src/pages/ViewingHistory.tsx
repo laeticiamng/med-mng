@@ -20,7 +20,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'

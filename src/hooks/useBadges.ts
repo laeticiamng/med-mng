@@ -275,3 +275,22 @@ export function useCheckAndAwardBadges() {
     },
   })
 }
+
+// Combined hook for components that need badge summary data
+export function useBadges(userId?: string) {
+  const { data: allBadges = [] } = useFetchAllBadges()
+  const { data: userBadges = [] } = useFetchUserBadges(userId || '')
+  const { data: badgeCount = { earned: 0, total: 0 } } = useFetchUserBadgesCount(userId || '')
+
+  const earnedBadges = badgeCount.earned || userBadges.length
+  const totalBadges = badgeCount.total || allBadges.length
+  const progressPercentage = totalBadges > 0 ? (earnedBadges / totalBadges) * 100 : 0
+
+  return {
+    badges: allBadges,
+    earnedBadges,
+    totalBadges,
+    progressPercentage,
+    userBadges,
+  }
+}

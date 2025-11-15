@@ -18,7 +18,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { useCollections } from '@/hooks/useCollections'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'

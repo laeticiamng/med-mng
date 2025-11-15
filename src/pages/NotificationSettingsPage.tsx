@@ -4,7 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import NotificationPreferences from '@/components/notifications/NotificationPreferences'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default function NotificationSettingsPage() {

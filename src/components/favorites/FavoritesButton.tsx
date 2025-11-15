@@ -1,7 +1,7 @@
 import React from 'react'
 import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/med-mng/AuthProvider'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useToast } from '@/hooks/use-toast'
 
