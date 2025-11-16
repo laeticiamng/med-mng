@@ -1,3 +1,4 @@
+import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { userFavoritesService } from '@/services/user-favorites.service'
 import { ItemType, UserFavorite } from '@/types/database-custom'
