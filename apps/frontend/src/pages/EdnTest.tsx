@@ -4,7 +4,7 @@
  */
 
 import { EdnCompletenessVerification } from '@/components/test/EdnCompletenessVerification';
-import { EdnExtractionTest } from '@/components/test/EdnExtractionTest';
+import { MigrationApplier } from '@/components/test/MigrationApplier';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function EdnTest() {
@@ -18,22 +18,22 @@ export default function EdnTest() {
           </p>
         </div>
 
-        <Tabs defaultValue="verification" className="w-full">
+        <Tabs defaultValue="migration" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="migration">
+              🔧 Migration Base de Données
+            </TabsTrigger>
             <TabsTrigger value="verification">
               📊 Vérification Complétude
             </TabsTrigger>
-            <TabsTrigger value="extraction">
-              🔄 Test Extraction UNESS
-            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="migration">
+            <MigrationApplier />
+          </TabsContent>
 
           <TabsContent value="verification">
             <EdnCompletenessVerification />
-          </TabsContent>
-
-          <TabsContent value="extraction">
-            <EdnExtractionTest />
           </TabsContent>
         </Tabs>
       </div>
