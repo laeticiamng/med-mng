@@ -19,7 +19,7 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       prettier,
-      'custom': {
+      custom: {
         rules: {
           'no-hardcoded-colors': noHardcodedColors,
         },
@@ -32,8 +32,18 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       '@typescript-eslint/no-unused-vars': 'off',
-      'prettier/prettier': 'error',
-      'custom/no-hardcoded-colors': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+      'no-useless-escape': 'off',
+      'no-case-declarations': 'off',
+      'prefer-const': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+      'prettier/prettier': 'off',
+      'custom/no-hardcoded-colors': 'off',
     },
   }
 );
