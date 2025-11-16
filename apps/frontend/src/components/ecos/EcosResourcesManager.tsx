@@ -43,6 +43,10 @@ import {
   Plus,
   File,
   Music,
+  Search,
+  Heart,
+  Filter,
+  SortAsc,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -104,6 +108,13 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const { toast } = useToast();
 
+  // Enhanced filtering and search
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'popular' | 'title'>('date');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
   // Form state for upload
   const [uploadForm, setUploadForm] = useState({
     title: '',
@@ -117,6 +128,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
   // Fetch resources
   useEffect(() => {
     fetchResources();
+    loadFavorites();
   }, [situationId]);
 
   const fetchResources = async () => {
@@ -142,6 +154,70 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
       setLoading(false);
     }
   };
+
+  // Load favorites from localStorage
+  const loadFavorites = () => {
+    const saved = localStorage.getItem('ecos_resource_favorites');
+    if (saved) {
+      try {
+        setFavorites(new Set(JSON.parse(saved)));
+      } catch (e) {
+        console.error('Error loading favorites:', e);
+      }
+    }
+  };
+
+  // Toggle favorite status
+  const toggleFavorite = (resourceId: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(resourceId)) {
+      newFavorites.delete(resourceId);
+      toast({ description: 'Retiré des favoris' });
+    } else {
+      newFavorites.add(resourceId);
+      toast({ description: 'Ajouté aux favoris' });
+    }
+    setFavorites(newFavorites);
+    localStorage.setItem('ecos_resource_favorites', JSON.stringify(Array.from(newFavorites)));
+  };
+
+  // Filter and sort resources
+  const filteredResources = resources
+    .filter((resource) => {
+      // Search filter
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase();
+        const matchesTitle = resource.title.toLowerCase().includes(search);
+        const matchesDescription = resource.description?.toLowerCase().includes(search);
+        const matchesTags = resource.tags?.some(tag => tag.toLowerCase().includes(search));
+        if (!matchesTitle && !matchesDescription && !matchesTags) {
+          return false;
+        }
+      }
+
+      // Type filter
+      if (filterType !== 'all' && resource.resource_type !== filterType) {
+        return false;
+      }
+
+      // Category filter
+      if (filterCategory !== 'all' && resource.category !== filterCategory) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'popular':
+          return (b.view_count + b.download_count) - (a.view_count + a.download_count);
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'date':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
 
   // Handle resource access (view/download)
   const handleResourceAccess = async (resourceId: string, accessType: 'view' | 'download', url?: string) => {
@@ -229,7 +305,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
         <div>
           <h3 className="text-2xl font-semibold">Ressources Pédagogiques</h3>
           <p className="text-sm text-muted-foreground">
-            {resources.length} {resources.length === 1 ? 'ressource disponible' : 'ressources disponibles'}
+            {filteredResources.length} sur {resources.length} {resources.length === 1 ? 'ressource' : 'ressources'}
           </p>
         </div>
         {canUpload && (
@@ -335,8 +411,130 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
         )}
       </div>
 
+      {/* Search and Filters */}
+      {resources.length > 0 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher des ressources..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filters and Sort */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">
+                    <Filter className="h-3 w-3 inline mr-1" />
+                    Type
+                  </Label>
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les types</SelectItem>
+                      <SelectItem value="pdf">PDF</SelectItem>
+                      <SelectItem value="video">Vidéo</SelectItem>
+                      <SelectItem value="audio">Audio</SelectItem>
+                      <SelectItem value="image">Image</SelectItem>
+                      <SelectItem value="link">Lien</SelectItem>
+                      <SelectItem value="document">Document</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">
+                    <Filter className="h-3 w-3 inline mr-1" />
+                    Catégorie
+                  </Label>
+                  <Select value={filterCategory} onValueChange={setFilterCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les catégories</SelectItem>
+                      <SelectItem value="course_material">Matériel de cours</SelectItem>
+                      <SelectItem value="reference">Référence</SelectItem>
+                      <SelectItem value="practice">Pratique</SelectItem>
+                      <SelectItem value="supplementary">Supplémentaire</SelectItem>
+                      <SelectItem value="evaluation_guide">Guide d'évaluation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">
+                    <SortAsc className="h-3 w-3 inline mr-1" />
+                    Trier par
+                  </Label>
+                  <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date">Plus récent</SelectItem>
+                      <SelectItem value="popular">Popularité</SelectItem>
+                      <SelectItem value="title">Titre (A-Z)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Active filters summary */}
+              {(searchTerm || filterType !== 'all' || filterCategory !== 'all') && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Filtres actifs:</span>
+                  {searchTerm && <Badge variant="outline">"{searchTerm}"</Badge>}
+                  {filterType !== 'all' && <Badge variant="outline">{filterType}</Badge>}
+                  {filterCategory !== 'all' && <Badge variant="outline">{filterCategory}</Badge>}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFilterType('all');
+                      setFilterCategory('all');
+                    }}
+                  >
+                    Réinitialiser
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Resources List */}
-      {resources.length === 0 ? (
+      {filteredResources.length === 0 && resources.length > 0 ? (
+        <Card className="text-center py-12">
+          <CardContent>
+            <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+            <h3 className="text-xl font-semibold mb-2">Aucun résultat</h3>
+            <p className="text-muted-foreground mb-4">
+              Aucune ressource ne correspond à vos critères de recherche
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchTerm('');
+                setFilterType('all');
+                setFilterCategory('all');
+              }}
+            >
+              Réinitialiser les filtres
+            </Button>
+          </CardContent>
+        </Card>
+      ) : resources.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
             <File className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
@@ -350,7 +548,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
         </Card>
       ) : (
         <div className="grid gap-4">
-          {resources.map((resource) => (
+          {filteredResources.map((resource) => (
             <Card key={resource.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -388,7 +586,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     size="sm"
                     onClick={() =>
@@ -412,9 +610,20 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
                       Télécharger
                     </Button>
                   )}
-                  <span className="text-sm text-muted-foreground ml-auto">
-                    {resource.view_count} vues · {resource.download_count} téléchargements
-                  </span>
+                  <Button
+                    size="sm"
+                    variant={favorites.has(resource.id) ? 'default' : 'outline'}
+                    onClick={() => toggleFavorite(resource.id)}
+                    className="ml-auto"
+                  >
+                    <Heart className={`h-4 w-4 mr-2 ${favorites.has(resource.id) ? 'fill-current' : ''}`} />
+                    {favorites.has(resource.id) ? 'Favori' : 'Ajouter'}
+                  </Button>
+                  <div className="w-full mt-2">
+                    <span className="text-sm text-muted-foreground">
+                      {resource.view_count} vues · {resource.download_count} téléchargements
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

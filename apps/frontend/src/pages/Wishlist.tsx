@@ -30,6 +30,12 @@ import {
   Stethoscope,
   Music,
   MoreHorizontal,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  DollarSign,
+  Share2,
+  Download,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -97,6 +103,7 @@ export const Wishlist: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('priority');
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleRemove = async (itemType: string, itemId: string, title?: string) => {
     const success = await removeFromWishlist(itemType, itemId);
@@ -140,6 +147,18 @@ export const Wishlist: React.FC = () => {
   const filteredWishlist = React.useMemo(() => {
     let filtered = [...wishlist];
 
+    // Apply search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          item.item_metadata?.title?.toLowerCase().includes(search) ||
+          item.item_metadata?.description?.toLowerCase().includes(search) ||
+          item.notes?.toLowerCase().includes(search) ||
+          item.tags?.some((tag) => tag.toLowerCase().includes(search))
+      );
+    }
+
     // Apply type filter
     if (filterType !== 'all') {
       filtered = filtered.filter((item) => item.item_type === filterType);
@@ -156,13 +175,37 @@ export const Wishlist: React.FC = () => {
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case 'type':
           return a.item_type.localeCompare(b.item_type);
+        case 'price-high':
+          return (Number(b.item_metadata?.price) || 0) - (Number(a.item_metadata?.price) || 0);
+        case 'price-low':
+          return (Number(a.item_metadata?.price) || 0) - (Number(b.item_metadata?.price) || 0);
         default:
           return 0;
       }
     });
 
     return filtered;
-  }, [wishlist, filterType, sortBy]);
+  }, [wishlist, filterType, sortBy, searchTerm]);
+
+  // Calculate statistics
+  const stats = React.useMemo(() => {
+    const totalValue = wishlist.reduce(
+      (sum, item) => sum + (Number(item.item_metadata?.price) || 0),
+      0
+    );
+    const highPriorityCount = wishlist.filter((item) => (item.priority || 0) >= 4).length;
+    const averagePriority =
+      wishlist.length > 0
+        ? wishlist.reduce((sum, item) => sum + (item.priority || 0), 0) / wishlist.length
+        : 0;
+
+    return {
+      totalValue,
+      highPriorityCount,
+      averagePriority,
+      itemCount: wishlist.length,
+    };
+  }, [wishlist]);
 
   // Get unique item types for filter
   const itemTypes = React.useMemo(() => {
@@ -196,42 +239,134 @@ export const Wishlist: React.FC = () => {
         </p>
       </div>
 
+      {/* Statistics */}
+      {wishlist.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold">{stats.itemCount}</p>
+                </div>
+                <Heart className="h-8 w-8 text-red-500 opacity-20" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Valeur estimée</p>
+                  <p className="text-2xl font-bold">
+                    {stats.totalValue > 0 ? `${stats.totalValue.toFixed(2)} €` : '—'}
+                  </p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-500 opacity-20" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Haute priorité</p>
+                  <p className="text-2xl font-bold">{stats.highPriorityCount}</p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-500 opacity-20" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Priorité moyenne</p>
+                  <p className="text-2xl font-bold">{stats.averagePriority.toFixed(1)}</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-blue-500 opacity-20" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {error && (
         <Alert variant="destructive" className="mb-6">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Filters and Sort */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[200px]">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filtrer par type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les types</SelectItem>
-            {itemTypes.map((type) => (
-              <SelectItem key={type} value={type}>
-                {getItemTypeLabel(type)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Search and Filters */}
+      {wishlist.length > 0 && (
+        <div className="space-y-4 mb-6">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher dans vos souhaits..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[200px]">
-            <SortAsc className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Trier par" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="priority">Priorité</SelectItem>
-            <SelectItem value="date-new">Plus récent</SelectItem>
-            <SelectItem value="date-old">Plus ancien</SelectItem>
-            <SelectItem value="type">Type</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          {/* Filters and Sort */}
+          <div className="flex flex-wrap gap-4">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-[200px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filtrer par type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les types</SelectItem>
+                {itemTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {getItemTypeLabel(type)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[200px]">
+                <SortAsc className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Trier par" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="priority">Priorité</SelectItem>
+                <SelectItem value="date-new">Plus récent</SelectItem>
+                <SelectItem value="date-old">Plus ancien</SelectItem>
+                <SelectItem value="price-high">Prix décroissant</SelectItem>
+                <SelectItem value="price-low">Prix croissant</SelectItem>
+                <SelectItem value="type">Type</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Active filters */}
+          {(searchTerm || filterType !== 'all') && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Filtres actifs:</span>
+              {searchTerm && <Badge variant="outline">"{searchTerm}"</Badge>}
+              {filterType !== 'all' && <Badge variant="outline">{getItemTypeLabel(filterType)}</Badge>}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterType('all');
+                }}
+              >
+                Réinitialiser
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Wishlist Items */}
       {filteredWishlist.length === 0 ? (
