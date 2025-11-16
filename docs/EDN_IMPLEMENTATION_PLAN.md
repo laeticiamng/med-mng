@@ -135,54 +135,105 @@ psql $DATABASE_URL < supabase/migrations/20251116220000_add_complete_edn_feature
 - Automatisation: 1 semaine dev + 2-3 jours génération
 - Manuel: ~3-4 semaines à raison de 20 items/jour
 
-#### 2.2 Génération des Chansons Suno (Priority: HIGH)
+#### 2.2 Créer le Générateur Utilisateur Suno (Priority: HIGH)
 
-**Objectif:** Créer 1,101 chansons audio via API Suno
+**Objectif:** Permettre à chaque utilisateur de générer SA chanson personnalisée
 
 **Prérequis:**
 - Clés API Suno valides
 - Paroles générées (Phase 2.1)
+- Interface de sélection item + rang + style
 
-**Workflow:**
+**Workflow Utilisateur:**
 
-1. **Script de Génération Batch**
+1. **Interface de Génération**
 ```typescript
-// scripts/generate-suno-songs.ts
-async function generateSongsForAllItems() {
-  const items = await supabase
-    .from('edn_items_complete')
-    .select('item_code, paroles_rang_a, paroles_rang_b, paroles_rang_ab');
+// components/EdnMusicGenerator.tsx
+interface MusicGeneratorProps {
+  itemCode: string;
+  rangType: 'A' | 'B' | 'AB';
+}
 
-  for (const item of items) {
-    // Générer chanson Rang A
-    const songA = await sunoAPI.generate({
-      lyrics: item.paroles_rang_a.join('\n'),
-      style: 'educational rap',
-      title: `${item.item_code} - Rang A`
+export function EdnMusicGenerator({ itemCode, rangType }: MusicGeneratorProps) {
+  const [musicStyle, setMusicStyle] = useState('rap');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateSong = async () => {
+    setIsGenerating(true);
+
+    // 1. Récupérer les paroles fixes
+    const { data: item } = await supabase
+      .from('edn_items_complete')
+      .select(`paroles_rang_${rangType.toLowerCase()}`)
+      .eq('item_code', itemCode)
+      .single();
+
+    const paroles = item[`paroles_rang_${rangType.toLowerCase()}`];
+
+    // 2. Appeler API Suno
+    const response = await fetch('/api/generate-music', {
+      method: 'POST',
+      body: JSON.stringify({
+        lyrics: paroles.join('\n'),
+        style: musicStyle,
+        title: `${itemCode} - Rang ${rangType}`,
+        tempo: 'medium'
+      })
     });
 
-    // Insérer dans med_mng_songs
-    await supabase.from('med_mng_songs').insert({
-      item_code: item.item_code,
-      rang_type: 'A',
-      is_static: true,
-      suno_audio_id: songA.id,
-      title: `${item.item_code} - Rang A`,
-      lyrics: { text: item.paroles_rang_a },
-      // ... autres métadonnées
+    const { audioId } = await response.json();
+
+    // 3. Sauvegarder dans med_mng_songs
+    const { data: song } = await supabase
+      .from('med_mng_songs')
+      .insert({
+        item_code: itemCode,
+        rang_type: rangType,
+        is_static: false,  // ✨ Générée par utilisateur
+        music_style: musicStyle,
+        suno_audio_id: audioId,
+        title: `${itemCode} - Rang ${rangType}`,
+        lyrics: { text: paroles }
+      })
+      .select()
+      .single();
+
+    // 4. Ajouter à la bibliothèque utilisateur
+    await supabase.from('med_mng_user_songs').insert({
+      user_id: userId,
+      song_id: song.id
     });
 
-    // Répéter pour Rang B et AB
-  }
+    setIsGenerating(false);
+    return song;
+  };
+
+  return (
+    <div>
+      <h3>Générer votre chanson personnalisée</h3>
+      <select value={musicStyle} onChange={(e) => setMusicStyle(e.target.value)}>
+        <option value="rap">Rap éducatif (Nekfeu)</option>
+        <option value="pop">Pop énergique</option>
+        <option value="lofi">Lo-fi studieux</option>
+        <option value="rock">Rock mémorable</option>
+      </select>
+      <button onClick={generateSong} disabled={isGenerating}>
+        {isGenerating ? 'Génération en cours...' : '🎵 Générer ma chanson'}
+      </button>
+    </div>
+  );
 }
 ```
 
-2. **Rate Limiting et Coûts**
-- API Suno: ~$0.10 par chanson (à vérifier)
-- 1,101 chansons × $0.10 = ~$110 USD
-- Rate limit: ~10 req/min → 110 minutes minimum
+2. **Coûts et Performance**
+- API Suno: ~$0.10 par chanson
+- Coût par utilisateur: variable selon usage
+- Génération: ~15-30 secondes par chanson
+- Cache des chansons officielles disponible
 
-**Estimation:** 1-2 jours dev + 2-3 heures génération
+**Estimation:** 2-3 jours dev pour l'intégration complète
+
+**Note Importante:** Les chansons sont générées **à la demande** par chaque utilisateur, pas pré-générées en masse. Cela permet la personnalisation du style musical.
 
 #### 2.3 Génération des Quiz (Priority: MEDIUM)
 

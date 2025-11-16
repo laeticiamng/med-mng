@@ -64,8 +64,9 @@ WHERE paroles_musicales IS NOT NULL
 ALTER TABLE med_mng_songs
 ADD COLUMN IF NOT EXISTS item_code text,
 ADD COLUMN IF NOT EXISTS rang_type text,
-ADD COLUMN IF NOT EXISTS is_static boolean DEFAULT true,
-ADD COLUMN IF NOT EXISTS generation_source text DEFAULT 'suno';
+ADD COLUMN IF NOT EXISTS is_static boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS generation_source text DEFAULT 'suno',
+ADD COLUMN IF NOT EXISTS music_style text;
 
 -- Contraintes
 ALTER TABLE med_mng_songs
@@ -93,7 +94,11 @@ ON med_mng_songs(rang_type);
 CREATE INDEX IF NOT EXISTS idx_med_mng_songs_static
 ON med_mng_songs(is_static);
 
--- Contrainte unique: 1 seule chanson statique par (item_code, rang_type)
+CREATE INDEX IF NOT EXISTS idx_med_mng_songs_music_style
+ON med_mng_songs(music_style);
+
+-- Contrainte unique: 1 seule chanson officielle (statique) par (item_code, rang_type)
+-- Les chansons générées par utilisateurs (is_static=false) peuvent être multiples
 CREATE UNIQUE INDEX IF NOT EXISTS idx_med_mng_songs_static_unique
 ON med_mng_songs(item_code, rang_type)
 WHERE is_static = true AND item_code IS NOT NULL AND rang_type IS NOT NULL;
@@ -106,10 +111,13 @@ COMMENT ON COLUMN med_mng_songs.rang_type IS
 'Type de rang couvert: A (rang A uniquement), B (rang B uniquement), AB (les deux rangs)';
 
 COMMENT ON COLUMN med_mng_songs.is_static IS
-'true = chanson fixe réutilisable pour cet item+rang, false = générée dynamiquement par utilisateur';
+'false = chanson générée dynamiquement par utilisateur (défaut), true = chanson fixe officielle';
 
 COMMENT ON COLUMN med_mng_songs.generation_source IS
 'Source de génération: suno (API Suno), manual (créée manuellement), ai_generated (IA autre), custom (personnalisée)';
+
+COMMENT ON COLUMN med_mng_songs.music_style IS
+'Style musical choisi par l''utilisateur lors de la génération (ex: rap, pop, rock, lo-fi, etc.)';
 
 \echo '✓ Colonnes liaison Suno ajoutées'
 \echo ''
