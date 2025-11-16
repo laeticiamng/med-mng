@@ -1,5 +1,6 @@
 import express from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import systemRouter from './routes/systemRoutes';
 import { errorHandler } from '../middleware/errorHandler';
@@ -14,6 +15,19 @@ export function createServer() {
   app.use(helmet());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
+
+  // 🔒 SÉCURITÉ: Configuration du CORS pour limiter l'accès de l'API
+  // Les origines autorisées sont lues dans ALLOWED_ORIGINS (liste séparée par des virgules)
+  // Par défaut : '*' (tous les domaines - NON RECOMMANDÉ EN PRODUCTION)
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? ['*'];
+  const corsOptions: cors.CorsOptions = {
+    origin: allowedOrigins[0] === '*' ? '*' : allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+    maxAge: 86400, // Cache preflight requests for 24 hours
+  };
+  app.use(cors(corsOptions));
 
   app.use((req, res, next) => {
     const requestId = (req.headers['x-request-id'] as string) || generateRequestId();
