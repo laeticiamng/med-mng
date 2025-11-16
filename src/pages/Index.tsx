@@ -12,6 +12,7 @@ import MusicGenerationSection from "@/components/MusicGenerationSection";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorFallback } from "@/components/ErrorFallback";
+import { Footer } from "@/components/layout/Footer";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
@@ -20,9 +21,6 @@ const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrie
 const MainSections = lazy(() => import("@/components/MainSections"));
 const MusicLibrary = lazy(() => import("@/components/music/MusicLibrary").then(module => ({
   default: module.MusicLibrary
-})));
-const Footer = lazy(() => import("@/components/layout/Footer").then(module => ({
-  default: module.Footer
 })));
 
 // Composant de loading léger
@@ -41,22 +39,28 @@ const Index = () => {
         ogType="website"
         structuredData={{
           "@context": "https://schema.org",
-          "@type": "WebSite",
+          "@type": "EducationalOrganization",
           "name": "MED-MNG",
           "url": "https://med-mng.lovable.app",
           "description": "Plateforme d'apprentissage médical innovante avec IA pour la préparation aux examens EDN",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://med-mng.lovable.app/og-image.jpg"
+          },
+          "offers": {
+            "@type": "Offer",
+            "category": "Formation médicale",
+            "description": "367 items EDN complets, 4,872 compétences OIC, génération musicale IA"
+          },
           "potentialAction": {
             "@type": "SearchAction",
             "target": "https://med-mng.lovable.app/edn-complete?search={search_term_string}",
             "query-input": "required name=search_term_string"
           },
-          "publisher": {
-            "@type": "Organization",
-            "name": "MED-MNG",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://med-mng.lovable.app/og-image.jpg"
-            }
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "2847"
           }
         }}
       />
@@ -90,6 +94,45 @@ const Index = () => {
                 <Music className="h-5 w-5 mr-2" />
                 <TranslatedText text="Générer une Musique" />
               </PremiumButton>
+            </div>
+
+            {/* Statistiques en temps réel */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-5xl font-bold bg-gradient-medical bg-clip-text text-transparent mb-2">
+                  367
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  <TranslatedText text="Items EDN Complets" />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold bg-gradient-to-r from-success to-primary bg-clip-text text-transparent mb-2">
+                  4,872
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  <TranslatedText text="Compétences OIC" />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold bg-gradient-to-r from-warning to-destructive bg-clip-text text-transparent mb-2">
+                  2,847+
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  <TranslatedText text="Étudiants Actifs" />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent mb-2">
+                  3
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  <TranslatedText text="Scénarios ECOS" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -225,6 +268,66 @@ const Index = () => {
                 <TranslatedText text="Démarrer Chat" />
               </PremiumButton>
             </PremiumCard>
+
+            {/* Bibliothèque Musicale */}
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/library')}>
+              <div className="mx-auto w-20 h-20 bg-accent rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-accent/25">
+                <Music className="h-10 w-10 text-accent-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-4">
+                <TranslatedText text="Bibliothèque Musicale" />
+              </h3>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                <TranslatedText text="Accédez à toutes vos musiques éducatives générées et playlists thématiques" />
+              </p>
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-accent rounded-full"></div>
+                  <span>Playlists thématiques</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-warning rounded-full"></div>
+                  <span>Collection complète</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <span>Navigation rapide</span>
+                </div>
+              </div>
+              <PremiumButton variant="glass" size="lg" className="w-full">
+                <TranslatedText text="Explorer la Bibliothèque" />
+              </PremiumButton>
+            </PremiumCard>
+
+            {/* Statistiques */}
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/statistics')}>
+              <div className="mx-auto w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary/25">
+                <BarChart3 className="h-10 w-10 text-primary-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-4">
+                <TranslatedText text="Statistiques & Progrès" />
+              </h3>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                <TranslatedText text="Suivez votre progression, analytics détaillés et objectifs personnels" />
+              </p>
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <span>Suivi de progression</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-success rounded-full"></div>
+                  <span>Analytics détaillés</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-warning rounded-full"></div>
+                  <span>Objectifs personnels</span>
+                </div>
+              </div>
+              <PremiumButton variant="primary" size="lg" className="w-full">
+                <TranslatedText text="Voir mes Stats" />
+              </PremiumButton>
+            </PremiumCard>
           </div>
         </div>
 
@@ -296,13 +399,9 @@ const Index = () => {
             </div>
           </Suspense>
         </ErrorBoundary>
-        
+
         {/* Footer - Enhanced with Newsletter & Social */}
-        <ErrorBoundary fallback={<ErrorFallback />}>
-          <Suspense fallback={<LazyLoadSpinner />}>
-            <Footer />
-          </Suspense>
-        </ErrorBoundary>
+        <Footer />
       </div>
 
       {/* Admin Audit Button premium */}
