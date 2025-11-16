@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://esm.sh/zod@3.23.8';
+
+// 🔒 SÉCURITÉ: Schéma de validation Zod pour les requêtes entrantes
+const payloadSchema = z.object({
+  mode: z.enum(["batch", "single", "report"]).optional(),
+  itemIds: z.array(z.string().min(1).max(100)).max(1000).optional(), // Max 1000 items, each max 100 chars
+  itemId: z.string().min(1).max(100).optional(),
+  reportType: z.enum(["summary", "detailed", "errors"]).optional(),
+});
 
 interface Payload {
   mode?: "batch" | "single" | "report";
@@ -18,7 +27,26 @@ interface ExtractionResult {
 
 serve(async (req) => {
   try {
-    const payload = (await req.json().catch(() => ({}))) as Payload;
+    // 🔒 SÉCURITÉ: Validation du payload avec Zod
+    const rawPayload = await req.json().catch(() => ({}));
+    const parseResult = payloadSchema.safeParse(rawPayload);
+
+    if (!parseResult.success) {
+      console.error('❌ Invalid payload:', parseResult.error.format());
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Invalid request payload',
+          details: parseResult.error.format(),
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    const payload = parseResult.data as Payload;
     const { mode = "single", itemIds = [], itemId, reportType = "summary" } = payload;
 
     // Initialize Supabase client
@@ -46,7 +74,12 @@ serve(async (req) => {
         console.log(`🔄 Starting batch extraction for ${itemIds.length} items`);
 
         const results: ExtractionResult[] = [];
-        const batchSize = 10; // Process 10 items at a time
+
+        // ⚙️ Configuration: Taille de lot paramétrable via variable d'environnement
+        // Par défaut : 10 items par lot
+        const batchSizeEnv = Number(Deno.env.get('BATCH_SIZE') ?? '10');
+        const batchSize = Number.isNaN(batchSizeEnv) || batchSizeEnv <= 0 ? 10 : batchSizeEnv;
+        console.log(`📦 Using batch size: ${batchSize}`);
 
         for (let i = 0; i < itemIds.length; i += batchSize) {
           const batch = itemIds.slice(i, i + batchSize);
