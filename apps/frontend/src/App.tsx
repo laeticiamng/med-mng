@@ -54,6 +54,7 @@ const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const EdnItemDetail = lazy(() => import("./pages/EdnItemDetail"));
+const EdnTest = lazy(() => import("./pages/EdnTest"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const ShareTestPage = lazy(() => import("./pages/ShareTestPage"));
@@ -371,7 +372,14 @@ const App = () => {
           <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
           <Route path={ROUTE_PATHS.ednImmersive} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnImmersive /></Suspense>} />
           <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
-          
+          <Route path="/edn-test" element={
+            <ErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <EdnTest />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+
           {/* 📊 Admin Dashboard Analytics */}
           <Route path={ROUTE_PATHS.adminDashboardAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminDashboard /></Suspense>} />
           
