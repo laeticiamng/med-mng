@@ -204,28 +204,74 @@ export const GoalDetail: React.FC = () => {
   };
 
   const handleUpdate = async () => {
-    await updateGoal.mutateAsync({
-      goalId: goal.id,
-      updates: {
-        title: editTitle,
-        description: editDescription,
-        target_date: editTargetDate,
-        priority: editPriority,
-      },
-    });
-    setIsEditDialogOpen(false);
+    try {
+      await updateGoal.mutateAsync({
+        goalId: goal.id,
+        updates: {
+          title: editTitle,
+          description: editDescription,
+          target_date: editTargetDate,
+          priority: editPriority,
+        },
+      });
+      toast({
+        title: 'Objectif modifié',
+        description: 'Les modifications ont été enregistrées avec succès',
+      });
+      setIsEditDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error updating goal:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de modifier l\'objectif. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDelete = async () => {
-    await deleteGoal.mutateAsync(goal.id);
-    navigate('/goals');
+    try {
+      await deleteGoal.mutateAsync(goal.id);
+      toast({
+        title: 'Objectif supprimé',
+        description: 'L\'objectif a été supprimé avec succès',
+      });
+      navigate('/goals');
+    } catch (error: any) {
+      console.error('Error deleting goal:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de supprimer l\'objectif. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   const handleStatusChange = async (newStatus: UserGoal['status']) => {
-    await updateGoal.mutateAsync({
-      goalId: goal.id,
-      updates: { status: newStatus },
-    });
+    try {
+      await updateGoal.mutateAsync({
+        goalId: goal.id,
+        updates: { status: newStatus },
+      });
+      const statusMessages: Record<string, string> = {
+        active: 'L\'objectif a été réactivé',
+        paused: 'L\'objectif a été mis en pause',
+        completed: 'L\'objectif a été marqué comme complété',
+        failed: 'L\'objectif a été marqué comme échoué',
+      };
+      toast({
+        title: 'Statut modifié',
+        description: statusMessages[newStatus] || 'Le statut a été modifié',
+      });
+    } catch (error: any) {
+      console.error('Error changing goal status:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de modifier le statut. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleProgressUpdate = async () => {
@@ -238,12 +284,25 @@ export const GoalDetail: React.FC = () => {
       return;
     }
 
-    await updateProgress.mutateAsync({
-      goalId: goal.id,
-      progressIncrement,
-    });
-    setIsProgressDialogOpen(false);
-    setProgressIncrement(0);
+    try {
+      await updateProgress.mutateAsync({
+        goalId: goal.id,
+        progressIncrement,
+      });
+      toast({
+        title: 'Progression mise à jour',
+        description: `+${progressIncrement} ${goal.unit || ''} ajouté à votre progression`,
+      });
+      setIsProgressDialogOpen(false);
+      setProgressIncrement(0);
+    } catch (error: any) {
+      console.error('Error updating progress:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour la progression. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCreateMilestone = async () => {
@@ -256,18 +315,30 @@ export const GoalDetail: React.FC = () => {
       return;
     }
 
-    await createMilestone.mutateAsync({
-      goal_id: goal.id,
-      title: milestoneTitle,
-      description: milestoneDescription || null,
-      target_value: milestoneTarget,
-      order_index: milestones.length,
-    });
-
-    setIsMilestoneDialogOpen(false);
-    setMilestoneTitle('');
-    setMilestoneDescription('');
-    setMilestoneTarget(0);
+    try {
+      await createMilestone.mutateAsync({
+        goal_id: goal.id,
+        title: milestoneTitle,
+        description: milestoneDescription || null,
+        target_value: milestoneTarget,
+        order_index: milestones.length,
+      });
+      toast({
+        title: 'Étape créée',
+        description: `"${milestoneTitle}" a été ajoutée à l'objectif`,
+      });
+      setIsMilestoneDialogOpen(false);
+      setMilestoneTitle('');
+      setMilestoneDescription('');
+      setMilestoneTarget(0);
+    } catch (error: any) {
+      console.error('Error creating milestone:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de créer l\'étape. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const completedMilestones = milestones.filter(m => m.completed).length;
@@ -492,15 +563,29 @@ export const GoalDetail: React.FC = () => {
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <button
-                            onClick={() => {
+                            onClick={async () => {
                               if (!milestone.completed) {
-                                completeMilestone.mutate({
-                                  milestoneId: milestone.id,
-                                  goalId: goal.id,
-                                });
+                                try {
+                                  await completeMilestone.mutateAsync({
+                                    milestoneId: milestone.id,
+                                    goalId: goal.id,
+                                  });
+                                  toast({
+                                    title: 'Étape complétée',
+                                    description: `"${milestone.title}" a été marquée comme complétée`,
+                                  });
+                                } catch (error: any) {
+                                  console.error('Error completing milestone:', error);
+                                  toast({
+                                    title: 'Erreur',
+                                    description: 'Impossible de marquer l\'étape comme complétée',
+                                    variant: 'destructive',
+                                  });
+                                }
                               }
                             }}
                             className={`mt-1 ${milestone.completed ? 'cursor-default' : 'cursor-pointer'}`}
+                            aria-label={milestone.completed ? 'Étape complétée' : 'Marquer l\'étape comme complétée'}
                           >
                             {milestone.completed ? (
                               <CheckCircle2 className="h-5 w-5 text-green-600" />
