@@ -46,7 +46,27 @@ const Generator = () => {
 
   const canGenerate = useCallback(() => {
     if (contentType === 'edn') {
-      return !!(selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales);
+      if (!selectedItem || !selectedRang || !selectedStyle || !ednLyrics) {
+        return false;
+      }
+
+      // Vérifier qu'il y a des paroles pour le rang sélectionné
+      if (selectedRang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) {
+        return true;
+      }
+      if (selectedRang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) {
+        return true;
+      }
+      if (selectedRang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) {
+        return true;
+      }
+
+      // Fallback: paroles musicales génériques
+      if (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0) {
+        return true;
+      }
+
+      return false;
     }
     if (contentType === 'ecos') {
       return !!(selectedSituation && selectedStyle);
@@ -86,16 +106,31 @@ const Generator = () => {
     try {
       let lyricsToUse: string[] = [];
       let titlePrefix = '';
+      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
 
-      if (contentType === 'edn' && ednLyrics?.paroles_musicales) {
-        lyricsToUse = ednLyrics.paroles_musicales;
+      if (contentType === 'edn' && ednLyrics) {
+        // ✨ Utiliser les paroles séparées par rang (nouvelle structure)
+        if (rang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_a;
+        } else if (rang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_b;
+        } else if (rang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_ab;
+        } else if (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0) {
+          // Fallback sur anciennes paroles si nouvelles pas disponibles
+          lyricsToUse = ednLyrics.paroles_musicales;
+        }
+
         titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
-        
-        console.log('🎵 Utilisation des paroles EDN réelles:', {
+
+        console.log('🎵 Utilisation des paroles EDN par rang:', {
           item: selectedItem,
           title: ednLyrics.title,
+          rang: rang,
           paroles_count: lyricsToUse.length,
-          rang: selectedRang
+          has_paroles_rang_a: !!ednLyrics.paroles_rang_a,
+          has_paroles_rang_b: !!ednLyrics.paroles_rang_b,
+          has_paroles_rang_ab: !!ednLyrics.paroles_rang_ab,
         });
       } else if (contentType === 'ecos') {
         lyricsToUse = [
@@ -106,60 +141,105 @@ const Generator = () => {
       }
 
       if (lyricsToUse.length === 0) {
-        toast.error('Aucune parole disponible pour cet item');
+        toast.error(`Aucune parole disponible pour le rang ${rang} de cet item. La migration de base de données est peut-être nécessaire.`);
         return;
       }
 
-      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
-      
       console.log('🚀 Génération avec paroles réelles:', {
         contentType,
         selectedItem,
         rang,
         style: selectedStyle,
-        lyricsPreview: lyricsToUse[rang === 'A' ? 0 : rang === 'B' ? 1 : 2]?.substring(0, 100) + '...'
+        lyricsCount: lyricsToUse.length,
+        lyricsPreview: lyricsToUse[0]?.substring(0, 100) + '...'
       });
-      
+
       const actualRang: 'A' | 'B' = rang === 'AB' ? 'A' : rang as 'A' | 'B';
-      const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
-      
+
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
-      
+
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
-      
+
       toast.dismiss(loadingToast);
-      
+
       if (user) {
         const success = await incrementMusicUsage();
         if (!success) {
           toast.warning('Musique générée mais quota non mis à jour');
         }
       }
-      
+
+      // ✨ Sauvegarder dans med_mng_songs (si user connecté et audioUrl est un ID Suno)
+      let savedSongId = null;
+      if (user && contentType === 'edn' && audioUrl) {
+        try {
+          const { data: savedSong, error: saveError } = await supabase
+            .from('med_mng_songs')
+            .insert({
+              title: `${titlePrefix} - Rang ${rang}`,
+              suno_audio_id: audioUrl,
+              item_code: selectedItem,
+              rang_type: rang,
+              is_static: false, // ✨ Générée par utilisateur
+              music_style: selectedStyle,
+              generation_source: 'suno',
+              lyrics: { text: lyricsToUse },
+              meta: {
+                user_id: user.id,
+                generated_at: new Date().toISOString(),
+                specialite: ednLyrics?.specialite
+              }
+            })
+            .select()
+            .single();
+
+          if (!saveError && savedSong) {
+            savedSongId = savedSong.id;
+            console.log('✅ Chanson sauvegardée dans med_mng_songs:', savedSong.id);
+
+            // Ajouter à la bibliothèque utilisateur
+            await supabase
+              .from('med_mng_user_songs')
+              .insert({
+                user_id: user.id,
+                song_id: savedSong.id,
+                is_favorite: false,
+                play_count: 0
+              });
+
+            console.log('✅ Ajoutée à la bibliothèque utilisateur');
+          } else {
+            console.warn('⚠️  Erreur sauvegarde chanson:', saveError);
+          }
+        } catch (saveErr) {
+          console.error('❌ Erreur lors de la sauvegarde:', saveErr);
+        }
+      }
+
       const song = {
-        id: Date.now(),
+        id: savedSongId || Date.now(),
         title: `${titlePrefix} - ${selectedStyle}`,
-        audioUrl: audioUrl, // Peut être un trackId ou une URL HTTP
+        audioUrl: audioUrl,
         style: selectedStyle,
         rang: rang,
         duration: 240,
         itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
-        lyrics: lyricsToUse[lyricsIndex]
+        lyrics: lyricsToUse.join('\n')
       };
 
       setGeneratedSong(song);
-      
+
       // Message selon le type de réponse
       if (audioUrl && audioUrl.startsWith('http')) {
-        toast.success('🎵 Musique générée instantanément !', {
-          description: 'Cliquez sur Écouter pour profiter de votre chanson'
+        toast.success('🎵 Musique générée et sauvegardée !', {
+          description: savedSongId ? 'Ajoutée à votre bibliothèque personnelle' : 'Cliquez sur Écouter pour profiter de votre chanson'
         });
       } else {
         toast.success('🎵 Génération lancée avec succès !', {
-          description: 'Votre musique sera prête dans 1-2 minutes. La barre de progression se met à jour automatiquement.'
+          description: 'Votre musique sera prête dans 1-2 minutes. Elle sera automatiquement sauvegardée.'
         });
       }
-      
+
     } catch (error) {
       console.error('Erreur génération:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';

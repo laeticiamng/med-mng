@@ -63,15 +63,15 @@ export async function generateAdvancedLyrics(
 
 async function fetchItemData(itemCode: string): Promise<EdnItemData> {
   const { data, error } = await supabase
-    .from('edn_items_immersive')
+    .from('edn_items_complete')
     .select('item_code, title, tableau_rang_a, tableau_rang_b')
     .eq('item_code', itemCode)
     .single();
-    
+
   if (error || !data) {
     throw new Error(`Item ${itemCode} non trouvé`);
   }
-  
+
   return data;
 }
 

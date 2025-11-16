@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Heart,
   Clock,
@@ -19,11 +20,19 @@ import {
   BarChart3,
   BookOpen,
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 type ViewType = 'all' | 'fiche' | 'post' | 'collection'
 
@@ -33,6 +42,7 @@ export default function ViewingHistory() {
   const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<ViewType>('all')
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   const { useFetchHistory, useFetchViewingStats, useClearHistory } = useViewingHistory()
 
@@ -63,12 +73,8 @@ export default function ViewingHistory() {
     return filtered
   }, [history, filterType, searchQuery])
 
-  const handleClearHistory = async () => {
+  const confirmClearHistory = useCallback(async () => {
     if (!user?.id) return
-
-    if (!window.confirm('Êtes-vous sûr de vouloir effacer tout votre historique de visionnage ?')) {
-      return
-    }
 
     try {
       await clearHistoryMutation.mutateAsync(user.id)
@@ -77,14 +83,16 @@ export default function ViewingHistory() {
         title: 'Historique supprimé',
         description: 'Votre historique de visionnage a été complètement effacé',
       })
+      setShowClearConfirm(false)
     } catch (error) {
       toast({
         title: 'Erreur',
         description: 'Une erreur est survenue lors de la suppression',
         variant: 'destructive',
       })
+      setShowClearConfirm(false)
     }
-  }
+  }, [user, clearHistoryMutation, toast])
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -165,6 +173,7 @@ export default function ViewingHistory() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9"
+                      aria-label="Rechercher dans l'historique"
                     />
                   </div>
 
@@ -217,8 +226,25 @@ export default function ViewingHistory() {
 
               {/* Loading */}
               {isLoading && (
-                <div className="flex justify-center py-12">
-                  <Loader className="w-8 h-8 animate-spin text-blue-600" />
+                <div className="space-y-4">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Card key={i}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Skeleton className="h-6 w-20 rounded-full" />
+                              <Skeleton className="h-6 w-16 rounded-full" />
+                            </div>
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-2/3" />
+                            <Skeleton className="h-4 w-1/3" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
 
@@ -340,8 +366,9 @@ export default function ViewingHistory() {
                   <Button
                     variant="outline"
                     className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={handleClearHistory}
+                    onClick={() => setShowClearConfirm(true)}
                     disabled={clearHistoryMutation.isPending || history.length === 0}
+                    aria-label="Effacer tout l'historique"
                   >
                     <Trash2 className="w-4 h-4" />
                     Effacer l'historique
@@ -361,6 +388,43 @@ export default function ViewingHistory() {
               </Card>
             </div>
           </div>
+
+          {/* Clear History Confirmation Dialog */}
+          <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Effacer l'historique</DialogTitle>
+                <DialogDescription>
+                  Êtes-vous sûr de vouloir effacer tout votre historique de visionnage ? Cette action est irréversible.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowClearConfirm(false)}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmClearHistory}
+                  disabled={clearHistoryMutation.isPending}
+                >
+                  {clearHistoryMutation.isPending ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin mr-2" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Effacer
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </>

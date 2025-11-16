@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   FolderPlus,
   Trash2,
@@ -17,7 +18,7 @@ import {
   X,
   ChevronRight,
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCollections } from '@/hooks/useCollections'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -26,6 +27,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -47,6 +49,7 @@ export default function Collections() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [collectionToDelete, setCollectionToDelete] = useState<{id: string; name: string} | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -73,7 +76,7 @@ export default function Collections() {
     )
   }, [collections, searchQuery])
 
-  const handleCreateCollection = async (e: React.FormEvent) => {
+  const handleCreateCollection = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!formData.name.trim()) {
@@ -109,33 +112,31 @@ export default function Collections() {
         variant: 'destructive',
       })
     }
-  }
+  }, [formData, user, createMutation, toast])
 
-  const handleDeleteCollection = async (collectionId: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette collection ?')) {
-      return
-    }
-
-    if (!user?.id) return
+  const confirmDeleteCollection = useCallback(async () => {
+    if (!collectionToDelete || !user?.id) return
 
     try {
       await deleteMutation.mutateAsync({
-        collectionId,
+        collectionId: collectionToDelete.id,
         userId: user.id,
       })
 
       toast({
         title: 'Collection supprimée',
-        description: 'La collection a été supprimée avec succès',
+        description: `"${collectionToDelete.name}" a été supprimée avec succès`,
       })
+      setCollectionToDelete(null)
     } catch (error) {
       toast({
         title: 'Erreur',
         description: 'Erreur lors de la suppression de la collection',
         variant: 'destructive',
       })
+      setCollectionToDelete(null)
     }
-  }
+  }, [collectionToDelete, user, deleteMutation, toast])
 
   if (!user) {
     return (
@@ -220,19 +221,32 @@ export default function Collections() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Couleur</label>
-                    <div className="flex flex-wrap gap-2">
-                      {COLORS.map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          className={`px-3 py-2 rounded-lg border-2 transition-all ${
-                            formData.color === color ? 'border-gray-900' : 'border-transparent'
-                          } ${color}`}
-                          onClick={() => setFormData({ ...formData, color })}
-                        >
-                          ●
-                        </button>
-                      ))}
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Sélection de couleur">
+                      {COLORS.map((color, index) => {
+                        const colorNames = ['Bleu', 'Rouge', 'Vert', 'Jaune', 'Violet', 'Rose'];
+                        return (
+                          <button
+                            key={color}
+                            type="button"
+                            className={`px-3 py-2 rounded-lg border-2 transition-all ${
+                              formData.color === color ? 'border-gray-900' : 'border-transparent'
+                            } ${color}`}
+                            onClick={() => setFormData({ ...formData, color })}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setFormData({ ...formData, color });
+                              }
+                            }}
+                            role="radio"
+                            aria-checked={formData.color === color}
+                            aria-label={`Couleur ${colorNames[index]}`}
+                            tabIndex={0}
+                          >
+                            ●
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -274,6 +288,7 @@ export default function Collections() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
+                  aria-label="Rechercher une collection"
                 />
               </div>
             </CardContent>
@@ -289,8 +304,27 @@ export default function Collections() {
 
           {/* Loading */}
           {isLoading && (
-            <div className="flex justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-blue-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 mb-4">
+                      <Skeleton className="h-12 w-12 rounded-lg" />
+                      <div className="flex gap-1">
+                        <Skeleton className="h-8 w-8 rounded" />
+                        <Skeleton className="h-8 w-8 rounded" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-3/4" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-10 w-full rounded-lg mt-4" />
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
 
@@ -324,6 +358,7 @@ export default function Collections() {
                           size="sm"
                           className="text-gray-400 hover:text-blue-600"
                           onClick={() => navigate(`${ROUTE_PATHS.collections}/${collection.id}`)}
+                          aria-label="Éditer la collection"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
@@ -331,8 +366,9 @@ export default function Collections() {
                           variant="ghost"
                           size="sm"
                           className="text-gray-400 hover:text-red-600"
-                          onClick={() => handleDeleteCollection(collection.id)}
+                          onClick={() => setCollectionToDelete({ id: collection.id, name: collection.name })}
                           disabled={deleteMutation.isPending}
+                          aria-label="Supprimer la collection"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -377,6 +413,43 @@ export default function Collections() {
             </Card>
           )}
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!collectionToDelete} onOpenChange={() => setCollectionToDelete(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Supprimer la collection</DialogTitle>
+              <DialogDescription>
+                Êtes-vous sûr de vouloir supprimer "{collectionToDelete?.name}" ? Cette action est irréversible et tous les items de la collection seront perdus.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setCollectionToDelete(null)}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDeleteCollection}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin mr-2" />
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   )
