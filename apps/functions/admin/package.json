@@ -1,0 +1,22 @@
+{
+  "name": "@med-mng/admin-scripts",
+  "version": "1.0.0",
+  "description": "Admin scripts for Med-Mng platform maintenance and verification",
+  "private": true,
+  "scripts": {
+    "verify:edn": "tsx scripts/verify-edn-completeness.ts",
+    "verify:edn:export": "tsx scripts/verify-edn-completeness.ts --export-json",
+    "verify:edn:fix": "tsx scripts/verify-edn-completeness.ts --fix-mode"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
