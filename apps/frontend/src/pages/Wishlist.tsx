@@ -104,16 +104,20 @@ export const Wishlist: React.FC = () => {
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [itemToRemove, setItemToRemove] = useState<{itemType: string; itemId: string; title: string} | null>(null);
 
-  const handleRemove = async (itemType: string, itemId: string, title?: string) => {
-    const success = await removeFromWishlist(itemType, itemId);
+  const confirmRemove = async () => {
+    if (!itemToRemove) return;
+
+    const success = await removeFromWishlist(itemToRemove.itemType, itemToRemove.itemId);
 
     if (success) {
       toast({
         title: 'Supprimé',
-        description: `${title || 'L\'item'} a été retiré de votre liste de souhaits`,
+        description: `${itemToRemove.title} a été retiré de votre liste de souhaits`,
       });
     }
+    setItemToRemove(null);
   };
 
   const handlePriorityChange = async (wishlistId: string, priority: number) => {
@@ -518,9 +522,12 @@ export const Wishlist: React.FC = () => {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() =>
-                      handleRemove(item.item_type, item.item_id, item.item_metadata?.title)
-                    }
+                    onClick={() => setItemToRemove({
+                      itemType: item.item_type,
+                      itemId: item.item_id,
+                      title: item.item_metadata?.title || 'Cet item'
+                    })}
+                    aria-label="Retirer de la liste de souhaits"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Retirer
@@ -531,6 +538,26 @@ export const Wishlist: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Remove Item Confirmation Dialog */}
+      <Dialog open={!!itemToRemove} onOpenChange={() => setItemToRemove(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Retirer de la liste de souhaits</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir retirer "{itemToRemove?.title}" de votre liste de souhaits ?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setItemToRemove(null)}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={confirmRemove}>
+              Retirer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

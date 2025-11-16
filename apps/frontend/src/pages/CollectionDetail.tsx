@@ -99,6 +99,7 @@ export const CollectionDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<{id: string; title: string} | null>(null);
 
   // Edit form state
   const [editName, setEditName] = useState('');
@@ -218,21 +219,24 @@ export const CollectionDetail: React.FC = () => {
     }
   };
 
-  const handleRemoveItem = async (itemId: string) => {
+  const confirmRemoveItem = async () => {
+    if (!itemToRemove) return;
+
     try {
       const { error } = await supabase
         .from('collection_items')
         .delete()
-        .eq('id', itemId);
+        .eq('id', itemToRemove.id);
 
       if (error) throw error;
 
       toast({
         title: 'Item retiré',
-        description: 'L\'item a été retiré de la collection',
+        description: `"${itemToRemove.title}" a été retiré de la collection`,
       });
 
       fetchItems();
+      setItemToRemove(null);
     } catch (error: any) {
       console.error('Error removing item:', error);
       toast({
@@ -240,6 +244,7 @@ export const CollectionDetail: React.FC = () => {
         description: 'Impossible de retirer l\'item',
         variant: 'destructive',
       });
+      setItemToRemove(null);
     }
   };
 
@@ -402,7 +407,11 @@ export const CollectionDetail: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveItem(item.id)}
+                        onClick={() => setItemToRemove({
+                          id: item.id,
+                          title: item.item_metadata?.title || 'Cet item'
+                        })}
+                        aria-label="Retirer l'item de la collection"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -478,6 +487,26 @@ export const CollectionDetail: React.FC = () => {
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
               Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Item Removal Confirmation Dialog */}
+      <Dialog open={!!itemToRemove} onOpenChange={() => setItemToRemove(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Retirer l'item de la collection</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir retirer "{itemToRemove?.title}" de cette collection ?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setItemToRemove(null)}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={confirmRemoveItem}>
+              Retirer
             </Button>
           </DialogFooter>
         </DialogContent>
