@@ -41,11 +41,20 @@ import {
   Link as LinkIcon,
   Calendar,
   User,
+  Search,
+  Loader2,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface CollectionItem {
   id: string;
@@ -100,6 +109,14 @@ export const CollectionDetail: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<{id: string; title: string} | null>(null);
+
+  // Add item dialog state
+  const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItemType, setSelectedItemType] = useState<string>('edn_item');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   // Edit form state
   const [editName, setEditName] = useState('');
@@ -266,6 +283,127 @@ export const CollectionDetail: React.FC = () => {
     }
   };
 
+  const searchItems = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      let tableName = '';
+      let searchFields = [];
+
+      switch (selectedItemType) {
+        case 'edn_item':
+          tableName = 'edn_items_complete';
+          searchFields = ['item_code', 'title'];
+          break;
+        case 'ecos_scenario':
+          tableName = 'ecos_situations_uness';
+          searchFields = ['id', 'titre'];
+          break;
+        case 'song':
+          tableName = 'med_mng_songs';
+          searchFields = ['id', 'title'];
+          break;
+        default:
+          setSearchResults([]);
+          return;
+      }
+
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .ilike(searchFields[1], `%${searchQuery}%`)
+        .limit(20);
+
+      if (error) throw error;
+
+      setSearchResults(data || []);
+    } catch (error: any) {
+      console.error('Error searching items:', error);
+      toast({
+        title: 'Erreur de recherche',
+        description: 'Impossible de rechercher les items',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleAddItem = async (item: any) => {
+    setIsAddingItem(true);
+    try {
+      // Determine max order index
+      const maxOrder = items.length > 0
+        ? Math.max(...items.map(i => i.order_index))
+        : 0;
+
+      // Prepare metadata based on item type
+      let itemMetadata: any = {};
+      let itemId = '';
+
+      switch (selectedItemType) {
+        case 'edn_item':
+          itemId = item.item_code;
+          itemMetadata = {
+            title: item.title,
+            description: item.pitch_intro || item.subtitle,
+            specialite: item.specialite,
+          };
+          break;
+        case 'ecos_scenario':
+          itemId = item.id;
+          itemMetadata = {
+            title: item.titre,
+            description: item.description,
+          };
+          break;
+        case 'song':
+          itemId = item.id;
+          itemMetadata = {
+            title: item.title,
+            artist: item.artist,
+            duration: item.duration,
+          };
+          break;
+      }
+
+      const { error } = await supabase
+        .from('collection_items')
+        .insert({
+          collection_id: collectionId,
+          item_type: selectedItemType,
+          item_id: itemId,
+          item_metadata: itemMetadata,
+          order_index: maxOrder + 1,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Item ajouté',
+        description: `${itemMetadata.title} a été ajouté à la collection`,
+      });
+
+      fetchItems();
+      setIsAddItemDialogOpen(false);
+      setSearchQuery('');
+      setSearchResults([]);
+    } catch (error: any) {
+      console.error('Error adding item:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'ajouter l\'item à la collection',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingItem(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container max-w-6xl mx-auto p-6 space-y-6">
@@ -356,7 +494,7 @@ export const CollectionDetail: React.FC = () => {
               <CardTitle>Contenu de la Collection</CardTitle>
               <CardDescription>{items.length} items sauvegardés</CardDescription>
             </div>
-            <Button>
+            <Button onClick={() => setIsAddItemDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Ajouter un item
             </Button>
@@ -370,7 +508,7 @@ export const CollectionDetail: React.FC = () => {
               <p className="text-muted-foreground mb-4">
                 Commencez à ajouter des items à votre collection
               </p>
-              <Button>
+              <Button onClick={() => setIsAddItemDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Ajouter un item
               </Button>
@@ -507,6 +645,128 @@ export const CollectionDetail: React.FC = () => {
             </Button>
             <Button variant="destructive" onClick={confirmRemoveItem}>
               Retirer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Item Dialog */}
+      <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Ajouter un item à la collection</DialogTitle>
+            <DialogDescription>
+              Recherchez et ajoutez des items EDN, scénarios ECOS ou playlists à votre collection
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Type selector */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Type d'item</label>
+              <Select value={selectedItemType} onValueChange={setSelectedItemType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="edn_item">Items EDN</SelectItem>
+                  <SelectItem value="ecos_scenario">Scénarios ECOS</SelectItem>
+                  <SelectItem value="song">Playlists / Musiques</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Search */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Rechercher</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Entrez un mot-clé..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && searchItems()}
+                />
+                <Button onClick={searchItems} disabled={isSearching}>
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Results */}
+            {searchResults.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Résultats ({searchResults.length})</label>
+                <div className="border rounded-md divide-y max-h-96 overflow-y-auto">
+                  {searchResults.map((result) => {
+                    const title = result.title || result.titre || result.name;
+                    const description = result.description || result.pitch_intro || result.subtitle;
+                    const id = result.item_code || result.id;
+
+                    return (
+                      <div
+                        key={id}
+                        className="p-3 hover:bg-accent transition-colors flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="mt-1">{getItemIcon(selectedItemType)}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{title}</p>
+                            {description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {description}
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-1">
+                              ID: {id}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handleAddItem(result)}
+                          disabled={isAddingItem}
+                        >
+                          {isAddingItem ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Plus className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {searchQuery && searchResults.length === 0 && !isSearching && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Aucun résultat trouvé</p>
+                <p className="text-sm">Essayez d'autres mots-clés</p>
+              </div>
+            )}
+
+            {!searchQuery && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Commencez à rechercher des items</p>
+                <p className="text-sm">Sélectionnez un type et entrez des mots-clés</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setIsAddItemDialogOpen(false);
+              setSearchQuery('');
+              setSearchResults([]);
+            }}>
+              Fermer
             </Button>
           </DialogFooter>
         </DialogContent>
