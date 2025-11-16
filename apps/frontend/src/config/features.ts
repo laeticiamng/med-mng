@@ -20,7 +20,7 @@ export const FEATURE_FLAGS = {
 
   // 👥 Collaboration Features
   collaborativePlaylists: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Collaboration system (2 tables, 12 RLS policies, real-time)
     description: "Playlists collaboratives avec partage et édition en temps réel",
   },
   directMessaging: {
@@ -108,7 +108,7 @@ export const FEATURE_FLAGS = {
     description: "Liste de souhaits produits",
   },
   productReviews: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Reviews system (3 tables, 14 RLS policies, voting, media)
     description: "Avis et notes sur les produits",
   },
 
@@ -146,7 +146,7 @@ export const FEATURE_FLAGS = {
     description: "Logging complet des activités",
   },
   connectedDevices: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Device management (2 tables, 10 RLS policies, fingerprinting)
     description: "Gestion des appareils connectés",
   },
 };
