@@ -24,6 +24,14 @@ import { useAuth } from '@/hooks/useAuth'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 type ViewType = 'all' | 'fiche' | 'post' | 'collection'
 
@@ -33,6 +41,7 @@ export default function ViewingHistory() {
   const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<ViewType>('all')
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   const { useFetchHistory, useFetchViewingStats, useClearHistory } = useViewingHistory()
 
@@ -63,12 +72,8 @@ export default function ViewingHistory() {
     return filtered
   }, [history, filterType, searchQuery])
 
-  const handleClearHistory = async () => {
+  const confirmClearHistory = async () => {
     if (!user?.id) return
-
-    if (!window.confirm('Êtes-vous sûr de vouloir effacer tout votre historique de visionnage ?')) {
-      return
-    }
 
     try {
       await clearHistoryMutation.mutateAsync(user.id)
@@ -77,12 +82,14 @@ export default function ViewingHistory() {
         title: 'Historique supprimé',
         description: 'Votre historique de visionnage a été complètement effacé',
       })
+      setShowClearConfirm(false)
     } catch (error) {
       toast({
         title: 'Erreur',
         description: 'Une erreur est survenue lors de la suppression',
         variant: 'destructive',
       })
+      setShowClearConfirm(false)
     }
   }
 
@@ -165,6 +172,7 @@ export default function ViewingHistory() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9"
+                      aria-label="Rechercher dans l'historique"
                     />
                   </div>
 
@@ -340,8 +348,9 @@ export default function ViewingHistory() {
                   <Button
                     variant="outline"
                     className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={handleClearHistory}
+                    onClick={() => setShowClearConfirm(true)}
                     disabled={clearHistoryMutation.isPending || history.length === 0}
+                    aria-label="Effacer tout l'historique"
                   >
                     <Trash2 className="w-4 h-4" />
                     Effacer l'historique
@@ -361,6 +370,43 @@ export default function ViewingHistory() {
               </Card>
             </div>
           </div>
+
+          {/* Clear History Confirmation Dialog */}
+          <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Effacer l'historique</DialogTitle>
+                <DialogDescription>
+                  Êtes-vous sûr de vouloir effacer tout votre historique de visionnage ? Cette action est irréversible.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowClearConfirm(false)}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmClearHistory}
+                  disabled={clearHistoryMutation.isPending}
+                >
+                  {clearHistoryMutation.isPending ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin mr-2" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Effacer
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </>

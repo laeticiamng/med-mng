@@ -416,7 +416,7 @@ export const Wishlist: React.FC = () => {
                   </div>
 
                   {/* Priority Stars */}
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1" role="group" aria-label="Priorité">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
@@ -426,6 +426,16 @@ export const Wishlist: React.FC = () => {
                             : 'text-muted-foreground'
                         }`}
                         onClick={() => handlePriorityChange(item.id, star)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handlePriorityChange(item.id, star);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Définir la priorité à ${star} étoile${star > 1 ? 's' : ''}`}
+                        aria-pressed={star <= (item.priority || 0)}
                       />
                     ))}
                   </div>

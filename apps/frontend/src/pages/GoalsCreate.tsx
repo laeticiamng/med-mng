@@ -262,14 +262,18 @@ export const GoalsCreate: React.FC = () => {
         </div>
 
         {/* SMART Score */}
-        <div className="mt-4 p-4 bg-muted rounded-lg">
+        <div className="mt-4 p-4 bg-muted rounded-lg" role="region" aria-label="Évaluation SMART">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-yellow-600" />
               <span className="font-semibold">Score SMART</span>
             </div>
-            <Badge variant={smartScore === 5 ? 'default' : smartScore >= 3 ? 'secondary' : 'outline'}>
-              {smartScore}/5
+            <Badge
+              variant={smartScore === 5 ? 'default' : smartScore >= 3 ? 'secondary' : 'outline'}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {smartScore}/5 critères remplis
             </Badge>
           </div>
           <div className="grid grid-cols-5 gap-2">

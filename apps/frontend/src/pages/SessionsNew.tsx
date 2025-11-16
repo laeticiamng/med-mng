@@ -274,6 +274,7 @@ export const SessionsNew: React.FC = () => {
                   max={120}
                   step={5}
                   className="flex-1"
+                  aria-label={`Durée de la session: ${duration} minutes`}
                 />
                 <Clock className="h-5 w-5 text-muted-foreground" />
               </div>
@@ -311,13 +312,23 @@ export const SessionsNew: React.FC = () => {
                 <Tag className="h-4 w-4" />
                 Tags
               </Label>
-              <div className="flex gap-2 flex-wrap mt-2">
+              <div className="flex gap-2 flex-wrap mt-2" role="group" aria-label="Sélection de tags">
                 {tags.map((tag) => (
                   <Badge
                     key={tag}
                     variant={selectedTags.includes(tag) ? 'default' : 'outline'}
                     className="cursor-pointer"
                     onClick={() => toggleTag(tag)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleTag(tag);
+                      }
+                    }}
+                    role="checkbox"
+                    aria-checked={selectedTags.includes(tag)}
+                    aria-label={`Tag ${tag}`}
+                    tabIndex={0}
                   >
                     {tag}
                   </Badge>
@@ -364,6 +375,7 @@ export const SessionsNew: React.FC = () => {
                   max={15}
                   step={1}
                   className="mt-2"
+                  aria-label={`Durée des pauses: ${breakDuration} minutes`}
                 />
               </div>
             )}
