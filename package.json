@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
-    "test": "jest",
+    "test": "vitest run",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
     "extract-oic": "node --loader ts-node/esm scripts/extract-oic-to-json.ts",

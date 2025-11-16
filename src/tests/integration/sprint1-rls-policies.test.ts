@@ -97,7 +97,11 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('quiz_sessions').insert(newSession);
+      const result = await supabase
+        .from('quiz_sessions')
+        .insert(newSession)
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data).toBeDefined();
@@ -125,7 +129,11 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('quiz_sessions').insert(newSession);
+      const result = await supabase
+        .from('quiz_sessions')
+        .insert(newSession)
+        .select()
+        .single();
 
       expect(result.error).toBeDefined();
     });
@@ -218,7 +226,11 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('study_plans').insert(newPlan);
+      const result = await supabase
+        .from('study_plans')
+        .insert(newPlan)
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data).toBeDefined();
@@ -241,7 +253,9 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('study_plans')
         .update({ status: 'paused' })
-        .eq('id', 'plan-1');
+        .eq('id', 'plan-1')
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
     });
@@ -328,7 +342,11 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('study_sessions').insert(newSession);
+      const result = await supabase
+        .from('study_sessions')
+        .insert(newSession)
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data).toBeDefined();
@@ -351,7 +369,9 @@ describe('Sprint 1 RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('study_sessions')
         .update({ completed: true, completed_at: new Date().toISOString() })
-        .eq('id', 'session-1');
+        .eq('id', 'session-1')
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data?.completed).toBe(true);
