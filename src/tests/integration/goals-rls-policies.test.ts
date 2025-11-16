@@ -103,7 +103,11 @@ describe('Goals RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('user_goals').insert(newGoal);
+      const result = await supabase
+        .from('user_goals')
+        .insert(newGoal)
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data).toBeDefined();
@@ -130,7 +134,11 @@ describe('Goals RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('user_goals').insert(newGoal);
+      const result = await supabase
+        .from('user_goals')
+        .insert(newGoal)
+        .select()
+        .single();
 
       expect(result.error).toBeDefined();
     });
@@ -152,7 +160,9 @@ describe('Goals RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('user_goals')
         .update({ status: 'paused' })
-        .eq('id', 'goal-1');
+        .eq('id', 'goal-1')
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
     });
@@ -257,7 +267,11 @@ describe('Goals RLS Policies Integration Tests', () => {
         }),
       } as any);
 
-      const result = await supabase.from('goal_milestones').insert(newMilestone);
+      const result = await supabase
+        .from('goal_milestones')
+        .insert(newMilestone)
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
       expect(result.data).toBeDefined();
@@ -280,7 +294,9 @@ describe('Goals RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('goal_milestones')
         .update({ is_completed: true, completed_at: new Date().toISOString() })
-        .eq('id', 'milestone-1');
+        .eq('id', 'milestone-1')
+        .select()
+        .single();
 
       expect(result.error).toBeNull();
     });

@@ -77,6 +77,8 @@ describe('RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('user_favorites')
         .insert({ user_id: mockUserId, item_id: 'item-2' })
+        .select()
+        .single()
 
       expect(result.error).toBeNull()
       expect(result.data).toBeDefined()
@@ -103,6 +105,8 @@ describe('RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('user_viewing_history')
         .insert({ user_id: mockUserId, item_id: 'item-1', item_type: 'post' })
+        .select()
+        .single()
 
       expect(result.error).toBeNull()
     })
@@ -170,6 +174,8 @@ describe('RLS Policies Integration Tests', () => {
       const result = await supabase
         .from('user_collections')
         .insert({ user_id: mockUserId, name: 'New Collection' })
+        .select()
+        .single()
 
       expect(result.error).toBeNull()
     })
@@ -287,6 +293,8 @@ describe('RLS Policies Integration Tests', () => {
           content: 'Content',
           status: 'published',
         })
+        .select()
+        .single()
 
       expect(result.error).toBeNull()
     })
