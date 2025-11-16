@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Heart,
   Clock,
@@ -225,8 +226,25 @@ export default function ViewingHistory() {
 
               {/* Loading */}
               {isLoading && (
-                <div className="flex justify-center py-12">
-                  <Loader className="w-8 h-8 animate-spin text-blue-600" />
+                <div className="space-y-4">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Card key={i}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Skeleton className="h-6 w-20 rounded-full" />
+                              <Skeleton className="h-6 w-16 rounded-full" />
+                            </div>
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-2/3" />
+                            <Skeleton className="h-4 w-1/3" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
 
