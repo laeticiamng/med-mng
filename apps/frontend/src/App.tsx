@@ -265,6 +265,23 @@ const ContentReporting = lazy(() => import("./pages/ContentReporting"));
 const ReportsAdminPanel = lazy(() => import("./pages/ReportsAdminPanel"));
 const PlatformAnalytics = lazy(() => import("./pages/PlatformAnalytics"));
 
+// 🆕 MISSING ROUTES - Previously defined but not wired up
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const DashboardHub = lazy(() => import("./pages/DashboardHub"));
+const EdnQualityDashboard = lazy(() => import("./pages/EdnQualityDashboard"));
+const AdvancedAnalyticsDashboard = lazy(() => import("./pages/AdvancedAnalyticsDashboard"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const ViewingHistory = lazy(() => import("./pages/ViewingHistory"));
+const Collections = lazy(() => import("./pages/Collections"));
+const CollectionDetail = lazy(() => import("./pages/CollectionDetail"));
+const SessionsAnalytics = lazy(() => import("./pages/SessionsAnalytics"));
+const SessionsNew = lazy(() => import("./pages/SessionsNew"));
+const CompletedQuests = lazy(() => import("./pages/CompletedQuests"));
+const Goals = lazy(() => import("./pages/Goals"));
+const GoalDetail = lazy(() => import("./pages/GoalDetail"));
+const GoalsCreate = lazy(() => import("./pages/GoalsCreate"));
+const HelpArticle = lazy(() => import("./pages/HelpArticle"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -304,8 +321,13 @@ const App = () => {
                                 <MainNavigation />
                             <main id="main-content" tabIndex={-1} className="pt-16">
                               <Routes>
+        {/* 🎯 ONBOARDING */}
+        <Route path={ROUTE_PATHS.onboarding} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Onboarding /></Suspense>} />
+
+        {/* 📊 DASHBOARDS */}
         <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.dashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
+           <Route path={ROUTE_PATHS.dashboardHub} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DashboardHub /></Suspense>} />
            <Route path={ROUTE_PATHS.learningDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningDashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.gamificationDashboard} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GamificationDashboard /></Suspense></ProtectedRoute>} />
            <Route path={ROUTE_PATHS.platformStatus} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformStatusPage /></Suspense>} />
@@ -391,9 +413,11 @@ const App = () => {
           <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
            <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
-           
-           {/* 📊 Performance Dashboard */}
+           <Route path={ROUTE_PATHS.ednQualityDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnQualityDashboard /></Suspense>} />
+
+           {/* 📊 Performance & Analytics Dashboards */}
            <Route path={ROUTE_PATHS.performanceDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PerformanceDashboard /></Suspense>} />
+           <Route path={ROUTE_PATHS.advancedAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdvancedAnalyticsDashboard /></Suspense>} />
            
           {/* Routes Admin - Protégées par AdminRoute */}
             <Route path={ROUTE_PATHS.adminIndex} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminIndex /></Suspense></AdminRoute>} />
@@ -419,6 +443,13 @@ const App = () => {
             <Route path={ROUTE_PATHS.homepage} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
             <Route path={ROUTE_PATHS.achievements} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
             <Route path={ROUTE_PATHS.favorites} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
+
+             {/* 🛍️ USER CONTENT MANAGEMENT */}
+             <Route path={ROUTE_PATHS.wishlist} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Wishlist /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.viewingHistory} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ViewingHistory /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.collections} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Collections /></Suspense>} />
+             <Route path={ROUTE_PATHS.collectionDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CollectionDetail /></Suspense>} />
+
              <Route path={ROUTE_PATHS.settings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
              <Route path={ROUTE_PATHS.designSystem} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DesignSystemPage /></Suspense>} />
 
@@ -455,6 +486,8 @@ const App = () => {
 
              {/* Sessions - PROTECTED */}
              <Route path={ROUTE_PATHS.sessions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SessionsDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionsNew} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SessionsNew /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionsAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SessionsAnalytics /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.sessionsStudy} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudySessions /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.sessionsFocus} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FocusSessions /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.sessionsMeditation} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MeditationSessions /></Suspense></ProtectedRoute>} />
@@ -464,7 +497,13 @@ const App = () => {
              <Route path={ROUTE_PATHS.quests} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestsDashboard /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.questDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestDetail /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.questStart} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestStart /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.questsCompleted} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompletedQuests /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.ambitions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AmbitionsManager /></Suspense></ProtectedRoute>} />
+
+             {/* Goals - PROTECTED */}
+             <Route path={ROUTE_PATHS.goals} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Goals /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.goalsCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GoalsCreate /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.goalDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GoalDetail /></Suspense></ProtectedRoute>} />
 
               {/* 🆕 NOUVELLES ROUTES PRIORITÉ 2 */}
               {/* Help & Support - PUBLIC */}
@@ -473,6 +512,7 @@ const App = () => {
              <Route path={ROUTE_PATHS.helpTutorials} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Tutorials /></Suspense>} />
              <Route path={ROUTE_PATHS.helpContact} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ContactSupport /></Suspense>} />
              <Route path={ROUTE_PATHS.helpSearch} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpSearch /></Suspense>} />
+             <Route path={ROUTE_PATHS.helpArticle} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><HelpArticle /></Suspense>} />
 
              {/* Activity Feed - PUBLIC/PROTECTED mix */}
              <Route path={ROUTE_PATHS.activity} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ActivityFeed /></Suspense>} />
