@@ -8,6 +8,7 @@ import { MigrationApplier } from '@/components/test/MigrationApplier';
 import { LyricsGenerationTest } from '@/components/test/LyricsGenerationTest';
 import { BatchLyricsGenerator } from '@/components/test/BatchLyricsGenerator';
 import { CompleteCompletenessVerification } from '@/components/test/CompleteCompletenessVerification';
+import { CompleteAutomation } from '@/components/test/CompleteAutomation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function EdnTest() {
@@ -21,10 +22,13 @@ export default function EdnTest() {
           </p>
         </div>
 
-        <Tabs defaultValue="complete-verification" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-6">
+        <Tabs defaultValue="automation" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-6">
+            <TabsTrigger value="automation">
+              🤖 AUTO 100%
+            </TabsTrigger>
             <TabsTrigger value="complete-verification">
-              🔍 Vérif Complète
+              🔍 Vérif
             </TabsTrigger>
             <TabsTrigger value="migration">
               🔧 Migration
@@ -33,12 +37,16 @@ export default function EdnTest() {
               📊 Résumé
             </TabsTrigger>
             <TabsTrigger value="lyrics">
-              🎵 Test Paroles
+              🎵 Test
             </TabsTrigger>
             <TabsTrigger value="batch">
               🚀 Batch
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="automation">
+            <CompleteAutomation />
+          </TabsContent>
 
           <TabsContent value="complete-verification">
             <CompleteCompletenessVerification />
