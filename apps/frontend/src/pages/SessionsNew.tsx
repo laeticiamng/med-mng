@@ -3,7 +3,7 @@
  * Create a new study/focus/meditation session
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -99,13 +99,13 @@ export const SessionsNew: React.FC = () => {
     setDuration(config.defaultDuration);
   }, [sessionType]);
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-  };
+  }, []);
 
-  const handleCreate = async () => {
+  const handleCreate = useCallback(async () => {
     if (!title.trim()) {
       toast({
         title: 'Titre requis',
@@ -168,7 +168,7 @@ export const SessionsNew: React.FC = () => {
     } finally {
       setIsCreating(false);
     }
-  };
+  }, [title, description, sessionType, duration, goal, selectedTags, enableTimer, enableBreaks, breakDuration, enableMusic, enableNotifications, toast, navigate]);
 
   return (
     <div className="container max-w-4xl mx-auto p-6">

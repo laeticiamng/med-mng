@@ -17,7 +17,7 @@ import {
   X,
   ChevronRight,
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCollections } from '@/hooks/useCollections'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -75,7 +75,7 @@ export default function Collections() {
     )
   }, [collections, searchQuery])
 
-  const handleCreateCollection = async (e: React.FormEvent) => {
+  const handleCreateCollection = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!formData.name.trim()) {
@@ -111,9 +111,9 @@ export default function Collections() {
         variant: 'destructive',
       })
     }
-  }
+  }, [formData, user, createMutation, toast])
 
-  const confirmDeleteCollection = async () => {
+  const confirmDeleteCollection = useCallback(async () => {
     if (!collectionToDelete || !user?.id) return
 
     try {
@@ -135,7 +135,7 @@ export default function Collections() {
       })
       setCollectionToDelete(null)
     }
-  }
+  }, [collectionToDelete, user, deleteMutation, toast])
 
   if (!user) {
     return (

@@ -19,7 +19,7 @@ import {
   BarChart3,
   BookOpen,
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -72,7 +72,7 @@ export default function ViewingHistory() {
     return filtered
   }, [history, filterType, searchQuery])
 
-  const confirmClearHistory = async () => {
+  const confirmClearHistory = useCallback(async () => {
     if (!user?.id) return
 
     try {
@@ -91,7 +91,7 @@ export default function ViewingHistory() {
       })
       setShowClearConfirm(false)
     }
-  }
+  }, [user, clearHistoryMutation, toast])
 
   const getTypeIcon = (type: string) => {
     switch (type) {

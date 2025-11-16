@@ -3,7 +3,7 @@
  * Displays user's wishlist items with management options
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useWishlist } from '@/hooks/useWishlist';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,7 +106,7 @@ export const Wishlist: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [itemToRemove, setItemToRemove] = useState<{itemType: string; itemId: string; title: string} | null>(null);
 
-  const confirmRemove = async () => {
+  const confirmRemove = useCallback(async () => {
     if (!itemToRemove) return;
 
     const success = await removeFromWishlist(itemToRemove.itemType, itemToRemove.itemId);
@@ -118,13 +118,13 @@ export const Wishlist: React.FC = () => {
       });
     }
     setItemToRemove(null);
-  };
+  }, [itemToRemove, removeFromWishlist, toast]);
 
-  const handlePriorityChange = async (wishlistId: string, priority: number) => {
+  const handlePriorityChange = useCallback(async (wishlistId: string, priority: number) => {
     await updatePriority(wishlistId, priority);
-  };
+  }, [updatePriority]);
 
-  const handleSaveNotes = async (wishlistId: string) => {
+  const handleSaveNotes = useCallback(async (wishlistId: string) => {
     const success = await updateNotes(wishlistId, notesValue);
 
     if (success) {
@@ -134,9 +134,9 @@ export const Wishlist: React.FC = () => {
       });
       setEditingNotes(null);
     }
-  };
+  }, [updateNotes, notesValue, toast]);
 
-  const handleMarkPurchased = async (wishlistId: string, title?: string) => {
+  const handleMarkPurchased = useCallback(async (wishlistId: string, title?: string) => {
     const success = await markAsPurchased(wishlistId);
 
     if (success) {
@@ -145,10 +145,10 @@ export const Wishlist: React.FC = () => {
         description: `${title || 'L\'item'} a été marqué comme acheté`,
       });
     }
-  };
+  }, [markAsPurchased, toast]);
 
   // Filter and sort wishlist
-  const filteredWishlist = React.useMemo(() => {
+  const filteredWishlist = useMemo(() => {
     let filtered = [...wishlist];
 
     // Apply search filter
@@ -192,7 +192,7 @@ export const Wishlist: React.FC = () => {
   }, [wishlist, filterType, sortBy, searchTerm]);
 
   // Calculate statistics
-  const stats = React.useMemo(() => {
+  const stats = useMemo(() => {
     const totalValue = wishlist.reduce(
       (sum, item) => sum + (Number(item.item_metadata?.price) || 0),
       0
