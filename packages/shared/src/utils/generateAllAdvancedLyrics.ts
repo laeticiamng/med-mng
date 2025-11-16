@@ -25,7 +25,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
   try {
     // 1. Récupérer tous les items EDN
     const { data: items, error } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('id, item_code, title')
       .order('item_code');
       
@@ -66,7 +66,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           
           // Mettre à jour l'item avec les nouvelles paroles
           const { error: updateError } = await supabase
-            .from('edn_items_immersive')
+            .from('edn_items_complete')
             .update({
               paroles_rang_a: lyricsA,
               paroles_rang_b: lyricsB,
@@ -119,7 +119,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
   try {
     // Récupérer l'item
     const { data: item, error: fetchError } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
       .single();
@@ -137,10 +137,10 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     
     // Sauvegarder
     const { error: updateError } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .update({
         paroles_rang_a: lyricsA,
-        paroles_rang_b: lyricsB, 
+        paroles_rang_b: lyricsB,
         paroles_rang_ab: lyricsAB,
         paroles_musicales: lyricsAB,
         updated_at: new Date().toISOString()
