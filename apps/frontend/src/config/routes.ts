@@ -71,6 +71,7 @@ export const ROUTE_PATHS = {
   homepage: '/homepage',
   achievements: '/achievements',
   favorites: '/favorites',
+  wishlist: '/wishlist',
   settings: '/settings',
   viewingHistory: '/viewing-history',
   collections: '/collections',
@@ -120,6 +121,8 @@ export const ROUTE_PATHS = {
   sessions: '/sessions',
   sessionsStudy: '/sessions/study',
   sessionsFocus: '/sessions/focus',
+  sessionsAnalytics: '/sessions/analytics',
+  sessionsNew: '/sessions/new',
   sessionsMeditation: '/sessions/meditation',
   sessionDetail: '/sessions/:sessionId',
 
@@ -130,6 +133,7 @@ export const ROUTE_PATHS = {
 
   // Quests & Ambitions
   quests: '/quests',
+  questsCompleted: '/quests/completed',
   questDetail: '/quests/:questId',
   questStart: '/quests/:questId/start',
   ambitions: '/ambitions',

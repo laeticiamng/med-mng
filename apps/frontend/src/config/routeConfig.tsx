@@ -108,6 +108,7 @@ const CommunityHub = lazy(() => import('@/pages/CommunityHub'));
 const ModernHomepage = lazy(() => import('@/pages/ModernHomepage'));
 const Achievements = lazy(() => import('@/pages/Achievements'));
 const Favorites = lazy(() => import('@/pages/Favorites'));
+const Wishlist = lazy(() => import('@/pages/Wishlist'));
 const ViewingHistory = lazy(() => import('@/pages/ViewingHistory'));
 const Collections = lazy(() => import('@/pages/Collections'));
 const GamificationDashboard = lazy(() => import('@/pages/GamificationDashboard'));
@@ -177,9 +178,11 @@ const StudySessions = lazy(() => import('@/pages/StudySessions'));
 const FocusSessions = lazy(() => import('@/pages/FocusSessions'));
 const MeditationSessions = lazy(() => import('@/pages/MeditationSessions'));
 const SessionDetail = lazy(() => import('@/pages/SessionDetail'));
+const SessionsAnalytics = lazy(() => import('@/pages/SessionsAnalytics'));
 
 // Priority 1 - Quests
 const QuestsDashboard = lazy(() => import('@/pages/QuestsDashboard'));
+const CompletedQuests = lazy(() => import('@/pages/CompletedQuests'));
 const QuestDetail = lazy(() => import('@/pages/QuestDetail'));
 const QuestStart = lazy(() => import('@/pages/QuestStart'));
 const AmbitionsManager = lazy(() => import('@/pages/AmbitionsManager'));
@@ -402,10 +405,12 @@ export const priority1Routes: RouteObject[] = [
   { path: ROUTE_PATHS.sessionsStudy, element: wrapRoute(StudySessions, { protected: true }) },
   { path: ROUTE_PATHS.sessionsFocus, element: wrapRoute(FocusSessions, { protected: true }) },
   { path: ROUTE_PATHS.sessionsMeditation, element: wrapRoute(MeditationSessions, { protected: true }) },
+  { path: ROUTE_PATHS.sessionsAnalytics, element: wrapRoute(SessionsAnalytics, { protected: true }) },
   { path: ROUTE_PATHS.sessionDetail, element: wrapRoute(SessionDetail, { protected: true }) },
 
   // Quests (protected)
   { path: ROUTE_PATHS.quests, element: wrapRoute(QuestsDashboard, { protected: true }) },
+  { path: ROUTE_PATHS.questsCompleted, element: wrapRoute(CompletedQuests, { protected: true }) },
   { path: ROUTE_PATHS.questDetail, element: wrapRoute(QuestDetail, { protected: true }) },
   { path: ROUTE_PATHS.questStart, element: wrapRoute(QuestStart, { protected: true }) },
   { path: ROUTE_PATHS.ambitions, element: wrapRoute(AmbitionsManager, { protected: true }) },
@@ -508,6 +513,7 @@ export const contentRoutes: RouteObject[] = [
   { path: ROUTE_PATHS.homepage, element: wrapRoute(ModernHomepage) },
   { path: ROUTE_PATHS.achievements, element: wrapRoute(Achievements) },
   { path: ROUTE_PATHS.favorites, element: wrapRoute(Favorites) },
+  { path: ROUTE_PATHS.wishlist, element: wrapRoute(Wishlist) },
   { path: ROUTE_PATHS.viewingHistory, element: wrapRoute(ViewingHistory) },
   { path: ROUTE_PATHS.collections, element: wrapRoute(Collections) },
   { path: ROUTE_PATHS.gamificationDashboard, element: wrapRoute(GamificationDashboard) },

@@ -104,7 +104,7 @@ export const FEATURE_FLAGS = {
     description: "Intégration boutique Shopify",
   },
   wishlist: {
-    enabled: false, // À implémenter
+    enabled: true, // ✅ Implémenté - Wishlist system avec table, hook, UI (1 table, 5 RLS policies)
     description: "Liste de souhaits produits",
   },
   productReviews: {
