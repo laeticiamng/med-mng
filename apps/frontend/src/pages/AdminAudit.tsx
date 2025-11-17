@@ -24,8 +24,31 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+interface AuditReportMetrics {
+  total_edn_items?: number;
+  duplicates_found?: number;
+  inconsistencies_found?: number;
+  items_with_tableau_a?: number;
+  items_with_tableau_b?: number;
+  items_with_music?: number;
+  items_with_quiz?: number;
+}
+
+interface AuditFinding {
+  type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  location?: string;
+}
+
 interface AuditReport {
-  [key: string]: any;
+  id: string;
+  report_type: 'database' | 'code' | 'ui_consistency' | 'performance';
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  metrics?: AuditReportMetrics;
+  findings?: AuditFinding[];
+  created_at: string;
+  updated_at?: string;
 }
 
 interface AuditMetrics {
@@ -34,6 +57,11 @@ interface AuditMetrics {
   inconsistencies: number;
   completeness: number;
   performance: number;
+}
+
+interface CleanupResult {
+  cleaned: number;
+  errors?: string[];
 }
 
 export default function AdminAudit() {
@@ -81,9 +109,9 @@ export default function AdminAudit() {
         .limit(1);
 
       if (error) throw error;
-      
+
       if (data && data.length > 0) {
-        const reportMetrics = data[0].metrics as any;
+        const reportMetrics = data[0].metrics as AuditReportMetrics;
         setMetrics({
           totalItems: reportMetrics?.total_edn_items || 0,
           duplicates: reportMetrics?.duplicates_found || 0,
@@ -97,17 +125,17 @@ export default function AdminAudit() {
     }
   };
 
-  const calculateCompleteness = (reportMetrics: any): number => {
+  const calculateCompleteness = (reportMetrics: AuditReportMetrics): number => {
     if (!reportMetrics.total_edn_items) return 0;
-    
+
     const hasTableauA = reportMetrics.items_with_tableau_a || 0;
     const hasTableauB = reportMetrics.items_with_tableau_b || 0;
     const hasMusic = reportMetrics.items_with_music || 0;
     const hasQuiz = reportMetrics.items_with_quiz || 0;
-    
+
     const total = reportMetrics.total_edn_items;
     const completeness = ((hasTableauA + hasTableauB + hasMusic + hasQuiz) / (total * 4)) * 100;
-    
+
     return Math.round(completeness);
   };
 
@@ -159,10 +187,10 @@ export default function AdminAudit() {
   const cleanupData = async () => {
     try {
       const { data, error } = await supabase.rpc('cleanup_duplicates');
-      
+
       if (error) throw error;
 
-      const cleanupResult = data as any;
+      const cleanupResult = data as CleanupResult;
       toast({
         title: "Nettoyage terminé",
         description: `${cleanupResult?.cleaned || 0} doublons supprimés`,
@@ -223,50 +251,55 @@ export default function AdminAudit() {
               checked={autoFixEnabled}
               onChange={(e) => setAutoFixEnabled(e.target.checked)}
               className="rounded"
+              aria-label="Activer les corrections automatiques"
             />
             Corrections automatiques
           </label>
-          <Button onClick={runFullAudit} className="bg-blue-600 hover:bg-blue-700">
-            <Play className="h-4 w-4 mr-2" />
+          <Button
+            onClick={runFullAudit}
+            className="bg-blue-600 hover:bg-blue-700"
+            aria-label="Lancer l'audit complet de la plateforme"
+          >
+            <Play className="h-4 w-4 mr-2" aria-hidden="true" />
             Audit Complet
           </Button>
         </div>
       </div>
 
       {/* Métriques globales */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4" role="region" aria-label="Métriques globales">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Items Total</p>
-                <p className="text-2xl font-bold">{metrics.totalItems}</p>
+                <p className="text-2xl font-bold" aria-label={`${metrics.totalItems} items au total`}>{metrics.totalItems}</p>
               </div>
-              <Database className="h-8 w-8 text-blue-500" />
+              <Database className="h-8 w-8 text-blue-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Doublons</p>
-                <p className="text-2xl font-bold text-red-600">{metrics.duplicates}</p>
+                <p className="text-2xl font-bold text-red-600" aria-label={`${metrics.duplicates} doublons détectés`}>{metrics.duplicates}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+              <AlertTriangle className="h-8 w-8 text-red-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Incohérences</p>
-                <p className="text-2xl font-bold text-orange-600">{metrics.inconsistencies}</p>
+                <p className="text-2xl font-bold text-orange-600" aria-label={`${metrics.inconsistencies} incohérences trouvées`}>{metrics.inconsistencies}</p>
               </div>
-              <XCircle className="h-8 w-8 text-orange-500" />
+              <XCircle className="h-8 w-8 text-orange-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
@@ -276,40 +309,40 @@ export default function AdminAudit() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Complétude</p>
-                <p className="text-2xl font-bold text-green-600">{metrics.completeness}%</p>
+                <p className="text-2xl font-bold text-green-600" aria-label={`${metrics.completeness}% de complétude`}>{metrics.completeness}%</p>
               </div>
-              <BarChart3 className="h-8 w-8 text-green-500" />
+              <BarChart3 className="h-8 w-8 text-green-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Performance</p>
-                <p className="text-2xl font-bold text-purple-600">{metrics.performance}%</p>
+                <p className="text-2xl font-bold text-purple-600" aria-label={`${metrics.performance}% de performance`}>{metrics.performance}%</p>
               </div>
-              <Zap className="h-8 w-8 text-purple-500" />
+              <Zap className="h-8 w-8 text-purple-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="audits" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="audits">Audits</TabsTrigger>
-          <TabsTrigger value="cleanup">Nettoyage</TabsTrigger>
-          <TabsTrigger value="history">Historique</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3" role="tablist" aria-label="Sections d'audit">
+          <TabsTrigger value="audits" aria-label="Section des audits système">Audits</TabsTrigger>
+          <TabsTrigger value="cleanup" aria-label="Section de nettoyage des données">Nettoyage</TabsTrigger>
+          <TabsTrigger value="history" aria-label="Historique des audits effectués">Historique</TabsTrigger>
         </TabsList>
 
         <TabsContent value="audits" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Types d'audits disponibles">
             {/* Audit Base de données */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Database className="h-5 w-5 text-blue-500" />
+                  <Database className="h-5 w-5 text-blue-500" aria-hidden="true" />
                   Base de données
                 </CardTitle>
                 <CardDescription>
@@ -322,15 +355,16 @@ export default function AdminAudit() {
                   disabled={isRunningAudit.database}
                   className="w-full"
                   variant="outline"
+                  aria-label="Lancer l'audit de la base de données pour détecter les doublons et incohérences"
                 >
                   {isRunningAudit.database ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full" aria-label="Audit en cours" />
                       Analyse...
                     </>
                   ) : (
                     <>
-                      <Database className="h-4 w-4 mr-2" />
+                      <Database className="h-4 w-4 mr-2" aria-hidden="true" />
                       Analyser
                     </>
                   )}
@@ -342,7 +376,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Code className="h-5 w-5 text-green-500" />
+                  <Code className="h-5 w-5 text-green-500" aria-hidden="true" />
                   Structure Code
                 </CardTitle>
                 <CardDescription>
@@ -355,15 +389,16 @@ export default function AdminAudit() {
                   disabled={isRunningAudit.code}
                   className="w-full"
                   variant="outline"
+                  aria-label="Lancer l'audit de la structure du code pour détecter les duplications et problèmes de types"
                 >
                   {isRunningAudit.code ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-green-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-green-500 border-t-transparent rounded-full" aria-label="Audit en cours" />
                       Analyse...
                     </>
                   ) : (
                     <>
-                      <Code className="h-4 w-4 mr-2" />
+                      <Code className="h-4 w-4 mr-2" aria-hidden="true" />
                       Analyser
                     </>
                   )}
@@ -375,7 +410,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Palette className="h-5 w-5 text-purple-500" />
+                  <Palette className="h-5 w-5 text-purple-500" aria-hidden="true" />
                   Cohérence UI
                 </CardTitle>
                 <CardDescription>
@@ -388,15 +423,16 @@ export default function AdminAudit() {
                   disabled={isRunningAudit.ui_consistency}
                   className="w-full"
                   variant="outline"
+                  aria-label="Lancer l'audit de cohérence de l'interface utilisateur et du design system"
                 >
                   {isRunningAudit.ui_consistency ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-purple-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-purple-500 border-t-transparent rounded-full" aria-label="Audit en cours" />
                       Analyse...
                     </>
                   ) : (
                     <>
-                      <Palette className="h-4 w-4 mr-2" />
+                      <Palette className="h-4 w-4 mr-2" aria-hidden="true" />
                       Analyser
                     </>
                   )}
@@ -408,7 +444,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Zap className="h-5 w-5 text-orange-500" />
+                  <Zap className="h-5 w-5 text-orange-500" aria-hidden="true" />
                   Performance
                 </CardTitle>
                 <CardDescription>
@@ -421,15 +457,16 @@ export default function AdminAudit() {
                   disabled={isRunningAudit.performance}
                   className="w-full"
                   variant="outline"
+                  aria-label="Lancer l'audit de performance pour analyser le bundle et les optimisations"
                 >
                   {isRunningAudit.performance ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-orange-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-orange-500 border-t-transparent rounded-full" aria-label="Audit en cours" />
                       Analyse...
                     </>
                   ) : (
                     <>
-                      <Zap className="h-4 w-4 mr-2" />
+                      <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
                       Analyser
                     </>
                   )}
@@ -443,7 +480,7 @@ export default function AdminAudit() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Trash2 className="h-5 w-5 text-red-500" />
+                <Trash2 className="h-5 w-5 text-red-500" aria-hidden="true" />
                 Nettoyage Automatique
               </CardTitle>
               <CardDescription>
@@ -451,44 +488,49 @@ export default function AdminAudit() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
+              <Alert role="alert">
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>
-                  Le nettoyage automatique va supprimer définitivement les doublons. 
+                  Le nettoyage automatique va supprimer définitivement les doublons.
                   Assurez-vous d'avoir une sauvegarde avant de continuer.
                 </AlertDescription>
               </Alert>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <h4 className="font-medium">Supprimer les doublons</h4>
                     <p className="text-sm text-gray-600">Garde l'enregistrement le plus récent</p>
                   </div>
-                  <Button onClick={cleanupData} variant="destructive" size="sm">
-                    <Trash2 className="h-4 w-4 mr-2" />
+                  <Button
+                    onClick={cleanupData}
+                    variant="destructive"
+                    size="sm"
+                    aria-label="Supprimer les doublons de la base de données, garde l'enregistrement le plus récent"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                     Nettoyer
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 border rounded-lg opacity-50">
                   <div>
                     <h4 className="font-medium">Corriger les slugs</h4>
                     <p className="text-sm text-gray-600">Normalise les URLs</p>
                   </div>
-                  <Button disabled size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
+                  <Button disabled size="sm" aria-label="Corriger les slugs - Fonctionnalité à venir">
+                    <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
                     Bientôt
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 border rounded-lg opacity-50">
                   <div>
                     <h4 className="font-medium">Optimiser les JSON</h4>
                     <p className="text-sm text-gray-600">Valide et formate les données</p>
                   </div>
-                  <Button disabled size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
+                  <Button disabled size="sm" aria-label="Optimiser les JSON - Fonctionnalité à venir">
+                    <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
                     Bientôt
                   </Button>
                 </div>
@@ -502,11 +544,16 @@ export default function AdminAudit() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                  <FileText className="h-5 w-5" aria-hidden="true" />
                   Historique des Audits
                 </span>
-                <Button onClick={fetchAuditReports} variant="outline" size="sm">
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                <Button
+                  onClick={fetchAuditReports}
+                  variant="outline"
+                  size="sm"
+                  aria-label="Actualiser l'historique des audits"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
                   Actualiser
                 </Button>
               </CardTitle>

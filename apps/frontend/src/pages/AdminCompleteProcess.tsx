@@ -8,15 +8,46 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
+interface ExtractionStats {
+  totalProcessed: number;
+  totalErrors: number;
+  startTime?: string;
+  endTime?: string;
+}
+
+interface AuditResult {
+  type: string;
+  success: boolean;
+  reportId?: string;
+  results?: unknown;
+  error?: string;
+}
+
+interface ReimportStats {
+  processed: number;
+  success: number;
+  errors: number;
+}
+
+interface ReimportError {
+  item_code: string;
+  error: string;
+}
+
+interface ReimportResults {
+  stats: ReimportStats;
+  errors?: ReimportError[];
+}
+
 const AdminCompleteProcess = () => {
   const [currentPhase, setCurrentPhase] = useState<string>('idle');
   const [progress, setProgress] = useState(0);
-  const [extractionStats, setExtractionStats] = useState<any>(null);
-  const [auditResults, setAuditResults] = useState<any[]>([]);
+  const [extractionStats, setExtractionStats] = useState<ExtractionStats | null>(null);
+  const [auditResults, setAuditResults] = useState<AuditResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isReimporting, setIsReimporting] = useState(false);
-  const [reimportResults, setReimportResults] = useState<any>(null);
+  const [reimportResults, setReimportResults] = useState<ReimportResults | null>(null);
   const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
 
@@ -96,10 +127,11 @@ const AdminCompleteProcess = () => {
       setCurrentPhase('completed');
       setProgress(100);
       toast.success('Processus complet terminé avec succès!');
-      
-    } catch (error: any) {
+
+    } catch (error) {
       console.error('Erreur processus complet:', error);
-      setError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      setError(errorMessage);
       toast.error('Erreur lors du processus complet');
     } finally {
       setIsRunning(false);
@@ -123,14 +155,15 @@ const AdminCompleteProcess = () => {
 
       if (reimportError) throw reimportError;
 
-      setReimportResults(data);
+      setReimportResults(data as ReimportResults);
       toast.success('Ré-importation terminée!', {
         description: `${data.stats?.success || 0} items mis à jour avec contenu spécifique`
       });
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur ré-importation:', error);
-      setError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      setError(errorMessage);
       toast.error('Erreur lors de la ré-importation');
     } finally {
       setIsReimporting(false);
@@ -149,7 +182,7 @@ const AdminCompleteProcess = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-6 w-6" />
+              <CheckCircle className="h-6 w-6" aria-hidden="true" />
               Processus complet : Extraction + Audit
             </CardTitle>
             <CardDescription>
@@ -157,11 +190,12 @@ const AdminCompleteProcess = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
+            <Button
               onClick={runCompleteProcess}
               disabled={isRunning || isReimporting}
               size="lg"
               className="w-full md:w-auto"
+              aria-label="Démarrer le processus complet d'extraction des 367 items EDN et audit de la plateforme"
             >
               {isRunning ? 'Processus en cours...' : 'Démarrer le processus complet'}
             </Button>
@@ -172,7 +206,7 @@ const AdminCompleteProcess = () => {
         <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-800">
-              <RefreshCw className="h-6 w-6" />
+              <RefreshCw className="h-6 w-6" aria-hidden="true" />
               Ré-importation Complète avec Contenu Spécifique
             </CardTitle>
             <CardDescription>
@@ -180,7 +214,7 @@ const AdminCompleteProcess = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4" role="region" aria-label="Détails des améliorations de la ré-importation">
               <div className="p-4 bg-green-100 rounded-lg">
                 <h4 className="font-semibold text-green-800 mb-2">✅ Améliorations incluses :</h4>
                 <ul className="text-sm text-green-700 space-y-1">
@@ -201,21 +235,22 @@ const AdminCompleteProcess = () => {
                 </ul>
               </div>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={runReimportProcess}
               disabled={isRunning || isReimporting}
               size="lg"
               className="w-full bg-green-600 hover:bg-green-700 text-white"
+              aria-label="Lancer la ré-importation intelligente avec contenu spécifique pour tous les items EDN"
             >
               {isReimporting ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                   Ré-importation en cours...
                 </>
               ) : (
                 <>
-                  <ArrowRight className="h-4 w-4 mr-2" />
+                  <ArrowRight className="h-4 w-4 mr-2" aria-hidden="true" />
                   Lancer la Ré-importation Intelligente
                 </>
               )}
@@ -345,9 +380,9 @@ const AdminCompleteProcess = () => {
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <h4 className="font-semibold text-red-800 mb-2">Erreurs rencontrées :</h4>
                     <div className="text-sm text-red-700 max-h-32 overflow-y-auto">
-                      {reimportResults.errors.map((error: any, index: number) => (
+                      {reimportResults.errors.map((errorItem: ReimportError, index: number) => (
                         <div key={index} className="mb-1">
-                          • Item {error.item_code}: {error.error}
+                          • Item {errorItem.item_code}: {errorItem.error}
                         </div>
                       ))}
                     </div>
@@ -422,7 +457,15 @@ const AdminCompleteProcess = () => {
 
       {/* Formulaire de credentials sécurisé */}
       {(showCredentialsModal || showCredentialsForm) && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            // ✅ SÉCURISÉ: Empêcher la fermeture pendant une opération en cours
+            if (!isRunning && !isReimporting) {
+              setShowCredentialsModal(false);
+            }
+          }}
+        >
           <div onClick={(e) => e.stopPropagation()}>
             <SecureCredentialsForm
               onSubmit={(creds) => {
@@ -432,6 +475,13 @@ const AdminCompleteProcess = () => {
               title="Authentification pour extraction complète"
               description="Saisissez vos identifiants CAS pour lancer l'extraction sécurisée des données EDN"
             />
+            {(isRunning || isReimporting) && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
+                <p className="text-sm text-amber-800 font-medium">
+                  ⚠️ Opération en cours - Ne fermez pas cette fenêtre
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

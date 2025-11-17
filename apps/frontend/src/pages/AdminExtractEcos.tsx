@@ -249,13 +249,17 @@ const AdminExtractEcos = () => {
 
       {/* Formulaire de credentials sécurisé */}
       {showCredentialsForm && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100]"
           onClick={(e) => {
             e.stopPropagation();
-            // Permettre de fermer en cliquant sur le backdrop
-            setError('Extraction annulée - Authentification requise');
-            toast.error('Veuillez vous authentifier pour continuer');
+            // ✅ SÉCURISÉ: Empêcher la fermeture pendant l'extraction
+            if (!isExtracting) {
+              setError('Extraction annulée - Authentification requise');
+              toast.error('Veuillez vous authentifier pour continuer');
+            } else {
+              toast.warning('Extraction en cours - Veuillez patienter');
+            }
           }}
         >
           <div onClick={(e) => e.stopPropagation()}>
@@ -264,6 +268,14 @@ const AdminExtractEcos = () => {
               title="🔐 Authentification CAS UNESS"
               description="Saisissez vos identifiants CAS UNESS pour extraire les situations ECOS depuis la plateforme officielle"
             />
+            {isExtracting && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
+                <p className="text-sm text-amber-800 font-medium">
+                  ⚠️ Extraction en cours - Ne fermez pas cette fenêtre
+                </p>
+                <Progress value={progress} className="mt-2" />
+              </div>
+            )}
           </div>
         </div>
       )}
