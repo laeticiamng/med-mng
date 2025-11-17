@@ -8,6 +8,7 @@
     "dev:frontend": "pnpm --filter @med-mng/frontend dev",
     "dev:backend": "pnpm --filter @med-mng/backend dev",
     "build": "pnpm -r build",
+    "build:dev": "vite build --mode development",
     "build:frontend": "pnpm --filter @med-mng/frontend build",
     "build:backend": "pnpm --filter @med-mng/backend build",
     "build:shared": "pnpm --filter @med-mng/shared build",
