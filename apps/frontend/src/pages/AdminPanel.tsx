@@ -1,38 +1,64 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield } from 'lucide-react';
+import { ArrowLeft, Shield, Loader } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
 
   useEffect(() => {
-    // Vérification des droits d'administration
-    // Note: Dans un vrai système, vous devriez vérifier les rôles utilisateur
+    // ✅ SÉCURISÉ: Vérification stricte des droits d'administration
     if (!user) {
       toast.error('Accès non autorisé - Connexion requise');
-      navigate('/med-mng/login');
+      navigate('/med-mng-login', { replace: true });
       return;
     }
 
-    // Pour la démo, on peut accéder si on est connecté
-    // Dans la production, ajouter une vérification de rôle admin
-    console.log('🔐 Accès panel admin autorisé pour:', user.email);
-  }, [user, navigate]);
+    // Attendre le chargement des rôles avant de vérifier
+    if (loadingMyRoles) {
+      return;
+    }
 
-  if (!user) {
+    // ✅ CRITIQUE: Vérifier que l'utilisateur a le rôle admin
+    if (!isAdmin) {
+      toast.error('Accès refusé - Droits administrateur requis');
+      navigate('/', { replace: true });
+      return;
+    }
+  }, [user, isAdmin, loadingMyRoles, navigate]);
+
+  // État de chargement pendant la vérification des rôles
+  if (loadingMyRoles) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Vérification des droits d'accès...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Protection: ne pas rendre si pas connecté ou pas admin
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Accès restreint</h2>
-          <p className="text-gray-600 mb-4">Vous devez être connecté pour accéder au panel d'administration</p>
-          <Button onClick={() => navigate('/med-mng/login')}>
-            Se connecter
+          <p className="text-gray-600 mb-4">
+            {!user
+              ? 'Vous devez être connecté pour accéder au panel d\'administration'
+              : 'Vous n\'avez pas les droits administrateur nécessaires'}
+          </p>
+          <Button onClick={() => navigate(!user ? '/med-mng-login' : '/')}>
+            {!user ? 'Se connecter' : 'Retour à l\'accueil'}
           </Button>
         </div>
       </div>

@@ -16,12 +16,39 @@ export function createServer() {
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  // 🔒 SÉCURITÉ: Configuration du CORS pour limiter l'accès de l'API
-  // Les origines autorisées sont lues dans ALLOWED_ORIGINS (liste séparée par des virgules)
-  // Par défaut : '*' (tous les domaines - NON RECOMMANDÉ EN PRODUCTION)
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? ['*'];
+  // 🔒 SÉCURITÉ: Configuration stricte du CORS
+  // ALLOWED_ORIGINS est OBLIGATOIRE en production (liste séparée par des virgules)
+  // En développement, utilise localhost par défaut
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const defaultOrigins = isDevelopment
+    ? ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173']
+    : [];
+
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ?.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean) ?? defaultOrigins;
+
+  // ⚠️ VALIDATION: En production, ALLOWED_ORIGINS doit être défini
+  if (!isDevelopment && allowedOrigins.length === 0) {
+    log('error', 'ALLOWED_ORIGINS environment variable must be set in production');
+    throw new Error('ALLOWED_ORIGINS is required in production mode');
+  }
+
   const corsOptions: cors.CorsOptions = {
-    origin: allowedOrigins[0] === '*' ? '*' : allowedOrigins,
+    origin: (origin, callback) => {
+      // Autoriser les requêtes sans origin (comme Postman, curl)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        log('warn', 'CORS blocked request', { origin, allowedOrigins });
+        callback(new Error(`Origin ${origin} not allowed by CORS policy`));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
@@ -40,17 +67,23 @@ export function createServer() {
     next();
   });
 
+  // 🔒 SÉCURITÉ: Rate limiting plus strict
   const limiter = rateLimit({
-    windowMs: 60_000,
-    limit: 120,
+    windowMs: 60_000, // 1 minute
+    limit: isDevelopment ? 120 : 60, // 60 req/min en production, 120 en dev
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    handler: (_req, res) => {
+    handler: (req, res) => {
+      log('warn', 'Rate limit exceeded', {
+        ip: req.ip,
+        url: req.originalUrl
+      });
       res.status(429).json({
         error: 'RATE_LIMIT',
         code: 429,
-        message: 'Too many requests',
+        message: 'Too many requests. Please try again later.',
         timestamp: new Date().toISOString(),
+        retryAfter: 60,
       });
     },
   });
