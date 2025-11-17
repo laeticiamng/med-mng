@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EdnItemCard } from '@/components/edn/premium/EdnItemCard';
 import { getCompletionPercentage } from '@/utils/completionScore';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 interface EdnItemsGridProps {
   items: EdnItemUnified[];

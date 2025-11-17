@@ -25,7 +25,7 @@ import {
   UserAura,
   GamificationStats,
   LeaderboardEntry,
-} from '@/services/badges.service'
+} from '@shared/services/badges.service'
 
 // Badge Definition Queries
 export function useFetchAllBadges() {

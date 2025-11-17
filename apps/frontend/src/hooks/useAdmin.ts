@@ -16,7 +16,7 @@ import {
   ContentReport,
   UserAction,
   PlatformMetrics,
-} from '@/services/admin.service'
+} from '@shared/services/admin.service'
 
 // Moderation Queue
 export function useFetchModerationQueue(status?: string) {

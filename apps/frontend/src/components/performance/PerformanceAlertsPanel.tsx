@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { PerformanceAlert } from '@/services/performanceAnalyticsService';
+import { PerformanceAlert } from '@shared/services/performanceAnalyticsService';
 
 interface PerformanceAlertsPanelProps {
   alerts: PerformanceAlert[];

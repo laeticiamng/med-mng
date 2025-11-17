@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { EdnItem, EdnModalState, INITIAL_MODAL_STATE } from '@/types/edn';
+import { EdnItem, EdnModalState, INITIAL_MODAL_STATE } from '@shared/types/edn';
 
 export function useEdnModal() {
   const [modalState, setModalState] = useState<EdnModalState>(INITIAL_MODAL_STATE);

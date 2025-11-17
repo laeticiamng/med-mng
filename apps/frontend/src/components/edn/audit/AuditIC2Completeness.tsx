@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertTriangle, RefreshCw, Target, XCircle } from 'lucide-react';
-import { checkIC2Completeness } from '@/scripts/audit/ic2CompletenessCheck';
+import { checkIC2Completeness } from '@shared/scripts/audit/ic2CompletenessCheck';
 import { AuditIC2CompletionButton } from './AuditIC2CompletionButton';
 
 interface IC2Report {

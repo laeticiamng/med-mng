@@ -3,7 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
-import type { AuditResult } from '@/scripts/audit/types';
+import type { AuditResult } from '@shared/scripts/audit/types';
 
 interface AuditItemCardProps {
   item: AuditResult;

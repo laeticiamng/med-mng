@@ -17,7 +17,7 @@ import {
   FileText,
   Shield
 } from 'lucide-react';
-import type { ComprehensiveAuditReport } from '@/scripts/audit/comprehensiveAudit';
+import type { ComprehensiveAuditReport } from '@shared/scripts/audit/comprehensiveAudit';
 
 interface ComprehensiveAuditPanelProps {
   report: ComprehensiveAuditReport | null;

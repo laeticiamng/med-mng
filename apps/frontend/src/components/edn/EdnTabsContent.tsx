@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton';
 import { EdnItemsGrid } from './EdnItemsGrid';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 // 🚀 LAZY LOADING - Composants non-critiques chargés à la demande
 const RevisionDashboard = lazy(() => import('@/components/revision/RevisionDashboard').then(m => ({ default: m.RevisionDashboard })));

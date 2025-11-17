@@ -9,7 +9,7 @@ import { Loader2, RefreshCw, BookOpen, Palette, Sparkles, Eye, Download, Share2 
 import { BandeDessineDisplay } from './BandeDessineDisplay';
 import { RomanDisplay } from './RomanDisplay';
 import { PoemeDisplay } from './PoemeDisplay';
-import { pedagogicalContentService } from '@/services/pedagogicalContentService';
+import { pedagogicalContentService } from '@shared/services/pedagogicalContentService';
 
 interface EnhancedContentViewerProps {
   itemCode: string;

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar, Target, HelpCircle, Check, AlertTriangle } from 'lucide-react';
-import { RevisionMethodType, REVISION_METHODS } from '@/types/revision-methods';
+import { RevisionMethodType, REVISION_METHODS } from '@shared/types/revision-methods';
 import { useRevisionMethods } from '@/hooks/useRevisionMethods';
 
 interface RevisionMethodSelectorProps {

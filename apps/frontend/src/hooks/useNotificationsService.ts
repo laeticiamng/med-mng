@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { notificationsService, Notification, NotificationPreferences, NotificationType } from '@/services/notifications.service'
+import { notificationsService, Notification, NotificationPreferences, NotificationType } from '@shared/services/notifications.service'
 
 // Query keys for cache invalidation
 const notificationKeys = {

@@ -1,4 +1,4 @@
-import { BadgeDefinition } from '@/services/badges.service'
+import { BadgeDefinition } from '@shared/services/badges.service'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 

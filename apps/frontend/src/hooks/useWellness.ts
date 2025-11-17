@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { wellnessService, ActivityType, RitualCategory, GoalType, GoalStatus } from '@/services/wellness.service'
+import { wellnessService, ActivityType, RitualCategory, GoalType, GoalStatus } from '@shared/services/wellness.service'
 
 const wellnessKeys = {
   all: ['wellness'] as const,

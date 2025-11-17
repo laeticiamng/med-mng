@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { activityFeedService, ActivityType } from '@/services/activity-feed.service'
+import { activityFeedService, ActivityType } from '@shared/services/activity-feed.service'
 
 // Query keys for cache invalidation
 const activityKeys = {

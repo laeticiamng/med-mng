@@ -17,7 +17,7 @@ import {
   Grid,
   List
 } from "lucide-react";
-import { ecosService, EcosSituation, EcosSearchResult } from '@/services/ecosService';
+import { ecosService, EcosSituation, EcosSearchResult } from '@shared/services/ecosService';
 
 interface EcosExplorerProps {
   className?: string;

@@ -19,8 +19,8 @@ import {
   CreateBlockConfigRequest,
   CreateQCMSessionRequest,
   CompleteRevisionRequest
-} from '@/types/revision-methods';
-import * as revisionService from '@/services/revision-methods.service';
+} from '@shared/types/revision-methods';
+import * as revisionService from '@shared/services/revision-methods.service';
 
 export const useRevisionMethods = () => {
   const [user, setUser] = useState<any>(null);

@@ -20,7 +20,7 @@ import {
   Play,
   BookOpen
 } from "lucide-react";
-import { qcmService, QcmQuestion, QcmSession } from '@/services/qcmService';
+import { qcmService, QcmQuestion, QcmSession } from '@shared/services/qcmService';
 
 interface QcmPlayerProps {
   itemCode: string;

@@ -9,7 +9,7 @@ import type {
   EdnQualityReport,
   EdnQualityGlobalReport,
   EdnEnrichmentResult,
-} from '@/types/edn';
+} from '@shared/types/edn';
 
 /**
  * Hook pour analyser la qualité d'un item EDN spécifique

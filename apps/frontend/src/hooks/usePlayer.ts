@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Track } from '@/types/music';
+import { Track } from '@shared/types/music';
 import { useSecureStreaming } from './useSecureStreaming';
 
 interface PlayerState {

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EdnTabsContent } from '@/components/edn/EdnTabsContent';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 // Mock des composants enfants
 vi.mock('@/components/revision/RevisionDashboard', () => ({

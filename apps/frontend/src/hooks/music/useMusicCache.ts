@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { MusicCacheService } from '@/services/musicCacheService';
+import { MusicCacheService } from '@shared/services/musicCacheService';
 import { useToast } from '@/hooks/use-toast';
 
 interface CacheParams {

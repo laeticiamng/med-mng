@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEdnModal } from '@/hooks/useEdnModal';
-import type { EdnItem } from '@/types/edn';
+import type { EdnItem } from '@shared/types/edn';
 
 describe('useEdnModal', () => {
   const mockItem: EdnItem = { 

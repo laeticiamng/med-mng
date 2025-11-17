@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { recommendationsService, ContentType, UserPreferences } from '@/services/recommendations.service'
+import { recommendationsService, ContentType, UserPreferences } from '@shared/services/recommendations.service'
 
 // Query keys for cache invalidation
 const recommendationKeys = {

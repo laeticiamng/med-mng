@@ -32,7 +32,7 @@ import {
   TeamInvitation,
   TeamChannel,
   TeamMessage,
-} from '@/services/teams.service'
+} from '@shared/services/teams.service'
 
 // Team Queries
 export function useFetchTeam(teamId: string) {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EdnItemsGrid } from '@/components/edn/EdnItemsGrid';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 // Mock Framer Motion pour éviter les problèmes dans les tests
 vi.mock('framer-motion', () => ({

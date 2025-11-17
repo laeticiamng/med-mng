@@ -1,5 +1,5 @@
 
-import { ItemEDNV2, CompetenceV2, RangContentV2 } from '@/schemas/itemEDNSchema';
+import { ItemEDNV2, CompetenceV2, RangContentV2 } from '../../schemas/itemEDNSchema';
 
 // Interface pour la compatibilité avec l'ancien système
 export interface ParsedEDNItem {

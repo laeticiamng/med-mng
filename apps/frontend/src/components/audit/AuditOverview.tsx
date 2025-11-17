@@ -7,7 +7,7 @@ import {
   XCircle,
   BarChart3
 } from 'lucide-react';
-import type { AuditReport } from '@/scripts/audit/types';
+import type { AuditReport } from '@shared/scripts/audit/types';
 
 interface AuditOverviewProps {
   report: AuditReport;

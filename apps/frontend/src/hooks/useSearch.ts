@@ -21,7 +21,7 @@ import {
   SearchSuggestion,
   SearchHistory,
   SearchFilters,
-} from '@/services/search.service'
+} from '@shared/services/search.service'
 
 // Global search hook
 export function useGlobalSearch(query: string, limit: number = 50) {

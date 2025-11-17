@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, PlayCircle, Download, FileText } from 'lucide-react';
-import type { AuditReport } from '@/scripts/audit/types';
+import type { AuditReport } from '@shared/scripts/audit/types';
 
 interface AuditHeaderProps {
   loading: boolean;

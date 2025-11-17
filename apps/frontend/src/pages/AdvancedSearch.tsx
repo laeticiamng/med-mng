@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SearchFilters } from '@/services/search.service'
+import { SearchFilters } from '@shared/services/search.service'
 import {
   Select,
   SelectContent,

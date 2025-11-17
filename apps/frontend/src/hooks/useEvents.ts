@@ -23,7 +23,7 @@ import {
   EventReminder,
   EventComment,
   EventCategory,
-} from '@/services/events.service'
+} from '@shared/services/events.service'
 
 // Event Categories
 export function useFetchEventCategories() {

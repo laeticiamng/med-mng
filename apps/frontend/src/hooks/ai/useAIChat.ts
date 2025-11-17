@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { createChatCompletion, ChatCompletionMessage } from '@/openai/chat/completions';
+import { createChatCompletion, ChatCompletionMessage } from '@shared/openai/chat/completions';
 
 interface ChatSession {
   id: string;

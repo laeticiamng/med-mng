@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { dataExportService, ExportType, ExportFormat } from '@/services/data-export.service'
+import { dataExportService, ExportType, ExportFormat } from '@shared/services/data-export.service'
 
 // Query keys for cache invalidation
 const exportKeys = {

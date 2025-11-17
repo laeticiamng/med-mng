@@ -4,8 +4,8 @@
  */
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { EdnItemUnified } from '@/types/edn';
-import { AdvancedFilters, DEFAULT_ADVANCED_FILTERS, SavedFilter } from '@/types/advancedFilters';
+import { EdnItemUnified } from '@shared/types/edn';
+import { AdvancedFilters, DEFAULT_ADVANCED_FILTERS, SavedFilter } from '@shared/types/advancedFilters';
 
 const SAVED_FILTERS_KEY = 'edn-saved-filters';
 

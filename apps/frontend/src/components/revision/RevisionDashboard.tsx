@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { useRevisionMethods } from '@/hooks/useRevisionMethods';
-import { REVISION_METHODS } from '@/types/revision-methods';
+import { REVISION_METHODS } from '@shared/types/revision-methods';
 import { RevisionMethodSelector } from './RevisionMethodSelector';
 import { JMethodView } from './JMethodView';
 import { BlockMethodView } from './BlockMethodView';

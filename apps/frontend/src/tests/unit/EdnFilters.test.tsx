@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EdnFilters } from '@/components/edn/EdnFilters';
-import type { SortByType } from '@/types/edn';
+import type { SortByType } from '@shared/types/edn';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {

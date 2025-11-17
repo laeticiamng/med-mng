@@ -3,7 +3,7 @@ import {
   contentReportingService,
   ContentComplaintReport,
   ContentAppealRequest,
-} from '@/services/contentReporting.service'
+} from '@shared/services/contentReporting.service'
 
 // Content Reports
 export function useCreateComplaintReport() {

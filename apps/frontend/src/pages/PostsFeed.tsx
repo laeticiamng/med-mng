@@ -14,7 +14,7 @@ import { CreatePostForm } from '@/components/posts/CreatePostForm'
 import { PostCard } from '@/components/posts/PostCard'
 import { useFetchFeedPosts, useFetchPostsByCategory } from '@/hooks/usePosts'
 import { useAuth } from '@/hooks/useAuth'
-import { PostCategory } from '@/services/posts.service'
+import { PostCategory } from '@shared/services/posts.service'
 import { Link } from 'react-router-dom'
 
 export default function Posts() {

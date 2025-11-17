@@ -11,7 +11,7 @@ import type {
   APIResponse, 
   JSONValue,
   SelectOption 
-} from '@/types/global';
+} from '@shared/types/global';
 
 // 🎯 TYPE-SAFE FORM HOOK
 export function useTypeSafeForm<T extends StrictRecord<string, unknown>>(

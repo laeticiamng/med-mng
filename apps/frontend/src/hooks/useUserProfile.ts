@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { userProfileService, AchievementType } from '@/services/user-profile.service'
+import { userProfileService, AchievementType } from '@shared/services/user-profile.service'
 
 // Query keys for cache invalidation
 const profileKeys = {
