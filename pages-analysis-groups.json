@@ -1,0 +1,2148 @@
+{
+  "metadata": {
+    "totalPages": 343,
+    "numberOfGroups": 10,
+    "averagePagesPerGroup": 35,
+    "generatedAt": "2025-11-17T07:10:39.781Z",
+    "scanPaths": [
+      "apps/frontend/src/pages",
+      "apps/functions",
+      "apps/backend/src"
+    ]
+  },
+  "groups": [
+    {
+      "groupId": 1,
+      "groupName": "Groupe 1",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/backend/src/controllers/healthController.ts",
+          "relativePath": "apps/backend/src/controllers/healthController.ts",
+          "category": "backend",
+          "name": "healthController"
+        },
+        {
+          "path": "/home/user/med-mng/apps/backend/src/index.ts",
+          "relativePath": "apps/backend/src/index.ts",
+          "category": "backend",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/backend/src/middleware/enhancedErrorHandler.ts",
+          "relativePath": "apps/backend/src/middleware/enhancedErrorHandler.ts",
+          "category": "backend",
+          "name": "enhancedErrorHandler"
+        },
+        {
+          "path": "/home/user/med-mng/apps/backend/src/middleware/errorHandler.ts",
+          "relativePath": "apps/backend/src/middleware/errorHandler.ts",
+          "category": "backend",
+          "name": "errorHandler"
+        },
+        {
+          "path": "/home/user/med-mng/apps/backend/src/server/app.ts",
+          "relativePath": "apps/backend/src/server/app.ts",
+          "category": "backend",
+          "name": "app"
+        },
+        {
+          "path": "/home/user/med-mng/apps/backend/src/server/routes/systemRoutes.ts",
+          "relativePath": "apps/backend/src/server/routes/systemRoutes.ts",
+          "category": "backend",
+          "name": "systemRoutes"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AccessibilityDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/AccessibilityDashboard.tsx",
+          "category": "frontend",
+          "name": "AccessibilityDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Achievements.tsx",
+          "relativePath": "apps/frontend/src/pages/Achievements.tsx",
+          "category": "frontend",
+          "name": "Achievements"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ActivityFeed.tsx",
+          "relativePath": "apps/frontend/src/pages/ActivityFeed.tsx",
+          "category": "frontend",
+          "name": "ActivityFeed"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminAudit.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminAudit.tsx",
+          "category": "frontend",
+          "name": "AdminAudit"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminCompleteProcess.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminCompleteProcess.tsx",
+          "category": "frontend",
+          "name": "AdminCompleteProcess"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminDashboard.tsx",
+          "category": "frontend",
+          "name": "AdminDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminExtractEcos.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminExtractEcos.tsx",
+          "category": "frontend",
+          "name": "AdminExtractEcos"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminExtractEdn.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminExtractEdn.tsx",
+          "category": "frontend",
+          "name": "AdminExtractEdn"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminImport.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminImport.tsx",
+          "category": "frontend",
+          "name": "AdminImport"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminIndex.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminIndex.tsx",
+          "category": "frontend",
+          "name": "AdminIndex"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdminPanel.tsx",
+          "relativePath": "apps/frontend/src/pages/AdminPanel.tsx",
+          "category": "frontend",
+          "name": "AdminPanel"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdvancedAnalyticsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/AdvancedAnalyticsDashboard.tsx",
+          "category": "frontend",
+          "name": "AdvancedAnalyticsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AdvancedSearch.tsx",
+          "relativePath": "apps/frontend/src/pages/AdvancedSearch.tsx",
+          "category": "frontend",
+          "name": "AdvancedSearch"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AmbitionsManager.tsx",
+          "relativePath": "apps/frontend/src/pages/AmbitionsManager.tsx",
+          "category": "frontend",
+          "name": "AmbitionsManager"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AuditComplete.tsx",
+          "relativePath": "apps/frontend/src/pages/AuditComplete.tsx",
+          "category": "frontend",
+          "name": "AuditComplete"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AuditCompleteness.tsx",
+          "relativePath": "apps/frontend/src/pages/AuditCompleteness.tsx",
+          "category": "frontend",
+          "name": "AuditCompleteness"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AuditPage.tsx",
+          "relativePath": "apps/frontend/src/pages/AuditPage.tsx",
+          "category": "frontend",
+          "name": "AuditPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AuraDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/AuraDetail.tsx",
+          "category": "frontend",
+          "name": "AuraDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/AurasCollection.tsx",
+          "relativePath": "apps/frontend/src/pages/AurasCollection.tsx",
+          "category": "frontend",
+          "name": "AurasCollection"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/BadgeCollection.tsx",
+          "relativePath": "apps/frontend/src/pages/BadgeCollection.tsx",
+          "category": "frontend",
+          "name": "BadgeCollection"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/BadgeDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/BadgeDetail.tsx",
+          "category": "frontend",
+          "name": "BadgeDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/BadgesGallery.tsx",
+          "relativePath": "apps/frontend/src/pages/BadgesGallery.tsx",
+          "category": "frontend",
+          "name": "BadgesGallery"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CalendarView.tsx",
+          "relativePath": "apps/frontend/src/pages/CalendarView.tsx",
+          "category": "frontend",
+          "name": "CalendarView"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CGU.tsx",
+          "relativePath": "apps/frontend/src/pages/CGU.tsx",
+          "category": "frontend",
+          "name": "CGU"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ChallengeDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/ChallengeDetail.tsx",
+          "category": "frontend",
+          "name": "ChallengeDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ChallengesDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/ChallengesDashboard.tsx",
+          "category": "frontend",
+          "name": "ChallengesDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ChallengesHistory.tsx",
+          "relativePath": "apps/frontend/src/pages/ChallengesHistory.tsx",
+          "category": "frontend",
+          "name": "ChallengesHistory"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CollectionDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/CollectionDetail.tsx",
+          "category": "frontend",
+          "name": "CollectionDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Collections.tsx",
+          "relativePath": "apps/frontend/src/pages/Collections.tsx",
+          "category": "frontend",
+          "name": "Collections"
+        }
+      ]
+    },
+    {
+      "groupId": 2,
+      "groupName": "Groupe 2",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Community.tsx",
+          "relativePath": "apps/frontend/src/pages/Community.tsx",
+          "category": "frontend",
+          "name": "Community"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CommunityHub.tsx",
+          "relativePath": "apps/frontend/src/pages/CommunityHub.tsx",
+          "category": "frontend",
+          "name": "CommunityHub"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CompletedQuests.tsx",
+          "relativePath": "apps/frontend/src/pages/CompletedQuests.tsx",
+          "category": "frontend",
+          "name": "CompletedQuests"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ContactSupport.tsx",
+          "relativePath": "apps/frontend/src/pages/ContactSupport.tsx",
+          "category": "frontend",
+          "name": "ContactSupport"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ContentReporting.tsx",
+          "relativePath": "apps/frontend/src/pages/ContentReporting.tsx",
+          "category": "frontend",
+          "name": "ContentReporting"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/CreatePost.tsx",
+          "relativePath": "apps/frontend/src/pages/CreatePost.tsx",
+          "category": "frontend",
+          "name": "CreatePost"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DailyChallenges.tsx",
+          "relativePath": "apps/frontend/src/pages/DailyChallenges.tsx",
+          "category": "frontend",
+          "name": "DailyChallenges"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Dashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/Dashboard.tsx",
+          "category": "frontend",
+          "name": "Dashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DashboardHub.tsx",
+          "relativePath": "apps/frontend/src/pages/DashboardHub.tsx",
+          "category": "frontend",
+          "name": "DashboardHub"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DataExport.tsx",
+          "relativePath": "apps/frontend/src/pages/DataExport.tsx",
+          "category": "frontend",
+          "name": "DataExport"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DeclarationAccessibilite.tsx",
+          "relativePath": "apps/frontend/src/pages/DeclarationAccessibilite.tsx",
+          "category": "frontend",
+          "name": "DeclarationAccessibilite"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DesignSystem.tsx",
+          "relativePath": "apps/frontend/src/pages/DesignSystem.tsx",
+          "category": "frontend",
+          "name": "DesignSystem"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DevelopersDocs.tsx",
+          "relativePath": "apps/frontend/src/pages/DevelopersDocs.tsx",
+          "category": "frontend",
+          "name": "DevelopersDocs"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DevelopersKeys.tsx",
+          "relativePath": "apps/frontend/src/pages/DevelopersKeys.tsx",
+          "category": "frontend",
+          "name": "DevelopersKeys"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DevelopersPortal.tsx",
+          "relativePath": "apps/frontend/src/pages/DevelopersPortal.tsx",
+          "category": "frontend",
+          "name": "DevelopersPortal"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/DevelopersWebhooks.tsx",
+          "relativePath": "apps/frontend/src/pages/DevelopersWebhooks.tsx",
+          "category": "frontend",
+          "name": "DevelopersWebhooks"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EcosIndex.tsx",
+          "relativePath": "apps/frontend/src/pages/EcosIndex.tsx",
+          "category": "frontend",
+          "name": "EcosIndex"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EcosPage.tsx",
+          "relativePath": "apps/frontend/src/pages/EcosPage.tsx",
+          "category": "frontend",
+          "name": "EcosPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EcosScenario.tsx",
+          "relativePath": "apps/frontend/src/pages/EcosScenario.tsx",
+          "category": "frontend",
+          "name": "EcosScenario"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnAuditDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnAuditDashboard.tsx",
+          "category": "frontend",
+          "name": "EdnAuditDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnComplete.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnComplete.tsx",
+          "category": "frontend",
+          "name": "EdnComplete"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnCompleteDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnCompleteDetail.tsx",
+          "category": "frontend",
+          "name": "EdnCompleteDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnImmersive.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnImmersive.tsx",
+          "category": "frontend",
+          "name": "EdnImmersive"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnIndex.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnIndex.tsx",
+          "category": "frontend",
+          "name": "EdnIndex"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnItemDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnItemDetail.tsx",
+          "category": "frontend",
+          "name": "EdnItemDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnItemImmersive.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnItemImmersive.tsx",
+          "category": "frontend",
+          "name": "EdnItemImmersive"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnItemTableauxPage.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnItemTableauxPage.tsx",
+          "category": "frontend",
+          "name": "EdnItemTableauxPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnMusicLibrary.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnMusicLibrary.tsx",
+          "category": "frontend",
+          "name": "EdnMusicLibrary"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnObjectifsExtraction.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnObjectifsExtraction.tsx",
+          "category": "frontend",
+          "name": "EdnObjectifsExtraction"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnQualityDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnQualityDashboard.tsx",
+          "category": "frontend",
+          "name": "EdnQualityDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EdnTest.tsx",
+          "relativePath": "apps/frontend/src/pages/EdnTest.tsx",
+          "category": "frontend",
+          "name": "EdnTest"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EffectivenessDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/EffectivenessDashboard.tsx",
+          "category": "frontend",
+          "name": "EffectivenessDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EventCreate.tsx",
+          "relativePath": "apps/frontend/src/pages/EventCreate.tsx",
+          "category": "frontend",
+          "name": "EventCreate"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EventDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/EventDetail.tsx",
+          "category": "frontend",
+          "name": "EventDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EventsCalendar.tsx",
+          "relativePath": "apps/frontend/src/pages/EventsCalendar.tsx",
+          "category": "frontend",
+          "name": "EventsCalendar"
+        }
+      ]
+    },
+    {
+      "groupId": 3,
+      "groupName": "Groupe 3",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/EventsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/EventsDashboard.tsx",
+          "category": "frontend",
+          "name": "EventsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/FAQ.tsx",
+          "relativePath": "apps/frontend/src/pages/FAQ.tsx",
+          "category": "frontend",
+          "name": "FAQ"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Favorites.tsx",
+          "relativePath": "apps/frontend/src/pages/Favorites.tsx",
+          "category": "frontend",
+          "name": "Favorites"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/FocusLeaderboard.tsx",
+          "relativePath": "apps/frontend/src/pages/FocusLeaderboard.tsx",
+          "category": "frontend",
+          "name": "FocusLeaderboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/FocusSessions.tsx",
+          "relativePath": "apps/frontend/src/pages/FocusSessions.tsx",
+          "category": "frontend",
+          "name": "FocusSessions"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/GamificationDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/GamificationDashboard.tsx",
+          "category": "frontend",
+          "name": "GamificationDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Generator.tsx",
+          "relativePath": "apps/frontend/src/pages/Generator.tsx",
+          "category": "frontend",
+          "name": "Generator"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/GlobalSearch.tsx",
+          "relativePath": "apps/frontend/src/pages/GlobalSearch.tsx",
+          "category": "frontend",
+          "name": "GlobalSearch"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/GoalDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/GoalDetail.tsx",
+          "category": "frontend",
+          "name": "GoalDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Goals.tsx",
+          "relativePath": "apps/frontend/src/pages/Goals.tsx",
+          "category": "frontend",
+          "name": "Goals"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/GoalsCreate.tsx",
+          "relativePath": "apps/frontend/src/pages/GoalsCreate.tsx",
+          "category": "frontend",
+          "name": "GoalsCreate"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/HelpArticle.tsx",
+          "relativePath": "apps/frontend/src/pages/HelpArticle.tsx",
+          "category": "frontend",
+          "name": "HelpArticle"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/HelpCenter.tsx",
+          "relativePath": "apps/frontend/src/pages/HelpCenter.tsx",
+          "category": "frontend",
+          "name": "HelpCenter"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/HelpSearch.tsx",
+          "relativePath": "apps/frontend/src/pages/HelpSearch.tsx",
+          "category": "frontend",
+          "name": "HelpSearch"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Homepage.tsx",
+          "relativePath": "apps/frontend/src/pages/Homepage.tsx",
+          "category": "frontend",
+          "name": "Homepage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Index.tsx",
+          "relativePath": "apps/frontend/src/pages/Index.tsx",
+          "category": "frontend",
+          "name": "Index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/InstallPWA.tsx",
+          "relativePath": "apps/frontend/src/pages/InstallPWA.tsx",
+          "category": "frontend",
+          "name": "InstallPWA"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/JournalDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/JournalDashboard.tsx",
+          "category": "frontend",
+          "name": "JournalDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/JournalEdit.tsx",
+          "relativePath": "apps/frontend/src/pages/JournalEdit.tsx",
+          "category": "frontend",
+          "name": "JournalEdit"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/JournalEntry.tsx",
+          "relativePath": "apps/frontend/src/pages/JournalEntry.tsx",
+          "category": "frontend",
+          "name": "JournalEntry"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/JournalNewEntry.tsx",
+          "relativePath": "apps/frontend/src/pages/JournalNewEntry.tsx",
+          "category": "frontend",
+          "name": "JournalNewEntry"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Leaderboard.tsx",
+          "relativePath": "apps/frontend/src/pages/Leaderboard.tsx",
+          "category": "frontend",
+          "name": "Leaderboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/LeaderboardDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/LeaderboardDashboard.tsx",
+          "category": "frontend",
+          "name": "LeaderboardDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/LearningDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/LearningDashboard.tsx",
+          "category": "frontend",
+          "name": "LearningDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/LearningLeaderboard.tsx",
+          "relativePath": "apps/frontend/src/pages/LearningLeaderboard.tsx",
+          "category": "frontend",
+          "name": "LearningLeaderboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/LibraryPage.tsx",
+          "relativePath": "apps/frontend/src/pages/LibraryPage.tsx",
+          "category": "frontend",
+          "name": "LibraryPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedChat.tsx",
+          "relativePath": "apps/frontend/src/pages/MedChat.tsx",
+          "category": "frontend",
+          "name": "MedChat"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MeditationSessions.tsx",
+          "relativePath": "apps/frontend/src/pages/MeditationSessions.tsx",
+          "category": "frontend",
+          "name": "MeditationSessions"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngCreate.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngCreate.tsx",
+          "category": "frontend",
+          "name": "MedMngCreate"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngLibrary.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngLibrary.tsx",
+          "category": "frontend",
+          "name": "MedMngLibrary"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngLogin.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngLogin.tsx",
+          "category": "frontend",
+          "name": "MedMngLogin"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngPlayer.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngPlayer.tsx",
+          "category": "frontend",
+          "name": "MedMngPlayer"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngPricing.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngPricing.tsx",
+          "category": "frontend",
+          "name": "MedMngPricing"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngProfile.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngProfile.tsx",
+          "category": "frontend",
+          "name": "MedMngProfile"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngSignup.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngSignup.tsx",
+          "category": "frontend",
+          "name": "MedMngSignup"
+        }
+      ]
+    },
+    {
+      "groupId": 4,
+      "groupName": "Groupe 4",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngSubscribe.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngSubscribe.tsx",
+          "category": "frontend",
+          "name": "MedMngSubscribe"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MedMngSuccess.tsx",
+          "relativePath": "apps/frontend/src/pages/MedMngSuccess.tsx",
+          "category": "frontend",
+          "name": "MedMngSuccess"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MentionsLegales.tsx",
+          "relativePath": "apps/frontend/src/pages/MentionsLegales.tsx",
+          "category": "frontend",
+          "name": "MentionsLegales"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MesDonneesRGPD.tsx",
+          "relativePath": "apps/frontend/src/pages/MesDonneesRGPD.tsx",
+          "category": "frontend",
+          "name": "MesDonneesRGPD"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MigrationDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/MigrationDashboard.tsx",
+          "category": "frontend",
+          "name": "MigrationDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MngMethod.tsx",
+          "relativePath": "apps/frontend/src/pages/MngMethod.tsx",
+          "category": "frontend",
+          "name": "MngMethod"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ModerationWorkflow.tsx",
+          "relativePath": "apps/frontend/src/pages/ModerationWorkflow.tsx",
+          "category": "frontend",
+          "name": "ModerationWorkflow"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ModernHomepage.tsx",
+          "relativePath": "apps/frontend/src/pages/ModernHomepage.tsx",
+          "category": "frontend",
+          "name": "ModernHomepage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ModularDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/ModularDashboard.tsx",
+          "category": "frontend",
+          "name": "ModularDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Monitoring.tsx",
+          "relativePath": "apps/frontend/src/pages/Monitoring.tsx",
+          "category": "frontend",
+          "name": "Monitoring"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MonitoringCenter.tsx",
+          "relativePath": "apps/frontend/src/pages/MonitoringCenter.tsx",
+          "category": "frontend",
+          "name": "MonitoringCenter"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/MyActivity.tsx",
+          "relativePath": "apps/frontend/src/pages/MyActivity.tsx",
+          "category": "frontend",
+          "name": "MyActivity"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/NotFound.tsx",
+          "relativePath": "apps/frontend/src/pages/NotFound.tsx",
+          "category": "frontend",
+          "name": "NotFound"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/NotificationDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/NotificationDetail.tsx",
+          "category": "frontend",
+          "name": "NotificationDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Notifications.tsx",
+          "relativePath": "apps/frontend/src/pages/Notifications.tsx",
+          "category": "frontend",
+          "name": "Notifications"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/NotificationsCenter.tsx",
+          "relativePath": "apps/frontend/src/pages/NotificationsCenter.tsx",
+          "category": "frontend",
+          "name": "NotificationsCenter"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/NotificationSettings.tsx",
+          "relativePath": "apps/frontend/src/pages/NotificationSettings.tsx",
+          "category": "frontend",
+          "name": "NotificationSettings"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/NotificationSettingsPage.tsx",
+          "relativePath": "apps/frontend/src/pages/NotificationSettingsPage.tsx",
+          "category": "frontend",
+          "name": "NotificationSettingsPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/OicDataQualityManager.tsx",
+          "relativePath": "apps/frontend/src/pages/OicDataQualityManager.tsx",
+          "category": "frontend",
+          "name": "OicDataQualityManager"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/OicExtraction.tsx",
+          "relativePath": "apps/frontend/src/pages/OicExtraction.tsx",
+          "category": "frontend",
+          "name": "OicExtraction"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Onboarding.tsx",
+          "relativePath": "apps/frontend/src/pages/Onboarding.tsx",
+          "category": "frontend",
+          "name": "Onboarding"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/OptimizedIndex.tsx",
+          "relativePath": "apps/frontend/src/pages/OptimizedIndex.tsx",
+          "category": "frontend",
+          "name": "OptimizedIndex"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PerformanceDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/PerformanceDashboard.tsx",
+          "category": "frontend",
+          "name": "PerformanceDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PlatformAnalytics.tsx",
+          "relativePath": "apps/frontend/src/pages/PlatformAnalytics.tsx",
+          "category": "frontend",
+          "name": "PlatformAnalytics"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PlatformSettings.tsx",
+          "relativePath": "apps/frontend/src/pages/PlatformSettings.tsx",
+          "category": "frontend",
+          "name": "PlatformSettings"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PlatformStatusPage.tsx",
+          "relativePath": "apps/frontend/src/pages/PlatformStatusPage.tsx",
+          "category": "frontend",
+          "name": "PlatformStatusPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PolitiqueConfidentialite.tsx",
+          "relativePath": "apps/frontend/src/pages/PolitiqueConfidentialite.tsx",
+          "category": "frontend",
+          "name": "PolitiqueConfidentialite"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PostDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/PostDetail.tsx",
+          "category": "frontend",
+          "name": "PostDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PostEdit.tsx",
+          "relativePath": "apps/frontend/src/pages/PostEdit.tsx",
+          "category": "frontend",
+          "name": "PostEdit"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PostsFeed.tsx",
+          "relativePath": "apps/frontend/src/pages/PostsFeed.tsx",
+          "category": "frontend",
+          "name": "PostsFeed"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ProductDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/ProductDetail.tsx",
+          "category": "frontend",
+          "name": "ProductDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ProfileEdit.tsx",
+          "relativePath": "apps/frontend/src/pages/ProfileEdit.tsx",
+          "category": "frontend",
+          "name": "ProfileEdit"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ProfilePrivacySettings.tsx",
+          "relativePath": "apps/frontend/src/pages/ProfilePrivacySettings.tsx",
+          "category": "frontend",
+          "name": "ProfilePrivacySettings"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/PWAAnalytics.tsx",
+          "relativePath": "apps/frontend/src/pages/PWAAnalytics.tsx",
+          "category": "frontend",
+          "name": "PWAAnalytics"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/QuestDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/QuestDetail.tsx",
+          "category": "frontend",
+          "name": "QuestDetail"
+        }
+      ]
+    },
+    {
+      "groupId": 5,
+      "groupName": "Groupe 5",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/QuestsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/QuestsDashboard.tsx",
+          "category": "frontend",
+          "name": "QuestsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/QuestStart.tsx",
+          "relativePath": "apps/frontend/src/pages/QuestStart.tsx",
+          "category": "frontend",
+          "name": "QuestStart"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ReportsAdminPanel.tsx",
+          "relativePath": "apps/frontend/src/pages/ReportsAdminPanel.tsx",
+          "category": "frontend",
+          "name": "ReportsAdminPanel"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ReportsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/ReportsDashboard.tsx",
+          "category": "frontend",
+          "name": "ReportsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ReportsGenerate.tsx",
+          "relativePath": "apps/frontend/src/pages/ReportsGenerate.tsx",
+          "category": "frontend",
+          "name": "ReportsGenerate"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ReportViewer.tsx",
+          "relativePath": "apps/frontend/src/pages/ReportViewer.tsx",
+          "category": "frontend",
+          "name": "ReportViewer"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/RitualDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/RitualDetail.tsx",
+          "category": "frontend",
+          "name": "RitualDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/RitualsManager.tsx",
+          "relativePath": "apps/frontend/src/pages/RitualsManager.tsx",
+          "category": "frontend",
+          "name": "RitualsManager"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/RLSDocumentation.tsx",
+          "relativePath": "apps/frontend/src/pages/RLSDocumentation.tsx",
+          "category": "frontend",
+          "name": "RLSDocumentation"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/RolesManagementPage.tsx",
+          "relativePath": "apps/frontend/src/pages/RolesManagementPage.tsx",
+          "category": "frontend",
+          "name": "RolesManagementPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SearchGlobal.tsx",
+          "relativePath": "apps/frontend/src/pages/SearchGlobal.tsx",
+          "category": "frontend",
+          "name": "SearchGlobal"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SearchResults.tsx",
+          "relativePath": "apps/frontend/src/pages/SearchResults.tsx",
+          "category": "frontend",
+          "name": "SearchResults"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SearchSaved.tsx",
+          "relativePath": "apps/frontend/src/pages/SearchSaved.tsx",
+          "category": "frontend",
+          "name": "SearchSaved"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SecurityMonitoring.tsx",
+          "relativePath": "apps/frontend/src/pages/SecurityMonitoring.tsx",
+          "category": "frontend",
+          "name": "SecurityMonitoring"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SessionDetail.tsx",
+          "relativePath": "apps/frontend/src/pages/SessionDetail.tsx",
+          "category": "frontend",
+          "name": "SessionDetail"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SessionsAnalytics.tsx",
+          "relativePath": "apps/frontend/src/pages/SessionsAnalytics.tsx",
+          "category": "frontend",
+          "name": "SessionsAnalytics"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SessionsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/SessionsDashboard.tsx",
+          "category": "frontend",
+          "name": "SessionsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SessionsNew.tsx",
+          "relativePath": "apps/frontend/src/pages/SessionsNew.tsx",
+          "category": "frontend",
+          "name": "SessionsNew"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Settings.tsx",
+          "relativePath": "apps/frontend/src/pages/Settings.tsx",
+          "category": "frontend",
+          "name": "Settings"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SharedTemplatesPage.tsx",
+          "relativePath": "apps/frontend/src/pages/SharedTemplatesPage.tsx",
+          "category": "frontend",
+          "name": "SharedTemplatesPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ShareTestPage.tsx",
+          "relativePath": "apps/frontend/src/pages/ShareTestPage.tsx",
+          "category": "frontend",
+          "name": "ShareTestPage"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Sitemap.tsx",
+          "relativePath": "apps/frontend/src/pages/Sitemap.tsx",
+          "category": "frontend",
+          "name": "Sitemap"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Statistics.tsx",
+          "relativePath": "apps/frontend/src/pages/Statistics.tsx",
+          "category": "frontend",
+          "name": "Statistics"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Store.tsx",
+          "relativePath": "apps/frontend/src/pages/Store.tsx",
+          "category": "frontend",
+          "name": "Store"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/StudyPlanner.tsx",
+          "relativePath": "apps/frontend/src/pages/StudyPlanner.tsx",
+          "category": "frontend",
+          "name": "StudyPlanner"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/StudySessions.tsx",
+          "relativePath": "apps/frontend/src/pages/StudySessions.tsx",
+          "category": "frontend",
+          "name": "StudySessions"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/SystemManagement.tsx",
+          "relativePath": "apps/frontend/src/pages/SystemManagement.tsx",
+          "category": "frontend",
+          "name": "SystemManagement"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TeamChallenges.tsx",
+          "relativePath": "apps/frontend/src/pages/TeamChallenges.tsx",
+          "category": "frontend",
+          "name": "TeamChallenges"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TeamDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/TeamDashboard.tsx",
+          "category": "frontend",
+          "name": "TeamDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TeamMembers.tsx",
+          "relativePath": "apps/frontend/src/pages/TeamMembers.tsx",
+          "category": "frontend",
+          "name": "TeamMembers"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TeamsCreate.tsx",
+          "relativePath": "apps/frontend/src/pages/TeamsCreate.tsx",
+          "category": "frontend",
+          "name": "TeamsCreate"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TeamsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/TeamsDashboard.tsx",
+          "category": "frontend",
+          "name": "TeamsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/TemplateAnalyticsDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/TemplateAnalyticsDashboard.tsx",
+          "category": "frontend",
+          "name": "TemplateAnalyticsDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Tutorials.tsx",
+          "relativePath": "apps/frontend/src/pages/Tutorials.tsx",
+          "category": "frontend",
+          "name": "Tutorials"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/UserActivity.tsx",
+          "relativePath": "apps/frontend/src/pages/UserActivity.tsx",
+          "category": "frontend",
+          "name": "UserActivity"
+        }
+      ]
+    },
+    {
+      "groupId": 6,
+      "groupName": "Groupe 6",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/UserManagement.tsx",
+          "relativePath": "apps/frontend/src/pages/UserManagement.tsx",
+          "category": "frontend",
+          "name": "UserManagement"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/UserPublicProfile.tsx",
+          "relativePath": "apps/frontend/src/pages/UserPublicProfile.tsx",
+          "category": "frontend",
+          "name": "UserPublicProfile"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/UsersDirectory.tsx",
+          "relativePath": "apps/frontend/src/pages/UsersDirectory.tsx",
+          "category": "frontend",
+          "name": "UsersDirectory"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/UserSettings.tsx",
+          "relativePath": "apps/frontend/src/pages/UserSettings.tsx",
+          "category": "frontend",
+          "name": "UserSettings"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/ViewingHistory.tsx",
+          "relativePath": "apps/frontend/src/pages/ViewingHistory.tsx",
+          "category": "frontend",
+          "name": "ViewingHistory"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/WeeklyLeaderboard.tsx",
+          "relativePath": "apps/frontend/src/pages/WeeklyLeaderboard.tsx",
+          "category": "frontend",
+          "name": "WeeklyLeaderboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/WellnessDashboard.tsx",
+          "relativePath": "apps/frontend/src/pages/WellnessDashboard.tsx",
+          "category": "frontend",
+          "name": "WellnessDashboard"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/WellnessStreak.tsx",
+          "relativePath": "apps/frontend/src/pages/WellnessStreak.tsx",
+          "category": "frontend",
+          "name": "WellnessStreak"
+        },
+        {
+          "path": "/home/user/med-mng/apps/frontend/src/pages/Wishlist.tsx",
+          "relativePath": "apps/frontend/src/pages/Wishlist.tsx",
+          "category": "frontend",
+          "name": "Wishlist"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/alertPersistence.ts",
+          "relativePath": "apps/functions/_shared/alertPersistence.ts",
+          "category": "functions",
+          "name": "alertPersistence"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/alertScoring.ts",
+          "relativePath": "apps/functions/_shared/alertScoring.ts",
+          "category": "functions",
+          "name": "alertScoring"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/cors.ts",
+          "relativePath": "apps/functions/_shared/cors.ts",
+          "category": "functions",
+          "name": "cors"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/idempotency.ts",
+          "relativePath": "apps/functions/_shared/idempotency.ts",
+          "category": "functions",
+          "name": "idempotency"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/music-database.ts",
+          "relativePath": "apps/functions/_shared/music-database.ts",
+          "category": "functions",
+          "name": "music-database"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/prompt-builders.ts",
+          "relativePath": "apps/functions/_shared/prompt-builders.ts",
+          "category": "functions",
+          "name": "prompt-builders"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/redisCache.ts",
+          "relativePath": "apps/functions/_shared/redisCache.ts",
+          "category": "functions",
+          "name": "redisCache"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/_shared/suno-api-client.ts",
+          "relativePath": "apps/functions/_shared/suno-api-client.ts",
+          "category": "functions",
+          "name": "suno-api-client"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/admin-export/index.ts",
+          "relativePath": "apps/functions/admin/admin-export/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/admin-quick-edit/index.ts",
+          "relativePath": "apps/functions/admin/admin-quick-edit/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/api-documentation/index.ts",
+          "relativePath": "apps/functions/admin/api-documentation/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/auth.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/auth.ts",
+          "category": "functions",
+          "name": "auth"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/index.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/logger.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/logger.ts",
+          "category": "functions",
+          "name": "logger"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/alerting.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/alerting.ts",
+          "category": "functions",
+          "name": "alerting"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/csrf.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/csrf.ts",
+          "category": "functions",
+          "name": "csrf"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/monitoring.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/monitoring.ts",
+          "category": "functions",
+          "name": "monitoring"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/retry.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/retry.ts",
+          "category": "functions",
+          "name": "retry"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/security.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/security.ts",
+          "category": "functions",
+          "name": "security"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/middleware/validation.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/middleware/validation.ts",
+          "category": "functions",
+          "name": "validation"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/response.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/response.ts",
+          "category": "functions",
+          "name": "response"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/audit.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/audit.ts",
+          "category": "functions",
+          "name": "audit"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/complete.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/complete.ts",
+          "category": "functions",
+          "name": "complete"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/docs.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/docs.ts",
+          "category": "functions",
+          "name": "docs"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/edn.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/edn.ts",
+          "category": "functions",
+          "name": "edn"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/help.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/help.ts",
+          "category": "functions",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "groupId": 7,
+      "groupName": "Groupe 7",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/library.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/library.ts",
+          "category": "functions",
+          "name": "library"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/oic.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/oic.ts",
+          "category": "functions",
+          "name": "oic"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/quota.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/quota.ts",
+          "category": "functions",
+          "name": "quota"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/rgpd.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/rgpd.ts",
+          "category": "functions",
+          "name": "rgpd"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/songs.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/songs.ts",
+          "category": "functions",
+          "name": "songs"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/status.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/status.ts",
+          "category": "functions",
+          "name": "status"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/subscriptions.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/subscriptions.ts",
+          "category": "functions",
+          "name": "subscriptions"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/routes/verify.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/routes/verify.ts",
+          "category": "functions",
+          "name": "verify"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/med-mng-api/types.ts",
+          "relativePath": "apps/functions/admin/med-mng-api/types.ts",
+          "category": "functions",
+          "name": "types"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/admin/scripts/verify-edn-completeness.ts",
+          "relativePath": "apps/functions/admin/scripts/verify-edn-completeness.ts",
+          "category": "functions",
+          "name": "verify-edn-completeness"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/analytics/analytics-aggregator/index.ts",
+          "relativePath": "apps/functions/analytics/analytics-aggregator/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/analytics/analytics-engine/index.ts",
+          "relativePath": "apps/functions/analytics/analytics-engine/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/analytics/analytics-tracker/index.ts",
+          "relativePath": "apps/functions/analytics/analytics-tracker/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/analytics/process-ab-tests/index.ts",
+          "relativePath": "apps/functions/analytics/process-ab-tests/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/auth/auth-webhook/index.ts",
+          "relativePath": "apps/functions/auth/auth-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/auth/customer-portal/index.ts",
+          "relativePath": "apps/functions/auth/customer-portal/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/auth/generate-cas-cookie/index.ts",
+          "relativePath": "apps/functions/auth/generate-cas-cookie/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/ai-code-analysis/index.ts",
+          "relativePath": "apps/functions/content/ai-code-analysis/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/ai-notifications/index.ts",
+          "relativePath": "apps/functions/content/ai-notifications/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/ai-recommendations/index.ts",
+          "relativePath": "apps/functions/content/ai-recommendations/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/ai-visual-analysis/index.ts",
+          "relativePath": "apps/functions/content/ai-visual-analysis/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/chat-with-ai/index.ts",
+          "relativePath": "apps/functions/content/chat-with-ai/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/content-ai-generator/index.ts",
+          "relativePath": "apps/functions/content/content-ai-generator/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/content-master-api/index.ts",
+          "relativePath": "apps/functions/content/content-master-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/contextual-ai-chat/index.ts",
+          "relativePath": "apps/functions/content/contextual-ai-chat/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/enhanced-contextual-chat/index.ts",
+          "relativePath": "apps/functions/content/enhanced-contextual-chat/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/generate-image/index.ts",
+          "relativePath": "apps/functions/content/generate-image/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/generate-voice/index.ts",
+          "relativePath": "apps/functions/content/generate-voice/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/openai-chat/index.ts",
+          "relativePath": "apps/functions/content/openai-chat/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/openai-image/index.ts",
+          "relativePath": "apps/functions/content/openai-image/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/pedagogical-content-api/index.ts",
+          "relativePath": "apps/functions/content/pedagogical-content-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/qcm-generator/index.ts",
+          "relativePath": "apps/functions/content/qcm-generator/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/content/translate/index.ts",
+          "relativePath": "apps/functions/content/translate/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/advanced-search/index.ts",
+          "relativePath": "apps/functions/data/advanced-search/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/audit-edn-completeness/index.ts",
+          "relativePath": "apps/functions/data/audit-edn-completeness/index.ts",
+          "category": "functions",
+          "name": "index"
+        }
+      ]
+    },
+    {
+      "groupId": 8,
+      "groupName": "Groupe 8",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/functions/data/check-item-competences/index.ts",
+          "relativePath": "apps/functions/data/check-item-competences/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/check-performance-degradation/index.ts",
+          "relativePath": "apps/functions/data/check-performance-degradation/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/check-recommendation-alerts/index.ts",
+          "relativePath": "apps/functions/data/check-recommendation-alerts/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/collect-diagnostic-results/index.ts",
+          "relativePath": "apps/functions/data/collect-diagnostic-results/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/compare-official-content/index.ts",
+          "relativePath": "apps/functions/data/compare-official-content/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/complete-missing-competences/index.ts",
+          "relativePath": "apps/functions/data/complete-missing-competences/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/data-integrity-check/index.ts",
+          "relativePath": "apps/functions/data/data-integrity-check/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/debug-oic-extraction/index.ts",
+          "relativePath": "apps/functions/data/debug-oic-extraction/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/ecos-api/index.ts",
+          "relativePath": "apps/functions/data/ecos-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/ecos-enrich-ai/index.ts",
+          "relativePath": "apps/functions/data/ecos-enrich-ai/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/edn-fix/index.ts",
+          "relativePath": "apps/functions/data/edn-fix/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/edn-tableaux-api/index.ts",
+          "relativePath": "apps/functions/data/edn-tableaux-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/fix-oic-data-quality/index.ts",
+          "relativePath": "apps/functions/data/fix-oic-data-quality/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/items-completeness-api/index.ts",
+          "relativePath": "apps/functions/data/items-completeness-api/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/items-completeness-check/index.ts",
+          "relativePath": "apps/functions/data/items-completeness-check/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/regenerate-all-oic-content/index.ts",
+          "relativePath": "apps/functions/data/regenerate-all-oic-content/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/regenerate-oic-with-ai-check/index.ts",
+          "relativePath": "apps/functions/data/regenerate-oic-with-ai-check/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/sync-edn-tables/index.ts",
+          "relativePath": "apps/functions/data/sync-edn-tables/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/transform-edn-sections/index.ts",
+          "relativePath": "apps/functions/data/transform-edn-sections/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/data/update-edn-unique-content/index.ts",
+          "relativePath": "apps/functions/data/update-edn-unique-content/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/email/send-accessibility-report/index.ts",
+          "relativePath": "apps/functions/email/send-accessibility-report/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/email/send-emails/index.ts",
+          "relativePath": "apps/functions/email/send-emails/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/email/send-scheduled-pdf-reports/index.ts",
+          "relativePath": "apps/functions/email/send-scheduled-pdf-reports/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/email/send-weekly-alerts-report/index.ts",
+          "relativePath": "apps/functions/email/send-weekly-alerts-report/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/email/unified-alerts/index.ts",
+          "relativePath": "apps/functions/email/unified-alerts/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/auto-extract-oic/index.ts",
+          "relativePath": "apps/functions/extraction/auto-extract-oic/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/debug-uness-auth/index.ts",
+          "relativePath": "apps/functions/extraction/debug-uness-auth/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-ecos-uness/index.ts",
+          "relativePath": "apps/functions/extraction/extract-ecos-uness/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-objectifs/api-client.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-objectifs/api-client.ts",
+          "category": "functions",
+          "name": "api-client"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-objectifs/index.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-objectifs/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-objectifs/oic-parser.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-objectifs/oic-parser.ts",
+          "category": "functions",
+          "name": "oic-parser"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-uness-auth/index.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-uness-auth/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-uness-complete/index.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-uness-complete/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-uness-complete/test.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-uness-complete/test.ts",
+          "category": "functions",
+          "name": "test"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-uness-production/index.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-uness-production/index.ts",
+          "category": "functions",
+          "name": "index"
+        }
+      ]
+    },
+    {
+      "groupId": 9,
+      "groupName": "Groupe 9",
+      "pagesCount": 35,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/extract-edn-uness/index.ts",
+          "relativePath": "apps/functions/extraction/extract-edn-uness/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/generate-comic-images/index.ts",
+          "relativePath": "apps/functions/extraction/generate-comic-images/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/generate-content/index.ts",
+          "relativePath": "apps/functions/extraction/generate-content/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/generate-missing-content/index.ts",
+          "relativePath": "apps/functions/extraction/generate-missing-content/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/generate-recommendations/index.ts",
+          "relativePath": "apps/functions/extraction/generate-recommendations/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/ia-quota/index.ts",
+          "relativePath": "apps/functions/extraction/ia-quota/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/import-edn-data/index.ts",
+          "relativePath": "apps/functions/extraction/import-edn-data/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/lib/casLogin.ts",
+          "relativePath": "apps/functions/extraction/lib/casLogin.ts",
+          "category": "functions",
+          "name": "casLogin"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/lib/cookieJar.ts",
+          "relativePath": "apps/functions/extraction/lib/cookieJar.ts",
+          "category": "functions",
+          "name": "cookieJar"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/lyrics-sync-manager/index.ts",
+          "relativePath": "apps/functions/extraction/lyrics-sync-manager/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/medical-chat-ai/index.ts",
+          "relativePath": "apps/functions/extraction/medical-chat-ai/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/monitoring-alerts/index.ts",
+          "relativePath": "apps/functions/extraction/monitoring-alerts/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/music-generation/index.ts",
+          "relativePath": "apps/functions/extraction/music-generation/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/music-metrics/index.ts",
+          "relativePath": "apps/functions/extraction/music-metrics/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/reimport-edn-complete/index.ts",
+          "relativePath": "apps/functions/extraction/reimport-edn-complete/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/resend-notification/index.ts",
+          "relativePath": "apps/functions/extraction/resend-notification/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/secure-audio-stream/index.ts",
+          "relativePath": "apps/functions/extraction/secure-audio-stream/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/secure-edn-extraction/index.ts",
+          "relativePath": "apps/functions/extraction/secure-edn-extraction/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/send-push-notification/index.ts",
+          "relativePath": "apps/functions/extraction/send-push-notification/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/send-quality-alert/index.ts",
+          "relativePath": "apps/functions/extraction/send-quality-alert/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/send-quality-digest/index.ts",
+          "relativePath": "apps/functions/extraction/send-quality-digest/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/send-scheduled-reports/index.ts",
+          "relativePath": "apps/functions/extraction/send-scheduled-reports/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/send-welcome-email/index.ts",
+          "relativePath": "apps/functions/extraction/send-welcome-email/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/sitemap-recommendations/index.ts",
+          "relativePath": "apps/functions/extraction/sitemap-recommendations/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/spotify-ai-complete/index.ts",
+          "relativePath": "apps/functions/extraction/spotify-ai-complete/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/suno-callback/index.ts",
+          "relativePath": "apps/functions/extraction/suno-callback/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/suno-music-optimized/index.ts",
+          "relativePath": "apps/functions/extraction/suno-music-optimized/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-batch-50/index.ts",
+          "relativePath": "apps/functions/extraction/test-batch-50/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-cas-simple/index.ts",
+          "relativePath": "apps/functions/extraction/test-cas-simple/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-edn-extraction/index.ts",
+          "relativePath": "apps/functions/extraction/test-edn-extraction/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-extraction-sample/index.ts",
+          "relativePath": "apps/functions/extraction/test-extraction-sample/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-insertion-directe/index.ts",
+          "relativePath": "apps/functions/extraction/test-insertion-directe/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-login/index.ts",
+          "relativePath": "apps/functions/extraction/test-login/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/test-oic-curl/index.ts",
+          "relativePath": "apps/functions/extraction/test-oic-curl/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/extraction/unified-extract/index.ts",
+          "relativePath": "apps/functions/extraction/unified-extract/index.ts",
+          "category": "functions",
+          "name": "index"
+        }
+      ]
+    },
+    {
+      "groupId": 10,
+      "groupName": "Groupe 10",
+      "pagesCount": 28,
+      "pages": [
+        {
+          "path": "/home/user/med-mng/apps/functions/music/generate-music/index.ts",
+          "relativePath": "apps/functions/music/generate-music/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/music/music-generation-secure/index.ts",
+          "relativePath": "apps/functions/music/music-generation-secure/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/music/music-status/index.ts",
+          "relativePath": "apps/functions/music/music-status/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/music/playlist-manager/index.ts",
+          "relativePath": "apps/functions/music/playlist-manager/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/music/spotify-medical-docs/index.ts",
+          "relativePath": "apps/functions/music/spotify-medical-docs/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/music/synchronized-lyrics/index.ts",
+          "relativePath": "apps/functions/music/synchronized-lyrics/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/audit-system/index.ts",
+          "relativePath": "apps/functions/security/audit-system/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/error-handling-service/index.ts",
+          "relativePath": "apps/functions/security/error-handling-service/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/error-logger/index.ts",
+          "relativePath": "apps/functions/security/error-logger/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/extraction-monitoring/index.ts",
+          "relativePath": "apps/functions/security/extraction-monitoring/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/generate-security-report/index.ts",
+          "relativePath": "apps/functions/security/generate-security-report/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/get-quality-history/index.ts",
+          "relativePath": "apps/functions/security/get-quality-history/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/get-rls-policies/index.ts",
+          "relativePath": "apps/functions/security/get-rls-policies/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/secure-streaming-proxy/index.ts",
+          "relativePath": "apps/functions/security/secure-streaming-proxy/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/security-alerts/index.ts",
+          "relativePath": "apps/functions/security/security-alerts/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/security-metrics/index.ts",
+          "relativePath": "apps/functions/security/security-metrics/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/security-scanner/index.ts",
+          "relativePath": "apps/functions/security/security-scanner/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/send-security-alert/index.ts",
+          "relativePath": "apps/functions/security/send-security-alert/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/security/weekly-security-report/index.ts",
+          "relativePath": "apps/functions/security/weekly-security-report/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/test/activate-simulation/index.ts",
+          "relativePath": "apps/functions/test/activate-simulation/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/test/cancel-ia-task/index.ts",
+          "relativePath": "apps/functions/test/cancel-ia-task/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/create-subscription-checkout/index.ts",
+          "relativePath": "apps/functions/webhooks/create-subscription-checkout/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/github-quality-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/github-quality-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/google-sheets-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/google-sheets-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/resend-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/resend-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/shopify-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/shopify-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/stripe-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/stripe-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        },
+        {
+          "path": "/home/user/med-mng/apps/functions/webhooks/test-webhook/index.ts",
+          "relativePath": "apps/functions/webhooks/test-webhook/index.ts",
+          "category": "functions",
+          "name": "index"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "frontendPages": 178,
+    "backendPages": 6,
+    "functionsPages": 159
+  }
+}

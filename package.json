@@ -21,7 +21,10 @@
     "extract-oic": "node --loader ts-node/esm scripts/extract-oic-to-json.ts",
     "import-oic": "node --loader ts-node/esm scripts/import-oic-from-uness.ts",
     "generate-quiz": "node --loader ts-node/esm scripts/generate-quiz-questions.ts",
-    "validate-migrations": "node --loader ts-node/esm scripts/validate-migrations.ts"
+    "validate-migrations": "node --loader ts-node/esm scripts/validate-migrations.ts",
+    "distribute-pages": "node scripts/distribute-pages-analysis.js",
+    "show-group": "node scripts/show-group.js",
+    "verify-distribution": "node scripts/verify-distribution.js"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
