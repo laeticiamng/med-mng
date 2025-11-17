@@ -1,5 +1,5 @@
 
-import { ItemEDNV2, createEmptyItemEDN } from '@/schemas/itemEDNSchema';
+import { ItemEDNV2, createEmptyItemEDN } from '../../schemas/itemEDNSchema';
 import { supabase } from '@/integrations/supabase/client';
 
 /**

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   platformAnalyticsService,
   SystemAlert,
-} from '@/services/platformAnalytics.service'
+} from '@shared/services/platformAnalytics.service'
 
 // Health Metrics
 export function useFetchHealthMetrics(date?: string, hour?: number) {

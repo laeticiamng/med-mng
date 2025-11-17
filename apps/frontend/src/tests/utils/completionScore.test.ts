@@ -6,7 +6,7 @@ import {
   getCompletionColor,
   getCompletionLabel 
 } from '@/utils/completionScore';
-import type { EdnItemUnified, EdnItem } from '@/types/edn';
+import type { EdnItemUnified, EdnItem } from '@shared/types/edn';
 
 describe('getCompletionPercentage', () => {
   describe('Avec score pré-calculé', () => {

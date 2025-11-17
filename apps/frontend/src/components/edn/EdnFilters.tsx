@@ -4,7 +4,7 @@ import { Search, BarChart3, Grid, List, RotateCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { CategoryType, SortByType } from '@/types/edn';
+import type { CategoryType, SortByType } from '@shared/types/edn';
 
 interface EdnFiltersProps {
   searchTerm: string;

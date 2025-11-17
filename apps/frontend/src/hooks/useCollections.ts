@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { userCollectionsService } from '@/services/user-collections.service'
+import { userCollectionsService } from '@shared/services/user-collections.service'
 
 export const useCollections = () => {
   const queryClient = useQueryClient()

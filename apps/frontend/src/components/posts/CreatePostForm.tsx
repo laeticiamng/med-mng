@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select'
 import { Image, Loader, X } from 'lucide-react'
 import { useCreatePost } from '@/hooks/usePosts'
-import { PostCategory } from '@/services/posts.service'
+import { PostCategory } from '@shared/services/posts.service'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 

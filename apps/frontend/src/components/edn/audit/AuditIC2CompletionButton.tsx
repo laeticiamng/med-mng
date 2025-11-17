@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle, AlertTriangle, RefreshCw, Zap } from 'lucide-react';
-import { completeIC2Item } from '@/scripts/audit/completeIC2Item';
+import { completeIC2Item } from '@shared/scripts/audit/completeIC2Item';
 
 interface AuditIC2CompletionButtonProps {
   onComplete?: () => void;

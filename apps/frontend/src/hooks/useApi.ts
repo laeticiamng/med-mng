@@ -16,7 +16,7 @@ import {
   Webhook,
   WebhookEvent,
   ApiDocumentation,
-} from '@/services/api.service'
+} from '@shared/services/api.service'
 
 // API Keys
 export function useFetchApiKeys(userId: string) {

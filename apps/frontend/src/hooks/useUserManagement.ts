@@ -3,7 +3,7 @@ import {
   userManagementService,
   UserStatusActivity,
   UserGroup,
-} from '@/services/userManagement.service'
+} from '@shared/services/userManagement.service'
 
 // User Roles
 export function useAssignRole() {

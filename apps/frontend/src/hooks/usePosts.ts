@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { postsService, Post, PostCategory } from '@/services/posts.service'
+import { postsService, Post, PostCategory } from '@shared/services/posts.service'
 
 // Query keys for cache invalidation
 const postsKeys = {

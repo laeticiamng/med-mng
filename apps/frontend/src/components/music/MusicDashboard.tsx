@@ -26,8 +26,8 @@ import {
   Zap
 } from 'lucide-react';
 import { useMusicCache } from '@/hooks/music/useMusicCache';
-import { MusicQueueService } from '@/services/musicQueueService';
-import { musicService } from '@/services/musicService';
+import { MusicQueueService } from '@shared/services/musicQueueService';
+import { musicService } from '@shared/services/musicService';
 
 interface DashboardStats {
   cache: {

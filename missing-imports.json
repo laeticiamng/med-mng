@@ -1,0 +1,330 @@
+{
+  "/home/user/med-mng/apps/frontend/src/services/ednTableauxService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/ednTableauxService",
+    "importPath": "@/services/ednTableauxService",
+    "importedItems": "{ ednTableauxService, CompletenessAuditResult, ItemCompleteness }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/admin/CompletenessAuditDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/pedagogicalContentService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/pedagogicalContentService",
+    "importPath": "@/services/pedagogicalContentService",
+    "importedItems": "{ pedagogicalContentService, ContentAnalytics }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/admin/ContentGenerationMonitor.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/ecosService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/ecosService",
+    "importPath": "@/services/ecosService",
+    "importedItems": "{ ecosService, EcosAnalytics }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/admin/EcosDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/openai/chat/completions": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/openai/chat/completions",
+    "importPath": "@/openai/chat/completions",
+    "importedItems": "{ createChatCompletion, ChatCompletionMessage }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/ai/ContextualAIChat.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/types": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/types",
+    "importPath": "@/scripts/audit/types",
+    "importedItems": "type { AuditReport }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/audit/AuditHeader.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/itemIC1Completeness": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/itemIC1Completeness",
+    "importPath": "@/scripts/audit/itemIC1Completeness",
+    "importedItems": "{ IC1CompletenessAuditor }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/audit/AuditIC1Completeness.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/completeIC2Item": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/completeIC2Item",
+    "importPath": "@/scripts/audit/completeIC2Item",
+    "importedItems": "{ completeIC2Item }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/audit/AuditIC2CompletionDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/comprehensiveAuditor": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/comprehensiveAuditor",
+    "importPath": "@/scripts/audit/comprehensiveAuditor",
+    "importedItems": "{ ComprehensiveSystemAuditor, ComprehensiveAuditResult }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/audit/ComprehensiveAuditDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/comprehensiveAudit": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/comprehensiveAudit",
+    "importPath": "@/scripts/audit/comprehensiveAudit",
+    "importedItems": "type { ComprehensiveAuditReport }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/audit/ComprehensiveAuditPanel.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/badges.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/badges.service",
+    "importPath": "@/services/badges.service",
+    "importedItems": "{ UserAura }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/badges/AuraDisplay.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/pushNotifications": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/pushNotifications",
+    "importPath": "@/services/pushNotifications",
+    "importedItems": "{ pushNotifications }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/common/NotificationPermissionDialog.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/types/advancedFilters": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/types/advancedFilters",
+    "importPath": "@/types/advancedFilters",
+    "importedItems": "type { AdvancedFilters, DifficultyLevel, ProgressStatus }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/edn/AdvancedSearchModal.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/types/edn": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/types/edn",
+    "importPath": "@/types/edn",
+    "importedItems": "type { CategoryType, SortByType }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/edn/EdnFilters.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/launch-edn-objectifs-extraction": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/launch-edn-objectifs-extraction",
+    "importPath": "@/scripts/launch-edn-objectifs-extraction",
+    "importedItems": "{ EdnObjectifsExtractor }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/edn/EdnObjectifsExtraction.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/audit/ic2CompletenessCheck": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/audit/ic2CompletenessCheck",
+    "importPath": "@/scripts/audit/ic2CompletenessCheck",
+    "importedItems": "{ checkIC2Completeness }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/edn/audit/AuditIC2Completeness.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/musicQueueService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/musicQueueService",
+    "importPath": "@/services/musicQueueService",
+    "importedItems": "{ MusicQueueService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/music/MusicDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/musicService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/musicService",
+    "importPath": "@/services/musicService",
+    "importedItems": "{ musicService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/music/MusicDashboard.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/notifications.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/notifications.service",
+    "importPath": "@/services/notifications.service",
+    "importedItems": "type { NotificationPreferences }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/notifications/NotificationPreferences.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/performanceAnalyticsService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/performanceAnalyticsService",
+    "importPath": "@/services/performanceAnalyticsService",
+    "importedItems": "{ PerformanceAlert }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/performance/PerformanceAlertsPanel.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/posts.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/posts.service",
+    "importPath": "@/services/posts.service",
+    "importedItems": "{ Comment }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/posts/CommentThread.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/qcmService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/qcmService",
+    "importPath": "@/services/qcmService",
+    "importedItems": "{ qcmService, QcmQuestion, QcmSession }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/qcm/QcmPlayer.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/types/revision-methods": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/types/revision-methods",
+    "importPath": "@/types/revision-methods",
+    "importedItems": "{ TodayRevisionItem, BlockMethodConfigDB }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/components/revision/BlockMethodView.tsx"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/musicCacheService": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/musicCacheService",
+    "importPath": "@/services/musicCacheService",
+    "importedItems": "{ MusicCacheService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/music/useMusicCache.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/types/music": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/types/music",
+    "importPath": "@/types/music",
+    "importedItems": "{ MusicGenerationRequest, PollingProgress }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/music/useMusicPolling.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/activity-feed.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/activity-feed.service",
+    "importPath": "@/services/activity-feed.service",
+    "importedItems": "{ activityFeedService, ActivityType }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useActivityFeed.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/scripts/auditItems": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/scripts/auditItems",
+    "importPath": "@/scripts/auditItems",
+    "importedItems": "{ EDNItemsAuditor, AuditReportGenerators }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useAuditItems.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/user-collections.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/user-collections.service",
+    "importPath": "@/services/user-collections.service",
+    "importedItems": "{ userCollectionsService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useCollections.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/data-export.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/data-export.service",
+    "importPath": "@/services/data-export.service",
+    "importedItems": "{ dataExportService, ExportType, ExportFormat }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useDataExport.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/schemas/itemEDNSchema": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/schemas/itemEDNSchema",
+    "importPath": "@/schemas/itemEDNSchema",
+    "importedItems": "{ validateItemEDN, ItemEDNV2 }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useEdnItemV2.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/parsers/ednItemParser": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/parsers/ednItemParser",
+    "importPath": "@/parsers/ednItemParser",
+    "importedItems": "{ EDNItemParser, ParsedEDNItem }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useEdnItemV2.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/user-favorites.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/user-favorites.service",
+    "importPath": "@/services/user-favorites.service",
+    "importedItems": "{ userFavoritesService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useFavorites.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/types/database-custom": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/types/database-custom",
+    "importPath": "@/types/database-custom",
+    "importedItems": "{ ItemType, UserFavorite }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useFavorites.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/help.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/help.service",
+    "importPath": "@/services/help.service",
+    "importedItems": "{ helpService, HelpCategory, TutorialDifficulty, TicketPriority, TicketStatus }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useHelp.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/post-comments.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/post-comments.service",
+    "importPath": "@/services/post-comments.service",
+    "importedItems": "{ postCommentsService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/usePostComments.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/recommendations.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/recommendations.service",
+    "importPath": "@/services/recommendations.service",
+    "importedItems": "{ recommendationsService, ContentType, UserPreferences }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useRecommendations.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/revision-methods.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/revision-methods.service",
+    "importPath": "@/services/revision-methods.service",
+    "importedItems": "* as revisionService",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useRevisionMethods.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/music/generate": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/music/generate",
+    "importPath": "../music/generate",
+    "importedItems": "{ generateMusic, type GenerateMusicPayload }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useSunoGeneration.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/user-profile.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/user-profile.service",
+    "importPath": "@/services/user-profile.service",
+    "importedItems": "{ userProfileService, AchievementType }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useUserProfile.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/user-viewing-history.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/user-viewing-history.service",
+    "importPath": "@/services/user-viewing-history.service",
+    "importedItems": "{ userViewingHistoryService }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useViewingHistory.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/wellness.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/wellness.service",
+    "importPath": "@/services/wellness.service",
+    "importedItems": "{ wellnessService, ActivityType, RitualCategory, GoalType, GoalStatus }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/hooks/useWellness.ts"
+    ]
+  },
+  "/home/user/med-mng/apps/frontend/src/services/search.service": {
+    "missingPath": "/home/user/med-mng/apps/frontend/src/services/search.service",
+    "importPath": "@/services/search.service",
+    "importedItems": "{ SearchFilters }",
+    "importedBy": [
+      "/home/user/med-mng/apps/frontend/src/pages/AdvancedSearch.tsx"
+    ]
+  }
+}

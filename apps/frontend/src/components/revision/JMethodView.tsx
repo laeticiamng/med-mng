@@ -16,7 +16,7 @@ import {
   TrendingUp,
   BookOpen
 } from 'lucide-react';
-import { TodayRevisionItem, OverdueRevisionItem } from '@/types/revision-methods';
+import { TodayRevisionItem, OverdueRevisionItem } from '@shared/types/revision-methods';
 import { useRevisionMethods } from '@/hooks/useRevisionMethods';
 
 interface JMethodViewProps {

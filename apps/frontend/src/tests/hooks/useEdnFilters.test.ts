@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEdnFilters } from '@/hooks/useEdnFilters';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 const mockItems: EdnItemUnified[] = [
   { 

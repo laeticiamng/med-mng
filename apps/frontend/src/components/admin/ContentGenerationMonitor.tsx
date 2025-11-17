@@ -28,7 +28,7 @@ import {
   Palette,
   Sparkles
 } from "lucide-react";
-import { pedagogicalContentService, ContentAnalytics } from '@/services/pedagogicalContentService';
+import { pedagogicalContentService, ContentAnalytics } from '@shared/services/pedagogicalContentService';
 
 export const ContentGenerationMonitor: React.FC = () => {
   const [analytics, setAnalytics] = useState<ContentAnalytics | null>(null);

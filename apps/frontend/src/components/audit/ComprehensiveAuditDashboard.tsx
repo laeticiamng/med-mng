@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertTriangle, XCircle, Play, Wrench, Download, RefreshCw } from 'lucide-react';
-import { ComprehensiveSystemAuditor, ComprehensiveAuditResult } from '@/scripts/audit/comprehensiveAuditor';
+import { ComprehensiveSystemAuditor, ComprehensiveAuditResult } from '@shared/scripts/audit/comprehensiveAuditor';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 export const ComprehensiveAuditDashboard = () => {

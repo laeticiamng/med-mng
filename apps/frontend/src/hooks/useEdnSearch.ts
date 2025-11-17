@@ -5,7 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import type { EdnSearchResult, EdnSimilarItem } from '@/types/edn';
+import type { EdnSearchResult, EdnSimilarItem } from '@shared/types/edn';
 
 /**
  * Hook pour rechercher des items EDN avec full-text search

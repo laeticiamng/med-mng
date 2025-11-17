@@ -7,7 +7,7 @@ import {
   getUserDataExports,
   deleteDataExport,
   Report,
-} from '@/services/reports.service'
+} from '@shared/services/reports.service'
 
 export function useFetchReports(userId: string) {
   return useQuery({

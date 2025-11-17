@@ -5,7 +5,7 @@ import {
   ModerationTeam,
   ModerationAppeal,
   ModerationStatistics,
-} from '@/services/moderation.service'
+} from '@shared/services/moderation.service'
 
 // Moderation Rules
 export function useFetchModerationRules(active?: boolean) {

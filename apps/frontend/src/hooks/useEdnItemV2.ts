@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
-import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
+import { validateItemEDN, ItemEDNV2 } from '@shared/schemas/itemEDNSchema';
+import { EDNItemParser, ParsedEDNItem } from '@shared/parsers/ednItemParser';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;

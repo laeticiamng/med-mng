@@ -29,7 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import type { AdvancedFilters, DifficultyLevel, ProgressStatus } from '@/types/advancedFilters';
+import type { AdvancedFilters, DifficultyLevel, ProgressStatus } from '@shared/types/advancedFilters';
 
 interface AdvancedSearchModalProps {
   filters: AdvancedFilters;

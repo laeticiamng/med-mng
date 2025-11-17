@@ -1,6 +1,6 @@
 
-import { validateItemEDN } from '@/schemas/itemEDNSchema';
-import { EDNItemParser } from '@/parsers/ednItemParser';
+import { validateItemEDN } from '../../../schemas/itemEDNSchema';
+import { EDNItemParser } from '../../../parsers/ednItemParser';
 import type { IC1CompletenessReport } from '../types/ic1Types';
 
 export class IC1Validator {

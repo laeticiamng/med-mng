@@ -11,7 +11,7 @@ import type {
   EDNItem, 
   APIResponse,
   SubscriptionInfo 
-} from '@/types/global';
+} from '@shared/types/global';
 
 // 🎭 MOCK DATA
 const mockUser: UserProfile = {

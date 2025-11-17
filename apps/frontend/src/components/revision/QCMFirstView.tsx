@@ -17,7 +17,7 @@ import {
   Award,
   Target
 } from 'lucide-react';
-import { TodayRevisionItem, QCMFirstSession } from '@/types/revision-methods';
+import { TodayRevisionItem, QCMFirstSession } from '@shared/types/revision-methods';
 import { useRevisionMethods } from '@/hooks/useRevisionMethods';
 
 interface QCMFirstViewProps {

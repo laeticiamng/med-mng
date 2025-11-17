@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { helpService, HelpCategory, TutorialDifficulty, TicketPriority, TicketStatus } from '@/services/help.service'
+import { helpService, HelpCategory, TutorialDifficulty, TicketPriority, TicketStatus } from '@shared/services/help.service'
 
 const helpKeys = {
   all: ['help'] as const,

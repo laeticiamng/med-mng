@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { MusicGenerationStatus, MusicGenerationMetadata } from '@/types/music';
+import { MusicGenerationStatus, MusicGenerationMetadata } from '@shared/types/music';
 
 export const useMusicGenerationStatus = (taskId: string | null) => {
   const [status, setStatus] = useState<MusicGenerationStatus | null>(null);

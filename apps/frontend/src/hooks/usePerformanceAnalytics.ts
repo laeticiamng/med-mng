@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { performanceAnalyticsService, PerformanceAnalytics, PerformanceBudget } from '@/services/performanceAnalyticsService';
+import { performanceAnalyticsService, PerformanceAnalytics, PerformanceBudget } from '@shared/services/performanceAnalyticsService';
 import { useToast } from '@/hooks/use-toast';
 
 export const usePerformanceAnalytics = (

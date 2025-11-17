@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
+import { EdnObjectifsExtractor } from '@shared/scripts/launch-edn-objectifs-extraction';
 import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 interface ExtractionStatus {

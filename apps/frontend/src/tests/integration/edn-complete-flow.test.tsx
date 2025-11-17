@@ -9,7 +9,7 @@ import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import EdnComplete from '@/pages/EdnComplete';
-import type { EdnItemUnified } from '@/types/edn';
+import type { EdnItemUnified } from '@shared/types/edn';
 
 // Mock Supabase
 vi.mock('@/integrations/supabase/client', () => ({

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { userFavoritesService } from '@/services/user-favorites.service'
+import { userFavoritesService } from '@shared/services/user-favorites.service'
 import { supabase } from '@/integrations/supabase/client'
 
 vi.mock('@/integrations/supabase/client')

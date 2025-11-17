@@ -29,7 +29,7 @@ import {
   Award,
   BarChart3
 } from "lucide-react";
-import { ecosService, EcosAnalytics } from '@/services/ecosService';
+import { ecosService, EcosAnalytics } from '@shared/services/ecosService';
 
 export const EcosDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<EcosAnalytics | null>(null);

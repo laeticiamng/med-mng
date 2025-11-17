@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { MusicGenerationRequest, PollingProgress } from '@/types/music';
+import { MusicGenerationRequest, PollingProgress } from '@shared/types/music';
 
 interface PollingConfig {
   rang: 'A' | 'B';

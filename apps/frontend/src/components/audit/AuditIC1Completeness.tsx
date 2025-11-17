@@ -15,7 +15,7 @@ import {
   Activity,
   Stethoscope
 } from 'lucide-react';
-import { IC1CompletenessAuditor } from '@/scripts/audit/itemIC1Completeness';
+import { IC1CompletenessAuditor } from '@shared/scripts/audit/itemIC1Completeness';
 
 interface IC1CompletenessReport {
   isCompliant: boolean;

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User, BookOpen, Brain, Lightbulb, MessageSquare, Loader2 } from 'lucide-react';
-import { createChatCompletion, ChatCompletionMessage } from '@/openai/chat/completions';
+import { createChatCompletion, ChatCompletionMessage } from '@shared/openai/chat/completions';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {

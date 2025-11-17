@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { BarChart3 } from 'lucide-react';
-import type { AuditReport } from '@/scripts/audit/types';
+import type { AuditReport } from '@shared/scripts/audit/types';
 
 interface AuditProgressProps {
   report: AuditReport;

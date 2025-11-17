@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFetchPreferences, useUpdatePreferences } from '@/hooks/useNotificationsService'
 import { toast } from 'sonner'
-import type { NotificationPreferences } from '@/services/notifications.service'
+import type { NotificationPreferences } from '@shared/services/notifications.service'
 
 interface NotificationPreferencesProps {
   userId: string

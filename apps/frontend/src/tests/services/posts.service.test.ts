@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { postsService } from '@/services/posts.service'
+import { postsService } from '@shared/services/posts.service'
 import { supabase } from '@/integrations/supabase/client'
 
 vi.mock('@/integrations/supabase/client')

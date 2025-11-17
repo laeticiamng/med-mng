@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { pushNotifications } from '@/services/pushNotifications';
+import { pushNotifications } from '@shared/services/pushNotifications';
 import { useToast } from '@/hooks/use-toast';
 
 interface NotificationPermissionDialogProps {

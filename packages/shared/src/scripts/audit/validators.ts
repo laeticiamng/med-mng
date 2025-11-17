@@ -1,6 +1,6 @@
 
-import { validateItemEDN } from '@/schemas/itemEDNSchema';
-import { EDNItemParser } from '@/parsers/ednItemParser';
+import { validateItemEDN } from '../../schemas/itemEDNSchema';
+import { EDNItemParser } from '../../parsers/ednItemParser';
 import { AuditResult } from './types';
 
 export class AuditValidators {

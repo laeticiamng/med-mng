@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Edit, Target, AlertTriangle } from 'lucide-react';
-import { PerformanceBudget } from '@/services/performanceAnalyticsService';
+import { PerformanceBudget } from '@shared/services/performanceAnalyticsService';
 
 interface PerformanceBudgetsManagerProps {
   budgets: PerformanceBudget[];
