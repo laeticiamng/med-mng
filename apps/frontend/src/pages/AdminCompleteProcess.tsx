@@ -182,7 +182,7 @@ const AdminCompleteProcess = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-6 w-6" />
+              <CheckCircle className="h-6 w-6" aria-hidden="true" />
               Processus complet : Extraction + Audit
             </CardTitle>
             <CardDescription>
@@ -190,11 +190,12 @@ const AdminCompleteProcess = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
+            <Button
               onClick={runCompleteProcess}
               disabled={isRunning || isReimporting}
               size="lg"
               className="w-full md:w-auto"
+              aria-label="Démarrer le processus complet d'extraction des 367 items EDN et audit de la plateforme"
             >
               {isRunning ? 'Processus en cours...' : 'Démarrer le processus complet'}
             </Button>
@@ -205,7 +206,7 @@ const AdminCompleteProcess = () => {
         <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-800">
-              <RefreshCw className="h-6 w-6" />
+              <RefreshCw className="h-6 w-6" aria-hidden="true" />
               Ré-importation Complète avec Contenu Spécifique
             </CardTitle>
             <CardDescription>
@@ -213,7 +214,7 @@ const AdminCompleteProcess = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4" role="region" aria-label="Détails des améliorations de la ré-importation">
               <div className="p-4 bg-green-100 rounded-lg">
                 <h4 className="font-semibold text-green-800 mb-2">✅ Améliorations incluses :</h4>
                 <ul className="text-sm text-green-700 space-y-1">
@@ -234,21 +235,22 @@ const AdminCompleteProcess = () => {
                 </ul>
               </div>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={runReimportProcess}
               disabled={isRunning || isReimporting}
               size="lg"
               className="w-full bg-green-600 hover:bg-green-700 text-white"
+              aria-label="Lancer la ré-importation intelligente avec contenu spécifique pour tous les items EDN"
             >
               {isReimporting ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                   Ré-importation en cours...
                 </>
               ) : (
                 <>
-                  <ArrowRight className="h-4 w-4 mr-2" />
+                  <ArrowRight className="h-4 w-4 mr-2" aria-hidden="true" />
                   Lancer la Ré-importation Intelligente
                 </>
               )}
