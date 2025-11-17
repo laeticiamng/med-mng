@@ -96,8 +96,29 @@ export default function AdminImport() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // ✅ SÉCURITÉ: Vérifier la taille du fichier (max 10 MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('Fichier trop volumineux', {
+        description: `La taille maximale autorisée est de 10 MB. Votre fichier fait ${(file.size / 1024 / 1024).toFixed(2)} MB.`
+      });
+      event.target.value = ''; // Reset input
+      return;
+    }
+
+    // ✅ SÉCURITÉ: Vérifier l'extension du fichier
+    const allowedExtensions = ['.csv', '.txt'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      toast.error('Type de fichier non autorisé', {
+        description: 'Seuls les fichiers CSV (.csv) et texte (.txt) sont acceptés.'
+      });
+      event.target.value = ''; // Reset input
+      return;
+    }
+
     setSelectedFile(file);
-    
+
     // Lire le fichier pour extraire les headers
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -107,11 +128,11 @@ export default function AdminImport() {
         const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
         setCsvHeaders(headers);
         setCsvData(text);
-        
+
         // Auto-mapping basé sur les noms de colonnes
         const autoMapping: Record<string, string> = {};
         headers.forEach(header => {
-          const mappedField = Object.entries(defaultMapping).find(([key]) => 
+          const mappedField = Object.entries(defaultMapping).find(([key]) =>
             key.toLowerCase() === header.toLowerCase()
           );
           if (mappedField) {

@@ -1,11 +1,30 @@
 import { createServer } from './server/app';
 import { log } from '../supabase/functions/med-mng-api/logger';
 
-const port = Number(process.env.PORT || 3000);
+/**
+ * ✅ Valider et récupérer le port de manière sécurisée
+ */
+function getValidatedPort(): number {
+  const portEnv = process.env.PORT || '3000';
+  const port = Number(portEnv);
+
+  // Validation du port
+  if (isNaN(port) || port < 1 || port > 65535) {
+    log('error', `Invalid PORT value: ${portEnv}. Must be between 1 and 65535.`);
+    process.exit(1);
+  }
+
+  return port;
+}
+
+const port = getValidatedPort();
 const app = createServer();
 
 const server = app.listen(port, () => {
-  log('info', `Med-MNG backend listening on port ${port}`);
+  log('info', `Med-MNG backend listening on port ${port}`, {
+    environment: process.env.NODE_ENV || 'development',
+    version: process.env.MED_MNG_VERSION || 'dev',
+  });
 });
 
 const shutdown = (signal: string) => {

@@ -2,6 +2,24 @@ import type { Request, Response } from 'express';
 import { buildHealthPayload, getHealthMessage, getSystemMetrics, HealthSnapshot, HealthStatus } from '../services/healthService';
 import { log } from '../../supabase/functions/med-mng-api/logger';
 
+/**
+ * ✅ Type guard pour extraire requestId de manière sécurisée
+ */
+function getRequestId(req: Request, res: Response): string | undefined {
+  // Essayer res.locals en premier (recommandé)
+  if (res.locals?.requestId && typeof res.locals.requestId === 'string') {
+    return res.locals.requestId;
+  }
+
+  // Fallback sur req.requestId (pour compatibilité)
+  const reqWithId = req as Request & { requestId?: unknown };
+  if (reqWithId.requestId && typeof reqWithId.requestId === 'string') {
+    return reqWithId.requestId;
+  }
+
+  return undefined;
+}
+
 function statusToHttpCode(status: HealthStatus): number {
   return status === 'down' ? 503 : 200;
 }
@@ -17,7 +35,7 @@ function respondWithPayload(res: Response, payload: HealthSnapshot) {
 }
 
 export function healthCheck(req: Request, res: Response) {
-  const requestId = (res.locals?.requestId || (req as unknown as { requestId?: string })?.requestId) as string | undefined;
+  const requestId = getRequestId(req, res);
   const payload = buildHealthPayload({ requestId });
 
   log('info', 'Health check requested', {
@@ -30,7 +48,7 @@ export function healthCheck(req: Request, res: Response) {
 }
 
 export function readinessCheck(req: Request, res: Response) {
-  const requestId = (res.locals?.requestId || (req as unknown as { requestId?: string })?.requestId) as string | undefined;
+  const requestId = getRequestId(req, res);
   const payload = buildHealthPayload({ includeMetrics: false, requestId });
 
   log('info', 'Readiness probe', { path: req.originalUrl, status: payload.status });

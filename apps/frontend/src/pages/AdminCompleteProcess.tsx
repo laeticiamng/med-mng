@@ -457,7 +457,15 @@ const AdminCompleteProcess = () => {
 
       {/* Formulaire de credentials sécurisé */}
       {(showCredentialsModal || showCredentialsForm) && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            // ✅ SÉCURISÉ: Empêcher la fermeture pendant une opération en cours
+            if (!isRunning && !isReimporting) {
+              setShowCredentialsModal(false);
+            }
+          }}
+        >
           <div onClick={(e) => e.stopPropagation()}>
             <SecureCredentialsForm
               onSubmit={(creds) => {
@@ -467,6 +475,13 @@ const AdminCompleteProcess = () => {
               title="Authentification pour extraction complète"
               description="Saisissez vos identifiants CAS pour lancer l'extraction sécurisée des données EDN"
             />
+            {(isRunning || isReimporting) && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg" role="alert">
+                <p className="text-sm text-amber-800 font-medium">
+                  ⚠️ Opération en cours - Ne fermez pas cette fenêtre
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
