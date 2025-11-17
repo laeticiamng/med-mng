@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sparkles, Users, Target, Trophy } from 'lucide-react';
+import { getRarityBgColor, getRarityTextColor } from '@/utils/rarity';
 
 export default function AuraDetail() {
   const { auraId } = useParams<{ auraId: string }>();
@@ -23,18 +24,6 @@ export default function AuraDetail() {
     totalUsers: 15420,
   };
 
-  const getRarityColor = (rarity: string) => {
-    const colors = {
-      rare: { bg: 'bg-blue-100', text: 'text-blue-700' },
-      epic: { bg: 'bg-purple-100', text: 'text-purple-700' },
-      legendary: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
-      mythic: { bg: 'bg-pink-100', text: 'text-pink-700' },
-    };
-    return colors[rarity as keyof typeof colors] || colors.rare;
-  };
-
-  const colors = getRarityColor(aura.rarity);
-
   return (
     <>
       <Helmet><title>{aura.name} | Aura | Med-Mng</title></Helmet>
@@ -52,7 +41,7 @@ export default function AuraDetail() {
               <div className={`w-48 h-48 rounded-full mx-auto mb-6 bg-gradient-to-br ${aura.color} flex items-center justify-center shadow-2xl`}>
                 <Sparkles className="w-24 h-24 text-white" />
               </div>
-              <Badge className={`${colors.bg} ${colors.text} mb-4`}>{aura.rarity.toUpperCase()}</Badge>
+              <Badge className={`${getRarityBgColor(aura.rarity)} ${getRarityTextColor(aura.rarity)} mb-4`}>{aura.rarity.toUpperCase()}</Badge>
               <CardTitle className="text-4xl mb-2 text-white">{aura.name}</CardTitle>
               <p className="text-purple-200 text-lg">{aura.description}</p>
               {aura.unlocked && (

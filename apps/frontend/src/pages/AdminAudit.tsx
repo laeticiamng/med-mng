@@ -24,8 +24,31 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+interface AuditReportMetrics {
+  total_edn_items?: number;
+  duplicates_found?: number;
+  inconsistencies_found?: number;
+  items_with_tableau_a?: number;
+  items_with_tableau_b?: number;
+  items_with_music?: number;
+  items_with_quiz?: number;
+}
+
+interface AuditFinding {
+  type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  location?: string;
+}
+
 interface AuditReport {
-  [key: string]: any;
+  id: string;
+  report_type: 'database' | 'code' | 'ui_consistency' | 'performance';
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  metrics?: AuditReportMetrics;
+  findings?: AuditFinding[];
+  created_at: string;
+  updated_at?: string;
 }
 
 interface AuditMetrics {
@@ -34,6 +57,11 @@ interface AuditMetrics {
   inconsistencies: number;
   completeness: number;
   performance: number;
+}
+
+interface CleanupResult {
+  cleaned: number;
+  errors?: string[];
 }
 
 export default function AdminAudit() {
@@ -81,9 +109,9 @@ export default function AdminAudit() {
         .limit(1);
 
       if (error) throw error;
-      
+
       if (data && data.length > 0) {
-        const reportMetrics = data[0].metrics as any;
+        const reportMetrics = data[0].metrics as AuditReportMetrics;
         setMetrics({
           totalItems: reportMetrics?.total_edn_items || 0,
           duplicates: reportMetrics?.duplicates_found || 0,
@@ -97,17 +125,17 @@ export default function AdminAudit() {
     }
   };
 
-  const calculateCompleteness = (reportMetrics: any): number => {
+  const calculateCompleteness = (reportMetrics: AuditReportMetrics): number => {
     if (!reportMetrics.total_edn_items) return 0;
-    
+
     const hasTableauA = reportMetrics.items_with_tableau_a || 0;
     const hasTableauB = reportMetrics.items_with_tableau_b || 0;
     const hasMusic = reportMetrics.items_with_music || 0;
     const hasQuiz = reportMetrics.items_with_quiz || 0;
-    
+
     const total = reportMetrics.total_edn_items;
     const completeness = ((hasTableauA + hasTableauB + hasMusic + hasQuiz) / (total * 4)) * 100;
-    
+
     return Math.round(completeness);
   };
 
@@ -159,10 +187,10 @@ export default function AdminAudit() {
   const cleanupData = async () => {
     try {
       const { data, error } = await supabase.rpc('cleanup_duplicates');
-      
+
       if (error) throw error;
 
-      const cleanupResult = data as any;
+      const cleanupResult = data as CleanupResult;
       toast({
         title: "Nettoyage terminé",
         description: `${cleanupResult?.cleaned || 0} doublons supprimés`,

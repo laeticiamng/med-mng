@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trophy, Users, Calendar, Target } from 'lucide-react';
+import { getRarityBgColor, getRarityTextColor, getRarityBorderColor } from '@/utils/rarity';
 
 export default function BadgeDetail() {
   const { badgeId } = useParams<{ badgeId: string }>();
@@ -23,18 +24,6 @@ export default function BadgeDetail() {
     totalUsers: 15420,
   };
 
-  const getRarityColor = (rarity: string) => {
-    const colors = {
-      common: { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' },
-      rare: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
-      epic: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
-      legendary: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' },
-    };
-    return colors[rarity as keyof typeof colors] || colors.common;
-  };
-
-  const colors = getRarityColor(badge.rarity);
-
   return (
     <>
       <Helmet><title>{badge.name} | Badge | Med-Mng</title></Helmet>
@@ -47,10 +36,10 @@ export default function BadgeDetail() {
             </Button>
           </Link>
 
-          <Card className={`mb-6 ${colors.border} border-2`}>
+          <Card className={`mb-6 ${getRarityBorderColor(badge.rarity)} border-2`}>
             <CardHeader className="text-center pb-6">
               <div className="text-8xl mb-4">{badge.unlocked ? badge.icon : '🔒'}</div>
-              <Badge className={`${colors.bg} ${colors.text} mb-4`}>{badge.rarity.toUpperCase()}</Badge>
+              <Badge className={`${getRarityBgColor(badge.rarity)} ${getRarityTextColor(badge.rarity)} mb-4`}>{badge.rarity.toUpperCase()}</Badge>
               <CardTitle className="text-3xl mb-2">{badge.name}</CardTitle>
               <p className="text-gray-600 text-lg">{badge.description}</p>
               {badge.unlocked && (
@@ -106,7 +95,7 @@ export default function BadgeDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-3xl font-bold ${colors.text} mb-1 capitalize`}>
+                <div className={`text-3xl font-bold ${getRarityTextColor(badge.rarity)} mb-1 capitalize`}>
                   {badge.rarity}
                 </div>
                 <div className="text-sm text-gray-500">Badge légendaire</div>

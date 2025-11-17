@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Lock } from 'lucide-react';
+import { getRarityBgColor, getRarityTextColor } from '@/utils/rarity';
 
 export default function AurasCollection() {
   const auras = [
@@ -14,16 +15,6 @@ export default function AurasCollection() {
     { id: 5, name: 'Aura Or', color: 'from-yellow-400 to-amber-300', description: 'Excellence et réussite', unlocked: false, rarity: 'legendary', progress: 40 },
     { id: 6, name: 'Aura Arc-en-ciel', color: 'from-red-400 via-yellow-300 to-blue-400', description: 'Diversité et harmonie', unlocked: false, rarity: 'mythic', progress: 12 },
   ];
-
-  const getRarityColor = (rarity: string) => {
-    const colors = {
-      rare: 'bg-blue-100 text-blue-700',
-      epic: 'bg-purple-100 text-purple-700',
-      legendary: 'bg-yellow-100 text-yellow-700',
-      mythic: 'bg-pink-100 text-pink-700',
-    };
-    return colors[rarity as keyof typeof colors] || colors.rare;
-  };
 
   const unlockedCount = auras.filter(a => a.unlocked).length;
 
@@ -64,7 +55,7 @@ export default function AurasCollection() {
                         <Lock className="w-16 h-16 text-white" />
                       )}
                     </div>
-                    <Badge className={getRarityColor(aura.rarity)}>{aura.rarity}</Badge>
+                    <Badge className={`${getRarityBgColor(aura.rarity)} ${getRarityTextColor(aura.rarity)}`}>{aura.rarity}</Badge>
                     <CardTitle className="text-lg mt-2 text-white">{aura.name}</CardTitle>
                     <CardDescription className="text-purple-200 text-sm">{aura.description}</CardDescription>
                   </CardHeader>

@@ -50,6 +50,21 @@ export function getRarityBgColor(rarity: string): string {
 }
 
 /**
+ * Retourne la couleur de bordure pour un niveau de rareté
+ */
+export function getRarityBorderColor(rarity: string): string {
+  const borderColors: Record<string, string> = {
+    common: 'border-gray-200',
+    uncommon: 'border-green-200',
+    rare: 'border-blue-200',
+    epic: 'border-purple-200',
+    legendary: 'border-yellow-200',
+  };
+
+  return borderColors[rarity.toLowerCase()] || borderColors.common;
+}
+
+/**
  * Retourne le label traduit pour un niveau de rareté
  */
 export function getRarityLabel(rarity: string): string {

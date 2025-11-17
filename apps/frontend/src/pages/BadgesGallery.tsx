@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy } from 'lucide-react';
+import { getRarityBgColor, getRarityTextColor } from '@/utils/rarity';
 
 export default function BadgesGallery() {
   const badges = [
@@ -16,16 +17,6 @@ export default function BadgesGallery() {
     { id: 7, name: 'Social', icon: '💬', description: '50 posts publiés', unlocked: false, rarity: 'common', progress: 34 },
     { id: 8, name: 'Collectionneur', icon: '🏆', description: 'Obtenez 50 badges', unlocked: false, rarity: 'epic', progress: 16 },
   ];
-
-  const getRarityColor = (rarity: string) => {
-    const colors = {
-      common: 'bg-gray-100 text-gray-700',
-      rare: 'bg-blue-100 text-blue-700',
-      epic: 'bg-purple-100 text-purple-700',
-      legendary: 'bg-yellow-100 text-yellow-700',
-    };
-    return colors[rarity as keyof typeof colors] || colors.common;
-  };
 
   const unlockedCount = badges.filter(b => b.unlocked).length;
 
@@ -60,7 +51,7 @@ export default function BadgesGallery() {
                 <Card className={`hover:shadow-lg transition-all ${badge.unlocked ? '' : 'opacity-60'}`}>
                   <CardHeader className="text-center pb-3">
                     <div className="text-6xl mb-3">{badge.unlocked ? badge.icon : '🔒'}</div>
-                    <Badge className={getRarityColor(badge.rarity)}>{badge.rarity}</Badge>
+                    <Badge className={`${getRarityBgColor(badge.rarity)} ${getRarityTextColor(badge.rarity)}`}>{badge.rarity}</Badge>
                     <CardTitle className="text-lg mt-2">{badge.name}</CardTitle>
                     <CardDescription className="text-sm">{badge.description}</CardDescription>
                   </CardHeader>

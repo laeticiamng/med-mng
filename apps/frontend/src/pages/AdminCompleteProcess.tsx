@@ -8,15 +8,46 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
+interface ExtractionStats {
+  totalProcessed: number;
+  totalErrors: number;
+  startTime?: string;
+  endTime?: string;
+}
+
+interface AuditResult {
+  type: string;
+  success: boolean;
+  reportId?: string;
+  results?: unknown;
+  error?: string;
+}
+
+interface ReimportStats {
+  processed: number;
+  success: number;
+  errors: number;
+}
+
+interface ReimportError {
+  item_code: string;
+  error: string;
+}
+
+interface ReimportResults {
+  stats: ReimportStats;
+  errors?: ReimportError[];
+}
+
 const AdminCompleteProcess = () => {
   const [currentPhase, setCurrentPhase] = useState<string>('idle');
   const [progress, setProgress] = useState(0);
-  const [extractionStats, setExtractionStats] = useState<any>(null);
-  const [auditResults, setAuditResults] = useState<any[]>([]);
+  const [extractionStats, setExtractionStats] = useState<ExtractionStats | null>(null);
+  const [auditResults, setAuditResults] = useState<AuditResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isReimporting, setIsReimporting] = useState(false);
-  const [reimportResults, setReimportResults] = useState<any>(null);
+  const [reimportResults, setReimportResults] = useState<ReimportResults | null>(null);
   const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
 
@@ -96,10 +127,11 @@ const AdminCompleteProcess = () => {
       setCurrentPhase('completed');
       setProgress(100);
       toast.success('Processus complet terminé avec succès!');
-      
-    } catch (error: any) {
+
+    } catch (error) {
       console.error('Erreur processus complet:', error);
-      setError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      setError(errorMessage);
       toast.error('Erreur lors du processus complet');
     } finally {
       setIsRunning(false);
@@ -123,14 +155,15 @@ const AdminCompleteProcess = () => {
 
       if (reimportError) throw reimportError;
 
-      setReimportResults(data);
+      setReimportResults(data as ReimportResults);
       toast.success('Ré-importation terminée!', {
         description: `${data.stats?.success || 0} items mis à jour avec contenu spécifique`
       });
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur ré-importation:', error);
-      setError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      setError(errorMessage);
       toast.error('Erreur lors de la ré-importation');
     } finally {
       setIsReimporting(false);
@@ -345,9 +378,9 @@ const AdminCompleteProcess = () => {
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <h4 className="font-semibold text-red-800 mb-2">Erreurs rencontrées :</h4>
                     <div className="text-sm text-red-700 max-h-32 overflow-y-auto">
-                      {reimportResults.errors.map((error: any, index: number) => (
+                      {reimportResults.errors.map((errorItem: ReimportError, index: number) => (
                         <div key={index} className="mb-1">
-                          • Item {error.item_code}: {error.error}
+                          • Item {errorItem.item_code}: {errorItem.error}
                         </div>
                       ))}
                     </div>
