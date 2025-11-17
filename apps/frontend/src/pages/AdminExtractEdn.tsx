@@ -8,10 +8,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface ExtractionStats {
+  totalProcessed: number;
+  totalErrors: number;
+  lastProcessedItem: number;
+}
+
 const AdminExtractEdn = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<ExtractionStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [resumeFromItem, setResumeFromItem] = useState(1);
 

@@ -26,6 +26,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+interface Activity {
+  id: string;
+  activity_type: string;
+  is_read: boolean;
+  created_at: string;
+  target_id?: string;
+  target_type?: string;
+  metadata?: {
+    description?: string;
+  };
+}
+
 export default function ActivityFeed() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -95,7 +107,7 @@ export default function ActivityFeed() {
     }
   }
 
-  const getActivityTitle = (activity: any) => {
+  const getActivityTitle = (activity: Activity) => {
     switch (activity.activity_type) {
       case 'post_created':
         return 'Vous avez créé un post'
