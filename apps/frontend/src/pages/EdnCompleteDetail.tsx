@@ -20,7 +20,7 @@ export default function EdnCompleteDetail() {
 
   // Trouver l'item précédent et suivant
   const { prevItem, nextItem, currentIndex } = useMemo(() => {
-    if (!allItems || !item) return { prevItem: null, nextItem: null, currentIndex: -1 };
+    if (!allItems || !Array.isArray(allItems) || !item) return { prevItem: null, nextItem: null, currentIndex: -1 };
 
     const index = allItems.findIndex(i =>
       i.slug?.toLowerCase() === slug?.toLowerCase() ||
