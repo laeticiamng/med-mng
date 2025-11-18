@@ -272,12 +272,48 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("📧 Starting accessibility report email function");
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès send-accessibility-report sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour send-accessibility-report');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    const { data: userRoles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative send-accessibility-report par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ send-accessibility-report autorisé pour admin ${user.id}`);
+    console.log("📧 Starting accessibility report email function");
 
     // Récupérer la configuration
     const { data: config, error: configError } = await supabaseClient

@@ -16,6 +16,49 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès send-welcome-email sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour send-welcome-email');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative send-welcome-email par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ send-welcome-email autorisé pour admin ${user.id}`);
+
     const { email, name }: WelcomeEmailRequest = await req.json();
 
     console.log(`📧 Envoi email de bienvenue à: ${email} (${name})`);

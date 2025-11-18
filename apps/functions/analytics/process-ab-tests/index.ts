@@ -230,12 +230,48 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("🧪 Processing A/B tests");
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès process-ab-tests sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour process-ab-tests');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    const { data: userRoles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative process-ab-tests par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ process-ab-tests autorisé pour admin ${user.id}`);
+    console.log("🧪 Processing A/B tests");
 
     // Récupérer tous les tests actifs
     const { data: activeTests, error: testsError } = await supabaseClient

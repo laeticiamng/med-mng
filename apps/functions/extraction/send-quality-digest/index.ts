@@ -37,8 +37,46 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès send-quality-digest sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
-    
+
+    // Vérifier le token JWT
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour send-quality-digest');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle ADMIN
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative send-quality-digest par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ send-quality-digest autorisé pour admin ${user.id}`);
     console.log('📊 Génération du digest qualité...');
 
     // Récupérer les configurations actives
