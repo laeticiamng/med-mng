@@ -1,91 +1,133 @@
 import { errorResponse } from '../response.ts';
 import { log } from '../logger.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 
-// CSRF Token store (in production, use Redis or database)
-const csrfTokens = new Map<string, { token: string; userId: string; expires: number }>();
+// Créer client Supabase pour stockage CSRF
+const getSupabaseClient = () => {
+  return createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+};
 
-// Generate CSRF token
-export function generateCSRFToken(userId: string): string {
+// ✅ SÉCURITÉ: Generate CSRF token stocké dans Supabase
+export async function generateCSRFToken(userId: string): Promise<string> {
   const token = crypto.randomUUID();
-  const expires = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-  
-  // Clean expired tokens
-  cleanExpiredTokens();
-  
-  csrfTokens.set(token, { token, userId, expires });
+  const expiresAt = new Date(Date.now() + (24 * 60 * 60 * 1000)); // 24 hours
+
+  const supabase = getSupabaseClient();
+
+  // Clean expired tokens first
+  await cleanExpiredTokens();
+
+  // Store in database
+  const { error } = await supabase
+    .from('csrf_tokens')
+    .insert({
+      token,
+      user_id: userId,
+      expires_at: expiresAt.toISOString()
+    });
+
+  if (error) {
+    log('error', 'Failed to store CSRF token', { error: error.message, userId });
+    throw new Error('Failed to generate CSRF token');
+  }
+
   return token;
 }
 
-// Validate CSRF token
-export function validateCSRFToken(token: string, userId: string): boolean {
-  const tokenData = csrfTokens.get(token);
-  
-  if (!tokenData) {
+// ✅ SÉCURITÉ: Validate CSRF token depuis Supabase
+export async function validateCSRFToken(token: string, userId: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+
+  const { data: tokenData, error } = await supabase
+    .from('csrf_tokens')
+    .select('*')
+    .eq('token', token)
+    .single();
+
+  if (error || !tokenData) {
     log('warn', 'CSRF token not found', { token: token.substring(0, 8) + '...', userId });
     return false;
   }
-  
-  if (tokenData.expires < Date.now()) {
-    csrfTokens.delete(token);
+
+  // Check expiration
+  if (new Date(tokenData.expires_at) < new Date()) {
+    // Delete expired token
+    await supabase.from('csrf_tokens').delete().eq('token', token);
     log('warn', 'CSRF token expired', { userId });
     return false;
   }
-  
-  if (tokenData.userId !== userId) {
-    log('warn', 'CSRF token user mismatch', { userId, tokenUserId: tokenData.userId });
+
+  // Check user match
+  if (tokenData.user_id !== userId) {
+    log('warn', 'CSRF token user mismatch', { userId, tokenUserId: tokenData.user_id });
     return false;
   }
-  
+
   return true;
 }
 
-// Clean expired tokens
-function cleanExpiredTokens(): void {
-  const now = Date.now();
-  for (const [token, data] of csrfTokens.entries()) {
-    if (data.expires < now) {
-      csrfTokens.delete(token);
-    }
+// Clean expired tokens from database
+async function cleanExpiredTokens(): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  const { error } = await supabase
+    .from('csrf_tokens')
+    .delete()
+    .lt('expires_at', new Date().toISOString());
+
+  if (error) {
+    log('warn', 'Failed to clean expired CSRF tokens', { error: error.message });
   }
 }
 
-// CSRF Protection middleware
-export function csrfProtection(req: Request, userId: string): Response | null {
-  // ⚠️ CSRF désactivé temporairement à cause du stockage en mémoire dans Edge Functions
-  // TODO: Implémenter stockage CSRF dans Supabase pour production
-  // En attendant, l'authentification JWT est suffisante pour la sécurité
-  
-  return null; // Pas de validation CSRF pour le moment
-  
-  /* Code original commenté:
+// ✅ SÉCURITÉ: CSRF Protection middleware activé avec stockage Supabase
+export async function csrfProtection(req: Request, userId: string): Promise<Response | null> {
   const method = req.method;
-  
+
   // Skip CSRF for safe methods
   if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
     return null;
   }
-  
+
   const csrfToken = req.headers.get('X-CSRF-Token') || req.headers.get('x-csrf-token');
-  
+
   if (!csrfToken) {
     log('warn', 'Missing CSRF token', { method, userId });
     return errorResponse(403, 'CSRF_TOKEN_MISSING', 'CSRF token required for this operation');
   }
-  
-  if (!validateCSRFToken(csrfToken, userId)) {
+
+  const isValid = await validateCSRFToken(csrfToken, userId);
+  if (!isValid) {
     log('warn', 'Invalid CSRF token', { method, userId });
     return errorResponse(403, 'CSRF_TOKEN_INVALID', 'Invalid or expired CSRF token');
   }
-  
+
   return null;
-  */
 }
 
-// Get CSRF metrics
-export function getCSRFMetrics() {
-  cleanExpiredTokens();
+// Get CSRF metrics from database
+export async function getCSRFMetrics() {
+  await cleanExpiredTokens();
+
+  const supabase = getSupabaseClient();
+  const { count, error } = await supabase
+    .from('csrf_tokens')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) {
+    log('error', 'Failed to get CSRF metrics', { error: error.message });
+    return {
+      activeTokens: 0,
+      lastCleanup: new Date().toISOString(),
+      error: error.message
+    };
+  }
+
   return {
-    activeTokens: csrfTokens.size,
+    activeTokens: count || 0,
     lastCleanup: new Date().toISOString()
   };
 }
