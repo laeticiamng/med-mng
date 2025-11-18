@@ -268,6 +268,126 @@ function calculateQualityScore(item: EdnItem): number {
 // ============================================================================
 
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // ✅ SÉCURITÉ CRITIQUE: Authentification requise pour extract-edn-uness-complete
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // Créer client Supabase si nécessaire
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Vérifier le token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle ADMIN pour extract-edn-uness-complete
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ extract-edn-uness-complete autorisé pour admin ${user.id}`);
+
+    // Code original de la fonction
+    
+      logger.debug(`${context} - Tentative ${attempt + 1}/${maxRetries + 1}`);
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < maxRetries) {
+        const delayMs = baseDelay * Math.pow(2, attempt);
+        logger.warn(`${context} - Échec tentative ${attempt + 1}, retry dans ${delayMs}ms`, { error: error.message });
+        await delay(delayMs);
+      }
+    }
+  }
+
+  logger.error(`${context} - Échec après ${maxRetries + 1} tentatives`, { error: lastError.message });
+  throw lastError;
+}
+
+/**
+ * Validation des données extraites
+ */
+function validateEdnItem(item: EdnItem): { valid: boolean; warnings: string[]; score: number } {
+  const warnings: string[] = [];
+  let score = 100;
+
+  // Validation de l'intitulé
+  if (!item.intitule || item.intitule.length < 10) {
+    warnings.push(`Item ${item.item_id}: Intitulé trop court ou manquant`);
+    score -= 20;
+  }
+
+  // Validation des rangs
+  if (item.rangs_a.length === 0 && item.rangs_b.length === 0) {
+    warnings.push(`Item ${item.item_id}: Aucun rang A ou B trouvé`);
+    score -= 30;
+  }
+
+  // Validation du contenu
+  if (!item.contenu_complet_html || item.contenu_complet_html.length < 100) {
+    warnings.push(`Item ${item.item_id}: Contenu HTML incomplet`);
+    score -= 25;
+  }
+
+  // Vérification de la qualité des rangs
+  const hasGenericRangA = item.rangs_a.some(r => r.includes('Extraction nécessitant une révision manuelle'));
+  const hasGenericRangB = item.rangs_b.some(r => r.includes('Extraction nécessitant une révision manuelle'));
+
+  if (hasGenericRangA || hasGenericRangB) {
+    warnings.push(`Item ${item.item_id}: Rangs génériques détectés - révision manuelle requise`);
+    score -= 15;
+  }
+
+  return {
+    valid: score >= 40,
+    warnings,
+    score: Math.max(0, score)
+  };
+}
+
+/**
+ * Calcul du score de qualité d'un item
+ */
+function calculateQualityScore(item: EdnItem): number {
+  const validation = validateEdnItem(item);
+  return validation.score;
+}
+
+// ============================================================================
+// MAIN HANDLER
+// ============================================================================
+
+serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

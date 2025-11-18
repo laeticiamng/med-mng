@@ -12,6 +12,43 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification + rôle ADMIN pour régénération OIC
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative régénération OIC sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour régénération OIC');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle ADMIN (régénération massive de données)
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r: any) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative régénération OIC par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required for OIC regeneration' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`✅ Régénération OIC autorisée pour admin ${user.id}`);
     console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
     console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
     console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');

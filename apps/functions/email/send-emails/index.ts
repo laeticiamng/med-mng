@@ -27,9 +27,49 @@ serve(async (req) => {
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification avant d'envoyer des emails
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative envoi email sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // Vérifier le token avec Supabase
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour envoi email');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle admin pour certains types d'emails sensibles
+    const sensitiveEmailTypes = ['weekly_alerts', 'scheduled_pdf_reports', 'accessibility_report'];
     const { type, email, name, variables = {} }: EmailRequest = await req.json();
-    
-    console.log(`📧 Sending email type: ${type} to: ${email}`);
+
+    if (sensitiveEmailTypes.includes(type)) {
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      const isAdmin = userRoles?.some((r: any) => r.role === 'admin');
+      if (!isAdmin) {
+        console.warn(`❌ Non-admin tentative email sensible: ${type}`);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Admin role required for this email type' }),
+          { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
+    }
+
+    console.log(`📧 Sending email type: ${type} to: ${email} (authorized by user: ${user.id})`);
 
     // Récupérer le template d'email depuis la base
     const { data: template, error: templateError } = await supabase
