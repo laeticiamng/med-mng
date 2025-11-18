@@ -34,6 +34,15 @@ serve(async (req) => {
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification avant d'utiliser API DALL-E
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
       throw new Error('OPENAI_API_KEY non configurée');
@@ -44,16 +53,30 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`✅ Ambient image generation autorisé pour user ${user.id}`);
+
     const {
       prompt,
       style = 'ambient',
       mood = 'serene',
       size = '1024x1024',
-      quality = 'hd',
-      userId
-    }: ImageGenerationRequest = await req.json();
+      quality = 'hd'
+    }: Omit<ImageGenerationRequest, 'userId'> = await req.json();
 
-    console.log('🎨 Génération d\'image d\'ambiance:', { prompt: prompt.substring(0, 50), style, mood });
+    // ✅ SÉCURITÉ: Utiliser le userId du token authentifié, pas du payload
+    const userId = user.id;
+
+    console.log('🎨 Génération d\'image d\'ambiance:', { prompt: prompt.substring(0, 50), style, mood, user_id: userId });
 
     // Construction du prompt enrichi pour images d'ambiance musicale
     const enhancedPrompt = `Beautiful ${style} ambient scene for meditation and relaxation. ${prompt}. ${mood} atmosphere, soft lighting, peaceful environment, calming colors, serene composition, high quality, detailed, atmospheric, perfect for background imagery during music listening sessions.`;

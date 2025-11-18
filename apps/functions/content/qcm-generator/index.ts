@@ -21,6 +21,25 @@ serve(async (req) => {
 
     // POST /generate-qcm - Generate QCM questions for an item
     if (req.method === 'POST' && path === '/generate-qcm') {
+      // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification avant d'utiliser API OpenAI
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      console.log(`✅ QCM generation autorisé pour user ${user.id}`);
+
       const { item_code, session_type, question_count = 10 } = await req.json();
 
       if (!item_code || !session_type) {
@@ -165,7 +184,38 @@ Critères:
 
     // POST /submit-qcm-response - Submit a QCM response
     if (req.method === 'POST' && path === '/submit-qcm-response') {
+      // ✅ SÉCURITÉ: Vérifier authentification
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const { session_id, question_id, question_text, user_answer, correct_answer, response_time, explanation, medical_concept } = await req.json();
+
+      // ✅ SÉCURITÉ: Vérifier que la session appartient bien à l'utilisateur authentifié
+      const { data: session } = await supabase
+        .from('qcm_sessions')
+        .select('user_id')
+        .eq('id', session_id)
+        .single();
+
+      if (!session || session.user_id !== user.id) {
+        return new Response(JSON.stringify({ error: 'Session non trouvée ou non autorisée' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
 
       const is_correct = user_answer === correct_answer;
 
@@ -201,7 +251,38 @@ Critères:
 
     // POST /complete-qcm-session - Complete QCM session and calculate score
     if (req.method === 'POST' && path === '/complete-qcm-session') {
+      // ✅ SÉCURITÉ: Vérifier authentification
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const { session_id } = await req.json();
+
+      // ✅ SÉCURITÉ: Vérifier que la session appartient bien à l'utilisateur authentifié
+      const { data: sessionCheck } = await supabase
+        .from('qcm_sessions')
+        .select('user_id')
+        .eq('id', session_id)
+        .single();
+
+      if (!sessionCheck || sessionCheck.user_id !== user.id) {
+        return new Response(JSON.stringify({ error: 'Session non trouvée ou non autorisée' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
 
       // Get all responses for this session
       const { data: responses } = await supabase
