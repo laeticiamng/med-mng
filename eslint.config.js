@@ -31,19 +31,29 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
-      'no-useless-escape': 'off',
-      'no-case-declarations': 'off',
-      'prefer-const': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      'react-hooks/rules-of-hooks': 'off',
-      'prettier/prettier': 'off',
-      'custom/no-hardcoded-colors': 'off',
+      // 🔒 SÉCURITÉ & QUALITÉ: Règles TypeScript renforcées
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }],
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+
+      // 🔒 SÉCURITÉ: Règles React Hooks (prévention de bugs)
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/rules-of-hooks': 'error', // CRITICAL: Ne jamais désactiver
+
+      // 📝 QUALITÉ: Formatage et conventions
+      'prettier/prettier': 'warn',
+      'no-useless-escape': 'warn',
+      'no-case-declarations': 'warn',
+      'prefer-const': 'warn',
+
+      // 🎨 STYLE: Custom rules
+      'custom/no-hardcoded-colors': 'off', // Peut rester off pour le moment
     },
   }
 );
