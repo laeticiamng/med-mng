@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  MessageCircle, 
-  Heart, 
-  Share2, 
+import {
+  Users,
+  MessageCircle,
+  Heart,
+  Share2,
   BookOpen,
   Music,
   Trophy,
@@ -21,6 +22,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Post {
   id: string;
@@ -52,6 +54,13 @@ interface Event {
 }
 
 const CommunityHub = () => {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('feed');
 

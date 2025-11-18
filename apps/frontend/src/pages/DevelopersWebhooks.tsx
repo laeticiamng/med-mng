@@ -1,12 +1,20 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Webhook, Plus, CheckCircle2, XCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DevelopersWebhooks() {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const webhooks = [
     { id: 1, url: 'https://api.myapp.com/webhooks/medmng', events: ['user.created', 'challenge.completed'], status: 'active', lastDelivery: '5 min', success: 1247, failed: 3 },
     { id: 2, url: 'https://hooks.example.com/medmng', events: ['achievement.unlocked'], status: 'inactive', lastDelivery: '2 jours', success: 856, failed: 12 },

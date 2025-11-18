@@ -1,12 +1,20 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, Code, Zap, Users, Calendar, Trophy } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DevelopersDocs() {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const endpoints = [
     { category: 'Authentification', count: 5, icon: Users, methods: ['POST /auth/login', 'POST /auth/register', 'POST /auth/refresh', 'POST /auth/logout', 'GET /auth/me'] },
     { category: 'Utilisateurs', count: 8, icon: Users, methods: ['GET /users', 'GET /users/:id', 'PATCH /users/:id', 'GET /users/:id/profile', 'GET /users/:id/achievements'] },

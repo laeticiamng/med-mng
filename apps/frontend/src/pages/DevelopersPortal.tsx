@@ -1,11 +1,20 @@
+import { Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Code, Key, Webhook, BookOpen, Zap, Shield } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DevelopersPortal() {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const sections = [
     { icon: BookOpen, title: 'Documentation', description: 'API complète et guides', link: ROUTE_PATHS.developersDocs, color: 'text-blue-600', bgColor: 'bg-blue-100' },
     { icon: Key, title: 'Clés API', description: 'Gérez vos clés d\'accès', link: ROUTE_PATHS.developersKeys, color: 'text-green-600', bgColor: 'bg-green-100' },
