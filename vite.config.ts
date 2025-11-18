@@ -164,6 +164,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./apps/frontend/src"),
+      "@shared": path.resolve(__dirname, "./packages/shared/src"),
     },
   },
   define: {
