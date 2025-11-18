@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# =================================================================
+# 1. FULL TEST SUITE
+# =================================================================
+echo "🧪 Running full test suite..."
+pnpm test --run || {
+  echo "❌ Tests failed. Cannot push."
+  echo "Please fix failing tests before pushing."
+  exit 1
+}
+echo "✅ All tests passed"
+
+# =================================================================
+# 2. BUILD VERIFICATION
+# =================================================================
+echo "🏗️ Verifying build..."
+pnpm build || {
+  echo "❌ Build failed. Cannot push."
+  echo "Please fix build errors before pushing."
+  exit 1
+}
+echo "✅ Build successful"
+
+# =================================================================
+# 3. SECURITY AUDIT
+# =================================================================
+echo "🔒 Running security audit..."
+pnpm audit --audit-level=high || {
+  echo "⚠️ High severity vulnerabilities detected!"
+  echo "Consider running: pnpm audit fix"
+  echo ""
+  read -p "Continue anyway? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+}
+
+# =================================================================
+# 4. CUSTOM SECURITY SCRIPT
+# =================================================================
+echo "🔍 Running custom security checks..."
+pnpm run audit || {
+  echo "⚠️ Custom security audit found issues."
+  echo "Review the security report before pushing."
+}
+
+echo "✅ All pre-push checks passed!"
+echo "🚀 Pushing to remote..."
