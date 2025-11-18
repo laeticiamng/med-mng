@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowLeft, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,10 +8,20 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ProfilePrivacySettings() {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState({
     profilePublic: true,
     showEmail: false,
@@ -30,11 +40,67 @@ export default function ProfilePrivacySettings() {
     }));
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Paramètres sauvegardés",
-      description: "Vos préférences de confidentialité ont été mises à jour",
-    });
+  // ✅ Charger les paramètres existants
+  useEffect(() => {
+    const loadSettings = async () => {
+      const { data, error } = await supabase
+        .from('user_privacy_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        setSettings({
+          profilePublic: data.profile_public ?? true,
+          showEmail: data.show_email ?? false,
+          showAchievements: data.show_achievements ?? true,
+          showActivity: data.show_activity ?? true,
+          showStats: data.show_stats ?? true,
+          allowMessages: data.allow_messages ?? true,
+          allowFollowers: data.allow_followers ?? true,
+          searchable: data.searchable ?? true,
+        });
+      }
+    };
+
+    loadSettings();
+  }, [user.id]);
+
+  // ✅ CORRECTIF: Vraie sauvegarde dans la base de données
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_privacy_settings')
+        .upsert({
+          user_id: user.id,
+          profile_public: settings.profilePublic,
+          show_email: settings.showEmail,
+          show_achievements: settings.showAchievements,
+          show_activity: settings.showActivity,
+          show_stats: settings.showStats,
+          allow_messages: settings.allowMessages,
+          allow_followers: settings.allowFollowers,
+          searchable: settings.searchable,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Paramètres sauvegardés",
+        description: "Vos préférences de confidentialité ont été mises à jour",
+      });
+    } catch (error) {
+      console.error('Error saving privacy settings:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder vos paramètres",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -224,8 +290,8 @@ export default function ProfilePrivacySettings() {
           <Link to={ROUTE_PATHS.settings}>
             <Button variant="outline">Annuler</Button>
           </Link>
-          <Button onClick={handleSave}>
-            Sauvegarder les paramètres
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? "Sauvegarde..." : "Sauvegarder les paramètres"}
           </Button>
         </div>
       </div>

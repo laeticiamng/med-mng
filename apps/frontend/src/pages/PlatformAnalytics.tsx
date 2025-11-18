@@ -30,6 +30,18 @@ import { AlertTriangle, Activity, TrendingUp, Server, Clock } from 'lucide-react
 import { toast } from 'sonner'
 
 export default function PlatformAnalytics() {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const { data: healthMetrics = [] } = useFetchHealthMetricsHistory(7)
   const { data: userActivityTrend = [] } = useFetchUserActivityTrend(30)
   const { data: contentAnalytics = [] } = useFetchContentAnalyticsTrend(30)
