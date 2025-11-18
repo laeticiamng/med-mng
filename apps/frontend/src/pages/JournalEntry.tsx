@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import DOMPurify from 'dompurify';
 
 export default function JournalEntry() {
   const { entryId } = useParams<{ entryId: string }>();
@@ -180,9 +181,15 @@ export default function JournalEntry() {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none">
-              <p className="text-base whitespace-pre-wrap leading-relaxed">
-                {entry.content}
-              </p>
+              <div
+                className="text-base whitespace-pre-wrap leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(entry.content || '', {
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'blockquote'],
+                    ALLOWED_ATTR: []
+                  })
+                }}
+              />
             </div>
           </CardContent>
         </Card>

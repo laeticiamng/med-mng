@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
 
 export default function JournalNewEntry() {
   const { user } = useAuth();
@@ -27,13 +28,24 @@ export default function JournalNewEntry() {
     mutationFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      // Sanitize content before saving to database
+      const sanitizedContent = DOMPurify.sanitize(content.trim(), {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'blockquote'],
+        ALLOWED_ATTR: []
+      });
+
+      const sanitizedTitle = DOMPurify.sanitize(title.trim() || 'Sans titre', {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: []
+      });
+
       const { data, error } = await supabase
         .from('journal_entries')
         .insert([
           {
             user_id: user.id,
-            title: title.trim() || 'Sans titre',
-            content: content.trim(),
+            title: sanitizedTitle,
+            content: sanitizedContent,
             tags: tags.trim() || null,
           }
         ])

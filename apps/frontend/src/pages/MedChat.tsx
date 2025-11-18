@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  MessageSquare, Send, User, Bot, ArrowLeft, Search, 
+import {
+  MessageSquare, Send, User, Bot, ArrowLeft, Search,
   Sparkles, Clock, BookOpen, Brain, Heart, Activity,
   History, HelpCircle, Settings, Mic, Copy, ThumbsUp,
   ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { TranslatedText } from '@/components/TranslatedText';
 import { motion, AnimatePresence } from 'framer-motion';
+import DOMPurify from 'dompurify';
 
 interface Message {
   id: string;
@@ -297,7 +298,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             </div>
                           ) : (
                             <>
-                              <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                              <div
+                                className="whitespace-pre-wrap leading-relaxed"
+                                dangerouslySetInnerHTML={{
+                                  __html: DOMPurify.sanitize(message.content, {
+                                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre'],
+                                    ALLOWED_ATTR: []
+                                  })
+                                }}
+                              />
                               
                               {/* Citations Enhanced - TOUJOURS AFFICHÉES */}
                               {message.courseCitations && message.courseCitations.length > 0 && (
