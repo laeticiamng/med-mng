@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
+
+// Password validation function
+const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+
+  if (password.length < 8) {
+    errors.push('Au moins 8 caractères');
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Au moins une majuscule');
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push('Au moins une minuscule');
+  }
+  if (!/\d/.test(password)) {
+    errors.push('Au moins un chiffre');
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Au moins un caractère spécial (!@#$%^&*...)');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
 
 export const MedMngSignup = () => {
   const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -18,7 +44,8 @@ export const MedMngSignup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
   // Consentements RGPD
   const [cguAccepted, setCguAccepted] = useState(false);
   const [healthDataAccepted, setHealthDataAccepted] = useState(false);
@@ -30,11 +57,29 @@ export const MedMngSignup = () => {
     return <Navigate to="/med-mng/library" replace />;
   }
 
+  // Validate password in real-time
+  useEffect(() => {
+    if (password) {
+      const validation = validatePassword(password);
+      setPasswordErrors(validation.errors);
+    } else {
+      setPasswordErrors([]);
+    }
+  }, [password]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setShowConsentErrors(false);
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setError(`Mot de passe trop faible: ${passwordValidation.errors.join(', ')}`);
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
@@ -51,13 +96,13 @@ export const MedMngSignup = () => {
     }
 
     const { error } = await signUp(email, password, name);
-    
+
     if (error) {
       setError(error.message);
     } else {
       setSuccess(true);
     }
-    
+
     setLoading(false);
   };
 
@@ -148,6 +193,19 @@ export const MedMngSignup = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              {password && passwordErrors.length > 0 && (
+                <div className="text-xs text-amber-600 space-y-1 mt-2">
+                  <p className="font-medium">Requis pour un mot de passe fort :</p>
+                  <ul className="list-disc list-inside pl-2">
+                    {passwordErrors.map((err, index) => (
+                      <li key={index}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {password && passwordErrors.length === 0 && (
+                <p className="text-xs text-green-600 mt-2">✓ Mot de passe fort</p>
+              )}
             </div>
             
             <div className="space-y-2">

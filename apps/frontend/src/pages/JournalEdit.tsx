@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 
 export default function JournalEdit() {
   const { entryId } = useParams<{ entryId: string }>();
@@ -51,11 +52,22 @@ export default function JournalEdit() {
     mutationFn: async () => {
       if (!entryId) throw new Error('Entry ID is required');
 
+      // Sanitize content before saving to database
+      const sanitizedContent = DOMPurify.sanitize(content.trim(), {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'blockquote'],
+        ALLOWED_ATTR: []
+      });
+
+      const sanitizedTitle = DOMPurify.sanitize(title.trim() || 'Sans titre', {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: []
+      });
+
       const { data, error } = await supabase
         .from('journal_entries')
         .update({
-          title: title.trim() || 'Sans titre',
-          content: content.trim(),
+          title: sanitizedTitle,
+          content: sanitizedContent,
           tags: tags.trim() || null,
           updated_at: new Date().toISOString(),
         })
