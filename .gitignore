@@ -30,3 +30,4 @@ __pycache__/
 !.env.staging.example
 !.env.production.example
 .env.backup
+logs/*.log
