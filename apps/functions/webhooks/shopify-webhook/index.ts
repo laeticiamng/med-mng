@@ -25,7 +25,7 @@ serve(async (req) => {
       });
     }
 
-    // Verify Shopify webhook signature
+    // ✅ SÉCURITÉ: Webhook Shopify - Vérification signature HMAC SHA-256
     const hmacHeader = req.headers.get("x-shopify-hmac-sha256");
     const topic = req.headers.get("x-shopify-topic");
     const body = await req.text();

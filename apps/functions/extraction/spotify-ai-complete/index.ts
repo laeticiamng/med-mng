@@ -51,7 +51,8 @@ serve(async (req) => {
 
 async function handleGeneration(req: Request, supabase: any) {
   // Authentification
-  const authHeader = req.headers.get('Authorization');
+  // ✅ SÉCURITÉ: Authentification JWT obligatoire (déjà implémentée)
+    const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
     return new Response(JSON.stringify({ error: 'Authentication required' }), {
       status: 401,

@@ -3,6 +3,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 serve(async (req) => {
+  // ✅ SÉCURITÉ: Webhook Stripe - Vérification signature (HMAC)
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   

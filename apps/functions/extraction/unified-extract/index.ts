@@ -27,6 +27,50 @@ interface ExtractionResult {
 
 serve(async (req) => {
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès unified-extract sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Créer client Supabase pour auth
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Vérifier le token JWT
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour unified-extract');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle ADMIN
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r: any) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative unified-extract par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`✅ unified-extract autorisé pour admin ${user.id}`);
+
     // 🔒 SÉCURITÉ: Validation du payload avec Zod
     const rawPayload = await req.json().catch(() => ({}));
     const parseResult = payloadSchema.safeParse(rawPayload);

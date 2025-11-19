@@ -35,10 +35,22 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Vérifier la signature Resend (optionnel mais recommandé)
-    // const signature = req.headers.get("svix-signature");
-    // const timestamp = req.headers.get("svix-timestamp");
-    // const id = req.headers.get("svix-id");
+    // ✅ SÉCURITÉ: Vérifier la signature Resend/Svix
+    const signature = req.headers.get("svix-signature");
+    const timestamp = req.headers.get("svix-timestamp");
+    const id = req.headers.get("svix-id");
+
+    // Note: La vérification complète Svix nécessiterait la bibliothèque svix
+    // Pour l'instant, on vérifie la présence des headers requis
+    if (!signature || !timestamp || !id) {
+      console.warn('❌ Headers Svix manquants pour resend-webhook');
+      return new Response(
+        JSON.stringify({ error: 'Missing Svix signature headers' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('✅ Headers Svix présents:', { id, timestamp });
 
     const payload: ResendWebhookEvent = await req.json();
     console.log("Webhook type:", payload.type);
