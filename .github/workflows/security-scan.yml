@@ -1,0 +1,409 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop, claude/**]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scan every day at 2 AM
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          npm audit --json > npm-audit.json || true
+          npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk.json
+
+      - name: Upload Snyk results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: snyk-results
+          path: snyk.json
+
+      - name: Comment PR with vulnerabilities
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🔒 Security Scan Results\n\n';
+
+            // npm audit results
+            if (fs.existsSync('npm-audit.json')) {
+              const npmAudit = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+              const vulns = npmAudit.metadata?.vulnerabilities || {};
+
+              comment += '### npm audit\n';
+              comment += `- Critical: ${vulns.critical || 0}\n`;
+              comment += `- High: ${vulns.high || 0}\n`;
+              comment += `- Moderate: ${vulns.moderate || 0}\n`;
+              comment += `- Low: ${vulns.low || 0}\n\n`;
+            }
+
+            // Snyk results
+            if (fs.existsSync('snyk.json')) {
+              comment += '### Snyk Scan\n';
+              comment += 'See artifacts for detailed results\n\n';
+            }
+
+            comment += '---\n';
+            comment += '*Automated security scan by Med-MNG CI/CD*';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  code-security-scan:
+    name: Code Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ESLint security plugins
+        run: |
+          npm install --save-dev \
+            eslint-plugin-security \
+            eslint-plugin-no-secrets \
+            @typescript-eslint/eslint-plugin \
+            @typescript-eslint/parser
+
+      - name: Run ESLint security checks
+        run: |
+          npx eslint . \
+            --ext .js,.jsx,.ts,.tsx \
+            --plugin security \
+            --plugin no-secrets \
+            --format json \
+            --output-file eslint-security.json || true
+        continue-on-error: true
+
+      - name: Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --json --only-verified
+
+      - name: Run Semgrep security scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/sql-injection
+            p/xss
+          generateSarif: true
+
+      - name: Upload Semgrep results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Upload ESLint results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: eslint-security-results
+          path: eslint-security.json
+
+  sql-injection-scan:
+    name: SQL Injection Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Scan for SQL injection patterns
+        run: |
+          echo "🔍 Scanning for SQL injection vulnerabilities..."
+
+          # Scan for dangerous patterns
+          ISSUES=0
+
+          # Pattern 1: String concatenation in SQL queries
+          echo "Checking for string concatenation in SQL..."
+          if grep -r "SELECT.*\${" apps/functions/ --include="*.ts" --include="*.js"; then
+            echo "⚠️ Found template literal concatenation in SQL queries"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Pattern 2: Direct variable insertion
+          echo "Checking for direct variable insertion..."
+          if grep -r "\.query.*req\." apps/functions/ --include="*.ts" --include="*.js"; then
+            echo "⚠️ Found direct request variable in SQL query"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Pattern 3: .raw() usage (dangerous in some ORMs)
+          echo "Checking for .raw() usage..."
+          if grep -r "\.raw(" apps/functions/ --include="*.ts" --include="*.js"; then
+            echo "ℹ️ Found .raw() usage - verify parameterization"
+          fi
+
+          echo ""
+          echo "✅ SQL Injection scan complete"
+          echo "Issues found: $ISSUES"
+
+          if [ $ISSUES -gt 0 ]; then
+            echo "❌ SQL Injection vulnerabilities detected"
+            exit 1
+          fi
+
+  xss-scan:
+    name: XSS Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Scan for XSS vulnerabilities
+        run: |
+          echo "🔍 Scanning for XSS vulnerabilities..."
+
+          ISSUES=0
+
+          # Pattern 1: dangerouslySetInnerHTML without sanitization
+          echo "Checking for dangerouslySetInnerHTML..."
+          if grep -r "dangerouslySetInnerHTML" apps/ --include="*.tsx" --include="*.jsx"; then
+            echo "⚠️ Found dangerouslySetInnerHTML usage"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Pattern 2: innerHTML usage
+          echo "Checking for innerHTML..."
+          if grep -r "\.innerHTML\s*=" apps/ --include="*.ts" --include="*.js"; then
+            echo "⚠️ Found innerHTML usage"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Pattern 3: eval() usage
+          echo "Checking for eval()..."
+          if grep -r "\beval(" apps/ --include="*.ts" --include="*.js"; then
+            echo "⚠️ Found eval() usage"
+            ISSUES=$((ISSUES + 1))
+          fi
+
+          # Check if DOMPurify is used for sanitization
+          echo "Verifying DOMPurify usage..."
+          if grep -r "DOMPurify" apps/ --include="*.ts" --include="*.js" --include="*.tsx"; then
+            echo "✅ Found DOMPurify sanitization"
+          else
+            echo "⚠️ DOMPurify not found - ensure proper sanitization"
+          fi
+
+          echo ""
+          echo "✅ XSS scan complete"
+          echo "Issues found: $ISSUES"
+
+  api-security-test:
+    name: API Security Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify authentication on all endpoints
+        run: |
+          echo "🔍 Verifying authentication on API endpoints..."
+
+          ISSUES=0
+
+          # Check that all Edge Functions have authentication
+          for func in apps/functions/*/index.ts; do
+            echo "Checking $func..."
+
+            # Skip webhook endpoints (they use signature verification)
+            if echo "$func" | grep -q "webhook"; then
+              echo "  ⏭️ Skipping webhook (uses signature verification)"
+              continue
+            fi
+
+            # Check for Authorization header check
+            if grep -q "Authorization" "$func" && grep -q "authHeader" "$func"; then
+              echo "  ✅ Has authentication check"
+            else
+              echo "  ⚠️ Missing authentication check"
+              ISSUES=$((ISSUES + 1))
+            fi
+          done
+
+          echo ""
+          echo "Authentication check complete"
+          echo "Functions without auth: $ISSUES"
+
+      - name: Verify rate limiting on costly endpoints
+        run: |
+          echo "🔍 Verifying rate limiting on costly endpoints..."
+
+          COSTLY_ENDPOINTS=(
+            "generate-music"
+            "content-ai-generator"
+            "openai-image"
+            "ai-code-analysis"
+          )
+
+          ISSUES=0
+
+          for endpoint in "${COSTLY_ENDPOINTS[@]}"; do
+            func="apps/functions/$endpoint/index.ts"
+
+            if [ -f "$func" ]; then
+              echo "Checking $endpoint..."
+
+              if grep -q "checkRateLimit" "$func"; then
+                echo "  ✅ Has rate limiting"
+              else
+                echo "  ⚠️ Missing rate limiting"
+                ISSUES=$((ISSUES + 1))
+              fi
+            fi
+          done
+
+          echo ""
+          echo "Rate limiting check complete"
+          echo "Endpoints without rate limiting: $ISSUES"
+
+      - name: Verify admin endpoints protection
+        run: |
+          echo "🔍 Verifying admin endpoint protection..."
+
+          ADMIN_ENDPOINTS=(
+            "admin-export"
+            "analytics-aggregator"
+            "regenerate-all-oic-content"
+          )
+
+          ISSUES=0
+
+          for endpoint in "${ADMIN_ENDPOINTS[@]}"; do
+            func="apps/functions/$endpoint/index.ts"
+
+            if [ -f "$func" ]; then
+              echo "Checking $endpoint..."
+
+              if grep -q "isAdmin" "$func" || grep -q "role === 'admin'" "$func"; then
+                echo "  ✅ Has admin check"
+              else
+                echo "  ⚠️ Missing admin check"
+                ISSUES=$((ISSUES + 1))
+              fi
+            fi
+          done
+
+          echo ""
+          echo "Admin protection check complete"
+          echo "Endpoints without admin check: $ISSUES"
+
+  owasp-zap-scan:
+    name: OWASP ZAP Dynamic Security Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'https://your-project.supabase.co'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Upload ZAP results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-results
+          path: |
+            report_html.html
+            report_json.json
+
+  security-scorecard:
+    name: Generate Security Scorecard
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, code-security-scan, sql-injection-scan, xss-scan, api-security-test]
+    if: always()
+
+    steps:
+      - name: Generate Security Summary
+        run: |
+          echo "# 🔒 Security Scan Summary" > $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Security | ${{ needs.code-security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SQL Injection | ${{ needs.sql-injection-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| XSS Scan | ${{ needs.xss-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Security | ${{ needs.api-security-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Automated by Med-MNG Security CI/CD*" >> $GITHUB_STEP_SUMMARY
