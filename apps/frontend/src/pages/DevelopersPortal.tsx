@@ -1,4 +1,3 @@
-import { Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
