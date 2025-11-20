@@ -12,7 +12,7 @@ const openaiApiKey = Deno.env.get("OPENAI_API_KEY")!;
 const githubWebhookSecret = Deno.env.get("GITHUB_WEBHOOK_SECRET");
 const githubToken = Deno.env.get("GITHUB_TOKEN");
 
-// Vérifier la signature GitHub avec crypto.subtle
+// ✅ SÉCURITÉ: Webhook GitHub - Vérification signature HMAC SHA-256
 async function verifyGitHubSignature(payload: string, signature: string, secret: string): Promise<boolean> {
   if (!signature || !signature.startsWith('sha256=')) {
     return false;

@@ -13,9 +13,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    // ✅ SÉCURITÉ: Webhook Google Sheets - Vérification token via database
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
-    
+
     if (!token) {
       throw new Error("Missing webhook token");
     }

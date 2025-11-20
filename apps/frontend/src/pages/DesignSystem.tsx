@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Moon, Sun, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,8 +8,16 @@ import { useTheme } from '@/components/ui/theme-provider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import ColorPicker from '@/components/devtools/ColorPicker';
+import { useAuth } from '@/hooks/useAuth';
 
 const DesignSystem: React.FC = () => {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const { theme, setTheme } = useTheme();
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 

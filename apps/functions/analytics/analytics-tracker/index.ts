@@ -14,12 +14,34 @@ serve(async (req) => {
   }
 
   try {
+    // ✅ SÉCURITÉ: Vérifier authentification pour éviter pollution des analytics
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { event, properties, userId }: TrackingEvent = await req.json();
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { event, properties }: Omit<TrackingEvent, 'userId'> = await req.json();
+
+    // ✅ SÉCURITÉ: Toujours utiliser le user.id du token authentifié, jamais celui du payload
+    const userId = user.id;
 
     console.log('📊 Tracking event:', event, 'for user:', userId);
 

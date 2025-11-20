@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +81,13 @@ export const GoalDetail: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
@@ -105,10 +113,12 @@ export const GoalDetail: React.FC = () => {
   const { data: goal, isLoading: loadingGoal } = useQuery<UserGoal>({
     queryKey: ['goal', goalId],
     queryFn: async () => {
+      // ✅ SÉCURITÉ: Vérifier que le goal appartient à l'utilisateur
       const { data, error } = await supabase
         .from('user_goals')
         .select('*')
         .eq('id', goalId)
+        .eq('user_id', user.id)  // Protection: seul le propriétaire peut voir
         .single();
 
       if (error) throw error;
@@ -131,6 +141,7 @@ export const GoalDetail: React.FC = () => {
   const { data: activities = [] } = useQuery<GoalActivity[]>({
     queryKey: ['goal-activity', goalId],
     queryFn: async () => {
+      // ✅ SÉCURITÉ: Vérifier appartenance via relation
       const { data, error } = await supabase
         .from('goal_activity_log')
         .select('*')

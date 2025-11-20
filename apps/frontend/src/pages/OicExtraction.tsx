@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 const OicExtraction = () => {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
   const [logs, setLogs] = useState<Array<{time: string, message: string, type: string}>>([]);
   const [isExtracting, setIsExtracting] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -24,8 +38,10 @@ const OicExtraction = () => {
     setLogs(prev => [...prev, newLog]);
   };
 
-  const baseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs';
-  const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+  // ⚠️ SÉCURITÉ: Ne pas hardcoder les secrets
+  // TODO: Utiliser import.meta.env.VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
+  const baseUrl = import.meta.env.VITE_SUPABASE_URL + '/functions/v1/extract-edn-objectifs';
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   const headers = {
     'Content-Type': 'application/json',

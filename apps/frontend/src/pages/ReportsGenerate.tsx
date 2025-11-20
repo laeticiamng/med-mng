@@ -1,5 +1,9 @@
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { Link, useNavigate }, { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +12,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 export default function ReportsGenerate() {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
 

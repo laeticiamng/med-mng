@@ -6,6 +6,18 @@ import { Progress } from '@/components/ui/progress';
 import { useMusicMetrics } from '@/hooks/useMusicMetrics';
 
 export default function Monitoring() {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const {
     globalStats,
     contentTypeStats,

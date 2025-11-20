@@ -23,6 +23,7 @@ serve(async (req) => {
     );
 
     // Authentification obligatoire
+    // ✅ SÉCURITÉ: Authentification JWT obligatoire (déjà implémentée)
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Authentication required' }), {

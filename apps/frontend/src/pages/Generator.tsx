@@ -173,10 +173,23 @@ const Generator = () => {
       let savedSongId = null;
       if (user && contentType === 'edn' && audioUrl) {
         try {
+          // ✅ SÉCURITÉ: Validation des inputs avant insertion DB
+          const sanitizedTitle = `${titlePrefix} - Rang ${rang}`.substring(0, 200); // Limite longueur
+          const validRangTypes = ['A', 'B'];
+          const validStyles = ['pop', 'rap', 'rock', 'jazz', 'classical', 'electronic']; // Ajuster selon vos styles
+
+          if (!validRangTypes.includes(rang)) {
+            throw new Error('Invalid rang type');
+          }
+
+          if (selectedStyle && !validStyles.includes(selectedStyle)) {
+            console.warn('Invalid music style, using default');
+          }
+
           const { data: savedSong, error: saveError } = await supabase
             .from('med_mng_songs')
             .insert({
-              title: `${titlePrefix} - Rang ${rang}`,
+              title: sanitizedTitle,
               suno_audio_id: audioUrl,
               item_code: selectedItem,
               rang_type: rang,

@@ -6,18 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { toast } from "sonner";
-import { 
-  Search, 
-  Filter, 
-  Book, 
-  Clock, 
-  Eye, 
+import {
+  Search,
+  Filter,
+  Book,
+  Clock,
+  Eye,
   Loader2,
   RefreshCw,
   Grid,
   List
 } from "lucide-react";
 import { ecosService, EcosSituation, EcosSearchResult } from '@shared/services/ecosService';
+import { createSafeHtml } from '@/utils/sanitize';
 
 interface EcosExplorerProps {
   className?: string;
@@ -367,11 +368,9 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div 
+              <div
                 className="prose max-w-none mb-4"
-                dangerouslySetInnerHTML={{ 
-                  __html: selectedSituation.contenu_complet_html 
-                }}
+                dangerouslySetInnerHTML={createSafeHtml(selectedSituation.contenu_complet_html)}
               />
               
               {selectedSituation.competences_associees && (

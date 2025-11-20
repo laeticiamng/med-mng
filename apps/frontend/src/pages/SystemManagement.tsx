@@ -1,7 +1,14 @@
 import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { SystemMonitor } from '@/components/system/SystemMonitor';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 /**
  * Page de Gestion Système - Monitoring et administration avancée

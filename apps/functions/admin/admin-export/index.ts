@@ -20,10 +20,46 @@ serve(async (req) => {
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification et rôle admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // Vérifier le token et récupérer l'utilisateur
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ✅ SÉCURITÉ CRITIQUE: Vérifier le rôle admin
+    const { data: userRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    if (rolesError || !userRoles || !userRoles.some(r => r.role === 'admin')) {
+      console.warn(`Tentative d'export non autorisée par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ error: 'Admin role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Export autorisé pour admin ${user.id}`);
 
     const { format, tables, filters, dateRange, includeMetadata } = await req.json() as ExportRequest;
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { Navigate } from 'react-router-dom'
 import { useFetchModerationRules, useFetchPendingAppeals, useFetchModerationTeams } from '@/hooks/useModeration'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -8,8 +9,22 @@ import { AlertTriangle, Shield, Users, FileText } from 'lucide-react'
 import ModerationRulesManager from '@/components/moderation/ModerationRulesManager'
 import ModerationTeamsManager from '@/components/moderation/ModerationTeamsManager'
 import AppealsReviewPanel from '@/components/moderation/AppealsReviewPanel'
+import { useAuth } from '@/hooks/useAuth'
+import { useUserRoles } from '@/hooks/useUserRoles'
 
 export default function ModerationWorkflow() {
+  // ✅ SÉCURITÉ: Vérification admin/moderator requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const [activeTab, setActiveTab] = useState('overview')
 
   // Fetch data

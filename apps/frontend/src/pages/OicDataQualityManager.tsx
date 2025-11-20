@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +50,18 @@ interface FixResult {
 }
 
 const OicDataQualityManager = () => {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);

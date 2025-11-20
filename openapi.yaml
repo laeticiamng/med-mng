@@ -1,0 +1,771 @@
+openapi: 3.0.3
+info:
+  title: Med-MNG API
+  description: |
+    API de la plateforme Med-MNG pour l'éducation médicale avec génération de contenu IA.
+
+    ## Authentification
+    Toutes les routes API nécessitent une authentification JWT via Supabase Auth.
+
+    Incluez le token dans l'en-tête Authorization:
+    ```
+    Authorization: Bearer YOUR_JWT_TOKEN
+    ```
+
+    ## Rate Limiting
+    Les limites de taux s'appliquent pour protéger les ressources coûteuses:
+    - **AI Chat (GPT-4)**: 20 requêtes/heure (gratuit), 100 requêtes/heure (premium)
+    - **Génération d'images**: 10 images/heure (gratuit), 50 images/heure (premium)
+    - **Génération de musique**: 5 chansons/heure (gratuit), 20 chansons/heure (premium)
+
+    Les réponses incluent les en-têtes de rate limiting:
+    - `X-RateLimit-Limit`: Limite totale
+    - `X-RateLimit-Remaining`: Requêtes restantes
+    - `X-RateLimit-Reset`: Timestamp de réinitialisation
+
+    ## Codes d'Erreur
+    - `400`: Bad Request - Paramètres invalides
+    - `401`: Unauthorized - Token manquant ou invalide
+    - `403`: Forbidden - Permissions insuffisantes
+    - `429`: Too Many Requests - Rate limit dépassé
+    - `500`: Internal Server Error - Erreur serveur
+
+    ## Security Monitoring
+    Tous les événements de sécurité sont loggés et les alertes sont envoyées pour les événements critiques.
+
+  version: 1.0.0
+  contact:
+    name: Med-MNG Support
+    email: support@med-mng.fr
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://your-project.supabase.co/functions/v1
+    description: Production Supabase Edge Functions
+  - url: http://localhost:54321/functions/v1
+    description: Local Development
+
+tags:
+  - name: Authentication
+    description: Endpoints d'authentification et gestion de compte
+  - name: Music Generation
+    description: Génération de musique thérapeutique via Suno AI
+  - name: AI Content
+    description: Génération de contenu via OpenAI (GPT-4, DALL-E)
+  - name: Data Extraction
+    description: Extraction de données depuis sources externes (UNESS, EDN)
+  - name: Analytics
+    description: Analyse et reporting de données
+  - name: Admin Operations
+    description: Opérations administratives (admin seulement)
+  - name: Webhooks
+    description: Webhooks entrants (Stripe, GitHub, etc.)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenu via Supabase Auth
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Authentication required"
+        message:
+          type: string
+          example: "Detailed error message"
+      required:
+        - success
+        - error
+
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Rate limit exceeded"
+        message:
+          type: string
+          example: "You can generate 5 songs per hour. Try again in 23 minutes."
+        remaining:
+          type: integer
+          example: 0
+        resetAt:
+          type: string
+          format: date-time
+          example: "2025-11-19T15:30:00Z"
+        limit:
+          type: integer
+          example: 5
+      required:
+        - error
+        - remaining
+        - resetAt
+        - limit
+
+    MusicGenerationRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          example: "Musique relaxante pour méditation, 432Hz, sons de nature"
+          description: "Description de la musique à générer"
+        duration:
+          type: integer
+          example: 180
+          description: "Durée en secondes (60-300)"
+        style:
+          type: string
+          example: "ambient"
+          enum: [ambient, classical, meditation, nature, therapeutic]
+      required:
+        - prompt
+
+    MusicGenerationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        taskId:
+          type: string
+          example: "task_abc123def456"
+          description: "ID de la tâche pour vérifier le statut"
+        rateLimit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+              example: 4
+            resetAt:
+              type: string
+              format: date-time
+              example: "2025-11-19T15:30:00Z"
+            limit:
+              type: integer
+              example: 5
+
+    AIGenerationRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          example: "Expliquer le fonctionnement du cœur humain en termes simples"
+        model:
+          type: string
+          example: "gpt-4"
+          enum: [gpt-4, gpt-3.5-turbo]
+        max_tokens:
+          type: integer
+          example: 1000
+          description: "Nombre maximum de tokens (100-4000)"
+      required:
+        - prompt
+
+    AIGenerationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        content:
+          type: string
+          example: "Le cœur humain est une pompe musculaire..."
+        usage:
+          type: object
+          properties:
+            prompt_tokens:
+              type: integer
+              example: 15
+            completion_tokens:
+              type: integer
+              example: 150
+            total_tokens:
+              type: integer
+              example: 165
+        rateLimit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+              example: 19
+            resetAt:
+              type: string
+              format: date-time
+            limit:
+              type: integer
+              example: 20
+
+    ImageGenerationRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+          example: "Illustration médicale d'un cœur humain en coupe"
+        size:
+          type: string
+          example: "1024x1024"
+          enum: ["1024x1024", "1792x1024", "1024x1792"]
+      required:
+        - prompt
+
+    ImageGenerationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        imageUrl:
+          type: string
+          format: uri
+          example: "https://oaidalleapiprodscus.blob.core.windows.net/..."
+        rateLimit:
+          type: object
+          properties:
+            remaining:
+              type: integer
+              example: 9
+            resetAt:
+              type: string
+              format: date-time
+            limit:
+              type: integer
+              example: 10
+
+    AdminExportRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "patients"
+          enum: [patients, courses, analytics, all]
+        format:
+          type: string
+          example: "csv"
+          enum: [csv, json, xlsx]
+        startDate:
+          type: string
+          format: date
+          example: "2025-01-01"
+        endDate:
+          type: string
+          format: date
+          example: "2025-11-19"
+
+    AdminExportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        downloadUrl:
+          type: string
+          format: uri
+          example: "https://storage.supabase.co/..."
+        recordCount:
+          type: integer
+          example: 1523
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2025-11-20T15:30:00Z"
+          description: "URL expire après 24h"
+
+  responses:
+    UnauthorizedError:
+      description: Token JWT manquant ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication required"
+
+    ForbiddenError:
+      description: Permissions insuffisantes (admin requis)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Admin role required"
+
+    RateLimitExceeded:
+      description: Limite de taux dépassée
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Nombre total de requêtes autorisées
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Nombre de requêtes restantes
+        X-RateLimit-Reset:
+          schema:
+            type: string
+            format: date-time
+          description: Timestamp de réinitialisation
+        Retry-After:
+          schema:
+            type: integer
+          description: Secondes avant de pouvoir réessayer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RateLimitError'
+
+    InternalServerError:
+      description: Erreur serveur interne
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Internal server error"
+            message: "An unexpected error occurred"
+
+security:
+  - BearerAuth: []
+
+paths:
+  /customer-portal:
+    post:
+      tags:
+        - Authentication
+      summary: Créer une session du portail client Stripe
+      description: |
+        Génère une URL vers le portail client Stripe pour gérer les abonnements.
+        Nécessite un utilisateur authentifié avec un compte Stripe actif.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: URL du portail client créée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    example: "https://billing.stripe.com/session/..."
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /generate-music:
+    post:
+      tags:
+        - Music Generation
+      summary: Générer une musique thérapeutique
+      description: |
+        Génère une musique personnalisée via Suno AI basée sur le prompt fourni.
+
+        **Rate Limiting:**
+        - Gratuit: 5 chansons/heure
+        - Premium: 20 chansons/heure
+
+        **Coût:** ~$0.10/chanson
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MusicGenerationRequest'
+      responses:
+        '200':
+          description: Génération démarrée avec succès
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Limite de génération
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Générations restantes
+            X-RateLimit-Reset:
+              schema:
+                type: string
+                format: date-time
+              description: Réinitialisation du compteur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MusicGenerationResponse'
+        '400':
+          description: Paramètres invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /content-ai-generator:
+    post:
+      tags:
+        - AI Content
+      summary: Générer du contenu via GPT-4
+      description: |
+        Génère du contenu éducatif médical via OpenAI GPT-4.
+
+        **Rate Limiting:**
+        - Gratuit: 20 requêtes/heure
+        - Premium: 100 requêtes/heure
+
+        **Coût:** $0.03/1K tokens
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIGenerationRequest'
+      responses:
+        '200':
+          description: Contenu généré avec succès
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIGenerationResponse'
+        '400':
+          description: Paramètres invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /openai-image:
+    post:
+      tags:
+        - AI Content
+      summary: Générer une image via DALL-E 3
+      description: |
+        Génère une image éducative via OpenAI DALL-E 3.
+
+        **Rate Limiting:**
+        - Gratuit: 10 images/heure
+        - Premium: 50 images/heure
+
+        **Coût:** $0.04/image
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageGenerationRequest'
+      responses:
+        '200':
+          description: Image générée avec succès
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageGenerationResponse'
+        '400':
+          description: Paramètres invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /ai-code-analysis:
+    post:
+      tags:
+        - AI Content
+      summary: Analyser du code via GPT-4
+      description: |
+        Analyse du code et suggestions d'amélioration via OpenAI GPT-4.
+
+        **Rate Limiting:**
+        - Gratuit: 15 requêtes/heure
+        - Premium: 50 requêtes/heure
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "function add(a, b) { return a + b; }"
+                language:
+                  type: string
+                  example: "javascript"
+                analysisType:
+                  type: string
+                  example: "security"
+                  enum: [security, performance, best-practices, all]
+              required:
+                - code
+      responses:
+        '200':
+          description: Analyse terminée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  analysis:
+                    type: string
+                    example: "Le code est correct mais pourrait être amélioré..."
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                  rateLimit:
+                    type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin-export:
+    post:
+      tags:
+        - Admin Operations
+      summary: Exporter des données (Admin seulement)
+      description: |
+        Exporte des données sensibles en bulk. **Nécessite le rôle Admin.**
+
+        **Rate Limiting:** 5 exports/heure
+
+        **Security:** Tous les exports sont loggés pour audit.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminExportRequest'
+      responses:
+        '200':
+          description: Export créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminExportResponse'
+        '400':
+          description: Paramètres invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analytics-aggregator:
+    post:
+      tags:
+        - Analytics
+      summary: Agréger les analytics (Admin seulement)
+      description: |
+        Agrège et analyse les métriques de la plateforme.
+        **Nécessite le rôle Admin.**
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  format: date
+                  example: "2025-01-01"
+                endDate:
+                  type: string
+                  format: date
+                  example: "2025-11-19"
+                filters:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Analytics agrégés avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userActivity:
+                    type: object
+                  contentMetrics:
+                    type: object
+                  performanceMetrics:
+                    type: object
+                  revenueMetrics:
+                    type: object
+                  errorMetrics:
+                    type: object
+                  period:
+                    type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /stripe-webhook:
+    post:
+      tags:
+        - Webhooks
+      summary: Webhook Stripe
+      description: |
+        Reçoit les événements de Stripe (paiements, abonnements).
+
+        **Security:** Vérification de signature HMAC SHA-256 obligatoire.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Événement Stripe
+      parameters:
+        - name: stripe-signature
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Signature HMAC de Stripe pour vérification
+      responses:
+        '200':
+          description: Webhook traité avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+        '400':
+          description: Signature invalide ou événement malformé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /github-quality-webhook:
+    post:
+      tags:
+        - Webhooks
+      summary: Webhook GitHub
+      description: |
+        Reçoit les événements GitHub (push, PR, issues).
+
+        **Security:** Vérification de signature HMAC SHA-256 obligatoire.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Événement GitHub
+      parameters:
+        - name: x-hub-signature-256
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Signature HMAC SHA-256 de GitHub
+      responses:
+        '200':
+          description: Webhook traité avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Signature invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

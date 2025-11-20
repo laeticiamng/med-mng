@@ -202,7 +202,8 @@ const response = await supabase.functions.invoke('contextual-ai-chat', {
 
     // Métriques système (protégé)
     if (path === '/metrics') {
-      const authHeader = req.headers.get('Authorization');
+      // ✅ SÉCURITÉ: Authentification JWT obligatoire (déjà implémentée)
+    const authHeader = req.headers.get('Authorization');
       if (!authHeader) {
         return new Response(JSON.stringify({ error: 'Authentication required for metrics' }), {
           status: 401,

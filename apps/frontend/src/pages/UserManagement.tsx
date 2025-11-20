@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import { useUserRoles } from '@/hooks/useUserRoles'
 import { useFetchGroups, useCreateGroup } from '@/hooks/useUserManagement'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -11,6 +14,18 @@ import { Users, Shield, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function UserManagement() {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth()
+  const { isAdmin, loadingMyRoles } = useUserRoles()
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />
+  }
+
   const { data: groups = [] } = useFetchGroups()
   const createGroupMutation = useCreateGroup()
   const [showGroupDialog, setShowGroupDialog] = useState(false)

@@ -41,14 +41,59 @@ const UNESS_EMAIL = Deno.env.get('UNESS_EMAIL')
 const UNESS_PASSWORD = Deno.env.get('UNESS_PASSWORD')
 
 serve(async (req) => {
-  console.log('🚀 Fonction extract-edn-uness démarrée - Version complète UNES')
-  
-  // Handle CORS preflight requests
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // ✅ SÉCURITÉ CRITIQUE: Authentification JWT + Vérification Admin
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('❌ Tentative accès extract-edn-uness sans authentification');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // Créer client Supabase
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Vérifier le token JWT
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      console.warn('❌ Token invalide pour extract-edn-uness');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // ✅ SÉCURITÉ: Vérifier rôle ADMIN
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some((r) => r.role === 'admin');
+    if (!isAdmin) {
+      console.warn(`❌ Non-admin tentative extract-edn-uness par user ${user.id}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin role required' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log(`✅ extract-edn-uness autorisé pour admin ${user.id}`);
+
+    // Code original de la fonction
+    
     const body = await req.json() as ExtractRequest
     const { 
       action, 

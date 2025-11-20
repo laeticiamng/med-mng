@@ -1,13 +1,21 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Key, Plus, Copy, Trash2, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
 export default function DevelopersKeys() {
+  // ✅ SÉCURITÉ: Vérification d'authentification
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
   const [showKeys, setShowKeys] = useState<Record<number, boolean>>({});
   const keys = [
     { id: 1, name: 'Production API', key: 'sk_live_1234567890abcdef', created: '2024-01-15', lastUsed: '2 heures', requests: 15420 },

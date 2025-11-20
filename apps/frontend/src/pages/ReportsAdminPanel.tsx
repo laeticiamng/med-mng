@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { Navigate } from 'react-router-dom'
 import { useFetchAdminReports, useUpdateReportStatus, useFetchAdminAppeals, useReviewAppeal } from '@/hooks/useContentReporting'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -10,8 +11,21 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AlertCircle, FileText, Clock } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAuth } from '@/hooks/useAuth'
+import { useUserRoles } from '@/hooks/useUserRoles'
 
 export default function ReportsAdminPanel() {
+  // ✅ SÉCURITÉ: Vérification admin requise
+  const { user } = useAuth();
+  const { isAdmin, loadingMyRoles } = useUserRoles();
+
+  if (!user) {
+    return <Navigate to="/med-mng-login" replace />;
+  }
+
+  if (!loadingMyRoles && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
   const { data: reports = [] } = useFetchAdminReports()
   const { data: appeals = [] } = useFetchAdminAppeals()
   const updateReportMutation = useUpdateReportStatus()

@@ -20,6 +20,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // ✅ SÉCURITÉ: Authentification JWT obligatoire (déjà implémentée)
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       throw new Error("No authorization header");
