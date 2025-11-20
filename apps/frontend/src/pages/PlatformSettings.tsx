@@ -5,7 +5,6 @@ import { Navigate } from 'react-router-dom';
 import { DataExportManager } from '@/components/backup/DataExportManager';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
-import { useUserRoles } from '@/hooks/useUserRoles';
 
 /**
  * Page de Configuration Avancée de la Plateforme
