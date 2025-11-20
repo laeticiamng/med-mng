@@ -5,7 +5,6 @@ import { Navigate } from 'react-router-dom';
 import { SystemMonitor } from '@/components/system/SystemMonitor';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
-import { useUserRoles } from '@/hooks/useUserRoles';
 
 /**
  * Page de Gestion Système - Monitoring et administration avancée
