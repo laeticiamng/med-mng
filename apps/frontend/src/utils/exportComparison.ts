@@ -1,7 +1,3 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import html2canvas from 'html2canvas';
 import logger from '@/lib/logger';
 
 /**
@@ -17,6 +13,8 @@ export interface ComparisonData {
 
 /**
  * Export comparison data to PDF
+ * 📊 PERFORMANCE: Dynamic imports - heavy libraries loaded only when needed
+ * - jsPDF + html2canvas: ~586 KB → saved from initial bundle
  * @param data - Comparison data array
  * @param period1Label - Label for first period
  * @param period2Label - Label for second period
@@ -29,6 +27,13 @@ export async function exportComparisonToPDF(
   chartRef?: HTMLDivElement
 ): Promise<void> {
   try {
+    // Lazy load PDF libraries (586 KB chunk)
+    const [{ default: jsPDF }, { default: html2canvas }, _] = await Promise.all([
+      import('jspdf'),
+      import('html2canvas'),
+      import('jspdf-autotable'),
+    ]);
+
     const doc = new jsPDF();
 
     // Add title
@@ -92,6 +97,7 @@ export async function exportComparisonToPDF(
 
 /**
  * Export comparison data to Excel
+ * 📊 PERFORMANCE: Dynamic import - XLSX loaded only when needed (~278 KB saved)
  * @param data - Comparison data array
  * @param period1Label - Label for first period
  * @param period2Label - Label for second period
@@ -102,6 +108,9 @@ export async function exportComparisonToExcel(
   period2Label: string
 ): Promise<void> {
   try {
+    // Lazy load XLSX library (278 KB chunk)
+    const XLSX = await import('xlsx');
+
     // Prepare worksheet data
     const wsData = [
       ['Category', period1Label, period2Label, 'Difference', 'Change %'],

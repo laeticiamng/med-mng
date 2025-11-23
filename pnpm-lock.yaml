@@ -133,7 +133,7 @@ importers:
         version: 9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
       '@storybook/react-vite':
         specifier: ^9.0.18
-        version: 9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@2.79.2)(typescript@5.8.3)(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.53.2)(typescript@5.8.3)(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       '@storybook/test':
         specifier: ^8.6.14
         version: 8.6.14
@@ -740,6 +740,9 @@ importers:
       postcss:
         specifier: ^8.4.47
         version: 8.5.6
+      rollup-plugin-visualizer:
+        specifier: ^6.0.5
+        version: 6.0.5(rollup@2.79.2)
       tailwindcss:
         specifier: ^3.4.11
         version: 3.4.17(ts-node@10.9.2(@swc/core@1.12.11)(@types/node@22.19.1)(typescript@5.8.3))
@@ -8226,6 +8229,19 @@ packages:
     resolution: {integrity: sha512-s+pyvQeIKIZ0dx5iJiQk1tPLJAWln39+MI5jtM8wnyws+G5azk+dMnMX0qfbqNetKKNgcWWOdi0sfm+FbQbgdQ==}
     engines: {node: '>=10.0.0'}
 
+  rollup-plugin-visualizer@6.0.5:
+    resolution: {integrity: sha512-9+HlNgKCVbJDs8tVtjQ43US12eqaiHyyiLMdBwQ7vSZPiHMysGNo2E88TAp1si5wx8NAoYriI2A5kuKfIakmJg==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      rolldown: 1.x || ^1.0.0-beta
+      rollup: 2.x || 3.x || 4.x
+    peerDependenciesMeta:
+      rolldown:
+        optional: true
+      rollup:
+        optional: true
+
   rollup@2.79.2:
     resolution: {integrity: sha512-fS6iqSPZDs3dr/y7Od6y5nha8dW1YnbgtsyotCVvoFGKbERG++CVRFv1meyGDE1SNItQA8BrnCw7ScdAhRJ3XQ==}
     engines: {node: '>=10.0.0'}
@@ -11245,7 +11261,10 @@ snapshots:
       jest-runner: 25.5.4
       jest-runtime: 25.5.4
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - utf-8-validate
 
   '@jest/transform@25.5.1':
     dependencies:
@@ -12487,6 +12506,14 @@ snapshots:
     optionalDependencies:
       rollup: 2.79.2
 
+  '@rollup/pluginutils@5.3.0(rollup@4.53.2)':
+    dependencies:
+      '@types/estree': 1.0.8
+      estree-walker: 2.0.2
+      picomatch: 4.0.3
+    optionalDependencies:
+      rollup: 4.53.2
+
   '@rollup/rollup-android-arm-eabi@4.44.2':
     optional: true
 
@@ -12880,10 +12907,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/react-vite@9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@2.79.2)(typescript@5.8.3)(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
+  '@storybook/react-vite@9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.53.2)(typescript@5.8.3)(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.1(typescript@5.8.3)(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
-      '@rollup/pluginutils': 5.3.0(rollup@2.79.2)
+      '@rollup/pluginutils': 5.3.0(rollup@4.53.2)
       '@storybook/builder-vite': 9.1.16(vite@7.2.2(@types/node@22.16.3)(jiti@1.21.7)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       '@storybook/react': 9.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
       find-up: 7.0.0
@@ -13568,7 +13595,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.16.3)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@27.2.0)(msw@2.12.2(@types/node@22.16.3)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.1)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@27.2.0)(msw@2.12.2(@types/node@22.19.1)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
   '@vitest/utils@2.0.5':
     dependencies:
@@ -18331,6 +18358,15 @@ snapshots:
       glob: 7.2.3
 
   robots-parser@3.0.1: {}
+
+  rollup-plugin-visualizer@6.0.5(rollup@2.79.2):
+    dependencies:
+      open: 8.4.2
+      picomatch: 4.0.3
+      source-map: 0.7.6
+      yargs: 17.7.2
+    optionalDependencies:
+      rollup: 2.79.2
 
   rollup@2.79.2:
     optionalDependencies:

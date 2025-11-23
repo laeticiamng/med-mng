@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Download, FileSpreadsheet, FileText, TrendingUp, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { useState, useRef } from 'react';
+
+// 📊 PERFORMANCE: Heavy libraries loaded dynamically on export (~864 KB saved from initial bundle)
 
 const COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6'];
 
@@ -109,32 +108,40 @@ export const AlertsAnalyticsDashboard = () => {
     cvss: h.cvss_normalized_score,
   })) || [];
 
-  // Export Excel
-  const exportToExcel = () => {
+  // Export Excel - lazy load XLSX library
+  const exportToExcel = async () => {
     if (!alerts || alerts.length === 0) {
       toast.error('Aucune donnée à exporter');
       return;
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(
-      alerts.map(a => ({
-        'ID Externe': a.external_id,
-        'Source': a.source,
-        'Sévérité': a.severity,
-        'Titre': a.title,
-        'Score Unifié': a.unified_score,
-        'Score CVSS': a.cvss_score,
-        'Occurrences': a.occurrence_count,
-        'Statut': a.status,
-        'Créé le': new Date(a.created_at).toLocaleString('fr-FR'),
-        'URL': a.url,
-      }))
-    );
+    try {
+      // Lazy load XLSX (278 KB chunk)
+      const XLSX = await import('xlsx');
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Alertes');
-    XLSX.writeFile(workbook, `alertes-${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('Export Excel réussi');
+      const worksheet = XLSX.utils.json_to_sheet(
+        alerts.map(a => ({
+          'ID Externe': a.external_id,
+          'Source': a.source,
+          'Sévérité': a.severity,
+          'Titre': a.title,
+          'Score Unifié': a.unified_score,
+          'Score CVSS': a.cvss_score,
+          'Occurrences': a.occurrence_count,
+          'Statut': a.status,
+          'Créé le': new Date(a.created_at).toLocaleString('fr-FR'),
+          'URL': a.url,
+        }))
+      );
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Alertes');
+      XLSX.writeFile(workbook, `alertes-${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success('Export Excel réussi');
+    } catch (error) {
+      logger.error('Export Excel failed:', error);
+      toast.error('Erreur lors de l\'export Excel');
+    }
   };
 
   // Export CSV
@@ -169,7 +176,7 @@ export const AlertsAnalyticsDashboard = () => {
     toast.success('Export CSV réussi');
   };
 
-  // Export PDF avec graphiques
+  // Export PDF avec graphiques - lazy load PDF libraries
   const exportToPDF = async () => {
     if (!dashboardRef.current) {
       toast.error('Dashboard non disponible');
@@ -179,6 +186,12 @@ export const AlertsAnalyticsDashboard = () => {
     toast.info('Génération du PDF en cours...');
 
     try {
+      // Lazy load PDF libraries (586 KB chunk)
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+
       const canvas = await html2canvas(dashboardRef.current, {
         scale: 2,
         useCORS: true,
