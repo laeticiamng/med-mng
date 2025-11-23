@@ -60,7 +60,7 @@ export interface Tutorial {
   updated_at: string
 }
 
-export interface SupportTicket {
+export interface HelpSupportTicket {
   id: string
   user_id: string
   subject: string
@@ -327,7 +327,7 @@ export const helpService = {
   /**
    * Get user's support tickets
    */
-  async getUserTickets(limit = 20, offset = 0): Promise<SupportTicket[]> {
+  async getUserTickets(limit = 20, offset = 0): Promise<HelpSupportTicket[]> {
     try {
       const { data, error } = await supabase
         .from('support_tickets')
@@ -336,7 +336,7 @@ export const helpService = {
         .range(offset, offset + limit - 1)
 
       if (error) throw error
-      return (data || []) as SupportTicket[]
+      return (data || []) as HelpSupportTicket[]
     } catch (err) {
       console.error('Error fetching tickets:', err)
       return []
@@ -346,7 +346,7 @@ export const helpService = {
   /**
    * Get support ticket by ID
    */
-  async getTicket(ticketId: string): Promise<SupportTicket | null> {
+  async getTicket(ticketId: string): Promise<HelpSupportTicket | null> {
     try {
       const { data, error } = await supabase
         .from('support_tickets')
@@ -355,7 +355,7 @@ export const helpService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as SupportTicket | null
+      return (data || null) as HelpSupportTicket | null
     } catch (err) {
       console.error('Error fetching ticket:', err)
       return null

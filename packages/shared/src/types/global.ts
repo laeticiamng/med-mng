@@ -133,7 +133,7 @@ export interface EDNItem {
 export interface EDNContent {
   tableau?: StrictRecord<string, JSONValue>;
   paroles?: string[];
-  quiz?: QuizQuestion[];
+  quiz?: GenericQuizQuestion[];
   scene?: ImmersiveScene;
   bandeDessinee?: ComicPanelData[];
   interactions?: InteractionConfig[];
@@ -155,7 +155,7 @@ export interface Competence {
   category: string;
 }
 
-export interface QuizQuestion {
+export interface GenericQuizQuestion {
   id: string;
   question: string;
   options: string[];
@@ -300,7 +300,7 @@ export interface NotificationAction {
 }
 
 // 🚨 ERROR HANDLING
-export interface AppError {
+export interface AppErrorResponse {
   code: string;
   message: string;
   details?: StrictRecord<string, JSONValue>;
@@ -313,7 +313,7 @@ export interface AppError {
 export interface APIResponse<T = JSONValue> {
   success: boolean;
   data?: T;
-  error?: AppError;
+  error?: AppErrorResponse;
   metadata?: StrictRecord<string, JSONValue>;
 }
 

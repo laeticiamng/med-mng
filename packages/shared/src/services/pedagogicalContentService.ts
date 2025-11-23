@@ -17,7 +17,7 @@ export interface PedagogicalContent {
   metadata: ContentMetadata;
 }
 
-export interface ContentAnalytics {
+export interface PedagogicalContentAnalytics {
   total_content: number;
   by_type: {
     comic: number;
@@ -78,7 +78,7 @@ class PedagogicalContentService {
     return data;
   }
 
-  async getContentAnalytics(): Promise<ContentAnalytics> {
+  async getPedagogicalContentAnalytics(): Promise<PedagogicalContentAnalytics> {
     const { data, error } = await supabase.functions.invoke('pedagogical-content-api', {
       body: null,
       method: 'GET',

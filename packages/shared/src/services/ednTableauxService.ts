@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 
-export interface TableauRang {
+export interface ServiceServiceTableauRang {
   title?: string
   sections?: Array<{
     title: string
@@ -36,7 +36,7 @@ export interface CompletenessAuditResult {
 class EdnTableauxService {
   private baseUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/edn-tableaux-api`
 
-  async getTableauRangA(itemId: string) {
+  async getServiceTableauRangA(itemId: string) {
     try {
       const { data, error } = await supabase.functions.invoke('edn-tableaux-api', {
         body: null,
@@ -51,7 +51,7 @@ class EdnTableauxService {
     }
   }
 
-  async getTableauRangB(itemId: string) {
+  async getServiceTableauRangB(itemId: string) {
     try {
       const response = await fetch(`${this.baseUrl}/items/${itemId}/tableau-rang-b`, {
         method: 'GET',

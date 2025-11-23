@@ -22,7 +22,7 @@ export type AchievementType =
   | 'engagement_master'
   | 'trending_post'
 
-export interface UserProfile {
+export interface ServiceUserProfile {
   id: string
   user_id: string
   display_name?: string
@@ -77,7 +77,7 @@ export const userProfileService = {
   /**
    * Get user profile
    */
-  async getProfile(userId: string): Promise<UserProfile | null> {
+  async getProfile(userId: string): Promise<ServiceUserProfile | null> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -86,7 +86,7 @@ export const userProfileService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as UserProfile | null
+      return (data || null) as ServiceUserProfile | null
     } catch (err) {
       console.error('Error fetching user profile:', err)
       return null
@@ -96,7 +96,7 @@ export const userProfileService = {
   /**
    * Update user profile
    */
-  async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+  async updateProfile(userId: string, updates: Partial<ServiceUserProfile>): Promise<ServiceUserProfile> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -109,7 +109,7 @@ export const userProfileService = {
         .single()
 
       if (error) throw error
-      return data as UserProfile
+      return data as ServiceUserProfile
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to update profile')
     }
@@ -118,7 +118,7 @@ export const userProfileService = {
   /**
    * Create user profile
    */
-  async createProfile(userId: string, profile: Partial<UserProfile>): Promise<UserProfile> {
+  async createProfile(userId: string, profile: Partial<ServiceUserProfile>): Promise<ServiceUserProfile> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -130,7 +130,7 @@ export const userProfileService = {
         .single()
 
       if (error) throw error
-      return data as UserProfile
+      return data as ServiceUserProfile
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to create profile')
     }
@@ -331,7 +331,7 @@ export const userProfileService = {
   /**
    * Search user profiles
    */
-  async searchProfiles(query: string, limit = 20): Promise<UserProfile[]> {
+  async searchProfiles(query: string, limit = 20): Promise<ServiceUserProfile[]> {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -341,7 +341,7 @@ export const userProfileService = {
         .limit(limit)
 
       if (error) throw error
-      return (data || []) as UserProfile[]
+      return (data || []) as ServiceUserProfile[]
     } catch (err) {
       console.error('Error searching profiles:', err)
       return []

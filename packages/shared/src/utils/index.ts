@@ -9,6 +9,7 @@ export * from './generateAdvancedLyrics.js';
 export * from './generateAllAdvancedLyrics.js';
 export * from './generateAllLyrics.js';
 export * from './generateComprehensiveLyrics.js';
+export * from './logger.js';
 export * from './migrationHelpers.js';
 export * from './oicFixLauncher.js';
 export * from './oicProgressMonitor.js';

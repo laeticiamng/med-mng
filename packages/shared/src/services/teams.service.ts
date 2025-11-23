@@ -142,7 +142,7 @@ export async function deleteTeam(teamId: string): Promise<void> {
   if (error) throw error
 }
 
-export async function searchTeams(query: string, visibility?: string): Promise<Team[]> {
+export async function searchTeamsService(query: string, visibility?: string): Promise<Team[]> {
   let qs = supabase
     .from('teams')
     .select('*')
@@ -157,6 +157,9 @@ export async function searchTeams(query: string, visibility?: string): Promise<T
   if (error) throw error
   return data || []
 }
+
+// Alias for backward compatibility (not re-exported in index.ts to avoid conflict)
+export const searchTeams = searchTeamsService
 
 // Team Member Methods
 export async function addTeamMember(

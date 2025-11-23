@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import { notifyIncident } from '../services/alertService';
+import { notifyIncident } from '@med-mng/shared';
 import {
   AppError,
   ErrorCategory,
   ErrorSeverity,
   generateRequestId,
-} from '../utils/errorStandardization';
-import { log } from '../../supabase/functions/med-mng-api/logger';
+} from '@med-mng/shared';
+import { log } from '@med-mng/shared';
 
 const SENSITIVE_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-supabase-api-key', 'x-csrf-token'];
 const SENSITIVE_BODY_FIELDS = ['password', 'token', 'secret', 'apiKey', 'refreshToken'];

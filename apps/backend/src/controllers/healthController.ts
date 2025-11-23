@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import { buildHealthPayload, getHealthMessage, getSystemMetrics, HealthSnapshot, HealthStatus } from '../services/healthService';
-import { log } from '../../supabase/functions/med-mng-api/logger';
+import { buildHealthPayload, getHealthMessage, getSystemMetrics, HealthSnapshot, HealthStatus } from '@med-mng/shared';
+import { log } from '@med-mng/shared';
 
 /**
  * ✅ Type guard pour extraire requestId de manière sécurisée

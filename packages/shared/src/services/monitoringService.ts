@@ -18,7 +18,7 @@ export interface SystemHealth {
   lastCheck: Date;
 }
 
-export interface PerformanceMetrics {
+export interface MonitoringPerformanceMetrics {
   apiResponseTimes: {
     p50: number;
     p95: number;
@@ -119,7 +119,7 @@ class MonitoringService {
     }
   }
 
-  async getPerformanceMetrics(): Promise<PerformanceMetrics> {
+  async getMonitoringPerformanceMetrics(): Promise<MonitoringPerformanceMetrics> {
     try {
       // Get recent operation logs to calculate performance metrics
       const { data: recentLogs } = await supabase
@@ -130,7 +130,7 @@ class MonitoringService {
         .limit(100);
 
       // Mock performance data (in real app, this would come from actual metrics)
-      const metrics: PerformanceMetrics = {
+      const metrics: MonitoringPerformanceMetrics = {
         apiResponseTimes: {
           p50: 124,
           p95: 287,
@@ -206,7 +206,7 @@ class MonitoringService {
 
   async generateHealthReport(): Promise<string> {
     const health = await this.checkSystemHealth();
-    const metrics = await this.getPerformanceMetrics();
+    const metrics = await this.getMonitoringPerformanceMetrics();
 
     const report = `
 # Rapport de Santé Système

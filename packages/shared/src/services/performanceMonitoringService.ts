@@ -25,7 +25,10 @@ class PerformanceMonitoringService {
   private isEnabled = true;
 
   constructor() {
-    this.initializeNativeMetrics();
+    // Only initialize native metrics in browser environment
+    if (typeof window !== 'undefined') {
+      this.initializeNativeMetrics();
+    }
     this.initializeCustomMetrics();
   }
 
@@ -33,6 +36,9 @@ class PerformanceMonitoringService {
    * Initialize Web Vitals measurement
    */
   private initializeNativeMetrics() {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+
     // Measure First Contentful Paint
     if ('PerformanceObserver' in window) {
       try {
@@ -53,7 +59,7 @@ class PerformanceMonitoringService {
       try {
         const lcpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
+          const lastEntry = entries[entries.length - 1] as any;
           this.recordMetric('lcp', lastEntry.renderTime || lastEntry.loadTime);
         });
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
@@ -106,6 +112,9 @@ class PerformanceMonitoringService {
    * Initialize custom metrics (memory, network latency)
    */
   private initializeCustomMetrics() {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+
     // Memory usage (Chrome only)
     if ((performance as any).memory) {
       setInterval(() => {
@@ -302,9 +311,4 @@ if (typeof window !== 'undefined') {
 
 export default performanceMonitor;
 
-// Type extensions for gtag
-declare global {
-  interface Window {
-    gtag?: (event: string, name: string, params: any) => void;
-  }
-}
+// Type extensions for gtag (removed - conflicts with webVitals.ts declaration)

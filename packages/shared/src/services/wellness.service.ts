@@ -5,7 +5,7 @@
 
 import { supabase } from '../lib/supabase'
 
-export type ActivityType = 'meditation' | 'exercise' | 'journaling' | 'stretching' | 'breathing' | 'yoga' | 'walking' | 'other'
+export type WellnessActivityType = 'meditation' | 'exercise' | 'journaling' | 'stretching' | 'breathing' | 'yoga' | 'walking' | 'other'
 export type IntensityLevel = 'low' | 'medium' | 'high'
 export type MoodLevel = 'terrible' | 'bad' | 'neutral' | 'good' | 'excellent'
 export type RitualCategory = 'morning' | 'evening' | 'exercise' | 'meditation' | 'other'
@@ -16,7 +16,7 @@ export type GoalStatus = 'active' | 'completed' | 'abandoned'
 export interface WellnessActivity {
   id: string
   user_id: string
-  activity_type: ActivityType
+  activity_type: WellnessActivityType
   name: string
   description?: string
   duration_minutes?: number
@@ -112,7 +112,7 @@ export const wellnessService = {
    * Log a wellness activity
    */
   async logActivity(
-    activityType: ActivityType,
+    activityType: WellnessActivityType,
     name: string,
     options?: {
       duration_minutes?: number
@@ -149,7 +149,7 @@ export const wellnessService = {
   async getUserActivities(
     limit = 20,
     offset = 0,
-    activityType?: ActivityType,
+    activityType?: WellnessActivityType,
     startDate?: string,
     endDate?: string
   ): Promise<WellnessActivity[]> {

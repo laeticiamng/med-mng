@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { env } from '../lib/env.js';
 
 /**
  * ✅ SÉCURISÉ: Script de lancement sécurisé de l'extraction EDN
@@ -6,11 +7,11 @@ import { supabase } from '../lib/supabase';
  */
 async function launchEdnExtraction() {
   console.log('🚀 Lancement de l\'extraction automatique des 367 items EDN...');
-  
+
   try {
     // ✅ SÉCURISÉ: Récupération des credentials depuis l'environnement ou prompt
-    const username = import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:');
-    const password = import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:');
+    const username = env.get('VITE_CAS_USERNAME') || prompt('Username CAS:');
+    const password = env.get('VITE_CAS_PASSWORD') || prompt('Password CAS:');
     
     if (!username || !password) {
       throw new Error('Credentials manquants - veuillez configurer VITE_CAS_USERNAME et VITE_CAS_PASSWORD');
@@ -42,7 +43,9 @@ async function launchEdnExtraction() {
   }
 }
 
-// Lancer l'extraction immédiatement
+// Auto-execution disabled - this script should be called manually or from browser only
+// Uncomment below to run automatically:
+/*
 launchEdnExtraction()
   .then(result => {
     console.log('🎉 Extraction terminée avec succès:', result);
@@ -50,3 +53,4 @@ launchEdnExtraction()
   .catch(error => {
     console.error('💥 Erreur critique:', error);
   });
+*/

@@ -6,10 +6,10 @@
 import { supabase } from '../lib/supabase'
 
 export type PostVisibility = 'public' | 'followers' | 'private'
-export type PostStatus = 'draft' | 'published' | 'archived'
+export type ServicePostStatus = 'draft' | 'published' | 'archived'
 export type PostCategory = 'lifestyle' | 'learning' | 'wellness' | 'achievement' | 'question'
 
-export interface Post {
+export interface ServicePost {
   id: string
   user_id: string
   title: string
@@ -28,7 +28,7 @@ export interface Post {
   engagement_score: number
   is_pinned: boolean
   is_featured: boolean
-  status: PostStatus
+  status: ServicePostStatus
   is_liked?: boolean
   created_at: string
   updated_at: string
@@ -105,7 +105,7 @@ export const postsService = {
   /**
    * Get user's posts
    */
-  async getUserPosts(userId: string, limit = 20, offset = 0): Promise<Post[]> {
+  async getUserPosts(userId: string, limit = 20, offset = 0): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -117,7 +117,7 @@ export const postsService = {
         .range(offset, offset + limit - 1)
 
       if (error) throw error
-      return (data || []) as Post[]
+      return (data || []) as ServicePost[]
     } catch (err) {
       console.error('Error fetching user posts:', err)
       return []
@@ -127,7 +127,7 @@ export const postsService = {
   /**
    * Get feed posts
    */
-  async getFeedPosts(limit = 20, offset = 0): Promise<Post[]> {
+  async getFeedPosts(limit = 20, offset = 0): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase.rpc('get_feed_posts', {
         limit_param: limit,
@@ -135,7 +135,7 @@ export const postsService = {
       })
 
       if (error) throw error
-      return (data || []) as Post[]
+      return (data || []) as ServicePost[]
     } catch (err) {
       console.error('Error fetching feed posts:', err)
       return []
@@ -145,7 +145,7 @@ export const postsService = {
   /**
    * Get a specific post
    */
-  async getPost(postId: string): Promise<Post | null> {
+  async getPost(postId: string): Promise<ServicePost | null> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -155,7 +155,7 @@ export const postsService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as Post | null
+      return (data || null) as ServicePost | null
     } catch (err) {
       console.error('Error fetching post:', err)
       return null
@@ -165,7 +165,7 @@ export const postsService = {
   /**
    * Update post
    */
-  async updatePost(postId: string, updates: Partial<Post>): Promise<void> {
+  async updatePost(postId: string, updates: Partial<ServicePost>): Promise<void> {
     try {
       const { error } = await supabase
         .from('posts')
@@ -357,8 +357,8 @@ export const postsService = {
       const { error } = await supabase
         .from('post_bookmarks')
         .insert([{ post_id: postId }])
-        .on('conflict', 'post_id,user_id', 'DO NOTHING')
 
+      // Ignore duplicate key errors (23505 = unique violation)
       if (error && error.code !== '23505') throw error
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to bookmark post')
@@ -384,7 +384,7 @@ export const postsService = {
   /**
    * Get user's bookmarks
    */
-  async getUserBookmarks(userId: string, limit = 20, offset = 0): Promise<Post[]> {
+  async getUserBookmarks(userId: string, limit = 20, offset = 0): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase
         .from('post_bookmarks')
@@ -404,7 +404,7 @@ export const postsService = {
   /**
    * Search posts
    */
-  async searchPosts(query: string, limit = 20, offset = 0): Promise<Post[]> {
+  async searchPosts(query: string, limit = 20, offset = 0): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -416,7 +416,7 @@ export const postsService = {
         .range(offset, offset + limit - 1)
 
       if (error) throw error
-      return (data || []) as Post[]
+      return (data || []) as ServicePost[]
     } catch (err) {
       console.error('Error searching posts:', err)
       return []
@@ -426,7 +426,7 @@ export const postsService = {
   /**
    * Get trending posts
    */
-  async getTrendingPosts(limit = 10): Promise<Post[]> {
+  async getTrendingPosts(limit = 10): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -437,7 +437,7 @@ export const postsService = {
         .limit(limit)
 
       if (error) throw error
-      return (data || []) as Post[]
+      return (data || []) as ServicePost[]
     } catch (err) {
       console.error('Error fetching trending posts:', err)
       return []
@@ -447,7 +447,7 @@ export const postsService = {
   /**
    * Get posts by category
    */
-  async getPostsByCategory(category: PostCategory, limit = 20, offset = 0): Promise<Post[]> {
+  async getPostsByCategory(category: PostCategory, limit = 20, offset = 0): Promise<ServicePost[]> {
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -459,7 +459,7 @@ export const postsService = {
         .range(offset, offset + limit - 1)
 
       if (error) throw error
-      return (data || []) as Post[]
+      return (data || []) as ServicePost[]
     } catch (err) {
       console.error('Error fetching posts by category:', err)
       return []

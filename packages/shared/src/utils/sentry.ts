@@ -1,19 +1,20 @@
 import * as Sentry from '@sentry/react';
+import { env } from '../lib/env.js';
 
 // Configuration Sentry pour monitoring des erreurs frontend
 export const initSentry = () => {
   Sentry.init({
     dsn: 'https://your-sentry-dsn@sentry.io/project-id', // À remplacer par votre DSN Sentry
-    environment: import.meta.env.MODE || 'development',
+    environment: env.NODE_ENV,
     integrations: [
       Sentry.browserTracingIntegration(),
     ],
-    
+
     // Taux d'échantillonnage des erreurs (100% en dev, 50% en prod)
-    sampleRate: import.meta.env.MODE === 'production' ? 0.5 : 1.0,
-    
+    sampleRate: env.isProduction() ? 0.5 : 1.0,
+
     // Taux d'échantillonnage des performances (10% en prod pour éviter les quotas)
-    tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
+    tracesSampleRate: env.isProduction() ? 0.1 : 1.0,
     
     // Configuration avancée
     beforeSend(event, hint) {

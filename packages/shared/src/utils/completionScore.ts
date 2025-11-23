@@ -3,7 +3,7 @@
  * Extrait de la logique métier pour faciliter les tests
  */
 
-import { EdnItem, EdnItemUnified } from '@/types/edn';
+import { EdnItem, EdnItemUnified } from '../types/edn.js';
 
 /**
  * Calcule le pourcentage de complétion d'un item

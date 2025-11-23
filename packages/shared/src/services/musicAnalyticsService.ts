@@ -145,7 +145,7 @@ export class MusicAnalyticsService {
       // Requête pour compter les générations par style
       const { data: generationData } = await supabase
         .from('generated_music_tracks')
-        .select('metadata')
+        .select('id, metadata')
         .not('metadata', 'is', null);
 
       // Requête pour les écoutes et favoris

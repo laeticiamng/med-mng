@@ -1,5 +1,6 @@
 import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 import { useState, useEffect } from 'react';
+import { env } from '../lib/env.js';
 
 // Types pour les métriques Web Vitals
 export interface WebVitalsData {
@@ -136,7 +137,7 @@ class WebVitalsMonitor {
     }
 
     // Log pour debug local
-    if (import.meta.env.MODE === 'development') {
+    if (env.isDevelopment()) {
       console.table({
         [metric.name]: {
           value: `${metric.value}ms`,

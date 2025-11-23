@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 
-export interface SearchResult {
+export interface ServiceSearchResult {
   id: string
   title: string
   content: string
@@ -9,27 +9,27 @@ export interface SearchResult {
   relevance: number
 }
 
-export interface PostSearchResult extends SearchResult {
+export interface PostServiceSearchResult extends ServiceSearchResult {
   type: 'post'
   category?: string
   authorId: string
   commentCount: number
 }
 
-export interface UserSearchResult extends SearchResult {
+export interface UserServiceSearchResult extends ServiceSearchResult {
   type: 'user'
   username: string
   bio?: string
   avatarUrl?: string
 }
 
-export interface TeamSearchResult extends SearchResult {
+export interface TeamServiceSearchResult extends ServiceSearchResult {
   type: 'team'
   description?: string
   visibility: string
 }
 
-export interface WellnessSearchResult extends SearchResult {
+export interface WellnessServiceSearchResult extends ServiceSearchResult {
   type: 'wellness'
   activityType: string
   userId: string
@@ -56,7 +56,7 @@ export interface SearchHistory {
   createdAt: string
 }
 
-export interface SearchFilters {
+export interface ServiceSearchFilters {
   category?: string
   startDate?: Date
   endDate?: Date
@@ -70,7 +70,7 @@ export async function globalSearch(
   query: string,
   limit: number = 50,
   offset: number = 0
-): Promise<SearchResult[]> {
+): Promise<ServiceSearchResult[]> {
   if (!query || query.trim().length === 0) {
     throw new Error('Search query cannot be empty')
   }
@@ -102,8 +102,8 @@ export async function globalSearch(
 // Search posts with advanced filters
 export async function searchPosts(
   query: string,
-  filters?: SearchFilters
-): Promise<PostSearchResult[]> {
+  filters?: ServiceSearchFilters
+): Promise<PostServiceSearchResult[]> {
   if (!query || query.trim().length === 0) {
     throw new Error('Search query cannot be empty')
   }
@@ -143,7 +143,7 @@ export async function searchUsers(
   query: string,
   limit: number = 50,
   offset: number = 0
-): Promise<UserSearchResult[]> {
+): Promise<UserServiceSearchResult[]> {
   if (!query || query.trim().length === 0) {
     throw new Error('Search query cannot be empty')
   }
@@ -175,12 +175,12 @@ export async function searchUsers(
   }
 }
 
-// Search teams (only public and internal)
+// Search teams from global search (only public and internal)
 export async function searchTeams(
   query: string,
   limit: number = 50,
   offset: number = 0
-): Promise<TeamSearchResult[]> {
+): Promise<TeamServiceSearchResult[]> {
   if (!query || query.trim().length === 0) {
     throw new Error('Search query cannot be empty')
   }
@@ -220,7 +220,7 @@ export async function searchWellness(
   query: string,
   limit: number = 50,
   offset: number = 0
-): Promise<WellnessSearchResult[]> {
+): Promise<WellnessServiceSearchResult[]> {
   if (!query || query.trim().length === 0) {
     throw new Error('Search query cannot be empty')
   }
@@ -482,7 +482,7 @@ export async function searchWithCursor(
   query: string,
   limit: number = 50,
   cursor?: string
-): Promise<{ results: SearchResult[]; nextCursor?: string }> {
+): Promise<{ results: ServiceSearchResult[]; nextCursor?: string }> {
   try {
     let dbQuery = supabase
       .from('posts')

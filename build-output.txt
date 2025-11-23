@@ -1,0 +1,26 @@
+
+> @med-mng/backend@1.0.0 build /home/user/med-mng/apps/backend
+> tsc
+
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'GeneratedSong'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'MusicGenerationRequest'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'Notification'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'PerformanceMetrics'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'Post'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'PostStatus'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'SearchFilters'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'SearchResult'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'TableauRang'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/index.ts(8,1): error TS2308: Module './types/index.js' has already exported a member named 'UserProfile'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/services/index.ts(21,1): error TS2308: Module './platformAnalytics.service.js' has already exported a member named 'ContentAnalytics'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/services/index.ts(50,1): error TS2308: Module './contact-support.service.js' has already exported a member named 'SupportTicket'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/services/index.ts(56,1): error TS2308: Module './activity-feed.service.js' has already exported a member named 'ActivityType'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/services/index.ts(71,1): error TS2308: Module './search.service.js' has already exported a member named 'searchTeams'. Consider explicitly re-exporting to resolve the ambiguity.
+../../packages/shared/src/services/musicAnalyticsService.ts(182,83): error TS2339: Property 'id' does not exist on type '{ metadata: any; }'.
+../../packages/shared/src/services/performanceMonitoringService.ts(57,46): error TS2339: Property 'renderTime' does not exist on type 'PerformanceEntry'.
+../../packages/shared/src/services/performanceMonitoringService.ts(57,70): error TS2339: Property 'loadTime' does not exist on type 'PerformanceEntry'.
+../../packages/shared/src/services/performanceMonitoringService.ts(308,5): error TS2717: Subsequent property declarations must have the same type.  Property 'gtag' must be of type '(...args: any[]) => void', but here has type '(event: string, name: string, params: any) => void'.
+../../packages/shared/src/services/posts.service.ts(360,10): error TS2339: Property 'on' does not exist on type 'PostgrestFilterBuilder<any, any, null, "post_bookmarks", unknown>'.
+/home/user/med-mng/apps/backend:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @med-mng/backend@1.0.0 build: `tsc`
+Exit status 2

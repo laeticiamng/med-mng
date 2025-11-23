@@ -2,12 +2,13 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { SecurityNotification } from '@/hooks/useRealtimeNotifications';
-import type { NotificationFilters } from '@/components/security/SecurityNotificationsFilters';
+// TODO: These types should be defined in shared package or imported from frontend
+// import type { SecurityNotification } from '@/hooks/useRealtimeNotifications';
+// import type { NotificationFilters } from '@/components/security/SecurityNotificationsFilters';
 
 export const exportNotificationsToPDF = async (
-  notifications: SecurityNotification[],
-  filters: NotificationFilters
+  notifications: any[], // SecurityNotification[]
+  filters: any // NotificationFilters
 ) => {
   const doc = new jsPDF();
   

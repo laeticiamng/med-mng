@@ -10,6 +10,7 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
+    "@med-mng/shared": "workspace:*",
     "@sentry/node": "7.114.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

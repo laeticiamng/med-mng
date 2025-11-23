@@ -1,17 +1,17 @@
 /**
- * Notifications Service
+ * ServiceNotifications Service
  * Manages user notifications and notification preferences
  */
 
 import { supabase } from '../lib/supabase'
 
-export type NotificationType = 'like' | 'comment' | 'follow' | 'mention' | 'system'
+export type ServiceNotificationType = 'like' | 'comment' | 'follow' | 'mention' | 'system'
 export type EmailFrequency = 'instant' | 'daily' | 'weekly' | 'never'
 
-export interface Notification {
+export interface ServiceNotification {
   id: string
   user_id: string
-  type: NotificationType
+  type: ServiceNotificationType
   title: string
   message?: string
   related_user_id?: string
@@ -23,7 +23,7 @@ export interface Notification {
   updated_at: string
 }
 
-export interface NotificationPreferences {
+export interface ServiceNotificationPreferences {
   id: string
   user_id: string
   likes_enabled: boolean
@@ -44,16 +44,16 @@ export const notificationsService = {
   /**
    * Create a new notification
    */
-  async createNotification(params: {
+  async createServiceNotification(params: {
     user_id: string
-    type: NotificationType
+    type: ServiceNotificationType
     title: string
     message?: string
     related_user_id?: string
     related_post_id?: string
     related_comment_id?: string
     action_url?: string
-  }): Promise<Notification> {
+  }): Promise<ServiceNotification> {
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -71,7 +71,7 @@ export const notificationsService = {
         .single()
 
       if (error) throw error
-      return data as Notification
+      return data as ServiceNotification
     } catch (err) {
       throw new Error(
         err instanceof Error ? err.message : 'Failed to create notification'
@@ -82,7 +82,7 @@ export const notificationsService = {
   /**
    * Get user's notifications
    */
-  async getUserNotifications(userId: string, limit = 20): Promise<Notification[]> {
+  async getUserServiceNotifications(userId: string, limit = 20): Promise<ServiceNotification[]> {
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -92,7 +92,7 @@ export const notificationsService = {
         .limit(limit)
 
       if (error) throw error
-      return (data || []) as Notification[]
+      return (data || []) as ServiceNotification[]
     } catch (err) {
       console.error('Error fetching notifications:', err)
       return []
@@ -155,7 +155,7 @@ export const notificationsService = {
   /**
    * Delete a notification
    */
-  async deleteNotification(notificationId: string): Promise<void> {
+  async deleteServiceNotification(notificationId: string): Promise<void> {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -173,7 +173,7 @@ export const notificationsService = {
   /**
    * Delete all notifications for a user
    */
-  async deleteAllNotifications(userId: string): Promise<void> {
+  async deleteAllServiceNotifications(userId: string): Promise<void> {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -191,7 +191,7 @@ export const notificationsService = {
   /**
    * Get notification preferences
    */
-  async getPreferences(userId: string): Promise<NotificationPreferences> {
+  async getPreferences(userId: string): Promise<ServiceNotificationPreferences> {
     try {
       const { data, error } = await supabase
         .from('notification_preferences')
@@ -219,7 +219,7 @@ export const notificationsService = {
         }
       }
 
-      return data as NotificationPreferences
+      return data as ServiceNotificationPreferences
     } catch (err) {
       console.error('Error fetching notification preferences:', err)
       throw new Error(
@@ -233,8 +233,8 @@ export const notificationsService = {
    */
   async updatePreferences(
     userId: string,
-    updates: Partial<NotificationPreferences>
-  ): Promise<NotificationPreferences> {
+    updates: Partial<ServiceNotificationPreferences>
+  ): Promise<ServiceNotificationPreferences> {
     try {
       const { data: existing } = await supabase
         .from('notification_preferences')
@@ -254,7 +254,7 @@ export const notificationsService = {
           .single()
 
         if (error) throw error
-        return data as NotificationPreferences
+        return data as ServiceNotificationPreferences
       } else {
         // Update existing preferences
         const { data, error } = await supabase
@@ -268,7 +268,7 @@ export const notificationsService = {
           .single()
 
         if (error) throw error
-        return data as NotificationPreferences
+        return data as ServiceNotificationPreferences
       }
     } catch (err) {
       throw new Error(
@@ -280,7 +280,7 @@ export const notificationsService = {
   /**
    * Get recent activity notifications
    */
-  async getRecentActivity(userId: string, days = 7): Promise<Notification[]> {
+  async getRecentActivity(userId: string, days = 7): Promise<ServiceNotification[]> {
     try {
       const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 
@@ -293,7 +293,7 @@ export const notificationsService = {
         .limit(50)
 
       if (error) throw error
-      return (data || []) as Notification[]
+      return (data || []) as ServiceNotification[]
     } catch (err) {
       console.error('Error fetching recent activity:', err)
       return []
@@ -303,7 +303,7 @@ export const notificationsService = {
   /**
    * Get notifications by type
    */
-  async getNotificationsByType(userId: string, type: NotificationType): Promise<Notification[]> {
+  async getServiceNotificationsByType(userId: string, type: ServiceNotificationType): Promise<ServiceNotification[]> {
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -314,7 +314,7 @@ export const notificationsService = {
         .limit(20)
 
       if (error) throw error
-      return (data || []) as Notification[]
+      return (data || []) as ServiceNotification[]
     } catch (err) {
       console.error('Error fetching notifications by type:', err)
       return []
@@ -323,13 +323,13 @@ export const notificationsService = {
 }
 
 // Extended notification preferences management
-export interface NotificationPreferencesExt {
+export interface ServiceNotificationPreferencesExt {
   id: string
   userId: string
-  emailNotifications: boolean
-  pushNotifications: boolean
-  inAppNotifications: boolean
-  smsNotifications: boolean
+  emailServiceNotifications: boolean
+  pushServiceNotifications: boolean
+  inAppServiceNotifications: boolean
+  smsServiceNotifications: boolean
   newsletter: boolean
   instantAlerts: boolean
   quietHoursStart?: string

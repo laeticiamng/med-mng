@@ -10,9 +10,9 @@ export type ContentType = 'post' | 'article' | 'video' | 'audio' | 'collection'
 export type RecommendationSource = 'collaborative' | 'content_based' | 'trending' | 'personalized' | 'social'
 export type LearningStyle = 'visual' | 'auditory' | 'reading' | 'kinesthetic' | 'mixed'
 export type EngagementLevel = 'low' | 'medium' | 'high'
-export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced'
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced'
 
-export interface UserPreferences {
+export interface RecommendationPreferences {
   id: string
   user_id: string
   interests: string[]
@@ -24,7 +24,7 @@ export interface UserPreferences {
   updated_at: string
 }
 
-export interface ContentMetadata {
+export interface RecommendationContent {
   id: string
   content_id: string
   content_type: ContentType
@@ -32,7 +32,7 @@ export interface ContentMetadata {
   description?: string
   categories: string[]
   tags: string[]
-  difficulty_level: DifficultyLevel
+  difficulty_level: SkillLevel
   estimated_reading_time?: number
   engagement_score: number
   view_count: number
@@ -89,7 +89,7 @@ export const recommendationsService = {
   /**
    * Get user preferences
    */
-  async getPreferences(userId: string): Promise<UserPreferences | null> {
+  async getPreferences(userId: string): Promise<RecommendationPreferences | null> {
     try {
       const { data, error } = await supabase
         .from('user_preferences')
@@ -98,7 +98,7 @@ export const recommendationsService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as UserPreferences | null
+      return (data || null) as RecommendationPreferences | null
     } catch (err) {
       console.error('Error fetching user preferences:', err)
       return null
@@ -108,7 +108,7 @@ export const recommendationsService = {
   /**
    * Update user preferences
    */
-  async updatePreferences(userId: string, updates: Partial<UserPreferences>): Promise<UserPreferences> {
+  async updatePreferences(userId: string, updates: Partial<RecommendationPreferences>): Promise<RecommendationPreferences> {
     try {
       // Check if preferences exist
       const existing = await this.getPreferences(userId)
@@ -125,7 +125,7 @@ export const recommendationsService = {
           .single()
 
         if (error) throw error
-        return data as UserPreferences
+        return data as RecommendationPreferences
       } else {
         // Update existing
         const { data, error } = await supabase
@@ -139,7 +139,7 @@ export const recommendationsService = {
           .single()
 
         if (error) throw error
-        return data as UserPreferences
+        return data as RecommendationPreferences
       }
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to update preferences')
@@ -178,7 +178,7 @@ export const recommendationsService = {
   async getTrendingContent(
     limit = 10,
     contentType?: ContentType
-  ): Promise<ContentMetadata[]> {
+  ): Promise<RecommendationContent[]> {
     try {
       let query = supabase.from('content_metadata').select('*')
 
@@ -191,7 +191,7 @@ export const recommendationsService = {
         .limit(limit)
 
       if (error) throw error
-      return (data || []) as ContentMetadata[]
+      return (data || []) as RecommendationContent[]
     } catch (err) {
       console.error('Error fetching trending content:', err)
       return []
@@ -268,7 +268,7 @@ export const recommendationsService = {
   async getSimilarContent(
     contentId: string,
     limit = 5
-  ): Promise<ContentMetadata[]> {
+  ): Promise<RecommendationContent[]> {
     try {
       // Get the original content
       const { data: originalContent, error: contentError } = await supabase
@@ -293,7 +293,7 @@ export const recommendationsService = {
         .limit(limit)
 
       if (error) throw error
-      return (data || []) as ContentMetadata[]
+      return (data || []) as RecommendationContent[]
     } catch (err) {
       console.error('Error fetching similar content:', err)
       return []
@@ -306,8 +306,8 @@ export const recommendationsService = {
   async updateContentMetadata(
     contentId: string,
     contentType: ContentType,
-    updates: Partial<ContentMetadata>
-  ): Promise<ContentMetadata> {
+    updates: Partial<RecommendationContent>
+  ): Promise<RecommendationContent> {
     try {
       const { data, error } = await supabase
         .from('content_metadata')
@@ -321,7 +321,7 @@ export const recommendationsService = {
         .single()
 
       if (error) throw error
-      return data as ContentMetadata
+      return data as RecommendationContent
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Failed to update content metadata')
     }
