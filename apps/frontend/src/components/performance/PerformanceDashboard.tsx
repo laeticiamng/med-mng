@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -121,7 +122,7 @@ export const PerformanceDashboard: React.FC = () => {
       setLastAuditTime(new Date());
       
     } catch (error) {
-      console.error('Erreur lors de l\'audit Lighthouse:', error);
+      logger.error('Erreur lors de l\'audit Lighthouse:', error);
     } finally {
       setIsRunningAudit(false);
     }

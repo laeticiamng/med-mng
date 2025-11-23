@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,7 +97,7 @@ export const UserProfileManager = () => {
         setProfile(mockProfile);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement du profil:', error);
+      logger.error('Erreur lors du chargement du profil:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger le profil utilisateur.",
@@ -128,7 +129,7 @@ export const UserProfileManager = () => {
         }));
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des préférences:', error);
+      logger.error('Erreur lors du chargement des préférences:', error);
     }
   };
 
@@ -145,7 +146,7 @@ export const UserProfileManager = () => {
         description: "Vos informations ont été sauvegardées avec succès."
       });
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      logger.error('Erreur lors de la sauvegarde:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le profil.",
@@ -177,7 +178,7 @@ export const UserProfileManager = () => {
         description: "Vos paramètres ont été sauvegardés."
       });
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des préférences:', error);
+      logger.error('Erreur lors de la sauvegarde des préférences:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les préférences.",

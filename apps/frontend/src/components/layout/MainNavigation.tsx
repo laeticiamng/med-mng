@@ -28,6 +28,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import logger from '@/lib/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -103,7 +104,7 @@ export const MainNavigation: React.FC = () => {
       await signOut();
       navigate(ROUTE_PATHS.home);
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      logger.error('Erreur lors de la déconnexion:', error);
     }
   };
 

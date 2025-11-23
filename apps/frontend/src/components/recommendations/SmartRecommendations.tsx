@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,7 +45,7 @@ export const SmartRecommendations: React.FC = () => {
         await generateDemoRecommendations();
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des recommandations:', error);
+      logger.error('Erreur lors du chargement des recommandations:', error);
       // Afficher des recommandations statiques en cas d'erreur
       setRecommendations([
         {
@@ -113,7 +114,7 @@ export const SmartRecommendations: React.FC = () => {
         setRecommendations(data);
       }
     } catch (error) {
-      console.error('Erreur lors de la génération des recommandations:', error);
+      logger.error('Erreur lors de la génération des recommandations:', error);
     }
   };
 

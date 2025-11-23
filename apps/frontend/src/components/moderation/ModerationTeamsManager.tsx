@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { useFetchModerationTeams, useCreateModerationTeam } from '@/hooks/useModeration'
 import { Card, CardContent } from '@/components/ui/card'
@@ -37,7 +38,7 @@ export default function ModerationTeamsManager() {
       setShowDialog(false)
     } catch (error) {
       toast.error('Failed to create team')
-      console.error(error)
+      logger.error(error)
     }
   }
 

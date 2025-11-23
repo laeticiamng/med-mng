@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useViewingHistory } from '@/hooks/useViewingHistory'
@@ -46,7 +47,7 @@ export const ViewingHistoryTracker: React.FC<ViewingHistoryTrackerProps> = ({
         },
         {
           onError: (error) => {
-            console.error('Error recording view:', error)
+            logger.error('Error recording view:', error)
             // Silently fail - viewing history is not critical
           },
         }

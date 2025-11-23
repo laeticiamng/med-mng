@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,12 +40,12 @@ export const useQuizErrorTracker = () => {
     };
     
     setCurrentSession(session);
-    console.log('🎯 QUIZ SESSION DÉMARRÉE:', session);
+    logger.debug('🎯 QUIZ SESSION DÉMARRÉE:', session);
   }, []);
 
   const addQuizError = useCallback((error: Omit<QuizError, 'timestamp'>) => {
     if (!currentSession) {
-      console.warn('⚠️ Tentative d\'ajout d\'erreur sans session active');
+      logger.warn('⚠️ Tentative d\'ajout d\'erreur sans session active');
       return;
     }
 
@@ -61,12 +62,12 @@ export const useQuizErrorTracker = () => {
       };
     });
 
-    console.log('❌ ERREUR AJOUTÉE:', fullError);
+    logger.debug('❌ ERREUR AJOUTÉE:', fullError);
   }, [currentSession]);
 
   const endQuizSession = useCallback((finalScore: number) => {
     if (!currentSession) {
-      console.warn('⚠️ Tentative de fin de session sans session active');
+      logger.warn('⚠️ Tentative de fin de session sans session active');
       return null;
     }
 
@@ -85,10 +86,10 @@ export const useQuizErrorTracker = () => {
       sessions.push(completedSession);
       localStorage.setItem('quiz_sessions', JSON.stringify(sessions));
     } catch (error) {
-      console.error('❌ Erreur sauvegarde session:', error);
+      logger.error('❌ Erreur sauvegarde session:', error);
     }
 
-    console.log('✅ QUIZ SESSION TERMINÉE:', completedSession);
+    logger.debug('✅ QUIZ SESSION TERMINÉE:', completedSession);
     
     if (completedSession.errors.length > 0) {
       toast({
@@ -131,10 +132,10 @@ export const useQuizErrorTracker = () => {
       if (savedSessions) {
         const sessions = JSON.parse(savedSessions);
         setAllSessions(sessions);
-        console.log('📚 SESSIONS CHARGÉES:', sessions.length);
+        logger.debug('📚 SESSIONS CHARGÉES:', sessions.length);
       }
     } catch (error) {
-      console.error('❌ Erreur chargement sessions:', error);
+      logger.error('❌ Erreur chargement sessions:', error);
     }
   }, []);
 

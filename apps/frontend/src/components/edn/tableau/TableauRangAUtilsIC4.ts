@@ -1,8 +1,9 @@
 
+import logger from '@/lib/logger';
 import { conceptsRangAIC4, conceptsRangBIC4, colonnesConfigIC4 } from './TableauRangADataIC4';
 
 export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
-  console.log('IC-4 Génération Rang A : 13 connaissances selon LiSA exactement');
+  logger.debug('IC-4 Génération Rang A : 13 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
   
@@ -21,12 +22,12 @@ export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`IC-4 Rang A: ${lignes.length}/13 connaissances LiSA générées`);
+  logger.debug(`IC-4 Rang A: ${lignes.length}/13 connaissances LiSA générées`);
   return lignes;
 };
 
 export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
-  console.log('IC-4 Génération Rang B : 22 connaissances selon LiSA exactement');
+  logger.debug('IC-4 Génération Rang B : 22 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
   
@@ -45,12 +46,12 @@ export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`IC-4 Rang B: ${lignes.length}/22 connaissances LiSA générées (structure initiale)`);
+  logger.debug(`IC-4 Rang B: ${lignes.length}/22 connaissances LiSA générées (structure initiale)`);
   return lignes;
 };
 
 export const determinerColonnesUtilesIC4 = (lignes: string[][]): any[] => {
-  console.log('IC-4: Configuration colonnes optimisée pour structure LiSA officielle');
+  logger.debug('IC-4: Configuration colonnes optimisée pour structure LiSA officielle');
   
   // Toutes les colonnes sont pertinentes selon le format LiSA
   return colonnesConfigIC4;

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ export const SongCard: React.FC<SongCardProps> = ({
       onRemove();
     } catch (error) {
       toast.error('Erreur lors de la suppression');
-      console.error('Error removing song:', error);
+      logger.error('Error removing song:', error);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +79,7 @@ export const SongCard: React.FC<SongCardProps> = ({
       onToggleLike();
     } catch (error) {
       toast.error('Erreur lors du like');
-      console.error('Error toggling like:', error);
+      logger.error('Error toggling like:', error);
     } finally {
       setIsLikeLoading(false);
     }
@@ -92,7 +93,7 @@ export const SongCard: React.FC<SongCardProps> = ({
       }
     } catch (error) {
       toast.error('Erreur lors de l\'ajout à la playlist');
-      console.error('Error adding to playlist:', error);
+      logger.error('Error adding to playlist:', error);
     }
   };
 

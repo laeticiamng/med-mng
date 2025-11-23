@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -59,7 +60,7 @@ export const EnhancedMusicPlayerControls: React.FC<EnhancedMusicPlayerControlsPr
   // Préchargement automatique quand l'URL est disponible
   useEffect(() => {
     if (audioUrl && !isGenerating && readyToPlay === false) {
-      console.log('🎵 Préchargement automatique de l\'audio');
+      logger.debug('🎵 Préchargement automatique de l\'audio');
       preloadAudio(audioUrl);
       
       // Estimer le temps de préparation

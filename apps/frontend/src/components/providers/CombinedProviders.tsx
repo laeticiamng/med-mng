@@ -3,6 +3,7 @@
  * Architecture optimisée - Réduction de la complexité des providers imbriqués
  */
 
+import logger from '@/lib/logger';
 import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
@@ -140,7 +141,7 @@ export const checkProvidersHealth = (): Record<string, boolean> => {
     
     return health;
   } catch (error) {
-    console.error('🚨 Provider health check failed:', error);
+    logger.error('🚨 Provider health check failed:', error);
     return health;
   }
 };

@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import logger from '@/lib/logger';
 import {
   Tabs,
   TabsContent,
@@ -232,7 +233,7 @@ export const GoalsCreate: React.FC = () => {
 
       navigate('/goals');
     } catch (error) {
-      console.error('Error creating goal:', error);
+      logger.error('Error creating goal:', error);
     }
   };
 

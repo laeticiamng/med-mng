@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -70,7 +71,7 @@ const MedMngPlayerComponent = () => {
       };
 
       const handleError = (e: any) => {
-        console.error('Audio error:', e);
+        logger.error('Audio error:', e);
         toast.error('Erreur lors du chargement audio');
         setIsLoading(false);
       };
@@ -102,7 +103,7 @@ const MedMngPlayerComponent = () => {
         setIsPlaying(true);
       }
     } catch (error) {
-      console.error('Play error:', error);
+      logger.error('Play error:', error);
       toast.error('Erreur lors de la lecture');
     } finally {
       setIsLoading(false);

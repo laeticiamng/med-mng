@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -188,7 +189,7 @@ export const useContentCompletenessChecker = () => {
   };
 
   const analyzeAllCompetences = async (): Promise<AnalysisResults> => {
-    console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
+    logger.debug('🔍 Début de l\'analyse de complétude des compétences OIC...');
     
     try {
       const { data: oicData, error } = await supabase
@@ -197,7 +198,7 @@ export const useContentCompletenessChecker = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${oicData.length} compétences OIC à analyser`);
+      logger.debug(`📊 ${oicData.length} compétences OIC à analyser`);
 
       const results: AnalysisResults = {
         total: oicData.length,
@@ -235,11 +236,11 @@ export const useContentCompletenessChecker = () => {
 
       results.statistics.averageCompleteness = Math.round(totalCompleteness / oicData.length);
 
-      console.log('✅ Analyse terminée');
+      logger.debug('✅ Analyse terminée');
       return results;
 
     } catch (error) {
-      console.error('❌ Erreur lors de l\'analyse:', error);
+      logger.error('❌ Erreur lors de l\'analyse:', error);
       throw error;
     }
   };
@@ -251,11 +252,11 @@ export const useContentCompletenessChecker = () => {
     try {
       const analysisResults = await analyzeAllCompetences();
       setResults(analysisResults);
-      console.log('🎉 Analyse de complétude terminée avec succès');
+      logger.debug('🎉 Analyse de complétude terminée avec succès');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
-      console.error('💥 Erreur durant l\'analyse:', errorMessage);
+      logger.error('💥 Erreur durant l\'analyse:', errorMessage);
     } finally {
       setIsAnalyzing(false);
     }

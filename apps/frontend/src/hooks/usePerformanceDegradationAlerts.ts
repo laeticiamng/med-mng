@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -71,7 +72,7 @@ export function usePerformanceDegradationAlerts() {
       if (fetchError) throw fetchError;
       setAlerts((data || []) as PerformanceDegradationAlert[]);
     } catch (err: any) {
-      console.error('Error loading performance alerts:', err);
+      logger.error('Error loading performance alerts:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -93,7 +94,7 @@ export function usePerformanceDegradationAlerts() {
       toast.success('Alerte marquée comme lue');
       await loadAlerts();
     } catch (err: any) {
-      console.error('Error acknowledging alert:', err);
+      logger.error('Error acknowledging alert:', err);
       toast.error('Erreur lors de la mise à jour de l\'alerte');
     }
   };
@@ -113,7 +114,7 @@ export function usePerformanceDegradationAlerts() {
       toast.success('Alerte ignorée');
       await loadAlerts();
     } catch (err: any) {
-      console.error('Error dismissing alert:', err);
+      logger.error('Error dismissing alert:', err);
       toast.error('Erreur lors de l\'ignorage de l\'alerte');
     }
   };

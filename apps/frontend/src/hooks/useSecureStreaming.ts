@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -42,7 +43,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
         body: { action: 'cleanup' }
       });
     } catch (error) {
-      console.error('Erreur nettoyage sessions:', error);
+      logger.error('Erreur nettoyage sessions:', error);
     }
   }, []);
 
@@ -91,7 +92,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
       return streamUrl;
 
     } catch (error) {
-      console.error('Erreur création session streaming:', error);
+      logger.error('Erreur création session streaming:', error);
       toast.error('Erreur lors de la création de la session d\'écoute');
       return null;
     } finally {
@@ -137,7 +138,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
     };
     
     audio.onerror = (e) => {
-      console.error('Erreur audio:', e);
+      logger.error('Erreur audio:', e);
       toast.error('Erreur de lecture audio');
       setIsPlaying(false);
     };
@@ -152,7 +153,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
   const play = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.play().catch(error => {
-        console.error('Erreur lecture:', error);
+        logger.error('Erreur lecture:', error);
         toast.error('Erreur lors de la lecture');
       });
     }

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
@@ -23,7 +24,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    console.log('TableauRangBIC4 - Données reçues:', data);
+    logger.debug('TableauRangBIC4 - Données reçues:', data);
     
     const tableauData = data.tableau_rang_b;
     

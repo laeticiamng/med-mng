@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ const AdminExtractEdn = () => {
     setProgress(0);
     
     try {
-      console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
+      logger.debug(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
       
       // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
       // Aucun credential n'est envoyé depuis le frontend
@@ -39,19 +40,19 @@ const AdminExtractEdn = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction:', error);
+        logger.error('❌ Erreur extraction:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction');
         return;
       }
 
-      console.log('✅ Extraction terminée:', data);
+      logger.debug('✅ Extraction terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique:', error);
+      logger.error('💥 Erreur critique:', error);
       setError(error.message);
       toast.error('Erreur critique lors de l\'extraction');
     } finally {
@@ -68,12 +69,12 @@ const AdminExtractEdn = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
+      logger.debug(`📊 ${data?.length || 0} items EDN déjà en base`);
       toast.info(`${data?.length || 0} items EDN trouvés en base`);
       
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données:', error);
+      logger.error('Erreur vérification données:', error);
       toast.error('Erreur lors de la vérification des données');
     }
   };

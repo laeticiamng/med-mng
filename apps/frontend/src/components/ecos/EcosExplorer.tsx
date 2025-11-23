@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +54,7 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
       const competencesList = await ecosService.getCompetences();
       setCompetences(competencesList);
     } catch (error) {
-      console.error('Error loading competences:', error);
+      logger.error('Error loading competences:', error);
     }
   };
 
@@ -70,7 +71,7 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
       setSituations(result.situations);
       setPagination(result.pagination);
     } catch (error) {
-      console.error('Error loading situations:', error);
+      logger.error('Error loading situations:', error);
       toast.error('Erreur lors du chargement des situations ECOS');
     } finally {
       setLoading(false);

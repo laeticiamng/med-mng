@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'intégration des données IC-4 avec structure complexe
 export const isIC4Item = (data: any): boolean => {
@@ -7,7 +9,7 @@ export const isIC4Item = (data: any): boolean => {
 };
 
 export const processTableauRangAIC4 = (data: any) => {
-  console.log('🔍 Traitement IC-4 Qualité et sécurité des soins');
+  logger.debug('🔍 Traitement IC-4 Qualité et sécurité des soins');
   
   // Extraire les données des concepts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_a || data;
@@ -35,7 +37,7 @@ export const processTableauRangAIC4 = (data: any) => {
 
   const theme = "IC-4 Rang A - Qualité et sécurité des soins (13 concepts)";
 
-  console.log(`✅ IC-4 traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-4 traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,
@@ -46,7 +48,7 @@ export const processTableauRangAIC4 = (data: any) => {
 };
 
 export const processTableauRangBIC4 = (data: any) => {
-  console.log('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
+  logger.debug('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
   
   // Extraire les données des concepts experts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_b || data;
@@ -74,7 +76,7 @@ export const processTableauRangBIC4 = (data: any) => {
 
   const theme = "IC-4 Rang B - Expertise qualité et sécurité (22 concepts)";
 
-  console.log(`✅ IC-4 Rang B traité: ${lignesEnrichies.length} concepts experts`);
+  logger.debug(`✅ IC-4 Rang B traité: ${lignesEnrichies.length} concepts experts`);
 
   return {
     lignesEnrichies,

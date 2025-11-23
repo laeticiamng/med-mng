@@ -1,17 +1,18 @@
 
+import logger from '@/lib/logger';
 import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
 export const useMusicTranslation = () => {
   let currentLanguage, translate;
   
   try {
-    console.log('🎵 HOOK - Tentative d\'utilisation de useLanguage');
+    logger.debug('🎵 HOOK - Tentative d\'utilisation de useLanguage');
     const languageContext = useLanguage();
     currentLanguage = languageContext.currentLanguage;
     translate = languageContext.translate;
-    console.log('🎵 HOOK - useLanguage réussi, langue:', currentLanguage);
+    logger.debug('🎵 HOOK - useLanguage réussi, langue:', currentLanguage);
   } catch (error) {
-    console.error('❌ HOOK - Erreur avec useLanguage:', error);
+    logger.error('❌ HOOK - Erreur avec useLanguage:', error);
     currentLanguage = 'fr';
     translate = async (text: string) => text;
   }
@@ -21,9 +22,9 @@ export const useMusicTranslation = () => {
       return lyrics;
     }
 
-    console.log(`🌍 Traduction des paroles du français vers ${currentLanguage}...`);
+    logger.debug(`🌍 Traduction des paroles du français vers ${currentLanguage}...`);
     const translatedLyrics = await translate(lyrics, currentLanguage);
-    console.log(`✅ Paroles traduites`);
+    logger.debug(`✅ Paroles traduites`);
     return translatedLyrics;
   };
 

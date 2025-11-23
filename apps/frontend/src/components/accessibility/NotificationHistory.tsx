@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -71,7 +72,7 @@ export function NotificationHistory() {
       
       setHistory(typedData);
     } catch (error) {
-      console.error('Error loading notification history:', error);
+      logger.error('Error loading notification history:', error);
       toast.error('Erreur lors du chargement de l\'historique');
     } finally {
       setLoading(false);
@@ -109,7 +110,7 @@ export function NotificationHistory() {
         toast.error(data?.error || 'Échec du renvoi');
       }
     } catch (error: any) {
-      console.error('Error resending notification:', error);
+      logger.error('Error resending notification:', error);
       toast.error(`Erreur: ${error.message}`);
     } finally {
       setResending(null);

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -117,7 +118,7 @@ export default function TeamsCreate() {
 
       navigate(`/teams/${team.slug}`);
     } catch (error: any) {
-      console.error('Error creating team:', error);
+      logger.error('Error creating team:', error);
 
       if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
         setErrors({ slug: 'Ce slug est déjà utilisé' });

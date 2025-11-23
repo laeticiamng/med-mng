@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -43,7 +44,7 @@ export const usePushNotifications = () => {
       const subscription = await registration.pushManager.getSubscription();
       setIsSubscribed(!!subscription);
     } catch (error) {
-      console.error('Error checking subscription:', error);
+      logger.error('Error checking subscription:', error);
     }
   };
 
@@ -66,7 +67,7 @@ export const usePushNotifications = () => {
         return false;
       }
     } catch (error) {
-      console.error('Error requesting permission:', error);
+      logger.error('Error requesting permission:', error);
       toast.error('Erreur lors de la demande de permission');
       return false;
     }
@@ -103,7 +104,7 @@ export const usePushNotifications = () => {
       setIsSubscribed(true);
       toast.success('Vous êtes maintenant abonné aux notifications !');
     } catch (error: any) {
-      console.error('Error subscribing:', error);
+      logger.error('Error subscribing:', error);
       toast.error('Erreur lors de l\'abonnement: ' + error.message);
     } finally {
       setIsLoading(false);
@@ -127,7 +128,7 @@ export const usePushNotifications = () => {
         toast.success('Désabonné des notifications');
       }
     } catch (error) {
-      console.error('Error unsubscribing:', error);
+      logger.error('Error unsubscribing:', error);
       toast.error('Erreur lors du désabonnement');
     } finally {
       setIsLoading(false);
@@ -187,7 +188,7 @@ export const usePushNotifications = () => {
       if (error) throw error;
       toast.success('Notification de test envoyée !');
     } catch (error) {
-      console.error('Error sending test notification:', error);
+      logger.error('Error sending test notification:', error);
       toast.error('Erreur lors de l\'envoi de la notification');
     }
   };

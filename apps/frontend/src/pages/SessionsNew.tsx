@@ -3,6 +3,7 @@
  * Create a new study/focus/meditation session
  */
 
+import logger from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -159,7 +160,7 @@ export const SessionsNew: React.FC = () => {
       // Navigate to session detail or start page
       navigate(`/sessions/${data.id}`);
     } catch (error: any) {
-      console.error('Error creating session:', error);
+      logger.error('Error creating session:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer la session. Veuillez réessayer.',

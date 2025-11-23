@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './tableau/TableauRangAHeader';
@@ -31,7 +32,7 @@ interface TableauRangAProps {
 
 export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => {
   // Logs réduits pour éviter la pollution console
-  // console.log('TableauRangA - Received data:', data);
+  // logger.debug('TableauRangA - Received data:', data);
 
   if (!data) {
     return (
@@ -216,7 +217,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
   }
 
   // Logs réduits pour éviter la pollution console
-  // console.log('TableauRangA - Processed data:', { theme, colonnesUtiles: colonnesUtiles.length, lignesEnrichies: lignesEnrichies.length });
+  // logger.debug('TableauRangA - Processed data:', { theme, colonnesUtiles: colonnesUtiles.length, lignesEnrichies: lignesEnrichies.length });
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6 rounded-xl">

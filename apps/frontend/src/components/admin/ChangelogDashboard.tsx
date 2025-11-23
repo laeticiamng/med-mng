@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,7 +57,7 @@ export const ChangelogDashboard: React.FC = () => {
         setChangelog(data.data);
       }
     } catch (error) {
-      console.error('Erreur fetch changelog:', error);
+      logger.error('Erreur fetch changelog:', error);
       toast.error('Erreur lors du chargement du changelog');
     } finally {
       setLoading(false);

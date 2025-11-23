@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -92,7 +93,7 @@ export default function ProfilePrivacySettings() {
         description: "Vos préférences de confidentialité ont été mises à jour",
       });
     } catch (error) {
-      console.error('Error saving privacy settings:', error);
+      logger.error('Error saving privacy settings:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder vos paramètres",

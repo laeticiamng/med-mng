@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +39,7 @@ export const DifficultyAnalysis: React.FC = () => {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error fetching progress:', error);
+        logger.error('Error fetching progress:', error);
         return [];
       }
       
@@ -56,7 +57,7 @@ export const DifficultyAnalysis: React.FC = () => {
         .select('item_number, title, specialty');
 
       if (error) {
-        console.error('Error fetching EDN items:', error);
+        logger.error('Error fetching EDN items:', error);
         return [];
       }
       

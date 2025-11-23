@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -75,7 +76,7 @@ export const CollaborativeStudy: React.FC = () => {
   const loadSessions = async () => {
     try {
       // Utiliser une table existante compatible ou créer une logique de mapping
-      console.log('Chargement des sessions d\'étude...');
+      logger.debug('Chargement des sessions d\'étude...');
       // Pour le moment, utilisons des données simulées
       const mockSessions: StudySession[] = [
         {
@@ -96,7 +97,7 @@ export const CollaborativeStudy: React.FC = () => {
       ];
       setSessions(mockSessions);
     } catch (error) {
-      console.error('Erreur chargement sessions:', error);
+      logger.error('Erreur chargement sessions:', error);
     } finally {
       setLoading(false);
     }
@@ -108,22 +109,22 @@ export const CollaborativeStudy: React.FC = () => {
       const mockMySessions: StudySession[] = [];
       setMySessions(mockMySessions);
     } catch (error) {
-      console.error('Erreur chargement mes sessions:', error);
+      logger.error('Erreur chargement mes sessions:', error);
     }
   };
 
   const setupRealtimeSubscription = () => {
     // Désactivé temporairement car les tables n'existent pas encore
-    console.log('Realtime subscription configurée');
+    logger.debug('Realtime subscription configurée');
     return () => {
-      console.log('Subscription nettoyée');
+      logger.debug('Subscription nettoyée');
     };
   };
 
   const createSession = async () => {
     try {
       // Simulation de création de session
-      console.log('Création session:', newSession);
+      logger.debug('Création session:', newSession);
       
       const newSessionData: StudySession = {
         id: Date.now().toString(),
@@ -162,7 +163,7 @@ export const CollaborativeStudy: React.FC = () => {
         description: "Votre session d'étude collaborative a été simulée avec succès",
       });
     } catch (error) {
-      console.error('Erreur création session:', error);
+      logger.error('Erreur création session:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer la session",
@@ -174,7 +175,7 @@ export const CollaborativeStudy: React.FC = () => {
   const joinSession = async (sessionId: string) => {
     try {
       // Simulation de rejoindre une session
-      console.log('Rejoindre session:', sessionId);
+      logger.debug('Rejoindre session:', sessionId);
       
       setSessions(prev => 
         prev.map(session => 
@@ -189,7 +190,7 @@ export const CollaborativeStudy: React.FC = () => {
         description: "Vous avez rejoint la session d'étude collaborative",
       });
     } catch (error) {
-      console.error('Erreur rejoindre session:', error);
+      logger.error('Erreur rejoindre session:', error);
       toast({
         title: "Erreur",
         description: "Impossible de rejoindre la session",

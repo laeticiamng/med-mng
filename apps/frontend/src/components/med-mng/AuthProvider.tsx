@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth state change:', event, session?.user?.email);
+        logger.debug('🔔 Auth state change:', event, session?.user?.email);
         
         setUser(session?.user ?? null);
         setLoading(false);
@@ -46,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           if (isNewUser) {
             const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
-            console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+            logger.debug('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
             // Delay to allow profile creation trigger to complete
             setTimeout(async () => {

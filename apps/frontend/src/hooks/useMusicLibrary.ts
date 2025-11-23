@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -63,7 +64,7 @@ export const useMusicLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur lors du chargement des musiques:', error);
+        logger.error('Erreur lors du chargement des musiques:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger votre bibliothèque musicale",
@@ -87,7 +88,7 @@ export const useMusicLibrary = () => {
       
       setTracks(convertedTracks);
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
     } finally {
       setLoading(false);
     }
@@ -106,7 +107,7 @@ export const useMusicLibrary = () => {
       });
 
       if (error) {
-        console.error('Erreur chargement bibliothèque:', error);
+        logger.error('Erreur chargement bibliothèque:', error);
         // Fallback vers l'ancienne méthode
         await fetchSavedMusics();
         return;
@@ -114,7 +115,7 @@ export const useMusicLibrary = () => {
 
       setTracks(data.items || []);
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       // Fallback vers l'ancienne méthode
       await fetchSavedMusics();
     } finally {
@@ -149,7 +150,7 @@ export const useMusicLibrary = () => {
         description: "Musique supprimée de votre bibliothèque"
       });
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      logger.error('Erreur lors de la suppression:', error);
     }
   };
 
@@ -183,7 +184,7 @@ export const useMusicLibrary = () => {
           : "Musique retirée de vos favoris."
       });
     } catch (error) {
-      console.error('Erreur lors de la modification des favoris:', error);
+      logger.error('Erreur lors de la modification des favoris:', error);
     }
   };
 
@@ -253,13 +254,13 @@ export const useMusicLibrary = () => {
       });
 
       if (error) {
-        console.error('Erreur stream URL:', error);
+        logger.error('Erreur stream URL:', error);
         return null;
       }
 
       return data.stream_url;
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       return null;
     }
   };

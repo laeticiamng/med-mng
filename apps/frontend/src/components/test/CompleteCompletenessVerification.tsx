@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -26,7 +27,7 @@ export const CompleteCompletenessVerification = () => {
       const result = await verifyCompleteEDNCompleteness();
       setReport(result);
     } catch (error) {
-      console.error('Erreur vérification:', error);
+      logger.error('Erreur vérification:', error);
     } finally {
       setLoading(false);
     }

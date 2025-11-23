@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { secureSunoClient } from '@/lib/secureApiClient';
 
@@ -48,7 +49,7 @@ export const useSynchronizedLyrics = ({
         setLyrics(autoSyncedLyrics);
       }
     } catch (err) {
-      console.error('Erreur lors du chargement des paroles synchronisées:', err);
+      logger.error('Erreur lors du chargement des paroles synchronisées:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
       
       // Fallback sur synchronisation automatique

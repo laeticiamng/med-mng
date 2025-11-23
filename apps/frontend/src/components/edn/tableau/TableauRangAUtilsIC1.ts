@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { COLONNES_CONFIG } from './TableauRangAConfig';
 import { conceptsRangAIC1, colonnesConfigIC1 } from './TableauRangADataIC1';
 
@@ -10,7 +11,7 @@ export function determinerColonnesUtilesIC1(lignes: string[][]): any[] {
 
 // Fonction pour générer les lignes enrichies spécifiquement pour IC-1
 export function generateLignesRangAIC1(data: any): string[][] {
-  console.log('IC-1 Génération : 15 connaissances selon E-LiSA exactement');
+  logger.debug('IC-1 Génération : 15 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
@@ -29,6 +30,6 @@ export function generateLignesRangAIC1(data: any): string[][] {
     lignes.push(ligne);
   });
 
-  console.log(`IC-1: ${lignes.length}/15 connaissances E-LiSA générées`);
+  logger.debug(`IC-1: ${lignes.length}/15 connaissances E-LiSA générées`);
   return lignes;
 }

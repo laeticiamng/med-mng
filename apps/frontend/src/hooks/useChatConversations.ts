@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -39,13 +40,13 @@ export const useChatConversations = () => {
         .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur lors du chargement des conversations:', error);
+        logger.error('Erreur lors du chargement des conversations:', error);
         return;
       }
 
       setConversations(data || []);
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
     }
   }, []);
 
@@ -62,7 +63,7 @@ export const useChatConversations = () => {
         .single();
 
       if (error) {
-        console.error('Erreur lors de la création de la conversation:', error);
+        logger.error('Erreur lors de la création de la conversation:', error);
         toast({
           title: "Erreur",
           description: "Impossible de créer la conversation",
@@ -75,7 +76,7 @@ export const useChatConversations = () => {
       await loadConversations();
       return data;
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       return null;
     }
   }, [loadConversations, toast]);
@@ -91,7 +92,7 @@ export const useChatConversations = () => {
         .limit(5);
 
       if (immersiveError) {
-        console.error('Erreur recherche immersive:', immersiveError);
+        logger.error('Erreur recherche immersive:', immersiveError);
       }
 
       // Rechercher dans les situations ECOS
@@ -102,7 +103,7 @@ export const useChatConversations = () => {
         .limit(2);
 
       if (ecosError) {
-        console.error('Erreur recherche ECOS:', ecosError);
+        logger.error('Erreur recherche ECOS:', ecosError);
       }
 
       const citations: string[] = [];
@@ -121,7 +122,7 @@ export const useChatConversations = () => {
 
       return citations;
     } catch (error) {
-      console.error('Erreur lors de la recherche dans les cours:', error);
+      logger.error('Erreur lors de la recherche dans les cours:', error);
       return [];
     }
   }, []);
@@ -204,7 +205,7 @@ Réponds en français et de manière structurée.`;
 
       return response;
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      logger.error('Erreur lors de l\'envoi du message:', error);
       throw new Error('Erreur lors de la communication avec l\'IA');
     } finally {
       setIsGenerating(false);

@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'affichage du Tableau Rang A IC-10
 export const processTableauRangAIC10 = (data: any) => {
-  console.log('🔍 Traitement IC-10 Rang A');
+  logger.debug('🔍 Traitement IC-10 Rang A');
   
   // Extraire les données des concepts
   const tableauData = data.tableau_rang_a || data;
@@ -31,7 +33,7 @@ export const processTableauRangAIC10 = (data: any) => {
 
   const theme = "IC-10 Rang A - Approches transversales du corps";
 
-  console.log(`✅ IC-10 Rang A traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-10 Rang A traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

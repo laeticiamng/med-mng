@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { validateItemEDN, ItemEDNV2 } from '@shared/schemas/itemEDNSchema';
@@ -34,7 +35,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       }
       
       try {
-        console.log('🔍 useEdnItemV2 - Chargement item:', slug);
+        logger.debug('🔍 useEdnItemV2 - Chargement item:', slug);
         
         // 1. Récupération depuis Supabase
         const { data, error: supabaseError } = await supabase
@@ -44,7 +45,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           .single();
 
         if (supabaseError) {
-          console.error('❌ Erreur Supabase:', supabaseError);
+          logger.error('❌ Erreur Supabase:', supabaseError);
           setError('Item non trouvé');
           return;
         }
@@ -54,7 +55,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           return;
         }
 
-        console.log('📦 Données brutes récupérées:', data);
+        logger.debug('📦 Données brutes récupérées:', data);
         setRawItem(data);
 
         // 2. Détection du format et validation si v2
@@ -65,26 +66,26 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         let valErrors: string[] = [];
 
         if (isV2) {
-          console.log('✅ Item v2 détecté, validation en cours...');
+          logger.debug('✅ Item v2 détecté, validation en cours...');
           
           try {
             // Approche alternative : on parse directement et on catch les erreurs de validation
             const validation = validateItemEDN(data);
             
             if ('success' in validation && validation.success === true && 'data' in validation) {
-              console.log('✅ Item v2 valide');
+              logger.debug('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
               parsedItem = EDNItemParser.parseItemV2(validatedData, data.id);
               valErrors = [];
             } else if ('success' in validation && validation.success === false && 'errors' in validation) {
-              console.warn('⚠️ Item v2 invalide:', validation.errors);
+              logger.warn('⚠️ Item v2 invalide:', validation.errors);
               valErrors = validation.errors;
               // On continue quand même le parsing pour éviter la régression
               parsedItem = EDNItemParser.parseAnyItem(data, data.id);
             }
           } catch (err) {
-            console.error('❌ Erreur de validation:', err);
+            logger.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
             parsedItem = EDNItemParser.parseAnyItem(data, data.id);
           }
@@ -99,7 +100,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         setError(null);
         
       } catch (catchError) {
-        console.error('❌ Erreur générale:', catchError);
+        logger.error('❌ Erreur générale:', catchError);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

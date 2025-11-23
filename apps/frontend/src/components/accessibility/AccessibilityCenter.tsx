@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -81,7 +82,7 @@ export const AccessibilityCenter: React.FC = () => {
       headingStructure: 'pass',
       focusManagement: 'pass'
     };
-    console.log('🔍 Test d\'accessibilité terminé:', results);
+    logger.debug('🔍 Test d\'accessibilité terminé:', results);
     return results;
   }, []);
 

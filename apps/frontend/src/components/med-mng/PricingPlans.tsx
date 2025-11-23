@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,7 +96,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       });
 
       if (error) {
-        console.error('Erreur checkout:', error);
+        logger.error('Erreur checkout:', error);
         toast.error('Erreur lors de la création du checkout Stripe');
         return;
       }
@@ -106,7 +107,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         toast.success('Redirection vers Stripe', { id: 'stripe-checkout' });
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       toast.error('Une erreur est survenue');
     } finally {
       setProcessingPlan(null);

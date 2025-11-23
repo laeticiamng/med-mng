@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ export default function AdvancedAnalyticsDashboard() {
       setLastUpdate(new Date());
       toast.success(`Analytics générées pour ${timeframe}`);
     } catch (error) {
-      console.error('Erreur analytics:', error);
+      logger.error('Erreur analytics:', error);
       toast.error('Erreur lors de la génération des analytics');
     } finally {
       setLoading(false);

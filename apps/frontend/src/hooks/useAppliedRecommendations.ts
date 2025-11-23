@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -40,7 +41,7 @@ export function useAppliedRecommendations() {
       setAppliedRecommendations(data || []);
     } catch (err: any) {
       setError(err.message);
-      console.error('Error loading applied recommendations:', err);
+      logger.error('Error loading applied recommendations:', err);
     } finally {
       setLoading(false);
     }
@@ -115,7 +116,7 @@ export function useAppliedRecommendations() {
       await loadAppliedRecommendations();
       return data;
     } catch (err: any) {
-      console.error('Error applying recommendation:', err);
+      logger.error('Error applying recommendation:', err);
       toast.error('Erreur lors de l\'application', {
         description: err.message,
       });
@@ -161,7 +162,7 @@ export function useAppliedRecommendations() {
       await loadAppliedRecommendations();
       return data;
     } catch (err: any) {
-      console.error('Error measuring impact:', err);
+      logger.error('Error measuring impact:', err);
       toast.error('Erreur lors du calcul d\'impact', {
         description: err.message,
       });
@@ -184,7 +185,7 @@ export function useAppliedRecommendations() {
       toast.success('Recommandation mise à jour');
       await loadAppliedRecommendations();
     } catch (err: any) {
-      console.error('Error updating recommendation:', err);
+      logger.error('Error updating recommendation:', err);
       toast.error('Erreur lors de la mise à jour');
       throw err;
     } finally {
@@ -205,7 +206,7 @@ export function useAppliedRecommendations() {
       toast.success('Recommandation supprimée');
       await loadAppliedRecommendations();
     } catch (err: any) {
-      console.error('Error deleting recommendation:', err);
+      logger.error('Error deleting recommendation:', err);
       toast.error('Erreur lors de la suppression');
       throw err;
     } finally {

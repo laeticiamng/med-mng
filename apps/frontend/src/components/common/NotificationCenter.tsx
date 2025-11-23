@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,7 +112,7 @@ export function NotificationCenter({
   useEffect(() => {
     if (soundEnabled && criticalCount > 0) {
       // In a real app, you'd play a sound here
-      console.log('🔔 Critical notification sound');
+      logger.debug('🔔 Critical notification sound');
     }
   }, [criticalCount, soundEnabled]);
 

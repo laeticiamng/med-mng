@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuizErrorTracker } from './useQuizErrorTracker';
@@ -88,7 +89,7 @@ export const usePersonalizedRevision = () => {
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur analyse');
-      console.error('❌ Erreur analyzeUserWeaknesses:', err);
+      logger.error('❌ Erreur analyzeUserWeaknesses:', err);
     } finally {
       setLoading(false);
     }
@@ -172,7 +173,7 @@ export const usePersonalizedRevision = () => {
       return newPlan;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur création plan');
-      console.error('❌ Erreur createRevisionPlan:', err);
+      logger.error('❌ Erreur createRevisionPlan:', err);
       throw err;
     } finally {
       setLoading(false);

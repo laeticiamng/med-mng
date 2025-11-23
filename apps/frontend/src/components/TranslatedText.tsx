@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -33,7 +34,7 @@ export const TranslatedText: React.FC<TranslatedTextProps> = ({
   }
 
   if (error && import.meta.env.DEV) {
-    console.warn('Erreur de traduction pour:', text, error);
+    logger.warn('Erreur de traduction pour:', text, error);
   }
 
   return (

@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Key
 } from 'lucide-react';
+import logger from '@/lib/logger';
 import {
   Select,
   SelectContent,
@@ -77,7 +78,7 @@ export const EmailReportConfig: React.FC = () => {
         setShowTokenInput(!data.github_token);
       }
     } catch (error) {
-      console.error('Error loading config:', error);
+      logger.error('Error loading config:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger la configuration',
@@ -99,7 +100,7 @@ export const EmailReportConfig: React.FC = () => {
       if (error) throw error;
       setHistory((data || []) as ReportHistory[]);
     } catch (error) {
-      console.error('Error loading history:', error);
+      logger.error('Error loading history:', error);
     }
   };
 
@@ -137,7 +138,7 @@ export const EmailReportConfig: React.FC = () => {
       setGithubToken('');
       await loadConfig();
     } catch (error) {
-      console.error('Error saving config:', error);
+      logger.error('Error saving config:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de sauvegarder la configuration',
@@ -225,7 +226,7 @@ export const EmailReportConfig: React.FC = () => {
 
       await loadHistory();
     } catch (error) {
-      console.error('Error sending test report:', error);
+      logger.error('Error sending test report:', error);
       toast({
         title: 'Erreur d\'envoi',
         description: error instanceof Error ? error.message : 'Impossible d\'envoyer le rapport',

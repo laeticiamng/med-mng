@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -57,7 +58,7 @@ export const useContentMaster = () => {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
-      console.error('❌ Erreur getMasterContent:', err);
+      logger.error('❌ Erreur getMasterContent:', err);
       return null;
     } finally {
       setLoading(false);
@@ -85,7 +86,7 @@ export const useContentMaster = () => {
       if (error) throw error;
       return data.success;
     } catch (err) {
-      console.error('❌ Erreur trackContentView:', err);
+      logger.error('❌ Erreur trackContentView:', err);
       return false;
     }
   };
@@ -117,7 +118,7 @@ export const useContentMaster = () => {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
-      console.error('❌ Erreur generateMasterContent:', err);
+      logger.error('❌ Erreur generateMasterContent:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -146,7 +147,7 @@ export const useContentMaster = () => {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
-      console.error('❌ Erreur getContentStats:', err);
+      logger.error('❌ Erreur getContentStats:', err);
       return null;
     } finally {
       setLoading(false);

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -42,7 +43,7 @@ export const MedMngSubscribe = () => {
 
     setIsProcessing(true);
     try {
-      console.log(`💳 Traitement abonnement ${plan.name} via ${gateway}`);
+      logger.debug(`💳 Traitement abonnement ${plan.name} via ${gateway}`);
 
       if (gateway === 'demo') {
         // Simulation pour la démo
@@ -67,7 +68,7 @@ export const MedMngSubscribe = () => {
       }
 
     } catch (error) {
-      console.error('Erreur abonnement:', error);
+      logger.error('Erreur abonnement:', error);
       toast.error('Erreur lors de la souscription. Réessayez.');
     } finally {
       setIsProcessing(false);

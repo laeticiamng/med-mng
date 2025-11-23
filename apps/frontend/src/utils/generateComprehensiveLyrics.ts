@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Generate comprehensive medical educational lyrics in Nekfeu style
  * This module generates lyrics with assonances for medical learning
@@ -34,7 +36,7 @@ export async function generateComprehensiveLyrics(
     const data = await response.json();
     return data.lyrics || [];
   } catch (error) {
-    console.error('Error generating comprehensive lyrics:', error);
+    logger.error('Error generating comprehensive lyrics:', error);
 
     // Fallback: Return placeholder lyrics
     return [
@@ -80,7 +82,7 @@ export async function generateMixedLyrics(itemCode: string): Promise<string[]> {
 
     return mixedLyrics;
   } catch (error) {
-    console.error('Error generating mixed lyrics:', error);
+    logger.error('Error generating mixed lyrics:', error);
 
     return [
       `[${itemCode} - Mixed]`,

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Sparkles, AlertTriangle } from 'lucide-react';
@@ -123,7 +124,7 @@ export default function EdnComplete() {
         openModal(data as unknown as EdnItem);
       }
     } catch (error) {
-      console.error('[EDN] Error loading full item:', error);
+      logger.error('[EDN] Error loading full item:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger l'item complet.",
@@ -145,7 +146,7 @@ export default function EdnComplete() {
         openModal(data as unknown as EdnItem, tab);
       }
     } catch (error) {
-      console.error('[EDN] Error loading full item:', error);
+      logger.error('[EDN] Error loading full item:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger l'item complet.",

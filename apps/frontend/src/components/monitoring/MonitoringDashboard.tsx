@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ export const MonitoringDashboard = () => {
       setHealthResults(data.results || []);
       toast.success('Health checks completed');
     } catch (error) {
-      console.error('Health check failed:', error);
+      logger.error('Health check failed:', error);
       toast.error('Failed to run health checks');
     } finally {
       setLoading(false);
@@ -84,7 +85,7 @@ export const MonitoringDashboard = () => {
 
       setIncidents(data.incidents || []);
     } catch (error) {
-      console.error('Failed to fetch incidents:', error);
+      logger.error('Failed to fetch incidents:', error);
       toast.error('Failed to fetch incidents');
     }
   };
@@ -104,7 +105,7 @@ export const MonitoringDashboard = () => {
       toast.success('Incident resolved');
       fetchIncidents();
     } catch (error) {
-      console.error('Failed to resolve incident:', error);
+      logger.error('Failed to resolve incident:', error);
       toast.error('Failed to resolve incident');
     }
   };
@@ -126,7 +127,7 @@ export const MonitoringDashboard = () => {
       toast.success('Test alert sent');
       fetchIncidents();
     } catch (error) {
-      console.error('Failed to send test alert:', error);
+      logger.error('Failed to send test alert:', error);
       toast.error('Failed to send test alert');
     }
   };

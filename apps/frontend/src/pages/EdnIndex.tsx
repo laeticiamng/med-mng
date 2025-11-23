@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,7 +59,7 @@ const EdnIndex = () => {
         .order('item_code');
 
       if (fallbackError) {
-        console.error('Erreur lors du chargement des items:', fallbackError);
+        logger.error('Erreur lors du chargement des items:', fallbackError);
         toast({
           title: "Erreur",
           description: "Impossible de charger les items EDN.",
@@ -73,7 +74,7 @@ const EdnIndex = () => {
         description: `${fallbackData?.length || 0} items EDN chargés • Tous les rangs complets`,
       });
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
     } finally {
       setLoading(false);
     }

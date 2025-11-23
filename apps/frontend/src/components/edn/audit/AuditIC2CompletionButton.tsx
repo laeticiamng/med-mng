@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,12 +20,12 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
     setError(null);
     
     try {
-      console.log('🚀 Lancement de la complétion IC-2...');
+      logger.debug('🚀 Lancement de la complétion IC-2...');
       const finalReport = await completeIC2Item();
       
       if (finalReport.completeness === 100) {
         setCompleted(true);
-        console.log('🎉 IC-2 complété avec succès !');
+        logger.debug('🎉 IC-2 complété avec succès !');
         // Rafraîchir l'audit parent
         if (onComplete) {
           setTimeout(onComplete, 1000);
@@ -34,7 +35,7 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la completion');
-      console.error('❌ Erreur:', err);
+      logger.error('❌ Erreur:', err);
     } finally {
       setCompleting(false);
     }

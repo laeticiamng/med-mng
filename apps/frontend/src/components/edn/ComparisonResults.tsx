@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +55,7 @@ export const ComparisonResults = () => {
         description: `${data.summary.total_items} items analysés avec ${data.summary.average_similarity}% de similarité moyenne`
       });
     } catch (error) {
-      console.error('Error running comparison:', error);
+      logger.error('Error running comparison:', error);
       toast({
         title: "Erreur",
         description: "Erreur lors de la comparaison avec le contenu officiel",

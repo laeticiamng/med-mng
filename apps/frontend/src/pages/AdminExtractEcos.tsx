@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,12 +22,12 @@ const AdminExtractEcos = () => {
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
     try {
-      console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
+      logger.debug(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
       
       // Obtenir les credentials de manière sécurisée (affiche le formulaire si nécessaire)
       const credentials = await getCredentials();
       
-      console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
+      logger.debug('✅ Credentials obtenus, démarrage de l\'extraction...');
       
       // Maintenant on peut démarrer l'extraction
       setIsExtracting(true);
@@ -42,20 +43,20 @@ const AdminExtractEcos = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur extraction ECOS:', error);
+        logger.error('❌ Erreur extraction ECOS:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction ECOS');
         setIsExtracting(false);
         return;
       }
 
-      console.log('✅ Extraction ECOS terminée:', data);
+      logger.debug('✅ Extraction ECOS terminée:', data);
       setStats(data.stats);
       setProgress(100);
       toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
 
     } catch (error: any) {
-      console.error('💥 Erreur critique ECOS:', error);
+      logger.error('💥 Erreur critique ECOS:', error);
       
       // Gestion spécifique de l'erreur de timeout credentials
       if (error.message.includes('Timeout') || error.message.includes('credential')) {
@@ -80,12 +81,12 @@ const AdminExtractEcos = () => {
 
       if (error) throw error;
 
-      console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
+      logger.debug(`📊 ${data?.length || 0} situations ECOS déjà en base`);
       toast.info(`${data?.length || 0} situations ECOS trouvées en base`);
       
       return data;
     } catch (error: any) {
-      console.error('Erreur vérification données ECOS:', error);
+      logger.error('Erreur vérification données ECOS:', error);
       toast.error('Erreur lors de la vérification des données ECOS');
     }
   };

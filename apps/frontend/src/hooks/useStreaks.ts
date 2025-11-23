@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -31,7 +32,7 @@ export const useStreaks = () => {
         .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching streaks:', error);
+        logger.error('Error fetching streaks:', error);
         return {
           currentStreak: 0,
           longestStreak: 0,

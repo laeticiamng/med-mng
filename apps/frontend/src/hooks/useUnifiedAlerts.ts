@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
@@ -49,18 +50,18 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
   const { data, isLoading, error, refetch } = useQuery<UnifiedAlertsResponse>({
     queryKey: ['unified-alerts', mode],
     queryFn: async () => {
-      console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
+      logger.debug(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
       
       const { data, error } = await supabase.functions.invoke('unified-alerts', {
         body: { mode },
       });
 
       if (error) {
-        console.error('[useUnifiedAlerts] Error:', error);
+        logger.error('[useUnifiedAlerts] Error:', error);
         throw error;
       }
 
-      console.log('[useUnifiedAlerts] Response:', data);
+      logger.debug('[useUnifiedAlerts] Response:', data);
       return data;
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -68,12 +69,12 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
 
   // Subscribe to realtime updates
   useEffect(() => {
-    console.log('[useUnifiedAlerts] Setting up realtime subscription');
+    logger.debug('[useUnifiedAlerts] Setting up realtime subscription');
     
     const channel = supabase
       .channel('unified-alerts-broadcast')
       .on('broadcast', { event: 'alerts-updated' }, (payload) => {
-        console.log('[useUnifiedAlerts] Realtime update received:', payload);
+        logger.debug('[useUnifiedAlerts] Realtime update received:', payload);
         
         if (payload.payload?.alerts) {
           setRealtimeAlerts(payload.payload.alerts);
@@ -93,7 +94,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
       .subscribe();
 
     return () => {
-      console.log('[useUnifiedAlerts] Cleaning up realtime subscription');
+      logger.debug('[useUnifiedAlerts] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
@@ -113,7 +114,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
       toast.success('Alertes actualisées');
     },
     onError: (error) => {
-      console.error('[useUnifiedAlerts] Refresh error:', error);
+      logger.error('[useUnifiedAlerts] Refresh error:', error);
       toast.error('Erreur lors de l\'actualisation des alertes');
     },
   });

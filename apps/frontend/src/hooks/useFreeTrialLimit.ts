@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -32,7 +33,7 @@ export const useFreeTrialLimit = () => {
       setCanGenerateMore(count < MAX_FREE_GENERATIONS);
       setError(null);
     } catch (err) {
-      console.error('Erreur lors de la récupération du compteur gratuit:', err);
+      logger.error('Erreur lors de la récupération du compteur gratuit:', err);
       setError({
         code: 'STORAGE_ERROR',
         message: 'Erreur d\'accès au stockage local'
@@ -61,7 +62,7 @@ export const useFreeTrialLimit = () => {
       setError(null);
       return true;
     } catch (err) {
-      console.error('Erreur lors de l\'incrément du compteur:', err);
+      logger.error('Erreur lors de l\'incrément du compteur:', err);
       setError({
         code: 'INCREMENT_ERROR',
         message: 'Erreur lors de la mise à jour du compteur'
@@ -97,7 +98,7 @@ export const useFreeTrialLimit = () => {
       toast.success('Compteur de générations gratuites réinitialisé');
       return true;
     } catch (err) {
-      console.error('Erreur lors de la réinitialisation:', err);
+      logger.error('Erreur lors de la réinitialisation:', err);
       setError({
         code: 'RESET_ERROR',
         message: 'Erreur lors de la réinitialisation'

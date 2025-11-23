@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -55,7 +56,7 @@ export const useFavoritesAndHistory = () => {
 
       setFavorites(formattedFavorites);
     } catch (error) {
-      console.error('Erreur chargement favoris:', error);
+      logger.error('Erreur chargement favoris:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger vos favoris",
@@ -76,7 +77,7 @@ export const useFavoritesAndHistory = () => {
       // Pour l'instant, retourner un historique vide jusqu'à ce que les types soient mis à jour
       setHistory([]);
     } catch (error) {
-      console.error('Erreur chargement historique:', error);
+      logger.error('Erreur chargement historique:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger votre historique",
@@ -114,7 +115,7 @@ export const useFavoritesAndHistory = () => {
       await loadFavorites(); // Recharger la liste
       return isAdded;
     } catch (error) {
-      console.error('Erreur toggle favori:', error);
+      logger.error('Erreur toggle favori:', error);
       toast({
         title: "Erreur",
         description: "Impossible de modifier les favoris",
@@ -143,7 +144,7 @@ export const useFavoritesAndHistory = () => {
       // Recharger l'historique silencieusement
       await loadHistory();
     } catch (error) {
-      console.error('Erreur log écoute:', error);
+      logger.error('Erreur log écoute:', error);
       // Ne pas afficher d'erreur à l'utilisateur car c'est non-critique
     }
   };
@@ -194,7 +195,7 @@ export const useFavoritesAndHistory = () => {
 
       setHistory([]);
     } catch (error) {
-      console.error('Erreur suppression historique:', error);
+      logger.error('Erreur suppression historique:', error);
       toast({
         title: "Erreur",
         description: "Impossible de supprimer l'historique",

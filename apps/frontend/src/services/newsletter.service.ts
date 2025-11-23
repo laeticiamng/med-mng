@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Newsletter Service
  * Handles newsletter subscription management
@@ -77,10 +79,10 @@ class NewsletterService {
         subscriptionId: data.subscriptionId || data.id,
       };
     } catch (error) {
-      console.error('Error subscribing to newsletter:', error);
+      logger.error('Error subscribing to newsletter:', error);
 
       // Fallback for development
-      console.log('Newsletter Subscription (Development):', subscription);
+      logger.debug('Newsletter Subscription (Development):', subscription);
 
       return {
         success: true,
@@ -121,7 +123,7 @@ class NewsletterService {
         message: data.message || 'Successfully unsubscribed from newsletter',
       };
     } catch (error) {
-      console.error('Error unsubscribing from newsletter:', error);
+      logger.error('Error unsubscribing from newsletter:', error);
       return {
         success: false,
         message: 'Failed to unsubscribe. Please try again later.',

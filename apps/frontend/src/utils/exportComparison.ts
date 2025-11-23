@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
+import logger from '@/lib/logger';
 
 /**
  * Comparison data structure
@@ -52,7 +53,7 @@ export async function exportComparisonToPDF(
         doc.addImage(imgData, 'PNG', 14, startY, 180, 100);
         startY += 110;
       } catch (error) {
-        console.warn('Failed to capture chart:', error);
+        logger.warn('Failed to capture chart:', error);
       }
     }
 
@@ -84,7 +85,7 @@ export async function exportComparisonToPDF(
     // Save the PDF
     doc.save(`comparison-report-${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (error) {
-    console.error('Failed to export comparison to PDF:', error);
+    logger.error('Failed to export comparison to PDF:', error);
     throw new Error('Failed to export comparison to PDF');
   }
 }
@@ -123,7 +124,7 @@ export async function exportComparisonToExcel(
     // Save file
     XLSX.writeFile(wb, `comparison-report-${new Date().toISOString().split('T')[0]}.xlsx`);
   } catch (error) {
-    console.error('Failed to export comparison to Excel:', error);
+    logger.error('Failed to export comparison to Excel:', error);
     throw new Error('Failed to export comparison to Excel');
   }
 }
@@ -164,7 +165,7 @@ export function exportComparisonToCSV(
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Failed to export comparison to CSV:', error);
+    logger.error('Failed to export comparison to CSV:', error);
     throw new Error('Failed to export comparison to CSV');
   }
 }

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 
 interface CacheItem<T> {
@@ -53,7 +54,7 @@ export function useCache<T = any>(namespace = 'app-cache') {
             JSON.stringify(item)
           );
         } catch (error) {
-          console.warn('Erreur sauvegarde cache localStorage:', error);
+          logger.warn('Erreur sauvegarde cache localStorage:', error);
         }
       }
 
@@ -78,7 +79,7 @@ export function useCache<T = any>(namespace = 'app-cache') {
           }
         }
       } catch (error) {
-        console.warn('Erreur lecture cache localStorage:', error);
+        logger.warn('Erreur lecture cache localStorage:', error);
       }
       return null;
     }
@@ -103,7 +104,7 @@ export function useCache<T = any>(namespace = 'app-cache') {
     try {
       localStorage.removeItem(`${namespace}:${key}`);
     } catch (error) {
-      console.warn('Erreur suppression cache localStorage:', error);
+      logger.warn('Erreur suppression cache localStorage:', error);
     }
   }, [namespace]);
 
@@ -119,7 +120,7 @@ export function useCache<T = any>(namespace = 'app-cache') {
         }
       });
     } catch (error) {
-      console.warn('Erreur vidage cache localStorage:', error);
+      logger.warn('Erreur vidage cache localStorage:', error);
     }
   }, [namespace]);
 

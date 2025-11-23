@@ -1,4 +1,5 @@
 import React, { memo, ComponentType } from 'react';
+import logger from '@/lib/logger';
 
 /**
  * HOC to optimize page components
@@ -50,7 +51,7 @@ export const withPageOptimization = <P extends object>(
 
     if (enableProfiling) {
       const endTime = performance.now();
-      console.debug(
+      logger.debug(
         `[Performance] ${displayName} rendered in ${(endTime - startTime).toFixed(2)}ms`
       );
     }
@@ -105,7 +106,7 @@ export const withRenderTracking = <P extends object>(
         {(() => {
           const renderTime = performance.now() - renderStart;
           if (renderTime > threshold) {
-            console.warn(
+            logger.warn(
               `[Slow Render] ${Component.displayName || Component.name} took ${renderTime.toFixed(
                 2
               )}ms (threshold: ${threshold}ms)`
@@ -149,7 +150,7 @@ export const useComponentMetrics = (componentName: string) => {
   React.useEffect(() => {
     const entry = performance.getEntriesByName(`component-${componentName}`)?.[0];
     if (entry) {
-      console.debug(`[Metrics] ${componentName}:`, {
+      logger.debug(`[Metrics] ${componentName}:`, {
         duration: entry.duration,
         startTime: entry.startTime,
       });

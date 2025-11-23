@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -63,7 +64,7 @@ export default function ContactSupport() {
           category: (formData.category as any) || 'other',
         });
       } catch (emailErr) {
-        console.warn('Email notification failed but ticket was created', emailErr);
+        logger.warn('Email notification failed but ticket was created', emailErr);
       }
 
       // Log submission

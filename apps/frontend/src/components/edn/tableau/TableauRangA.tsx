@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 import { TableauSectionEnhanced } from '../TableauSectionEnhanced';
@@ -25,21 +26,21 @@ interface TableauRangAProps {
 }
 
 export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) => {
-  console.log('🔍 TableauRangA - données reçues:', { data, itemCode });
-  console.log('🔍 TableauRangA - structure complète:', JSON.stringify(data, null, 2));
+  logger.debug('🔍 TableauRangA - données reçues:', { data, itemCode });
+  logger.debug('🔍 TableauRangA - structure complète:', JSON.stringify(data, null, 2));
 
   // Si des données sont déjà fournies, les utiliser directement sans faire d'appel externe
-  console.log('✅ Utilisation des données fournies directement pour', itemCode);
+  logger.debug('✅ Utilisation des données fournies directement pour', itemCode);
 
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
-    console.log('✅ Format avec sections détecté:', data.sections.length, 'sections');
+    logger.debug('✅ Format avec sections détecté:', data.sections.length, 'sections');
     
     // Si les sections contiennent des compétences détaillées, utiliser le nouveau composant
     const hasDetailedCompetences = data.sections.some((s: any) => s.competences && s.competences.length > 0);
     
     if (hasDetailedCompetences) {
-      console.log('✅ Sections avec compétences détaillées, affichage enrichi');
+      logger.debug('✅ Sections avec compétences détaillées, affichage enrichi');
       return (
         <div className="space-y-6">
           <div className="mb-4">
@@ -63,7 +64,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     }
     
     // Sinon, convertir au format OIC standard
-    console.log('✅ Conversion vers format OIC standard');
+    logger.debug('✅ Conversion vers format OIC standard');
     const competencesData = {
       title: data.title || `${itemCode} Rang A - Compétences OIC`,
       competences: data.sections.map((section: any, index: number) => {
@@ -97,7 +98,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   // Format direct avec compétences (ancien format)
   if (data && data.competences && Array.isArray(data.competences)) {
-    console.log('✅ Format OIC direct détecté, utilisation du nouveau composant');
+    logger.debug('✅ Format OIC direct détecté, utilisation du nouveau composant');
     return (
       <TableauCompetencesOICOptimized 
         data={data} 
@@ -108,7 +109,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
   }
 
   // Ancien format avec colonnes/lignes (fallback)
-  console.log('⚠️ Format ancien détecté, utilisation de l\'ancien composant');
+  logger.debug('⚠️ Format ancien détecté, utilisation de l\'ancien composant');
   const theme = data?.theme || "Thème non défini";
   const colonnesData = data?.colonnes || [];
   const lignesData = data?.lignes || [];

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -34,7 +35,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
         const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
         
-        console.log(`🔍 Récupération compétences OIC depuis BACKUP pour item ${itemNumber} rang ${rang}`);
+        logger.debug(`🔍 Récupération compétences OIC depuis BACKUP pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
           .from('backup_oic_competences')
@@ -51,12 +52,12 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           .order('objectif_id');
 
         if (error) {
-          console.error('❌ Erreur récupération OIC:', error);
+          logger.error('❌ Erreur récupération OIC:', error);
           setError(error.message);
           return;
         }
 
-        console.log(`✅ ${data?.length || 0} compétences OIC BACKUP récupérées pour ${itemCode} rang ${rang}`);
+        logger.debug(`✅ ${data?.length || 0} compétences OIC BACKUP récupérées pour ${itemCode} rang ${rang}`);
         
         // Toutes les compétences de backup_oic_competences sont authentiques
         const realCompetences = data?.filter(comp => {
@@ -67,11 +68,11 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
                  comp.description.trim().length > 5;
         }) || [];
 
-        console.log(`🎯 ${realCompetences.length} compétences VALIDES après filtrage`);
+        logger.debug(`🎯 ${realCompetences.length} compétences VALIDES après filtrage`);
         setCompetences(realCompetences);
         
       } catch (err) {
-        console.error('❌ Erreur:', err);
+        logger.error('❌ Erreur:', err);
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
         setLoading(false);

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,7 +119,7 @@ export function useShareNotifications() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            console.log('New notification received:', payload);
+            logger.debug('New notification received:', payload);
             const newNotification = payload.new as ShareNotification;
 
             // Show toast notification
@@ -156,7 +157,7 @@ export function useShareNotifications() {
           }
         )
         .subscribe((status) => {
-          console.log('Realtime subscription status:', status);
+          logger.debug('Realtime subscription status:', status);
         });
 
       setChannel(realtimeChannel);

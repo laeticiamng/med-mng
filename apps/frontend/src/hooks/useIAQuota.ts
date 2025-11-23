@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -58,7 +59,7 @@ export const useIAQuota = () => {
       setQuota(remainingCredits);
       return remainingCredits;
     } catch (error) {
-      console.error('Erreur lors de la récupération du quota:', error);
+      logger.error('Erreur lors de la récupération du quota:', error);
       // Quota par défaut en cas d'erreur
       setQuota(80);
       return 80;
@@ -94,7 +95,7 @@ export const useIAQuota = () => {
         remaining: data?.remaining_credits || 0
       };
     } catch (error) {
-      console.error('Erreur lors de la vérification du quota:', error);
+      logger.error('Erreur lors de la vérification du quota:', error);
       return {
         canProceed: false,
         required: 0,
@@ -137,7 +138,7 @@ export const useIAQuota = () => {
         return false;
       }
     } catch (error) {
-      console.error('Erreur lors de l\'utilisation du quota:', error);
+      logger.error('Erreur lors de l\'utilisation du quota:', error);
       toast({
         title: "Erreur",
         description: "Impossible d'utiliser les crédits IA",
@@ -163,7 +164,7 @@ export const useIAQuota = () => {
       if (error) throw error;
       return data as QuotaStats;
     } catch (error) {
-      console.error('Erreur lors de la récupération des stats:', error);
+      logger.error('Erreur lors de la récupération des stats:', error);
       return null;
     }
   };
@@ -253,7 +254,7 @@ export const checkAndUseCredits = async (
     if (error) throw error;
     return data?.success || false;
   } catch (error) {
-    console.error('Erreur lors de la vérification et utilisation des crédits:', error);
+    logger.error('Erreur lors de la vérification et utilisation des crédits:', error);
     return false;
   }
 };

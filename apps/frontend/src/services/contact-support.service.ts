@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Contact Support Service
  * Handles support ticket submission and communication
@@ -97,10 +99,10 @@ class ContactSupportService {
         message: data.message || 'Support ticket submitted successfully',
       };
     } catch (error) {
-      console.error('Error submitting support ticket:', error);
+      logger.error('Error submitting support ticket:', error);
 
       // Fallback: Log to console and return success for development
-      console.log('Support Ticket (Development):', ticket);
+      logger.debug('Support Ticket (Development):', ticket);
 
       return {
         success: true,
@@ -137,7 +139,7 @@ class ContactSupportService {
         message: data.message,
       };
     } catch (error) {
-      console.error('Error fetching ticket status:', error);
+      logger.error('Error fetching ticket status:', error);
       return {
         success: false,
         message: 'Failed to fetch ticket status',

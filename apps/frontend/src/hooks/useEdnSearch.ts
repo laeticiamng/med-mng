@@ -3,6 +3,7 @@
  * Recherche full-text, items similaires, etc.
  */
 
+import logger from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { EdnSearchResult, EdnSimilarItem } from '@shared/types/edn';
@@ -21,7 +22,7 @@ import type { EdnSearchResult, EdnSimilarItem } from '@shared/types/edn';
  * });
  *
  * results.forEach(item => {
- *   console.log(item.item_code, item.title, item.rank);
+ *   logger.debug(item.item_code, item.title, item.rank);
  * });
  * ```
  */
@@ -69,7 +70,7 @@ export function useEdnSearch(
  * const { data: similar } = useEdnSimilarItems('IC-1', { limit: 5 });
  *
  * similar.forEach(item => {
- *   console.log(item.item_code, item.similarity_score, item.shared_tags);
+ *   logger.debug(item.item_code, item.similarity_score, item.shared_tags);
  * });
  * ```
  */

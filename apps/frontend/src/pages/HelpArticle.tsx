@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -68,7 +69,7 @@ export const HelpArticle = () => {
 
       setArticle(data);
     } catch (error) {
-      console.error('Error fetching article:', error);
+      logger.error('Error fetching article:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger l\'article',
@@ -100,7 +101,7 @@ export const HelpArticle = () => {
 
       setRelatedArticles(data || []);
     } catch (error) {
-      console.error('Error fetching related articles:', error);
+      logger.error('Error fetching related articles:', error);
     }
   };
 
@@ -110,7 +111,7 @@ export const HelpArticle = () => {
         article_id: articleId
       });
     } catch (error) {
-      console.error('Error incrementing views:', error);
+      logger.error('Error incrementing views:', error);
     }
   };
 
@@ -151,7 +152,7 @@ export const HelpArticle = () => {
         description: 'Votre évaluation nous aide à améliorer notre contenu'
       });
     } catch (error) {
-      console.error('Error recording feedback:', error);
+      logger.error('Error recording feedback:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible d\'enregistrer votre évaluation',
@@ -177,7 +178,7 @@ export const HelpArticle = () => {
         });
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      logger.error('Error sharing:', error);
     }
   };
 

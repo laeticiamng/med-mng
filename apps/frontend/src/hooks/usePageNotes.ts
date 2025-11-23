@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -64,7 +65,7 @@ export function usePageNotes(pagePath?: string) {
       if (error) throw error;
       setNotes(data as any || []);
     } catch (error) {
-      console.error('Error loading notes:', error);
+      logger.error('Error loading notes:', error);
       toast({
         title: 'Erreur de chargement',
         description: 'Impossible de charger les notes',
@@ -146,7 +147,7 @@ export function usePageNotes(pagePath?: string) {
 
       return note;
     } catch (error) {
-      console.error('Error creating note:', error);
+      logger.error('Error creating note:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer la note',
@@ -173,7 +174,7 @@ export function usePageNotes(pagePath?: string) {
 
       return true;
     } catch (error) {
-      console.error('Error updating note:', error);
+      logger.error('Error updating note:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la note',
@@ -200,7 +201,7 @@ export function usePageNotes(pagePath?: string) {
 
       return true;
     } catch (error) {
-      console.error('Error deleting note:', error);
+      logger.error('Error deleting note:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer la note',

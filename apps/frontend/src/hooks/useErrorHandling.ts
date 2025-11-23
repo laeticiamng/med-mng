@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useCallback, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { captureException, addBreadcrumb } from '@/utils/sentry';
@@ -144,9 +145,9 @@ export function useErrorHandling() {
     // Log to browser console in development
     if (import.meta.env.DEV) {
       console.group(`🚨 Error in ${context}`);
-      console.error('AppError:', appError);
-      console.error('Original error:', error);
-      console.error('Context:', appError.context);
+      logger.error('AppError:', appError);
+      logger.error('Original error:', error);
+      logger.error('Context:', appError.context);
       console.groupEnd();
     }
 

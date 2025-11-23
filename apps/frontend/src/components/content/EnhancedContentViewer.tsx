@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,7 +52,7 @@ export const EnhancedContentViewer: React.FC<EnhancedContentViewerProps> = ({
         setContentData({ bande_dessinee: null, roman: null, poeme: null });
       }
     } catch (error) {
-      console.error('Error loading content:', error);
+      logger.error('Error loading content:', error);
       toast.error('Erreur lors du chargement du contenu');
     } finally {
       setLoading(false);
@@ -72,7 +73,7 @@ export const EnhancedContentViewer: React.FC<EnhancedContentViewerProps> = ({
         toast.warning('Aucun nouveau contenu généré');
       }
     } catch (error) {
-      console.error('Error generating content:', error);
+      logger.error('Error generating content:', error);
       toast.error('Erreur lors de la génération');
     } finally {
       setGenerating(false);
@@ -112,7 +113,7 @@ export const EnhancedContentViewer: React.FC<EnhancedContentViewerProps> = ({
           url: window.location.href
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        logger.error('Error sharing:', error);
       }
     } else {
       await navigator.clipboard.writeText(window.location.href);

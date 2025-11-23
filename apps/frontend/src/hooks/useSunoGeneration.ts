@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { generateMusic, type GenerateMusicPayload } from '@shared/music/generate';
 import { useMusicGenerationStatus } from './useMusicGenerationStatus';
@@ -26,13 +27,13 @@ export const useSunoGeneration = () => {
     try {
       setError(null);
       
-      console.log('🚀 Démarrage génération avec payload:', payload);
+      logger.debug('🚀 Démarrage génération avec payload:', payload);
       
       // Appeler l'API qui retourne immédiatement un taskId
       const response = await generateMusic(payload);
       
       if (response?.trackId) {
-        console.log('✅ TaskID reçu:', response.trackId);
+        logger.debug('✅ TaskID reçu:', response.trackId);
         setCurrentTaskId(response.trackId);
         
         // Démarrer le polling automatique
@@ -44,7 +45,7 @@ export const useSunoGeneration = () => {
       }
       
     } catch (err) {
-      console.error('❌ Erreur génération:', err);
+      logger.error('❌ Erreur génération:', err);
       setError(err instanceof Error ? err.message : 'Erreur de génération');
       throw err;
     }

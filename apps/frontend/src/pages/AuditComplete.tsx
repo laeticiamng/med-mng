@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,7 +37,7 @@ const AuditComplete = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleExportReport = () => {
-    console.log('Export du rapport complet d\'audit');
+    logger.debug('Export du rapport complet d\'audit');
     // Logique d'export à implémenter
   };
 

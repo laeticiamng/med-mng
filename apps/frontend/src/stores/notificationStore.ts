@@ -2,6 +2,7 @@
  * Store Zustand pour gérer les notifications de tendances
  */
 
+import logger from '@/lib/logger';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -41,7 +42,7 @@ export const useNotificationStore = create<NotificationState>()(
           notifications: [newNotification, ...state.notifications].slice(0, 50), // Max 50
         }));
         
-        console.log('[Notifications] New notification:', notification.title);
+        logger.debug('[Notifications] New notification:', notification.title);
       },
       
       markAsRead: (id) => {

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -15,7 +16,7 @@ export const useGlobalTranslation = () => {
       const translated = await translate(content, currentLanguage);
       return translated;
     } catch (error) {
-      console.warn('Translation failed, using original content:', error);
+      logger.warn('Translation failed, using original content:', error);
       return content;
     }
   };
@@ -37,7 +38,7 @@ export const useGlobalTranslation = () => {
       );
       return translatedArray;
     } catch (error) {
-      console.warn('Array translation failed, using original content:', error);
+      logger.warn('Array translation failed, using original content:', error);
       return contentArray;
     }
   };

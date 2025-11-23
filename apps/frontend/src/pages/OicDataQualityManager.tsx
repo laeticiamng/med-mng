@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -71,7 +72,7 @@ const OicDataQualityManager = () => {
     setError(null);
     
     try {
-      console.log('🔍 Starting OIC data quality analysis...');
+      logger.debug('🔍 Starting OIC data quality analysis...');
       
       const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'analyze' }
@@ -80,10 +81,10 @@ const OicDataQualityManager = () => {
       if (error) throw error;
       
       setAnalysisResult(data);
-      console.log('✅ Analysis completed:', data);
+      logger.debug('✅ Analysis completed:', data);
       
     } catch (err: any) {
-      console.error('❌ Analysis failed:', err);
+      logger.error('❌ Analysis failed:', err);
       setError(`Analysis failed: ${err.message}`);
     } finally {
       setIsAnalyzing(false);
@@ -95,7 +96,7 @@ const OicDataQualityManager = () => {
     setError(null);
     
     try {
-      console.log('🛠️ Starting OIC data quality fixes...');
+      logger.debug('🛠️ Starting OIC data quality fixes...');
       
       const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'fix' }
@@ -104,7 +105,7 @@ const OicDataQualityManager = () => {
       if (error) throw error;
       
       setFixResult(data);
-      console.log('✅ Fixes completed:', data);
+      logger.debug('✅ Fixes completed:', data);
       
       // Relancer l'analyse pour voir les améliorations
       setTimeout(() => {
@@ -112,7 +113,7 @@ const OicDataQualityManager = () => {
       }, 1000);
       
     } catch (err: any) {
-      console.error('❌ Fix failed:', err);
+      logger.error('❌ Fix failed:', err);
       setError(`Fix failed: ${err.message}`);
     } finally {
       setIsFixing(false);

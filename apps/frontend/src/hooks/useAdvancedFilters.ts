@@ -3,6 +3,7 @@
  * Inclut sauvegarde locale des filtres favoris
  */
 
+import logger from '@/lib/logger';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EdnItemUnified } from '@shared/types/edn';
 import { AdvancedFilters, DEFAULT_ADVANCED_FILTERS, SavedFilter } from '@shared/types/advancedFilters';
@@ -22,7 +23,7 @@ export const useAdvancedFilters = (items: EdnItemUnified[]) => {
         setSavedFilters(JSON.parse(saved));
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des filtres sauvegardés:', error);
+      logger.error('Erreur lors du chargement des filtres sauvegardés:', error);
     }
   }, []);
 

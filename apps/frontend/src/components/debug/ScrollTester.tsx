@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,12 +36,12 @@ export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false 
       zIndex: getComputedStyle(el).zIndex
     }));
 
-    console.log('📏 Scroll Test Results:', results);
+    logger.debug('📏 Scroll Test Results:', results);
     
     // Force scroll test
     window.scrollTo({ top: 100, behavior: 'smooth' });
     setTimeout(() => {
-      console.log('📏 After scroll attempt - scrollY:', window.scrollY);
+      logger.debug('📏 After scroll attempt - scrollY:', window.scrollY);
     }, 500);
   };
 

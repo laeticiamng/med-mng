@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useRef, useEffect } from 'react';
 
 export const useAudioPlayer = () => {
@@ -33,7 +34,7 @@ export const useAudioPlayer = () => {
     });
 
     audio.addEventListener('error', (e) => {
-      console.error('Erreur audio:', e);
+      logger.error('Erreur audio:', e);
       setIsPlaying(false);
       setCurrentTrack(null);
     });
@@ -41,7 +42,7 @@ export const useAudioPlayer = () => {
     audio.play().then(() => {
       setIsPlaying(true);
     }).catch((error) => {
-      console.error('Erreur lecture audio:', error);
+      logger.error('Erreur lecture audio:', error);
       setIsPlaying(false);
     });
   };
@@ -58,7 +59,7 @@ export const useAudioPlayer = () => {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((error) => {
-        console.error('Erreur reprise audio:', error);
+        logger.error('Erreur reprise audio:', error);
         setIsPlaying(false);
       });
     }

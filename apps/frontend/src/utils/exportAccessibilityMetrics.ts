@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Export accessibility metrics to CSV format
  * @param metrics - Metrics data to export
@@ -7,7 +9,7 @@ export function exportMetricsToCSV(metrics: any): void {
     const csvData = convertMetricsToCSV(metrics);
     downloadFile(csvData, 'accessibility-metrics.csv', 'text/csv');
   } catch (error) {
-    console.error('Failed to export metrics to CSV:', error);
+    logger.error('Failed to export metrics to CSV:', error);
     throw new Error('Failed to export metrics to CSV');
   }
 }
@@ -21,7 +23,7 @@ export function exportMetricsToJSON(metrics: any): void {
     const jsonData = JSON.stringify(metrics, null, 2);
     downloadFile(jsonData, 'accessibility-metrics.json', 'application/json');
   } catch (error) {
-    console.error('Failed to export metrics to JSON:', error);
+    logger.error('Failed to export metrics to JSON:', error);
     throw new Error('Failed to export metrics to JSON');
   }
 }
@@ -36,7 +38,7 @@ export function exportSummaryToCSV(metrics: any): void {
     const csvData = convertSummaryToCSV(summary);
     downloadFile(csvData, 'accessibility-summary.csv', 'text/csv');
   } catch (error) {
-    console.error('Failed to export summary to CSV:', error);
+    logger.error('Failed to export summary to CSV:', error);
     throw new Error('Failed to export summary to CSV');
   }
 }
@@ -52,7 +54,7 @@ export function exportMonthlyReport(metrics: any): void {
     const date = new Date().toISOString().split('T')[0];
     downloadFile(csvData, `accessibility-report-${date}.csv`, 'text/csv');
   } catch (error) {
-    console.error('Failed to export monthly report:', error);
+    logger.error('Failed to export monthly report:', error);
     throw new Error('Failed to export monthly report');
   }
 }

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +55,7 @@ export const MedMngPricing = () => {
       
       setPlans(processedPlans);
     } catch (error) {
-      console.error('Error loading plans:', error);
+      logger.error('Error loading plans:', error);
       toast.error('Erreur lors du chargement des plans');
     } finally {
       setLoading(false);
@@ -82,7 +83,7 @@ export const MedMngPricing = () => {
         window.open(data.url, '_blank');
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
+      logger.error('Error creating checkout:', error);
       toast.error('Erreur lors de la création du checkout');
     } finally {
       setProcessingPlan(null);
@@ -114,7 +115,7 @@ export const MedMngPricing = () => {
       // Recharger la page pour voir les changements
       setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
-      console.error('Error activating simulation:', error);
+      logger.error('Error activating simulation:', error);
       toast.error('Erreur lors de l\'activation de la simulation');
     } finally {
       setProcessingPlan(null);

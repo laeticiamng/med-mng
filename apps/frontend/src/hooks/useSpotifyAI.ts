@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -68,7 +69,7 @@ export const useSpotifyAI = () => {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
-      console.error('❌ Erreur generateMusic:', err);
+      logger.error('❌ Erreur generateMusic:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -84,7 +85,7 @@ export const useSpotifyAI = () => {
       if (error) throw error;
       return data;
     } catch (err) {
-      console.error('❌ Erreur getGenerationStatus:', err);
+      logger.error('❌ Erreur getGenerationStatus:', err);
       return null;
     }
   };
@@ -105,7 +106,7 @@ export const useSpotifyAI = () => {
 
       return null;
     } catch (err) {
-      console.error('❌ Erreur getStreamingUrl:', err);
+      logger.error('❌ Erreur getStreamingUrl:', err);
       return null;
     }
   };
@@ -133,7 +134,7 @@ export const useSpotifyAI = () => {
 
       return !error;
     } catch (err) {
-      console.error('❌ Erreur trackListeningSession:', err);
+      logger.error('❌ Erreur trackListeningSession:', err);
       return false;
     }
   };
@@ -167,7 +168,7 @@ export const useSpotifyAI = () => {
       setGenerations(data as MusicGeneration[] || []);
       return data as MusicGeneration[] || [];
     } catch (err) {
-      console.error('❌ Erreur getUserGenerations:', err);
+      logger.error('❌ Erreur getUserGenerations:', err);
       return [];
     }
   };
@@ -181,7 +182,7 @@ export const useSpotifyAI = () => {
       if (error) throw error;
       return data;
     } catch (err) {
-      console.error('❌ Erreur getAdminStats:', err);
+      logger.error('❌ Erreur getAdminStats:', err);
       return null;
     }
   };
@@ -199,7 +200,7 @@ export const useSpotifyAI = () => {
           }
         }
       } catch (err) {
-        console.error('❌ Erreur polling:', err);
+        logger.error('❌ Erreur polling:', err);
         clearInterval(intervalId);
       }
     };

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -44,7 +45,7 @@ export const useItemCompletenessChecker = () => {
   const checkItemCompleteness = useCallback(async (itemId: string): Promise<CompletenessResult | null> => {
     try {
       setIsChecking(true);
-      console.log(`🔍 Vérification complétude item: ${itemId}`);
+      logger.debug(`🔍 Vérification complétude item: ${itemId}`);
 
       const { data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: JSON.stringify({ itemId })
@@ -60,7 +61,7 @@ export const useItemCompletenessChecker = () => {
       setItemResults(prev => new Map(prev.set(itemId, result)));
 
       // Log détaillé
-      console.log(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
+      logger.debug(`📊 Complétude ${result.itemCode}: ${result.completenessScore}%`, {
         status: result.status,
         missingFields: result.missingFields,
         partialFields: result.partialFields
@@ -69,7 +70,7 @@ export const useItemCompletenessChecker = () => {
       return result;
 
     } catch (error) {
-      console.error('❌ Erreur vérification item:', error);
+      logger.error('❌ Erreur vérification item:', error);
       toast({
         title: "Erreur de vérification",
         description: `Impossible de vérifier l'item: ${error.message}`,
@@ -85,7 +86,7 @@ export const useItemCompletenessChecker = () => {
   const checkAllItemsCompleteness = useCallback(async (): Promise<CompletenessReport | null> => {
     try {
       setIsChecking(true);
-      console.log('🔍 Vérification complétude de tous les items...');
+      logger.debug('🔍 Vérification complétude de tous les items...');
 
       const { data, error } = await supabase.functions.invoke('items-completeness-check');
 
@@ -105,14 +106,14 @@ export const useItemCompletenessChecker = () => {
 
       // Log du rapport complet
       console.group('📊 RAPPORT COMPLÉTUDE GLOBAL');
-      console.log(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
-      console.log(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
-      console.log(`🚨 Items critiques: ${report.summary.criticalItems}`);
-      console.log(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
+      logger.debug(`📈 Items complets: ${report.summary.completeItems}/${report.summary.totalItems} (${((report.summary.completeItems/report.summary.totalItems)*100).toFixed(1)}%)`);
+      logger.debug(`⚠️ Items incomplets: ${report.summary.incompleteItems}`);
+      logger.debug(`🚨 Items critiques: ${report.summary.criticalItems}`);
+      logger.debug(`📊 Score moyen: ${report.summary.averageCompleteness}%`);
       
       if (report.recommendations.length > 0) {
-        console.log('💡 Recommandations:');
-        report.recommendations.forEach(rec => console.log(`  • ${rec}`));
+        logger.debug('💡 Recommandations:');
+        report.recommendations.forEach(rec => logger.debug(`  • ${rec}`));
       }
       console.groupEnd();
 
@@ -138,7 +139,7 @@ export const useItemCompletenessChecker = () => {
       return report;
 
     } catch (error) {
-      console.error('❌ Erreur vérification globale:', error);
+      logger.error('❌ Erreur vérification globale:', error);
       toast({
         title: "Erreur de vérification globale",
         description: `Impossible de vérifier tous les items: ${error.message}`,

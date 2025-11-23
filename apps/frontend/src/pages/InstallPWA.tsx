@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,9 +59,9 @@ const InstallPWA: React.FC = () => {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      logger.debug('User accepted the install prompt');
     } else {
-      console.log('User dismissed the install prompt');
+      logger.debug('User dismissed the install prompt');
     }
 
     // Réinitialiser le prompt

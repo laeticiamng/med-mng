@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,7 @@ export function WebhookManager() {
         setSettings(data);
       }
     } catch (error) {
-      console.error('Error loading webhook settings:', error);
+      logger.error('Error loading webhook settings:', error);
       toast.error('Erreur lors du chargement des paramètres');
     } finally {
       setLoading(false);
@@ -80,7 +81,7 @@ export function WebhookManager() {
 
       toast.success('Paramètres enregistrés avec succès');
     } catch (error) {
-      console.error('Error saving webhook settings:', error);
+      logger.error('Error saving webhook settings:', error);
       toast.error('Erreur lors de l\'enregistrement');
     } finally {
       setSaving(false);
@@ -111,7 +112,7 @@ export function WebhookManager() {
         toast.error(data?.error || 'Test échoué');
       }
     } catch (error: any) {
-      console.error(`Error testing ${type} webhook:`, error);
+      logger.error(`Error testing ${type} webhook:`, error);
       toast.error(`Erreur lors du test: ${error.message}`);
     } finally {
       setTesting(false);

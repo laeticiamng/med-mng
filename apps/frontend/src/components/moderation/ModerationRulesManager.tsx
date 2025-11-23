@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import {
   useFetchModerationRules,
@@ -77,7 +78,7 @@ export default function ModerationRulesManager() {
       setShowDialog(false)
     } catch (error) {
       toast.error('Failed to save rule')
-      console.error(error)
+      logger.error(error)
     }
   }
 
@@ -89,7 +90,7 @@ export default function ModerationRulesManager() {
       toast.success('Rule deleted')
     } catch (error) {
       toast.error('Failed to delete rule')
-      console.error(error)
+      logger.error(error)
     }
   }
 

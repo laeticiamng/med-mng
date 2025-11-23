@@ -18,6 +18,7 @@ import {
   Wand2,
   Copy
 } from 'lucide-react';
+import logger from '@/lib/logger';
 import {
   Select,
   SelectContent,
@@ -101,7 +102,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect
         setSelectedTemplate(typedData[0] as EmailTemplate);
       }
     } catch (error) {
-      console.error('Error loading templates:', error);
+      logger.error('Error loading templates:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les templates',
@@ -172,7 +173,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect
       setEditMode(false);
       await loadTemplates();
     } catch (error) {
-      console.error('Error saving template:', error);
+      logger.error('Error saving template:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible d\'enregistrer le template',
@@ -201,7 +202,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect
 
       await loadTemplates();
     } catch (error) {
-      console.error('Error deleting template:', error);
+      logger.error('Error deleting template:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer le template',

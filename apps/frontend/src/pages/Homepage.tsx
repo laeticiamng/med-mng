@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -23,11 +24,11 @@ const Homepage: React.FC = () => {
   const statsData = useModernStatsData();
 
   const handleSearch = (query: string) => {
-    console.log('Recherche:', query);
+    logger.debug('Recherche:', query);
   };
 
   const handleFilter = (filters: Record<string, any>) => {
-    console.log('Filtres:', filters);
+    logger.debug('Filtres:', filters);
   };
   const features = [
     {
@@ -132,7 +133,7 @@ const Homepage: React.FC = () => {
               <SearchSystem
                 placeholder="Rechercher des items EDN, ECOS, contenus musicaux..."
                 onResultSelect={(result) => {
-                  console.log('Résultat sélectionné:', result);
+                  logger.debug('Résultat sélectionné:', result);
                   // Navigation vers le contenu
                 }}
               />

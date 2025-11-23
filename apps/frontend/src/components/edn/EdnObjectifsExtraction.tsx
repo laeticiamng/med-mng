@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +36,7 @@ interface ExtractionStats {
 }
 
 export const EdnObjectifsExtraction: React.FC = () => {
-  console.log('🔍 DEBUG: EdnObjectifsExtraction component loaded');
+  logger.debug('🔍 DEBUG: EdnObjectifsExtraction component loaded');
   
   const [extractor] = useState(() => new EdnObjectifsExtractor());
   const [status, setStatus] = useState<ExtractionStatus | null>(null);
@@ -45,22 +46,22 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
 
   const handleStartExtraction = async () => {
-    console.log('🔍 DEBUG: handleStartExtraction called');
+    logger.debug('🔍 DEBUG: handleStartExtraction called');
     
     try {
-      console.log('🔍 DEBUG: Setting states...');
+      logger.debug('🔍 DEBUG: Setting states...');
       setError(null);
       setIsExtracting(true);
       
-      console.log('🔍 DEBUG: Calling extractor.startExtraction()...');
+      logger.debug('🔍 DEBUG: Calling extractor.startExtraction()...');
       const result = await extractor.startExtraction();
       
-      console.log('🔍 DEBUG: Extraction started successfully:', result);
+      logger.debug('🔍 DEBUG: Extraction started successfully:', result);
       
       // Démarre le polling du statut
-      console.log('🔍 DEBUG: Starting status polling...');
+      logger.debug('🔍 DEBUG: Starting status polling...');
       extractor.startStatusPolling((newStatus) => {
-        console.log('🔍 DEBUG: Status update received:', newStatus);
+        logger.debug('🔍 DEBUG: Status update received:', newStatus);
         setStatus(newStatus);
         
         if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
@@ -72,7 +73,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
       });
       
     } catch (err: any) {
-      console.error('❌ DEBUG: Error in handleStartExtraction:', err);
+      logger.error('❌ DEBUG: Error in handleStartExtraction:', err);
       setError(err.message);
       setIsExtracting(false);
     }

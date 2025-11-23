@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import logger from '@/lib/logger';
 
 /**
  * Security notification type
@@ -77,7 +78,7 @@ export function exportNotificationsToPDF(notifications: SecurityNotification[]):
     // Save the PDF
     doc.save(`security-notifications-${new Date().toISOString().split('T')[0]}.pdf`);
   } catch (error) {
-    console.error('Failed to export notifications to PDF:', error);
+    logger.error('Failed to export notifications to PDF:', error);
     throw new Error('Failed to export notifications to PDF');
   }
 }

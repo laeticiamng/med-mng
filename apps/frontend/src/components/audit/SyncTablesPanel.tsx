@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
       }
 
     } catch (error) {
-      console.error('❌ Erreur synchronisation:', error);
+      logger.error('❌ Erreur synchronisation:', error);
       setResult({
         success: false,
         error: error instanceof Error ? error.message : 'Erreur inconnue'

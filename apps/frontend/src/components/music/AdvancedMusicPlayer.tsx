@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,7 +97,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
       ];
       setPlaylists(mockPlaylists);
     } catch (error) {
-      console.error('Erreur chargement playlists:', error);
+      logger.error('Erreur chargement playlists:', error);
     }
   };
 
@@ -127,7 +128,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
       ];
       setRecentTracks(mockTracks);
     } catch (error) {
-      console.error('Erreur chargement tracks récentes:', error);
+      logger.error('Erreur chargement tracks récentes:', error);
     }
   };
 
@@ -151,7 +152,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
         }));
       }
     } catch (error) {
-      console.error('Erreur chargement préférences:', error);
+      logger.error('Erreur chargement préférences:', error);
     }
   };
 
@@ -177,7 +178,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
         description: "Votre nouvelle playlist a été créée avec succès",
       });
     } catch (error) {
-      console.error('Erreur création playlist:', error);
+      logger.error('Erreur création playlist:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer la playlist",
@@ -207,7 +208,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
         description: "Vos préférences audio ont été mises à jour",
       });
     } catch (error) {
-      console.error('Erreur sauvegarde paramètres:', error);
+      logger.error('Erreur sauvegarde paramètres:', error);
     }
   };
 

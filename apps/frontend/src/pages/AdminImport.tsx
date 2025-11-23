@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +75,7 @@ export default function AdminImport() {
       if (error) throw error;
       setImportBatches(data || []);
     } catch (error) {
-      console.error('Error fetching import batches:', error);
+      logger.error('Error fetching import batches:', error);
     }
   };
 
@@ -88,7 +89,7 @@ export default function AdminImport() {
       if (error) throw error;
       setGoogleIntegrations(data || []);
     } catch (error) {
-      console.error('Error fetching Google integrations:', error);
+      logger.error('Error fetching Google integrations:', error);
     }
   };
 
@@ -233,7 +234,7 @@ export default function AdminImport() {
       fetchImportBatches();
 
     } catch (error) {
-      console.error('Import error:', error);
+      logger.error('Import error:', error);
       toast({
         title: "Erreur d'import",
         description: error.message || "Une erreur est survenue lors de l'import",
@@ -266,7 +267,7 @@ export default function AdminImport() {
       fetchGoogleIntegrations();
       return data;
     } catch (error) {
-      console.error('Error creating Google Sheets integration:', error);
+      logger.error('Error creating Google Sheets integration:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer l'intégration Google Sheets",

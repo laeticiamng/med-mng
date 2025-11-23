@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'intégration des données IC-8
 export const processTableauRangAIC8 = (data: any) => {
-  console.log('🔍 Traitement IC-8 - Certificats médicaux violences');
+  logger.debug('🔍 Traitement IC-8 - Certificats médicaux violences');
   
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
@@ -31,7 +33,7 @@ export const processTableauRangAIC8 = (data: any) => {
 
   const theme = "IC-8 - Certificats médicaux dans le cadre des violences";
 
-  console.log(`✅ IC-8 traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-8 traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

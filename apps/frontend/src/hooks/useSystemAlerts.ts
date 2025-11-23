@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -126,7 +127,7 @@ export function useSystemAlerts() {
       oscillator.start();
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (err) {
-      console.log('Sound notification not available');
+      logger.debug('Sound notification not available');
     }
   }, []);
 

@@ -8,6 +8,7 @@
  * - Bande dessinée fixe
  */
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -88,7 +89,7 @@ export const EdnCompletenessVerification = () => {
 
       if (itemsError) {
         toast.error(`Erreur: ${itemsError.message}`);
-        console.error('Items error:', itemsError);
+        logger.error('Items error:', itemsError);
         return;
       }
 
@@ -230,7 +231,7 @@ export const EdnCompletenessVerification = () => {
       toast.success(`✅ Vérification terminée: ${totalItems} items analysés`);
 
     } catch (error: any) {
-      console.error('Erreur vérification:', error);
+      logger.error('Erreur vérification:', error);
       toast.error(`Erreur: ${error.message}`);
     } finally {
       setIsLoading(false);

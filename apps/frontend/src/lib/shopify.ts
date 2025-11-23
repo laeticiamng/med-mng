@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { toast } from 'sonner';
 import type { CartItem } from '@/stores/cartStore';
 
@@ -261,7 +262,7 @@ export async function createStorefrontCheckout(items: CartItem[]): Promise<strin
     const checkoutUrl = url.toString();
     return checkoutUrl;
   } catch (error) {
-    console.error('Error creating storefront checkout:', error);
+    logger.error('Error creating storefront checkout:', error);
     throw error;
   }
 }

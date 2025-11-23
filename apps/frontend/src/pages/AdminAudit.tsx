@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -93,7 +94,7 @@ export default function AdminAudit() {
       if (error) throw error;
       setAuditReports(data || []);
     } catch (error) {
-      console.error('Error fetching audit reports:', error);
+      logger.error('Error fetching audit reports:', error);
     }
   };
 
@@ -121,7 +122,7 @@ export default function AdminAudit() {
         });
       }
     } catch (error) {
-      console.error('Error fetching metrics:', error);
+      logger.error('Error fetching metrics:', error);
     }
   };
 
@@ -162,7 +163,7 @@ export default function AdminAudit() {
       fetchOverallMetrics();
 
     } catch (error) {
-      console.error(`Audit ${auditType} error:`, error);
+      logger.error(`Audit ${auditType} error:`, error);
       toast({
         title: "Erreur d'audit",
         description: `Impossible de lancer l'audit ${auditType}`,
@@ -198,7 +199,7 @@ export default function AdminAudit() {
 
       fetchOverallMetrics();
     } catch (error) {
-      console.error('Cleanup error:', error);
+      logger.error('Cleanup error:', error);
       toast({
         title: "Erreur de nettoyage",
         description: "Impossible de nettoyer les données",

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -71,7 +72,7 @@ export const useTemplateHistory = (templateId?: string) => {
       queryClient.invalidateQueries({ queryKey: ['template-history'] });
     },
     onError: (error: any) => {
-      console.error('Error recording application:', error);
+      logger.error('Error recording application:', error);
       // Silent error - don't show toast to user
     },
   });
@@ -91,7 +92,7 @@ export const useTemplateHistory = (templateId?: string) => {
       toast.success('Entrée supprimée de l\'historique');
     },
     onError: (error: any) => {
-      console.error('Error deleting history entry:', error);
+      logger.error('Error deleting history entry:', error);
       toast.error(error.message || 'Erreur lors de la suppression');
     },
   });

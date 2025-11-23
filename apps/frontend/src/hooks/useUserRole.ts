@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -34,7 +35,7 @@ export function useUserRole() {
         .single();
 
       if (error) {
-        console.error('Error loading user role:', error);
+        logger.error('Error loading user role:', error);
         setRole('user'); // Default to user
         return;
       }
@@ -44,7 +45,7 @@ export function useUserRole() {
       setIsAdmin(userRole === 'admin');
       setIsModerator(userRole === 'moderator' || userRole === 'admin');
     } catch (err) {
-      console.error('Error in loadUserRole:', err);
+      logger.error('Error in loadUserRole:', err);
       setRole('user');
     } finally {
       setLoading(false);

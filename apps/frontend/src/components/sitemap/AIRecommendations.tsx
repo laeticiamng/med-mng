@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,7 +71,7 @@ export function AIRecommendations({ visitStats, currentPath }: AIRecommendations
       setRecommendations(data.recommendations || []);
       setInsight(data.insight || '');
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      logger.error('Error fetching recommendations:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les recommandations IA.",

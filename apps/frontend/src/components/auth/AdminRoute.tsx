@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -42,13 +43,13 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           .maybeSingle();
 
         if (error) {
-          console.error('Erreur vérification rôle admin:', error);
+          logger.error('Erreur vérification rôle admin:', error);
           setIsAdmin(false);
         } else {
           setIsAdmin(!!data);
         }
       } catch (error) {
-        console.error('Erreur lors de la vérification admin:', error);
+        logger.error('Erreur lors de la vérification admin:', error);
         setIsAdmin(false);
       } finally {
         setIsLoading(false);

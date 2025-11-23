@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import logger from '@/lib/logger';
 
 /**
  * Custom error type for application errors
@@ -38,7 +39,7 @@ export function captureException(error: Error | AppError): void {
       Sentry.captureException(error);
     }
   } catch (e) {
-    console.error('Failed to capture exception in Sentry:', e);
+    logger.error('Failed to capture exception in Sentry:', e);
   }
 }
 
@@ -60,6 +61,6 @@ export function addBreadcrumb(breadcrumb: {
       data: breadcrumb.data,
     });
   } catch (e) {
-    console.error('Failed to add breadcrumb in Sentry:', e);
+    logger.error('Failed to add breadcrumb in Sentry:', e);
   }
 }

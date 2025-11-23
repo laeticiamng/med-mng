@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationState } from '../useMusicGenerationState';
 import { callSunoApi } from '../musicGenerationApi';
@@ -12,7 +13,7 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 
 export const useSunoMusicGeneration = () => {
-  console.log('🎵 HOOK - useSunoMusicGeneration initialisé');
+  logger.debug('🎵 HOOK - useSunoMusicGeneration initialisé');
 
   const { toast } = useToast();
   const {
@@ -38,10 +39,10 @@ export const useSunoMusicGeneration = () => {
     duration: number = 240,
     model: "V3_5" | "V4" | "V4_5" = "V3_5"
   ) => {
-    console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
+    logger.debug('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
     
     if (isAlreadyGenerating(rang)) {
-      console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
+      logger.debug(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
       return;
     }
 
@@ -56,13 +57,13 @@ export const useSunoMusicGeneration = () => {
 
       const { isComposition, styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
       
-      console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
+      logger.debug(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
       
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model);
 
       const response = await callSunoApi(requestBody);
 
-      console.log('🎵 RÉPONSE API SUNO REÇUE:', {
+      logger.debug('🎵 RÉPONSE API SUNO REÇUE:', {
         response,
         callDuration: response.callDuration,
         rang,
@@ -71,7 +72,7 @@ export const useSunoMusicGeneration = () => {
 
       // La génération Suno est maintenant asynchrone - on attend le callback
       if (response.trackId) {
-        console.log(`🎵 GÉNÉRATION DÉMARRÉE pour Rang ${rang}, trackId: ${response.trackId}`);
+        logger.debug(`🎵 GÉNÉRATION DÉMARRÉE pour Rang ${rang}, trackId: ${response.trackId}`);
         
         const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
         toast({
@@ -80,7 +81,7 @@ export const useSunoMusicGeneration = () => {
           variant: "default"
         });
 
-        console.log(`✅ GÉNÉRATION SUNO DÉMARRÉE pour Rang ${rang} en ${currentLanguage}`);
+        logger.debug(`✅ GÉNÉRATION SUNO DÉMARRÉE pour Rang ${rang} en ${currentLanguage}`);
         
         return response.trackId;
       } else {
@@ -89,7 +90,7 @@ export const useSunoMusicGeneration = () => {
 
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
+      logger.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
       
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);

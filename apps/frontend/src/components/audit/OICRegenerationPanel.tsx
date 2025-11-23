@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setProgress(70);
 
-      console.log('✅ Régénération OIC terminée:', data);
+      logger.debug('✅ Régénération OIC terminée:', data);
 
       // Transformer en sections
       const { data: transformData, error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
@@ -68,7 +69,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
       }
 
     } catch (error) {
-      console.error('❌ Erreur régénération:', error);
+      logger.error('❌ Erreur régénération:', error);
       setResult({
         success: false,
         error: error instanceof Error ? error.message : 'Erreur inconnue'

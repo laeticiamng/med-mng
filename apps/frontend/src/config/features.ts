@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Feature Flags Configuration
  * Gère l'activation/désactivation des features de la plateforme
@@ -160,7 +162,7 @@ export const isFeatureEnabled = (featurePath: string): boolean => {
 
   for (const key of keys) {
     if (current[key] === undefined) {
-      console.warn(`Feature not found: ${featurePath}`);
+      logger.warn(`Feature not found: ${featurePath}`);
       return false;
     }
     current = current[key];

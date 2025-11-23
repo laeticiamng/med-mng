@@ -1,14 +1,15 @@
 
+import logger from '@/lib/logger';
 import { conceptsRangAIC2, conceptsRangBIC2, colonnesConfigIC2 } from './TableauRangADataIC2';
 
 export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
-  console.log('🎯 IC-2 Génération Rang A : 7 connaissances selon E-LiSA exactement');
+  logger.debug('🎯 IC-2 Génération Rang A : 7 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
   // Utiliser uniquement les 7 concepts Rang A définis selon E-LiSA
   conceptsRangAIC2.forEach((concept, index) => {
-    console.log(`📝 Ajout concept IC-2 Rang A ${index + 1}/7: ${concept.concept.substring(0, 50)}...`);
+    logger.debug(`📝 Ajout concept IC-2 Rang A ${index + 1}/7: ${concept.concept.substring(0, 50)}...`);
     const ligne = [
       concept.concept,
       concept.definition,
@@ -22,18 +23,18 @@ export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`✅ IC-2 Rang A: ${lignes.length}/7 connaissances E-LiSA générées`);
+  logger.debug(`✅ IC-2 Rang A: ${lignes.length}/7 connaissances E-LiSA générées`);
   return lignes;
 };
 
 export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
-  console.log('🎯 IC-2 Génération Rang B : 2 connaissances selon E-LiSA exactement');
+  logger.debug('🎯 IC-2 Génération Rang B : 2 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
   // Utiliser uniquement les 2 concepts Rang B définis selon E-LiSA
   conceptsRangBIC2.forEach((concept, index) => {
-    console.log(`📝 Ajout concept IC-2 Rang B ${index + 1}/2: ${concept.concept.substring(0, 50)}...`);
+    logger.debug(`📝 Ajout concept IC-2 Rang B ${index + 1}/2: ${concept.concept.substring(0, 50)}...`);
     const ligne = [
       concept.concept,
       concept.definition,
@@ -47,12 +48,12 @@ export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`✅ IC-2 Rang B: ${lignes.length}/2 connaissances E-LiSA générées`);
+  logger.debug(`✅ IC-2 Rang B: ${lignes.length}/2 connaissances E-LiSA générées`);
   return lignes;
 };
 
 export const determinerColonnesUtilesIC2 = (lignes: string[][]): any[] => {
-  console.log('🏗️ IC-2: Configuration colonnes optimisée pour les connaissances E-LiSA');
+  logger.debug('🏗️ IC-2: Configuration colonnes optimisée pour les connaissances E-LiSA');
   
   // Toutes les colonnes sont pertinentes selon le format E-LiSA
   return colonnesConfigIC2;

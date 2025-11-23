@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
       };
       setHelpContent(mockHelp);
     } catch (error) {
-      console.error('Error loading contextual help:', error);
+      logger.error('Error loading contextual help:', error);
     }
   };
 

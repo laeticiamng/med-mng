@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText, Users, Calculator, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,7 +53,7 @@ export const SecurityDashboard = () => {
       
       toast.success('Rapport PDF généré avec succès');
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      logger.error('Error generating PDF:', error);
       toast.error('Erreur lors de la génération du PDF');
     }
   };

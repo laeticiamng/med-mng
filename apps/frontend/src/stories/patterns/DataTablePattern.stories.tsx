@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import logger from '@/lib/logger';
 import {
   Table,
   TableBody,
@@ -265,7 +266,7 @@ function DataTableDemo() {
     });
     
     // Simuler export CSV
-    console.log('Exporting:', dataToExport);
+    logger.debug('Exporting:', dataToExport);
   };
 
   return (

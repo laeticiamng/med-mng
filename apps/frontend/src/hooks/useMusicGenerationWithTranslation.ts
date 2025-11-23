@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useSunoMusicGeneration } from './music/useSunoMusicGeneration';
 import { useSubscription } from './useSubscription';
 
@@ -23,7 +24,7 @@ export const useMusicGenerationWithTranslation = () => {
       return audioUrl;
       
     } catch (error) {
-      console.error('Erreur génération musique avec traduction:', error);
+      logger.error('Erreur génération musique avec traduction:', error);
       throw error;
     }
   };

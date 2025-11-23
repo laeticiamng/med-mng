@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -87,7 +88,7 @@ export const useContentGeneration = () => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 500);
 
-      console.log(`🎯 Génération ${request.type}:`, payload);
+      logger.debug(`🎯 Génération ${request.type}:`, payload);
 
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: payload
@@ -120,7 +121,7 @@ export const useContentGeneration = () => {
       return result;
 
     } catch (error) {
-      console.error('Erreur génération:', error);
+      logger.error('Erreur génération:', error);
       
       toast({
         title: "Erreur de génération",
@@ -177,7 +178,7 @@ export const useContentGeneration = () => {
       return (data || []).map(item => ({ ...item, type }));
 
     } catch (error) {
-      console.error('Erreur récupération contenu:', error);
+      logger.error('Erreur récupération contenu:', error);
       return [];
     }
   }, []);

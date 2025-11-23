@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,7 @@ export const UserManagement: React.FC = () => {
 
       setUsers(usersWithRoles);
     } catch (err: any) {
-      console.error('Error loading users:', err);
+      logger.error('Error loading users:', err);
       toast.error('Failed to load users: ' + err.message);
     } finally {
       setLoading(false);
@@ -80,7 +81,7 @@ export const UserManagement: React.FC = () => {
       toast.success('User role updated successfully');
       loadUsers();
     } catch (err: any) {
-      console.error('Error updating user role:', err);
+      logger.error('Error updating user role:', err);
       toast.error('Failed to update role: ' + err.message);
     }
   };

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
@@ -70,7 +71,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
         .order('item_number', { ascending: true });
 
       if (error) {
-        console.error('Error fetching EDN items:', error);
+        logger.error('Error fetching EDN items:', error);
         return [];
       }
       return data || [];

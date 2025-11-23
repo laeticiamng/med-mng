@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { performanceAnalyticsService, PerformanceAnalytics, PerformanceBudget } from '@shared/services/performanceAnalyticsService';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +21,7 @@ export const usePerformanceAnalytics = (
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des analytics';
       setError(errorMessage);
-      console.error('Failed to fetch performance analytics:', err);
+      logger.error('Failed to fetch performance analytics:', err);
     } finally {
       setLoading(false);
     }
@@ -30,7 +31,7 @@ export const usePerformanceAnalytics = (
     try {
       await performanceAnalyticsService.recordWebVital(name, value, url);
     } catch (err) {
-      console.error('Failed to record web vital:', err);
+      logger.error('Failed to record web vital:', err);
     }
   }, []);
 
@@ -44,7 +45,7 @@ export const usePerformanceAnalytics = (
     try {
       await performanceAnalyticsService.recordAPICall(endpoint, method, responseTime, statusCode, errorDetails);
     } catch (err) {
-      console.error('Failed to record API call:', err);
+      logger.error('Failed to record API call:', err);
     }
   }, []);
 

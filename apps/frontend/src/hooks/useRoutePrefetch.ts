@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -29,7 +30,7 @@ export const usePrefetchRoute = (
     if (timeoutId) clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {
-      prefetchFn().catch(err => console.debug('Prefetch error:', err));
+      prefetchFn().catch(err => logger.debug('Prefetch error:', err));
     }, delay);
   };
 
@@ -64,7 +65,7 @@ export const usePrefetchQueries = (
         )
       );
     } catch (error) {
-      console.debug('Batch prefetch error:', error);
+      logger.debug('Batch prefetch error:', error);
     }
   };
 
@@ -94,7 +95,7 @@ export const useIntersectionPrefetch = (
       ([entry]) => {
         if (entry.isIntersecting && !isPrefetchedRef.current) {
           isPrefetchedRef.current = true;
-          prefetchFn().catch(err => console.debug('Intersection prefetch error:', err));
+          prefetchFn().catch(err => logger.debug('Intersection prefetch error:', err));
         }
       },
       { threshold }
@@ -127,7 +128,7 @@ export const usePrefetchRelatedPages = (
     // For example, if user is on challenges page, prefetch leaderboard
     relatedRoutes.forEach(route => {
       // Trigger any associated queries for the route
-      console.debug(`Prefetching related route: ${route}`);
+      logger.debug(`Prefetching related route: ${route}`);
     });
   };
 

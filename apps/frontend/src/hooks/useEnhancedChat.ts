@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -115,7 +116,7 @@ export const useEnhancedChat = () => {
       return response;
 
     } catch (error) {
-      console.error('Erreur envoi message:', error);
+      logger.error('Erreur envoi message:', error);
       
       // Ajouter un message d'erreur
       const errorMessage: ChatMessage = {

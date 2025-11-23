@@ -3,6 +3,7 @@
  * Design moderne avec animations et semantic tokens
  */
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Bell, X, Check } from 'lucide-react';
 import {
@@ -79,7 +80,7 @@ export const NotificationPermissionDialog = ({
         setIsOpen(false);
       }
     } catch (error) {
-      console.error('Erreur lors de la demande de permission:', error);
+      logger.error('Erreur lors de la demande de permission:', error);
       toast({
         title: '❌ Erreur',
         description: 'Impossible d\'activer les notifications.',

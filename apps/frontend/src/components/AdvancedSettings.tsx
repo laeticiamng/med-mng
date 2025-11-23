@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -107,14 +108,14 @@ export const AdvancedSettings = () => {
       });
 
       // Ici, vous sauvegarderiez les autres paramètres dans Supabase
-      console.log('Paramètres sauvegardés:', settings);
+      logger.debug('Paramètres sauvegardés:', settings);
       
       toast({
         title: "Paramètres sauvegardés !",
         description: "Vos préférences ont été mises à jour avec succès."
       });
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      logger.error('Erreur sauvegarde:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les paramètres.",

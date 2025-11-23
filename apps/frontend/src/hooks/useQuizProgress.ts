@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -57,7 +58,7 @@ export const useQuizProgress = () => {
       });
 
       if (error) {
-        console.error('Error fetching quiz progress:', error);
+        logger.error('Error fetching quiz progress:', error);
         throw error;
       }
 
@@ -112,7 +113,7 @@ export const useQuizHistory = (limit: number = 20) => {
         .limit(limit);
 
       if (error) {
-        console.error('Error fetching quiz history:', error);
+        logger.error('Error fetching quiz history:', error);
         throw error;
       }
 
@@ -142,7 +143,7 @@ export const useItemQuizHistory = (itemCode: string) => {
         .order('completed_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching item quiz history:', error);
+        logger.error('Error fetching item quiz history:', error);
         throw error;
       }
 
@@ -166,7 +167,7 @@ export const useItemDifficulty = (itemCode: string) => {
       });
 
       if (error) {
-        console.error('Error fetching item difficulty:', error);
+        logger.error('Error fetching item difficulty:', error);
         throw error;
       }
 
@@ -262,7 +263,7 @@ export const useUpdateProgressAfterQuiz = () => {
       queryClient.invalidateQueries({ queryKey: ['quiz-history', user?.id] });
     },
     onError: (error) => {
-      console.error('Error updating progress after quiz:', error);
+      logger.error('Error updating progress after quiz:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la progression',

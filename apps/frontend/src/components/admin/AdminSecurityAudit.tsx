@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, CheckCircle, Clock, Users, Activity } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,7 +67,7 @@ export const AdminSecurityAudit = () => {
       setAuditReport(data);
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Erreur audit sécurité:', error);
+      logger.error('Erreur audit sécurité:', error);
       toast.error('Erreur lors de l\'audit de sécurité');
     }
   };
@@ -91,7 +92,7 @@ export const AdminSecurityAudit = () => {
 
       setStreamingLogs(mockLogs);
     } catch (error) {
-      console.error('Erreur chargement logs:', error);
+      logger.error('Erreur chargement logs:', error);
       toast.error('Erreur lors du chargement des logs');
     } finally {
       setLoading(false);
@@ -111,7 +112,7 @@ export const AdminSecurityAudit = () => {
       toast.success(`${data.message}`);
       fetchSecurityAudit(); // Refresh après nettoyage
     } catch (error) {
-      console.error('Erreur nettoyage:', error);
+      logger.error('Erreur nettoyage:', error);
       toast.error('Erreur lors du nettoyage des sessions');
     }
   };

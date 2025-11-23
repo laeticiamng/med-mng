@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -154,7 +155,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
       await saveConversation(userMessage, assistantMessage);
 
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message:', error);
       
       // Retirer le message "typing"
       setMessages(prev => prev.filter(m => m.id !== 'typing'));
@@ -209,7 +210,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
         ]);
       }
     } catch (error) {
-      console.error('Error saving conversation:', error);
+      logger.error('Error saving conversation:', error);
     }
   };
 

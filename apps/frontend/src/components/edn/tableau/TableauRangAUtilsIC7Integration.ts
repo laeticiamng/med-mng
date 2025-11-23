@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'intégration des données IC-7
 export const processTableauRangAIC7 = (data: any) => {
-  console.log('🔍 Traitement IC-7 - Les discriminations');
+  logger.debug('🔍 Traitement IC-7 - Les discriminations');
   
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
@@ -31,7 +33,7 @@ export const processTableauRangAIC7 = (data: any) => {
 
   const theme = "IC-7 - Les discriminations";
 
-  console.log(`✅ IC-7 traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-7 traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       
       toast.success(`QCM généré avec ${qcmData.questions.length} questions`);
     } catch (error) {
-      console.error('Error starting QCM:', error);
+      logger.error('Error starting QCM:', error);
       toast.error('Erreur lors de la génération du QCM');
       setPhase('setup');
     }
@@ -110,7 +111,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       }
 
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      logger.error('Error submitting answer:', error);
       toast.error('Erreur lors de la soumission');
     }
   };
@@ -139,7 +140,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       toast.success(`QCM terminé ! Score: ${Math.round(results.score)}% - ${message}`);
       
     } catch (error) {
-      console.error('Error finishing QCM:', error);
+      logger.error('Error finishing QCM:', error);
       toast.error('Erreur lors de la finalisation');
     }
   };
@@ -161,7 +162,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
         // Ici on pourrait ouvrir un player ou rediriger vers la bibliothèque
       }
     } catch (error) {
-      console.error('Error generating error song:', error);
+      logger.error('Error generating error song:', error);
       toast.error('Erreur lors de la génération de la chanson');
     } finally {
       setGeneratingErrorSong(false);

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
@@ -59,14 +60,14 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
-  console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
+  logger.debug('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
   
   // Normaliser les paroles en format attendu
   const normalizedParoles = Array.isArray(paroles[0]) 
     ? (paroles as string[][]).map(section => section.join('\n'))
     : paroles as string[];
 
-  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
+  logger.debug('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
 
   if (!normalizedParoles || normalizedParoles.length === 0) {
     return (

@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'affichage du Tableau Rang B IC-10
 export const processTableauRangBIC10 = (data: any) => {
-  console.log('🔍 Traitement avancé IC-10 Rang B');
+  logger.debug('🔍 Traitement avancé IC-10 Rang B');
   
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
@@ -31,7 +33,7 @@ export const processTableauRangBIC10 = (data: any) => {
 
   const theme = "IC-10 Rang B - Expertise approches transversales";
 
-  console.log(`✅ IC-10 Rang B expert traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-10 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

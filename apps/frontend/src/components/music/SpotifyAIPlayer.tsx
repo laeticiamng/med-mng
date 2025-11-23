@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,7 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
     try {
       await getUserGenerations('30d');
     } catch (error) {
-      console.error('❌ Erreur chargement générations:', error);
+      logger.error('❌ Erreur chargement générations:', error);
     }
   };
 
@@ -101,7 +102,7 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
       });
 
     } catch (error) {
-      console.error('❌ Erreur génération:', error);
+      logger.error('❌ Erreur génération:', error);
       toast.error('Erreur de génération musicale');
     }
   };
@@ -125,7 +126,7 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
         toast.error('Impossible de lire cette chanson');
       }
     } catch (error) {
-      console.error('❌ Erreur lecture:', error);
+      logger.error('❌ Erreur lecture:', error);
       toast.error('Erreur de lecture');
     }
   };

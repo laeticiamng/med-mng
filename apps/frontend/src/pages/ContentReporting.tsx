@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/hooks/useAuth'
@@ -55,7 +56,7 @@ export default function ContentReporting() {
       setShowReportDialog(false)
     } catch (error) {
       toast.error('Failed to submit report')
-      console.error(error)
+      logger.error(error)
     }
   }
 
@@ -77,7 +78,7 @@ export default function ContentReporting() {
       setShowAppealDialog(false)
     } catch (error) {
       toast.error('Failed to submit appeal')
-      console.error(error)
+      logger.error(error)
     }
   }
 

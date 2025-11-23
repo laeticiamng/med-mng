@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -75,7 +76,7 @@ export const useStudyPlanProgress = () => {
         .eq('user_id', user.id);
 
       if (plansError) {
-        console.error('Error fetching study plans:', plansError);
+        logger.error('Error fetching study plans:', plansError);
         throw plansError;
       }
 
@@ -86,7 +87,7 @@ export const useStudyPlanProgress = () => {
         .eq('user_id', user.id);
 
       if (sessionsError) {
-        console.error('Error fetching study sessions:', sessionsError);
+        logger.error('Error fetching study sessions:', sessionsError);
         throw sessionsError;
       }
 
@@ -158,7 +159,7 @@ export const useStudyPlans = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching study plans:', error);
+        logger.error('Error fetching study plans:', error);
         throw error;
       }
 
@@ -200,7 +201,7 @@ export const useUpcomingSessions = (days: number = 7) => {
         .order('scheduled_date', { ascending: true });
 
       if (error) {
-        console.error('Error fetching upcoming sessions:', error);
+        logger.error('Error fetching upcoming sessions:', error);
         throw error;
       }
 
@@ -242,7 +243,7 @@ export const useOverdueSessions = () => {
         .order('scheduled_date', { ascending: true });
 
       if (error) {
-        console.error('Error fetching overdue sessions:', error);
+        logger.error('Error fetching overdue sessions:', error);
         throw error;
       }
 
@@ -298,7 +299,7 @@ export const useCompleteSession = () => {
       });
     },
     onError: (error) => {
-      console.error('Error completing session:', error);
+      logger.error('Error completing session:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de compléter la session',
@@ -359,7 +360,7 @@ export const useUpdatePlanStatus = () => {
       });
     },
     onError: (error) => {
-      console.error('Error updating plan status:', error);
+      logger.error('Error updating plan status:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour le plan',

@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * EmotionsCare SSO Integration
  * Handles Single Sign-On integration with EmotionsCare wellness platform
@@ -43,7 +45,7 @@ function hasActiveSession(): boolean {
     const session = localStorage.getItem('supabase.auth.token');
     return !!session;
   } catch (error) {
-    console.error('Failed to check session:', error);
+    logger.error('Failed to check session:', error);
     return false;
   }
 }
@@ -60,7 +62,7 @@ async function hasEmotionsCareAccess(): Promise<boolean> {
     const profile = JSON.parse(userProfile);
     return profile.hasEmotionsCareAccess === true || profile.subscription?.includes('premium');
   } catch (error) {
-    console.error('Failed to check EmotionsCare access:', error);
+    logger.error('Failed to check EmotionsCare access:', error);
     return false;
   }
 }
@@ -87,7 +89,7 @@ async function generateSSOToken(): Promise<string> {
     const data = await response.json();
     return data.token;
   } catch (error) {
-    console.error('Failed to generate SSO token:', error);
+    logger.error('Failed to generate SSO token:', error);
     // Fallback: generate a temporary mock token for development
     return btoa(JSON.stringify({
       timestamp: Date.now(),
@@ -134,7 +136,7 @@ export async function redirectToEmotionsCare(): Promise<void> {
       throw error;
     }
 
-    console.error('Failed to redirect to EmotionsCare:', error);
+    logger.error('Failed to redirect to EmotionsCare:', error);
     throw new EmotionsCareError(
       'Failed to redirect to EmotionsCare. Please try again later.',
       'REDIRECT_FAILED'

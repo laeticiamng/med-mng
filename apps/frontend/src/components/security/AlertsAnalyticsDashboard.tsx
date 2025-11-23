@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -215,7 +216,7 @@ export const AlertsAnalyticsDashboard = () => {
       pdf.save(`rapport-alertes-${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success('Export PDF réussi');
     } catch (error) {
-      console.error('Erreur export PDF:', error);
+      logger.error('Erreur export PDF:', error);
       toast.error('Erreur lors de l\'export PDF');
     }
   };

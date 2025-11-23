@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRoles } from './useUserRoles';
@@ -38,7 +39,7 @@ export const useRealtimeNotifications = () => {
         .limit(50);
 
       if (error) {
-        console.error('Error fetching notifications:', error);
+        logger.error('Error fetching notifications:', error);
         return;
       }
 
@@ -64,7 +65,7 @@ export const useRealtimeNotifications = () => {
           table: 'security_notifications'
         },
         (payload) => {
-          console.log('New notification received:', payload);
+          logger.debug('New notification received:', payload);
           const newNotification = payload.new as SecurityNotification;
           
           setNotifications(prev => [newNotification, ...prev]);
@@ -133,7 +134,7 @@ export const useRealtimeNotifications = () => {
     } as any);
 
     if (error) {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read:', error);
       toast.error('Erreur lors du marquage de la notification');
     } else {
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -186,6 +187,6 @@ function playNotificationSound(severity: 'info' | 'warning' | 'critical') {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.5);
   } catch (error) {
-    console.error('Error playing notification sound:', error);
+    logger.error('Error playing notification sound:', error);
   }
 }

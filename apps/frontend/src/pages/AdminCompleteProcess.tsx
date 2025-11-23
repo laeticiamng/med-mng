@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +69,7 @@ const AdminCompleteProcess = () => {
     try {
       // Phase 1: Extraction EDN - SÉCURISÉE
       setCurrentPhase('extraction');
-      console.log('🚀 Début extraction des 367 items EDN...');
+      logger.debug('🚀 Début extraction des 367 items EDN...');
       
       // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
       const credentials = await getCredentials();
@@ -95,7 +96,7 @@ const AdminCompleteProcess = () => {
         const phaseName = auditNames[i];
         
         setCurrentPhase(phaseName);
-        console.log(`🔍 Audit ${auditType}...`);
+        logger.debug(`🔍 Audit ${auditType}...`);
         
         const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
           body: {
@@ -105,7 +106,7 @@ const AdminCompleteProcess = () => {
         });
 
         if (auditError) {
-          console.error(`Erreur audit ${auditType}:`, auditError);
+          logger.error(`Erreur audit ${auditType}:`, auditError);
           setAuditResults(prev => [...prev, {
             type: auditType,
             success: false,
@@ -129,7 +130,7 @@ const AdminCompleteProcess = () => {
       toast.success('Processus complet terminé avec succès!');
 
     } catch (error) {
-      console.error('Erreur processus complet:', error);
+      logger.error('Erreur processus complet:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       setError(errorMessage);
       toast.error('Erreur lors du processus complet');
@@ -144,7 +145,7 @@ const AdminCompleteProcess = () => {
     setError(null);
 
     try {
-      console.log('🔄 Début de la ré-importation complète EDN...');
+      logger.debug('🔄 Début de la ré-importation complète EDN...');
       toast.info('Ré-importation en cours...', {
         description: 'Mise à jour de tous les contenus avec données spécifiques'
       });
@@ -161,7 +162,7 @@ const AdminCompleteProcess = () => {
       });
 
     } catch (error) {
-      console.error('Erreur ré-importation:', error);
+      logger.error('Erreur ré-importation:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       setError(errorMessage);
       toast.error('Erreur lors de la ré-importation');

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -44,7 +45,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
         });
       } catch (error) {
         // User cancelled or error occurred
-        console.log('Share cancelled');
+        logger.debug('Share cancelled');
       }
     } else {
       // Fallback - show share options

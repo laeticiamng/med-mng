@@ -19,6 +19,7 @@ import { PageNotesManager } from '@/components/sitemap/PageNotesManager';
 import { ShareManager } from '@/components/sitemap/ShareManager';
 import { useCloudSync } from '@/hooks/useCloudSync';
 import { usePageNotes } from '@/hooks/usePageNotes';
+import logger from '@/lib/logger';
 import {
   Home,
   LayoutDashboard,
@@ -598,7 +599,7 @@ export default function Sitemap() {
         setFavorites(favs);
         setFavoriteCount(favs.size);
       } catch (e) {
-        console.error('Error loading favorites:', e);
+        logger.error('Error loading favorites:', e);
       }
     }
 
@@ -607,7 +608,7 @@ export default function Sitemap() {
       try {
         setTags(JSON.parse(savedTags));
       } catch (e) {
-        console.error('Error loading tags:', e);
+        logger.error('Error loading tags:', e);
       }
     }
 
@@ -616,7 +617,7 @@ export default function Sitemap() {
       try {
         setVisitStats(JSON.parse(savedStats));
       } catch (e) {
-        console.error('Error loading visit stats:', e);
+        logger.error('Error loading visit stats:', e);
       }
     }
 
@@ -625,7 +626,7 @@ export default function Sitemap() {
       try {
         setNavigationPaths(JSON.parse(savedPaths));
       } catch (e) {
-        console.error('Error loading navigation paths:', e);
+        logger.error('Error loading navigation paths:', e);
       }
     }
 
@@ -634,7 +635,7 @@ export default function Sitemap() {
       try {
         setAlertThresholds(JSON.parse(savedThresholds));
       } catch (e) {
-        console.error('Error loading alert thresholds:', e);
+        logger.error('Error loading alert thresholds:', e);
       }
     }
   }, []);

@@ -2,6 +2,7 @@
  * 🎵 Hook pour utiliser le système de cache musical
  */
 
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { MusicCacheService } from '@shared/services/musicCacheService';
 import { useToast } from '@/hooks/use-toast';
@@ -22,13 +23,13 @@ export const useMusicCache = () => {
    */
   const checkCache = useCallback(async (params: CacheParams) => {
     setIsCheckingCache(true);
-    console.log('🔍 Vérification cache pour:', params);
+    logger.debug('🔍 Vérification cache pour:', params);
 
     try {
       const cachedTrack = await MusicCacheService.findCachedTrack(params);
 
       if (cachedTrack) {
-        console.log('✅ CACHE HIT!', cachedTrack);
+        logger.debug('✅ CACHE HIT!', cachedTrack);
 
         toast({
           title: "🎵 Musique trouvée en cache",
@@ -38,11 +39,11 @@ export const useMusicCache = () => {
 
         return cachedTrack;
       } else {
-        console.log('❌ Cache miss, génération nécessaire');
+        logger.debug('❌ Cache miss, génération nécessaire');
         return null;
       }
     } catch (error) {
-      console.error('❌ Erreur vérification cache:', error);
+      logger.error('❌ Erreur vérification cache:', error);
       return null;
     } finally {
       setIsCheckingCache(false);
@@ -53,13 +54,13 @@ export const useMusicCache = () => {
    * Enregistrer un track en cache après génération
    */
   const saveToCache = useCallback(async (params: CacheParams, trackId: string) => {
-    console.log('💾 Sauvegarde en cache:', params, trackId);
+    logger.debug('💾 Sauvegarde en cache:', params, trackId);
 
     try {
       await MusicCacheService.cacheTrack(params, trackId);
-      console.log('✅ Track sauvegardé en cache');
+      logger.debug('✅ Track sauvegardé en cache');
     } catch (error) {
-      console.error('❌ Erreur sauvegarde cache:', error);
+      logger.error('❌ Erreur sauvegarde cache:', error);
     }
   }, []);
 
@@ -67,7 +68,7 @@ export const useMusicCache = () => {
    * Invalider le cache pour un item
    */
   const invalidateCache = useCallback(async (params: CacheParams) => {
-    console.log('🗑️ Invalidation cache:', params);
+    logger.debug('🗑️ Invalidation cache:', params);
 
     try {
       await MusicCacheService.invalidateCache(params);
@@ -77,7 +78,7 @@ export const useMusicCache = () => {
         description: "Le cache a été supprimé, une nouvelle génération sera effectuée",
       });
     } catch (error) {
-      console.error('❌ Erreur invalidation cache:', error);
+      logger.error('❌ Erreur invalidation cache:', error);
 
       toast({
         title: "Erreur",
@@ -95,7 +96,7 @@ export const useMusicCache = () => {
       const stats = await MusicCacheService.getCacheStats();
       return stats;
     } catch (error) {
-      console.error('❌ Erreur récupération stats cache:', error);
+      logger.error('❌ Erreur récupération stats cache:', error);
       return null;
     }
   }, []);
@@ -116,7 +117,7 @@ export const useMusicCache = () => {
 
       return cleanedCount;
     } catch (error) {
-      console.error('❌ Erreur nettoyage cache:', error);
+      logger.error('❌ Erreur nettoyage cache:', error);
 
       toast({
         title: "Erreur",

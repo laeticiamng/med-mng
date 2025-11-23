@@ -2,6 +2,7 @@
  * 📊 Hook pour les métriques de génération musicale
  */
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -78,7 +79,7 @@ export function useMusicMetrics() {
       setDailyStats(daily || []);
 
     } catch (err) {
-      console.error('Error loading stats:', err);
+      logger.error('Error loading stats:', err);
       setError(err instanceof Error ? err.message : 'Erreur de chargement');
     } finally {
       setLoading(false);

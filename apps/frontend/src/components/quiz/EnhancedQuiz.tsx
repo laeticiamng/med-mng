@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -153,7 +154,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        console.warn('No user logged in, skipping quiz session save');
+        logger.warn('No user logged in, skipping quiz session save');
         return;
       }
 
@@ -175,10 +176,10 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       });
 
       if (error) {
-        console.error('Error saving quiz session:', error);
+        logger.error('Error saving quiz session:', error);
         toast.error('Impossible de sauvegarder la session de quiz');
       } else {
-        console.log('✅ Quiz session saved successfully');
+        logger.debug('✅ Quiz session saved successfully');
         toast.success('Session de quiz sauvegardée');
 
         // Update EDN progress after successful quiz save
@@ -190,7 +191,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         });
       }
     } catch (error) {
-      console.error('Error saving quiz session:', error);
+      logger.error('Error saving quiz session:', error);
       toast.error('Erreur lors de la sauvegarde');
     }
   };
@@ -232,7 +233,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         });
       }
     } catch (error) {
-      console.error('Error generating error song:', error);
+      logger.error('Error generating error song:', error);
       toast.error('Erreur lors de la génération de la chanson');
     } finally {
       setIsGeneratingErrorSong(false);

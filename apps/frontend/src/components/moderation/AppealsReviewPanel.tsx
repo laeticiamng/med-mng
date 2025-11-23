@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { useFetchPendingAppeals, useReviewAppeal } from '@/hooks/useModeration'
 import { Card, CardContent } from '@/components/ui/card'
@@ -35,7 +36,7 @@ export default function AppealsReviewPanel() {
       setDecision(null)
     } catch (error) {
       toast.error('Failed to review appeal')
-      console.error(error)
+      logger.error(error)
     }
   }
 

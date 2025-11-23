@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAudioMetrics } from '@/hooks/useAudioMetrics';
@@ -45,7 +46,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Préchargement audio intelligent
   const preloadAudio = useCallback((audioUrl: string) => {
-    console.log('🎵 Préchargement de l\'audio:', audioUrl);
+    logger.debug('🎵 Préchargement de l\'audio:', audioUrl);
     
     if (preloadRef.current) {
       preloadRef.current.pause();
@@ -57,12 +58,12 @@ export const useEnhancedAudioPlayer = () => {
     preloadAudio.src = audioUrl;
     
     preloadAudio.addEventListener('canplaythrough', () => {
-      console.log('✅ Audio préchargé et prêt');
+      logger.debug('✅ Audio préchargé et prêt');
       setState(prev => ({ ...prev, readyToPlay: true }));
     });
 
     preloadAudio.addEventListener('error', (e) => {
-      console.warn('⚠️ Erreur préchargement audio:', e);
+      logger.warn('⚠️ Erreur préchargement audio:', e);
     });
 
     preloadRef.current = preloadAudio;
@@ -70,7 +71,7 @@ export const useEnhancedAudioPlayer = () => {
 
   // Logging des métriques détaillées
   const logAudioMetrics = useCallback((eventType: string, data: any) => {
-    console.log(`🎵 METRIC [${eventType}]:`, {
+    logger.debug(`🎵 METRIC [${eventType}]:`, {
       timestamp: Date.now(),
       track: state.currentTrack,
       ...data
@@ -189,7 +190,7 @@ export const useEnhancedAudioPlayer = () => {
 
         // Alerte si délai > 3 secondes
         if (streamingDelay > 3000) {
-          console.warn('⚠️ STREAMING TROP LENT:', streamingDelay + 'ms');
+          logger.warn('⚠️ STREAMING TROP LENT:', streamingDelay + 'ms');
           toast({
             title: "Lecture plus lente que prévu",
             description: `Délai: ${Math.round(streamingDelay)}ms (objectif: <3s)`,
@@ -273,7 +274,7 @@ export const useEnhancedAudioPlayer = () => {
         isBuffering: false
       }));
       
-      console.error('❌ Erreur lecture audio:', error);
+      logger.error('❌ Erreur lecture audio:', error);
     }
   }, [state.volume, logAudioMetrics, startTracking, updateMetric, logFinalMetrics, toast]);
 
@@ -308,7 +309,7 @@ export const useEnhancedAudioPlayer = () => {
         setState(prev => ({ ...prev, isPlaying: true }));
         logAudioMetrics('RESUMED', {});
       }).catch((error) => {
-        console.error('Erreur reprise audio:', error);
+        logger.error('Erreur reprise audio:', error);
         setState(prev => ({ 
           ...prev, 
           isPlaying: false,
