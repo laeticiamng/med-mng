@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Sidebar,
   SidebarContent,
@@ -81,6 +82,12 @@ export const AppSidebar: React.FC = () => {
   const { open, setOpen } = useSidebar();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { data: progressData } = useEdnProgress();
+  const isMobile = useIsMobile();
+
+  // Sur mobile, on masque la sidebar et on laisse le header/menu mobile gérer la navigation
+  if (isMobile) {
+    return null;
+  }
 
   // Track which categories are expanded
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
