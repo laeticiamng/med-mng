@@ -3,7 +3,7 @@
  * Manages support tickets and contact form submissions
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export interface SupportTicket {
   name: string

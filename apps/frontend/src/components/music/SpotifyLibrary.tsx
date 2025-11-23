@@ -22,7 +22,7 @@ import {
   Clock,
   Calendar
 } from "lucide-react"
-import { musicService } from "@/services/musicService"
+import { musicService } from "@shared/services/musicService"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 

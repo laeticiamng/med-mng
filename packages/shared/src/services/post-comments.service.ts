@@ -3,14 +3,14 @@
  * Manages post comments and replies
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   PostComment,
   PostCommentInsert,
   PostCommentUpdate,
   CommentLike,
   CommentLikeInsert,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const postCommentsService = {
   /**

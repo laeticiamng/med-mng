@@ -3,7 +3,7 @@
  * Tracks platform health metrics, user activity, content analytics
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export interface PlatformHealthMetrics {
   id: string

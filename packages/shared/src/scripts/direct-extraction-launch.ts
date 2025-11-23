@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 // Lancement direct de l'extraction complète des objectifs EDN
 export async function launchDirectExtraction() {

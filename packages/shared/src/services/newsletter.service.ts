@@ -3,7 +3,7 @@
  * Manages newsletter subscriptions and mailing
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export interface NewsletterSubscription {
   email: string

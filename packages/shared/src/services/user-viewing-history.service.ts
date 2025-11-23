@@ -3,13 +3,13 @@
  * Tracks and manages user item viewing history
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   UserViewingHistory,
   UserViewingHistoryInsert,
   ItemType,
   ViewSource,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const userViewingHistoryService = {
   /**

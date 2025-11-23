@@ -5,7 +5,7 @@
  * identifie les problèmes et génère un rapport détaillé
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../../lib/supabase';
 
 export interface AuditIssue {
   severity: 'critical' | 'high' | 'medium' | 'low' | 'info';

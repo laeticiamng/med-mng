@@ -3,12 +3,12 @@
  * Manages favorite items for users
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   UserFavorite,
   UserFavoriteInsert,
   ItemType,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const userFavoritesService = {
   /**

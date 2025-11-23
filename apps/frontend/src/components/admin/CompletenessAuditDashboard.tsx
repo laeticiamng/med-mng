@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Download, Eye } from "lucide-react"
-import { ednTableauxService, CompletenessAuditResult, ItemCompleteness } from "@/services/ednTableauxService"
+import { ednTableauxService, CompletenessAuditResult, ItemCompleteness } from "@shared/services/ednTableauxService"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 

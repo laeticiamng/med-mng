@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../../lib/supabase';
 import { EXPECTED_IC2_RANG_A, EXPECTED_IC2_RANG_B } from './constants/ic2Constants';
 import { analyzeContentForConcepts } from './analyzers/ic2ContentAnalyzer';
 import { generateRecommendations, calculateCompleteness } from './generators/ic2ReportGenerator';

@@ -3,7 +3,7 @@
  * Manages user data export requests and file generation
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type ExportType = 'personal_data' | 'posts' | 'comments' | 'interactions' | 'full_archive'
 export type ExportFormat = 'csv' | 'json' | 'pdf'

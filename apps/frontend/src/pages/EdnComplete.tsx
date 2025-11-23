@@ -21,7 +21,7 @@ import { calculateItemsStats } from "@/utils/completionScore";
 import { useTrackSearch, useTrackItemView } from "@/hooks/useEdnAnalytics";
 import { usePerformanceMetrics, usePageLoadTime } from "@/hooks/usePerformanceMetrics";
 import { useTrendingDetection } from "@/hooks/useTrendingDetection";
-import type { EdnItem, EdnItemUnified } from "@/types/edn";
+import type { EdnItem, EdnItemUnified } from "@shared/types/edn";
 
 export default function EdnComplete() {
   // ============================================

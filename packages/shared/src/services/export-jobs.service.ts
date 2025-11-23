@@ -3,14 +3,14 @@
  * Manages data export operations
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   ExportJob,
   ExportJobInsert,
   ExportJobUpdate,
   ExportType,
   ExportStatus,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const exportJobsService = {
   /**

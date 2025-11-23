@@ -32,15 +32,15 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       // 🔒 SÉCURITÉ & QUALITÉ: Règles TypeScript renforcées
-      '@typescript-eslint/no-unused-vars': ['warn', {
+      '@typescript-eslint/no-unused-vars': ['error', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
-      '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
-      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
 
       // 🔒 SÉCURITÉ: Règles React Hooks (prévention de bugs)
       'react-hooks/exhaustive-deps': 'warn',

@@ -8,7 +8,7 @@
  * - Tendances d'utilisation
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 export interface TrackEngagement {
   track_id: string;

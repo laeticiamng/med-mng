@@ -1,6 +1,6 @@
 
 import { ItemEDNV2, createEmptyItemEDN } from '../../schemas/itemEDNSchema';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 /**
  * Helper pour migrer un item v1 vers v2

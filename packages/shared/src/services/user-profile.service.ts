@@ -3,7 +3,7 @@
  * Manages user profiles, statistics, achievements, and following relationships
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type AchievementType =
   | 'first_post'

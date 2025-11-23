@@ -3,7 +3,7 @@
 const allowedOrigins = Deno.env.get('ALLOWED_ORIGINS')?.split(',') || [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://your-production-domain.com', // TODO: Remplacer par votre domaine
+  'https://yaincoxihiqdksxgrsrk.supabase.co',
 ];
 
 export const getCorsHeaders = (origin: string | null): Record<string, string> => {
