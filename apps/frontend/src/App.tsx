@@ -341,7 +341,14 @@ const App = () => {
           <Route path={ROUTE_PATHS.auditSecurity} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditPage /></Suspense>} />
           <Route path={ROUTE_PATHS.sharedTemplates} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedTemplatesPage /></Suspense>} />
           <Route path={ROUTE_PATHS.templateAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TemplateAnalyticsDashboard /></Suspense>} />
-          <Route path={ROUTE_PATHS.home} element={<Index />} />
+          <Route
+            path={ROUTE_PATHS.home}
+            element={
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <Index />
+              </Suspense>
+            }
+          />
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
           <Route path={ROUTE_PATHS.ednComplete} element={
@@ -591,7 +598,14 @@ const App = () => {
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
             <Route path={ROUTE_PATHS.installPwa} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
             <Route path={ROUTE_PATHS.pwaAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PWAAnalytics /></Suspense>} />
-                                <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
+             <Route
+               path={ROUTE_PATHS.notFound}
+               element={
+                 <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                   <NotFound />
+                 </Suspense>
+               }
+             />
                               </Routes>
                             </main>
                             <Footer />
