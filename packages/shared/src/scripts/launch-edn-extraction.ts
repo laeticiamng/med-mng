@@ -43,7 +43,9 @@ async function launchEdnExtraction() {
   }
 }
 
-// Lancer l'extraction immédiatement
+// Auto-execution disabled - this script should be called manually or from browser only
+// Uncomment below to run automatically:
+/*
 launchEdnExtraction()
   .then(result => {
     console.log('🎉 Extraction terminée avec succès:', result);
@@ -51,3 +53,4 @@ launchEdnExtraction()
   .catch(error => {
     console.error('💥 Erreur critique:', error);
   });
+*/

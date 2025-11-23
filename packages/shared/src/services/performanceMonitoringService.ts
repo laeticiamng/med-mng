@@ -25,7 +25,10 @@ class PerformanceMonitoringService {
   private isEnabled = true;
 
   constructor() {
-    this.initializeNativeMetrics();
+    // Only initialize native metrics in browser environment
+    if (typeof window !== 'undefined') {
+      this.initializeNativeMetrics();
+    }
     this.initializeCustomMetrics();
   }
 
@@ -33,6 +36,9 @@ class PerformanceMonitoringService {
    * Initialize Web Vitals measurement
    */
   private initializeNativeMetrics() {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+
     // Measure First Contentful Paint
     if ('PerformanceObserver' in window) {
       try {
@@ -106,6 +112,9 @@ class PerformanceMonitoringService {
    * Initialize custom metrics (memory, network latency)
    */
   private initializeCustomMetrics() {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+
     // Memory usage (Chrome only)
     if ((performance as any).memory) {
       setInterval(() => {
