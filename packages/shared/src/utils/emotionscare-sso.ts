@@ -5,7 +5,7 @@
  * en utilisant les tokens Supabase pour l'authentification.
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 /**
  * URL de base d'EmotionsCare (à configurer selon l'environnement)

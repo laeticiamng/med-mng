@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../../lib/supabase';
 import { runAndDisplayIC2Audit } from './runIC2Audit';
 
 // Contenu complet IC-2 selon E-LiSA officiel - 7 Rang A + 2 Rang B

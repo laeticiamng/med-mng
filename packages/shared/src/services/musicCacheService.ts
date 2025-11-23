@@ -5,7 +5,7 @@
  * Réduit les coûts API et améliore la performance
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 interface CacheKey {
   itemCode: string;

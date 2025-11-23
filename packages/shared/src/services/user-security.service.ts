@@ -3,7 +3,7 @@
  * Manages 2FA, connected devices, and session logs
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   User2FA,
   User2FAInsert,
@@ -16,7 +16,7 @@ import {
   UserSessionLogUpdate,
   DeviceType,
   SessionStatus,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 // ============================================================================
 // 2FA FUNCTIONS

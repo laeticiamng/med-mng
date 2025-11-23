@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { generateMusic, type GenerateMusicPayload } from '../music/generate';
+import { generateMusic, type GenerateMusicPayload } from '@shared/music/generate';
 import { useMusicGenerationStatus } from './useMusicGenerationStatus';
 
 export const useSunoGeneration = () => {

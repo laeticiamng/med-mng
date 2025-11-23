@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../../lib/supabase';
 import type { IC1CompletenessReport } from './types/ic1Types';
 import { IC1Validator } from './validators/ic1Validator';
 import { IC1ContentAnalyzer } from './analyzers/ic1ContentAnalyzer';

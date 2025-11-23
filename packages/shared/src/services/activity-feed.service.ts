@@ -3,7 +3,7 @@
  * Manages user activities and activity feed
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type ActivityType = 'post_created' | 'comment_created' | 'post_liked' | 'comment_liked' | 'user_followed' | 'user_unfollowed' | 'post_shared' | 'collection_created' | 'item_added_to_collection'
 export type TargetType = 'post' | 'comment' | 'user' | 'collection' | 'item'

@@ -3,13 +3,13 @@
  * Logs and tracks user activities for audit trails
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   UserActivity,
   UserActivityInsert,
   ActivityAction,
   ActivityStatus,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const userActivityService = {
   /**

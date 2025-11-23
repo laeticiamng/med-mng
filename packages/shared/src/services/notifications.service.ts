@@ -3,7 +3,7 @@
  * Manages user notifications and notification preferences
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type NotificationType = 'like' | 'comment' | 'follow' | 'mention' | 'system'
 export type EmailFrequency = 'instant' | 'daily' | 'weekly' | 'never'

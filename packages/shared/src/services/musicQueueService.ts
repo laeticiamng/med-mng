@@ -8,7 +8,7 @@
  * - Offrir visibilité sur la progression
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 
 export type QueuePriority = 'low' | 'normal' | 'high' | 'urgent';
 export type QueueStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';

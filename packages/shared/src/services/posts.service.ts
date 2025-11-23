@@ -3,7 +3,7 @@
  * Manages user posts and comments for the social platform
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type PostVisibility = 'public' | 'followers' | 'private'
 export type PostStatus = 'draft' | 'published' | 'archived'

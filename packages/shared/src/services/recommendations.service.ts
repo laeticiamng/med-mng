@@ -3,7 +3,7 @@
  * Manages personalized content recommendations and user preferences
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type InteractionType = 'view' | 'like' | 'comment' | 'share' | 'bookmark' | 'read'
 export type ContentType = 'post' | 'article' | 'video' | 'audio' | 'collection'

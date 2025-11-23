@@ -2,7 +2,7 @@
 // Revision Methods Service
 // ============================================================================
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../lib/supabase';
 import {
   RevisionMethodType,
   RevisionScheduleItem,
@@ -22,7 +22,7 @@ import {
   JMethodConfig,
   BlockMethodConfig,
   QCMFirstConfig
-} from '@/types/revision-methods';
+} from '../types/revision-methods';
 
 // ============================================================================
 // User Revision Method Management

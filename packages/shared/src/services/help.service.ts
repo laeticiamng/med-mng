@@ -3,7 +3,7 @@
  * Manages help articles, FAQs, tutorials, and support
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type HelpCategory = 'getting-started' | 'features' | 'troubleshooting' | 'account' | 'billing' | 'other'
 export type TutorialDifficulty = 'beginner' | 'intermediate' | 'advanced'

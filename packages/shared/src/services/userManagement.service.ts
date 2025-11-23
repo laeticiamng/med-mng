@@ -3,7 +3,7 @@
  * Manages user roles, permissions, groups, and status
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export interface UserRoleAssignment {
   id: string

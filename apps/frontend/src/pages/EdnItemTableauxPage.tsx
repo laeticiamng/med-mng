@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TableauxNavigator } from "@/components/edn/TableauxNavigator"
-import { ednTableauxService } from "@/services/ednTableauxService"
+import { ednTableauxService } from "@shared/services/ednTableauxService"
 import { ArrowLeft, RefreshCw, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 import { Link } from 'react-router-dom'

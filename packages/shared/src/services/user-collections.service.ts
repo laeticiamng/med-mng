@@ -3,7 +3,7 @@
  * Manages user-created collections of items
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 import {
   UserCollection,
   UserCollectionInsert,
@@ -11,7 +11,7 @@ import {
   CollectionItem,
   CollectionItemInsert,
   ItemType,
-} from '@/types/database-custom'
+} from '../types/database-custom'
 
 export const userCollectionsService = {
   // ============ COLLECTIONS ============

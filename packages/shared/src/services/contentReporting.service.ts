@@ -3,7 +3,7 @@
  * Manages user reports and content appeals
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export interface ContentComplaintReport {
   id: string

@@ -3,7 +3,7 @@
  * Manages wellness activities, rituals, streaks, and goals
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 export type ActivityType = 'meditation' | 'exercise' | 'journaling' | 'stretching' | 'breathing' | 'yoga' | 'walking' | 'other'
 export type IntensityLevel = 'low' | 'medium' | 'high'

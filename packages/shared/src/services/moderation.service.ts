@@ -3,7 +3,7 @@
  * Manages moderation workflows, rules, teams, and appeals
  */
 
-import { supabase } from '@/integrations/supabase/client'
+import { supabase } from '../lib/supabase'
 
 // Types
 export interface ModerationRule {
