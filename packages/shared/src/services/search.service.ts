@@ -176,7 +176,7 @@ export async function searchUsers(
 }
 
 // Search teams from global search (only public and internal)
-export async function searchTeamsGlobal(
+export async function searchTeams(
   query: string,
   limit: number = 50,
   offset: number = 0
@@ -389,7 +389,7 @@ export async function logSearch(
 }
 
 // Log search result click (for analytics)
-export async function logServiceSearchResultClick(
+export async function logSearchResultClick(
   searchHistoryId: string,
   resultId: string,
   resultType: string
