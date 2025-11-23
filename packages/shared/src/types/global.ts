@@ -300,7 +300,7 @@ export interface NotificationAction {
 }
 
 // 🚨 ERROR HANDLING
-export interface AppError {
+export interface AppErrorResponse {
   code: string;
   message: string;
   details?: StrictRecord<string, JSONValue>;
@@ -313,7 +313,7 @@ export interface AppError {
 export interface APIResponse<T = JSONValue> {
   success: boolean;
   data?: T;
-  error?: AppError;
+  error?: AppErrorResponse;
   metadata?: StrictRecord<string, JSONValue>;
 }
 

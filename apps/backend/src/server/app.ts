@@ -5,8 +5,8 @@ import rateLimit from 'express-rate-limit';
 import systemRouter from './routes/systemRoutes';
 import { errorHandler } from '../middleware/errorHandler';
 import { notFoundHandler } from '../middleware/enhancedErrorHandler';
-import { generateRequestId } from '../utils/errorStandardization';
-import { log } from '../../supabase/functions/med-mng-api/logger';
+import { generateRequestId } from '@med-mng/shared';
+import { log } from '@med-mng/shared';
 
 export function createServer() {
   const app = express();
@@ -101,10 +101,6 @@ export function createServer() {
   app.use(systemRouter);
   app.use(notFoundHandler);
   app.use(errorHandler);
-
-  app.on('error', (error) => {
-    log('error', 'Express server error', { error });
-  });
 
   return app;
 }

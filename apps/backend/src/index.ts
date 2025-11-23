@@ -1,5 +1,5 @@
 import { createServer } from './server/app';
-import { log } from '../supabase/functions/med-mng-api/logger';
+import { log } from '@med-mng/shared';
 
 /**
  * ✅ Valider et récupérer le port de manière sécurisée
