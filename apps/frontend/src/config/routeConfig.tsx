@@ -297,7 +297,7 @@ export const wrapRoute = (
  * Core platform routes
  */
 export const coreRoutes: RouteObject[] = [
-  { path: ROUTE_PATHS.home, element: <Index /> },
+  { path: ROUTE_PATHS.home, element: wrapRoute(ModernHomepage) },
   { path: ROUTE_PATHS.onboarding, element: wrapRoute(Onboarding) },
   { path: ROUTE_PATHS.dashboard, element: wrapRoute(Dashboard) },
   { path: ROUTE_PATHS.dashboardHub, element: wrapRoute(DashboardHub) },
