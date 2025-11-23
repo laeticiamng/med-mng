@@ -1,6 +1,6 @@
 
-import { ItemEDNV2, createEmptyItemEDN } from '../../schemas/itemEDNSchema';
-import { supabase } from '../lib/supabase';
+import { ItemEDNV2, createEmptyItemEDN } from '../schemas/itemEDNSchema.js';
+import { supabase } from '../lib/supabase.js';
 
 /**
  * Helper pour migrer un item v1 vers v2

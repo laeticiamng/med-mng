@@ -10,7 +10,7 @@ export type ContentType = 'post' | 'article' | 'video' | 'audio' | 'collection'
 export type RecommendationSource = 'collaborative' | 'content_based' | 'trending' | 'personalized' | 'social'
 export type LearningStyle = 'visual' | 'auditory' | 'reading' | 'kinesthetic' | 'mixed'
 export type EngagementLevel = 'low' | 'medium' | 'high'
-export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced'
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced'
 
 export interface UserPreferences {
   id: string
@@ -32,7 +32,7 @@ export interface ContentMetadata {
   description?: string
   categories: string[]
   tags: string[]
-  difficulty_level: DifficultyLevel
+  difficulty_level: SkillLevel
   estimated_reading_time?: number
   engagement_score: number
   view_count: number

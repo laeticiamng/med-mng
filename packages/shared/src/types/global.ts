@@ -133,7 +133,7 @@ export interface EDNItem {
 export interface EDNContent {
   tableau?: StrictRecord<string, JSONValue>;
   paroles?: string[];
-  quiz?: QuizQuestion[];
+  quiz?: GenericQuizQuestion[];
   scene?: ImmersiveScene;
   bandeDessinee?: ComicPanelData[];
   interactions?: InteractionConfig[];
@@ -155,7 +155,7 @@ export interface Competence {
   category: string;
 }
 
-export interface QuizQuestion {
+export interface GenericQuizQuestion {
   id: string;
   question: string;
   options: string[];
