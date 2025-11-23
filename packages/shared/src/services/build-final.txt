@@ -1,0 +1,4 @@
+
+> @med-mng/backend@1.0.0 build /home/user/med-mng/apps/backend
+> tsc
+

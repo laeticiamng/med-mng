@@ -38,7 +38,7 @@ export interface UserActivityAnalytics {
   featureUsage?: Record<string, number>
 }
 
-export interface ContentAnalytics {
+export interface PlatformContentAnalytics {
   id: string
   analyticsDate: string
   totalPosts: number
@@ -160,7 +160,7 @@ export const platformAnalyticsService = {
   },
 
   // Content Analytics
-  async getContentAnalytics(date?: string): Promise<ContentAnalytics | null> {
+  async getPlatformContentAnalytics(date?: string): Promise<PlatformContentAnalytics | null> {
     try {
       const analyticsDate = date || new Date().toISOString().split('T')[0]
 
@@ -171,14 +171,14 @@ export const platformAnalyticsService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return data ? mapContentAnalytics(data) : null
+      return data ? mapPlatformContentAnalytics(data) : null
     } catch (err) {
       console.error('Error fetching content analytics:', err)
       return null
     }
   },
 
-  async getContentAnalyticsTrend(days: number = 30): Promise<ContentAnalytics[]> {
+  async getPlatformContentAnalyticsTrend(days: number = 30): Promise<PlatformContentAnalytics[]> {
     try {
       const sinceDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
@@ -189,7 +189,7 @@ export const platformAnalyticsService = {
         .order('analytics_date', { ascending: true })
 
       if (error) throw error
-      return (data || []).map(mapContentAnalytics)
+      return (data || []).map(mapPlatformContentAnalytics)
     } catch (err) {
       console.error('Error fetching content analytics trend:', err)
       return []
@@ -378,7 +378,7 @@ function mapUserActivityAnalytics(data: any): UserActivityAnalytics {
   }
 }
 
-function mapContentAnalytics(data: any): ContentAnalytics {
+function mapPlatformContentAnalytics(data: any): PlatformContentAnalytics {
   return {
     id: data.id,
     analyticsDate: data.analytics_date,

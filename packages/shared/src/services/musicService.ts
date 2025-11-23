@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase'
 
-export interface MusicGenerationRequest {
+export interface ServiceMusicGenerationRequest {
   item_id: string
   item_code: string
   title: string
@@ -9,7 +9,7 @@ export interface MusicGenerationRequest {
   custom_prompt?: string
 }
 
-export interface GeneratedSong {
+export interface ServiceGeneratedSong {
   id: string
   song_uuid: string
   audio_url: string
@@ -56,10 +56,10 @@ class MusicService {
   private baseUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/music-generation`
 
   // ===== GÉNÉRATION MUSICALE =====
-  async generateSong(request: MusicGenerationRequest): Promise<{
+  async generateSong(request: ServiceMusicGenerationRequest): Promise<{
     success: boolean
     generation_id: string
-    song?: GeneratedSong
+    song?: ServiceGeneratedSong
     duration_seconds?: number
     added_to_library?: boolean
     error?: string
@@ -311,9 +311,9 @@ class MusicService {
 
   // ===== ANALYTICS & TRACKING =====
   private trackGeneration(
-    request: MusicGenerationRequest, 
-    duration: number, 
-    success: boolean, 
+    request: ServiceMusicGenerationRequest,
+    duration: number,
+    success: boolean,
     error?: string
   ) {
     // Analytics internes (peut être étendu avec des services externes)

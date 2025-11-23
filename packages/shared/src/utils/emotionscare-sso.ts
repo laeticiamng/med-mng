@@ -6,11 +6,12 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { env } from '../lib/env.js';
 
 /**
  * URL de base d'EmotionsCare (à configurer selon l'environnement)
  */
-const EMOTIONSCARE_BASE_URL = import.meta.env.VITE_EMOTIONSCARE_URL || 'https://app.emotionscare.com';
+const EMOTIONSCARE_BASE_URL = env.get('VITE_EMOTIONSCARE_URL', 'https://app.emotionscare.com');
 
 /**
  * Erreurs possibles lors du SSO EmotionsCare

@@ -53,7 +53,7 @@ class PerformanceMonitoringService {
       try {
         const lcpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
+          const lastEntry = entries[entries.length - 1] as any;
           this.recordMetric('lcp', lastEntry.renderTime || lastEntry.loadTime);
         });
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
@@ -302,9 +302,4 @@ if (typeof window !== 'undefined') {
 
 export default performanceMonitor;
 
-// Type extensions for gtag
-declare global {
-  interface Window {
-    gtag?: (event: string, name: string, params: any) => void;
-  }
-}
+// Type extensions for gtag (removed - conflicts with webVitals.ts declaration)
