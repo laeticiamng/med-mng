@@ -5,16 +5,16 @@
 
 import { supabase } from '../lib/supabase'
 
-export type ExportType = 'personal_data' | 'posts' | 'comments' | 'interactions' | 'full_archive'
-export type ExportFormat = 'csv' | 'json' | 'pdf'
-export type ExportStatus = 'pending' | 'processing' | 'completed' | 'failed'
+export type DataExportType = 'personal_data' | 'posts' | 'comments' | 'interactions' | 'full_archive'
+export type DataExportFormat = 'csv' | 'json' | 'pdf'
+export type DataExportStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
-export interface ExportJob {
+export interface DataExportJob {
   id: string
   user_id: string
-  export_type: ExportType
-  format: ExportFormat
-  status: ExportStatus
+  export_type: DataExportType
+  format: DataExportFormat
+  status: DataExportStatus
   progress: number
   total_items: number
   processed_items: number
@@ -40,7 +40,7 @@ export const dataExportService = {
   /**
    * Create a new export job
    */
-  async createExportJob(exportType: ExportType, format: ExportFormat): Promise<string> {
+  async createExportJob(exportType: DataExportType, format: DataExportFormat): Promise<string> {
     try {
       const { data, error } = await supabase.rpc('create_export_job', {
         export_type_param: exportType,
@@ -57,7 +57,7 @@ export const dataExportService = {
   /**
    * Get user's export jobs
    */
-  async getExportJobs(userId: string): Promise<ExportJob[]> {
+  async getExportJobs(userId: string): Promise<DataExportJob[]> {
     try {
       const { data, error } = await supabase
         .from('export_jobs')
@@ -66,7 +66,7 @@ export const dataExportService = {
         .order('requested_at', { ascending: false })
 
       if (error) throw error
-      return (data || []) as ExportJob[]
+      return (data || []) as DataExportJob[]
     } catch (err) {
       console.error('Error fetching export jobs:', err)
       return []
@@ -76,7 +76,7 @@ export const dataExportService = {
   /**
    * Get a specific export job
    */
-  async getExportJob(jobId: string): Promise<ExportJob | null> {
+  async getExportJob(jobId: string): Promise<DataExportJob | null> {
     try {
       const { data, error } = await supabase
         .from('export_jobs')
@@ -85,7 +85,7 @@ export const dataExportService = {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      return (data || null) as ExportJob | null
+      return (data || null) as DataExportJob | null
     } catch (err) {
       console.error('Error fetching export job:', err)
       return null
@@ -146,7 +146,7 @@ export const dataExportService = {
    * Get export job status
    */
   async getExportStatus(jobId: string): Promise<{
-    status: ExportStatus
+    status: DataExportStatus
     progress: number
     file_url?: string
     completed_at?: string
