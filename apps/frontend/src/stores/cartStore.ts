@@ -2,6 +2,7 @@ import logger from '@/lib/logger';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ShopifyProduct } from '@/lib/shopify';
+import { createStorefrontCheckout } from '@/lib/shopify';
 
 export interface CartItem {
   product: ShopifyProduct;
@@ -93,7 +94,7 @@ export const useCartStore = create<CartStore>()(
 
         setLoading(true);
         try {
-          const { createStorefrontCheckout } = await import('@/lib/shopify');
+          // Use static import - shopify module is already in Store/ProductDetail page chunks (lazy loaded)
           const checkoutUrl = await createStorefrontCheckout(items);
           setCheckoutUrl(checkoutUrl);
         } catch (error) {

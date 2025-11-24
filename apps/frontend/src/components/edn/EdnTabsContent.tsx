@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton';
 import { EdnItemsGrid } from './EdnItemsGrid';
+import { QuotaIndicator } from '@/components/quota/QuotaIndicator';
 import type { EdnItemUnified } from '@shared/types/edn';
 
 // 🚀 LAZY LOADING - Composants non-critiques chargés à la demande
@@ -10,7 +11,6 @@ const RevisionDashboard = lazy(() => import('@/components/revision/RevisionDashb
 const RevisionGuide = lazy(() => import('@/components/edn/RevisionGuide').then(m => ({ default: m.RevisionGuide })));
 const FaqSection = lazy(() => import('@/components/help/FaqSection').then(m => ({ default: m.FaqSection })));
 const LyricsCompletionStatus = lazy(() => import('@/components/LyricsCompletionStatus').then(m => ({ default: m.LyricsCompletionStatus })));
-const QuotaIndicator = lazy(() => import('@/components/quota/QuotaIndicator').then(m => ({ default: m.QuotaIndicator })));
 const PricingPlans = lazy(() => import('@/components/med-mng/PricingPlans').then(m => ({ default: m.PricingPlans })));
 
 interface EdnTabsContentProps {

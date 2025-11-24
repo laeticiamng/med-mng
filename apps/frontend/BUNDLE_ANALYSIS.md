@@ -203,6 +203,81 @@ build: {
 
 ---
 
+## 🔧 Phase 5 - Import Optimization (COMPLETED)
+
+**Date:** 2025-11-24
+**Status:** ✅ Implemented & Tested
+
+### Problem
+
+Vite was issuing warnings during build about modules that were both dynamically AND statically imported, preventing proper code splitting:
+
+```
+(!) /home/user/med-mng/apps/frontend/src/lib/shopify.ts is dynamically imported by
+    /home/user/med-mng/apps/frontend/src/stores/cartStore.ts but also statically
+    imported by /home/user/med-mng/apps/frontend/src/pages/ProductDetail.tsx,
+    /home/user/med-mng/apps/frontend/src/pages/Store.tsx, dynamic import will not
+    move module into another chunk.
+
+(!) /home/user/med-mng/apps/frontend/src/components/quota/QuotaIndicator.tsx is
+    dynamically imported by /home/user/med-mng/apps/frontend/src/components/edn/EdnTabsContent.tsx
+    but also statically imported by /home/user/med-mng/apps/frontend/src/components/edn/EdnHeader.tsx,
+    dynamic import will not move module into another chunk.
+```
+
+These mixed imports prevent Vite from properly code-splitting, resulting in suboptimal chunking and wasted effort on dynamic imports that don't work.
+
+### Solution
+
+#### Issue 1: shopify.ts
+- **Before**: `cartStore.ts` used `await import('@/lib/shopify')` (dynamic), while `ProductDetail.tsx` and `Store.tsx` used static imports
+- **Fix**: Changed `cartStore.ts` to use static import
+- **Rationale**: Since ProductDetail and Store are lazy-loaded page components, the shopify module only loads with those pages anyway. The dynamic import in cartStore couldn't split it further, so static import is more efficient.
+
+```typescript
+// Before (cartStore.ts)
+const { createStorefrontCheckout } = await import('@/lib/shopify');
+
+// After (cartStore.ts)
+import { createStorefrontCheckout } from '@/lib/shopify';
+// ... later in code ...
+const checkoutUrl = await createStorefrontCheckout(items);
+```
+
+#### Issue 2: QuotaIndicator.tsx
+- **Before**: `EdnTabsContent.tsx` used `React.lazy()` (dynamic), while `EdnHeader.tsx` used static import
+- **Fix**: Changed `EdnTabsContent.tsx` to use static import
+- **Rationale**: Since EdnHeader needs QuotaIndicator immediately in the main bundle, the lazy import couldn't work. Static import is more honest and eliminates the warning.
+
+```typescript
+// Before (EdnTabsContent.tsx)
+const QuotaIndicator = lazy(() => import('@/components/quota/QuotaIndicator').then(m => ({ default: m.QuotaIndicator })));
+
+// After (EdnTabsContent.tsx)
+import { QuotaIndicator } from '@/components/quota/QuotaIndicator';
+```
+
+### Results
+
+✅ **Build warnings eliminated**: Both mixed import warnings are now gone
+✅ **Cleaner build output**: No more false-positive dynamic import warnings
+✅ **More honest code**: Imports now accurately reflect when modules are loaded
+✅ **No bundle size regression**: Static imports don't increase bundle size since modules were already being loaded
+
+### Build Verification
+
+**Before Phase 5:**
+```
+(!) 2 mixed import warnings during build
+```
+
+**After Phase 5:**
+```
+✓ No import warnings (only performance budget warnings remain, which are intentional)
+```
+
+---
+
 ## ⚡ Phase 4 - Bundle Splitting Optimization (COMPLETED)
 
 **Date:** 2025-11-24
