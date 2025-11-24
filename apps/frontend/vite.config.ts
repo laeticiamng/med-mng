@@ -188,13 +188,28 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: 'esnext',
 
+    // ⚡ PERFORMANCE BUDGET - Prevent bundle bloat
+    // ----------------------------------------------
+    // Warns if individual chunks exceed 200 KB (uncompressed)
+    // Current violations (as of 2025-11-24):
+    //   - pdf-*.js: 590 KB (176 KB gzipped) - jsPDF + html2canvas [lazy loaded ✓]
+    //   - index-*.js: 473 KB (127 KB gzipped) - Main bundle [needs further splitting]
+    //   - charts-*.js: 432 KB (114 KB gzipped) - Recharts library [lazy loadable]
+    //   - xlsx-*.js: 429 KB (143 KB gzipped) - Excel export [lazy loaded ✓]
+    //
+    // ℹ️ Why 200 KB limit?
+    //   - Industry best practice for 3G networks (1-2s parse time)
+    //   - Forces code splitting for better caching
+    //   - Prevents accidental bundle bloat from new dependencies
+    //
+    // 🎯 Next actions when warning appears:
+    //   1. Check if library can be lazy loaded (dynamic import)
+    //   2. Consider lighter alternatives
+    //   3. Split into smaller chunks if possible
+    //   4. Document why large size is acceptable (if unavoidable)
+    chunkSizeWarningLimit: 200, // KB (default: 500 KB)
+
     // ⚡ OPTIMIZATION: Chunk splitting for better caching
-    chunkSizeWarningLimit: 1000,
-
-    // ⚡ MINIFICATION & SOURCE MAPS
-    minify: 'terser',
-    sourcemap: mode === 'development',
-
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;

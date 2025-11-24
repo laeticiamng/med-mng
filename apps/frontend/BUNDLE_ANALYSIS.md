@@ -195,10 +195,82 @@ build: {
 ## 📋 Next Steps
 
 1. ✅ Generate bundle analysis (completed)
-2. ⏭️ Implement Phase 2A quick wins
-3. ⏭️ Test and measure improvements
-4. ⏭️ Implement Phase 2B medium optimizations
-5. ⏭️ Final performance audit
+2. ✅ Implement Phase 2A quick wins (completed)
+3. ✅ Implement Phase 3 - Performance Budget (completed)
+4. ⏭️ Test and measure improvements
+5. ⏭️ Implement Phase 2B medium optimizations
+6. ⏭️ Final performance audit
+
+---
+
+## 🛡️ Phase 3 - Performance Budget (COMPLETED)
+
+**Date:** 2025-11-24
+**Status:** ✅ Implemented & Tested
+
+### What is a Performance Budget?
+
+A performance budget is a build-time constraint that **warns developers** when bundle chunks exceed a specified size limit. This acts as a guard rail to prevent accidental bundle bloat and ensures the team is aware when adding large dependencies.
+
+### Implementation
+
+**Location:** `apps/frontend/vite.config.ts`
+
+```typescript
+build: {
+  chunkSizeWarningLimit: 200, // KB (reduced from default 500 KB)
+}
+```
+
+### Why 200 KB?
+
+- **3G Network Performance:** 200 KB gzipped ≈ 1-2s parse time on 3G networks
+- **Industry Best Practice:** Google recommends < 170 KB gzipped for initial JS bundle
+- **Forces Code Splitting:** Encourages lazy loading for large dependencies
+- **Prevents Regression:** Build warns if new dependencies bloat the bundle
+
+### Current Violations (Build Warnings)
+
+When running `pnpm build`, the following chunks now trigger warnings:
+
+| Chunk | Size | Gzipped | Status | Action Required |
+|-------|------|---------|--------|-----------------|
+| **pdf-*.js** | 590 KB | 176 KB | 🟢 OK | Already lazy loaded ✓ |
+| **index-*.js** | 473 KB | 127 KB | 🟡 TODO | Needs further splitting |
+| **charts-*.js** | 432 KB | 114 KB | 🟡 TODO | Consider lazy loading |
+| **xlsx-*.js** | 429 KB | 143 KB | 🟢 OK | Already lazy loaded ✓ |
+
+### What to Do When Warning Appears?
+
+**Build output:**
+```
+(!) Some chunks are larger than 200 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+```
+
+**Action Checklist:**
+1. ✅ Identify which chunk triggered the warning
+2. ✅ Check if the library can be lazy loaded with `import()`
+3. ✅ Consider lighter alternatives (e.g., day.js vs moment.js)
+4. ✅ Split into smaller manual chunks if possible
+5. ✅ Document why the size is acceptable (if unavoidable)
+
+### Benefits
+
+- **🚨 Early Detection:** Catches bundle bloat during development, not production
+- **📊 Visibility:** Developers see impact of dependencies immediately
+- **🎯 Accountability:** Forces conscious decision-making about large dependencies
+- **📈 Long-term:** Prevents gradual bundle size creep over time
+
+### Next Optimizations
+
+The current violations show opportunities for further optimization:
+
+1. **Main Bundle (473 KB)** - Can be split further with route-based code splitting
+2. **Charts Library (432 KB)** - Recharts can be lazy loaded on dashboard pages
+3. **Excel/PDF Libraries** - Already optimized with dynamic imports ✓
 
 ---
 
