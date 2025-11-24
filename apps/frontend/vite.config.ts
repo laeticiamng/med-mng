@@ -226,7 +226,7 @@ export default defineConfig(({ mode }) => ({
           'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
 
           // Heavy libraries
-          'charts': ['recharts', 'chart.js'],
+          'charts': ['recharts'],
           'icons': ['lucide-react'],
           'animations': ['framer-motion'],
 
