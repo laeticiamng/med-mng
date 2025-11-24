@@ -227,30 +227,75 @@ export default defineConfig(({ mode }) => ({
           'react-query': ['@tanstack/react-query', '@tanstack/react-query-persist-client'],
           'state': ['zustand'],
 
-          // UI Components
+          // Supabase (large client library)
+          'supabase': ['@supabase/supabase-js'],
+
+          // UI Components - Core
           'ui-core': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-popover',
             '@radix-ui/react-tooltip',
             '@radix-ui/react-tabs',
-            '@radix-ui/react-scroll-area'
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-separator',
           ],
-          'ui-form': ['react-hook-form', 'zod'],
+          'ui-form': [
+            'react-hook-form',
+            'zod',
+            '@hookform/resolvers',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-label',
+          ],
+
+          // UI Components - Advanced
+          'ui-advanced': [
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-collapsible',
+            '@radix-ui/react-context-menu',
+            '@radix-ui/react-hover-card',
+            '@radix-ui/react-menubar',
+            '@radix-ui/react-navigation-menu',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-toggle',
+            '@radix-ui/react-toggle-group',
+          ],
+
+          // Data display & interaction
+          'data-display': [
+            '@tanstack/react-table',
+            'react-virtualized-auto-sizer',
+            'react-window',
+            'react-window-infinite-loader',
+          ],
+
+          // Drag & Drop
+          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
 
           // Utilities
-          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority', 'cmdk'],
+          'format': ['date-fns', 'dompurify'],
+          'search': ['fuse.js'],
 
           // Heavy libraries
           'charts': ['recharts'],
           'icons': ['lucide-react'],
           'animations': ['framer-motion'],
+          'carousel': ['embla-carousel-react'],
 
-          // Audio & Media
-          'audio': [],
+          // Monitoring
+          'monitoring': ['@sentry/react', 'web-vitals'],
 
-          // Large third-party packages
+          // Large third-party packages (lazy loaded)
           'xlsx': ['xlsx'],
-          'pdf': ['jspdf', 'html2canvas'],
+          'pdf': ['jspdf', 'html2canvas', 'jspdf-autotable'],
         },
 
         // Optimize chunk names for production
