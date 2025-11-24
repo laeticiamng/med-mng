@@ -3,6 +3,7 @@
  * Utilise les nouvelles fonctions SQL d'enrichissement
  */
 
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type {
@@ -20,8 +21,8 @@ import type {
  * @example
  * ```tsx
  * const { data: quality, isLoading } = useEdnItemQuality('IC-1');
- * console.log(quality.quality_score); // 85
- * console.log(quality.quality_grade); // "Très bon"
+ * logger.debug(quality.quality_score); // 85
+ * logger.debug(quality.quality_grade); // "Très bon"
  * ```
  */
 export function useEdnItemQuality(
@@ -54,9 +55,9 @@ export function useEdnItemQuality(
  * @example
  * ```tsx
  * const { data: globalReport } = useEdnGlobalQuality();
- * console.log(globalReport.total_items); // 367
- * console.log(globalReport.average_quality_score); // 72.5
- * console.log(globalReport.quality_distribution.excellent); // 45
+ * logger.debug(globalReport.total_items); // 367
+ * logger.debug(globalReport.average_quality_score); // 72.5
+ * logger.debug(globalReport.quality_distribution.excellent); // 45
  * ```
  */
 export function useEdnGlobalQuality(options?: {
@@ -86,8 +87,8 @@ export function useEdnGlobalQuality(options?: {
  * const enrichItem = useEnrichEdnItem();
  *
  * await enrichItem.mutateAsync('IC-1');
- * console.log(enrichItem.data.enriched); // true
- * console.log(enrichItem.data.extracted_keywords_count); // 15
+ * logger.debug(enrichItem.data.enriched); // true
+ * logger.debug(enrichItem.data.extracted_keywords_count); // 15
  * ```
  */
 export function useEnrichEdnItem() {
@@ -121,8 +122,8 @@ export function useEnrichEdnItem() {
  * const enrichAll = useEnrichAllEdnItems();
  *
  * await enrichAll.mutateAsync();
- * console.log(enrichAll.data.total_enriched); // 367
- * console.log(enrichAll.data.success_rate); // 100.00
+ * logger.debug(enrichAll.data.total_enriched); // 367
+ * logger.debug(enrichAll.data.success_rate); // 100.00
  * ```
  */
 export function useEnrichAllEdnItems() {
@@ -155,9 +156,9 @@ export function useEnrichAllEdnItems() {
  * @example
  * ```tsx
  * const { data: stats } = useEdnGlobalStats();
- * console.log(stats.total_items); // 367
- * console.log(stats.complete_items); // 250
- * console.log(stats.avg_completeness); // 75.5
+ * logger.debug(stats.total_items); // 367
+ * logger.debug(stats.complete_items); // 250
+ * logger.debug(stats.avg_completeness); // 75.5
  * ```
  */
 export function useEdnGlobalStats(options?: {
@@ -189,7 +190,7 @@ export function useEdnGlobalStats(options?: {
  * ```tsx
  * const { data: statsBySpecialty } = useEdnStatsBySpecialite();
  * statsBySpecialty.forEach(spec => {
- *   console.log(spec.specialite, spec.item_count, spec.avg_completeness);
+ *   logger.debug(spec.specialite, spec.item_count, spec.avg_completeness);
  * });
  * ```
  */

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
@@ -164,12 +165,12 @@ export const usePWAMetrics = () => {
             onConflict: 'session_id',
           });
         } catch (err) {
-          console.debug('Metrics error:', err);
+          logger.debug('Metrics error:', err);
         }
       }
     } catch (error) {
       // Silencieux pour ne pas perturber l'expérience utilisateur
-      console.debug('Error sending PWA metrics:', error);
+      logger.debug('Error sending PWA metrics:', error);
     }
   };
 

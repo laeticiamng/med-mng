@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Search, Filter, MoreHorizontal, Edit, Trash2, 
@@ -105,7 +106,7 @@ export const AdminContentManager = () => {
 
       setItems(mergedItems);
     } catch (error) {
-      console.error('Erreur chargement contenu:', error);
+      logger.error('Erreur chargement contenu:', error);
       toast.error('Erreur lors du chargement du contenu');
     } finally {
       setLoading(false);
@@ -148,7 +149,7 @@ export const AdminContentManager = () => {
 
       toast.success('Item validé avec succès');
     } catch (error) {
-      console.error('Erreur validation:', error);
+      logger.error('Erreur validation:', error);
       toast.error('Erreur lors de la validation');
     }
   };

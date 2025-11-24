@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,7 @@ export const CartDrawer = () => {
         setIsOpen(false);
       }
     } catch (error) {
-      console.error('Checkout failed:', error);
+      logger.error('Checkout failed:', error);
       toast.error('Erreur lors de la création du checkout');
     }
   };

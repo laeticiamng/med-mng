@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -42,10 +43,10 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
       if (onNext) onNext();
     };
     const handleLoadedData = () => {
-      console.log('🎵 Audio chargé:', track.title);
+      logger.debug('🎵 Audio chargé:', track.title);
     };
     const handleError = (e: any) => {
-      console.error('❌ Erreur audio:', e);
+      logger.error('❌ Erreur audio:', e);
       setIsPlaying(false);
     };
 
@@ -84,7 +85,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         setIsPlaying(true);
       }
     } catch (error) {
-      console.error('Erreur lecture audio:', error);
+      logger.error('Erreur lecture audio:', error);
       setIsPlaying(false);
     }
   };

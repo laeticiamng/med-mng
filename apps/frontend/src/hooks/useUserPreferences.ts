@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -102,7 +103,7 @@ export function useUserPreferences() {
         }
       }
     } catch (error) {
-      console.error('Erreur chargement préférences:', error);
+      logger.error('Erreur chargement préférences:', error);
     } finally {
       setLoading(false);
     }
@@ -134,7 +135,7 @@ export function useUserPreferences() {
         description: "Vos préférences ont été mises à jour"
       });
     } catch (error) {
-      console.error('Erreur sauvegarde préférences:', error);
+      logger.error('Erreur sauvegarde préférences:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les préférences",
@@ -168,7 +169,7 @@ export function useUserPreferences() {
         description: "Les paramètres par défaut ont été restaurés"
       });
     } catch (error) {
-      console.error('Erreur reset préférences:', error);
+      logger.error('Erreur reset préférences:', error);
       toast({
         title: "Erreur",
         description: "Impossible de réinitialiser les préférences",
@@ -212,7 +213,7 @@ export function useUserPreferences() {
         description: "Vos préférences ont été importées"
       });
     } catch (error) {
-      console.error('Erreur import préférences:', error);
+      logger.error('Erreur import préférences:', error);
       toast({
         title: "Erreur d'import",
         description: "Fichier de préférences invalide",

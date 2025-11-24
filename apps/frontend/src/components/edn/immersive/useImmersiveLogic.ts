@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,7 +44,7 @@ export const useImmersiveLogic = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        console.log('🔍 Chargement item immersif pour slug:', slug);
+        logger.debug('🔍 Chargement item immersif pour slug:', slug);
         
         // Utiliser edn_items_complete au lieu de edn_items_immersive pour avoir les bonnes compétences OIC
         const { data, error } = await supabase
@@ -53,16 +54,16 @@ export const useImmersiveLogic = () => {
           .maybeSingle();
 
         if (error) {
-          console.error('❌ Erreur lors du chargement de l\'item:', error);
+          logger.error('❌ Erreur lors du chargement de l\'item:', error);
           return;
         }
 
         if (!data) {
-          console.warn('⚠️ Aucun item trouvé pour le slug:', slug);
+          logger.warn('⚠️ Aucun item trouvé pour le slug:', slug);
           return;
         }
 
-        console.log('✅ Item chargé avec succès:', {
+        logger.debug('✅ Item chargé avec succès:', {
           item_code: data.item_code,
           title: data.title,
           paroles_musicales: data.paroles_musicales,
@@ -80,15 +81,15 @@ export const useImmersiveLogic = () => {
 
         // Vérifier et valider les données critiques
         if (!data.paroles_musicales || data.paroles_musicales.length < 2) {
-          console.warn('⚠️ Paroles musicales incomplètes pour', data.item_code, '- Attendu: 2, Actuel:', data.paroles_musicales?.length || 0);
+          logger.warn('⚠️ Paroles musicales incomplètes pour', data.item_code, '- Attendu: 2, Actuel:', data.paroles_musicales?.length || 0);
         }
 
         if (!data.tableau_rang_a || !data.tableau_rang_b) {
-          console.warn('⚠️ Tableaux Rang A/B manquants pour', data.item_code);
+          logger.warn('⚠️ Tableaux Rang A/B manquants pour', data.item_code);
         }
 
         if (!data.quiz_questions) {
-          console.warn('⚠️ Quiz manquant pour', data.item_code);
+          logger.warn('⚠️ Quiz manquant pour', data.item_code);
         }
 
         // Validation de la structure des quiz (répartition 70% A / 30% B)
@@ -99,7 +100,7 @@ export const useImmersiveLogic = () => {
             const rangBCount = questions.filter((q: any) => q.rang === 'B').length;
             const total = questions.length;
             
-            console.log('📊 Répartition quiz:', {
+            logger.debug('📊 Répartition quiz:', {
               total,
               rangA: rangACount,
               rangB: rangBCount,
@@ -111,7 +112,7 @@ export const useImmersiveLogic = () => {
 
         setItem(data);
       } catch (error) {
-        console.error('❌ Erreur inattendue:', error);
+        logger.error('❌ Erreur inattendue:', error);
       } finally {
         setLoading(false);
       }
@@ -126,7 +127,7 @@ export const useImmersiveLogic = () => {
     const newProgress = ((currentSection + 1) / sections.length) * 100;
     setProgress(newProgress);
     
-    console.log('📍 Navigation vers section:', {
+    logger.debug('📍 Navigation vers section:', {
       index: currentSection,
       section: sections[currentSection],
       progress: newProgress

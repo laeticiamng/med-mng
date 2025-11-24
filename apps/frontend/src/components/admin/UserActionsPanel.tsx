@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { useCreateUserAction } from '@/hooks/useAdmin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -42,7 +43,7 @@ export default function UserActionsPanel() {
       setShowDialog(false)
     } catch (error) {
       toast.error('Failed to create user action')
-      console.error(error)
+      logger.error(error)
     }
   }
 

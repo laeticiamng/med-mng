@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -209,7 +210,7 @@ export function DataQualityMonitor() {
       }
 
     } catch (error) {
-      console.error('Erreur fetch data quality:', error);
+      logger.error('Erreur fetch data quality:', error);
       toast.error('Erreur lors du chargement des métriques de qualité');
     } finally {
       setLoading(false);

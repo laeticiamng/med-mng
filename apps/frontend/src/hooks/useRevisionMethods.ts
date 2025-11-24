@@ -2,6 +2,7 @@
 // useRevisionMethods Hook
 // ============================================================================
 
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -113,7 +114,7 @@ export const useRevisionMethods = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de chargement');
-      console.error('Error fetching revision data:', err);
+      logger.error('Error fetching revision data:', err);
     } finally {
       setLoading(false);
     }

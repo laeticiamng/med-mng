@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Key for storing remember me preference in localStorage
  */
@@ -15,7 +17,7 @@ export function setRememberMe(enabled: boolean): void {
       localStorage.removeItem(REMEMBER_ME_KEY);
     }
   } catch (error) {
-    console.error('Failed to set remember me preference:', error);
+    logger.error('Failed to set remember me preference:', error);
   }
 }
 
@@ -27,7 +29,7 @@ export function isRememberMeEnabled(): boolean {
   try {
     return localStorage.getItem(REMEMBER_ME_KEY) === 'true';
   } catch (error) {
-    console.error('Failed to get remember me preference:', error);
+    logger.error('Failed to get remember me preference:', error);
     return false;
   }
 }

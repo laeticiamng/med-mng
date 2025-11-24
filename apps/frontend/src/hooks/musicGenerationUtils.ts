@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 
 export const validateGenerationInput = (
   paroles: string[], 
@@ -37,7 +39,7 @@ export const validateGenerationInput = (
     throw new Error(`Aucune parole disponible pour le Rang ${rang}`);
   }
 
-  console.log(`✅ Paroles validées pour Rang ${rang}:`, {
+  logger.debug(`✅ Paroles validées pour Rang ${rang}:`, {
     length: parolesText.length,
     preview: parolesText.substring(0, 100) + '...',
     truncated: parolesText.includes('...')
@@ -99,7 +101,7 @@ export const createRequestBody = (
     } : undefined
   };
 
-  console.log(`🎵 Requête optimisée pour API Suno (Rang ${rang}):`, {
+  logger.debug(`🎵 Requête optimisée pour API Suno (Rang ${rang}):`, {
     hasLyrics: !!parolesText,
     lyricsLength: parolesText.length,
     style: selectedStyle,

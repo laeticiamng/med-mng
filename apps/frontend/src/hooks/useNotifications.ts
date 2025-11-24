@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -115,7 +116,7 @@ export function useNotifications() {
         const mockData = generateMockNotifications();
         setNotifications(mockData);
       } catch (error) {
-        console.error('Error loading notifications:', error);
+        logger.error('Error loading notifications:', error);
         toast.error('Erreur lors du chargement des notifications');
       } finally {
         setLoading(false);

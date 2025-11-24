@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,7 @@ export const EcosDashboard: React.FC = () => {
       const data = await ecosService.getAnalytics();
       setAnalytics(data);
     } catch (error) {
-      console.error('Error loading ECOS analytics:', error);
+      logger.error('Error loading ECOS analytics:', error);
       if (!analytics) {
         toast.error('Erreur lors du chargement des analytics ECOS');
       }

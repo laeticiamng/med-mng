@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -56,7 +57,7 @@ export function EdnItemTableauxPage() {
       }
       
     } catch (err) {
-      console.error('❌ Error fetching item tableaux:', err)
+      logger.error('❌ Error fetching item tableaux:', err)
       setError('Impossible de charger les tableaux de l\'item')
       toast.error('Erreur de chargement', {
         description: 'Impossible de récupérer les données de l\'item'

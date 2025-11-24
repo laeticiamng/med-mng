@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TagData } from '@/components/sitemap/TagManager';
@@ -102,7 +103,7 @@ export function useCloudSync() {
 
       return true;
     } catch (error) {
-      console.error('Sync error:', error);
+      logger.error('Sync error:', error);
       toast({
         title: 'Erreur de synchronisation',
         description: error instanceof Error ? error.message : 'Échec de la synchronisation',
@@ -164,7 +165,7 @@ export function useCloudSync() {
 
       return null;
     } catch (error) {
-      console.error('Sync from cloud error:', error);
+      logger.error('Sync from cloud error:', error);
       toast({
         title: 'Erreur de récupération',
         description: error instanceof Error ? error.message : 'Échec de la récupération',

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { MusicGenerationRequest, PollingProgress } from '@shared/types/music';
 
@@ -47,7 +48,7 @@ export const useMusicPolling = () => {
         
         const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * pollInterval) / 60000), 0);
         
-        console.log(`🔄 Polling rapide ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
+        logger.debug(`🔄 Polling rapide ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
         
         onProgress(rang, {
           progress: baseProgress,
@@ -63,7 +64,7 @@ export const useMusicPolling = () => {
 
         if (pollError) {
           consecutiveErrors++;
-          console.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
+          logger.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
           // Si trop d'erreurs consécutives, on arrête plus rapidement
           if (consecutiveErrors >= maxConsecutiveErrors) {
@@ -83,11 +84,11 @@ export const useMusicPolling = () => {
 
         // Reset du compteur d'erreurs si succès
         consecutiveErrors = 0;
-        console.log(`📥 Données du polling ${pollCount}:`, pollData);
+        logger.debug(`📥 Données du polling ${pollCount}:`, pollData);
 
         // Vérifier si la génération est terminée avec succès
         if (pollData?.status === 'success' && pollData?.audioUrl) {
-          console.log('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
+          logger.debug('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
           clearInterval(intervalId);
           
           // Progression finale à 100%
@@ -111,7 +112,7 @@ export const useMusicPolling = () => {
 
         // Gestion spéciale pour les timeouts (status 408)
         if (pollData?.status === 'timeout') {
-          console.log('⏰ Timeout détecté, on continue le polling...');
+          logger.debug('⏰ Timeout détecté, on continue le polling...');
           // On ne s'arrête pas, on continue à espérer
         }
 
@@ -124,7 +125,7 @@ export const useMusicPolling = () => {
         
       } catch (pollError) {
         consecutiveErrors++;
-        console.error(`❌ Erreur critique lors du polling ${pollCount}:`, pollError);
+        logger.error(`❌ Erreur critique lors du polling ${pollCount}:`, pollError);
         
         if (consecutiveErrors >= maxConsecutiveErrors || pollCount >= maxPolls) {
           clearInterval(intervalId);

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -73,10 +74,10 @@ export function AudioPlayer({
       onEnded?.()
       
       // Analytics
-      console.log('🎵 Song completed:', song.title)
+      logger.debug('🎵 Song completed:', song.title)
     }
     const handleError = (e: any) => {
-      console.error('❌ Audio error:', e)
+      logger.error('❌ Audio error:', e)
       setIsLoading(false)
       setIsPlaying(false)
       toast.error('Erreur de lecture', {
@@ -123,14 +124,14 @@ export function AudioPlayer({
         onPlayStateChange?.(true)
         
         // Analytics
-        console.log('🎵 Song started:', song.title)
+        logger.debug('🎵 Song started:', song.title)
         toast.success('Lecture en cours', {
           description: song.title,
           duration: 2000
         })
       }
     } catch (error) {
-      console.error('❌ Play error:', error)
+      logger.error('❌ Play error:', error)
       setIsLoading(false)
       toast.error('Erreur de lecture', {
         description: 'Vérifiez votre connexion internet'

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -172,7 +173,7 @@ export const ClientRateLimiter = () => {
       
       alert(`Rate limit atteint pour ${endpoint}! Réessayez dans ${retryAfter} secondes.`);
     } else {
-      console.log(`✅ Requête ${endpoint} autorisée`);
+      logger.debug(`✅ Requête ${endpoint} autorisée`);
     }
   };
 

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -111,7 +112,7 @@ const CompleteFormExample = () => {
         throw new Error('Cette adresse email n\'est pas autorisée');
       }
 
-      console.log('Données validées:', data);
+      logger.debug('Données validées:', data);
 
       setSubmitSuccess(true);
       

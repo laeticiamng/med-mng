@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -57,7 +58,7 @@ export const useTemplateFavorites = () => {
       toast.success('Template ajouté aux favoris');
     },
     onError: (error: any) => {
-      console.error('Error adding favorite:', error);
+      logger.error('Error adding favorite:', error);
       toast.error(error.message || 'Erreur lors de l\'ajout aux favoris');
     },
   });
@@ -81,7 +82,7 @@ export const useTemplateFavorites = () => {
       toast.success('Template retiré des favoris');
     },
     onError: (error: any) => {
-      console.error('Error removing favorite:', error);
+      logger.error('Error removing favorite:', error);
       toast.error(error.message || 'Erreur lors de la suppression');
     },
   });

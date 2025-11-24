@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,7 +77,7 @@ const MedMngProfileComponent = () => {
           joinDate: profile?.created_at,
         };
       } catch (err) {
-        console.error('Error fetching stats:', err);
+        logger.error('Error fetching stats:', err);
         return {
           totalSongs: 0,
           creditsUsed: 0,

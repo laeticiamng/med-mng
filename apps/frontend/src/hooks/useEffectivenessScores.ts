@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -44,7 +45,7 @@ export function useEffectivenessScores() {
 
       setScores(scoresMap);
     } catch (err: any) {
-      console.error('Error loading effectiveness scores:', err);
+      logger.error('Error loading effectiveness scores:', err);
       setError(err.message);
     } finally {
       setLoading(false);

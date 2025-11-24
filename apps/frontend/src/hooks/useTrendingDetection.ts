@@ -2,6 +2,7 @@
  * Hook pour détecter les tendances et créer des notifications
  */
 
+import logger from '@/lib/logger';
 import { useEffect, useRef } from 'react';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { getTopViewedItems, getPopularSearches } from '@/lib/indexedDB';
@@ -67,7 +68,7 @@ export function useTrendingDetection(config: TrendingConfig = {}) {
         lastCheckRef.current.views = lastCheckRef.current.views.slice(-20);
         lastCheckRef.current.searches = lastCheckRef.current.searches.slice(-20);
       } catch (error) {
-        console.error('[Trending Detection] Error checking trends:', error);
+        logger.error('[Trending Detection] Error checking trends:', error);
       }
     };
     

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { useFetchModerationQueue, useReviewModerationItem } from '@/hooks/useAdmin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,7 +33,7 @@ export default function ModerationQueue() {
       setReviewAction(null)
     } catch (error) {
       toast.error('Failed to review item')
-      console.error(error)
+      logger.error(error)
     }
   }
 

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Package, Check } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function ProductDetail() {
         setSelectedVariantId(data.node.variants.edges[0]?.node.id || '');
       }
     } catch (error) {
-      console.error('Error loading product:', error);
+      logger.error('Error loading product:', error);
       toast.error('Erreur lors du chargement du produit');
     } finally {
       setLoading(false);

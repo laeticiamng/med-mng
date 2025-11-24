@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,7 +50,7 @@ export const ComparisonExport: React.FC<ComparisonExportProps> = ({
     } catch (error) {
       toast.dismiss();
       toast.error('Erreur lors de la génération du PDF');
-      console.error('PDF export error:', error);
+      logger.error('PDF export error:', error);
     }
   };
 
@@ -59,7 +60,7 @@ export const ComparisonExport: React.FC<ComparisonExportProps> = ({
       toast.success('Rapport Excel téléchargé avec succès');
     } catch (error) {
       toast.error('Erreur lors de la génération du fichier Excel');
-      console.error('Excel export error:', error);
+      logger.error('Excel export error:', error);
     }
   };
 
@@ -69,7 +70,7 @@ export const ComparisonExport: React.FC<ComparisonExportProps> = ({
       toast.success('Rapport CSV téléchargé avec succès');
     } catch (error) {
       toast.error('Erreur lors de la génération du CSV');
-      console.error('CSV export error:', error);
+      logger.error('CSV export error:', error);
     }
   };
 

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, TrendingUp, Users, Activity, 
@@ -151,7 +152,7 @@ export const AdminAnalytics = () => {
       });
 
     } catch (error) {
-      console.error('Erreur chargement analytics:', error);
+      logger.error('Erreur chargement analytics:', error);
       toast.error('Erreur lors du chargement des analytics');
     } finally {
       setLoading(false);
@@ -182,7 +183,7 @@ export const AdminAnalytics = () => {
       window.URL.revokeObjectURL(url);
       toast.success('Rapport exporté avec succès');
     } catch (error) {
-      console.error('Erreur export:', error);
+      logger.error('Erreur export:', error);
       toast.error('Erreur lors de l\'export');
     }
   };

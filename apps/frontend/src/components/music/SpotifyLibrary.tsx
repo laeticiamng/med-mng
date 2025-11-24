@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -79,7 +80,7 @@ export function SpotifyLibrary() {
         description: `${libraryData.length} chansons dans votre bibliothèque`
       })
     } catch (error) {
-      console.error('❌ Error fetching user data:', error)
+      logger.error('❌ Error fetching user data:', error)
       toast.error('Erreur de chargement', {
         description: 'Impossible de charger votre bibliothèque'
       })

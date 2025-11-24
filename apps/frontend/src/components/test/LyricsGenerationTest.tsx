@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -18,11 +19,11 @@ export const LyricsGenerationTest = () => {
     setLyrics(null);
 
     try {
-      console.log(`🎵 Génération paroles pour ${itemCode} Rang ${selectedRang}`);
+      logger.debug(`🎵 Génération paroles pour ${itemCode} Rang ${selectedRang}`);
       const generatedLyrics = await previewLyricsForItem(itemCode, selectedRang);
       setLyrics(generatedLyrics);
     } catch (err) {
-      console.error('Erreur génération:', err);
+      logger.error('Erreur génération:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
       setLoading(false);

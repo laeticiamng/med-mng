@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +69,7 @@ export const LearningAnalytics: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des analytics:', error);
+      logger.error('Erreur lors du chargement des analytics:', error);
     } finally {
       setLoading(false);
     }

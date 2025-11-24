@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -186,7 +187,7 @@ export const useListeningModes = () => {
 
       return timer;
     } catch (error) {
-      console.error('Erreur démarrage mode:', error);
+      logger.error('Erreur démarrage mode:', error);
       toast({
         title: "Erreur",
         description: "Impossible de démarrer le mode d'écoute.",
@@ -224,7 +225,7 @@ export const useListeningModes = () => {
       setTimeRemaining(0);
       setIsSessionActive(false);
     } catch (error) {
-      console.error('Erreur fin de session:', error);
+      logger.error('Erreur fin de session:', error);
     }
   }, [activeMode, sessionStartTime, toast]);
 
@@ -257,7 +258,7 @@ export const useListeningModes = () => {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Erreur playlist recommandée:', error);
+      logger.error('Erreur playlist recommandée:', error);
       return null;
     }
   }, []);

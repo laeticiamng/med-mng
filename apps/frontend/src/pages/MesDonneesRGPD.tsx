@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,7 +69,7 @@ const MesDonneesRGPD = () => {
       });
 
     } catch (error: any) {
-      console.error('Erreur export:', error);
+      logger.error('Erreur export:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible d'exporter les données",
@@ -123,7 +124,7 @@ const MesDonneesRGPD = () => {
       window.location.href = '/';
 
     } catch (error: any) {
-      console.error('Erreur suppression:', error);
+      logger.error('Erreur suppression:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de supprimer le compte",
@@ -160,7 +161,7 @@ const MesDonneesRGPD = () => {
       setDataStatus(data);
 
     } catch (error: any) {
-      console.error('Erreur statut:', error);
+      logger.error('Erreur statut:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de vérifier le statut",

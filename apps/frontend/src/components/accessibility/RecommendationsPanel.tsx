@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
@@ -108,7 +109,7 @@ export function RecommendationsPanel() {
       setSelectedRec(null);
       setNotes('');
     } catch (error) {
-      console.error('Error applying recommendation:', error);
+      logger.error('Error applying recommendation:', error);
     }
   };
 
@@ -181,7 +182,7 @@ export function RecommendationsPanel() {
         toast.success('Recommandations générées avec succès');
       }
     } catch (error: any) {
-      console.error('Error loading recommendations:', error);
+      logger.error('Error loading recommendations:', error);
       setError(error.message || 'Erreur lors de la génération des recommandations');
       toast.error(error.message || 'Erreur lors de la génération');
     } finally {

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -169,7 +170,7 @@ export function SystemAlertManager() {
       });
 
     } catch (error) {
-      console.error('Erreur fetch alerts:', error);
+      logger.error('Erreur fetch alerts:', error);
       toast.error('Erreur lors du chargement des alertes');
     } finally {
       setLoading(false);
@@ -231,7 +232,7 @@ export function SystemAlertManager() {
       oscillator.start();
       oscillator.stop(oscillator.currentTime + 0.3);
     } catch (err) {
-      console.log('Sound notification not available');
+      logger.debug('Sound notification not available');
     }
   };
 

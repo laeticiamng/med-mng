@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,7 +54,7 @@ export const useTemplateNotifications = () => {
       queryClient.invalidateQueries({ queryKey: ['template-notifications'] });
     },
     onError: (error: any) => {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read:', error);
     },
   });
 
@@ -76,7 +77,7 @@ export const useTemplateNotifications = () => {
       toast.success('Toutes les notifications ont été marquées comme lues');
     },
     onError: (error: any) => {
-      console.error('Error marking all as read:', error);
+      logger.error('Error marking all as read:', error);
       toast.error('Erreur lors de la mise à jour');
     },
   });
@@ -96,7 +97,7 @@ export const useTemplateNotifications = () => {
       toast.success('Notification supprimée');
     },
     onError: (error: any) => {
-      console.error('Error deleting notification:', error);
+      logger.error('Error deleting notification:', error);
       toast.error('Erreur lors de la suppression');
     },
   });
@@ -118,7 +119,7 @@ export const useTemplateNotifications = () => {
             filter: `recipient_user_id=eq.${user.id}`,
           },
           (payload) => {
-            console.log('New notification received:', payload);
+            logger.debug('New notification received:', payload);
             
             // Invalidate queries to fetch new data
             queryClient.invalidateQueries({ queryKey: ['template-notifications'] });

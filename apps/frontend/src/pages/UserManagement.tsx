@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Navigate } from 'react-router-dom'
@@ -44,7 +45,7 @@ export default function UserManagement() {
       setShowGroupDialog(false)
     } catch (error) {
       toast.error('Failed to create group')
-      console.error(error)
+      logger.error(error)
     }
   }
 

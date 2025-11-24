@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,7 +102,7 @@ export function NotificationPredictions() {
         setAverageDaily(Math.round(avg));
       }
     } catch (error) {
-      console.error('Error loading predictions:', error);
+      logger.error('Error loading predictions:', error);
     } finally {
       setLoading(false);
     }

@@ -27,6 +27,17 @@ export default {
 			'2xl': '1400px'
 		},
 		extend: {
+			zIndex: {
+				'dropdown': '1000',
+				'sticky': '1020',
+				'fixed': '1030',
+				'modal-backdrop': '1040',
+				'modal': '1050',
+				'popover': '1060',
+				'tooltip': '1070',
+				'notification': '1080',
+				'max': '9999',
+			},
 			fontFamily: {
 				sans: ['SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
 				mono: ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],

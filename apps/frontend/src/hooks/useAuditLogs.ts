@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -78,7 +79,7 @@ export const useLogAuditEvent = () => {
     } as any);
 
     if (error) {
-      console.error('Failed to log audit event:', error);
+      logger.error('Failed to log audit event:', error);
     }
   };
 

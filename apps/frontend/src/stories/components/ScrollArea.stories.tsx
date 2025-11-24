@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import type { Meta, StoryObj } from '@storybook/react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -138,7 +139,7 @@ export default function Example() {
 
 // Plus de code...
 const data = [1, 2, 3, 4, 5];
-data.map(item => console.log(item));
+data.map(item => logger.debug(item));
 
 // Encore plus de lignes
 function calculateTotal(items) {

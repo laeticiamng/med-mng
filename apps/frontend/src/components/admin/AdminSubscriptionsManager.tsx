@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, TrendingUp, DollarSign, Users, Calendar,
@@ -124,7 +125,7 @@ export const AdminSubscriptionsManager = () => {
       });
 
     } catch (error) {
-      console.error('Erreur chargement abonnements:', error);
+      logger.error('Erreur chargement abonnements:', error);
       toast.error('Erreur lors du chargement des abonnements');
     } finally {
       setLoading(false);
@@ -140,7 +141,7 @@ export const AdminSubscriptionsManager = () => {
       // Refresh des données
       fetchSubscriptions();
     } catch (error) {
-      console.error('Erreur action abonnement:', error);
+      logger.error('Erreur action abonnement:', error);
       toast.error('Erreur lors de l\'exécution de l\'action');
     }
   };

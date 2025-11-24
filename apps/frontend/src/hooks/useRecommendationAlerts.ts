@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -72,7 +73,7 @@ export function useRecommendationAlerts() {
       if (fetchError) throw fetchError;
       setAlerts(data || []);
     } catch (err: any) {
-      console.error('Error loading alerts:', err);
+      logger.error('Error loading alerts:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -120,7 +121,7 @@ export function useRecommendationAlerts() {
 
       if (insertError) throw insertError;
     } catch (err: any) {
-      console.error('Error tracking recommendation:', err);
+      logger.error('Error tracking recommendation:', err);
     }
   };
 
@@ -139,7 +140,7 @@ export function useRecommendationAlerts() {
       toast.success('Alerte ignorée');
       await loadAlerts();
     } catch (err: any) {
-      console.error('Error dismissing alert:', err);
+      logger.error('Error dismissing alert:', err);
       toast.error('Erreur lors de l\'ignorage de l\'alerte');
     }
   };

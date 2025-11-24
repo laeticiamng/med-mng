@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import logger from '@/lib/logger';
 
 // Types pour l'internationalisation
 export type Language = 'fr' | 'en' | 'es' | 'de' | 'it';
@@ -671,7 +672,7 @@ export const InternationalizationProvider: React.FC<InternationalizationProvider
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key} for language: ${language}`);
+        logger.warn(`Translation key not found: ${key} for language: ${language}`);
         return key; // Retourne la clé si la traduction n'existe pas
       }
     }

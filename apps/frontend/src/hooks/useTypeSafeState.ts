@@ -3,6 +3,7 @@
  * Remplacement des hooks avec 'any' par des versions type-safe
  */
 
+import logger from '@/lib/logger';
 import { useState, useCallback, useReducer, useRef, useEffect } from 'react';
 import type { 
   FormState, 
@@ -314,7 +315,7 @@ export function useTypeSafeLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : defaultValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      logger.warn(`Error reading localStorage key "${key}":`, error);
       return defaultValue;
     }
   });
@@ -328,7 +329,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.setItem(key, serialize(valueToStore));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
+      logger.warn(`Error setting localStorage key "${key}":`, error);
     }
   }, [key, serialize, storedValue]);
 
@@ -339,7 +340,7 @@ export function useTypeSafeLocalStorage<T>(
         window.localStorage.removeItem(key);
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      logger.warn(`Error removing localStorage key "${key}":`, error);
     }
   }, [key, defaultValue]);
 

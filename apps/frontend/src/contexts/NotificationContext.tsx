@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -268,7 +269,7 @@ export const useQuotaMonitoring = () => {
         // const { data } = await supabase.from('subscriptions').select('credits_left, plan');
         // notifyQuota(data.credits_left, getPlanCredits(data.plan));
       } catch (error) {
-        console.error('Error checking quota:', error);
+        logger.error('Error checking quota:', error);
       }
     };
 

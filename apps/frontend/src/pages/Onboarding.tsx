@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -194,7 +195,7 @@ export const Onboarding: React.FC = () => {
 
         navigate('/dashboard');
       } catch (error) {
-        console.error('Error updating onboarding status:', error);
+        logger.error('Error updating onboarding status:', error);
         navigate('/dashboard');
       }
     } else {

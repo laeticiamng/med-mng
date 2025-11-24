@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,7 +90,7 @@ Grâce à mes erreurs... quelle surprise !`;
 
     try {
       const lyrics = generateLyricsFromErrors();
-      console.log('🎵 Génération chanson d\'erreurs:', { lyrics, style: selectedStyle });
+      logger.debug('🎵 Génération chanson d\'erreurs:', { lyrics, style: selectedStyle });
       
       await generateMusic({
         item_code: itemCode,
@@ -105,7 +106,7 @@ Grâce à mes erreurs... quelle surprise !`;
       });
       
     } catch (error) {
-      console.error('❌ Erreur génération chanson erreurs:', error);
+      logger.error('❌ Erreur génération chanson erreurs:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer la chanson d'erreurs",

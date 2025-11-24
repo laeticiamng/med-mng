@@ -8,6 +8,7 @@
  * - Coûts et performances
  */
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -80,7 +81,7 @@ export const MusicDashboard: React.FC = () => {
         generation: generationStats
       });
     } catch (error) {
-      console.error('❌ Erreur chargement stats:', error);
+      logger.error('❌ Erreur chargement stats:', error);
     } finally {
       setLoading(false);
     }

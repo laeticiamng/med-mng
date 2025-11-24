@@ -8,6 +8,7 @@
  * - Gestion d'erreurs robuste
  */
 
+import logger from '@/lib/logger';
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MusicGenerationRequest, PollingProgress } from '@shared/types/music';
@@ -75,7 +76,7 @@ export const useMusicPollingEnhanced = () => {
     onSuccess,
     onError
   }: PollingConfig) => {
-    console.log('🚀 Démarrage polling amélioré avec backoff exponentiel');
+    logger.debug('🚀 Démarrage polling amélioré avec backoff exponentiel');
 
     // Configuration
     const maxAttempts = 40; // Augmenté pour supporter le backoff
@@ -103,7 +104,7 @@ export const useMusicPollingEnhanced = () => {
         // Vérifier timeout global
         const elapsed = Date.now() - startTime;
         if (elapsed > timeout) {
-          console.log('⏰ Timeout global atteint');
+          logger.debug('⏰ Timeout global atteint');
           stopPolling();
           onError(new Error(`Timeout: La génération prend trop de temps (${Math.round(timeout / 1000)}s)`));
           return;
@@ -113,7 +114,7 @@ export const useMusicPollingEnhanced = () => {
         const progressPercentage = Math.min(Math.round((elapsed / timeout) * 95), 98);
         const remainingTime = Math.max(Math.round((timeout - elapsed) / 60000), 0);
 
-        console.log(`🔄 Polling ${pollCount}/${maxAttempts} - Progress: ${progressPercentage}% - Remaining: ${remainingTime}min`);
+        logger.debug(`🔄 Polling ${pollCount}/${maxAttempts} - Progress: ${progressPercentage}% - Remaining: ${remainingTime}min`);
 
         onProgress(rang, {
           progress: progressPercentage,
@@ -129,7 +130,7 @@ export const useMusicPollingEnhanced = () => {
 
         if (pollError) {
           consecutiveErrors++;
-          console.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
+          logger.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
 
           setPollingState(prev => ({
             ...prev,
@@ -151,11 +152,11 @@ export const useMusicPollingEnhanced = () => {
 
         // Reset erreurs si succès
         consecutiveErrors = 0;
-        console.log(`📥 Réponse polling ${pollCount}:`, pollData);
+        logger.debug(`📥 Réponse polling ${pollCount}:`, pollData);
 
         // Vérifier si terminé avec succès
         if (pollData?.status === 'success' && pollData?.audioUrl) {
-          console.log('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
+          logger.debug('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
           stopPolling();
 
           // Progress à 100%
@@ -193,7 +194,7 @@ export const useMusicPollingEnhanced = () => {
 
       } catch (error) {
         consecutiveErrors++;
-        console.error(`❌ Erreur critique polling ${pollCount}:`, error);
+        logger.error(`❌ Erreur critique polling ${pollCount}:`, error);
 
         if (consecutiveErrors >= maxConsecutiveErrors || pollCount >= maxAttempts) {
           stopPolling();
@@ -206,7 +207,7 @@ export const useMusicPollingEnhanced = () => {
 
     const scheduleNextPoll = (currentAttempt: number) => {
       const nextInterval = calculateBackoffInterval(currentAttempt);
-      console.log(`⏳ Prochain polling dans ${Math.round(nextInterval / 1000)}s`);
+      logger.debug(`⏳ Prochain polling dans ${Math.round(nextInterval / 1000)}s`);
 
       pollingIntervalRef.current = setTimeout(pollOnce, nextInterval);
     };
@@ -240,7 +241,7 @@ export const useMusicPollingEnhanced = () => {
    * Annuler le polling en cours
    */
   const cancelPolling = useCallback(() => {
-    console.log('🛑 Annulation polling');
+    logger.debug('🛑 Annulation polling');
 
     if (pollingIntervalRef.current) {
       clearTimeout(pollingIntervalRef.current);

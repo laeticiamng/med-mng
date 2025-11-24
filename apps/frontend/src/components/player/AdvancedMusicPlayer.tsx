@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -146,7 +147,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
       analyzerRef.current = analyzer;
       drawVisualizer();
     } catch (error) {
-      console.error('Erreur initialisation visualiseur:', error);
+      logger.error('Erreur initialisation visualiseur:', error);
     }
   };
 
@@ -199,7 +200,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
       audio.pause();
     } else {
       audio.play().catch(error => {
-        console.error('Erreur lecture:', error);
+        logger.error('Erreur lecture:', error);
         toast({
           title: "Erreur",
           description: "Impossible de lire le fichier audio",

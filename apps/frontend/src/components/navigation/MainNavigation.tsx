@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import logger from '@/lib/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +30,7 @@ export const MainNavigation: React.FC = () => {
       await signOut();
       navigate('/');
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      logger.error('Erreur lors de la déconnexion:', error);
     }
   };
 

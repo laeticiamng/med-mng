@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -105,7 +106,7 @@ export const useUserGoals = (filters?: {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching goals:', error);
+        logger.error('Error fetching goals:', error);
         throw error;
       }
 
@@ -150,7 +151,7 @@ export const useGoalStats = () => {
       });
 
       if (error) {
-        console.error('Error fetching goal stats:', error);
+        logger.error('Error fetching goal stats:', error);
         throw error;
       }
 
@@ -200,7 +201,7 @@ export const useGoalsByCategory = () => {
       });
 
       if (error) {
-        console.error('Error fetching goals by category:', error);
+        logger.error('Error fetching goals by category:', error);
         throw error;
       }
 
@@ -234,7 +235,7 @@ export const useGoalMilestones = (goalId: string) => {
         .order('order_index', { ascending: true });
 
       if (error) {
-        console.error('Error fetching milestones:', error);
+        logger.error('Error fetching milestones:', error);
         throw error;
       }
 
@@ -264,7 +265,7 @@ export const useGoalAchievements = (limit: number = 20) => {
         .limit(limit);
 
       if (error) {
-        console.error('Error fetching achievements:', error);
+        logger.error('Error fetching achievements:', error);
         throw error;
       }
 
@@ -308,7 +309,7 @@ export const useCreateGoal = () => {
       });
     },
     onError: (error) => {
-      console.error('Error creating goal:', error);
+      logger.error('Error creating goal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer l\'objectif',
@@ -351,7 +352,7 @@ export const useUpdateGoalProgress = () => {
       }
     },
     onError: (error) => {
-      console.error('Error updating goal progress:', error);
+      logger.error('Error updating goal progress:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la progression',
@@ -393,7 +394,7 @@ export const useUpdateGoal = () => {
       });
     },
     onError: (error) => {
-      console.error('Error updating goal:', error);
+      logger.error('Error updating goal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour l\'objectif',
@@ -432,7 +433,7 @@ export const useDeleteGoal = () => {
       });
     },
     onError: (error) => {
-      console.error('Error deleting goal:', error);
+      logger.error('Error deleting goal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer l\'objectif',
@@ -474,7 +475,7 @@ export const useCreateMilestone = () => {
       });
     },
     onError: (error) => {
-      console.error('Error creating milestone:', error);
+      logger.error('Error creating milestone:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer l\'étape',
@@ -518,7 +519,7 @@ export const useCompleteMilestone = () => {
       });
     },
     onError: (error) => {
-      console.error('Error completing milestone:', error);
+      logger.error('Error completing milestone:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de compléter l\'étape',

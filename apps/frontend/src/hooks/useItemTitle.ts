@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,13 +21,13 @@ export const useItemTitle = (itemCode: string | undefined) => {
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching item title:', error);
+          logger.error('Error fetching item title:', error);
           setTitle(null);
         } else {
           setTitle(data?.title || null);
         }
       } catch (err) {
-        console.error('Error:', err);
+        logger.error('Error:', err);
         setTitle(null);
       } finally {
         setLoading(false);

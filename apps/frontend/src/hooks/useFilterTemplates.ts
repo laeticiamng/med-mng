@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -65,7 +66,7 @@ export const useFilterTemplates = () => {
       toast.success('Template de filtre créé avec succès');
     },
     onError: (error: any) => {
-      console.error('Error creating template:', error);
+      logger.error('Error creating template:', error);
       toast.error(error.message || 'Erreur lors de la création du template');
     },
   });
@@ -94,7 +95,7 @@ export const useFilterTemplates = () => {
       toast.success('Template mis à jour avec succès');
     },
     onError: (error: any) => {
-      console.error('Error updating template:', error);
+      logger.error('Error updating template:', error);
       toast.error(error.message || 'Erreur lors de la mise à jour');
     },
   });
@@ -114,7 +115,7 @@ export const useFilterTemplates = () => {
       toast.success('Template supprimé avec succès');
     },
     onError: (error: any) => {
-      console.error('Error deleting template:', error);
+      logger.error('Error deleting template:', error);
       toast.error(error.message || 'Erreur lors de la suppression');
     },
   });
@@ -158,7 +159,7 @@ export const useFilterTemplates = () => {
       toast.success('Template partagé avec succès');
     },
     onError: (error: any) => {
-      console.error('Error sharing template:', error);
+      logger.error('Error sharing template:', error);
       toast.error(error.message || 'Erreur lors du partage');
     },
   });
@@ -206,7 +207,7 @@ export const useFilterTemplates = () => {
       toast.success('Template dupliqué avec succès');
     },
     onError: (error: any) => {
-      console.error('Error duplicating template:', error);
+      logger.error('Error duplicating template:', error);
       toast.error(error.message || 'Erreur lors de la duplication');
     },
   });

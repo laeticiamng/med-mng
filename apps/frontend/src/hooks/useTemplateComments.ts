@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -61,7 +62,7 @@ export const useTemplateComments = (templateId: string) => {
       toast.success('Commentaire ajouté avec succès');
     },
     onError: (error: any) => {
-      console.error('Error adding comment:', error);
+      logger.error('Error adding comment:', error);
       toast.error(error.message || 'Erreur lors de l\'ajout du commentaire');
     },
   });
@@ -95,7 +96,7 @@ export const useTemplateComments = (templateId: string) => {
       toast.success('Commentaire mis à jour');
     },
     onError: (error: any) => {
-      console.error('Error updating comment:', error);
+      logger.error('Error updating comment:', error);
       toast.error(error.message || 'Erreur lors de la mise à jour');
     },
   });
@@ -115,7 +116,7 @@ export const useTemplateComments = (templateId: string) => {
       toast.success('Commentaire supprimé');
     },
     onError: (error: any) => {
-      console.error('Error deleting comment:', error);
+      logger.error('Error deleting comment:', error);
       toast.error(error.message || 'Erreur lors de la suppression');
     },
   });

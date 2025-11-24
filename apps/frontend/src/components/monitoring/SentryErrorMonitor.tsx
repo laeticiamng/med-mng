@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +41,7 @@ export const SentryErrorMonitor = () => {
       setLastCheck(new Date());
     } catch (error) {
       setIsConnected(false);
-      console.warn('Sentry non connecté:', error);
+      logger.warn('Sentry non connecté:', error);
     }
   };
 
@@ -103,7 +104,7 @@ export const SentryErrorMonitor = () => {
       Sentry.captureMessage('Test de connexion Sentry depuis le monitoring', 'info');
       checkSentryConnection();
     } catch (error) {
-      console.error('Erreur test Sentry:', error);
+      logger.error('Erreur test Sentry:', error);
     }
   };
 

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +36,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
   };
 
   const testAudioPlayback = async () => {
-    console.log('🧪 Test de lecture audio démarré');
+    logger.debug('🧪 Test de lecture audio démarré');
     const results: any = {
       canCreateAudio: false,
       canLoadUrl: false,
@@ -49,7 +50,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       // Test 1: Création d'objet Audio
       const testAudio = new Audio();
       results.canCreateAudio = true;
-      console.log('✅ Audio object créé');
+      logger.debug('✅ Audio object créé');
 
       // Test 2: Chargement URL
       testAudio.src = testAudioUrl;
@@ -58,7 +59,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
         
         testAudio.addEventListener('loadstart', () => {
           results.canLoadUrl = true;
-          console.log('✅ Chargement URL démarré');
+          logger.debug('✅ Chargement URL démarré');
         });
 
         testAudio.addEventListener('canplay', () => {
@@ -78,10 +79,10 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       try {
         await testAudio.play();
         results.canPlay = true;
-        console.log('✅ Lecture réussie');
+        logger.debug('✅ Lecture réussie');
         testAudio.pause();
       } catch (playError: any) {
-        console.warn('⚠️ Erreur de lecture:', playError);
+        logger.warn('⚠️ Erreur de lecture:', playError);
         if (playError.name === 'NotAllowedError') {
           results.autoplayBlocked = true;
         }
@@ -89,7 +90,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
       }
 
     } catch (error: any) {
-      console.error('❌ Erreur test audio:', error);
+      logger.error('❌ Erreur test audio:', error);
       results.error = error.message;
       
       if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
@@ -103,7 +104,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
 
   const testCurrentTrack = () => {
     if (currentTrack) {
-      console.log('🧪 Test de la piste actuelle:', currentTrack);
+      logger.debug('🧪 Test de la piste actuelle:', currentTrack);
       
       if (isPlaying) {
         pause();

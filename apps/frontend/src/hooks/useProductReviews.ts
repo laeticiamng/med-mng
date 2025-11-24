@@ -3,6 +3,7 @@
  * Manages product reviews and ratings
  */
 
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -122,7 +123,7 @@ export const useProductReviews = (
         setUserReview(userReviewData || null);
       }
     } catch (err: any) {
-      console.error('Error fetching reviews:', err);
+      logger.error('Error fetching reviews:', err);
       setError(err.message || 'Failed to fetch reviews');
     } finally {
       setLoading(false);
@@ -172,7 +173,7 @@ export const useProductReviews = (
         await fetchReviews();
         return true;
       } catch (err: any) {
-        console.error('Error creating review:', err);
+        logger.error('Error creating review:', err);
         toast({
           title: 'Erreur',
           description: 'Impossible de publier l\'avis',
@@ -203,7 +204,7 @@ export const useProductReviews = (
         await fetchReviews();
         return true;
       } catch (err: any) {
-        console.error('Error updating review:', err);
+        logger.error('Error updating review:', err);
         toast({
           title: 'Erreur',
           description: 'Impossible de modifier l\'avis',
@@ -234,7 +235,7 @@ export const useProductReviews = (
         await fetchReviews();
         return true;
       } catch (err: any) {
-        console.error('Error deleting review:', err);
+        logger.error('Error deleting review:', err);
         toast({
           title: 'Erreur',
           description: 'Impossible de supprimer l\'avis',
@@ -277,7 +278,7 @@ export const useProductReviews = (
         await fetchReviews();
         return true;
       } catch (err: any) {
-        console.error('Error voting review:', err);
+        logger.error('Error voting review:', err);
         toast({
           title: 'Erreur',
           description: 'Impossible d\'enregistrer le vote',

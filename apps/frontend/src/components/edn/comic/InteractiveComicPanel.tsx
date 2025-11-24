@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,7 +45,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
         description: "L'illustration de la vignette a été créée avec succès.",
       });
     } catch (error) {
-      console.error('Erreur génération image:', error);
+      logger.error('Erreur génération image:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer l'image. Veuillez réessayer.",

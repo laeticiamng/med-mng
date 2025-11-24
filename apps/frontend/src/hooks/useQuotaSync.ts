@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -64,7 +65,7 @@ export function useQuotaSync() {
       setQuota(newQuota);
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Quota fetch failed:', error);
+      logger.error('Quota fetch failed:', error);
       toast({
         title: "Erreur quota",
         description: "Impossible de récupérer les informations de quota",

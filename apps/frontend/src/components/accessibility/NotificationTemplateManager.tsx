@@ -18,6 +18,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
+import logger from '@/lib/logger';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,7 +108,7 @@ export function NotificationTemplateManager() {
       
       setTemplates(typedData);
     } catch (error) {
-      console.error('Error loading templates:', error);
+      logger.error('Error loading templates:', error);
       toast.error('Erreur lors du chargement des templates');
     } finally {
       setLoading(false);
@@ -165,7 +166,7 @@ export function NotificationTemplateManager() {
       resetForm();
       loadTemplates();
     } catch (error: any) {
-      console.error('Error saving template:', error);
+      logger.error('Error saving template:', error);
       toast.error('Erreur lors de l\'enregistrement');
     }
   };
@@ -186,7 +187,7 @@ export function NotificationTemplateManager() {
       setTemplateToDelete(null);
       loadTemplates();
     } catch (error) {
-      console.error('Error deleting template:', error);
+      logger.error('Error deleting template:', error);
       toast.error('Erreur lors de la suppression');
     }
   };

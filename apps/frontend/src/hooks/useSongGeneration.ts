@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
@@ -28,7 +29,7 @@ export const useSongGeneration = () => {
 
     setIsGenerating(true);
     try {
-      console.log('🎵 Lancement génération musique via Supabase Functions...');
+      logger.debug('🎵 Lancement génération musique via Supabase Functions...');
       
       // Utiliser Supabase Functions pour la génération musicale
       const { data, error } = await supabase.functions.invoke('generate-music', {
@@ -47,7 +48,7 @@ export const useSongGeneration = () => {
       });
 
       if (error) {
-        console.error('❌ Erreur Supabase Functions:', error);
+        logger.error('❌ Erreur Supabase Functions:', error);
         
         // Gestion d'erreurs spécifiques
         if (error.message?.includes('503') || error.message?.includes('Service Temporarily Unavailable')) {
@@ -65,7 +66,7 @@ export const useSongGeneration = () => {
         throw new Error(data?.error || 'Aucune donnée reçue du service de génération');
       }
 
-      console.log('✅ Génération réussie:', data);
+      logger.debug('✅ Génération réussie:', data);
       
       // Créer la chanson en base
       const song = await medMngApi.createSong(title, data.audioUrl || 'temp-audio-url', {
@@ -88,7 +89,7 @@ export const useSongGeneration = () => {
 
       toast.success('🎵 Chanson générée avec succès !');
     } catch (error) {
-      console.error('❌ Erreur génération:', error);
+      logger.error('❌ Erreur génération:', error);
       let errorMessage = 'Erreur lors de la génération musicale';
       
       if (error.message) {

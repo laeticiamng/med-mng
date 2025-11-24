@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import logger from '@/lib/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -231,7 +232,7 @@ export const GoalDetail: React.FC = () => {
       });
       setIsEditDialogOpen(false);
     } catch (error: any) {
-      console.error('Error updating goal:', error);
+      logger.error('Error updating goal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de modifier l\'objectif. Veuillez réessayer.',
@@ -249,7 +250,7 @@ export const GoalDetail: React.FC = () => {
       });
       navigate('/goals');
     } catch (error: any) {
-      console.error('Error deleting goal:', error);
+      logger.error('Error deleting goal:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer l\'objectif. Veuillez réessayer.',
@@ -276,7 +277,7 @@ export const GoalDetail: React.FC = () => {
         description: statusMessages[newStatus] || 'Le statut a été modifié',
       });
     } catch (error: any) {
-      console.error('Error changing goal status:', error);
+      logger.error('Error changing goal status:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de modifier le statut. Veuillez réessayer.',
@@ -307,7 +308,7 @@ export const GoalDetail: React.FC = () => {
       setIsProgressDialogOpen(false);
       setProgressIncrement(0);
     } catch (error: any) {
-      console.error('Error updating progress:', error);
+      logger.error('Error updating progress:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la progression. Veuillez réessayer.',
@@ -343,7 +344,7 @@ export const GoalDetail: React.FC = () => {
       setMilestoneDescription('');
       setMilestoneTarget(0);
     } catch (error: any) {
-      console.error('Error creating milestone:', error);
+      logger.error('Error creating milestone:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer l\'étape. Veuillez réessayer.',
@@ -586,7 +587,7 @@ export const GoalDetail: React.FC = () => {
                                     description: `"${milestone.title}" a été marquée comme complétée`,
                                   });
                                 } catch (error: any) {
-                                  console.error('Error completing milestone:', error);
+                                  logger.error('Error completing milestone:', error);
                                   toast({
                                     title: 'Erreur',
                                     description: 'Impossible de marquer l\'étape comme complétée',

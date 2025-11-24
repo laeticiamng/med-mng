@@ -3,6 +3,7 @@
  * Fournit cache intelligent, refetch automatique et optimistic updates
  */
 
+import logger from '@/lib/logger';
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryClient';
@@ -17,7 +18,7 @@ async function fetchUnifiedItems(page: number): Promise<{ items: EdnItemUnified[
   const from = page * ITEMS_PER_PAGE;
   const to = from + ITEMS_PER_PAGE - 1;
   
-  console.log('[React Query] Fetching unified items, page:', page);
+  logger.debug('[React Query] Fetching unified items, page:', page);
   
   // Cast nécessaire car les types générés ne connaissent pas encore la vue matérialisée
   const { data, error, count } = await supabase
@@ -26,11 +27,11 @@ async function fetchUnifiedItems(page: number): Promise<{ items: EdnItemUnified[
     .range(from, to);
   
   if (error) {
-    console.error('[React Query] Error fetching unified items:', error);
+    logger.error('[React Query] Error fetching unified items:', error);
     throw new Error(`Erreur lors du chargement des items: ${error.message}`);
   }
   
-  console.log('[React Query] Fetched', data?.length, 'items (total:', count, ')');
+  logger.debug('[React Query] Fetched', data?.length, 'items (total:', count, ')');
   
   return {
     items: (data || []) as unknown as EdnItemUnified[],
@@ -73,7 +74,7 @@ export function useFullEdnItem(itemCode: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.ednItems.fullItem(itemCode),
     queryFn: async (): Promise<EdnItem> => {
-      console.log('[React Query] Fetching full item:', itemCode);
+      logger.debug('[React Query] Fetching full item:', itemCode);
       
       const { data, error } = await supabase
         .from('edn_items_immersive')
@@ -82,7 +83,7 @@ export function useFullEdnItem(itemCode: string, enabled = true) {
         .single();
       
       if (error) {
-        console.error('[React Query] Error fetching full item:', error);
+        logger.error('[React Query] Error fetching full item:', error);
         throw new Error(`Erreur lors du chargement de l'item: ${error.message}`);
       }
       
@@ -102,7 +103,7 @@ export function useRefreshEdnView() {
   
   return useMutation({
     mutationFn: async () => {
-      console.log('[React Query] Refreshing materialized view...');
+      logger.debug('[React Query] Refreshing materialized view...');
       
       // Cast nécessaire car la fonction n'est pas dans les types générés
       const { error } = await (supabase as any).rpc('refresh_edn_items_unified');
@@ -116,7 +117,7 @@ export function useRefreshEdnView() {
     onSuccess: () => {
       // Invalider toutes les queries d'items EDN pour forcer un refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.ednItems.all });
-      console.log('[React Query] Materialized view refreshed, cache invalidated');
+      logger.debug('[React Query] Materialized view refreshed, cache invalidated');
     },
   });
 }

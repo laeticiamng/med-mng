@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         });
       }
     } catch (error) {
-      console.error('Erreur initialisation stream:', error);
+      logger.error('Erreur initialisation stream:', error);
       toast.error('Erreur d\'initialisation du streaming sécurisé');
     }
   };

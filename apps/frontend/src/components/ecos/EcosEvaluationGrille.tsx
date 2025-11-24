@@ -9,6 +9,7 @@
  * - Provide feedback
  */
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -109,7 +110,7 @@ export const EcosEvaluationGrille: React.FC<EcosEvaluationGrilleProps> = ({
 
       setCriteria(data || []);
     } catch (err: any) {
-      console.error('Error fetching criteria:', err);
+      logger.error('Error fetching criteria:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les critères d\'évaluation',
@@ -142,7 +143,7 @@ export const EcosEvaluationGrille: React.FC<EcosEvaluationGrilleProps> = ({
 
       setScores(scoresMap);
     } catch (err: any) {
-      console.error('Error fetching session scores:', err);
+      logger.error('Error fetching session scores:', err);
     }
   };
 

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import logger from '@/lib/logger';
 import {
   Dialog,
   DialogContent,
@@ -144,7 +145,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
 
       setResources(data || []);
     } catch (err: any) {
-      console.error('Error fetching resources:', err);
+      logger.error('Error fetching resources:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger les ressources',
@@ -162,7 +163,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
       try {
         setFavorites(new Set(JSON.parse(saved)));
       } catch (e) {
-        console.error('Error loading favorites:', e);
+        logger.error('Error loading favorites:', e);
       }
     }
   };
@@ -233,7 +234,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
         window.open(url, '_blank');
       }
     } catch (err: any) {
-      console.error('Error accessing resource:', err);
+      logger.error('Error accessing resource:', err);
     }
   };
 
@@ -279,7 +280,7 @@ export const EcosResourcesManager: React.FC<EcosResourcesManagerProps> = ({
 
       fetchResources();
     } catch (err: any) {
-      console.error('Error uploading resource:', err);
+      logger.error('Error uploading resource:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible d\'ajouter la ressource',

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +67,7 @@ export const LyricsCompletionStatus: React.FC = () => {
         description: `${data?.length || 0} items analysés`
       });
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de charger le statut",

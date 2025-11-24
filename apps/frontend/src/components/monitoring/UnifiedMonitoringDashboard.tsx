@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -86,7 +87,7 @@ export function UnifiedMonitoringDashboard() {
       await checkSystemAlerts(extractionLogs);
 
     } catch (error) {
-      console.error('Error fetching system metrics:', error);
+      logger.error('Error fetching system metrics:', error);
       toast.error('Erreur lors du chargement des métriques système');
     } finally {
       setLoading(false);
@@ -135,7 +136,7 @@ export function UnifiedMonitoringDashboard() {
       setAlerts(currentAlerts);
 
     } catch (error) {
-      console.error('Error checking system alerts:', error);
+      logger.error('Error checking system alerts:', error);
     }
   };
 

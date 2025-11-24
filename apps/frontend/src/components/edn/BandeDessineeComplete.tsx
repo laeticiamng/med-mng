@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { ComicHeader } from './comic/ComicHeader';
 import { InteractiveComicPanel } from './comic/InteractiveComicPanel';
@@ -22,28 +23,28 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    console.log('🎨 Chargement bande dessinée pour:', itemData.item_code);
-    console.log('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
+    logger.debug('🎨 Chargement bande dessinée pour:', itemData.item_code);
+    logger.debug('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
     
     // Charger immédiatement les données pré-générées
     const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
     
     if (bandeDessinee) {
-      console.log('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
+      logger.debug('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
       setPanels(bandeDessinee.vignettes);
       setIsLoaded(true);
     } else {
-      console.log('🔧 Création de vignettes par défaut...');
+      logger.debug('🔧 Création de vignettes par défaut...');
       // Créer des vignettes par défaut basées sur les compétences du tableau rang A
       const defaultPanels = createDefaultPanels(itemData);
-      console.log('📝 Vignettes créées:', defaultPanels.length);
+      logger.debug('📝 Vignettes créées:', defaultPanels.length);
       setPanels(defaultPanels);
       setIsLoaded(true);
     }
   }, [itemData.item_code]);
 
   const createDefaultPanels = (data: any): VignettePregenere[] => {
-    console.log('🔍 Analyse des données pour création de vignettes:', data);
+    logger.debug('🔍 Analyse des données pour création de vignettes:', data);
     
     // Créer des vignettes basées sur le tableau rang A
     const sections = data.tableau_rang_a?.sections || [];

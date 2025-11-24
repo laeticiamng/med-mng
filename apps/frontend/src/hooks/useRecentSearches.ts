@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 
 interface RecentSearch {
@@ -20,7 +21,7 @@ export const useRecentSearches = () => {
       try {
         setRecents(JSON.parse(stored));
       } catch (error) {
-        console.error('Error loading recent searches:', error);
+        logger.error('Error loading recent searches:', error);
         setRecents([]);
       }
     }

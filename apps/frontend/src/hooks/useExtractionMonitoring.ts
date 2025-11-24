@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -39,7 +40,7 @@ export function useExtractionMonitoring() {
       if (error) throw error;
       if (data?.success) setStats(data.data);
     } catch (error) {
-      console.error('Error fetching extraction stats:', error);
+      logger.error('Error fetching extraction stats:', error);
     }
   };
 
@@ -52,7 +53,7 @@ export function useExtractionMonitoring() {
       if (error) throw error;
       if (data?.success) setRecentExtractions(data.data);
     } catch (error) {
-      console.error('Error fetching recent extractions:', error);
+      logger.error('Error fetching recent extractions:', error);
     }
   };
 
@@ -65,7 +66,7 @@ export function useExtractionMonitoring() {
       if (error) throw error;
       if (data?.success) setRunningExtractions(data.data);
     } catch (error) {
-      console.error('Error fetching running extractions:', error);
+      logger.error('Error fetching running extractions:', error);
     }
   };
 

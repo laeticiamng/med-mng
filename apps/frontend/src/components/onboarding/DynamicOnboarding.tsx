@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { OnboardingModal } from './OnboardingModal';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -54,7 +55,7 @@ export const DynamicOnboarding: React.FC = () => {
         }
       }
     } catch (error) {
-      console.warn('Failed to load dynamic onboarding, using static fallback:', error);
+      logger.warn('Failed to load dynamic onboarding, using static fallback:', error);
       loadStaticOnboarding();
     } finally {
       setIsLoading(false);

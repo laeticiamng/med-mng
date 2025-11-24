@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'intégration des données IC-6
 export const processTableauRangAIC6 = (data: any) => {
-  console.log('🔍 Traitement IC-6 - Organisation exercice clinique');
+  logger.debug('🔍 Traitement IC-6 - Organisation exercice clinique');
   
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
@@ -31,7 +33,7 @@ export const processTableauRangAIC6 = (data: any) => {
 
   const theme = "IC-6 - Organisation de l'exercice clinique et sécurisation du parcours patient";
 
-  console.log(`✅ IC-6 traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-6 traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

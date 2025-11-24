@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -85,7 +86,7 @@ export const CustomModeCreator = () => {
 
     try {
       // Ici on sauvegarderait le mode personnalisé
-      console.log('Mode personnalisé créé:', customMode);
+      logger.debug('Mode personnalisé créé:', customMode);
       
       toast({
         title: "Mode créé !",
@@ -112,7 +113,7 @@ export const CustomModeCreator = () => {
         color: 'blue'
       });
     } catch (error) {
-      console.error('Erreur sauvegarde mode:', error);
+      logger.error('Erreur sauvegarde mode:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le mode.",

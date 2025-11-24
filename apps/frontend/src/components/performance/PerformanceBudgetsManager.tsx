@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -86,7 +87,7 @@ export const PerformanceBudgetsManager: React.FC<PerformanceBudgetsManagerProps>
       setIsCreateDialogOpen(false);
       resetForm();
     } catch (error) {
-      console.error('Failed to create budget:', error);
+      logger.error('Failed to create budget:', error);
     }
   };
 
@@ -98,7 +99,7 @@ export const PerformanceBudgetsManager: React.FC<PerformanceBudgetsManagerProps>
       setEditingBudget(null);
       resetForm();
     } catch (error) {
-      console.error('Failed to update budget:', error);
+      logger.error('Failed to update budget:', error);
     }
   };
 
@@ -108,7 +109,7 @@ export const PerformanceBudgetsManager: React.FC<PerformanceBudgetsManagerProps>
     try {
       await onUpdateBudget(budget.id, { active: !budget.active });
     } catch (error) {
-      console.error('Failed to toggle budget:', error);
+      logger.error('Failed to toggle budget:', error);
     }
   };
 

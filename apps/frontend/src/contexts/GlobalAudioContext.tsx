@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { useAudioMetrics } from '@/hooks/useAudioMetrics';
 
@@ -54,14 +55,14 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
 
   const play = (track: AudioTrack) => {
     const startTime = performance.now();
-    console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
+    logger.debug('🎵 [PERF] Démarrage lecture - URL:', track.url);
     
     // Démarrer le tracking des métriques
     const metrics = startTracking(track.url);
     
     // Vérifier si l'URL est valide
     if (!track.url || track.url === '' || track.url === 'undefined') {
-      console.error('❌ URL audio invalide:', track.url);
+      logger.error('❌ URL audio invalide:', track.url);
       updateMetric(track.url, { errors: ['URL invalide'] });
       setIsPlaying(false);
       return;
@@ -88,7 +89,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     // Configuration des événements AVANT de définir la source
     const handleLoadedMetadata = () => {
       const metadataTime = performance.now() - startTime;
-      console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
+      logger.debug(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
       updateMetric(track.url, { metadataLoadTime: metadataTime });
       setDuration(audio.duration || 348);
     };
@@ -98,23 +99,23 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     };
 
     const handleEnded = () => {
-      console.log('🔚 Lecture terminée');
+      logger.debug('🔚 Lecture terminée');
       setIsPlaying(false);
       setCurrentTime(0);
     };
 
     const handleError = (e: any) => {
       const errorTime = performance.now() - startTime;
-      console.error(`❌ [PERF] Erreur audio après ${errorTime.toFixed(2)}ms:`, e);
-      console.error('❌ Code erreur:', audio.error?.code, 'Message:', audio.error?.message);
-      console.error('❌ URL problématique:', track.url);
+      logger.error(`❌ [PERF] Erreur audio après ${errorTime.toFixed(2)}ms:`, e);
+      logger.error('❌ Code erreur:', audio.error?.code, 'Message:', audio.error?.message);
+      logger.error('❌ URL problématique:', track.url);
       setIsPlaying(false);
       setCurrentTrack(null);
     };
 
     const handleCanPlay = () => {
       const canPlayTime = performance.now() - startTime;
-      console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
+      logger.debug(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
       updateMetric(track.url, { canPlayTime });
       
       // OPTIMISATION 2: Démarrage immédiat dès que possible
@@ -124,7 +125,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           const playTime = performance.now() - startTime;
-          console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
+          logger.debug(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
           updateMetric(track.url, { 
             playStartTime: playTime,
             totalLoadTime: playTime
@@ -134,16 +135,16 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
           // Log final des métriques après démarrage réussi
           setTimeout(() => logFinalMetrics(track.url), 1000);
         }).catch((error) => {
-          console.error('❌ Erreur lors du démarrage de la lecture:', error);
+          logger.error('❌ Erreur lors du démarrage de la lecture:', error);
           
           const errorMsg = `${error.name}: ${error.message}`;
           updateMetric(track.url, { errors: [errorMsg] });
           
           if (error.name === 'NotAllowedError') {
-            console.warn('⚠️ Autoplay bloqué - interaction utilisateur requise');
+            logger.warn('⚠️ Autoplay bloqué - interaction utilisateur requise');
             setIsPlaying(false);
           } else if (error.name === 'NotSupportedError') {
-            console.error('❌ Format audio non supporté');
+            logger.error('❌ Format audio non supporté');
             setCurrentTrack(null);
           } else {
             setIsPlaying(false);
@@ -154,7 +155,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
 
     const handleLoadStart = () => {
       const loadStartTime = performance.now() - startTime;
-      console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
+      logger.debug(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
     };
     
     // OPTIMISATION 3: Buffer pour réduire les interruptions
@@ -166,7 +167,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
         const bufferHealth = calculateBufferHealth(audio.buffered, duration, audio.currentTime);
         
         updateMetric(track.url, { bufferHealthScore: bufferHealth });
-        console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
+        logger.debug(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
       }
     };
 
@@ -188,7 +189,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-      console.log('⏸️ Audio mis en pause');
+      logger.debug('⏸️ Audio mis en pause');
     }
   };
 
@@ -196,9 +197,9 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
-        console.log('▶️ Audio repris');
+        logger.debug('▶️ Audio repris');
       }).catch((error) => {
-        console.error('❌ Erreur reprise audio globale:', error);
+        logger.error('❌ Erreur reprise audio globale:', error);
         setIsPlaying(false);
       });
     }
@@ -212,7 +213,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       setCurrentTime(0);
       setCurrentTrack(null);
       setIsMinimized(false);
-      console.log('⏹️ Audio arrêté');
+      logger.debug('⏹️ Audio arrêté');
     }
   };
 
@@ -220,7 +221,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
-      console.log('⏭️ Recherche à:', time, 'secondes');
+      logger.debug('⏭️ Recherche à:', time, 'secondes');
     }
   };
 
@@ -228,25 +229,25 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     setVolume(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
-      console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
+      logger.debug('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');
     }
   };
 
   const minimize = () => {
     setIsMinimized(true);
-    console.log('🔽 Lecteur minimisé');
+    logger.debug('🔽 Lecteur minimisé');
   };
 
   const maximize = () => {
     setIsMinimized(false);
-    console.log('🔼 Lecteur maximisé');
+    logger.debug('🔼 Lecteur maximisé');
   };
 
   useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        console.log('🧹 Nettoyage audio context');
+        logger.debug('🧹 Nettoyage audio context');
       }
     };
   }, []);

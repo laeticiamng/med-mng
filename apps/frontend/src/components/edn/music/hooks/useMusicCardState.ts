@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState } from 'react';
 
 export const useMusicCardState = (isGenerating: boolean) => {
@@ -9,12 +10,12 @@ export const useMusicCardState = (isGenerating: boolean) => {
     onGenerateMusic: () => void
   ) => {
     if (isClicked || isGenerating) {
-      console.log(`⚠️ Clic ignoré - isClicked: ${isClicked}, isGenerating: ${isGenerating}`);
+      logger.debug(`⚠️ Clic ignoré - isClicked: ${isClicked}, isGenerating: ${isGenerating}`);
       return;
     }
     
     setIsClicked(true);
-    console.log(`🎵 Clic génération Rang ${rang}`);
+    logger.debug(`🎵 Clic génération Rang ${rang}`);
     
     try {
       await onGenerateMusic();

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,7 +62,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         setChecks(data.data);
       }
     } catch (error) {
-      console.error('Erreur fetch checks:', error);
+      logger.error('Erreur fetch checks:', error);
       toast.error('Erreur lors du chargement des checks');
     } finally {
       setLoading(false);
@@ -91,7 +92,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         await fetchChecks();
       }
     } catch (error) {
-      console.error('Erreur run check:', error);
+      logger.error('Erreur run check:', error);
       toast.error('Erreur lors du check d\'intégrité');
     } finally {
       setRunningCheck(false);

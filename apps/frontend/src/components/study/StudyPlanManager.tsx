@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,13 +65,13 @@ export const StudyPlanManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching study plans:', error);
+        logger.error('Error fetching study plans:', error);
         return;
       }
 
       setStudyPlans(data || []);
     } catch (error) {
-      console.error('Error fetching study plans:', error);
+      logger.error('Error fetching study plans:', error);
     }
   };
 
@@ -86,13 +87,13 @@ export const StudyPlanManager = () => {
         .order('scheduled_date', { ascending: true });
 
       if (error) {
-        console.error('Error fetching study sessions:', error);
+        logger.error('Error fetching study sessions:', error);
         return;
       }
 
       setSessions(data || []);
     } catch (error) {
-      console.error('Error fetching study sessions:', error);
+      logger.error('Error fetching study sessions:', error);
     }
   };
 
@@ -145,7 +146,7 @@ export const StudyPlanManager = () => {
         description: 'Votre plan d\'étude a été créé avec succès'
       });
     } catch (error) {
-      console.error('Error creating study plan:', error);
+      logger.error('Error creating study plan:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer le plan d\'étude',

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -402,7 +403,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
       });
       
     } catch (error) {
-      console.error('Erreur génération contenu:', error);
+      logger.error('Erreur génération contenu:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer le contenu",

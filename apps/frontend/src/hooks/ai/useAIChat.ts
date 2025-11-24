@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { createChatCompletion, ChatCompletionMessage } from '@shared/openai/chat/completions';
 
@@ -201,7 +202,7 @@ INSTRUCTIONS CONTEXTUELLES :
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
-      console.error('Erreur envoi message IA:', err);
+      logger.error('Erreur envoi message IA:', err);
       throw err;
     } finally {
       setIsLoading(false);

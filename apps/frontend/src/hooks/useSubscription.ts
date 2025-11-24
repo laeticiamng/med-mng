@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -96,7 +97,7 @@ export const useSubscription = () => {
           details: subError
         };
         setError(errorObj);
-        console.error('Error fetching subscription:', subError);
+        logger.error('Error fetching subscription:', subError);
         toast.error('Erreur lors de la récupération de l\'abonnement');
         return;
       }
@@ -120,7 +121,7 @@ export const useSubscription = () => {
             details: subInfo
           };
           setError(errorObj);
-          console.error('Invalid subscription data received:', subInfo);
+          logger.error('Invalid subscription data received:', subInfo);
           toast.error('Erreur de validation des données d\'abonnement');
         }
       }
@@ -131,7 +132,7 @@ export const useSubscription = () => {
 
       if (quotaError) {
         // Log mais ne pas bloquer - utiliser quota par défaut basé sur le plan
-        console.warn('Quota check failed, using plan defaults:', quotaError);
+        logger.warn('Quota check failed, using plan defaults:', quotaError);
         
         // Créer un quota par défaut basé sur l'abonnement
         const defaultQuota: MusicQuota = {
@@ -152,12 +153,12 @@ export const useSubscription = () => {
           plan_name: subscription?.plan_name || 'Standard'
         };
         
-        console.log('📊 Quota synchronized:', adaptedQuota);
+        logger.debug('📊 Quota synchronized:', adaptedQuota);
         
         if (isValidMusicQuota(adaptedQuota)) {
           setMusicQuota(adaptedQuota);
         } else {
-          console.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
+          logger.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
           // Utiliser quota par défaut si données invalides
           const defaultQuota: MusicQuota = {
             can_generate: true,
@@ -184,7 +185,7 @@ export const useSubscription = () => {
         details: error
       };
       setError(errorObj);
-      console.error('Error in fetchSubscription:', error);
+      logger.error('Error in fetchSubscription:', error);
       toast.error('Erreur inattendue lors de la récupération des données');
     } finally {
       setLoading(false);
@@ -194,7 +195,7 @@ export const useSubscription = () => {
 
   const incrementMusicUsage = useCallback(async (): Promise<boolean> => {
     if (!user) {
-      console.warn('Tentative d\'incrément de quota sans utilisateur connecté');
+      logger.warn('Tentative d\'incrément de quota sans utilisateur connecté');
       return false;
     }
 
@@ -203,7 +204,7 @@ export const useSubscription = () => {
         .rpc('increment_music_usage', { user_uuid: user.id });
 
       if (error) {
-        console.error('Error incrementing music usage:', error);
+        logger.error('Error incrementing music usage:', error);
         toast.error('Erreur lors de la mise à jour du quota');
         return false;
       }
@@ -229,7 +230,7 @@ export const useSubscription = () => {
 
       return data;
     } catch (error) {
-      console.error('Error in incrementMusicUsage:', error);
+      logger.error('Error in incrementMusicUsage:', error);
       toast.error('Erreur lors de l\'incrément du quota');
       return false;
     }

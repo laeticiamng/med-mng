@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -103,7 +104,7 @@ const PWAAnalytics: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      logger.error('Error loading analytics:', error);
       toast.error('Erreur lors du chargement des analytics');
     } finally {
       setIsLoading(false);

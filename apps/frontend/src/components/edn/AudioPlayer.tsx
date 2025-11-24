@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -106,7 +107,7 @@ export const AudioPlayer = ({
             readyToPlay={bufferingState.readyToPlay}
             estimatedLoadTime={bufferingState.estimatedLoadTime}
             onRetry={() => {
-              console.log('🔄 Retry audio loading...');
+              logger.debug('🔄 Retry audio loading...');
               onStop();
               setTimeout(() => onPlayPause(), 500);
             }}

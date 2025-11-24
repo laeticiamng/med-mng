@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { Button } from '@/components/ui/button';
 import { Download, Check, Heart } from 'lucide-react';
 import { useState } from 'react';
@@ -61,7 +62,7 @@ export const SaveMusicButton = ({
         });
 
       if (error) {
-        console.error('Erreur sauvegarde:', error);
+        logger.error('Erreur sauvegarde:', error);
         toast({
           title: "Erreur de sauvegarde",
           description: "Impossible de sauvegarder la musique. Réessayez plus tard.",
@@ -77,7 +78,7 @@ export const SaveMusicButton = ({
       });
 
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur:', error);
       toast({
         title: "Erreur de sauvegarde",
         description: "Une erreur inattendue s'est produite.",

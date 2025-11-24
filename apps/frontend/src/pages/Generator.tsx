@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -123,7 +124,7 @@ const Generator = () => {
 
         titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
 
-        console.log('🎵 Utilisation des paroles EDN par rang:', {
+        logger.debug('🎵 Utilisation des paroles EDN par rang:', {
           item: selectedItem,
           title: ednLyrics.title,
           rang: rang,
@@ -145,7 +146,7 @@ const Generator = () => {
         return;
       }
 
-      console.log('🚀 Génération avec paroles réelles:', {
+      logger.debug('🚀 Génération avec paroles réelles:', {
         contentType,
         selectedItem,
         rang,
@@ -183,7 +184,7 @@ const Generator = () => {
           }
 
           if (selectedStyle && !validStyles.includes(selectedStyle)) {
-            console.warn('Invalid music style, using default');
+            logger.warn('Invalid music style, using default');
           }
 
           const { data: savedSong, error: saveError } = await supabase
@@ -208,7 +209,7 @@ const Generator = () => {
 
           if (!saveError && savedSong) {
             savedSongId = savedSong.id;
-            console.log('✅ Chanson sauvegardée dans med_mng_songs:', savedSong.id);
+            logger.debug('✅ Chanson sauvegardée dans med_mng_songs:', savedSong.id);
 
             // Ajouter à la bibliothèque utilisateur
             await supabase
@@ -220,12 +221,12 @@ const Generator = () => {
                 play_count: 0
               });
 
-            console.log('✅ Ajoutée à la bibliothèque utilisateur');
+            logger.debug('✅ Ajoutée à la bibliothèque utilisateur');
           } else {
-            console.warn('⚠️  Erreur sauvegarde chanson:', saveError);
+            logger.warn('⚠️  Erreur sauvegarde chanson:', saveError);
           }
         } catch (saveErr) {
-          console.error('❌ Erreur lors de la sauvegarde:', saveErr);
+          logger.error('❌ Erreur lors de la sauvegarde:', saveErr);
         }
       }
 
@@ -254,7 +255,7 @@ const Generator = () => {
       }
 
     } catch (error) {
-      console.error('Erreur génération:', error);
+      logger.error('Erreur génération:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       toast.error('Échec de la génération musicale', {
         description: errorMessage,

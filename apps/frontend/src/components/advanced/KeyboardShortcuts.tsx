@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -58,7 +59,7 @@ export const KeyboardShortcuts: React.FC = () => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         // Logique de recherche
-        console.log('Ouverture recherche rapide');
+        logger.debug('Ouverture recherche rapide');
       }
 
       // ? pour afficher les raccourcis

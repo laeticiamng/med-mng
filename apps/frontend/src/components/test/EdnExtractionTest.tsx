@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -69,7 +70,7 @@ export const EdnExtractionTest = () => {
       await loadExtractedItems();
       
     } catch (error) {
-      console.error('Erreur extraction:', error);
+      logger.error('Erreur extraction:', error);
       toast.error(`❌ Erreur: ${error.message}`);
     } finally {
       setIsExtracting(false);
@@ -103,7 +104,7 @@ export const EdnExtractionTest = () => {
       await loadExtractedItems();
       
     } catch (error) {
-      console.error('Erreur extraction complète:', error);
+      logger.error('Erreur extraction complète:', error);
       toast.error(`❌ Erreur: ${error.message}`);
     } finally {
       setIsExtracting(false);
@@ -121,7 +122,7 @@ export const EdnExtractionTest = () => {
         .limit(10);
 
       if (error) {
-        console.error('Erreur Supabase:', error);
+        logger.error('Erreur Supabase:', error);
         toast.error(`❌ Erreur chargement: ${error.message}`);
         return;
       }
@@ -139,7 +140,7 @@ export const EdnExtractionTest = () => {
       setExtractedItems(transformedData);
       toast.success(`✅ ${transformedData.length} items chargés`);
     } catch (error) {
-      console.error('Erreur chargement items:', error);
+      logger.error('Erreur chargement items:', error);
       toast.error('❌ Erreur lors du chargement');
     }
   };
@@ -155,7 +156,7 @@ export const EdnExtractionTest = () => {
       if (error) throw error;
       setCurrentItems(data || []);
     } catch (error) {
-      console.error('Erreur chargement items actuels:', error);
+      logger.error('Erreur chargement items actuels:', error);
     }
   };
 

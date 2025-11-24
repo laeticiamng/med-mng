@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Shield, Database, Mail, Zap, 
@@ -83,7 +84,7 @@ export const AdminSystemSettings = () => {
       
       setSettings(mockSettings);
     } catch (error) {
-      console.error('Erreur chargement paramètres:', error);
+      logger.error('Erreur chargement paramètres:', error);
       toast.error('Erreur lors du chargement des paramètres');
     }
   };
@@ -112,7 +113,7 @@ export const AdminSystemSettings = () => {
 
       setSystemHealth(mockHealth);
     } catch (error) {
-      console.error('Erreur vérification santé système:', error);
+      logger.error('Erreur vérification santé système:', error);
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ export const AdminSystemSettings = () => {
       
       toast.success('Paramètres sauvegardés avec succès');
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      logger.error('Erreur sauvegarde:', error);
       toast.error('Erreur lors de la sauvegarde');
     } finally {
       setSaving(false);
@@ -145,7 +146,7 @@ export const AdminSystemSettings = () => {
       toast.success('Maintenance système exécutée avec succès');
       fetchSystemHealth();
     } catch (error) {
-      console.error('Erreur maintenance:', error);
+      logger.error('Erreur maintenance:', error);
       toast.error('Erreur lors de la maintenance');
     } finally {
       setLoading(false);
@@ -166,7 +167,7 @@ export const AdminSystemSettings = () => {
       
       toast.success('Sauvegarde créée avec succès');
     } catch (error) {
-      console.error('Erreur backup:', error);
+      logger.error('Erreur backup:', error);
       toast.error('Erreur lors de la création de la sauvegarde');
     } finally {
       setLoading(false);

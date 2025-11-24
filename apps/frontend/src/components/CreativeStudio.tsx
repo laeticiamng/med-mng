@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -80,7 +81,7 @@ export const CreativeStudio = () => {
 
     const result = await generateContent(request);
     if (result) {
-      console.log('Contenu généré:', result);
+      logger.debug('Contenu généré:', result);
       // Ici vous pourriez ajouter le contenu à une liste ou l'afficher
     }
   };

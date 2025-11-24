@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Play } from 'lucide-react';
@@ -18,7 +19,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
     setStatus('testing');
     setErrorDetails('');
     
-    console.log('🔍 Debug Audio Test:', {
+    logger.debug('🔍 Debug Audio Test:', {
       url: audioUrl,
       urlType: typeof audioUrl,
       isValidUrl: audioUrl?.startsWith('http'),
@@ -33,9 +34,9 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
     try {
       // Test 1: Vérifier si l'URL est accessible
-      console.log('🔍 Test 1: Vérification URL...');
+      logger.debug('🔍 Test 1: Vérification URL...');
       const response = await fetch(audioUrl, { method: 'HEAD' });
-      console.log('📊 Response headers:', {
+      logger.debug('📊 Response headers:', {
         status: response.status,
         contentType: response.headers.get('content-type'),
         contentLength: response.headers.get('content-length')
@@ -46,7 +47,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
       }
 
       // Test 2: Créer un élément audio
-      console.log('🔍 Test 2: Création élément audio...');
+      logger.debug('🔍 Test 2: Création élément audio...');
       const audio = new Audio();
       
       const testPromise = new Promise((resolve, reject) => {
@@ -56,7 +57,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
         audio.addEventListener('loadedmetadata', () => {
           clearTimeout(timeout);
-          console.log('✅ Métadonnées chargées:', {
+          logger.debug('✅ Métadonnées chargées:', {
             duration: audio.duration,
             readyState: audio.readyState
           });
@@ -74,10 +75,10 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 
       await testPromise;
       setStatus('success');
-      console.log('✅ Test audio réussi !');
+      logger.debug('✅ Test audio réussi !');
 
     } catch (error) {
-      console.error('❌ Test audio échoué:', error);
+      logger.error('❌ Test audio échoué:', error);
       setStatus('error');
       setErrorDetails(error.message);
     }
@@ -86,7 +87,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
   const playDirectly = () => {
     const audio = new Audio(audioUrl);
     audio.play().catch(e => {
-      console.error('❌ Lecture directe échouée:', e);
+      logger.error('❌ Lecture directe échouée:', e);
       alert(`Erreur lecture: ${e.message}`);
     });
   };

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { QuizSelector, QuizConfig } from './QuizSelector';
 import { QuizInterface } from './QuizInterface';
@@ -86,7 +87,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleStartQuiz = (config: QuizConfig) => {
-    console.log('🎯 Configuration du quiz:', config);
+    logger.debug('🎯 Configuration du quiz:', config);
     
     // Démarrer une session de tracking des erreurs
     startQuizSession(item.item_code, item.title, config.numberOfQuestions);
@@ -94,7 +95,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     // Générer les questions selon la configuration
     const generatedQuestions = QuizGenerator.generateQuestions(item, config);
     
-    console.log(`🎯 ${generatedQuestions.length} questions générées`);
+    logger.debug(`🎯 ${generatedQuestions.length} questions générées`);
     
     setQuizConfig(config);
     setQuizQuestions(generatedQuestions);
@@ -102,7 +103,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleQuizComplete = (results: QuizResults) => {
-    console.log('🎯 Quiz terminé:', results);
+    logger.debug('🎯 Quiz terminé:', results);
     setQuizResults(results);
     
     // Terminer la session de tracking des erreurs

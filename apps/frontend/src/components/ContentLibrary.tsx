@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,7 @@ export const ContentLibrary = () => {
       const data = await getUserGeneratedContent();
       setContent(data as GeneratedItem[]);
     } catch (error) {
-      console.error('Erreur chargement contenu:', error);
+      logger.error('Erreur chargement contenu:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger votre bibliothèque.",
@@ -114,7 +115,7 @@ export const ContentLibrary = () => {
       
       await audio.play();
     } catch (error) {
-      console.error('Erreur lecture audio:', error);
+      logger.error('Erreur lecture audio:', error);
       setPlayingItem(null);
       toast({
         title: "Erreur",
@@ -169,7 +170,7 @@ export const ContentLibrary = () => {
         URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error('Erreur téléchargement:', error);
+      logger.error('Erreur téléchargement:', error);
       toast({
         title: "Erreur",
         description: "Impossible de télécharger ce contenu.",

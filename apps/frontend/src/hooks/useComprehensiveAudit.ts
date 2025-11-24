@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { ComprehensivePlatformAuditor, type ComprehensiveAuditReport } from '@shared/scripts/audit/comprehensiveAudit';
 
@@ -19,14 +20,14 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
     setError(null);
     
     try {
-      console.log('🔍 Lancement de l\'audit complet de la plateforme...');
+      logger.debug('🔍 Lancement de l\'audit complet de la plateforme...');
       const auditReport = await ComprehensivePlatformAuditor.runComprehensiveAudit();
       setReport(auditReport);
-      console.log('✅ Audit terminé avec succès');
-      console.log(`📊 Score: ${auditReport.totalScore}/${auditReport.maxScore}`);
-      console.log(`⚠️ ${auditReport.issues.length} problèmes détectés`);
+      logger.debug('✅ Audit terminé avec succès');
+      logger.debug(`📊 Score: ${auditReport.totalScore}/${auditReport.maxScore}`);
+      logger.debug(`⚠️ ${auditReport.issues.length} problèmes détectés`);
     } catch (err) {
-      console.error('❌ Erreur lors de l\'audit:', err);
+      logger.error('❌ Erreur lors de l\'audit:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
     } finally {
       setLoading(false);
@@ -35,7 +36,7 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
 
   const exportReport = (format: 'json' | 'markdown') => {
     if (!report) {
-      console.warn('Aucun rapport à exporter');
+      logger.warn('Aucun rapport à exporter');
       return;
     }
 
@@ -64,7 +65,7 @@ export const useComprehensiveAudit = (): UseComprehensiveAuditResult => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
+    logger.debug(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
   };
 
   return {

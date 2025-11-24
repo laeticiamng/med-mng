@@ -3,6 +3,7 @@
  * Mesure: FCP, LCP, CLS, INP (remplace FID), TTFB
  */
 
+import logger from '@/lib/logger';
 import { useEffect } from 'react';
 import { onCLS, onINP, onLCP, onFCP, onTTFB } from 'web-vitals';
 import { trackPerformanceMetric } from '@/lib/indexedDB';
@@ -12,35 +13,35 @@ export function usePerformanceMetrics() {
     // First Contentful Paint (FCP)
     // Mesure quand le premier contenu est affiché
     onFCP((metric) => {
-      console.log(`[Web Vitals] FCP: ${metric.value.toFixed(2)}ms`);
+      logger.debug(`[Web Vitals] FCP: ${metric.value.toFixed(2)}ms`);
       trackPerformanceMetric('FCP', metric.value);
     });
 
     // Largest Contentful Paint (LCP)
     // Mesure quand le plus gros élément visible est affiché
     onLCP((metric) => {
-      console.log(`[Web Vitals] LCP: ${metric.value.toFixed(2)}ms`);
+      logger.debug(`[Web Vitals] LCP: ${metric.value.toFixed(2)}ms`);
       trackPerformanceMetric('LCP', metric.value);
     });
 
     // Interaction to Next Paint (INP) - remplace FID
     // Mesure la réactivité globale de la page
     onINP((metric) => {
-      console.log(`[Web Vitals] INP: ${metric.value.toFixed(2)}ms`);
+      logger.debug(`[Web Vitals] INP: ${metric.value.toFixed(2)}ms`);
       trackPerformanceMetric('FID', metric.value); // Utilise FID pour compatibilité
     });
 
     // Cumulative Layout Shift (CLS)
     // Mesure la stabilité visuelle (moins de déplacements = mieux)
     onCLS((metric) => {
-      console.log(`[Web Vitals] CLS: ${metric.value.toFixed(4)}`);
+      logger.debug(`[Web Vitals] CLS: ${metric.value.toFixed(4)}`);
       trackPerformanceMetric('CLS', metric.value);
     });
 
     // Time to First Byte (TTFB)
     // Mesure le temps de réponse du serveur
     onTTFB((metric) => {
-      console.log(`[Web Vitals] TTFB: ${metric.value.toFixed(2)}ms`);
+      logger.debug(`[Web Vitals] TTFB: ${metric.value.toFixed(2)}ms`);
       trackPerformanceMetric('TTFB', metric.value);
     });
   }, []);
@@ -56,7 +57,7 @@ export function usePageLoadTime(pageName: string) {
     // Mesurer quand la page est complètement chargée
     const measureLoadTime = () => {
       const loadTime = performance.now() - startTime;
-      console.log(`[Performance] ${pageName} loaded in ${loadTime.toFixed(2)}ms`);
+      logger.debug(`[Performance] ${pageName} loaded in ${loadTime.toFixed(2)}ms`);
       
       // Enregistrer comme métrique TTI (Time to Interactive approximé)
       trackPerformanceMetric('TTI', loadTime);
@@ -92,7 +93,7 @@ export function useTimeOnPage(onTimeUpdate?: (seconds: number) => void) {
     return () => {
       if (intervalId) clearInterval(intervalId);
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
-      console.log(`[Performance] Time on page: ${totalTime}s`);
+      logger.debug(`[Performance] Time on page: ${totalTime}s`);
     };
   }, [onTimeUpdate]);
 }

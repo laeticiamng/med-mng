@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,8 +43,8 @@ interface QuizFinalProps {
 }
 
 export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN' }: QuizFinalProps) => {
-  console.log('QuizFinal - questions received:', questions);
-  console.log('QuizFinal - rewards received:', rewards);
+  logger.debug('QuizFinal - questions received:', questions);
+  logger.debug('QuizFinal - rewards received:', rewards);
 
   const {
     answers,

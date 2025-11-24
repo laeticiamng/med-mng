@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import logger from '@/lib/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -145,7 +146,7 @@ export const CollectionDetail: React.FC = () => {
       setEditDescription(data.description || '');
       setEditIsPublic(data.is_public);
     } catch (error: any) {
-      console.error('Error fetching collection:', error);
+      logger.error('Error fetching collection:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de charger la collection',
@@ -168,7 +169,7 @@ export const CollectionDetail: React.FC = () => {
 
       setItems(data || []);
     } catch (error: any) {
-      console.error('Error fetching items:', error);
+      logger.error('Error fetching items:', error);
     }
   };
 
@@ -202,7 +203,7 @@ export const CollectionDetail: React.FC = () => {
       setIsEditDialogOpen(false);
       fetchCollection();
     } catch (error: any) {
-      console.error('Error updating collection:', error);
+      logger.error('Error updating collection:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la collection',
@@ -227,7 +228,7 @@ export const CollectionDetail: React.FC = () => {
 
       navigate('/collections');
     } catch (error: any) {
-      console.error('Error deleting collection:', error);
+      logger.error('Error deleting collection:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer la collection',
@@ -255,7 +256,7 @@ export const CollectionDetail: React.FC = () => {
       fetchItems();
       setItemToRemove(null);
     } catch (error: any) {
-      console.error('Error removing item:', error);
+      logger.error('Error removing item:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de retirer l\'item',
@@ -274,7 +275,7 @@ export const CollectionDetail: React.FC = () => {
         description: 'Le lien de la collection a été copié dans le presse-papiers',
       });
     } catch (error) {
-      console.error('Error copying to clipboard:', error);
+      logger.error('Error copying to clipboard:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de copier le lien',
@@ -322,7 +323,7 @@ export const CollectionDetail: React.FC = () => {
 
       setSearchResults(data || []);
     } catch (error: any) {
-      console.error('Error searching items:', error);
+      logger.error('Error searching items:', error);
       toast({
         title: 'Erreur de recherche',
         description: 'Impossible de rechercher les items',
@@ -393,7 +394,7 @@ export const CollectionDetail: React.FC = () => {
       setSearchQuery('');
       setSearchResults([]);
     } catch (error: any) {
-      console.error('Error adding item:', error);
+      logger.error('Error adding item:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible d\'ajouter l\'item à la collection',

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,7 +57,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
       const content = await getMasterContent(itemData.item_code);
       setMasterContent(content);
     } catch (err) {
-      console.error('❌ Erreur chargement contenu master:', err);
+      logger.error('❌ Erreur chargement contenu master:', err);
       toast.error('Erreur de chargement du contenu');
     }
   };

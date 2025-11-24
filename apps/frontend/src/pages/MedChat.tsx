@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -124,7 +125,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      logger.error('Erreur lors de l\'envoi du message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
       
       toast({

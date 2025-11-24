@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour traiter les données JSON standard stockées en base
 export interface StandardSection {
@@ -12,13 +14,13 @@ export interface StandardTableauData {
 }
 
 export const processStandardTableauData = (data: any, isRangB: boolean = false) => {
-  console.log('🔍 Processing standard tableau data:', data);
+  logger.debug('🔍 Processing standard tableau data:', data);
   
   // Extraire les données selon le format JSON de la base
   const tableauData = isRangB ? data.tableau_rang_b : data.tableau_rang_a;
   
   if (!tableauData) {
-    console.log('❌ No tableau data found');
+    logger.debug('❌ No tableau data found');
     return null;
   }
 
@@ -27,7 +29,7 @@ export const processStandardTableauData = (data: any, isRangB: boolean = false) 
     ? JSON.parse(tableauData) 
     : tableauData;
 
-  console.log('📊 Parsed tableau data:', parsedData);
+  logger.debug('📊 Parsed tableau data:', parsedData);
 
   // Générer les lignes pour le tableau
   const lignes: string[][] = [];

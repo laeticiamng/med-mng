@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,7 +47,7 @@ export const ExportDashboard = () => {
     setIsExporting(true);
     
     try {
-      console.log('Démarrage export admin avec:', {
+      logger.debug('Démarrage export admin avec:', {
         format,
         tables: selectedTables,
         dateRange: dateRange.start && dateRange.end ? dateRange : undefined,
@@ -63,7 +64,7 @@ export const ExportDashboard = () => {
       });
 
       if (error) {
-        console.error('Erreur export:', error);
+        logger.error('Erreur export:', error);
         toast.error(`Erreur lors de l'export: ${error.message}`);
         return;
       }
@@ -88,7 +89,7 @@ export const ExportDashboard = () => {
       toast.success(`Export ${format.toUpperCase()} généré avec succès!`);
       
     } catch (exportError) {
-      console.error('Erreur export:', exportError);
+      logger.error('Erreur export:', exportError);
       toast.error('Erreur lors de la génération de l\'export');
     } finally {
       setIsExporting(false);

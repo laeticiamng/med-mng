@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useInternationalization } from './InternationalizationContext';
 
@@ -122,7 +123,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
         }
 
       } catch (error) {
-        console.warn('Performance measurement not supported:', error);
+        logger.warn('Performance measurement not supported:', error);
       }
     };
 
@@ -210,7 +211,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       });
     }
     
-    console.log(`📊 Performance Metric - ${name}: ${value}`);
+    logger.debug(`📊 Performance Metric - ${name}: ${value}`);
   };
 
   const getPerformanceScore = (): number => {
@@ -249,7 +250,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       suggestions.push(t('performance.suggestions.optimizeMemory'));
     }
     
-    console.log('🔧 Optimizations suggérées:', suggestions);
+    logger.debug('🔧 Optimizations suggérées:', suggestions);
     return suggestions;
   };
 

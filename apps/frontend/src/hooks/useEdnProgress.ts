@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -57,7 +58,7 @@ export const useEdnProgress = () => {
         .rpc('get_user_edn_progress_summary', { target_user_id: user.id });
 
       if (error) {
-        console.error('Error fetching progress:', error);
+        logger.error('Error fetching progress:', error);
         throw error;
       }
 
@@ -150,7 +151,7 @@ export const useUpdateItemProgress = () => {
       });
     },
     onError: (error) => {
-      console.error('Error updating progress:', error);
+      logger.error('Error updating progress:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la progression',

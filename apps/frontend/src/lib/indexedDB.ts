@@ -3,6 +3,7 @@
  * Permet le mode offline et accélère les chargements
  */
 
+import logger from '@/lib/logger';
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import type { EdnItemUnified } from '@shared/types/edn';
 
@@ -101,10 +102,10 @@ export async function initDB(): Promise<IDBPDatabase<EdnDB>> {
       },
     });
 
-    console.log('[IndexedDB] Database initialized successfully');
+    logger.debug('[IndexedDB] Database initialized successfully');
     return dbInstance;
   } catch (error) {
-    console.error('[IndexedDB] Failed to initialize database:', error);
+    logger.error('[IndexedDB] Failed to initialize database:', error);
     throw error;
   }
 }
@@ -127,9 +128,9 @@ export async function setCacheItem(key: string, data: any): Promise<void> {
       expiresAt,
     }, key);
     
-    console.log(`[IndexedDB] Cached item: ${key}`);
+    logger.debug(`[IndexedDB] Cached item: ${key}`);
   } catch (error) {
-    console.error('[IndexedDB] Error caching item:', error);
+    logger.error('[IndexedDB] Error caching item:', error);
   }
 }
 
@@ -146,14 +147,14 @@ export async function getCacheItem<T>(key: string): Promise<T | null> {
     // Vérifier l'expiration
     if (Date.now() > cached.expiresAt) {
       await db.delete('edn-cache', key);
-      console.log(`[IndexedDB] Cache expired: ${key}`);
+      logger.debug(`[IndexedDB] Cache expired: ${key}`);
       return null;
     }
     
-    console.log(`[IndexedDB] Cache hit: ${key}`);
+    logger.debug(`[IndexedDB] Cache hit: ${key}`);
     return cached.data as T;
   } catch (error) {
-    console.error('[IndexedDB] Error getting cached item:', error);
+    logger.error('[IndexedDB] Error getting cached item:', error);
     return null;
   }
 }
@@ -166,7 +167,7 @@ export async function deleteCacheItem(key: string): Promise<void> {
     const db = await initDB();
     await db.delete('edn-cache', key);
   } catch (error) {
-    console.error('[IndexedDB] Error deleting cached item:', error);
+    logger.error('[IndexedDB] Error deleting cached item:', error);
   }
 }
 
@@ -177,9 +178,9 @@ export async function clearCache(): Promise<void> {
   try {
     const db = await initDB();
     await db.clear('edn-cache');
-    console.log('[IndexedDB] Cache cleared');
+    logger.debug('[IndexedDB] Cache cleared');
   } catch (error) {
-    console.error('[IndexedDB] Error clearing cache:', error);
+    logger.error('[IndexedDB] Error clearing cache:', error);
   }
 }
 
@@ -216,9 +217,9 @@ export async function trackItemView(itemCode: string, timeSpent: number = 0): Pr
       });
     }
     
-    console.log(`[Analytics] Tracked view for ${itemCode}`);
+    logger.debug(`[Analytics] Tracked view for ${itemCode}`);
   } catch (error) {
-    console.error('[Analytics] Error tracking item view:', error);
+    logger.error('[Analytics] Error tracking item view:', error);
   }
 }
 
@@ -236,7 +237,7 @@ export async function getTopViewedItems(limit: number = 10) {
     
     return items.slice(0, limit);
   } catch (error) {
-    console.error('[Analytics] Error getting top viewed items:', error);
+    logger.error('[Analytics] Error getting top viewed items:', error);
     return [];
   }
 }
@@ -249,7 +250,7 @@ export async function getItemStats(itemCode: string) {
     const db = await initDB();
     return await db.get('item-views', itemCode);
   } catch (error) {
-    console.error('[Analytics] Error getting item stats:', error);
+    logger.error('[Analytics] Error getting item stats:', error);
     return null;
   }
 }
@@ -271,9 +272,9 @@ export async function trackSearch(searchTerm: string, resultsCount: number): Pro
       resultsCount,
     });
     
-    console.log(`[Analytics] Tracked search: "${searchTerm}"`);
+    logger.debug(`[Analytics] Tracked search: "${searchTerm}"`);
   } catch (error) {
-    console.error('[Analytics] Error tracking search:', error);
+    logger.error('[Analytics] Error tracking search:', error);
   }
 }
 
@@ -299,7 +300,7 @@ export async function getPopularSearches(limit: number = 10) {
     
     return sorted.slice(0, limit);
   } catch (error) {
-    console.error('[Analytics] Error getting popular searches:', error);
+    logger.error('[Analytics] Error getting popular searches:', error);
     return [];
   }
 }
@@ -326,7 +327,7 @@ export async function getRecentSearches(limit: number = 10) {
     
     return Array.from(unique.values()).slice(0, limit);
   } catch (error) {
-    console.error('[Analytics] Error getting recent searches:', error);
+    logger.error('[Analytics] Error getting recent searches:', error);
     return [];
   }
 }
@@ -353,9 +354,9 @@ export async function trackPerformanceMetric(
       route,
     });
     
-    console.log(`[Performance] Tracked ${metric}: ${value.toFixed(2)}ms`);
+    logger.debug(`[Performance] Tracked ${metric}: ${value.toFixed(2)}ms`);
   } catch (error) {
-    console.error('[Performance] Error tracking metric:', error);
+    logger.error('[Performance] Error tracking metric:', error);
   }
 }
 
@@ -384,7 +385,7 @@ export async function getAverageMetrics(route?: string) {
     
     return averages;
   } catch (error) {
-    console.error('[Performance] Error getting average metrics:', error);
+    logger.error('[Performance] Error getting average metrics:', error);
     return {};
   }
 }
@@ -408,8 +409,8 @@ export async function cleanupOldMetrics(): Promise<void> {
       cursor = await cursor.continue();
     }
     
-    console.log('[Performance] Cleaned up old metrics');
+    logger.debug('[Performance] Cleaned up old metrics');
   } catch (error) {
-    console.error('[Performance] Error cleaning up metrics:', error);
+    logger.error('[Performance] Error cleaning up metrics:', error);
   }
 }

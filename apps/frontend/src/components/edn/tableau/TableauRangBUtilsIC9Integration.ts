@@ -1,7 +1,9 @@
+import logger from '@/lib/logger';
+
 
 // Utilitaires pour l'affichage du Tableau Rang B IC-9
 export const processTableauRangBIC9 = (data: any) => {
-  console.log('🔍 Traitement avancé IC-9 Rang B');
+  logger.debug('🔍 Traitement avancé IC-9 Rang B');
   
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
@@ -31,7 +33,7 @@ export const processTableauRangBIC9 = (data: any) => {
 
   const theme = "IC-9 Rang B - Expertise médico-légale avancée";
 
-  console.log(`✅ IC-9 Rang B expert traité: ${lignesEnrichies.length} concepts`);
+  logger.debug(`✅ IC-9 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

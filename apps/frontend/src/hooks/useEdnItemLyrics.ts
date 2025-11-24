@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -32,7 +33,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       setError(null);
 
       try {
-        console.log('🔍 Récupération des paroles pour l\'item:', itemCode);
+        logger.debug('🔍 Récupération des paroles pour l\'item:', itemCode);
 
         // Essayer d'abord edn_items_complete (table principale avec nouvelles colonnes)
         const { data: completeData, error: completeError } = await supabase
@@ -42,7 +43,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
           .single();
 
         if (!completeError && completeData) {
-          console.log('✅ Paroles récupérées depuis edn_items_complete:', {
+          logger.debug('✅ Paroles récupérées depuis edn_items_complete:', {
             item_code: completeData.item_code,
             title: completeData.title,
             has_paroles_rang_a: !!completeData.paroles_rang_a,
@@ -71,13 +72,13 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
           .single();
 
         if (supabaseError) {
-          console.error('❌ Erreur Supabase lors de la récupération des paroles:', supabaseError);
+          logger.error('❌ Erreur Supabase lors de la récupération des paroles:', supabaseError);
           setError('Item non trouvé');
           return;
         }
 
         if (data) {
-          console.log('✅ Paroles récupérées depuis edn_items_immersive (fallback):', {
+          logger.debug('✅ Paroles récupérées depuis edn_items_immersive (fallback):', {
             item_code: data.item_code,
             title: data.title,
             paroles_count: data.paroles_musicales?.length || 0
@@ -95,7 +96,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
           setError('Aucune donnée trouvée');
         }
       } catch (err) {
-        console.error('❌ Erreur lors de la récupération des paroles:', err);
+        logger.error('❌ Erreur lors de la récupération des paroles:', err);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

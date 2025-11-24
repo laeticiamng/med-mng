@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ export const SubscriptionTestPanel: React.FC = () => {
         return true;
       }
     } catch (error) {
-      console.error('Erreur création compte test:', error);
+      logger.error('Erreur création compte test:', error);
       toast.error(`Erreur création compte ${account.plan}: ${error.message}`);
       return false;
     }
@@ -114,7 +115,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       await supabase.auth.signOut();
       
     } catch (error) {
-      console.error('Erreur test abonnement:', error);
+      logger.error('Erreur test abonnement:', error);
       toast.error(`Erreur test ${account.plan}: ${error.message}`);
       
       setTestAccounts(prev => prev.map(acc => 
@@ -138,7 +139,7 @@ export const SubscriptionTestPanel: React.FC = () => {
           .rpc('increment_music_usage', { user_uuid: loginData.user.id });
         
         if (error) {
-          console.log(`Génération ${i + 1} bloquée pour ${account.plan} - Quota atteint`);
+          logger.debug(`Génération ${i + 1} bloquée pour ${account.plan} - Quota atteint`);
           break;
         }
       }
@@ -147,7 +148,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       toast.success(`Simulation de ${generations} générations pour ${account.plan}`);
       
     } catch (error) {
-      console.error('Erreur simulation:', error);
+      logger.error('Erreur simulation:', error);
       toast.error(`Erreur simulation ${account.plan}`);
     }
   };

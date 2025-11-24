@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import {
@@ -123,7 +124,7 @@ export const SecurityNotificationsTable = () => {
       await exportNotificationsToPDF(filteredNotifications, filters);
       toast.success('Rapport PDF généré avec succès');
     } catch (error) {
-      console.error('Error exporting PDF:', error);
+      logger.error('Error exporting PDF:', error);
       toast.error('Erreur lors de la génération du PDF');
     }
   };

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Stethoscope, Search, Users, Clock, Sparkles, Loader2 } from 'lucide-react';
@@ -34,11 +35,11 @@ const EcosIndex = () => {
         .limit(100); // Charger les 100 premières situations
 
       if (error) {
-        console.error('Erreur Supabase:', error);
+        logger.error('Erreur Supabase:', error);
         throw error;
       }
 
-      console.log('✅ Situations ECOS chargées:', data?.length || 0);
+      logger.debug('✅ Situations ECOS chargées:', data?.length || 0);
       setEcosScenarios(data || []);
       
       if (!data || data.length === 0) {
@@ -47,7 +48,7 @@ const EcosIndex = () => {
         });
       }
     } catch (error: any) {
-      console.error('Erreur chargement situations ECOS:', error);
+      logger.error('Erreur chargement situations ECOS:', error);
       toast.error(`Erreur: ${error.message || 'Impossible de charger les situations'}`);
     } finally {
       setLoading(false);

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import { callSunoApi } from '../musicGenerationApi';
 import { createRequestBody } from '../musicGenerationUtils';
@@ -16,7 +17,7 @@ export const useMusicTransposition = () => {
     duration: number = 240
   ) => {
     try {
-      console.log(`🌍 Transposition vers ${targetLanguage}...`);
+      logger.debug(`🌍 Transposition vers ${targetLanguage}...`);
       const translatedLyrics = await translateLyricsIfNeeded(originalLyrics);
       
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, 'TRANSPOSE', duration, targetLanguage, false);

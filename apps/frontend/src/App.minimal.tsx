@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -13,7 +14,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  console.log('🚀 App rendering...');
+  logger.debug('🚀 App rendering...');
   
   return (
     <React.StrictMode>

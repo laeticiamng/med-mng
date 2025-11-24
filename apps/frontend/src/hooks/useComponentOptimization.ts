@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useCallback, useMemo, useRef, useEffect, DependencyList } from 'react';
 
 /**
@@ -210,12 +211,12 @@ export function useRenderTime(componentName: string) {
 
     if (renderTime > 16) {
       // 16ms = 60fps frame
-      console.warn(
+      logger.warn(
         `[Slow Render] ${componentName} took ${renderTime.toFixed(2)}ms (> 16ms)`
       );
     }
 
-    console.debug(`[Render Time] ${componentName}: ${renderTime.toFixed(2)}ms`);
+    logger.debug(`[Render Time] ${componentName}: ${renderTime.toFixed(2)}ms`);
   });
 }
 
@@ -224,8 +225,8 @@ export function useRenderTime(componentName: string) {
  */
 export function useLifecycle(componentName: string) {
   useEffect(() => {
-    console.debug(`[Mount] ${componentName}`);
-    return () => console.debug(`[Unmount] ${componentName}`);
+    logger.debug(`[Mount] ${componentName}`);
+    return () => logger.debug(`[Unmount] ${componentName}`);
   }, [componentName]);
 }
 
@@ -270,7 +271,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error('Error reading localStorage:', error);
+      logger.error('Error reading localStorage:', error);
       return initialValue;
     }
   });
@@ -282,7 +283,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         setStoredValue(valueToStore);
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
-        console.error('Error setting localStorage:', error);
+        logger.error('Error setting localStorage:', error);
       }
     },
     [key, storedValue]

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -48,7 +49,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
         await generateLyricsFromSongMeta(id);
       }
     } catch (error) {
-      console.error('Erreur chargement paroles synchronisées:', error);
+      logger.error('Erreur chargement paroles synchronisées:', error);
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
         await saveSynchronizedLyrics(targetSongId, generatedLyrics, 'ai_generated');
       }
     } catch (error) {
-      console.error('Erreur génération paroles:', error);
+      logger.error('Erreur génération paroles:', error);
     }
   };
 
@@ -138,7 +139,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
 
       return true;
     } catch (error) {
-      console.error('Erreur sauvegarde paroles:', error);
+      logger.error('Erreur sauvegarde paroles:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les paroles",

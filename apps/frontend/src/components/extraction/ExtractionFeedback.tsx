@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -351,7 +352,7 @@ export function ExtractionFeedback({
           severity="high"
           onRetry={onRetry}
           onReport={(details) => {
-            console.log('Rapport d\'erreur extraction:', details);
+            logger.debug('Rapport d\'erreur extraction:', details);
             toast.success('Rapport d\'erreur envoyé à l\'équipe technique');
           }}
         />

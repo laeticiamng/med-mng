@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useRef, useState, ImgHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -109,7 +110,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
  *   alt="Description détaillée de l'image pour accessibilité"
  *   fallbackSrc="/path/to/fallback.jpg"
  *   className="w-full h-64 object-cover"
- *   onLoad={() => console.log('Image chargée')}
+ *   onLoad={() => logger.debug('Image chargée')}
  * />
  * ```
  */

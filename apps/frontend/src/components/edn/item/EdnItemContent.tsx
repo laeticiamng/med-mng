@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
@@ -34,15 +35,15 @@ interface EdnItemContentProps {
 }
 
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
-  console.log('🔍 EdnItemContent - Active section:', activeSection);
-  console.log('📊 EdnItemContent - Item data:', item);
+  logger.debug('🔍 EdnItemContent - Active section:', activeSection);
+  logger.debug('📊 EdnItemContent - Item data:', item);
   
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
-        console.log('📋 Rendering Tableau Rang A for:', item.item_code);
-        console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
-        console.log('📊 Item complet:', JSON.stringify(item, null, 2));
+        logger.debug('📋 Rendering Tableau Rang A for:', item.item_code);
+        logger.debug('📊 Tableau Rang A raw data:', item.tableau_rang_a);
+        logger.debug('📊 Item complet:', JSON.stringify(item, null, 2));
         return item.tableau_rang_a ? (
           <TableauRangA data={item.tableau_rang_a} itemCode={item.item_code} />
         ) : (
@@ -52,8 +53,8 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'tableau-b':
-        console.log('📋 Rendering Tableau Rang B for:', item.item_code);
-        console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
+        logger.debug('📋 Rendering Tableau Rang B for:', item.item_code);
+        logger.debug('📊 Tableau Rang B raw data:', item.tableau_rang_b);
         
         return (
           <TableauRangB 

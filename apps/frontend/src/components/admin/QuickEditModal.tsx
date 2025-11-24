@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -57,7 +58,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
         throw new Error(data.error || 'Erreur inconnue');
       }
     } catch (error) {
-      console.error('Erreur quick edit:', error);
+      logger.error('Erreur quick edit:', error);
       toast.error('Erreur lors de la modification');
     } finally {
       setLoading(false);

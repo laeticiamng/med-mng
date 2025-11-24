@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -50,7 +51,7 @@ export const useItemsCompleteness = () => {
   const runAutomatedAudit = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log('🔍 Starting automated completeness audit...');
+      logger.debug('🔍 Starting automated completeness audit...');
       
       const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
@@ -76,7 +77,7 @@ export const useItemsCompleteness = () => {
         throw new Error(data.error);
       }
     } catch (error) {
-      console.error('❌ Error running audit:', error);
+      logger.error('❌ Error running audit:', error);
       toast({
         title: "Erreur d'audit",
         description: "Impossible de lancer l'audit de complétude",
@@ -108,7 +109,7 @@ export const useItemsCompleteness = () => {
         }
       }
     } catch (error) {
-      console.error('❌ Error loading reports:', error);
+      logger.error('❌ Error loading reports:', error);
       toast({
         title: "Erreur de chargement",
         description: "Impossible de charger les rapports",
@@ -143,7 +144,7 @@ export const useItemsCompleteness = () => {
         setAlerts(data.data);
       }
     } catch (error) {
-      console.error('❌ Error loading alerts:', error);
+      logger.error('❌ Error loading alerts:', error);
       toast({
         title: "Erreur de chargement",
         description: "Impossible de charger les alertes",
@@ -171,7 +172,7 @@ export const useItemsCompleteness = () => {
       
       return null;
     } catch (error) {
-      console.error('❌ Error getting item status:', error);
+      logger.error('❌ Error getting item status:', error);
       return null;
     }
   }, []);
@@ -203,7 +204,7 @@ export const useItemsCompleteness = () => {
       
       return false;
     } catch (error) {
-      console.error('❌ Error resolving alert:', error);
+      logger.error('❌ Error resolving alert:', error);
       toast({
         title: "Erreur",
         description: "Impossible de résoudre l'alerte",
@@ -241,7 +242,7 @@ export const useItemsCompleteness = () => {
       
       return [];
     } catch (error) {
-      console.error('❌ Error loading history:', error);
+      logger.error('❌ Error loading history:', error);
       return [];
     }
   }, []);

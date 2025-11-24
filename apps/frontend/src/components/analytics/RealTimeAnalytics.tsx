@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -116,7 +117,7 @@ export const RealTimeAnalytics = () => {
       
       setActivities(mockActivities);
     } catch (error) {
-      console.error('Erreur lors du chargement des activités:', error);
+      logger.error('Erreur lors du chargement des activités:', error);
     } finally {
       setLoading(false);
     }

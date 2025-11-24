@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, Filter, MoreHorizontal, Shield, Ban, 
@@ -77,7 +78,7 @@ export const AdminUsersManager = () => {
 
       setUsers(transformedUsers);
     } catch (error) {
-      console.error('Erreur chargement utilisateurs:', error);
+      logger.error('Erreur chargement utilisateurs:', error);
       toast.error('Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
@@ -122,7 +123,7 @@ export const AdminUsersManager = () => {
       toast.success(`Action exécutée avec succès`);
       fetchUsers(); // Refresh
     } catch (error) {
-      console.error('Erreur action utilisateur:', error);
+      logger.error('Erreur action utilisateur:', error);
       toast.error('Erreur lors de l\'exécution de l\'action');
     }
   };

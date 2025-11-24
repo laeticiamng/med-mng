@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { EDNItemsAuditor, AuditReportGenerators } from '@shared/scripts/auditItems';
 import type { AuditResult, AuditReport } from '@shared/scripts/auditItems';
@@ -21,12 +22,12 @@ export const useAuditItems = (): UseAuditItemsResult => {
     setError(null);
     
     try {
-      console.log('🔍 Lancement de l\'audit des items EDN...');
+      logger.debug('🔍 Lancement de l\'audit des items EDN...');
       const auditReport = await EDNItemsAuditor.auditAllItems();
       setReport(auditReport);
-      console.log('✅ Audit terminé avec succès');
+      logger.debug('✅ Audit terminé avec succès');
     } catch (err) {
-      console.error('❌ Erreur lors de l\'audit:', err);
+      logger.error('❌ Erreur lors de l\'audit:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
     } finally {
       setLoading(false);
@@ -35,7 +36,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
 
   const exportReport = (format: 'json' | 'markdown') => {
     if (!report) {
-      console.warn('Aucun rapport à exporter');
+      logger.warn('Aucun rapport à exporter');
       return;
     }
 
@@ -64,7 +65,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    console.log(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
+    logger.debug(`📄 Rapport ${format.toUpperCase()} exporté: ${filename}`);
   };
 
   return {

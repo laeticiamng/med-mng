@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -116,7 +117,7 @@ export const RealTimeDashboard = () => {
           setRecentActivity(data);
         }
       } catch (err) {
-        console.error('Erreur récupération activité:', err);
+        logger.error('Erreur récupération activité:', err);
       }
     };
 

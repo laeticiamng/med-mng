@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MusicGenerationStatus, MusicGenerationMetadata } from '@shared/types/music';
@@ -10,7 +11,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     if (!taskId) return;
 
     try {
-      console.log('🔍 Vérification statut pour taskId:', taskId);
+      logger.debug('🔍 Vérification statut pour taskId:', taskId);
       
       // Vérifier d'abord en base de données - Récupérer TOUS les tracks
       const { data: dbTracks, error: dbError } = await supabase
@@ -19,7 +20,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
 
       if (dbTracks && dbTracks.length > 0 && !dbError) {
-        console.log(`✅ ${dbTracks.length} track(s) trouvé(s) en BDD`);
+        logger.debug(`✅ ${dbTracks.length} track(s) trouvé(s) en BDD`);
         
         // Prioriser les tracks avec audio_url valide (URL HTTP, pas un taskId)
         const completedTrack = dbTracks.find(t => 
@@ -30,7 +31,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         );
         const dbTrack = completedTrack || dbTracks[0]; // Sinon prendre le premier
         
-        console.log('📀 Track sélectionné:', {
+        logger.debug('📀 Track sélectionné:', {
           id: dbTrack.id,
           has_audio: !!dbTrack.audio_url,
           is_valid_url: dbTrack.audio_url?.startsWith('http'),
@@ -66,20 +67,20 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         // Arrêter le polling si terminé
         if (finalStatus === 'completed' || finalStatus === 'failed') {
           setIsPolling(false);
-          console.log('🏁 Génération terminée, arrêt du polling');
+          logger.debug('🏁 Génération terminée, arrêt du polling');
         }
 
         return statusData;
       }
 
       // Si pas trouvé en BDD ou pas complété, vérifier via l'API de statut
-      console.log('📡 Vérification via API de statut...');
+      logger.debug('📡 Vérification via API de statut...');
       const { data, error } = await supabase.functions.invoke('music-status', {
         body: { taskId }
       });
 
       if (data && !error) {
-        console.log('📊 Statut reçu via API:', data);
+        logger.debug('📊 Statut reçu via API:', data);
         
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
@@ -95,17 +96,17 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         
         if (data.status === 'completed' || data.status === 'failed') {
           setIsPolling(false);
-          console.log('🏁 Génération terminée via API, arrêt du polling');
+          logger.debug('🏁 Génération terminée via API, arrêt du polling');
         }
         
         return statusData;
       } else {
-        console.error('❌ Erreur lors de l\'appel API de statut:', error);
+        logger.error('❌ Erreur lors de l\'appel API de statut:', error);
         // Continuer le polling même en cas d'erreur temporaire
       }
 
     } catch (error) {
-      console.error('❌ Erreur vérification statut:', error);
+      logger.error('❌ Erreur vérification statut:', error);
       setStatus({
         taskId: taskId,
         status: 'failed',
@@ -120,7 +121,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
   const startPolling = useCallback(() => {
     if (!taskId) return;
     
-    console.log('🔄 Démarrage polling pour taskId:', taskId);
+    logger.debug('🔄 Démarrage polling pour taskId:', taskId);
     setIsPolling(true);
     
     // Vérification immédiate
@@ -129,7 +130,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
   // Arrêter le polling
   const stopPolling = useCallback(() => {
-    console.log('⏹️ Arrêt du polling');
+    logger.debug('⏹️ Arrêt du polling');
     setIsPolling(false);
   }, []);
 
@@ -145,7 +146,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     const doPoll = async () => {
       if (isCancelled) return;
 
-      console.log('⏰ Polling check automatique...');
+      logger.debug('⏰ Polling check automatique...');
       await checkStatus();
 
       if (isCancelled) return;
@@ -154,7 +155,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       const elapsed = Date.now() - startTime;
       const pollInterval = elapsed > 30000 ? 8000 : 3000;
       
-      console.log(`⏱️ Prochain polling dans ${pollInterval/1000}s`);
+      logger.debug(`⏱️ Prochain polling dans ${pollInterval/1000}s`);
       timeoutId = setTimeout(doPoll, pollInterval);
     };
 
@@ -163,7 +164,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
     // Timeout de sécurité : arrêter après 5 minutes
     safetyTimeoutId = setTimeout(() => {
-      console.warn('⏱️ Timeout polling après 5 minutes');
+      logger.warn('⏱️ Timeout polling après 5 minutes');
       isCancelled = true;
       setIsPolling(false);
       setStatus(prev => prev ? { ...prev, status: 'failed', error: 'Timeout de génération' } : null);

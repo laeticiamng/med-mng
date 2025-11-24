@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -54,11 +55,11 @@ export const CookieBanner = () => {
     // Implémenter la logique de tracking selon les préférences
     if (prefs.analytics) {
       // Activer Google Analytics, Plausible, etc.
-      console.log('📊 Analytics activées');
+      logger.debug('📊 Analytics activées');
     }
     if (prefs.functional) {
       // Activer fonctionnalités avancées
-      console.log('⚙️ Cookies fonctionnels activés');
+      logger.debug('⚙️ Cookies fonctionnels activés');
     }
   };
 

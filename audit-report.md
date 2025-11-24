@@ -1,0 +1,19 @@
+# Audit Report - 2025-11-24T16:14:29.306Z
+
+## Secrets
+Status: fail
+Missing: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY, CAS_USERNAME, CAS_PASSWORD, UNES_EMAIL, UNES_PASSWORD, CAS_USER, CAS_PASS, OPENAI_API_KEY, SUNO_API_KEY, RESEND_API_KEY, VITE_EMOTIONSCARE_URL, ALERT_EMAIL, DISCORD_WEBHOOK_URL, SLACK_WEBHOOK_URL, SENTRY_DSN, JWT_SECRET, ALLOWED_ORIGINS, BATCH_SIZE
+
+## Endpoints
+- health: DOWN
+- api-health: DOWN
+
+## Batch Logs
+Status: ok
+
+## Data Integrity
+Status: fail
+
+## Scripts
+Status: fail
+Warning in: clean-production.js

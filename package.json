@@ -25,7 +25,8 @@
     "validate-migrations": "node --loader ts-node/esm scripts/validate-migrations.ts",
     "distribute-pages": "node scripts/distribute-pages-analysis.js",
     "show-group": "node scripts/show-group.js",
-    "verify-distribution": "node scripts/verify-distribution.js"
+    "verify-distribution": "node scripts/verify-distribution.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -152,10 +153,12 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
     "jest": "^25.0.0",
+    "lint-staged": "^16.2.7",
     "lovable-tagger": "^1.1.7",
     "postcss": "^8.4.47",
-    "prettier": "^3.2.5",
+    "prettier": "^3.6.2",
     "supertest": "^6.3.4",
     "tailwindcss": "^3.4.11",
     "ts-jest": "^29.1.1",

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,10 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
         .single();
 
       if (error) {
-        console.error('Erreur:', error);
+        logger.error('Erreur:', error);
       } else {
         setItem(data);
-        console.log('✅ Item chargé:', {
+        logger.debug('✅ Item chargé:', {
           item_code: data.item_code,
           title: data.title,
           sections_rang_a: (data.tableau_rang_a as any)?.sections?.length || 0,

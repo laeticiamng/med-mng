@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -51,7 +52,7 @@ export const usePlaylists = () => {
       }));
       setPlaylists(playlistsWithCount);
     } catch (error) {
-      console.error('Erreur chargement playlists:', error);
+      logger.error('Erreur chargement playlists:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger vos playlists",
@@ -81,7 +82,7 @@ export const usePlaylists = () => {
       await loadPlaylists();
       return data;
     } catch (error) {
-      console.error('Erreur création playlist:', error);
+      logger.error('Erreur création playlist:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer la playlist",
@@ -108,7 +109,7 @@ export const usePlaylists = () => {
       await loadPlaylists();
       return true;
     } catch (error) {
-      console.error('Erreur mise à jour playlist:', error);
+      logger.error('Erreur mise à jour playlist:', error);
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour la playlist",
@@ -135,7 +136,7 @@ export const usePlaylists = () => {
       await loadPlaylists();
       return true;
     } catch (error) {
-      console.error('Erreur suppression playlist:', error);
+      logger.error('Erreur suppression playlist:', error);
       toast({
         title: "Erreur",
         description: "Impossible de supprimer la playlist",
@@ -163,7 +164,7 @@ export const usePlaylists = () => {
       await loadPlaylists();
       return true;
     } catch (error) {
-      console.error('Erreur ajout chanson:', error);
+      logger.error('Erreur ajout chanson:', error);
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter la chanson à la playlist",
@@ -192,7 +193,7 @@ export const usePlaylists = () => {
       await loadPlaylists();
       return true;
     } catch (error) {
-      console.error('Erreur retrait chanson:', error);
+      logger.error('Erreur retrait chanson:', error);
       toast({
         title: "Erreur",
         description: "Impossible de retirer la chanson de la playlist",
@@ -220,7 +221,7 @@ export const usePlaylists = () => {
 
       return true;
     } catch (error) {
-      console.error('Erreur réorganisation:', error);
+      logger.error('Erreur réorganisation:', error);
       toast({
         title: "Erreur",
         description: "Impossible de réorganiser les chansons",
@@ -272,7 +273,7 @@ export const usePlaylists = () => {
         songs: formattedSongs
       };
     } catch (error) {
-      console.error('Erreur récupération détails playlist:', error);
+      logger.error('Erreur récupération détails playlist:', error);
       return null;
     }
   };

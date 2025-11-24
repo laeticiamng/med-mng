@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMusicPolling } from './useMusicPolling';
@@ -31,7 +32,7 @@ export const useMusicGenerationOrchestrator = () => {
     validateAndNormalizeAudioUrl
   }: GenerationConfig) => {
     try {
-      console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO Rang ${rang} en ${currentLanguage}`);
+      logger.debug(`🎵 DÉMARRAGE GÉNÉRATION SUNO Rang ${rang} en ${currentLanguage}`);
       
       const requestBody = {
         lyrics: translatedLyrics,
@@ -43,21 +44,21 @@ export const useMusicGenerationOrchestrator = () => {
       };
 
       // Démarrer la génération initiale
-      console.log('🎵 Appel initial pour démarrer la génération...');
+      logger.debug('🎵 Appel initial pour démarrer la génération...');
       const { data: initialData, error: initialError } = await supabase.functions.invoke('generate-music', {
         body: requestBody
       });
 
       if (initialError) {
-        console.error('❌ Erreur lors du démarrage:', initialError);
+        logger.error('❌ Erreur lors du démarrage:', initialError);
         throw new Error(initialError.message || 'Erreur lors du démarrage de la génération');
       }
 
-      console.log('🎵 Réponse initiale:', initialData);
+      logger.debug('🎵 Réponse initiale:', initialData);
 
       // Si c'est déjà un succès (peu probable), on termine
       if (initialData?.status === 'success' && initialData?.audioUrl) {
-        console.log('🎵 GÉNÉRATION TERMINÉE IMMÉDIATEMENT:', initialData.audioUrl);
+        logger.debug('🎵 GÉNÉRATION TERMINÉE IMMÉDIATEMENT:', initialData.audioUrl);
         const validatedAudioUrl = validateAndNormalizeAudioUrl(initialData.audioUrl);
         
         toast({
@@ -113,7 +114,7 @@ export const useMusicGenerationOrchestrator = () => {
       });
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
+      logger.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
       
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       toast({

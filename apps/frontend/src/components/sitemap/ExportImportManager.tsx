@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,7 @@ export function ExportImportManager({ favorites, tags, visitStats, onImport }: E
       // Réinitialiser l'input
       event.target.value = '';
     } catch (error) {
-      console.error('Import error:', error);
+      logger.error('Import error:', error);
       setImportStatus({
         type: 'error',
         message: error instanceof Error ? error.message : 'Erreur lors de l\'import',

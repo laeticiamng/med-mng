@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ export function PWAInstallPrompt() {
         setDeferredPrompt(null);
         setShowPrompt(false);
       } catch (error) {
-        console.error('Erreur installation PWA:', error);
+        logger.error('Erreur installation PWA:', error);
         toast.error('Erreur lors de l\'installation');
       }
     }

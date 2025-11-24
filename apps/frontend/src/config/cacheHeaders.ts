@@ -134,6 +134,7 @@ gzip_types text/plain text/css text/javascript application/json application/java
 export const expressConfig = `
 import express from 'express';
 import compression from 'compression';
+import logger from '@/lib/logger';
 
 const app = express();
 
@@ -278,9 +279,9 @@ export const verifyCacheHeaders = async (url: string) => {
       'Content-Encoding': response.headers.get('Content-Encoding'),
       'Age': response.headers.get('Age'),
     };
-    console.log('Cache Headers:', headers);
+    logger.debug('Cache Headers:', headers);
     return headers;
   } catch (error) {
-    console.error('Error checking cache headers:', error);
+    logger.error('Error checking cache headers:', error);
   }
 };

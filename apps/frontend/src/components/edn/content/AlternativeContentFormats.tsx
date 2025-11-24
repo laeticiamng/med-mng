@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
         description: `Le ${getFormatLabel(format)} a été généré avec succès.`,
       });
     } catch (error) {
-      console.error(`Erreur génération ${format}:`, error);
+      logger.error(`Erreur génération ${format}:`, error);
       toast({
         title: "Erreur de génération",
         description: `Impossible de générer le ${getFormatLabel(format)}.`,

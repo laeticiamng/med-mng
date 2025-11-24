@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -159,6 +160,14 @@ export default defineConfig(({ mode }) => ({
         enabled: true,
         type: 'module'
       }
+    }),
+    // 📊 Bundle analysis - generates stats.html after build
+    mode === 'production' && visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap', // or 'sunburst', 'network'
     })
   ].filter(Boolean),
   resolve: {
@@ -179,13 +188,28 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: 'esnext',
 
+    // ⚡ PERFORMANCE BUDGET - Prevent bundle bloat
+    // ----------------------------------------------
+    // Warns if individual chunks exceed 200 KB (uncompressed)
+    // Current violations (as of 2025-11-24):
+    //   - pdf-*.js: 590 KB (176 KB gzipped) - jsPDF + html2canvas [lazy loaded ✓]
+    //   - index-*.js: 473 KB (127 KB gzipped) - Main bundle [needs further splitting]
+    //   - charts-*.js: 432 KB (114 KB gzipped) - Recharts library [lazy loadable]
+    //   - xlsx-*.js: 429 KB (143 KB gzipped) - Excel export [lazy loaded ✓]
+    //
+    // ℹ️ Why 200 KB limit?
+    //   - Industry best practice for 3G networks (1-2s parse time)
+    //   - Forces code splitting for better caching
+    //   - Prevents accidental bundle bloat from new dependencies
+    //
+    // 🎯 Next actions when warning appears:
+    //   1. Check if library can be lazy loaded (dynamic import)
+    //   2. Consider lighter alternatives
+    //   3. Split into smaller chunks if possible
+    //   4. Document why large size is acceptable (if unavoidable)
+    chunkSizeWarningLimit: 200, // KB (default: 500 KB)
+
     // ⚡ OPTIMIZATION: Chunk splitting for better caching
-    chunkSizeWarningLimit: 1000,
-
-    // ⚡ MINIFICATION & SOURCE MAPS
-    minify: 'terser',
-    sourcemap: mode === 'development',
-
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;
@@ -203,30 +227,75 @@ export default defineConfig(({ mode }) => ({
           'react-query': ['@tanstack/react-query', '@tanstack/react-query-persist-client'],
           'state': ['zustand'],
 
-          // UI Components
+          // Supabase (large client library)
+          'supabase': ['@supabase/supabase-js'],
+
+          // UI Components - Core
           'ui-core': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-popover',
             '@radix-ui/react-tooltip',
             '@radix-ui/react-tabs',
-            '@radix-ui/react-scroll-area'
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-separator',
           ],
-          'ui-form': ['react-hook-form', 'zod'],
+          'ui-form': [
+            'react-hook-form',
+            'zod',
+            '@hookform/resolvers',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-label',
+          ],
+
+          // UI Components - Advanced
+          'ui-advanced': [
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-collapsible',
+            '@radix-ui/react-context-menu',
+            '@radix-ui/react-hover-card',
+            '@radix-ui/react-menubar',
+            '@radix-ui/react-navigation-menu',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-toggle',
+            '@radix-ui/react-toggle-group',
+          ],
+
+          // Data display & interaction
+          'data-display': [
+            '@tanstack/react-table',
+            'react-virtualized-auto-sizer',
+            'react-window',
+            'react-window-infinite-loader',
+          ],
+
+          // Drag & Drop
+          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
 
           // Utilities
-          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority', 'cmdk'],
+          'format': ['date-fns', 'dompurify'],
+          'search': ['fuse.js'],
 
           // Heavy libraries
-          'charts': ['recharts', 'chart.js'],
+          'charts': ['recharts'],
           'icons': ['lucide-react'],
           'animations': ['framer-motion'],
+          'carousel': ['embla-carousel-react'],
 
-          // Audio & Media
-          'audio': [],
+          // Monitoring
+          'monitoring': ['@sentry/react', 'web-vitals'],
 
-          // Large third-party packages
+          // Large third-party packages (lazy loaded)
           'xlsx': ['xlsx'],
-          'pdf': ['jspdf', 'html2canvas'],
+          'pdf': ['jspdf', 'html2canvas', 'jspdf-autotable'],
         },
 
         // Optimize chunk names for production

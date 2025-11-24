@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Music } from 'lucide-react';
@@ -29,7 +30,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangB
 }) => {
   if (ENABLE_DEBUG) {
-    console.log('🎵 ParolesMusicales - Rendu avec props:', { 
+    logger.debug('🎵 ParolesMusicales - Rendu avec props:', { 
       paroles: paroles?.length,
       paroles_rang_a: paroles_rang_a?.length,
       paroles_rang_b: paroles_rang_b?.length,
@@ -70,8 +71,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   });
 
   if (ENABLE_DEBUG) {
-    console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
-    console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
+    logger.debug('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
+    logger.debug('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
   }
 
   return (

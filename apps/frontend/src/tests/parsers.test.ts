@@ -58,8 +58,10 @@ const parseQuizQuestions = (rawQuestions: any[]): any[] => {
     if (!q.question || !q.options || !Array.isArray(q.options)) {
       throw new Error(`Question ${index} malformée`);
     }
-    
+
+    // Preserve all metadata by spreading the original object
     return {
+      ...q,
       id: q.id || index,
       question: q.question,
       options: q.options,

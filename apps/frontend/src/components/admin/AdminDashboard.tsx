@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -114,7 +115,7 @@ export const AdminDashboard: React.FC = () => {
         lastUpdate: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Erreur lors de la récupération des stats:', error);
+      logger.error('Erreur lors de la récupération des stats:', error);
       toast.error('Erreur lors du chargement des statistiques système');
       setSystemStats(prev => ({ ...prev, systemHealth: 'critical' }));
     } finally {
@@ -142,7 +143,7 @@ export const AdminDashboard: React.FC = () => {
 
       setRecentActivity(activities);
     } catch (error) {
-      console.error('Erreur activité récente:', error);
+      logger.error('Erreur activité récente:', error);
     } finally {
       setLoading(false);
     }
@@ -191,7 +192,7 @@ export const AdminDashboard: React.FC = () => {
       await fetchRecentActivity();
       
     } catch (error) {
-      console.error(`Erreur action ${action}:`, error);
+      logger.error(`Erreur action ${action}:`, error);
       toast.error(`Erreur lors de l'exécution de ${action}`, { id: action });
     } finally {
       setRefreshing(false);

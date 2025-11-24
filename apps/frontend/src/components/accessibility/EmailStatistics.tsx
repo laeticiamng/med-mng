@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -92,7 +93,7 @@ export const EmailStatistics: React.FC = () => {
         bounceRate: totalSent > 0 ? (totalBounced / totalSent) * 100 : 0
       });
     } catch (error) {
-      console.error('Error loading email statistics:', error);
+      logger.error('Error loading email statistics:', error);
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { useFetchContentReports, useResolveContentReport } from '@/hooks/useAdmin'
 import { Card, CardContent } from '@/components/ui/card'
@@ -32,7 +33,7 @@ export default function ContentReportsPanel() {
       setReviewStatus(null)
     } catch (error) {
       toast.error('Failed to resolve report')
-      console.error(error)
+      logger.error(error)
     }
   }
 

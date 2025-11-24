@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
@@ -21,7 +22,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   const renderSection = () => {
     const sectionName = sections[currentSection];
     
-    console.log('🎵 Rendu section:', currentSection, 'paroles_musicales:', item.paroles_musicales);
+    logger.debug('🎵 Rendu section:', currentSection, 'paroles_musicales:', item.paroles_musicales);
     
     switch (currentSection) {
       case 0: // Pitch d'introduction
@@ -97,7 +98,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 4: // Paroles musicales
-        console.log('🎵 Affichage section Paroles musicales, données:', {
+        logger.debug('🎵 Affichage section Paroles musicales, données:', {
           paroles: item.paroles_musicales,
           length: item.paroles_musicales?.length,
           item_code: item.item_code

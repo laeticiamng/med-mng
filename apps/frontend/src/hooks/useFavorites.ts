@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { userFavoritesService } from '@shared/services/user-favorites.service'
@@ -34,7 +35,7 @@ export const useFavorites = () => {
         try {
           setLocalFavorites(JSON.parse(stored))
         } catch (error) {
-          console.error('Error loading local favorites:', error)
+          logger.error('Error loading local favorites:', error)
         }
       }
     }, [])

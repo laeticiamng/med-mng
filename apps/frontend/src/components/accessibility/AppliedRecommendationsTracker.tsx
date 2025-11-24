@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import logger from '@/lib/logger';
 import {
   Loader2,
   TrendingUp,
@@ -67,7 +68,7 @@ export function AppliedRecommendationsTracker() {
     try {
       await measureImpact(id);
     } catch (error) {
-      console.error('Error measuring impact:', error);
+      logger.error('Error measuring impact:', error);
     }
   };
 
@@ -78,7 +79,7 @@ export function AppliedRecommendationsTracker() {
       setSelectedRec(null);
       setNotes('');
     } catch (error) {
-      console.error('Error updating notes:', error);
+      logger.error('Error updating notes:', error);
     }
   };
 

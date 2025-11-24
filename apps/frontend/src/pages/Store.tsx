@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Sparkles, Package } from 'lucide-react';
@@ -25,7 +26,7 @@ export default function Store() {
       const data = await getProducts();
       setProducts(data);
     } catch (error) {
-      console.error('Error loading products:', error);
+      logger.error('Error loading products:', error);
       toast.error('Erreur lors du chargement des produits');
     } finally {
       setLoading(false);

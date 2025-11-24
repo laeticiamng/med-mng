@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { createContext, useContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Wifi, WifiOff, Database, Shield, Clock } from 'lucide-react';
@@ -22,7 +23,7 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   const handleAPIError = useCallback((error: any, context = 'Action') => {
-    console.error('API Error:', error);
+    logger.error('API Error:', error);
 
     // Parse standardized error format
     let errorData: APIError = {
@@ -101,7 +102,7 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
 
     // Special handling for critical errors
     if (errorData.code >= 500) {
-      console.error('Critical API Error:', {
+      logger.error('Critical API Error:', {
         error: errorData,
         context,
         timestamp: new Date().toISOString()
@@ -124,7 +125,7 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
   }, [toast]);
 
   const handleNetworkError = useCallback((error: any) => {
-    console.error('Network Error:', error);
+    logger.error('Network Error:', error);
 
     const isOnline = navigator.onLine;
     
@@ -138,7 +139,7 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
   }, [toast]);
 
   const handleAuthError = useCallback((error: any) => {
-    console.error('Auth Error:', error);
+    logger.error('Auth Error:', error);
     
     toast({
       title: '🔐 Erreur d\'authentification',

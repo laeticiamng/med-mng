@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -82,7 +83,7 @@ export function useSecurityIncidents() {
     },
     onError: (error) => {
       toast.error('Erreur lors de la mise à jour de l\'incident');
-      console.error('Update incident error:', error);
+      logger.error('Update incident error:', error);
     },
   });
 
@@ -109,7 +110,7 @@ export function useSecurityIncidents() {
     },
     onError: (error) => {
       toast.error('Erreur lors de l\'escalade');
-      console.error('Escalate incident error:', error);
+      logger.error('Escalate incident error:', error);
     },
   });
 

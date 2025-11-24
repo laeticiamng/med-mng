@@ -9,6 +9,7 @@
  * - Real-time updates via Supabase
  */
 
+import logger from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -77,7 +78,7 @@ export const useWishlist = (): UseWishlistReturn => {
 
       setWishlist(data || []);
     } catch (err: any) {
-      console.error('Error fetching wishlist:', err);
+      logger.error('Error fetching wishlist:', err);
       setError(err.message || 'Failed to fetch wishlist');
     } finally {
       setLoading(false);
@@ -147,7 +148,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error adding to wishlist:', err);
+        logger.error('Error adding to wishlist:', err);
         setError(err.message || 'Failed to add to wishlist');
         return false;
       }
@@ -178,7 +179,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error removing from wishlist:', err);
+        logger.error('Error removing from wishlist:', err);
         setError(err.message || 'Failed to remove from wishlist');
         return false;
       }
@@ -209,7 +210,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error toggling wishlist:', err);
+        logger.error('Error toggling wishlist:', err);
         setError(err.message || 'Failed to toggle wishlist');
         return false;
       }
@@ -233,7 +234,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error updating priority:', err);
+        logger.error('Error updating priority:', err);
         setError(err.message || 'Failed to update priority');
         return false;
       }
@@ -257,7 +258,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error updating notes:', err);
+        logger.error('Error updating notes:', err);
         setError(err.message || 'Failed to update notes');
         return false;
       }
@@ -281,7 +282,7 @@ export const useWishlist = (): UseWishlistReturn => {
         await fetchWishlist();
         return true;
       } catch (err: any) {
-        console.error('Error marking as purchased:', err);
+        logger.error('Error marking as purchased:', err);
         setError(err.message || 'Failed to mark as purchased');
         return false;
       }

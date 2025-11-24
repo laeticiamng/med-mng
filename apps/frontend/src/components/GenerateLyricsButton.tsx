@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -35,7 +36,7 @@ export const GenerateLyricsButton = () => {
       })
       
       if (result.errors && result.errors.length > 0) {
-        console.log('Erreurs détaillées:', result.errors)
+        logger.debug('Erreurs détaillées:', result.errors)
       }
     } catch (error) {
       toast({

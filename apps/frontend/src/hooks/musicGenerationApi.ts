@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { secureSunoClient } from '@/lib/secureApiClient';
 
@@ -23,10 +24,10 @@ interface GenerateMusicRequest {
 }
 
 export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
-  console.log('🚀 APPEL ULTRA-RAPIDE À EDGE FUNCTION SUPABASE:', requestBody);
+  logger.debug('🚀 APPEL ULTRA-RAPIDE À EDGE FUNCTION SUPABASE:', requestBody);
   
   const startTime = Date.now();
-  console.log('⚡ Démarrage génération ultra-optimisée...');
+  logger.debug('⚡ Démarrage génération ultra-optimisée...');
 
   // Forcer le mode rapide pour toutes les générations
   const optimizedRequest = {
@@ -42,11 +43,11 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     });
 
     const callDuration = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`⚡ Durée appel ultra-optimisée: ${callDuration}s`);
+    logger.debug(`⚡ Durée appel ultra-optimisée: ${callDuration}s`);
 
     // Gestion d'erreurs optimisée
     if (error) {
-      console.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
+      logger.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
       
       let errorMessage = 'Erreur lors de la génération musicale ultra-rapide';
       
@@ -67,7 +68,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
       throw new Error(errorMessage);
     }
 
-    console.log('📥 RÉPONSE ULTRA-RAPIDE REÇUE:', data);
+    logger.debug('📥 RÉPONSE ULTRA-RAPIDE REÇUE:', data);
 
     if (!data) {
       throw new Error('Aucune donnée reçue en mode ultra-rapide');
@@ -75,7 +76,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
 
     // Gestion des timeouts côté serveur
     if (data.status === 'timeout') {
-      console.warn('⏰ TIMEOUT SERVEUR - La génération prend plus de temps que prévu');
+      logger.warn('⏰ TIMEOUT SERVEUR - La génération prend plus de temps que prévu');
       throw new Error('⏰ La génération Suno prend plus de temps que prévu. Cela peut arriver quand l\'API est très occupée. Réessayez dans 2-3 minutes.');
     }
 
@@ -94,27 +95,27 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
         errorMessage = '🔑 Problème d\'authentication avec l\'API Suno. Contactez l\'administrateur.';
       }
       
-      console.error('❌ ERREUR API SUNO ULTRA-RAPIDE:', errorMessage);
+      logger.error('❌ ERREUR API SUNO ULTRA-RAPIDE:', errorMessage);
       throw new Error(errorMessage);
     }
 
     // L'API Suno peut retourner soit directement audioUrl, soit trackId pour polling
     if (data.audioUrl) {
-      console.log(`🎧 URL AUDIO ULTRA-RAPIDE REÇUE: ${data.audioUrl}`);
-      console.log(`⚡ Validation ultra-rapide: ${data.audioUrl.startsWith('http') ? '✅ Valide' : '❌ Invalide'}`);
+      logger.debug(`🎧 URL AUDIO ULTRA-RAPIDE REÇUE: ${data.audioUrl}`);
+      logger.debug(`⚡ Validation ultra-rapide: ${data.audioUrl.startsWith('http') ? '✅ Valide' : '❌ Invalide'}`);
       return { audioUrl: data.audioUrl, callDuration };
     } else if (data.trackId) {
-      console.log(`🆔 TRACK ID REÇU pour polling: ${data.trackId}`);
+      logger.debug(`🆔 TRACK ID REÇU pour polling: ${data.trackId}`);
       // Retourner le trackId pour que le système de polling puisse récupérer l'audio plus tard
       return { trackId: data.trackId, callDuration };
     } else {
-      console.error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide:', data);
+      logger.error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide:', data);
       throw new Error('Aucune URL audio ni trackId généré par l\'API Suno');
     }
     
   } catch (supabaseError) {
     const callDuration = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`⚡ Durée appel (avec erreur): ${callDuration}s`);
+    logger.debug(`⚡ Durée appel (avec erreur): ${callDuration}s`);
     
     // Re-throw l'erreur pour qu'elle soit gérée par le caller
     throw supabaseError;

@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { useState, useRef } from 'react';
 
 interface GeneratingState {
@@ -48,7 +49,7 @@ export const useMusicGenerationState = () => {
   };
 
   const setAudioUrl = (rang: 'A' | 'B' | 'AB', url: string) => {
-    console.log(`🎵 STATE - setAudioUrl appelé:`, { rang, url, urlValid: url?.startsWith('http') });
+    logger.debug(`🎵 STATE - setAudioUrl appelé:`, { rang, url, urlValid: url?.startsWith('http') });
     
     const audioKey = rang === 'A' ? 'rangA' : rang === 'B' ? 'rangB' : 'rangAB';
     
@@ -57,7 +58,7 @@ export const useMusicGenerationState = () => {
         ...prev,
         [audioKey]: url
       };
-      console.log(`🎵 STATE - Nouvel état generatedAudio:`, newState);
+      logger.debug(`🎵 STATE - Nouvel état generatedAudio:`, newState);
       return newState;
     });
   };

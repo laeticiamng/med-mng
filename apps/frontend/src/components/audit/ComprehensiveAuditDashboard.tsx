@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,7 @@ export const ComprehensiveAuditDashboard = () => {
       const result = await ComprehensiveSystemAuditor.runFullAudit();
       setAuditResult(result);
     } catch (error) {
-      console.error('Erreur audit complet:', error);
+      logger.error('Erreur audit complet:', error);
     } finally {
       setLoading(false);
     }
@@ -36,7 +37,7 @@ export const ComprehensiveAuditDashboard = () => {
         await runComprehensiveAudit();
       }
     } catch (error) {
-      console.error('Erreur corrections automatiques:', error);
+      logger.error('Erreur corrections automatiques:', error);
     } finally {
       setFixing(false);
     }
@@ -127,13 +128,13 @@ export const ComprehensiveAuditDashboard = () => {
                       setFixing(true);
                       try {
                         const fixedCount = await ComprehensiveSystemAuditor.massFixEdnItems();
-                        console.log(`${fixedCount} items EDN corrigés massivement`);
+                        logger.debug(`${fixedCount} items EDN corrigés massivement`);
                         // Relancer l'audit après les corrections
                         if (fixedCount > 0) {
                           await runComprehensiveAudit();
                         }
                       } catch (error) {
-                        console.error('Erreur corrections massives:', error);
+                        logger.error('Erreur corrections massives:', error);
                       } finally {
                         setFixing(false);
                       }

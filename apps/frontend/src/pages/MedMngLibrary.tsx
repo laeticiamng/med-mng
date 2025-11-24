@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
@@ -31,12 +32,12 @@ const MedMngLibraryComponent = () => {
     queryKey: ['med-mng-library', currentPage],
     queryFn: async () => {
       try {
-        console.log('📚 Chargement de la bibliothèque...');
+        logger.debug('📚 Chargement de la bibliothèque...');
         const result = await medMngApi.getLibrary(currentPage, 12);
-        console.log('✅ Bibliothèque chargée:', result);
+        logger.debug('✅ Bibliothèque chargée:', result);
         return result;
       } catch (err) {
-        console.error('❌ Erreur chargement bibliothèque:', err);
+        logger.error('❌ Erreur chargement bibliothèque:', err);
         // Retourner un tableau vide plutôt que de lancer l'erreur
         return [];
       }
@@ -61,7 +62,7 @@ const MedMngLibraryComponent = () => {
       try {
         return await medMngApi.getRemainingQuota();
       } catch (err) {
-        console.error('❌ Erreur chargement quota:', err);
+        logger.error('❌ Erreur chargement quota:', err);
         return { remaining_credits: 0 };
       }
     },

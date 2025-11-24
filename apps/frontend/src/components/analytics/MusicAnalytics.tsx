@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,7 +101,7 @@ export const MusicAnalytics: React.FC = () => {
       setStats(calculatedStats);
 
     } catch (error) {
-      console.error('Erreur chargement analytics:', error);
+      logger.error('Erreur chargement analytics:', error);
     } finally {
       setLoading(false);
     }

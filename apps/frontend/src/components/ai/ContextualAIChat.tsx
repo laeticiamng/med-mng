@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -165,7 +166,7 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
       setMessages(prev => [...prev, assistantMessage]);
 
     } catch (error) {
-      console.error('Erreur Chat IA:', error);
+      logger.error('Erreur Chat IA:', error);
       
       toast({
         title: "Erreur de communication",

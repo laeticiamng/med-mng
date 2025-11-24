@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,7 +63,7 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
         }
 
       } catch (err) {
-        console.error('Error loading item:', err);
+        logger.error('Error loading item:', err);
         setError(err instanceof Error ? err.message : 'Erreur de chargement');
       } finally {
         setLoading(false);

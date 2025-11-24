@@ -9,6 +9,7 @@ import {
   useOverdueSessions,
   useCompleteSession,
 } from '@/hooks/useStudyPlanProgress';
+import logger from '@/lib/logger';
 import {
   BookOpen,
   Calendar,
@@ -75,7 +76,7 @@ export const StudyPlanWidget: React.FC = () => {
     try {
       await completeSession.mutateAsync({ sessionId });
     } catch (error) {
-      console.error('Error completing session:', error);
+      logger.error('Error completing session:', error);
     }
   };
 

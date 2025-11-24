@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 
 export const useMusicValidation = () => {
   const validateAndNormalizeAudioUrl = (audioUrl: string): string => {
@@ -6,12 +8,12 @@ export const useMusicValidation = () => {
     }
 
     if (audioUrl.startsWith('/')) {
-      console.log('🎵 URL RELATIVE DÉTECTÉE:', audioUrl);
+      logger.debug('🎵 URL RELATIVE DÉTECTÉE:', audioUrl);
       return audioUrl;
     }
 
     if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
-      console.log('🎵 URL ABSOLUE DÉTECTÉE:', audioUrl);
+      logger.debug('🎵 URL ABSOLUE DÉTECTÉE:', audioUrl);
       return audioUrl;
     }
 

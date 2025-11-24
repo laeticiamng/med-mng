@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 /**
  * Bulk generation of Nekfeu-style medical educational lyrics
  * Generates lyrics for all EDN items or previews specific items
@@ -50,7 +52,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       errors: data.errors || [],
     };
   } catch (error) {
-    console.error('Error generating all advanced lyrics:', error);
+    logger.error('Error generating all advanced lyrics:', error);
 
     // Simulate processing for development
     return {
@@ -95,7 +97,7 @@ export async function previewLyricsForItem(
     const data = await response.json();
     return data.lyrics || [];
   } catch (error) {
-    console.error('Error previewing lyrics:', error);
+    logger.error('Error previewing lyrics:', error);
 
     // Fallback: Return example structure
     const rangLabel = rang === 'AB' ? 'Rangs A + B' : `Rang ${rang}`;

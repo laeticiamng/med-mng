@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -58,7 +59,7 @@ export const BatchLyricsGenerator = () => {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Erreur inconnue';
       addLog(`❌ Erreur: ${errorMsg}`);
-      console.error('Erreur génération:', error);
+      logger.error('Erreur génération:', error);
     } finally {
       setIsRunning(false);
     }

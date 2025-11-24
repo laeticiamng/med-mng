@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +33,7 @@ export const ItemCompetencesChecker = () => {
         description: `Score de complétude: ${data.analysis.score_completude}%`,
       });
     } catch (error: any) {
-      console.error('Erreur vérification:', error);
+      logger.error('Erreur vérification:', error);
       toast({
         title: '❌ Erreur',
         description: error.message || 'Impossible de vérifier les compétences',
@@ -68,7 +69,7 @@ export const ItemCompetencesChecker = () => {
         description: `${data.stats?.updated} items mis à jour avec vérification IA`,
       });
     } catch (error: any) {
-      console.error('Erreur régénération:', error);
+      logger.error('Erreur régénération:', error);
       toast({
         title: '❌ Erreur',
         description: error.message || 'Impossible de régénérer',

@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Navigate } from 'react-router-dom'
@@ -56,7 +57,7 @@ export default function ReportsAdminPanel() {
       setReportNotes('')
     } catch (error) {
       toast.error('Failed to update report')
-      console.error(error)
+      logger.error(error)
     }
   }
 
@@ -78,7 +79,7 @@ export default function ReportsAdminPanel() {
       setAppealNotes('')
     } catch (error) {
       toast.error('Failed to review appeal')
-      console.error(error)
+      logger.error(error)
     }
   }
 

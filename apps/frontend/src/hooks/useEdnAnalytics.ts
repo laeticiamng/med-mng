@@ -3,6 +3,7 @@
  * Enregistre les consultations, recherches et temps passé
  */
 
+import logger from '@/lib/logger';
 import { useEffect, useRef, useCallback } from 'react';
 import { 
   trackItemView, 
@@ -37,7 +38,7 @@ export function useTrackItemView(itemCode: string | null) {
         const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
         trackItemView(itemCode, timeSpent);
         trackedRef.current = true;
-        console.log(`[Analytics] Item ${itemCode} viewed for ${timeSpent}s`);
+        logger.debug(`[Analytics] Item ${itemCode} viewed for ${timeSpent}s`);
       }
     };
   }, [itemCode]);

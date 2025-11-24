@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -46,7 +47,7 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
 
       setSituations(data || []);
     } catch (error) {
-      console.error('Erreur chargement situations ECOS:', error);
+      logger.error('Erreur chargement situations ECOS:', error);
       toast.error('Erreur lors du chargement des situations ECOS');
     } finally {
       setLoading(false);
@@ -74,7 +75,7 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
         onEnrichWithAI(sdId.toString());
       }
     } catch (error: any) {
-      console.error('Erreur enrichissement IA:', error);
+      logger.error('Erreur enrichissement IA:', error);
       toast.error(`Erreur: ${error.message || 'Échec de l\'enrichissement IA'}`);
     } finally {
       setEnriching(null);

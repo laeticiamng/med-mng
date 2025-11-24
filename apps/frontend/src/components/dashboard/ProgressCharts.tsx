@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
@@ -22,7 +23,7 @@ export const ProgressCharts: React.FC = () => {
         .order('updated_at', { ascending: true });
 
       if (error) {
-        console.error('Error fetching progress history:', error);
+        logger.error('Error fetching progress history:', error);
         return [];
       }
       

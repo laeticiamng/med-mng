@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
     if (trackIdForPolling && !isPolling) {
-      console.log('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
+      logger.debug('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
       startPolling();
     }
   }, [trackIdForPolling, isPolling, startPolling]);
@@ -42,7 +43,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   // Notification quand l'audio est prêt et auto-update du song avec animation
   useEffect(() => {
     if (audioUrl && audioUrl.startsWith('http') && isGenerating) {
-      console.log('🎉 Audio disponible ! Mise à jour automatique:', audioUrl);
+      logger.debug('🎉 Audio disponible ! Mise à jour automatique:', audioUrl);
       
       // Mettre à jour le generatedSong avec le nouveau audioUrl
       if (generatedSong && typeof generatedSong === 'object') {
@@ -61,7 +62,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [audioUrl, isGenerating, generatedSong, toast]);
 
-  console.log('🎵 GeneratorMusicPlayer render:', {
+  logger.debug('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
     audioUrl: generatedSong?.audioUrl,
     isCurrentTrack: currentTrack?.url === generatedSong?.audioUrl,
@@ -86,7 +87,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       });
       return;
     }
-    console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
+    logger.debug('🎵 GeneratorMusicPlayer: Tentative de lecture', {
       audioUrl: generatedSong.audioUrl,
       title: generatedSong.title,
       isCurrentTrack,
@@ -101,7 +102,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         finalAudioUrl === '' || 
         finalAudioUrl === 'undefined' ||
         finalAudioUrl === null) {
-      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
+      logger.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
       toast({
         title: "Erreur",
         description: "URL audio manquante ou invalide. Veuillez regénérer la musique.",
@@ -112,14 +113,14 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
     if (isCurrentTrack) {
       if (isPlaying) {
-        console.log('⏸️ Pause audio en cours');
+        logger.debug('⏸️ Pause audio en cours');
         pause();
       } else {
-        console.log('▶️ Reprise audio');
+        logger.debug('▶️ Reprise audio');
         resume();
       }
     } else {
-      console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
+      logger.debug('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
       play({
         url: finalAudioUrl,
         title: generatedSong.title || 'Musique générée',
@@ -151,7 +152,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         });
       }
     } catch (error) {
-      console.error('Erreur de partage:', error);
+      logger.error('Erreur de partage:', error);
     }
   };
 

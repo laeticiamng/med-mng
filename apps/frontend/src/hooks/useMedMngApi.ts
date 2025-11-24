@@ -1,4 +1,5 @@
 
+import logger from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 
 const API_BASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/med-mng-api';
@@ -146,7 +147,7 @@ class MedMngApi {
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Erreur API library:', error);
+        logger.error('Erreur API library:', error);
         throw new Error(error.error || 'Échec récupération bibliothèque MED-MNG');
       }
 
@@ -157,7 +158,7 @@ class MedMngApi {
       return result?.items || [];
     } catch (error) {
       // Retourner un tableau vide en cas d'erreur
-      console.error('Erreur getLibrary:', error);
+      logger.error('Erreur getLibrary:', error);
       return [];
     }
   }
@@ -189,14 +190,14 @@ class MedMngApi {
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Erreur API quota:', error);
+        logger.error('Erreur API quota:', error);
         throw new Error(error.error || 'Échec récupération quota MED-MNG');
       }
 
       return response.json();
     } catch (error) {
       // Retourner un quota par défaut en cas d'erreur
-      console.error('Erreur getRemainingQuota:', error);
+      logger.error('Erreur getRemainingQuota:', error);
       return {
         remaining_credits: 0
       };

@@ -6,7 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import logger from '@/lib/logger';
+import {
   Play, RefreshCw, CheckCircle, AlertCircle, XCircle, 
   TrendingUp, TrendingDown, Loader2, ArrowLeft, Search, Sparkles
 } from 'lucide-react';
@@ -49,7 +50,7 @@ export const EdnAuditDashboard: React.FC = () => {
       .order('completeness_score', { ascending: true });
 
     if (error) {
-      console.error('Error loading audit results:', error);
+      logger.error('Error loading audit results:', error);
       return;
     }
 
@@ -101,7 +102,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Error starting audit:', error);
+      logger.error('Error starting audit:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de lancer l'audit",
@@ -165,7 +166,7 @@ export const EdnAuditDashboard: React.FC = () => {
       await loadAuditResults();
 
     } catch (error: any) {
-      console.error('Error completing item:', error);
+      logger.error('Error completing item:', error);
       
       // Message d'erreur plus détaillé
       let errorMessage = error.message || "Impossible de compléter les compétences";
@@ -222,7 +223,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Error completing all items:', error);
+      logger.error('Error completing all items:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de compléter tous les items",
