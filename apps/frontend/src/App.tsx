@@ -252,6 +252,9 @@ const TeamDashboard = lazy(() => import("./pages/TeamDashboard"));
 const TeamMembers = lazy(() => import("./pages/TeamMembers"));
 const TeamChallenges = lazy(() => import("./pages/TeamChallenges"));
 
+// Direct Messaging
+const Messages = lazy(() => import("./pages/Messages"));
+
 // Events & Calendar
 const EventsDashboard = lazy(() => import("./pages/EventsDashboard"));
 const EventsCalendar = lazy(() => import("./pages/EventsCalendar"));
@@ -579,6 +582,9 @@ const App = () => {
              <Route path={ROUTE_PATHS.teamDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamDashboard /></Suspense>} />
              <Route path={ROUTE_PATHS.teamMembers} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamMembers /></Suspense>} />
              <Route path={ROUTE_PATHS.teamChallenges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TeamChallenges /></Suspense>} />
+
+             {/* Direct Messaging - PROTECTED */}
+             <Route path={ROUTE_PATHS.messages} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Messages /></Suspense></ProtectedRoute>} />
 
              {/* Events & Calendar - PUBLIC read, PROTECTED write */}
              <Route path={ROUTE_PATHS.events} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventsDashboard /></Suspense>} />

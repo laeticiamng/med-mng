@@ -205,6 +205,10 @@ export const ROUTE_PATHS = {
   teamMembers: '/teams/:teamId/members',
   teamChallenges: '/teams/:teamId/challenges',
 
+  // Direct Messaging
+  messages: '/messages',
+  messagesThread: '/messages/:userId',
+
   // Events & Calendar
   events: '/events',
   eventDetail: '/events/:eventId',
