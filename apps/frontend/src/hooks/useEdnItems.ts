@@ -8,8 +8,67 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryClient';
 import { EdnItem, EdnItemUnified } from '@shared/types/edn';
+import type { Database } from '@/integrations/supabase/types';
 
 const ITEMS_PER_PAGE = 50;
+
+type EdnCompleteRow = Database['public']['Tables']['edn_items_complete']['Row'];
+
+function mapCompleteRowToUnified(row: EdnCompleteRow): EdnItemUnified {
+  return {
+    id: row.id,
+    item_code: row.item_code,
+    slug: row.slug,
+    title: row.title,
+    subtitle: row.subtitle ?? undefined,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    specialite: row.specialite ?? undefined,
+    domaine_medical: row.domaine_medical ?? undefined,
+    niveau_complexite: row.niveau_complexite ?? undefined,
+    mots_cles: row.mots_cles ?? undefined,
+    tags_medicaux: row.tags_medicaux ?? undefined,
+    status: row.status ?? undefined,
+    completeness_score: row.completeness_score ?? undefined,
+    is_validated: row.is_validated ?? undefined,
+    validation_date: row.validation_date ?? undefined,
+    competences_count_rang_a: row.competences_count_rang_a ?? 0,
+    competences_count_rang_b: row.competences_count_rang_b ?? 0,
+    competences_count_total: row.competences_count_total ?? 0,
+    has_tableau_rang_a: Boolean(row.tableau_rang_a),
+    has_tableau_rang_b: Boolean(row.tableau_rang_b),
+    has_paroles_musicales: Array.isArray(row.paroles_musicales) && row.paroles_musicales.length > 0,
+    has_paroles_rang_a: Array.isArray(row.paroles_rang_a) && row.paroles_rang_a.length > 0,
+    has_paroles_rang_b: Array.isArray(row.paroles_rang_b) && row.paroles_rang_b.length > 0,
+    has_paroles_rang_ab: Array.isArray(row.paroles_rang_ab) && row.paroles_rang_ab.length > 0,
+    has_scene_immersive: Boolean(row.scene_immersive),
+    has_quiz_questions: Boolean(row.quiz_questions),
+    has_audio_ambiance: Boolean(row.audio_ambiance),
+    has_visual_ambiance: Boolean(row.visual_ambiance),
+    competences_oic_rang_a: row.competences_oic_rang_a as unknown as EdnItemUnified['competences_oic_rang_a'],
+    competences_oic_rang_b: row.competences_oic_rang_b as unknown as EdnItemUnified['competences_oic_rang_b'],
+  };
+}
+
+async function fetchFromCompleteTable(page: number): Promise<{ items: EdnItemUnified[]; count: number }> {
+  const from = page * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
+
+  const { data, error, count } = await supabase
+    .from('edn_items_complete')
+    .select('*', { count: 'exact' })
+    .range(from, to);
+
+  if (error) {
+    logger.error('[React Query] Fallback fetch from edn_items_complete failed', error);
+    throw new Error(`Erreur lors du chargement des items: ${error.message}`);
+  }
+
+  return {
+    items: (data || []).map(mapCompleteRowToUnified),
+    count: count || 0,
+  };
+}
 
 /**
  * Fetcher pour les items unifiés (vue matérialisée)
@@ -25,16 +84,21 @@ async function fetchUnifiedItems(page: number): Promise<{ items: EdnItemUnified[
     .from('edn_items_unified' as any)
     .select('*', { count: 'exact' })
     .range(from, to);
-  
+
   if (error) {
-    logger.error('[React Query] Error fetching unified items:', error);
-    throw new Error(`Erreur lors du chargement des items: ${error.message}`);
+    logger.warn('[React Query] Error fetching unified items, using fallback table', error);
+    return fetchFromCompleteTable(page);
   }
-  
-  logger.debug('[React Query] Fetched', data?.length, 'items (total:', count, ')');
-  
+
+  if (!data || data.length === 0) {
+    logger.warn('[React Query] Unified view is empty, falling back to edn_items_complete');
+    return fetchFromCompleteTable(page);
+  }
+
+  logger.debug('[React Query] Fetched', data.length, 'items (total:', count, ')');
+
   return {
-    items: (data || []) as unknown as EdnItemUnified[],
+    items: data as unknown as EdnItemUnified[],
     count: count || 0,
   };
 }
