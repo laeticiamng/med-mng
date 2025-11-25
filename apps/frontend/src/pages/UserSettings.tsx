@@ -90,6 +90,9 @@ const defaultAppearanceSettings = {
   colorScheme: 'default' as 'default' | 'blue' | 'green' | 'purple',
 };
 
+// Dangerous property names that could lead to prototype pollution
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 // Helper function to validate that parsed data only contains expected keys
 function validateSettings<T extends Record<string, unknown>>(
   parsed: unknown,
@@ -102,8 +105,8 @@ function validateSettings<T extends Record<string, unknown>>(
   const result: Partial<T> = {};
   for (const key of validKeys) {
     if (
-      key in parsed &&
-      !key.startsWith('__') && // Prevent prototype pollution
+      Object.prototype.hasOwnProperty.call(parsed, key) &&
+      !DANGEROUS_KEYS.has(key) &&
       typeof (parsed as Record<string, unknown>)[key] === typeof defaults[key]
     ) {
       result[key as keyof T] = (parsed as Record<string, unknown>)[key] as T[keyof T];
@@ -210,9 +213,6 @@ const UserSettings: React.FC = () => {
             saveSettings(STORAGE_KEYS.appearance, appearanceSettings);
             break;
         }
-
-        // Small delay for UX feedback
-        await new Promise(resolve => setTimeout(resolve, 300));
 
         toast.success('Paramètres sauvegardés !', {
           description: `Les paramètres de ${section} ont été mis à jour avec succès.`,
