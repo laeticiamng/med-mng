@@ -31,7 +31,7 @@ const MainSections = () => {
       icon: Users,
       color: "bg-success",
       count: "Situations cliniques",
-      status: "En cours de développement",
+      status: "Disponible",
       features: [
         "Scénarios cliniques réalistes",
         "Évaluation par compétences",
@@ -39,7 +39,7 @@ const MainSections = () => {
         "Entraînement progressif"
       ],
       href: "/ecos",
-      badge: "Bientôt"
+      badge: "Nouveau"
     },
     {
       id: "chat",
@@ -159,10 +159,10 @@ const MainSections = () => {
                   ))}
                 </div>
 
-                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors" disabled={section.id === "ecos"}>
+                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
                   <Link to={section.href} className="flex items-center justify-center gap-2">
-                    {section.id === "ecos" ? "Bientôt disponible" : "Accéder"}
-                    {section.id !== "ecos" && <ArrowRight className="h-4 w-4" />}
+                    Accéder
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>

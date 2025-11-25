@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import {
   Select,
   SelectContent,
@@ -12,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Image, Loader, X } from 'lucide-react'
+import { Image, Loader, X, ImagePlus } from 'lucide-react'
 import { useCreatePost } from '@/hooks/usePosts'
+import { usePostImageUpload, compressPostImage } from '@/hooks/usePostImageUpload'
 import { PostCategory } from '@shared/services/posts.service'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -25,6 +27,8 @@ interface CreatePostFormProps {
 export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
   const { user } = useAuth()
   const createPost = useCreatePost()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -32,6 +36,21 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
     category: 'lifestyle' as PostCategory,
     tags: [] as string[],
     tagInput: '',
+  })
+
+  // Hook pour l'upload d'images
+  const {
+    images,
+    upload: uploadImages,
+    removeImage,
+    clearImages,
+    isUploading,
+    progress: uploadProgress,
+    canAddMore,
+    maxFiles
+  } = usePostImageUpload({
+    maxFiles: 4,
+    maxSizeMB: 5,
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,6 +79,37 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
     }))
   }
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    try {
+      // Compresser les images avant upload
+      const compressedFiles: File[] = []
+      for (const file of Array.from(files)) {
+        const compressed = await compressPostImage(file)
+        compressedFiles.push(compressed)
+      }
+
+      uploadImages(compressedFiles)
+    } catch {
+      toast.error('Erreur lors de la préparation des images')
+    }
+
+    // Réinitialiser l'input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleImageClick = () => {
+    if (canAddMore) {
+      fileInputRef.current?.click()
+    } else {
+      toast.error(`Maximum ${maxFiles} images autorisées`)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -73,6 +123,9 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
       return
     }
 
+    // Inclure les URLs des images dans le post
+    const imageUrls = images.map(img => img.url)
+
     createPost.mutate(
       {
         title: formData.title,
@@ -80,6 +133,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
         description: formData.description,
         category: formData.category,
         tags: formData.tags,
+        images: imageUrls,
       },
       {
         onSuccess: () => {
@@ -92,6 +146,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
             tags: [],
             tagInput: '',
           })
+          clearImages()
           onSuccess?.()
         },
         onError: () => {
@@ -254,20 +309,93 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
             )}
           </div>
 
-          {/* Image Upload (Placeholder) */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Image (Bientôt disponible)</label>
-            <Button variant="outline" type="button" disabled className="w-full">
-              <Image className="h-4 w-4 mr-2" />
-              Ajouter une image
+          {/* Image Upload */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              Images ({images.length}/{maxFiles})
+            </label>
+
+            {/* Images prévisualisées */}
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {images.map((image, index) => (
+                  <div key={index} className="relative group aspect-square">
+                    <img
+                      src={image.url}
+                      alt={image.name}
+                      className="w-full h-full object-cover rounded-lg border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 rounded-b-lg truncate">
+                      {image.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Progress bar */}
+            {isUploading && (
+              <div className="space-y-2">
+                <Progress value={uploadProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground text-center">
+                  Upload en cours... {uploadProgress}%
+                </p>
+              </div>
+            )}
+
+            {/* Input file caché */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+              disabled={isUploading || !canAddMore}
+            />
+
+            {/* Bouton d'ajout */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleImageClick}
+              disabled={isUploading || !canAddMore}
+              className="w-full"
+            >
+              {isUploading ? (
+                <>
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                  Upload en cours...
+                </>
+              ) : canAddMore ? (
+                <>
+                  <ImagePlus className="h-4 w-4 mr-2" />
+                  Ajouter {images.length > 0 ? 'plus d\'' : 'des '}images
+                </>
+              ) : (
+                <>
+                  <Image className="h-4 w-4 mr-2" />
+                  Maximum atteint ({maxFiles} images)
+                </>
+              )}
             </Button>
+            <p className="text-xs text-muted-foreground">
+              Formats: JPG, PNG, WebP, GIF (max {maxFiles} images, 5MB chacune)
+            </p>
           </div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
             <Button
               type="submit"
-              disabled={createPost.isPending}
+              disabled={createPost.isPending || isUploading}
               data-testid="create-post-button"
             >
               {createPost.isPending ? (
@@ -282,7 +410,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
+              onClick={() => {
                 setFormData({
                   title: '',
                   content: '',
@@ -291,7 +419,8 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
                   tags: [],
                   tagInput: '',
                 })
-              }
+                clearImages()
+              }}
             >
               Réinitialiser
             </Button>

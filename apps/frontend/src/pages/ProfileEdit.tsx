@@ -46,7 +46,9 @@ export default function ProfileEdit() {
   // Hook pour l'upload d'avatar
   const {
     upload: uploadAvatar,
+    delete: deleteAvatar,
     isUploading,
+    isDeleting,
     progress: uploadProgress
   } = useAvatarUpload({
     userId: currentUser?.id || '',
@@ -105,9 +107,16 @@ export default function ProfileEdit() {
   }
 
   const handleRemoveAvatar = () => {
+    // Supprimer l'avatar du serveur si il existe
+    if (profile?.avatar_url) {
+      // Extraire le path du fichier depuis l'URL
+      const urlParts = profile.avatar_url.split('/avatars/')
+      if (urlParts.length > 1) {
+        const path = `avatars/${urlParts[1]}`
+        deleteAvatar(path)
+      }
+    }
     setPreviewUrl(null)
-    // TODO: Appeler la suppression sur le serveur si nécessaire
-    toast.success('Photo de profil retirée')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
