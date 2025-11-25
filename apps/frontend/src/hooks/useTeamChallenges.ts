@@ -132,8 +132,9 @@ export function useTeamChallenges(status?: 'active' | 'completed' | 'upcoming') 
           createdBy: row.created_by,
           teamId: row.team_id
         }));
-      } catch {
+      } catch (error) {
         // Fallback sur les données mock
+        console.error('Error fetching team challenges:', error);
         let challenges = MOCK_CHALLENGES;
         if (status) {
           challenges = challenges.filter(c => c.status === status);
@@ -173,7 +174,8 @@ export function useTeamLeaderboard(limit = 10) {
           members: row.members_count,
           avatarUrl: row.avatar_url
         }));
-      } catch {
+      } catch (error) {
+        console.error('Error fetching team leaderboard:', error);
         return MOCK_LEADERBOARD.slice(0, limit);
       }
     },
