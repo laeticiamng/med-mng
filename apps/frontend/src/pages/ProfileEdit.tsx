@@ -256,7 +256,7 @@ export default function ProfileEdit() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFileSelect}
                     className="hidden"
                     disabled={isUploading}

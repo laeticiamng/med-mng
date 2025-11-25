@@ -1,5 +1,5 @@
 import logger from '@/lib/logger';
-import { useCallback, useMemo, useRef, useEffect, DependencyList } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, DependencyList } from 'react';
 
 /**
  * Collection of hooks for optimizing component performance

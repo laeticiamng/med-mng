@@ -25,10 +25,10 @@ export function useAvatarUpload({ userId, onSuccess, onError }: UseAvatarUploadO
     mutationFn: async (file: File): Promise<UploadResult> => {
       // Validation du fichier
       const maxSize = 5 * 1024 * 1024; // 5MB
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
       if (!allowedTypes.includes(file.type)) {
-        throw new Error('Format non supporté. Utilisez JPG, PNG, WebP ou GIF.');
+        throw new Error('Format non supporté. Utilisez JPG, PNG ou WebP.');
       }
 
       if (file.size > maxSize) {
