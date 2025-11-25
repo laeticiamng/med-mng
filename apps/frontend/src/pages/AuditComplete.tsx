@@ -1,5 +1,5 @@
 import logger from '@/lib/logger';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -15,31 +15,167 @@ import { AuditIC4 } from '@/components/edn/audit/AuditIC4';
 import { AuditIC5 } from '@/components/edn/audit/AuditIC5';
 import { AuditComparatif } from '@/components/edn/audit/AuditComparatif';
 import { TranslatedText } from '@/components/TranslatedText';
-import { 
-  FileText, 
-  TrendingUp, 
-  Download, 
-  ArrowLeft, 
-  Award, 
-  BarChart3, 
-  Database, 
-  Target, 
-  BookOpen, 
-  Users, 
+import { useAuditItems } from '@/hooks/useAuditItems';
+import { useComprehensiveAudit } from '@/hooks/useComprehensiveAudit';
+import { useToast } from '@/hooks/use-toast';
+import {
+  TrendingUp,
+  Download,
+  ArrowLeft,
+  Award,
+  BarChart3,
+  Database,
+  Target,
+  Users,
   Shield,
   Brain,
   Heart,
-  Stethoscope
+  Stethoscope,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AuditComplete = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isExporting, setIsExporting] = useState(false);
+  const { report: auditReport, runAudit } = useAuditItems();
+  const { report: comprehensiveReport } = useComprehensiveAudit();
+  const { toast } = useToast();
 
-  const handleExportReport = () => {
+  const handleExportReport = useCallback(async () => {
+    setIsExporting(true);
     logger.debug('Export du rapport complet d\'audit');
-    // Logique d'export à implémenter
-  };
+
+    try {
+      // Lazy load jsPDF
+      const [{ default: jsPDF }, _] = await Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable'),
+      ]);
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(59, 130, 246);
+      doc.text('Rapport d\'Audit Complet - MED MNG', pageWidth / 2, 20, { align: 'center' });
+
+      // Date
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`, pageWidth / 2, 28, { align: 'center' });
+
+      // Summary section
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text('Résumé Exécutif', 14, 45);
+
+      const summaryData = [
+        ['Items Total', '367'],
+        ['Modules Auditables', '10'],
+        ['Analyses Disponibles', '5'],
+        ['Couverture IC', 'IC-1 à IC-5'],
+      ];
+
+      (doc as any).autoTable({
+        head: [['Métrique', 'Valeur']],
+        body: summaryData,
+        startY: 50,
+        styles: { fontSize: 10, cellPadding: 4 },
+        headStyles: { fillColor: [59, 130, 246] },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+      });
+
+      // IC Sections summary
+      let currentY = (doc as any).lastAutoTable.finalY + 15;
+      doc.setFontSize(14);
+      doc.text('Couverture par Compétences Intégrées', 14, currentY);
+
+      const icData = [
+        ['IC-1', 'Relation médecin-malade', 'Compétences relationnelles'],
+        ['IC-2', 'Valeurs professionnelles', 'Éthique et déontologie'],
+        ['IC-3', 'Raisonnement et décision', 'Raisonnement clinique'],
+        ['IC-4', 'Qualité et sécurité', 'Pratiques de sécurité'],
+        ['IC-5', 'Pratique clinique', 'Compétences techniques'],
+      ];
+
+      (doc as any).autoTable({
+        head: [['IC', 'Domaine', 'Description']],
+        body: icData,
+        startY: currentY + 5,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [34, 197, 94] },
+        columnStyles: {
+          0: { cellWidth: 20 },
+          1: { cellWidth: 60 },
+          2: { cellWidth: 80 },
+        },
+      });
+
+      // Add audit report data if available
+      if (auditReport) {
+        currentY = (doc as any).lastAutoTable.finalY + 15;
+        doc.setFontSize(14);
+        doc.text('Résultats de l\'Audit EDN', 14, currentY);
+
+        const auditData = [
+          ['Total Items Audités', String(auditReport.totalItems || 0)],
+          ['Items Complets', String(auditReport.completeItems || 0)],
+          ['Items Incomplets', String(auditReport.incompleteItems || 0)],
+          ['Taux de Complétude', `${((auditReport.completeItems || 0) / (auditReport.totalItems || 1) * 100).toFixed(1)}%`],
+        ];
+
+        (doc as any).autoTable({
+          head: [['Métrique', 'Valeur']],
+          body: auditData,
+          startY: currentY + 5,
+          styles: { fontSize: 10, cellPadding: 4 },
+          headStyles: { fillColor: [168, 85, 247] },
+        });
+      }
+
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+          `Page ${i} sur ${pageCount} - Rapport d'Audit MED MNG`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save
+      const filename = `audit-complet-med-mng-${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+
+      toast({
+        title: 'Export réussi',
+        description: `Le rapport a été téléchargé sous le nom ${filename}`,
+      });
+
+      logger.debug(`Rapport PDF exporté: ${filename}`);
+    } catch (error) {
+      logger.error('Erreur lors de l\'export du rapport:', error);
+      toast({
+        title: 'Erreur d\'export',
+        description: 'Impossible de générer le rapport PDF. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [auditReport, comprehensiveReport, toast]);
 
   const auditSections = [
     {
@@ -147,9 +283,19 @@ const AuditComplete = () => {
             </div>
           </div>
           
-          <Button onClick={handleExportReport} className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700">
-            <Download className="h-4 w-4" />
-            <span><TranslatedText text="Exporter rapport" /></span>
+          <Button
+            onClick={handleExportReport}
+            disabled={isExporting}
+            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            <span>
+              <TranslatedText text={isExporting ? "Export en cours..." : "Exporter rapport"} />
+            </span>
           </Button>
         </div>
 

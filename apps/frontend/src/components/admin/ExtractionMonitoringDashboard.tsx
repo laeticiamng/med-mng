@@ -131,11 +131,17 @@ export function ExtractionMonitoringDashboard() {
       ]);
 
       if (statsRes.data?.success) {
-        const enhancedStats = {
-          ...statsRes.data.data,
-          avg_duration_minutes: 23.5,
-          peak_concurrent_extractions: 8,
-          data_volume_processed_gb: 145.7
+        const apiStats = statsRes.data.data;
+        // Utiliser les données de l'API, avec des valeurs par défaut si non disponibles
+        const enhancedStats: ExtractionStats = {
+          total_extractions: apiStats.total_extractions || 0,
+          recent_extractions_7d: apiStats.recent_extractions_7d || 0,
+          running_extractions: apiStats.running_extractions || 0,
+          success_rate_7d: apiStats.success_rate_7d || 0,
+          failed_extractions_7d: apiStats.failed_extractions_7d || 0,
+          avg_duration_minutes: apiStats.avg_duration_minutes ?? 0,
+          peak_concurrent_extractions: apiStats.peak_concurrent_extractions ?? 0,
+          data_volume_processed_gb: apiStats.data_volume_processed_gb ?? 0
         };
         setStats(enhancedStats);
       }
@@ -214,8 +220,30 @@ export function ExtractionMonitoringDashboard() {
   const pauseExtraction = async (batchId: string) => {
     try {
       toast.info(`Pause de l'extraction ${batchId}...`);
-      // Logique de pause à implémenter
+
+      const response = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'pause', batch_id: batchId }
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      if (response.data?.success) {
+        toast.success(`Extraction ${batchId} mise en pause`);
+        // Mettre à jour l'état local
+        setRunningExtractions(prev =>
+          prev.map(ext =>
+            ext.batch_id === batchId
+              ? { ...ext, status: 'paused' }
+              : ext
+          )
+        );
+      } else {
+        throw new Error(response.data?.message || 'Erreur inconnue');
+      }
     } catch (error) {
+      logger.error('Error pausing extraction:', error);
       toast.error('Erreur lors de la pause');
     }
   };
@@ -223,8 +251,30 @@ export function ExtractionMonitoringDashboard() {
   const resumeExtraction = async (batchId: string) => {
     try {
       toast.info(`Reprise de l'extraction ${batchId}...`);
-      // Logique de reprise à implémenter
+
+      const response = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'resume', batch_id: batchId }
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      if (response.data?.success) {
+        toast.success(`Extraction ${batchId} reprise`);
+        // Mettre à jour l'état local
+        setRunningExtractions(prev =>
+          prev.map(ext =>
+            ext.batch_id === batchId
+              ? { ...ext, status: 'running' }
+              : ext
+          )
+        );
+      } else {
+        throw new Error(response.data?.message || 'Erreur inconnue');
+      }
     } catch (error) {
+      logger.error('Error resuming extraction:', error);
       toast.error('Erreur lors de la reprise');
     }
   };
@@ -232,8 +282,28 @@ export function ExtractionMonitoringDashboard() {
   const stopExtraction = async (batchId: string) => {
     try {
       toast.info(`Arrêt de l'extraction ${batchId}...`);
-      // Logique d'arrêt à implémenter
+
+      const response = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'stop', batch_id: batchId }
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      if (response.data?.success) {
+        toast.success(`Extraction ${batchId} arrêtée`);
+        // Retirer de la liste des extractions en cours
+        setRunningExtractions(prev =>
+          prev.filter(ext => ext.batch_id !== batchId)
+        );
+        // Rafraîchir les données
+        fetchData();
+      } else {
+        throw new Error(response.data?.message || 'Erreur inconnue');
+      }
     } catch (error) {
+      logger.error('Error stopping extraction:', error);
       toast.error('Erreur lors de l\'arrêt');
     }
   };

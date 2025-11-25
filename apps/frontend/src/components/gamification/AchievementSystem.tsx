@@ -1,17 +1,27 @@
 import logger from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Award, Trophy, Medal, Star, Target, Crown,
+import {
+  Award, Trophy, Star, Target, Crown,
   Flame, Zap, BookOpen, Music, Users, Clock,
-  TrendingUp, CheckCircle, Gift, Sparkles
+  TrendingUp, CheckCircle, Gift, Sparkles, Loader2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  getAllBadges,
+  getUserBadges,
+  getUserAura,
+  getGamificationStats,
+  addXP,
+  BadgeDefinition,
+  UserBadge,
+  UserAura,
+  GamificationStats
+} from '@med-mng/shared/src/services/badges.service';
 
 interface Achievement {
   id: string;
@@ -44,143 +54,149 @@ interface UserLevel {
 export const AchievementSystem = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userLevel, setUserLevel] = useState<UserLevel>({
-    level: 12,
-    xp: 2340,
-    nextLevelXp: 2500,
-    totalXp: 12340,
-    rank: 'Étudiant Avancé',
-    title: 'Apprenti Médecin'
+    level: 1,
+    xp: 0,
+    nextLevelXp: 1000,
+    totalXp: 0,
+    rank: 'Débutant',
+    title: 'Étudiant'
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Récupérer l'utilisateur connecté
   useEffect(() => {
-    initializeAchievements();
-    fetchUserProgress();
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
   }, []);
 
-  const initializeAchievements = () => {
-    const mockAchievements: Achievement[] = [
-      // Achievements d'apprentissage
-      {
-        id: '1',
-        title: 'Premier pas',
-        description: 'Terminer votre première session d\'étude',
-        icon: 'BookOpen',
-        rarity: 'common',
-        category: 'learning',
-        points: 10,
-        unlocked: true,
-        unlockedAt: '2024-01-15T10:30:00Z',
-        rewards: { xp: 50 }
-      },
-      {
-        id: '2',
-        title: 'Mélomane médical',
-        description: 'Générer 10 musiques éducatives',
-        icon: 'Music',
-        rarity: 'rare',
-        category: 'music',
-        points: 25,
-        unlocked: true,
-        unlockedAt: '2024-02-01T14:20:00Z',
-        progress: 10,
-        maxProgress: 10,
-        rewards: { xp: 150, badges: ['Music Master'] }
-      },
-      {
-        id: '3',
-        title: 'Série parfaite',
-        description: 'Étudier 7 jours consécutifs',
-        icon: 'Flame',
-        rarity: 'epic',
-        category: 'consistency',
-        points: 50,
-        unlocked: false,
-        progress: 5,
-        maxProgress: 7,
-        rewards: { xp: 300, unlocks: ['Daily Bonus'] }
-      },
-      {
-        id: '4',
-        title: 'Maître des IC',
-        description: 'Compléter tous les items fondamentaux (IC-1 à IC-5)',
-        icon: 'Crown',
-        rarity: 'legendary',
-        category: 'mastery',
-        points: 100,
-        unlocked: false,
-        progress: 3,
-        maxProgress: 5,
-        rewards: { xp: 500, badges: ['IC Master'], unlocks: ['Advanced Features'] }
-      },
-      {
-        id: '5',
-        title: 'Collaborateur',
-        description: 'Participer à 5 sessions d\'étude collaborative',
-        icon: 'Users',
-        rarity: 'rare',
-        category: 'social',
-        points: 30,
-        unlocked: false,
-        progress: 2,
-        maxProgress: 5,
-        rewards: { xp: 200 }
-      },
-      {
-        id: '6',
-        title: 'Marathonien',
-        description: 'Étudier pendant plus de 2 heures en une session',
-        icon: 'Clock',
-        rarity: 'epic',
-        category: 'endurance',
-        points: 40,
-        unlocked: false,
-        progress: 0,
-        maxProgress: 1,
-        rewards: { xp: 250 }
-      },
-      {
-        id: '7',
-        title: 'Perfectionniste',
-        description: 'Obtenir 100% à 10 quiz consécutifs',
-        icon: 'Target',
-        rarity: 'epic',
-        category: 'performance',
-        points: 60,
-        unlocked: false,
-        progress: 6,
-        maxProgress: 10,
-        rewards: { xp: 350, badges: ['Perfect Score'] }
-      },
-      {
-        id: '8',
-        title: 'Pionnier',
-        description: 'Être parmi les premiers à tester une nouvelle fonctionnalité',
-        icon: 'Sparkles',
-        rarity: 'legendary',
-        category: 'special',
-        points: 75,
-        unlocked: true,
-        unlockedAt: '2024-01-10T09:00:00Z',
-        rewards: { xp: 400, badges: ['Early Adopter'] }
-      }
-    ];
-
-    setAchievements(mockAchievements);
-  };
-
-  const fetchUserProgress = async () => {
+  const fetchAchievements = useCallback(async () => {
     setLoading(true);
     try {
-      // Simulation de récupération des données utilisateur
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Récupérer toutes les définitions de badges
+      const allBadges = await getAllBadges();
+
+      // Récupérer les badges débloqués par l'utilisateur si connecté
+      let userBadges: UserBadge[] = [];
+      if (currentUserId) {
+        userBadges = await getUserBadges(currentUserId);
+      }
+
+      const userBadgeIds = new Set(userBadges.map(b => b.badge_id));
+
+      // Mapper les badges vers le format Achievement
+      const mappedAchievements: Achievement[] = allBadges.map((badge: BadgeDefinition) => {
+        const userBadge = userBadges.find(ub => ub.badge_id === badge.id);
+        const isUnlocked = userBadgeIds.has(badge.id);
+
+        return {
+          id: badge.id,
+          title: badge.name,
+          description: badge.description,
+          icon: mapCategoryToIcon(badge.category),
+          rarity: badge.rarity as 'common' | 'rare' | 'epic' | 'legendary',
+          category: badge.category,
+          points: badge.criteria_value * 10,
+          unlocked: isUnlocked,
+          unlockedAt: userBadge?.earned_at,
+          progress: isUnlocked ? badge.criteria_value : 0,
+          maxProgress: badge.criteria_value,
+          rewards: { xp: getRarityXP(badge.rarity) }
+        };
+      });
+
+      setAchievements(mappedAchievements);
     } catch (error) {
-      logger.error('Erreur lors du chargement des progrès:', error);
+      logger.error('Erreur lors du chargement des achievements:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les achievements',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
+  }, [currentUserId, toast]);
+
+  const fetchUserProgress = useCallback(async () => {
+    if (!currentUserId) return;
+
+    try {
+      // Récupérer l'aura et les stats de l'utilisateur
+      const [aura, stats] = await Promise.all([
+        getUserAura(currentUserId),
+        getGamificationStats(currentUserId)
+      ]);
+
+      const xpPerLevel = 1000;
+
+      setUserLevel({
+        level: aura.current_level,
+        xp: aura.current_xp,
+        nextLevelXp: xpPerLevel,
+        totalXp: aura.total_xp,
+        rank: getRankTitle(aura.current_level),
+        title: getLevelTitle(aura.current_level)
+      });
+    } catch (error) {
+      logger.error('Erreur lors du chargement des progrès:', error);
+    }
+  }, [currentUserId]);
+
+  useEffect(() => {
+    fetchAchievements();
+  }, [fetchAchievements]);
+
+  useEffect(() => {
+    fetchUserProgress();
+  }, [fetchUserProgress]);
+
+  // Fonctions utilitaires
+  const mapCategoryToIcon = (category: string): string => {
+    const iconMap: Record<string, string> = {
+      achievement: 'Trophy',
+      streak: 'Flame',
+      social: 'Users',
+      wellness: 'Sparkles',
+      learning: 'BookOpen'
+    };
+    return iconMap[category] || 'Award';
+  };
+
+  const getRarityXP = (rarity: string): number => {
+    const xpMap: Record<string, number> = {
+      common: 50,
+      uncommon: 100,
+      rare: 200,
+      epic: 350,
+      legendary: 500
+    };
+    return xpMap[rarity] || 50;
+  };
+
+  const getRankTitle = (level: number): string => {
+    if (level >= 50) return 'Grand Maître';
+    if (level >= 40) return 'Maître';
+    if (level >= 30) return 'Expert';
+    if (level >= 20) return 'Avancé';
+    if (level >= 10) return 'Intermédiaire';
+    if (level >= 5) return 'Apprenti';
+    return 'Débutant';
+  };
+
+  const getLevelTitle = (level: number): string => {
+    if (level >= 50) return 'Médecin Expert';
+    if (level >= 40) return 'Interne Confirmé';
+    if (level >= 30) return 'Externe Avancé';
+    if (level >= 20) return 'Étudiant Confirmé';
+    if (level >= 10) return 'Étudiant Avancé';
+    if (level >= 5) return 'Apprenti Médecin';
+    return 'Étudiant';
   };
 
   const getIcon = (iconName: string) => {
@@ -230,13 +246,37 @@ export const AchievementSystem = () => {
     { id: 'special', name: 'Spécial', icon: Sparkles }
   ];
 
-  const claimReward = (achievementId: string) => {
-    const achievement = achievements.find(a => a.id === achievementId);
-    if (achievement && achievement.unlocked) {
+  const claimReward = async (achievementId: string) => {
+    if (!currentUserId) {
       toast({
-        title: "Récompense réclamée !",
-        description: `Vous avez gagné ${achievement.rewards?.xp || 0} XP !`
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour réclamer vos récompenses.',
+        variant: 'destructive'
       });
+      return;
+    }
+
+    const achievement = achievements.find(a => a.id === achievementId);
+    if (achievement && achievement.unlocked && achievement.rewards?.xp) {
+      try {
+        // Ajouter les XP à l'utilisateur
+        await addXP(currentUserId, achievement.rewards.xp);
+
+        // Mettre à jour l'affichage local
+        await fetchUserProgress();
+
+        toast({
+          title: 'Récompense réclamée !',
+          description: `Vous avez gagné ${achievement.rewards.xp} XP !`
+        });
+      } catch (error) {
+        logger.error('Erreur lors de la réclamation de récompense:', error);
+        toast({
+          title: 'Erreur',
+          description: 'Impossible de réclamer la récompense',
+          variant: 'destructive'
+        });
+      }
     }
   };
 
