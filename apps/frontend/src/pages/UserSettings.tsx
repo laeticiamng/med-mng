@@ -42,6 +42,14 @@ const STORAGE_KEYS = {
   appearance: 'med-mng-user-appearance',
 } as const;
 
+// Section identifiers for save operations
+const SECTIONS = {
+  profile: 'profil',
+  notifications: 'notifications',
+  privacy: 'confidentialité',
+  appearance: 'apparence',
+} as const;
+
 // Default settings values
 const defaultProfileData = {
   firstName: 'Dr. Marie',
@@ -82,12 +90,36 @@ const defaultAppearanceSettings = {
   colorScheme: 'default' as 'default' | 'blue' | 'green' | 'purple',
 };
 
+// Helper function to validate that parsed data only contains expected keys
+function validateSettings<T extends Record<string, unknown>>(
+  parsed: unknown,
+  defaults: T
+): Partial<T> {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return {};
+  }
+  const validKeys = Object.keys(defaults);
+  const result: Partial<T> = {};
+  for (const key of validKeys) {
+    if (
+      key in parsed &&
+      !key.startsWith('__') && // Prevent prototype pollution
+      typeof (parsed as Record<string, unknown>)[key] === typeof defaults[key]
+    ) {
+      result[key as keyof T] = (parsed as Record<string, unknown>)[key] as T[keyof T];
+    }
+  }
+  return result;
+}
+
 // Helper function to safely load settings from localStorage
-function loadSettings<T>(key: string, defaults: T): T {
+function loadSettings<T extends Record<string, unknown>>(key: string, defaults: T): T {
   try {
     const stored = localStorage.getItem(key);
     if (stored) {
-      return { ...defaults, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      const validated = validateSettings(parsed, defaults);
+      return { ...defaults, ...validated };
     }
   } catch {
     // If parsing fails, return defaults
@@ -165,16 +197,16 @@ const UserSettings: React.FC = () => {
       try {
         // Persist settings to localStorage based on section
         switch (section) {
-          case 'profil':
+          case SECTIONS.profile:
             saveSettings(STORAGE_KEYS.profile, profileData);
             break;
-          case 'notifications':
+          case SECTIONS.notifications:
             saveSettings(STORAGE_KEYS.notifications, notificationSettings);
             break;
-          case 'confidentialité':
+          case SECTIONS.privacy:
             saveSettings(STORAGE_KEYS.privacy, privacySettings);
             break;
-          case 'apparence':
+          case SECTIONS.appearance:
             saveSettings(STORAGE_KEYS.appearance, appearanceSettings);
             break;
         }
@@ -428,7 +460,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('profil')}
+                        onClick={() => handleSave(SECTIONS.profile)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -491,7 +523,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('notifications')}
+                        onClick={() => handleSave(SECTIONS.notifications)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -578,7 +610,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('confidentialité')}
+                        onClick={() => handleSave(SECTIONS.privacy)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -784,7 +816,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('apparence')}
+                        onClick={() => handleSave(SECTIONS.appearance)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
