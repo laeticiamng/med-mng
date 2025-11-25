@@ -134,7 +134,7 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
     );
   };
 
-  // Debounced toggle item - uses React 18 transitions for better performance
+  // Toggle item selection using React 18 transitions for better performance
   const toggleItem = useCallback((code: string) => {
     // Use startTransition to mark this as a non-urgent update
     // This allows React to interrupt the update if more urgent work comes in
@@ -147,10 +147,13 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
     });
   }, []);
 
-  // Batched select all in category using transitions
+  // Select/deselect all items in a category using transitions
+  // Uses filteredCategories to only affect visible items when search is active
   const selectAllInCategory = useCallback((category: string) => {
-    const categoryItems = EDN_ITEMS_CATEGORIES.find(c => c.category === category)?.items || [];
-    const categoryCodes = categoryItems.map(i => i.code);
+    const categoryData = filteredCategories.find(c => c.category === category);
+    if (!categoryData) return;
+
+    const categoryCodes = categoryData.items.map(i => i.code);
 
     // Use startTransition for non-urgent updates to avoid blocking the UI
     startTransition(() => {
@@ -158,15 +161,15 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
         const allSelected = categoryCodes.every(code => prev.includes(code));
 
         if (allSelected) {
-          // Remove all category items
+          // Remove all visible category items
           return prev.filter(code => !categoryCodes.includes(code));
         } else {
-          // Add all category items
+          // Add all visible category items
           return [...new Set([...prev, ...categoryCodes])];
         }
       });
     });
-  }, []);
+  }, [filteredCategories]);
 
   const handleCreateConfig = async () => {
     if (!targetDate) {
@@ -341,8 +344,9 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
           disabled={isPending}
           onClick={() => {
             startTransition(() => {
-              const allCodes = EDN_ITEMS_CATEGORIES.flatMap(c => c.items.map(i => i.code));
-              setSelectedItems(allCodes);
+              // Select all visible items based on current filter
+              const allCodes = filteredCategories.flatMap(c => c.items.map(i => i.code));
+              setSelectedItems(prev => [...new Set([...prev, ...allCodes])]);
             });
           }}
         >
