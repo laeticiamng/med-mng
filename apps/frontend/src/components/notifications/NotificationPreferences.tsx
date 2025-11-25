@@ -1,71 +1,72 @@
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useFetchPreferences, useUpdatePreferences } from '@/hooks/useNotificationsService'
-import { toast } from 'sonner'
-import type { NotificationPreferences } from '@shared/services/notifications.service'
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useFetchPreferences, useUpdatePreferences } from '@/hooks/useNotificationsService';
+import { toast } from 'sonner';
+import type { NotificationPreferences } from '@shared/services/notifications.service';
+import { BellRing, Info, ShieldCheck } from 'lucide-react';
 
 interface NotificationPreferencesProps {
-  userId: string
+  userId: string;
 }
 
 export default function NotificationPreferences({ userId }: NotificationPreferencesProps) {
-  const { data: preferences, isLoading } = useFetchPreferences(userId)
-  const updateMutation = useUpdatePreferences(userId)
+  const { data: preferences, isLoading } = useFetchPreferences(userId);
+  const updateMutation = useUpdatePreferences(userId);
 
-  const [formData, setFormData] = useState<Partial<NotificationPreferences>>({})
-  const [isSaved, setIsSaved] = useState(true)
+  const [formData, setFormData] = useState<Partial<NotificationPreferences>>({});
+  const [isSaved, setIsSaved] = useState(true);
 
   useEffect(() => {
     if (preferences) {
-      setFormData(preferences)
+      setFormData(preferences);
     }
-  }, [preferences])
+  }, [preferences]);
 
   const handleToggle = (field: keyof NotificationPreferences, value: boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setIsSaved(false)
-  }
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setIsSaved(false);
+  };
 
   const handleSelectChange = (field: keyof NotificationPreferences, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setIsSaved(false)
-  }
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setIsSaved(false);
+  };
 
   const handleTimeChange = (field: keyof NotificationPreferences, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setIsSaved(false)
-  }
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setIsSaved(false);
+  };
 
   const handleSave = async () => {
     try {
-      await updateMutation.mutateAsync(formData)
-      setIsSaved(true)
-      toast.success('Préférences de notification mises à jour')
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour des préférences')
+      await updateMutation.mutateAsync(formData);
+      setIsSaved(true);
+      toast.success('Préférences de notification mises à jour');
+    } catch {
+      toast.error('Erreur lors de la mise à jour des préférences');
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <Skeleton key={i} className="h-20 w-full rounded" />
         ))}
       </div>
-    )
+    );
   }
 
   if (!preferences) {
@@ -77,73 +78,127 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
+      {!isSaved && (
+        <Card className="border-amber-200 bg-amber-50/80 dark:border-amber-700 dark:bg-amber-900/30">
+          <CardContent className="flex flex-col gap-3 pt-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="rounded-md bg-amber-100 p-2 text-amber-700 dark:bg-amber-800/70 dark:text-amber-100">
+                <Info className="h-4 w-4" />
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium">Modifications non enregistrées</p>
+                <p className="text-sm text-muted-foreground">
+                  Vous avez ajusté vos préférences. Enregistrez pour les appliquer à vos prochaines
+                  notifications.
+                </p>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? 'Enregistrement...' : 'Sauvegarder maintenant'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Notification Types */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Types de notifications</CardTitle>
-          <CardDescription>
-            Choisissez les types de notifications que vous souhaitez recevoir
-          </CardDescription>
+          <div className="flex items-center gap-2">
+            <BellRing className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle className="text-lg">Types de notifications</CardTitle>
+              <CardDescription>
+                Choisissez les types de notifications que vous souhaitez recevoir
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-            <Label htmlFor="likes" className="text-base font-medium cursor-pointer">
-              J'aime sur vos posts
-            </Label>
-            <Switch
-              id="likes"
-              checked={formData.likes_enabled ?? true}
-              onCheckedChange={(checked) => handleToggle('likes_enabled', checked)}
-            />
-          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 p-3">
+              <div>
+                <Label htmlFor="likes" className="text-base font-medium cursor-pointer">
+                  J'aime sur vos posts
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Recevez une alerte lorsqu'un utilisateur aime votre contenu.
+                </p>
+              </div>
+              <Switch
+                id="likes"
+                checked={formData.likes_enabled ?? true}
+                onCheckedChange={checked => handleToggle('likes_enabled', checked)}
+              />
+            </div>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-            <Label htmlFor="comments" className="text-base font-medium cursor-pointer">
-              Commentaires sur vos posts
-            </Label>
-            <Switch
-              id="comments"
-              checked={formData.comments_enabled ?? true}
-              onCheckedChange={(checked) => handleToggle('comments_enabled', checked)}
-            />
-          </div>
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 p-3">
+              <div>
+                <Label htmlFor="comments" className="text-base font-medium cursor-pointer">
+                  Commentaires sur vos posts
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Soyez alerté en cas de retour direct sur vos publications.
+                </p>
+              </div>
+              <Switch
+                id="comments"
+                checked={formData.comments_enabled ?? true}
+                onCheckedChange={checked => handleToggle('comments_enabled', checked)}
+              />
+            </div>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-            <Label htmlFor="follows" className="text-base font-medium cursor-pointer">
-              Nouveaux followers
-            </Label>
-            <Switch
-              id="follows"
-              checked={formData.follows_enabled ?? true}
-              onCheckedChange={(checked) => handleToggle('follows_enabled', checked)}
-            />
-          </div>
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 p-3">
+              <div>
+                <Label htmlFor="follows" className="text-base font-medium cursor-pointer">
+                  Nouveaux followers
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Prévenez-vous lorsqu'une nouvelle personne suit vos activités.
+                </p>
+              </div>
+              <Switch
+                id="follows"
+                checked={formData.follows_enabled ?? true}
+                onCheckedChange={checked => handleToggle('follows_enabled', checked)}
+              />
+            </div>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-            <Label htmlFor="mentions" className="text-base font-medium cursor-pointer">
-              Mentions de votre profil
-            </Label>
-            <Switch
-              id="mentions"
-              checked={formData.mentions_enabled ?? true}
-              onCheckedChange={(checked) => handleToggle('mentions_enabled', checked)}
-            />
-          </div>
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 p-3">
+              <div>
+                <Label htmlFor="mentions" className="text-base font-medium cursor-pointer">
+                  Mentions de votre profil
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Restez informé lorsqu'un collègue cite votre profil.
+                </p>
+              </div>
+              <Switch
+                id="mentions"
+                checked={formData.mentions_enabled ?? true}
+                onCheckedChange={checked => handleToggle('mentions_enabled', checked)}
+              />
+            </div>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-            <Label htmlFor="system" className="text-base font-medium cursor-pointer">
-              Notifications système
-            </Label>
-            <Switch
-              id="system"
-              checked={formData.system_enabled ?? true}
-              onCheckedChange={(checked) => handleToggle('system_enabled', checked)}
-            />
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 p-3 sm:col-span-2">
+              <div>
+                <Label htmlFor="system" className="text-base font-medium cursor-pointer">
+                  Notifications système
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Mises à jour critiques et alertes techniques concernant votre compte.
+                </p>
+              </div>
+              <Switch
+                id="system"
+                checked={formData.system_enabled ?? true}
+                onCheckedChange={checked => handleToggle('system_enabled', checked)}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -159,7 +214,9 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
         <CardContent>
           <Select
             value={formData.email_frequency || 'daily'}
-            onValueChange={(value: any) => handleSelectChange('email_frequency', value)}
+            onValueChange={(value: NotificationPreferences['email_frequency']) =>
+              handleSelectChange('email_frequency', value)
+            }
           >
             <SelectTrigger data-testid="email-frequency-select">
               <SelectValue />
@@ -177,10 +234,15 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
       {/* Push Notifications */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Notifications push</CardTitle>
-          <CardDescription>
-            Recevez des notifications push en temps réel sur votre appareil
-          </CardDescription>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle className="text-lg">Notifications push</CardTitle>
+              <CardDescription>
+                Recevez des notifications push en temps réel sur votre appareil
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
           <Label htmlFor="push" className="text-base font-medium cursor-pointer">
@@ -189,7 +251,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
           <Switch
             id="push"
             checked={formData.push_enabled ?? true}
-            onCheckedChange={(checked) => handleToggle('push_enabled', checked)}
+            onCheckedChange={checked => handleToggle('push_enabled', checked)}
           />
         </CardContent>
       </Card>
@@ -210,7 +272,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
             <Switch
               id="quietHours"
               checked={formData.quiet_hours_enabled ?? false}
-              onCheckedChange={(checked) => handleToggle('quiet_hours_enabled', checked)}
+              onCheckedChange={checked => handleToggle('quiet_hours_enabled', checked)}
             />
           </div>
 
@@ -224,7 +286,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
                   id="quietHoursStart"
                   type="time"
                   value={formData.quiet_hours_start || '22:00'}
-                  onChange={(e) => handleTimeChange('quiet_hours_start', e.target.value)}
+                  onChange={e => handleTimeChange('quiet_hours_start', e.target.value)}
                   className="mt-2"
                 />
               </div>
@@ -237,7 +299,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
                   id="quietHoursEnd"
                   type="time"
                   value={formData.quiet_hours_end || '08:00'}
-                  onChange={(e) => handleTimeChange('quiet_hours_end', e.target.value)}
+                  onChange={e => handleTimeChange('quiet_hours_end', e.target.value)}
                   className="mt-2"
                 />
               </div>
@@ -255,6 +317,11 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
       >
         {updateMutation.isPending ? 'Enregistrement...' : 'Enregistrer les modifications'}
       </Button>
+
+      <p className="text-xs text-muted-foreground text-center">
+        Les préférences sont appliquées immédiatement après sauvegarde et peuvent être modifiées à
+        tout moment.
+      </p>
     </div>
-  )
+  );
 }
