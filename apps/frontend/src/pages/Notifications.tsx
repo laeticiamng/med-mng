@@ -1,117 +1,156 @@
-import { useState, useMemo } from 'react'
-import { Heart, MessageCircle, UserPlus, AtSign, Bell, Search, Trash2, Settings } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useMemo } from 'react';
+import {
+  Heart,
+  MessageCircle,
+  UserPlus,
+  AtSign,
+  Bell,
+  Search,
+  Trash2,
+  Settings,
+  CheckCheck,
+  Info,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   useFetchNotifications,
   useMarkAsRead,
   useMarkAllAsRead,
   useDeleteNotification,
   useDeleteAllNotifications,
-} from '@/hooks/useNotificationsService'
-import { useAuth } from '@/hooks/useAuth'
-import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+} from '@/hooks/useNotificationsService';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 export default function NotificationsPage() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<string>('all')
-  const [searchQuery, setSearchQuery] = useState('')
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentification requise</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Veuillez vous connecter pour accéder à vos notifications.
-            </p>
-            <Button
-              className="w-full mt-4"
-              onClick={() => navigate('/login')}
-            >
-              Se connecter
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  const userId = user?.id ?? '';
 
   // Queries
-  const { data: notifications = [], isLoading } = useFetchNotifications(user.id, 100)
+  const { data: notifications = [], isLoading } = useFetchNotifications(userId, 100);
 
   // Mutations
-  const markAsReadMutation = useMarkAsRead(user.id)
-  const markAllAsReadMutation = useMarkAllAsRead(user.id)
-  const deleteNotificationMutation = useDeleteNotification(user.id)
-  const deleteAllMutation = useDeleteAllNotifications(user.id)
+  const markAsReadMutation = useMarkAsRead(userId);
+  const markAllAsReadMutation = useMarkAllAsRead(userId);
+  const deleteNotificationMutation = useDeleteNotification(userId);
+  const deleteAllMutation = useDeleteAllNotifications(userId);
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const readCount = notifications.length - unreadCount;
+
+  const tabLabels: Record<string, string> = {
+    all: 'Toutes',
+    like: "J'aime",
+    comment: 'Commentaires',
+    follow: 'Abonnements',
+    mention: 'Mentions',
+  };
+
+  const typeCounts = useMemo(
+    () =>
+      notifications.reduce(
+        (acc, notification) => {
+          acc[notification.type] = (acc[notification.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+    [notifications]
+  );
 
   // Filter and search
   const filteredNotifications = useMemo(() => {
-    let filtered = notifications
+    let filtered = notifications;
 
     // Filter by type
     if (activeTab !== 'all') {
-      filtered = filtered.filter((n) => n.type === activeTab)
+      filtered = filtered.filter(n => n.type === activeTab);
     }
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (n) =>
+        n =>
           n.title.toLowerCase().includes(query) ||
           (n.message && n.message.toLowerCase().includes(query))
-      )
+      );
     }
 
-    return filtered
-  }, [notifications, activeTab, searchQuery])
+    return filtered;
+  }, [notifications, activeTab, searchQuery]);
+
+  const filteredCount = filteredNotifications.length;
+
+  const completionRate = notifications.length
+    ? Math.round((readCount / notifications.length) * 100)
+    : 0;
+
+  const unauthenticatedView = (
+    <div className="flex items-center justify-center min-h-screen">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Authentification requise</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Veuillez vous connecter pour accéder à vos notifications.
+          </p>
+          <Button className="w-full mt-4" onClick={() => navigate('/login')}>
+            Se connecter
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  if (!user) {
+    return unauthenticatedView;
+  }
 
   const getIcon = (type: string) => {
     switch (type) {
       case 'like':
-        return <Heart className="h-4 w-4 text-red-500" />
+        return <Heart className="h-4 w-4 text-red-500" />;
       case 'comment':
-        return <MessageCircle className="h-4 w-4 text-blue-500" />
+        return <MessageCircle className="h-4 w-4 text-blue-500" />;
       case 'follow':
-        return <UserPlus className="h-4 w-4 text-green-500" />
+        return <UserPlus className="h-4 w-4 text-green-500" />;
       case 'mention':
-        return <AtSign className="h-4 w-4 text-purple-500" />
+        return <AtSign className="h-4 w-4 text-purple-500" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-500" />
+        return <Bell className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
   const handleMarkAsRead = (notificationId: string) => {
-    markAsReadMutation.mutate(notificationId)
-  }
+    markAsReadMutation.mutate(notificationId);
+  };
 
   const handleDelete = (notificationId: string) => {
-    deleteNotificationMutation.mutate(notificationId)
-  }
+    deleteNotificationMutation.mutate(notificationId);
+  };
 
   const handleMarkAllAsRead = () => {
-    markAllAsReadMutation.mutate()
-  }
+    markAllAsReadMutation.mutate();
+  };
 
   const handleDeleteAll = () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer toutes les notifications ?')) {
-      deleteAllMutation.mutate()
+      deleteAllMutation.mutate();
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
@@ -120,9 +159,7 @@ export default function NotificationsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground mt-2">
-              Gérez et consultez vos notifications
-            </p>
+            <p className="text-muted-foreground mt-2">Gérez et consultez vos notifications</p>
           </div>
           <Link to="/settings/notifications">
             <Button variant="outline" size="icon" data-testid="notification-settings-button">
@@ -130,6 +167,61 @@ export default function NotificationsPage() {
             </Button>
           </Link>
         </div>
+
+        {/* Overview */}
+        <Card className="mb-6 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Progression de lecture
+                </p>
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="font-semibold">
+                    {completionRate}% des notifications traitées
+                  </span>
+                  <Badge variant="secondary">{readCount} lues</Badge>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${completionRate}%` }}
+                    aria-label={`Progression de lecture ${completionRate}%`}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Cliquez sur une notification pour la marquer comme lue et garder votre centre à
+                  jour.
+                </p>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-md bg-primary/10 text-primary">
+                    <Info className="h-4 w-4" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold">Astuces de gestion</p>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      <li>Utilisez les onglets pour filtrer rapidement par type.</li>
+                      <li>"Marquer tout comme lu" permet de réinitialiser votre compteur.</li>
+                      <li>Supprimez les alertes obsolètes pour garder un historique clair.</li>
+                    </ul>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Badge variant="outline" className="capitalize" key="all">
+                        Toutes {notifications.length ? `• ${notifications.length}` : ''}
+                      </Badge>
+                      {Object.entries(typeCounts).map(([type, count]) => (
+                        <Badge key={type} variant="outline" className="capitalize">
+                          {type} • {count}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
@@ -152,9 +244,7 @@ export default function NotificationsPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">
-                  {notifications.filter((n) => n.is_read).length}
-                </p>
+                <p className="text-3xl font-bold text-green-600">{readCount}</p>
                 <p className="text-sm text-muted-foreground">Lues</p>
               </div>
             </CardContent>
@@ -171,6 +261,7 @@ export default function NotificationsPage() {
               disabled={markAllAsReadMutation.isPending}
               data-testid="mark-all-read-button"
             >
+              <CheckCheck className="h-4 w-4 mr-2" />
               Marquer tout comme lu
             </Button>
           )}
@@ -194,36 +285,38 @@ export default function NotificationsPage() {
           <Input
             placeholder="Rechercher dans vos notifications..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="pl-10"
             data-testid="notification-search-input"
           />
         </div>
 
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground mb-4">
+          <div>
+            Affichage de <span className="font-semibold text-foreground">{filteredCount}</span>{' '}
+            notification{filteredCount > 1 ? 's' : ''} sur {notifications.length}.
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">Filtre actif : {tabLabels[activeTab]}</Badge>
+            {searchQuery && <Badge variant="secondary">Recherche : “{searchQuery}”</Badge>}
+            {!searchQuery && <Badge variant="secondary">Aucune recherche active</Badge>}
+          </div>
+        </div>
+
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">
-              Tous ({notifications.length})
-            </TabsTrigger>
-            <TabsTrigger value="like">
-              J'aime ({notifications.filter((n) => n.type === 'like').length})
-            </TabsTrigger>
-            <TabsTrigger value="comment">
-              Commentaires ({notifications.filter((n) => n.type === 'comment').length})
-            </TabsTrigger>
-            <TabsTrigger value="follow">
-              Follow ({notifications.filter((n) => n.type === 'follow').length})
-            </TabsTrigger>
-            <TabsTrigger value="mention">
-              AtSigns ({notifications.filter((n) => n.type === 'mention').length})
-            </TabsTrigger>
+            <TabsTrigger value="all">Tous ({notifications.length})</TabsTrigger>
+            <TabsTrigger value="like">J'aime ({typeCounts.like || 0})</TabsTrigger>
+            <TabsTrigger value="comment">Commentaires ({typeCounts.comment || 0})</TabsTrigger>
+            <TabsTrigger value="follow">Follow ({typeCounts.follow || 0})</TabsTrigger>
+            <TabsTrigger value="mention">AtSigns ({typeCounts.mention || 0})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-6">
             {isLoading ? (
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3].map(i => (
                   <Skeleton key={i} className="h-20 w-full rounded" />
                 ))}
               </div>
@@ -235,14 +328,14 @@ export default function NotificationsPage() {
                     {searchQuery
                       ? 'Aucune notification ne correspond à votre recherche'
                       : activeTab === 'all'
-                      ? 'Aucune notification pour le moment'
-                      : `Aucune notification de type ${activeTab}`}
+                        ? 'Aucune notification pour le moment'
+                        : `Aucune notification de type ${activeTab}`}
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-3">
-                {filteredNotifications.map((notification) => (
+                {filteredNotifications.map(notification => (
                   <Card
                     key={notification.id}
                     className={`cursor-pointer transition-all hover:shadow-md ${
@@ -255,9 +348,7 @@ export default function NotificationsPage() {
                   >
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
-                        <div className="mt-1 flex-shrink-0">
-                          {getIcon(notification.type)}
-                        </div>
+                        <div className="mt-1 flex-shrink-0">{getIcon(notification.type)}</div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -281,9 +372,9 @@ export default function NotificationsPage() {
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDelete(notification.id)
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleDelete(notification.id);
                               }}
                               disabled={deleteNotificationMutation.isPending}
                               data-testid={`delete-notification-${notification.id}`}
@@ -308,5 +399,5 @@ export default function NotificationsPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
