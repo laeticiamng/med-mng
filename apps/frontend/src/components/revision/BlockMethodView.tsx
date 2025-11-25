@@ -2,7 +2,7 @@
 // Block Method (Méthode Blocs Profonds) View Component
 // ============================================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,6 +108,9 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
+  // Use React 18 transitions for better performance on bulk updates
+  const [isPending, startTransition] = useTransition();
+
   // Filtrer les items par recherche
   const filteredCategories = useMemo(() => {
     if (!searchQuery) return EDN_ITEMS_CATEGORIES;
@@ -131,26 +134,42 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
     );
   };
 
-  const toggleItem = (code: string) => {
-    setSelectedItems(prev =>
-      prev.includes(code)
-        ? prev.filter(c => c !== code)
-        : [...prev, code]
-    );
-  };
+  // Toggle item selection using React 18 transitions for better performance
+  const toggleItem = useCallback((code: string) => {
+    // Use startTransition to mark this as a non-urgent update
+    // This allows React to interrupt the update if more urgent work comes in
+    startTransition(() => {
+      setSelectedItems(prev =>
+        prev.includes(code)
+          ? prev.filter(c => c !== code)
+          : [...prev, code]
+      );
+    });
+  }, []);
 
-  const selectAllInCategory = (category: string) => {
-    const categoryItems = EDN_ITEMS_CATEGORIES.find(c => c.category === category)?.items || [];
-    const categoryCodes = categoryItems.map(i => i.code);
+  // Select/deselect all items in a category using transitions
+  // Uses filteredCategories to only affect visible items when search is active
+  const selectAllInCategory = useCallback((category: string) => {
+    const categoryData = filteredCategories.find(c => c.category === category);
+    if (!categoryData) return;
 
-    const allSelected = categoryCodes.every(code => selectedItems.includes(code));
+    const categoryCodes = categoryData.items.map(i => i.code);
 
-    if (allSelected) {
-      setSelectedItems(prev => prev.filter(code => !categoryCodes.includes(code)));
-    } else {
-      setSelectedItems(prev => [...new Set([...prev, ...categoryCodes])]);
-    }
-  };
+    // Use startTransition for non-urgent updates to avoid blocking the UI
+    startTransition(() => {
+      setSelectedItems(prev => {
+        const allSelected = categoryCodes.every(code => prev.includes(code));
+
+        if (allSelected) {
+          // Remove all visible category items
+          return prev.filter(code => !categoryCodes.includes(code));
+        } else {
+          // Add all visible category items
+          return [...new Set([...prev, ...categoryCodes])];
+        }
+      });
+    });
+  }, [filteredCategories]);
 
   const handleCreateConfig = async () => {
     if (!targetDate) {
@@ -322,18 +341,23 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
           type="button"
           variant="outline"
           size="sm"
+          disabled={isPending}
           onClick={() => {
-            const allCodes = EDN_ITEMS_CATEGORIES.flatMap(c => c.items.map(i => i.code));
-            setSelectedItems(allCodes);
+            startTransition(() => {
+              // Select all visible items based on current filter
+              const allCodes = filteredCategories.flatMap(c => c.items.map(i => i.code));
+              setSelectedItems(prev => [...new Set([...prev, ...allCodes])]);
+            });
           }}
         >
-          Tout sélectionner
+          {isPending ? 'Chargement...' : 'Tout sélectionner'}
         </Button>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setSelectedItems([])}
+          disabled={isPending}
+          onClick={() => startTransition(() => setSelectedItems([]))}
         >
           Tout désélectionner
         </Button>
