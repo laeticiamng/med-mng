@@ -32,13 +32,13 @@ export function usePostImageUpload(options: UsePostImageUploadOptions = {}) {
       if (!user?.id) throw new Error('Utilisateur non connecté');
 
       const maxSize = maxSizeMB * 1024 * 1024;
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
       const uploadedImages: UploadedImage[] = [];
 
       // Valider tous les fichiers
       for (const file of files) {
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Format non supporté: ${file.name}. Utilisez JPG, PNG, WebP ou GIF.`);
+          throw new Error(`Format non supporté: ${file.name}. Utilisez JPG, PNG ou WebP.`);
         }
         if (file.size > maxSize) {
           throw new Error(`Fichier trop volumineux: ${file.name}. Maximum ${maxSizeMB}MB.`);

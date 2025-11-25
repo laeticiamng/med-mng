@@ -355,7 +355,7 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={handleFileSelect}
               className="hidden"
