@@ -36,8 +36,6 @@ export default function ProfileEdit() {
 
   const [privacySettings, setPrivacySettings] = useState({
     isPublic: true,
-    showEmail: false,
-    showLocation: true,
   })
 
   const [isFormReady, setIsFormReady] = useState(false)
@@ -69,8 +67,6 @@ export default function ProfileEdit() {
     })
     setPrivacySettings({
       isPublic: profile.is_public ?? true,
-      showEmail: false,
-      showLocation: true,
     })
     setIsFormReady(true)
   }
@@ -490,44 +486,6 @@ export default function ProfileEdit() {
                   checked={privacySettings.isPublic}
                   onCheckedChange={(checked) =>
                     setPrivacySettings((prev) => ({ ...prev, isPublic: checked }))
-                  }
-                />
-              </div>
-
-              {/* Afficher email */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label htmlFor="show-email" className="font-medium">
-                    Afficher l'email
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Votre email sera visible sur votre profil public
-                  </p>
-                </div>
-                <Switch
-                  id="show-email"
-                  checked={privacySettings.showEmail}
-                  onCheckedChange={(checked) =>
-                    setPrivacySettings((prev) => ({ ...prev, showEmail: checked }))
-                  }
-                />
-              </div>
-
-              {/* Afficher localisation */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label htmlFor="show-location" className="font-medium">
-                    Afficher la localisation
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Votre localisation sera visible sur votre profil
-                  </p>
-                </div>
-                <Switch
-                  id="show-location"
-                  checked={privacySettings.showLocation}
-                  onCheckedChange={(checked) =>
-                    setPrivacySettings((prev) => ({ ...prev, showLocation: checked }))
                   }
                 />
               </div>
