@@ -1,27 +1,27 @@
 import logger from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Users, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Plus, 
+import {
+  Users,
+  Calendar,
+  Clock,
+  Plus,
   Search,
   Filter,
   Video,
   MessageCircle,
   BookOpen,
   UserPlus,
-  Settings
+  Settings,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 
 interface StudySession {
@@ -54,6 +54,7 @@ export const CollaborativeStudy: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filter, setFilter] = useState<'all' | 'active' | 'scheduled'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [newSession, setNewSession] = useState({
@@ -67,79 +68,219 @@ export const CollaborativeStudy: React.FC = () => {
     is_public: true
   });
 
+  // Récupérer l'utilisateur connecté
   useEffect(() => {
-    loadSessions();
-    loadMySessions();
-    setupRealtimeSubscription();
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
   }, []);
 
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
-      // Utiliser une table existante compatible ou créer une logique de mapping
+      setLoading(true);
       logger.debug('Chargement des sessions d\'étude...');
-      // Pour le moment, utilisons des données simulées
-      const mockSessions: StudySession[] = [
-        {
-          id: '1',
-          session_name: 'Révision Cardiologie',
-          description: 'Session de révision intensive en cardiologie',
-          subject_areas: ['cardiologie', 'ECG'],
-          max_participants: 5,
-          current_participants: 3,
+
+      // Utiliser la table teams comme sessions d'étude collaboratives
+      const { data: teamsData, error } = await supabase
+        .from('teams')
+        .select(`
+          id,
+          name,
+          description,
+          member_count,
+          max_members,
+          visibility,
+          owner_id,
+          created_at,
+          updated_at
+        `)
+        .eq('visibility', 'public')
+        .order('updated_at', { ascending: false })
+        .limit(20);
+
+      if (error) {
+        logger.error('Erreur chargement sessions:', error);
+        return;
+      }
+
+      if (teamsData) {
+        const mappedSessions: StudySession[] = teamsData.map((team: any) => ({
+          id: team.id,
+          session_name: team.name,
+          description: team.description || 'Session d\'étude collaborative',
+          subject_areas: ['étude', 'collaboration'],
+          max_participants: team.max_members || 10,
+          current_participants: team.member_count || 0,
           session_type: 'collaborative',
-          scheduled_start: new Date(Date.now() + 3600000).toISOString(),
-          duration_minutes: 90,
-          is_active: false,
-          is_public: true,
-          creator_id: 'user1',
-          created_at: new Date().toISOString()
-        }
-      ];
-      setSessions(mockSessions);
+          scheduled_start: team.updated_at,
+          duration_minutes: 60,
+          is_active: true,
+          is_public: team.visibility === 'public',
+          creator_id: team.owner_id,
+          created_at: team.created_at
+        }));
+        setSessions(mappedSessions);
+      }
     } catch (error) {
       logger.error('Erreur chargement sessions:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadMySessions = async () => {
+  const loadMySessions = useCallback(async () => {
+    if (!currentUserId) return;
+
     try {
-      // Pour le moment, utilisons des données simulées
-      const mockMySessions: StudySession[] = [];
-      setMySessions(mockMySessions);
+      // Récupérer les teams où l'utilisateur est membre
+      const { data: membershipData, error: memberError } = await supabase
+        .from('team_members')
+        .select('team_id')
+        .eq('user_id', currentUserId);
+
+      if (memberError) {
+        logger.error('Erreur chargement membres:', memberError);
+        return;
+      }
+
+      if (membershipData && membershipData.length > 0) {
+        const teamIds = membershipData.map((m: any) => m.team_id);
+
+        const { data: teamsData, error } = await supabase
+          .from('teams')
+          .select(`
+            id,
+            name,
+            description,
+            member_count,
+            max_members,
+            visibility,
+            owner_id,
+            created_at,
+            updated_at
+          `)
+          .in('id', teamIds);
+
+        if (!error && teamsData) {
+          const mappedSessions: StudySession[] = teamsData.map((team: any) => ({
+            id: team.id,
+            session_name: team.name,
+            description: team.description || 'Session d\'étude collaborative',
+            subject_areas: ['étude', 'collaboration'],
+            max_participants: team.max_members || 10,
+            current_participants: team.member_count || 0,
+            session_type: 'collaborative',
+            scheduled_start: team.updated_at,
+            duration_minutes: 60,
+            is_active: true,
+            is_public: team.visibility === 'public',
+            creator_id: team.owner_id,
+            created_at: team.created_at
+          }));
+          setMySessions(mappedSessions);
+        }
+      }
     } catch (error) {
       logger.error('Erreur chargement mes sessions:', error);
     }
-  };
+  }, [currentUserId]);
 
-  const setupRealtimeSubscription = () => {
-    // Désactivé temporairement car les tables n'existent pas encore
-    logger.debug('Realtime subscription configurée');
+  const setupRealtimeSubscription = useCallback(() => {
+    // S'abonner aux changements de la table teams
+    const channel = supabase
+      .channel('collaborative-study-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'teams'
+        },
+        (payload) => {
+          logger.debug('Changement teams reçu:', payload);
+          loadSessions();
+        }
+      )
+      .subscribe();
+
     return () => {
-      logger.debug('Subscription nettoyée');
+      supabase.removeChannel(channel);
     };
-  };
+  }, [loadSessions]);
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
+
+  useEffect(() => {
+    loadMySessions();
+  }, [loadMySessions]);
+
+  useEffect(() => {
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
+  }, [setupRealtimeSubscription]);
 
   const createSession = async () => {
+    if (!currentUserId) {
+      toast({
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour créer une session.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
-      // Simulation de création de session
       logger.debug('Création session:', newSession);
-      
+
+      // Générer un slug unique
+      const slug = newSession.session_name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') + '-' + Date.now();
+
+      // Créer une nouvelle team comme session d'étude
+      const { data: newTeam, error } = await supabase
+        .from('teams')
+        .insert({
+          name: newSession.session_name,
+          description: newSession.description,
+          slug: slug,
+          owner_id: currentUserId,
+          visibility: newSession.is_public ? 'public' : 'private',
+          max_members: newSession.max_participants
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Ajouter le créateur comme membre
+      await supabase
+        .from('team_members')
+        .insert({
+          team_id: newTeam.id,
+          user_id: currentUserId,
+          role: 'owner'
+        });
+
       const newSessionData: StudySession = {
-        id: Date.now().toString(),
-        session_name: newSession.session_name,
-        description: newSession.description,
-        subject_areas: newSession.subject_areas,
-        max_participants: newSession.max_participants,
+        id: newTeam.id,
+        session_name: newTeam.name,
+        description: newTeam.description || '',
+        subject_areas: ['étude', 'collaboration'],
+        max_participants: newTeam.max_members || newSession.max_participants,
         current_participants: 1,
         session_type: newSession.session_type,
-        scheduled_start: newSession.scheduled_start,
+        scheduled_start: newSession.scheduled_start || new Date().toISOString(),
         duration_minutes: newSession.duration_minutes,
-        is_active: false,
+        is_active: true,
         is_public: newSession.is_public,
-        creator_id: 'current-user',
-        created_at: new Date().toISOString()
+        creator_id: currentUserId,
+        created_at: newTeam.created_at
       };
 
       setSessions(prev => [newSessionData, ...prev]);
@@ -159,42 +300,81 @@ export const CollaborativeStudy: React.FC = () => {
       setShowCreateForm(false);
 
       toast({
-        title: "Session créée (simulation)",
-        description: "Votre session d'étude collaborative a été simulée avec succès",
+        title: 'Session créée',
+        description: 'Votre session d\'étude collaborative a été créée avec succès',
       });
     } catch (error) {
       logger.error('Erreur création session:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible de créer la session",
-        variant: "destructive"
+        title: 'Erreur',
+        description: 'Impossible de créer la session',
+        variant: 'destructive'
       });
     }
   };
 
   const joinSession = async (sessionId: string) => {
+    if (!currentUserId) {
+      toast({
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour rejoindre une session.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
-      // Simulation de rejoindre une session
       logger.debug('Rejoindre session:', sessionId);
-      
-      setSessions(prev => 
-        prev.map(session => 
-          session.id === sessionId 
+
+      // Vérifier si l'utilisateur est déjà membre
+      const { data: existingMember } = await supabase
+        .from('team_members')
+        .select('id')
+        .eq('team_id', sessionId)
+        .eq('user_id', currentUserId)
+        .single();
+
+      if (existingMember) {
+        toast({
+          title: 'Déjà membre',
+          description: 'Vous êtes déjà membre de cette session.',
+        });
+        return;
+      }
+
+      // Ajouter comme membre
+      const { error } = await supabase
+        .from('team_members')
+        .insert({
+          team_id: sessionId,
+          user_id: currentUserId,
+          role: 'member'
+        });
+
+      if (error) throw error;
+
+      // Mettre à jour localement
+      setSessions(prev =>
+        prev.map(session =>
+          session.id === sessionId
             ? { ...session, current_participants: session.current_participants + 1 }
             : session
         )
       );
 
+      // Recharger mes sessions
+      loadMySessions();
+
       toast({
-        title: "Session rejointe (simulation)",
-        description: "Vous avez rejoint la session d'étude collaborative",
+        title: 'Session rejointe',
+        description: 'Vous avez rejoint la session d\'étude collaborative',
       });
     } catch (error) {
       logger.error('Erreur rejoindre session:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible de rejoindre la session",
-        variant: "destructive"
+        title: 'Erreur',
+        description: 'Impossible de rejoindre la session',
+        variant: 'destructive'
       });
     }
   };

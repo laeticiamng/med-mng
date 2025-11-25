@@ -95,35 +95,96 @@ export const AdminAnalytics = () => {
       const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-      const thisMonthUsers = profiles?.filter(p => 
+      const thisMonthUsers = profiles?.filter(p =>
         new Date(p.created_at) >= thisMonth
       ).length || 0;
 
-      const lastMonthUsers = profiles?.filter(p => 
+      const lastMonthUsers = profiles?.filter(p =>
         new Date(p.created_at) >= lastMonth && new Date(p.created_at) < thisMonth
       ).length || 0;
 
-      const growthRate = lastMonthUsers > 0 
+      const growthRate = lastMonthUsers > 0
         ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100)
         : 0;
 
-      // Simulation des données IA (RPC non disponible)
-      const mockIaStats = { total_credits_used: 15000 };
+      // Récupérer les stats IA depuis la table ai_usage_stats
+      let aiStats = { total_credits_used: 0, music_generated: 0, qcm_generated: 0, bd_generated: 0 };
+      const { data: aiUsageData } = await supabase
+        .from('ai_usage_stats')
+        .select('*')
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .single();
 
-      // Simulation de données de performance et d'usage
-      const mockFeatureUsage = [
-        { feature: 'Génération musicale', usage: 1250, percentage: 35 },
-        { feature: 'QCM interactifs', usage: 980, percentage: 28 },
-        { feature: 'Tableaux EDN', usage: 860, percentage: 24 },
-        { feature: 'Scènes 3D', usage: 450, percentage: 13 }
-      ];
+      if (aiUsageData) {
+        aiStats = {
+          total_credits_used: aiUsageData.total_credits_used ?? 0,
+          music_generated: aiUsageData.music_generated ?? 0,
+          qcm_generated: aiUsageData.qcm_generated ?? 0,
+          bd_generated: aiUsageData.bd_generated ?? 0
+        };
+      }
 
-      const mockCostBreakdown = [
-        { service: 'Suno Music API', credits: 6250, cost: 125 },
-        { service: 'OpenAI GPT-4', credits: 2940, cost: 58.8 },
-        { service: 'DALL-E Images', credits: 1350, cost: 27 },
-        { service: 'Autres services', credits: 460, cost: 9.2 }
-      ];
+      // Récupérer les stats de feature usage depuis feature_usage_stats
+      let featureUsage: Array<{ feature: string; usage: number; percentage: number }> = [];
+      const { data: featureData } = await supabase
+        .from('feature_usage_stats')
+        .select('feature_name, usage_count, usage_percentage')
+        .order('usage_count', { ascending: false })
+        .limit(10);
+
+      if (featureData && featureData.length > 0) {
+        featureUsage = featureData.map((f: any) => ({
+          feature: f.feature_name,
+          usage: f.usage_count ?? 0,
+          percentage: f.usage_percentage ?? 0
+        }));
+      } else {
+        // Valeurs par défaut si pas de données
+        featureUsage = [
+          { feature: 'Génération musicale', usage: 0, percentage: 0 },
+          { feature: 'QCM interactifs', usage: 0, percentage: 0 },
+          { feature: 'Tableaux EDN', usage: 0, percentage: 0 }
+        ];
+      }
+
+      // Récupérer les coûts IA depuis ai_cost_breakdown
+      let costBreakdown: Array<{ service: string; credits: number; cost: number }> = [];
+      const { data: costData } = await supabase
+        .from('ai_cost_breakdown')
+        .select('service_name, credits_used, cost_euros')
+        .order('cost_euros', { ascending: false });
+
+      if (costData && costData.length > 0) {
+        costBreakdown = costData.map((c: any) => ({
+          service: c.service_name,
+          credits: c.credits_used ?? 0,
+          cost: c.cost_euros ?? 0
+        }));
+      } else {
+        costBreakdown = [
+          { service: 'Services IA', credits: aiStats.total_credits_used, cost: 0 }
+        ];
+      }
+
+      // Récupérer les métriques de performance depuis platform_analytics
+      let performanceMetrics = { averageLoadTime: 0, errorRate: 0, uptime: 99.9, totalSessions: 0, averageSessionTime: 0 };
+      const { data: perfData } = await supabase
+        .from('platform_analytics')
+        .select('*')
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (perfData) {
+        performanceMetrics = {
+          averageLoadTime: perfData.average_load_time ?? 0,
+          errorRate: perfData.error_rate ?? 0,
+          uptime: perfData.uptime_percentage ?? 99.9,
+          totalSessions: perfData.total_sessions ?? 0,
+          averageSessionTime: perfData.average_session_minutes ?? 0
+        };
+      }
 
       setAnalyticsData({
         userGrowth: {
@@ -133,21 +194,21 @@ export const AdminAnalytics = () => {
           growthRate
         },
         contentUsage: {
-          totalSessions: 3750, // Valeur simulée
-          averageSessionTime: 18, // minutes
-          mostUsedFeatures: mockFeatureUsage
+          totalSessions: performanceMetrics.totalSessions,
+          averageSessionTime: performanceMetrics.averageSessionTime,
+          mostUsedFeatures: featureUsage
         },
         aiUsage: {
-          totalCreditsUsed: mockIaStats.total_credits_used,
-          musicGenerated: 425,
-          qcmGenerated: 1230,
-          bdGenerated: 89,
-          costBreakdown: mockCostBreakdown
+          totalCreditsUsed: aiStats.total_credits_used,
+          musicGenerated: aiStats.music_generated,
+          qcmGenerated: aiStats.qcm_generated,
+          bdGenerated: aiStats.bd_generated,
+          costBreakdown: costBreakdown
         },
         performance: {
-          averageLoadTime: 1.2, // secondes
-          errorRate: 0.8, // pourcentage
-          uptime: 99.9 // pourcentage
+          averageLoadTime: performanceMetrics.averageLoadTime,
+          errorRate: performanceMetrics.errorRate,
+          uptime: performanceMetrics.uptime
         }
       });
 

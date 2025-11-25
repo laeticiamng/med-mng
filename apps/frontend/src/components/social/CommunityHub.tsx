@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,13 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   MessageCircle, Heart, Share2, Users, TrendingUp,
-  BookOpen, Music, Award, Search, Plus, Filter,
-  Clock, Star, ThumbsUp, Send, Image, Smile
+  BookOpen, Award, Search, Plus,
+  Clock, Send, Image, Smile, Loader2, RefreshCw
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import logger from '@/lib/logger';
 
 interface CommunityPost {
   id: string;
@@ -50,209 +51,436 @@ interface StudyGroup {
 export const CommunityHub = () => {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [trendingTopics, setTrendingTopics] = useState<{ tag: string; posts: number; trend: string }[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Récupérer l'utilisateur connecté
   useEffect(() => {
-    initializeCommunityData();
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
   }, []);
 
-  const initializeCommunityData = () => {
-    // Simulation de données de communauté
-    const mockPosts: CommunityPost[] = [
-      {
-        id: '1',
-        author: {
-          id: 'user1',
-          name: 'Dr. Sophie Martin',
-          avatar: undefined,
-          level: 15,
-          badge: 'Expert'
-        },
-        content: 'Astuce du jour : Pour mémoriser les voies anatomiques, j\'utilise la technique des palais de mémoire. Je visualise chaque structure dans une pièce de ma maison. C\'est incroyablement efficace ! 🧠',
-        type: 'study_tip',
-        category: 'Anatomie',
-        likes: 23,
-        comments: 8,
-        shares: 5,
-        isLiked: false,
-        createdAt: '2024-01-20T14:30:00Z',
-        tags: ['mémoire', 'anatomie', 'technique']
-      },
-      {
-        id: '2',
-        author: {
-          id: 'user2',
-          name: 'Marc Dubois',
-          avatar: undefined,
-          level: 12,
-          badge: 'Collaborateur'
-        },
-        content: 'Je viens de terminer l\'IC-3 ! Les quiz musicaux m\'ont vraiment aidé à retenir les concepts de raisonnement clinique. Quelqu\'un d\'autre a testé cette approche ?',
-        type: 'achievement',
-        category: 'Réussite',
-        likes: 17,
-        comments: 12,
-        shares: 3,
-        isLiked: true,
-        createdAt: '2024-01-20T12:15:00Z',
-        tags: ['IC-3', 'musique', 'réussite']
-      },
-      {
-        id: '3',
-        author: {
-          id: 'user3',
-          name: 'Emma Chen',
-          avatar: undefined,
-          level: 8,
-          badge: 'Débutant'
-        },
-        content: 'Question : Comment gérez-vous le stress pendant les révisions intensives ? J\'ai tendance à me sentir dépassée avec tout le contenu à maîtriser...',
-        type: 'question',
-        category: 'Bien-être',
-        likes: 31,
-        comments: 24,
-        shares: 7,
-        isLiked: false,
-        createdAt: '2024-01-20T09:45:00Z',
-        tags: ['stress', 'révisions', 'conseil']
-      },
-      {
-        id: '4',
-        author: {
-          id: 'user4',
-          name: 'Dr. Thomas Durand',
-          avatar: undefined,
-          level: 20,
-          badge: 'Mentor'
-        },
-        content: 'Nouvelle fonctionnalité géniale ! Les sessions d\'étude collaborative permettent vraiment d\'approfondir la compréhension. J\'ai organisé une session sur la cardiologie hier soir, 15 participants !',
-        type: 'discussion',
-        category: 'Fonctionnalités',
-        likes: 45,
-        comments: 18,
-        shares: 12,
-        isLiked: true,
-        createdAt: '2024-01-19T20:30:00Z',
-        tags: ['collaboration', 'cardiologie', 'innovation']
+  // Récupérer les données de la communauté depuis Supabase
+  const fetchCommunityData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Récupérer les posts depuis la table posts
+      const { data: postsData, error: postsError } = await supabase
+        .from('posts')
+        .select(`
+          id,
+          user_id,
+          title,
+          content,
+          category,
+          tags,
+          likes_count,
+          comments_count,
+          shares_count,
+          created_at,
+          image_url,
+          profiles:user_id (
+            id,
+            full_name,
+            avatar_url,
+            level
+          )
+        `)
+        .eq('status', 'published')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (postsError) {
+        logger.error('Error fetching posts:', postsError);
+      } else if (postsData) {
+        // Vérifier quels posts sont likés par l'utilisateur
+        let likedPostIds: string[] = [];
+        if (currentUserId) {
+          const { data: likesData } = await supabase
+            .from('post_likes')
+            .select('post_id')
+            .eq('user_id', currentUserId);
+          likedPostIds = likesData?.map((l: any) => l.post_id) || [];
+        }
+
+        const mappedPosts: CommunityPost[] = postsData.map((post: any) => ({
+          id: post.id,
+          author: {
+            id: post.user_id,
+            name: post.profiles?.full_name || 'Utilisateur anonyme',
+            avatar: post.profiles?.avatar_url,
+            level: post.profiles?.level || 1,
+            badge: getLevelBadge(post.profiles?.level || 1)
+          },
+          content: post.content || post.title,
+          type: mapCategoryToType(post.category),
+          category: post.category || 'Général',
+          likes: post.likes_count || 0,
+          comments: post.comments_count || 0,
+          shares: post.shares_count || 0,
+          isLiked: likedPostIds.includes(post.id),
+          createdAt: post.created_at,
+          tags: post.tags || [],
+          images: post.image_url ? [post.image_url] : undefined
+        }));
+        setPosts(mappedPosts);
       }
-    ];
 
-    const mockStudyGroups: StudyGroup[] = [
-      {
-        id: '1',
-        name: 'Cardiologie Avancée',
-        description: 'Groupe d\'étude pour approfondir les concepts de cardiologie',
-        memberCount: 124,
-        category: 'Spécialité',
-        isPublic: true,
-        lastActivity: '2024-01-20T15:00:00Z',
-        isMember: true
-      },
-      {
-        id: '2',
-        name: 'Préparation ECN 2024',
-        description: 'Préparation intensive aux Épreuves Classantes Nationales',
-        memberCount: 89,
-        category: 'Examens',
-        isPublic: true,
-        lastActivity: '2024-01-20T12:30:00Z',
-        isMember: false
-      },
-      {
-        id: '3',
-        name: 'Anatomie Interactive',
-        description: 'Étude collaborative de l\'anatomie avec supports visuels',
-        memberCount: 67,
-        category: 'Anatomie',
-        isPublic: true,
-        lastActivity: '2024-01-20T10:15:00Z',
-        isMember: true
-      },
-      {
-        id: '4',
-        name: 'Musique & Médecine',
-        description: 'Partage de créations musicales éducatives',
-        memberCount: 156,
-        category: 'Créatif',
-        isPublic: true,
-        lastActivity: '2024-01-19T18:45:00Z',
-        isMember: false
+      // Récupérer les groupes d'étude depuis la table teams
+      const { data: teamsData, error: teamsError } = await supabase
+        .from('teams')
+        .select(`
+          id,
+          name,
+          description,
+          member_count,
+          visibility,
+          updated_at,
+          avatar_url
+        `)
+        .eq('visibility', 'public')
+        .order('member_count', { ascending: false })
+        .limit(10);
+
+      if (teamsError) {
+        logger.error('Error fetching teams:', teamsError);
+      } else if (teamsData) {
+        // Vérifier l'appartenance de l'utilisateur
+        let userTeamIds: string[] = [];
+        if (currentUserId) {
+          const { data: membershipData } = await supabase
+            .from('team_members')
+            .select('team_id')
+            .eq('user_id', currentUserId);
+          userTeamIds = membershipData?.map((m: any) => m.team_id) || [];
+        }
+
+        const mappedGroups: StudyGroup[] = teamsData.map((team: any) => ({
+          id: team.id,
+          name: team.name,
+          description: team.description || 'Groupe d\'étude',
+          memberCount: team.member_count || 0,
+          category: 'Étude',
+          isPublic: team.visibility === 'public',
+          lastActivity: team.updated_at,
+          isMember: userTeamIds.includes(team.id),
+          avatar: team.avatar_url
+        }));
+        setStudyGroups(mappedGroups);
       }
-    ];
 
-    setPosts(mockPosts);
-    setStudyGroups(mockStudyGroups);
+      // Récupérer les sujets tendances (basés sur les tags des posts récents)
+      const { data: trendingData } = await supabase
+        .from('posts')
+        .select('tags')
+        .eq('status', 'published')
+        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .limit(100);
+
+      if (trendingData) {
+        const tagCounts: Record<string, number> = {};
+        trendingData.forEach((post: any) => {
+          (post.tags || []).forEach((tag: string) => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          });
+        });
+
+        const sortedTags = Object.entries(tagCounts)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+          .map(([tag, count]) => ({
+            tag,
+            posts: count,
+            trend: `+${Math.floor(Math.random() * 30 + 5)}%`
+          }));
+
+        setTrendingTopics(sortedTags);
+      }
+
+    } catch (error) {
+      logger.error('Error fetching community data:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les données de la communauté',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUserId, toast]);
+
+  useEffect(() => {
+    fetchCommunityData();
+  }, [fetchCommunityData]);
+
+  // Fonctions utilitaires
+  const getLevelBadge = (level: number): string => {
+    if (level >= 20) return 'Mentor';
+    if (level >= 15) return 'Expert';
+    if (level >= 10) return 'Collaborateur';
+    if (level >= 5) return 'Actif';
+    return 'Débutant';
   };
 
-  const handleLike = (postId: string) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            isLiked: !post.isLiked,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1
+  const mapCategoryToType = (category: string): 'discussion' | 'question' | 'study_tip' | 'achievement' => {
+    switch (category?.toLowerCase()) {
+      case 'question': return 'question';
+      case 'learning':
+      case 'study_tip': return 'study_tip';
+      case 'achievement': return 'achievement';
+      default: return 'discussion';
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    if (!currentUserId) {
+      toast({
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour aimer un post.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    // Mise à jour optimiste
+    setPosts(prev => prev.map(p =>
+      p.id === postId
+        ? {
+            ...p,
+            isLiked: !p.isLiked,
+            likes: p.isLiked ? p.likes - 1 : p.likes + 1
           }
-        : post
+        : p
     ));
+
+    try {
+      if (post.isLiked) {
+        // Unlike
+        await supabase
+          .from('post_likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', currentUserId);
+      } else {
+        // Like
+        await supabase
+          .from('post_likes')
+          .insert({ post_id: postId, user_id: currentUserId });
+      }
+    } catch (error) {
+      // Annuler la mise à jour optimiste en cas d'erreur
+      setPosts(prev => prev.map(p =>
+        p.id === postId
+          ? {
+              ...p,
+              isLiked: post.isLiked,
+              likes: post.likes
+            }
+          : p
+      ));
+      logger.error('Error liking post:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour le like',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const handleShare = (postId: string) => {
-    toast({
-      title: "Post partagé !",
-      description: "Le post a été partagé avec succès."
-    });
+  const handleShare = async (postId: string) => {
+    try {
+      if (currentUserId) {
+        await supabase
+          .from('post_shares')
+          .insert({
+            post_id: postId,
+            user_id: currentUserId,
+            shared_to: 'public'
+          });
+
+        // Mettre à jour le compteur localement
+        setPosts(prev => prev.map(p =>
+          p.id === postId
+            ? { ...p, shares: p.shares + 1 }
+            : p
+        ));
+      }
+
+      toast({
+        title: 'Post partagé !',
+        description: 'Le post a été partagé avec succès.'
+      });
+    } catch (error) {
+      logger.error('Error sharing post:', error);
+    }
   };
 
-  const handleJoinGroup = (groupId: string) => {
-    setStudyGroups(prev => prev.map(group =>
-      group.id === groupId
-        ? { 
-            ...group, 
-            isMember: !group.isMember,
-            memberCount: group.isMember ? group.memberCount - 1 : group.memberCount + 1
+  const handleJoinGroup = async (groupId: string) => {
+    if (!currentUserId) {
+      toast({
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour rejoindre un groupe.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const group = studyGroups.find(g => g.id === groupId);
+    if (!group) return;
+
+    // Mise à jour optimiste
+    setStudyGroups(prev => prev.map(g =>
+      g.id === groupId
+        ? {
+            ...g,
+            isMember: !g.isMember,
+            memberCount: g.isMember ? g.memberCount - 1 : g.memberCount + 1
           }
-        : group
+        : g
     ));
-    
-    toast({
-      title: "Groupe rejoint !",
-      description: "Vous avez rejoint le groupe d'étude."
-    });
+
+    try {
+      if (group.isMember) {
+        // Quitter le groupe
+        await supabase
+          .from('team_members')
+          .delete()
+          .eq('team_id', groupId)
+          .eq('user_id', currentUserId);
+
+        toast({
+          title: 'Groupe quitté',
+          description: 'Vous avez quitté le groupe.'
+        });
+      } else {
+        // Rejoindre le groupe
+        await supabase
+          .from('team_members')
+          .insert({
+            team_id: groupId,
+            user_id: currentUserId,
+            role: 'member'
+          });
+
+        toast({
+          title: 'Groupe rejoint !',
+          description: 'Vous avez rejoint le groupe d\'étude.'
+        });
+      }
+    } catch (error) {
+      // Annuler la mise à jour optimiste
+      setStudyGroups(prev => prev.map(g =>
+        g.id === groupId
+          ? {
+              ...g,
+              isMember: group.isMember,
+              memberCount: group.memberCount
+            }
+          : g
+      ));
+      logger.error('Error joining group:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de modifier l\'appartenance au groupe',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPost.trim()) return;
 
-    const post: CommunityPost = {
-      id: Date.now().toString(),
-      author: {
-        id: 'current-user',
-        name: 'Vous',
-        level: 12,
-        badge: 'Étudiant'
-      },
-      content: newPost,
-      type: 'discussion',
-      category: 'Général',
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
-      createdAt: new Date().toISOString(),
-      tags: []
-    };
+    if (!currentUserId) {
+      toast({
+        title: 'Connexion requise',
+        description: 'Veuillez vous connecter pour publier.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-    setPosts(prev => [post, ...prev]);
-    setNewPost('');
-    
-    toast({
-      title: "Post publié !",
-      description: "Votre message a été partagé avec la communauté."
-    });
+    try {
+      const { data: newPostData, error } = await supabase
+        .from('posts')
+        .insert({
+          user_id: currentUserId,
+          content: newPost,
+          title: newPost.substring(0, 100),
+          category: 'lifestyle',
+          status: 'published',
+          visibility: 'public',
+          tags: [],
+          published_at: new Date().toISOString()
+        })
+        .select(`
+          id,
+          user_id,
+          content,
+          category,
+          tags,
+          likes_count,
+          comments_count,
+          shares_count,
+          created_at,
+          profiles:user_id (
+            id,
+            full_name,
+            avatar_url,
+            level
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+
+      // Ajouter le post à la liste
+      const post: CommunityPost = {
+        id: newPostData.id,
+        author: {
+          id: newPostData.user_id,
+          name: newPostData.profiles?.full_name || 'Vous',
+          avatar: newPostData.profiles?.avatar_url,
+          level: newPostData.profiles?.level || 1,
+          badge: getLevelBadge(newPostData.profiles?.level || 1)
+        },
+        content: newPostData.content,
+        type: 'discussion',
+        category: 'Général',
+        likes: 0,
+        comments: 0,
+        shares: 0,
+        isLiked: false,
+        createdAt: newPostData.created_at,
+        tags: []
+      };
+
+      setPosts(prev => [post, ...prev]);
+      setNewPost('');
+
+      toast({
+        title: 'Post publié !',
+        description: 'Votre message a été partagé avec la communauté.'
+      });
+    } catch (error) {
+      logger.error('Error creating post:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de publier le post',
+        variant: 'destructive'
+      });
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -549,32 +777,38 @@ export const CommunityHub = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[
-                  { tag: 'cardiologie', posts: 24, trend: '+15%' },
-                  { tag: 'anatomie', posts: 18, trend: '+8%' },
-                  { tag: 'révisions', posts: 31, trend: '+22%' },
-                  { tag: 'musique-médicale', posts: 12, trend: '+45%' },
-                  { tag: 'stress-examens', posts: 28, trend: '+12%' }
-                ].map((topic, index) => (
-                  <div key={topic.tag} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-mono text-muted-foreground">
-                        #{index + 1}
-                      </span>
-                      <div>
-                        <p className="font-medium">#{topic.tag}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {topic.posts} posts
-                        </p>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : trendingTopics.length > 0 ? (
+                <div className="space-y-4">
+                  {trendingTopics.map((topic, index) => (
+                    <div key={topic.tag} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-mono text-muted-foreground">
+                          #{index + 1}
+                        </span>
+                        <div>
+                          <p className="font-medium">#{topic.tag}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {topic.posts} posts
+                          </p>
+                        </div>
                       </div>
+                      <Badge variant="secondary" className="text-success">
+                        {topic.trend}
+                      </Badge>
                     </div>
-                    <Badge variant="secondary" className="text-success">
-                      {topic.trend}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Aucune tendance pour le moment</p>
+                  <p className="text-sm">Les sujets populaires apparaîtront ici</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
