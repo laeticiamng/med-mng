@@ -54,6 +54,7 @@ import {
   useRituals,
   useRitualStats,
   useCreateRitual,
+  useUpdateRitual,
   useToggleRitual,
   useCompleteRitual,
   useUncompleteRitual,
@@ -100,12 +101,15 @@ export default function RitualsManager() {
   const { data: rituals, isLoading } = useRituals();
   const { data: stats } = useRitualStats();
   const createRitual = useCreateRitual();
+  const updateRitual = useUpdateRitual();
   const toggleRitual = useToggleRitual();
   const completeRitual = useCompleteRitual();
   const uncompleteRitual = useUncompleteRitual();
   const deleteRitual = useDeleteRitual();
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingRitual, setEditingRitual] = useState<RitualWithStats | null>(null);
   const [formData, setFormData] = useState<RitualFormData>(defaultFormData);
 
   const handleCreateRitual = async () => {
@@ -177,6 +181,69 @@ export default function RitualsManager() {
       toast.success('Rituel supprimé');
     } catch (error) {
       toast.error('Erreur lors de la suppression');
+    }
+  };
+
+  const handleEditRitual = (ritual: RitualWithStats, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingRitual(ritual);
+    setFormData({
+      name: ritual.name,
+      description: ritual.description || '',
+      time: ritual.time,
+      duration_minutes: ritual.duration_minutes,
+      category: ritual.category,
+      icon: ritual.icon || '🧘',
+      reminder_enabled: ritual.reminder_enabled,
+      reminder_minutes_before: ritual.reminder_minutes_before,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateRitual = async () => {
+    if (!editingRitual || !formData.name.trim()) {
+      toast.error('Veuillez entrer un nom pour le rituel');
+      return;
+    }
+
+    try {
+      await updateRitual.mutateAsync({
+        id: editingRitual.id,
+        updates: {
+          name: formData.name,
+          description: formData.description || undefined,
+          time: formData.time,
+          duration_minutes: formData.duration_minutes,
+          category: formData.category,
+          icon: formData.icon,
+          reminder_enabled: formData.reminder_enabled,
+          reminder_minutes_before: formData.reminder_minutes_before,
+        },
+      });
+      toast.success('Rituel mis à jour');
+      setShowEditDialog(false);
+      setEditingRitual(null);
+      setFormData(defaultFormData);
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour');
+    }
+  };
+
+  const handleToggleReminder = async (ritual: RitualWithStats, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      await updateRitual.mutateAsync({
+        id: ritual.id,
+        updates: {
+          reminder_enabled: !ritual.reminder_enabled,
+        },
+      });
+      toast.success(ritual.reminder_enabled ? 'Rappel désactivé' : 'Rappel activé');
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour');
     }
   };
 
@@ -358,6 +425,141 @@ export default function RitualsManager() {
             </Dialog>
           </div>
 
+          {/* Edit Dialog */}
+          <Dialog open={showEditDialog} onOpenChange={(open) => {
+            setShowEditDialog(open);
+            if (!open) {
+              setEditingRitual(null);
+              setFormData(defaultFormData);
+            }
+          }}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Modifier le rituel</DialogTitle>
+                <DialogDescription>
+                  Modifiez les détails de votre rituel
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                {/* Icon selector */}
+                <div className="space-y-2">
+                  <Label>Icône</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {defaultIcons.map((icon) => (
+                      <button
+                        key={icon}
+                        onClick={() => setFormData((d) => ({ ...d, icon }))}
+                        className={cn(
+                          'text-2xl p-2 rounded-lg border-2 transition-colors',
+                          formData.icon === icon
+                            ? 'border-primary bg-primary/10'
+                            : 'border-transparent hover:border-muted'
+                        )}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Nom du rituel</Label>
+                  <Input
+                    id="edit-name"
+                    placeholder="Ex: Méditation matinale"
+                    value={formData.name}
+                    onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description (optionnel)</Label>
+                  <Textarea
+                    id="edit-description"
+                    placeholder="Décrivez votre rituel..."
+                    value={formData.description}
+                    onChange={(e) => setFormData((d) => ({ ...d, description: e.target.value }))}
+                    rows={2}
+                  />
+                </div>
+
+                {/* Time and Duration */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-time">Heure</Label>
+                    <Input
+                      id="edit-time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData((d) => ({ ...d, time: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-duration">Durée (minutes)</Label>
+                    <Input
+                      id="edit-duration"
+                      type="number"
+                      min={1}
+                      max={180}
+                      value={formData.duration_minutes}
+                      onChange={(e) =>
+                        setFormData((d) => ({ ...d, duration_minutes: parseInt(e.target.value) || 10 }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  <Label>Catégorie</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value: RitualFormData['category']) =>
+                      setFormData((d) => ({ ...d, category: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(categoryConfig).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>
+                          {config.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Reminder */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-muted-foreground" />
+                    <Label>Rappel</Label>
+                  </div>
+                  <Switch
+                    checked={formData.reminder_enabled}
+                    onCheckedChange={(checked) =>
+                      setFormData((d) => ({ ...d, reminder_enabled: checked }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Annuler
+                </Button>
+                <Button onClick={handleUpdateRitual} disabled={updateRitual.isPending}>
+                  Mettre à jour
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {/* Stats cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <Card>
@@ -517,11 +719,11 @@ export default function RitualsManager() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => handleEditRitual(ritual, e)}>
                                     <Edit className="w-4 h-4 mr-2" />
                                     Modifier
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => handleToggleReminder(ritual, e)}>
                                     {ritual.reminder_enabled ? (
                                       <>
                                         <BellOff className="w-4 h-4 mr-2" />
