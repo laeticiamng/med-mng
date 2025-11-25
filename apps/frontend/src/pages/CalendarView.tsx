@@ -282,38 +282,7 @@ export default function CalendarView() {
       const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       return eventDate >= now && eventDate <= weekFromNow;
     }).length
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Calendar,
-  Clock,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  BookOpen,
-  Target,
-  Trophy,
-  Bell,
-  Loader2
-} from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
-import { ROUTE_PATHS } from '@/config/routes';
-
-interface CalendarEvent {
-  id: string;
-  title: string;
-  date: Date;
-  type: 'study' | 'goal' | 'challenge' | 'reminder';
-  description?: string;
-  duration?: number;
-  completed?: boolean;
-}
+  };
 
 const eventTypeConfig = {
   study: { icon: BookOpen, color: 'bg-blue-500', label: 'Session d\'étude' },
