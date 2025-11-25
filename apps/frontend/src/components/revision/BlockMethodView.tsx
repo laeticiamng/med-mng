@@ -2,21 +2,26 @@
 // Block Method (Méthode Blocs Profonds) View Component
 // ============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Target,
-  Calendar,
   CheckCircle2,
   Settings,
   TrendingUp,
   BookOpen,
-  PlayCircle
+  PlayCircle,
+  Search,
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import {
   Dialog,
@@ -27,13 +32,69 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible';
 import { TodayRevisionItem, BlockMethodConfigDB } from '@shared/types/revision-methods';
 import { useRevisionMethods } from '@/hooks/useRevisionMethods';
+import { toast } from 'sonner';
 
 interface BlockMethodViewProps {
   todayItems: TodayRevisionItem[];
   blockConfig: BlockMethodConfigDB | null;
 }
+
+// Liste des items EDN disponibles (exemple)
+const EDN_ITEMS_CATEGORIES = [
+  {
+    category: 'Cardiologie',
+    items: [
+      { code: 'IC-220', title: 'Insuffisance cardiaque' },
+      { code: 'IC-221', title: 'Troubles du rythme' },
+      { code: 'IC-222', title: 'Hypertension artérielle' },
+      { code: 'IC-223', title: 'Cardiopathies ischémiques' },
+      { code: 'IC-224', title: 'Valvulopathies' },
+    ]
+  },
+  {
+    category: 'Neurologie',
+    items: [
+      { code: 'IC-125', title: 'AVC' },
+      { code: 'IC-126', title: 'Épilepsie' },
+      { code: 'IC-127', title: 'Maladie de Parkinson' },
+      { code: 'IC-128', title: 'Sclérose en plaques' },
+    ]
+  },
+  {
+    category: 'Pneumologie',
+    items: [
+      { code: 'IC-154', title: 'BPCO' },
+      { code: 'IC-155', title: 'Asthme' },
+      { code: 'IC-156', title: 'Pneumopathies infectieuses' },
+      { code: 'IC-157', title: 'Cancer bronchique' },
+    ]
+  },
+  {
+    category: 'Gastro-entérologie',
+    items: [
+      { code: 'IC-180', title: 'Hépatites virales' },
+      { code: 'IC-181', title: 'Cirrhose' },
+      { code: 'IC-182', title: 'MICI' },
+      { code: 'IC-183', title: 'Cancer colorectal' },
+    ]
+  },
+  {
+    category: 'Endocrinologie',
+    items: [
+      { code: 'IC-200', title: 'Diabète type 1' },
+      { code: 'IC-201', title: 'Diabète type 2' },
+      { code: 'IC-202', title: 'Dysthyroïdies' },
+      { code: 'IC-203', title: 'Insuffisance surrénale' },
+    ]
+  }
+];
 
 export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, blockConfig }) => {
   const { createBlockConfig, completeRevision, loading } = useRevisionMethods();
@@ -42,22 +103,75 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
   const [targetDate, setTargetDate] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
+  // État pour la sélection d'items
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  // Filtrer les items par recherche
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery) return EDN_ITEMS_CATEGORIES;
+
+    const query = searchQuery.toLowerCase();
+    return EDN_ITEMS_CATEGORIES.map(cat => ({
+      ...cat,
+      items: cat.items.filter(
+        item =>
+          item.code.toLowerCase().includes(query) ||
+          item.title.toLowerCase().includes(query)
+      )
+    })).filter(cat => cat.items.length > 0);
+  }, [searchQuery]);
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const toggleItem = (code: string) => {
+    setSelectedItems(prev =>
+      prev.includes(code)
+        ? prev.filter(c => c !== code)
+        : [...prev, code]
+    );
+  };
+
+  const selectAllInCategory = (category: string) => {
+    const categoryItems = EDN_ITEMS_CATEGORIES.find(c => c.category === category)?.items || [];
+    const categoryCodes = categoryItems.map(i => i.code);
+
+    const allSelected = categoryCodes.every(code => selectedItems.includes(code));
+
+    if (allSelected) {
+      setSelectedItems(prev => prev.filter(code => !categoryCodes.includes(code)));
+    } else {
+      setSelectedItems(prev => [...new Set([...prev, ...categoryCodes])]);
+    }
+  };
+
   const handleCreateConfig = async () => {
     if (!targetDate) {
-      alert('Veuillez sélectionner une date cible');
+      toast.error('Veuillez sélectionner une date cible');
       return;
     }
 
-    // For now, we'll use a placeholder for selected_items
-    // In a real implementation, this would come from a multi-select component
+    if (selectedItems.length === 0) {
+      toast.error('Veuillez sélectionner au moins un item à réviser');
+      return;
+    }
+
     const result = await createBlockConfig({
       items_per_day: itemsPerDay,
       target_date: targetDate,
-      selected_items: [] // TODO: Add item selection UI
+      selected_items: selectedItems
     });
 
     if (result.success) {
       setShowConfigDialog(false);
+      toast.success(`Plan créé avec ${selectedItems.length} items`);
     }
   };
 
@@ -87,9 +201,149 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
       )
     : 0;
 
+  // Calculer le nombre de jours nécessaires
+  const estimatedDays = targetDate
+    ? Math.ceil((new Date(targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+
+  const ItemSelectionSection = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Label className="text-base font-medium">
+          Sélection des items à réviser
+        </Label>
+        <Badge variant="outline">
+          {selectedItems.length} sélectionné{selectedItems.length > 1 ? 's' : ''}
+        </Badge>
+      </div>
+
+      {/* Barre de recherche */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Rechercher un item (code ou titre)..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+          >
+            <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+          </button>
+        )}
+      </div>
+
+      {/* Items sélectionnés */}
+      {selectedItems.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {selectedItems.slice(0, 10).map(code => (
+            <Badge
+              key={code}
+              variant="secondary"
+              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+              onClick={() => toggleItem(code)}
+            >
+              {code}
+              <X className="h-3 w-3 ml-1" />
+            </Badge>
+          ))}
+          {selectedItems.length > 10 && (
+            <Badge variant="outline">
+              +{selectedItems.length - 10} autres
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {/* Liste des catégories */}
+      <ScrollArea className="h-[300px] border rounded-lg p-2">
+        <div className="space-y-2">
+          {filteredCategories.map((category) => {
+            const isExpanded = expandedCategories.includes(category.category);
+            const categorySelected = category.items.filter(i => selectedItems.includes(i.code)).length;
+            const allSelected = categorySelected === category.items.length;
+
+            return (
+              <Collapsible
+                key={category.category}
+                open={isExpanded}
+                onOpenChange={() => toggleCategory(category.category)}
+              >
+                <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={() => selectAllInCategory(category.category)}
+                  />
+                  <CollapsibleTrigger asChild>
+                    <button className="flex items-center justify-between flex-1 text-left">
+                      <span className="font-medium">{category.category}</span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {categorySelected}/{category.items.length}
+                        </Badge>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </button>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="pl-6 pt-2 space-y-1">
+                  {category.items.map((item) => (
+                    <div
+                      key={item.code}
+                      className="flex items-center gap-2 p-2 hover:bg-muted/30 rounded cursor-pointer"
+                      onClick={() => toggleItem(item.code)}
+                    >
+                      <Checkbox
+                        checked={selectedItems.includes(item.code)}
+                        onCheckedChange={() => toggleItem(item.code)}
+                      />
+                      <span className="font-mono text-xs text-muted-foreground">{item.code}</span>
+                      <span className="text-sm">{item.title}</span>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      {/* Actions rapides */}
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const allCodes = EDN_ITEMS_CATEGORIES.flatMap(c => c.items.map(i => i.code));
+            setSelectedItems(allCodes);
+          }}
+        >
+          Tout sélectionner
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectedItems([])}
+        >
+          Tout désélectionner
+        </Button>
+      </div>
+    </div>
+  );
+
   if (!blockConfig) {
     return (
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
@@ -100,9 +354,9 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-700">
-            Tu n'as pas encore configuré la Méthode Blocs Profonds. Définis ton objectif quotidien
-            et ta date cible pour commencer.
+          <p className="text-sm text-muted-foreground">
+            Tu n'as pas encore configuré la Méthode Blocs Profonds. Définis ton objectif quotidien,
+            sélectionne les items à réviser et ta date cible pour commencer.
           </p>
           <Dialog open={showConfigDialog} onOpenChange={setShowConfigDialog}>
             <DialogTrigger asChild>
@@ -111,71 +365,77 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
                 Configurer la méthode
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Configuration Méthode Blocs Profonds</DialogTitle>
                 <DialogDescription>
-                  Définis ton rythme et ton objectif pour un apprentissage en profondeur
+                  Définis ton rythme et sélectionne les items pour un apprentissage en profondeur
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="itemsPerDay">
-                    Nombre d'items par jour
-                    <span className="text-xs text-gray-500 ml-2">(recommandé: 3-8)</span>
-                  </Label>
-                  <Input
-                    id="itemsPerDay"
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={itemsPerDay}
-                    onChange={(e) => setItemsPerDay(parseInt(e.target.value))}
-                  />
-                  <p className="text-xs text-gray-600">
-                    Moins d'items = plus de temps par sujet (deep focus)
-                  </p>
+              <div className="space-y-6 py-4">
+                {/* Paramètres de base */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="itemsPerDay">
+                      Items par jour
+                      <span className="text-xs text-muted-foreground ml-2">(3-8 recommandé)</span>
+                    </Label>
+                    <Input
+                      id="itemsPerDay"
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={itemsPerDay}
+                      onChange={(e) => setItemsPerDay(parseInt(e.target.value) || 5)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="targetDate">Date cible (examen)</Label>
+                    <Input
+                      id="targetDate"
+                      type="date"
+                      value={targetDate}
+                      onChange={(e) => setTargetDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="targetDate">Date cible (examen)</Label>
-                  <Input
-                    id="targetDate"
-                    type="date"
-                    value={targetDate}
-                    onChange={(e) => setTargetDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-
-                <div className="bg-blue-50 rounded-lg p-4 text-sm">
-                  <p className="font-medium mb-2">Estimation :</p>
-                  {targetDate && (
-                    <>
-                      <p className="text-gray-700">
-                        Avec <strong>{itemsPerDay} items/jour</strong>, tu peux couvrir environ{' '}
-                        <strong>
-                          {itemsPerDay *
-                            Math.ceil(
-                              (new Date(targetDate).getTime() - new Date().getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            )}{' '}
-                          items
-                        </strong>{' '}
-                        d'ici la date cible.
+                {/* Estimation */}
+                {targetDate && selectedItems.length > 0 && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-sm">
+                    <p className="font-medium mb-2">Estimation :</p>
+                    <div className="space-y-1 text-muted-foreground">
+                      <p>
+                        <strong>{selectedItems.length}</strong> items à réviser
                       </p>
-                    </>
-                  )}
-                </div>
+                      <p>
+                        <strong>{itemsPerDay}</strong> items/jour × <strong>{estimatedDays}</strong> jours = <strong>{itemsPerDay * estimatedDays}</strong> révisions possibles
+                      </p>
+                      {selectedItems.length > itemsPerDay * estimatedDays && (
+                        <p className="text-amber-600 dark:text-amber-400">
+                          ⚠️ Attention : vous avez sélectionné plus d'items que ce qui est possible avant la date cible
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sélection des items */}
+                <ItemSelectionSection />
               </div>
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowConfigDialog(false)}>
                   Annuler
                 </Button>
-                <Button onClick={handleCreateConfig} disabled={loading || !targetDate}>
-                  {loading ? 'Création...' : 'Créer le plan'}
+                <Button
+                  onClick={handleCreateConfig}
+                  disabled={loading || !targetDate || selectedItems.length === 0}
+                >
+                  {loading ? 'Création...' : `Créer le plan (${selectedItems.length} items)`}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -188,7 +448,7 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
   return (
     <div className="space-y-6">
       {/* Header with progress */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -207,28 +467,57 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
                   Modifier
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Modifier la configuration</DialogTitle>
                 </DialogHeader>
-                {/* Same config form as above */}
+                <div className="space-y-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="editItemsPerDay">Items par jour</Label>
+                      <Input
+                        id="editItemsPerDay"
+                        type="number"
+                        min={1}
+                        max={20}
+                        defaultValue={blockConfig.items_per_day}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="editTargetDate">Date cible</Label>
+                      <Input
+                        id="editTargetDate"
+                        type="date"
+                        defaultValue={blockConfig.target_date}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Items actuels : {blockConfig.selected_items.length}
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline">Annuler</Button>
+                  <Button>Sauvegarder</Button>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-white rounded-lg p-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
               <p className="text-2xl font-bold text-purple-600">{todayItems.length}</p>
-              <p className="text-xs text-gray-600">Items du jour</p>
+              <p className="text-xs text-muted-foreground">Items du jour</p>
             </div>
-            <div className="bg-white rounded-lg p-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
               <p className="text-2xl font-bold text-blue-600">{daysUntilTarget}</p>
-              <p className="text-xs text-gray-600">Jours restants</p>
+              <p className="text-xs text-muted-foreground">Jours restants</p>
             </div>
-            <div className="bg-white rounded-lg p-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
               <p className="text-2xl font-bold text-green-600">{progressPercentage}%</p>
-              <p className="text-xs text-gray-600">Progression</p>
+              <p className="text-xs text-muted-foreground">Progression</p>
             </div>
           </div>
 
@@ -257,7 +546,7 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
           </CardHeader>
           <CardContent className="space-y-4">
             {todayItems.map((item, index) => (
-              <Card key={item.id} className="border-purple-200">
+              <Card key={item.id} className="border-purple-200 dark:border-purple-800">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -265,14 +554,14 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
                         <Badge className="bg-purple-600 text-white">
                           Item {index + 1}/{todayItems.length}
                         </Badge>
-                        <span className="font-mono text-sm text-gray-600">{item.item_code}</span>
+                        <span className="font-mono text-sm text-muted-foreground">{item.item_code}</span>
                       </div>
-                      <div className="space-y-1 text-sm text-gray-600">
+                      <div className="space-y-1 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <BookOpen className="h-4 w-4" />
                           <span>{item.item_type}</span>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs">
                           Étapes : 1) Lecture active de la fiche 2) QCM associés 3) Mini-synthèse
                         </p>
                       </div>
@@ -303,13 +592,13 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
           </CardContent>
         </Card>
       ) : (
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
           <CardContent className="p-8 text-center">
             <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-            <h3 className="text-lg font-semibold text-green-800 mb-2">
+            <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
               Session du jour terminée !
             </h3>
-            <p className="text-green-600">
+            <p className="text-green-600 dark:text-green-400">
               Excellent travail ! Tu as terminé tous tes items du jour. Repose-toi et reviens demain.
             </p>
           </CardContent>
@@ -317,29 +606,29 @@ export const BlockMethodView: React.FC<BlockMethodViewProps> = ({ todayItems, bl
       )}
 
       {/* Method Info */}
-      <Card className="bg-purple-50/50 border-purple-200">
+      <Card className="bg-purple-50/50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
             Conseils pour la Méthode Blocs Profonds
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-gray-700">
+        <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-white rounded-lg p-3">
-              <p className="font-semibold mb-1">📖 Phase 1 : Lecture active</p>
-              <p className="text-xs text-gray-600">Lis la fiche en prenant des notes</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+              <p className="font-semibold mb-1">Phase 1 : Lecture active</p>
+              <p className="text-xs text-muted-foreground">Lis la fiche en prenant des notes</p>
             </div>
-            <div className="bg-white rounded-lg p-3">
-              <p className="font-semibold mb-1">❓ Phase 2 : QCM</p>
-              <p className="text-xs text-gray-600">Teste-toi sur les concepts</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+              <p className="font-semibold mb-1">Phase 2 : QCM</p>
+              <p className="text-xs text-muted-foreground">Teste-toi sur les concepts</p>
             </div>
-            <div className="bg-white rounded-lg p-3">
-              <p className="font-semibold mb-1">✍️ Phase 3 : Synthèse</p>
-              <p className="text-xs text-gray-600">Résume ce que tu as appris</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+              <p className="font-semibold mb-1">Phase 3 : Synthèse</p>
+              <p className="text-xs text-muted-foreground">Résume ce que tu as appris</p>
             </div>
           </div>
-          <p className="mt-3">
+          <p className="mt-3 text-muted-foreground">
             La clé du succès : <strong>ne te disperse pas</strong>. Concentre-toi uniquement sur les
             items du jour et prends le temps de vraiment les comprendre en profondeur.
           </p>

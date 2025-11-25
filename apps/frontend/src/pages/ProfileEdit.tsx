@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ROUTE_PATHS } from '@/config/routes'
-import { ArrowLeft, Upload, Loader } from 'lucide-react'
+import { ArrowLeft, Upload, Loader, Camera, Trash2, Eye, EyeOff } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,13 +9,18 @@ import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/hooks/useAuth'
 import { useFetchProfileWithStats, useUpdateProfile } from '@/hooks/useUserProfile'
+import { useAvatarUpload, compressImage } from '@/hooks/useAvatarUpload'
 import { toast } from 'sonner'
 
 export default function ProfileEdit() {
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: profile, isLoading: profileLoading } = useFetchProfileWithStats(currentUser?.id || '')
   const updateMutation = useUpdateProfile(currentUser?.id || '')
@@ -29,7 +34,27 @@ export default function ProfileEdit() {
     education: '',
   })
 
+  const [privacySettings, setPrivacySettings] = useState({
+    isPublic: true,
+    showEmail: false,
+    showLocation: true,
+  })
+
   const [isFormReady, setIsFormReady] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  // Hook pour l'upload d'avatar
+  const {
+    upload: uploadAvatar,
+    delete: deleteAvatar,
+    isUploading,
+    progress: uploadProgress
+  } = useAvatarUpload({
+    userId: currentUser?.id || '',
+    onSuccess: (url) => {
+      setPreviewUrl(url)
+    }
+  })
 
   // Initialize form data when profile loads
   if (profile && !isFormReady) {
@@ -40,6 +65,11 @@ export default function ProfileEdit() {
       occupation: profile.occupation || '',
       website: profile.website || '',
       education: profile.education || '',
+    })
+    setPrivacySettings({
+      isPublic: profile.is_public ?? true,
+      showEmail: false,
+      showLocation: true,
     })
     setIsFormReady(true)
   }
@@ -52,17 +82,55 @@ export default function ProfileEdit() {
     }))
   }
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      // Compresser l'image avant upload
+      const compressedFile = await compressImage(file, 512, 0.85)
+
+      // Prévisualisation locale immédiate
+      const localPreview = URL.createObjectURL(compressedFile)
+      setPreviewUrl(localPreview)
+
+      // Upload
+      uploadAvatar(compressedFile)
+    } catch (error) {
+      console.error('Image preparation error:', error);
+      toast.error('Erreur lors de la préparation de l\'image')
+    }
+  }
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleRemoveAvatar = () => {
+    // Supprimer l'avatar du serveur si il existe
+    if (profile?.avatar_url) {
+      // Extraire le path du fichier depuis l'URL
+      const urlParts = profile.avatar_url.split('/avatars/')
+      if (urlParts.length > 1) {
+        const path = `avatars/${urlParts[1]}`
+        deleteAvatar(path)
+      }
+    }
+    setPreviewUrl(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     updateMutation.mutate(
       {
-        displayName: formData.displayName,
+        display_name: formData.displayName,
         bio: formData.bio,
         location: formData.location,
         occupation: formData.occupation,
         website: formData.website,
         education: formData.education,
+        is_public: privacySettings.isPublic,
       },
       {
         onSuccess: () => {
@@ -124,6 +192,8 @@ export default function ProfileEdit() {
     )
   }
 
+  const avatarUrl = previewUrl || profile.avatar_url
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
       <div className="container max-w-2xl mx-auto px-4">
@@ -159,20 +229,85 @@ export default function ProfileEdit() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Avatar Section */}
-              <div className="flex items-center gap-6">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src={profile.avatar_url} />
-                  <AvatarFallback className="text-2xl">
-                    {(profile.display_name || 'U')[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Button variant="outline" type="button" disabled={true} className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Changer la photo (Bientôt disponible)
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Formats supportés: JPG, PNG (Max 5MB)
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="relative group">
+                  <Avatar className="w-28 h-28 border-4 border-background shadow-lg">
+                    <AvatarImage src={avatarUrl} />
+                    <AvatarFallback className="text-3xl bg-primary/10">
+                      {(profile.display_name || 'U')[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {/* Overlay pour l'upload */}
+                  <button
+                    type="button"
+                    onClick={handleAvatarClick}
+                    disabled={isUploading}
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    {isUploading ? (
+                      <Loader className="h-8 w-8 text-white animate-spin" />
+                    ) : (
+                      <Camera className="h-8 w-8 text-white" />
+                    )}
+                  </button>
+
+                  {/* Input file caché */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </div>
+
+                <div className="flex-1 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAvatarClick}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader className="h-4 w-4 mr-2 animate-spin" />
+                          Upload en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Changer la photo
+                        </>
+                      )}
+                    </Button>
+
+                    {avatarUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRemoveAvatar}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  {isUploading && (
+                    <div className="space-y-1">
+                      <Progress value={uploadProgress} className="h-2" />
+                      <p className="text-xs text-muted-foreground">
+                        Upload: {uploadProgress}%
+                      </p>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    Formats supportés: JPG, PNG, WebP, GIF (Max 5MB)
                   </p>
                 </div>
               </div>
@@ -180,7 +315,7 @@ export default function ProfileEdit() {
               {/* Verification Badge */}
               {profile.verified && (
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="bg-blue-100">
+                  <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900">
                     ✓ Vérifié
                   </Badge>
                   <p className="text-sm text-muted-foreground">
@@ -329,28 +464,84 @@ export default function ProfileEdit() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Profil public/privé */}
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Profil public</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    {privacySettings.isPublic ? (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <Label htmlFor="is-public" className="font-medium">
+                      Profil public
+                    </Label>
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    {profile.is_public
+                    {privacySettings.isPublic
                       ? 'Tout le monde peut voir votre profil'
                       : 'Seuls les utilisateurs connectés peuvent voir votre profil'}
                   </p>
                 </div>
-                <Badge variant={profile.is_public ? 'default' : 'secondary'}>
-                  {profile.is_public ? 'Public' : 'Privé'}
-                </Badge>
+                <Switch
+                  id="is-public"
+                  checked={privacySettings.isPublic}
+                  onCheckedChange={(checked) =>
+                    setPrivacySettings((prev) => ({ ...prev, isPublic: checked }))
+                  }
+                />
               </div>
-              <Button
-                variant="outline"
-                className="w-full"
-                type="button"
-                disabled={true}
-              >
-                Gérer les paramètres de confidentialité (Bientôt disponible)
-              </Button>
+
+              {/* Afficher email */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="show-email" className="font-medium">
+                    Afficher l'email
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Votre email sera visible sur votre profil public
+                  </p>
+                </div>
+                <Switch
+                  id="show-email"
+                  checked={privacySettings.showEmail}
+                  onCheckedChange={(checked) =>
+                    setPrivacySettings((prev) => ({ ...prev, showEmail: checked }))
+                  }
+                />
+              </div>
+
+              {/* Afficher localisation */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="show-location" className="font-medium">
+                    Afficher la localisation
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Votre localisation sera visible sur votre profil
+                  </p>
+                </div>
+                <Switch
+                  id="show-location"
+                  checked={privacySettings.showLocation}
+                  onCheckedChange={(checked) =>
+                    setPrivacySettings((prev) => ({ ...prev, showLocation: checked }))
+                  }
+                />
+              </div>
+
+              {/* Badge de statut */}
+              <div className="pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <Badge variant={privacySettings.isPublic ? 'default' : 'secondary'}>
+                    {privacySettings.isPublic ? 'Public' : 'Privé'}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    Statut actuel du profil
+                  </span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,17 +8,22 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  User, Bell, Shield, Eye, Palette, Database, 
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Slider } from '@/components/ui/slider';
+import {
+  User, Bell, Shield, Eye, Palette, Database,
   Download, Upload, Trash2, Save, AlertTriangle,
-  Mail, Phone, MapPin, Calendar, Globe, Lock
+  Mail, Phone, Sun, Moon, Monitor, Type, Contrast
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTheme } from '@/components/ui/theme-provider';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { theme, setTheme } = useTheme();
 
   // État des paramètres
   const [profileData, setProfileData] = useState({
@@ -52,16 +57,24 @@ const UserSettings: React.FC = () => {
     allowAnalytics: true
   });
 
+  const [appearanceSettings, setAppearanceSettings] = useState({
+    fontSize: 16,
+    reduceMotion: false,
+    highContrast: false,
+    compactMode: false,
+    colorScheme: 'default' as 'default' | 'blue' | 'green' | 'purple'
+  });
+
   const handleSave = async (section: string) => {
     setIsLoading(true);
     try {
       // Simulation de sauvegarde
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Paramètres sauvegardés !', {
         description: `Les paramètres de ${section} ont été mis à jour avec succès.`
       });
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la sauvegarde', {
         description: 'Veuillez réessayer plus tard.'
       });
@@ -74,10 +87,14 @@ const UserSettings: React.FC = () => {
     // Simulation d'export de données
     const data = {
       profile: profileData,
-      settings: { notifications: notificationSettings, privacy: privacySettings },
+      settings: {
+        notifications: notificationSettings,
+        privacy: privacySettings,
+        appearance: appearanceSettings
+      },
       exportDate: new Date().toISOString()
     };
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -85,10 +102,55 @@ const UserSettings: React.FC = () => {
     a.download = 'med-mng-user-data.json';
     a.click();
     URL.revokeObjectURL(url);
-    
+
     toast.success('Données exportées', {
       description: 'Vos données ont été téléchargées avec succès.'
     });
+  };
+
+  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+
+        // Validation basique
+        if (!data.profile || !data.settings) {
+          throw new Error('Format de fichier invalide');
+        }
+
+        // Importer les données
+        if (data.profile) {
+          setProfileData(prev => ({ ...prev, ...data.profile }));
+        }
+        if (data.settings?.notifications) {
+          setNotificationSettings(prev => ({ ...prev, ...data.settings.notifications }));
+        }
+        if (data.settings?.privacy) {
+          setPrivacySettings(prev => ({ ...prev, ...data.settings.privacy }));
+        }
+        if (data.settings?.appearance) {
+          setAppearanceSettings(prev => ({ ...prev, ...data.settings.appearance }));
+        }
+
+        toast.success('Données importées', {
+          description: 'Vos paramètres ont été restaurés avec succès.'
+        });
+      } catch {
+        toast.error('Erreur d\'import', {
+          description: 'Le fichier sélectionné n\'est pas valide.'
+        });
+      }
+    };
+    reader.readAsText(file);
+
+    // Réinitialiser l'input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const sections = [
@@ -98,6 +160,13 @@ const UserSettings: React.FC = () => {
     { id: 'appearance', label: 'Apparence', icon: Palette },
     { id: 'data', label: 'Données', icon: Database },
     { id: 'feedback', label: 'Feedback', icon: Mail }
+  ];
+
+  const colorSchemes = [
+    { id: 'default', label: 'Par défaut', color: 'bg-primary' },
+    { id: 'blue', label: 'Bleu', color: 'bg-blue-500' },
+    { id: 'green', label: 'Vert', color: 'bg-green-500' },
+    { id: 'purple', label: 'Violet', color: 'bg-purple-500' }
   ];
 
   return (
@@ -280,7 +349,7 @@ const UserSettings: React.FC = () => {
                         </div>
                         <Switch
                           checked={value}
-                          onCheckedChange={(checked) => 
+                          onCheckedChange={(checked) =>
                             setNotificationSettings(prev => ({ ...prev, [key]: checked }))
                           }
                         />
@@ -340,10 +409,10 @@ const UserSettings: React.FC = () => {
                           </div>
                           <Switch
                             checked={typeof value === 'boolean' ? value : value === 'public'}
-                            onCheckedChange={(checked) => 
-                              setPrivacySettings(prev => ({ 
-                                ...prev, 
-                                [key]: key === 'profileVisibility' ? (checked ? 'public' : 'private') : checked 
+                            onCheckedChange={(checked) =>
+                              setPrivacySettings(prev => ({
+                                ...prev,
+                                [key]: key === 'profileVisibility' ? (checked ? 'public' : 'private') : checked
                               }))
                             }
                           />
@@ -367,6 +436,199 @@ const UserSettings: React.FC = () => {
                     <div className="flex justify-end">
                       <Button
                         onClick={() => handleSave('confidentialité')}
+                        disabled={isLoading}
+                        className="medical-btn-primary"
+                      >
+                        {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
+                        <Save className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Appearance Section */}
+              {activeSection === 'appearance' && (
+                <Card className="medical-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Palette className="w-5 h-5 text-primary" />
+                      Apparence
+                    </CardTitle>
+                    <CardDescription>
+                      Personnalisez l'interface selon vos préférences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {/* Thème */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Eye className="w-4 h-4" />
+                        Thème
+                      </h4>
+                      <RadioGroup
+                        value={theme}
+                        onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}
+                        className="grid grid-cols-3 gap-4"
+                      >
+                        <Label
+                          htmlFor="theme-light"
+                          className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            theme === 'light' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="light" id="theme-light" className="sr-only" />
+                          <div className="w-12 h-12 rounded-full bg-white border-2 flex items-center justify-center">
+                            <Sun className="w-6 h-6 text-yellow-500" />
+                          </div>
+                          <span className="text-sm font-medium">Clair</span>
+                        </Label>
+
+                        <Label
+                          htmlFor="theme-dark"
+                          className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            theme === 'dark' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="dark" id="theme-dark" className="sr-only" />
+                          <div className="w-12 h-12 rounded-full bg-gray-900 border-2 flex items-center justify-center">
+                            <Moon className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <span className="text-sm font-medium">Sombre</span>
+                        </Label>
+
+                        <Label
+                          htmlFor="theme-system"
+                          className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            theme === 'system' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                          }`}
+                        >
+                          <RadioGroupItem value="system" id="theme-system" className="sr-only" />
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white to-gray-900 border-2 flex items-center justify-center">
+                            <Monitor className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <span className="text-sm font-medium">Système</span>
+                        </Label>
+                      </RadioGroup>
+                    </div>
+
+                    <Separator />
+
+                    {/* Schéma de couleurs */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Schéma de couleurs
+                      </h4>
+                      <div className="grid grid-cols-4 gap-3">
+                        {colorSchemes.map((scheme) => (
+                          <button
+                            key={scheme.id}
+                            onClick={() => setAppearanceSettings(prev => ({
+                              ...prev,
+                              colorScheme: scheme.id as typeof prev.colorScheme
+                            }))}
+                            className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg transition-all ${
+                              appearanceSettings.colorScheme === scheme.id
+                                ? 'border-primary bg-primary/5'
+                                : 'border-muted hover:border-primary/50'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-full ${scheme.color}`} />
+                            <span className="text-xs font-medium">{scheme.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Taille de police */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        Taille de police
+                      </h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Petite</span>
+                          <Badge variant="outline">{appearanceSettings.fontSize}px</Badge>
+                          <span className="text-sm text-muted-foreground">Grande</span>
+                        </div>
+                        <Slider
+                          value={[appearanceSettings.fontSize]}
+                          onValueChange={([value]) => setAppearanceSettings(prev => ({ ...prev, fontSize: value }))}
+                          min={12}
+                          max={24}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Exemple: <span style={{ fontSize: `${appearanceSettings.fontSize}px` }}>Texte de prévisualisation</span>
+                      </p>
+                    </div>
+
+                    <Separator />
+
+                    {/* Options d'accessibilité */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Contrast className="w-4 h-4" />
+                        Accessibilité
+                      </h4>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label className="text-sm font-medium">Réduire les animations</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Désactive les animations et transitions
+                            </p>
+                          </div>
+                          <Switch
+                            checked={appearanceSettings.reduceMotion}
+                            onCheckedChange={(checked) =>
+                              setAppearanceSettings(prev => ({ ...prev, reduceMotion: checked }))
+                            }
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label className="text-sm font-medium">Contraste élevé</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Améliore le contraste des couleurs
+                            </p>
+                          </div>
+                          <Switch
+                            checked={appearanceSettings.highContrast}
+                            onCheckedChange={(checked) =>
+                              setAppearanceSettings(prev => ({ ...prev, highContrast: checked }))
+                            }
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label className="text-sm font-medium">Mode compact</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Réduit les espacements pour afficher plus de contenu
+                            </p>
+                          </div>
+                          <Switch
+                            checked={appearanceSettings.compactMode}
+                            onCheckedChange={(checked) =>
+                              setAppearanceSettings(prev => ({ ...prev, compactMode: checked }))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={() => handleSave('apparence')}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -418,14 +680,21 @@ const UserSettings: React.FC = () => {
                           <p className="text-sm text-muted-foreground mb-4">
                             Restaurez vos données depuis un fichier de sauvegarde
                           </p>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".json"
+                            onChange={handleImportData}
+                            className="hidden"
+                          />
                           <Button
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            disabled
+                            onClick={() => fileInputRef.current?.click()}
                           >
                             <Upload className="w-4 h-4 mr-2" />
-                            Bientôt disponible
+                            Importer
                           </Button>
                         </CardContent>
                       </Card>
@@ -440,13 +709,13 @@ const UserSettings: React.FC = () => {
                           Zone Dangereuse
                         </h4>
                       </div>
-                      
+
                       <div className="space-y-3">
                         <p className="text-sm text-red-700 dark:text-red-300">
                           La suppression de votre compte est irréversible. Toutes vos données,
                           progression et créations seront définitivement perdues.
                         </p>
-                        
+
                         <Button
                           variant="destructive"
                           size="sm"
