@@ -262,14 +262,23 @@ export default function CalendarView() {
   const days = getDaysInMonth(currentDate);
   const selectedDateEvents = getEventsForDate(selectedDate);
 
+  // Helper to normalize a date string or Date object to midnight
+  function getDateAtMidnight(date: string | Date): Date {
+    const d = typeof date === 'string' ? new Date(date) : new Date(date);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
   // Statistiques
   const stats = {
     total: events.length,
     completed: events.filter(e => e.status === 'completed').length,
-    upcoming: events.filter(e => e.status === 'planned' && new Date(e.date) >= new Date()).length,
+    upcoming: events.filter(e =>
+      e.status === 'planned' &&
+      getDateAtMidnight(e.date) >= getDateAtMidnight(new Date())
+    ).length,
     thisWeek: events.filter(e => {
-      const eventDate = new Date(e.date);
-      const now = new Date();
+      const eventDate = getDateAtMidnight(e.date);
+      const now = getDateAtMidnight(new Date());
       const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       return eventDate >= now && eventDate <= weekFromNow;
     }).length
