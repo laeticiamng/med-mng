@@ -48,7 +48,6 @@ export default function ProfileEdit() {
     upload: uploadAvatar,
     delete: deleteAvatar,
     isUploading,
-    isDeleting,
     progress: uploadProgress
   } = useAvatarUpload({
     userId: currentUser?.id || '',
