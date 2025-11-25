@@ -1,16 +1,20 @@
 /**
  * Hook pour gérer les filtres avancés de recherche EDN
  * Inclut sauvegarde locale des filtres favoris
+ * Intégré avec le système de progression utilisateur
  */
 
 import logger from '@/lib/logger';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EdnItemUnified } from '@shared/types/edn';
 import { AdvancedFilters, DEFAULT_ADVANCED_FILTERS, SavedFilter } from '@shared/types/advancedFilters';
+import { useAllEdnItemsProgress } from '@/hooks/useEdnProgress';
 
 const SAVED_FILTERS_KEY = 'edn-saved-filters';
 
 export const useAdvancedFilters = (items: EdnItemUnified[]) => {
+  // Récupérer la progression réelle de l'utilisateur
+  const { data: userProgress } = useAllEdnItemsProgress();
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_ADVANCED_FILTERS);
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [isActive, setIsActive] = useState(false);
@@ -56,14 +60,29 @@ export const useAdvancedFilters = (items: EdnItemUnified[]) => {
         return false;
       }
 
-      // Filtre par statut de progression (simulé - à connecter avec le vrai état utilisateur)
+      // Filtre par statut de progression (intégré avec le système réel)
       if (filters.progressStatus !== 'all') {
-        // TODO: Intégrer avec le système de progression réel
-        // Pour l'instant, on se base sur le score de complétude
-        const score = item.completeness_score || 0;
-        if (filters.progressStatus === 'not-started' && score > 0) return false;
-        if (filters.progressStatus === 'in-progress' && (score === 0 || score === 100)) return false;
-        if (filters.progressStatus === 'completed' && score < 100) return false;
+        // Utiliser la progression réelle de l'utilisateur si disponible
+        const itemProgress = userProgress?.get(item.item_number || item.item_code || '');
+
+        if (userProgress && userProgress.size > 0) {
+          // Utiliser le vrai statut de progression
+          if (filters.progressStatus === 'not-started') {
+            if (itemProgress && itemProgress !== 'not_started') return false;
+          }
+          if (filters.progressStatus === 'in-progress') {
+            if (itemProgress !== 'in_progress') return false;
+          }
+          if (filters.progressStatus === 'completed') {
+            if (itemProgress !== 'completed' && itemProgress !== 'mastered') return false;
+          }
+        } else {
+          // Fallback sur le score de complétude si l'utilisateur n'est pas connecté
+          const score = item.completeness_score || 0;
+          if (filters.progressStatus === 'not-started' && score > 0) return false;
+          if (filters.progressStatus === 'in-progress' && (score === 0 || score === 100)) return false;
+          if (filters.progressStatus === 'completed' && score < 100) return false;
+        }
       }
 
       // Filtres de contenu disponible
@@ -86,7 +105,7 @@ export const useAdvancedFilters = (items: EdnItemUnified[]) => {
 
       return true;
     });
-  }, [items, filters, isActive]);
+  }, [items, filters, isActive, userProgress]);
 
   // Estimer le temps de lecture basé sur le contenu
   const estimateReadingTime = (item: EdnItemUnified): number => {

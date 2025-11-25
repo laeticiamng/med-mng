@@ -76,11 +76,135 @@ async function scanBuildFiles(buildContent: string[]): Promise<SecurityIncident[
   return allIncidents
 }
 
+async function sendWebhookAlert(incident: SecurityIncident): Promise<void> {
+  const slackWebhookUrl = Deno.env.get('SLACK_WEBHOOK_URL');
+  const teamsWebhookUrl = Deno.env.get('TEAMS_WEBHOOK_URL');
+  const discordWebhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL');
+
+  const severityEmoji = {
+    critical: '🔴',
+    high: '🟠',
+    medium: '🟡',
+    low: '🟢',
+  };
+
+  const emoji = severityEmoji[incident.severity];
+
+  // Slack notification
+  if (slackWebhookUrl) {
+    try {
+      const slackPayload = {
+        blocks: [
+          {
+            type: 'header',
+            text: {
+              type: 'plain_text',
+              text: `${emoji} Security Alert: ${incident.pattern_matched}`,
+              emoji: true,
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              { type: 'mrkdwn', text: `*Severity:*\n${incident.severity.toUpperCase()}` },
+              { type: 'mrkdwn', text: `*File:*\n${incident.file_path}:${incident.line_number || 'N/A'}` },
+            ],
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `*Preview:*\n\`\`\`${incident.content_preview}\`\`\``,
+            },
+          },
+          {
+            type: 'context',
+            elements: [{ type: 'mrkdwn', text: `Detected at ${incident.timestamp}` }],
+          },
+        ],
+      };
+
+      await fetch(slackWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slackPayload),
+      });
+      console.log('✅ Slack alert sent');
+    } catch (error) {
+      console.error('❌ Failed to send Slack alert:', error);
+    }
+  }
+
+  // Microsoft Teams notification
+  if (teamsWebhookUrl) {
+    try {
+      const teamsPayload = {
+        '@type': 'MessageCard',
+        '@context': 'http://schema.org/extensions',
+        themeColor: incident.severity === 'critical' ? 'FF0000' : incident.severity === 'high' ? 'FF8C00' : 'FFFF00',
+        summary: `Security Alert: ${incident.pattern_matched}`,
+        sections: [
+          {
+            activityTitle: `${emoji} Security Alert: ${incident.pattern_matched}`,
+            facts: [
+              { name: 'Severity', value: incident.severity.toUpperCase() },
+              { name: 'File', value: `${incident.file_path}:${incident.line_number || 'N/A'}` },
+              { name: 'Pattern', value: incident.pattern_matched },
+              { name: 'Detected', value: incident.timestamp },
+            ],
+            text: `Preview: ${incident.content_preview}`,
+          },
+        ],
+      };
+
+      await fetch(teamsWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(teamsPayload),
+      });
+      console.log('✅ Teams alert sent');
+    } catch (error) {
+      console.error('❌ Failed to send Teams alert:', error);
+    }
+  }
+
+  // Discord notification
+  if (discordWebhookUrl) {
+    try {
+      const colorMap = { critical: 0xFF0000, high: 0xFF8C00, medium: 0xFFFF00, low: 0x00FF00 };
+
+      const discordPayload = {
+        embeds: [
+          {
+            title: `${emoji} Security Alert: ${incident.pattern_matched}`,
+            color: colorMap[incident.severity],
+            fields: [
+              { name: 'Severity', value: incident.severity.toUpperCase(), inline: true },
+              { name: 'File', value: `${incident.file_path}:${incident.line_number || 'N/A'}`, inline: true },
+              { name: 'Preview', value: `\`\`\`${incident.content_preview.substring(0, 200)}\`\`\`` },
+            ],
+            timestamp: incident.timestamp,
+          },
+        ],
+      };
+
+      await fetch(discordWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(discordPayload),
+      });
+      console.log('✅ Discord alert sent');
+    } catch (error) {
+      console.error('❌ Failed to send Discord alert:', error);
+    }
+  }
+}
+
 async function sendAlert(incident: SecurityIncident, supabase: any) {
   console.log(`🚨 SECURITY ALERT [${incident.severity.toUpperCase()}]: ${incident.pattern_matched}`)
   console.log(`📁 File: ${incident.file_path}:${incident.line_number}`)
   console.log(`🔍 Preview: ${incident.content_preview}`)
-  
+
   // Enregistrer dans la base
   const { error } = await supabase
     .from('security_incidents')
@@ -94,12 +218,16 @@ async function sendAlert(incident: SecurityIncident, supabase: any) {
       status: 'detected',
       created_at: incident.timestamp
     })
-  
+
   if (error) {
     console.error('❌ Failed to log security incident:', error)
   }
-  
-  // TODO: Intégrer webhook Slack/Teams ici
+
+  // Send webhook alerts for high severity incidents
+  if (incident.severity === 'critical' || incident.severity === 'high') {
+    await sendWebhookAlert(incident);
+  }
+
   if (incident.severity === 'critical') {
     console.log('🔴 CRITICAL SECURITY INCIDENT - BUILD SHOULD BE BLOCKED!')
   }

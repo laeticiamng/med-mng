@@ -160,3 +160,71 @@ export const useUpdateItemProgress = () => {
     },
   });
 };
+
+/**
+ * Hook pour récupérer la progression de tous les items EDN
+ * Utilisé pour le filtrage avancé par statut de progression
+ */
+export const useAllEdnItemsProgress = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['edn-items-progress', user?.id],
+    queryFn: async (): Promise<Map<string, EdnItemProgress['status']>> => {
+      if (!user) {
+        return new Map();
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('user_edn_progress')
+        .select('item_number, status')
+        .eq('user_id', user.id);
+
+      if (error) {
+        logger.error('Error fetching items progress:', error);
+        throw error;
+      }
+
+      const progressMap = new Map<string, EdnItemProgress['status']>();
+      data?.forEach((item: { item_number: string; status: EdnItemProgress['status'] }) => {
+        progressMap.set(item.item_number, item.status);
+      });
+
+      return progressMap;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: !!user,
+  });
+};
+
+/**
+ * Hook pour récupérer la progression détaillée d'un item spécifique
+ */
+export const useItemProgress = (itemNumber: string) => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['edn-item-progress', user?.id, itemNumber],
+    queryFn: async (): Promise<EdnItemProgress | null> => {
+      if (!user || !itemNumber) {
+        return null;
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('user_edn_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('item_number', itemNumber)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // Not found is OK
+        logger.error('Error fetching item progress:', error);
+        throw error;
+      }
+
+      return data || null;
+    },
+    staleTime: 60 * 1000, // 1 minute
+    enabled: !!user && !!itemNumber,
+  });
+};
