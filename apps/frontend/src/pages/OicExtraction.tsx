@@ -38,8 +38,7 @@ const OicExtraction = () => {
     setLogs(prev => [...prev, newLog]);
   };
 
-  // ⚠️ SÉCURITÉ: Ne pas hardcoder les secrets
-  // TODO: Utiliser import.meta.env.VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
+  // ✅ SÉCURITÉ: Utilisation des variables d'environnement
   const baseUrl = import.meta.env.VITE_SUPABASE_URL + '/functions/v1/extract-edn-objectifs';
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
