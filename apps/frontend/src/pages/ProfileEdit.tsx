@@ -97,8 +97,7 @@ export default function ProfileEdit() {
 
       // Upload
       uploadAvatar(compressedFile)
-    } catch (error) {
-      console.error('Image preparation error:', error);
+    } catch {
       toast.error('Erreur lors de la préparation de l\'image')
     }
   }
