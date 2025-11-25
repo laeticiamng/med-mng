@@ -45,7 +45,7 @@ export function useAvatarUpload({ userId, onSuccess, onError }: UseAvatarUploadO
       setProgress(30);
 
       // Upload vers Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
