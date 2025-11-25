@@ -99,11 +99,8 @@ export const useMusicLibrary = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
-          endpoint: 'library',
-          method: 'GET'
-        }
+      const { data, error } = await supabase.functions.invoke('med-mng-api/library', {
+        method: 'GET'
       });
 
       if (error) {

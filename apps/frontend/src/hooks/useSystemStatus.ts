@@ -28,8 +28,7 @@ export function useSystemStatus() {
   const checkSystemStatus = async () => {
     try {
       // Check system status and feature flags
-      const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status' },
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api/status', {
         method: 'GET'
       });
 
@@ -38,8 +37,7 @@ export function useSystemStatus() {
       setStatus(statusData);
 
       // Check data completeness
-      const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status/data-completeness' },
+      const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api/status/data-completeness', {
         method: 'GET'
       });
 

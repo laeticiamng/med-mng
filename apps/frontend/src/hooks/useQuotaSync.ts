@@ -19,8 +19,7 @@ export function useQuotaSync() {
 
   const fetchQuota = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/quota' },
+      const { data, error } = await supabase.functions.invoke('med-mng-api/quota', {
         method: 'GET'
       });
 

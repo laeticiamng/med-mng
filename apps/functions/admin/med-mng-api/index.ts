@@ -98,7 +98,28 @@ serve(async (req) => {
 
     const url = new URL(req.url);
     const originalPath = url.pathname;
-    const path = url.pathname.replace('/med-mng-api', '');
+    let path = url.pathname.replace('/med-mng-api', '');
+
+    // ✅ COMPATIBILITÉ FRONT: Autoriser les appels envoyant le path dans le corps
+    if (!path || path === '/') {
+      try {
+        const clonedRequest = req.clone();
+        const body = await clonedRequest.json();
+
+        const bodyPath = typeof body.path === 'string'
+          ? body.path
+          : typeof body.endpoint === 'string'
+            ? body.endpoint
+            : null;
+
+        if (bodyPath) {
+          path = bodyPath.startsWith('/') ? bodyPath : `/${bodyPath}`;
+        }
+      } catch (error) {
+        log('warn', 'Impossible de lire le chemin depuis le corps de la requête', { error: (error as Error).message });
+      }
+    }
+
     console.log('🔍 Path extraction - Original:', originalPath, 'Extracted:', path);
     const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'anon';
 

@@ -42,12 +42,9 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
-          path: '/rgpd/export',
-          method: 'POST',
-          body: { user_id: userId }
-        }
+      const { data, error } = await supabase.functions.invoke('med-mng-api/rgpd/export', {
+        method: 'POST',
+        body: { user_id: userId }
       });
 
       if (error) throw error;
@@ -101,14 +98,11 @@ const MesDonneesRGPD = () => {
 
       const confirmationToken = `DELETE_${userId}`;
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
-          path: '/rgpd/purge',
-          method: 'DELETE',
-          body: { 
-            user_id: userId,
-            confirmation_token: confirmationToken
-          }
+      const { data, error } = await supabase.functions.invoke('med-mng-api/rgpd/purge', {
+        method: 'DELETE',
+        body: {
+          user_id: userId,
+          confirmation_token: confirmationToken
         }
       });
 
@@ -149,11 +143,8 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
-          path: `/rgpd/status/${userId}`,
-          method: 'GET'
-        }
+      const { data, error } = await supabase.functions.invoke(`med-mng-api/rgpd/status/${userId}`, {
+        method: 'GET'
       });
 
       if (error) throw error;
