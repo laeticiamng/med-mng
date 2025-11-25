@@ -9,6 +9,7 @@ interface AccessibilityContextType {
   setFocusVisible: (enabled: boolean) => void;
   setReducedMotion: (enabled: boolean) => void;
   setFontSize: (size: 'small' | 'medium' | 'large') => void;
+  announceToScreenReader: (message: string) => void;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -30,6 +31,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
   const [isFocusVisible, setIsFocusVisible] = useState(true);
   const [reducedMotion, setReducedMotionState] = useState(false);
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     // Load preferences from localStorage
@@ -75,6 +77,11 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     document.documentElement.setAttribute('data-font-size', size);
   };
 
+  const announceToScreenReader = (message: string) => {
+    setAnnouncement(message);
+    setTimeout(() => setAnnouncement(''), 1000);
+  };
+
   const value: AccessibilityContextType = {
     isHighContrast,
     isFocusVisible,
@@ -83,12 +90,20 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     setHighContrast,
     setFocusVisible,
     setReducedMotion,
-    setFontSize: setFontSizeHandler
+    setFontSize: setFontSizeHandler,
+    announceToScreenReader
   };
 
   return (
     <AccessibilityContext.Provider value={value}>
       {children}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
     </AccessibilityContext.Provider>
   );
 };
