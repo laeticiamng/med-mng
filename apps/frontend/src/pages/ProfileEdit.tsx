@@ -1,29 +1,31 @@
-import { useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ROUTE_PATHS } from '@/config/routes'
-import { ArrowLeft, Upload, Loader, Camera, Trash2, Eye, EyeOff } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Progress } from '@/components/ui/progress'
-import { useAuth } from '@/hooks/useAuth'
-import { useFetchProfileWithStats, useUpdateProfile } from '@/hooks/useUserProfile'
-import { useAvatarUpload, compressImage } from '@/hooks/useAvatarUpload'
-import { toast } from 'sonner'
+import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
+import { ArrowLeft, Upload, Loader, Camera, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/useAuth';
+import { useFetchProfileWithStats, useUpdateProfile } from '@/hooks/useUserProfile';
+import { useAvatarUpload, compressImage } from '@/hooks/useAvatarUpload';
+import { toast } from 'sonner';
 
 export default function ProfileEdit() {
-  const { user: currentUser } = useAuth()
-  const navigate = useNavigate()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: profile, isLoading: profileLoading } = useFetchProfileWithStats(currentUser?.id || '')
-  const updateMutation = useUpdateProfile(currentUser?.id || '')
+  const { data: profile, isLoading: profileLoading } = useFetchProfileWithStats(
+    currentUser?.id || ''
+  );
+  const updateMutation = useUpdateProfile(currentUser?.id || '');
 
   const [formData, setFormData] = useState({
     displayName: '',
@@ -32,30 +34,41 @@ export default function ProfileEdit() {
     occupation: '',
     website: '',
     education: '',
-  })
+  });
 
   const [privacySettings, setPrivacySettings] = useState({
     isPublic: true,
     showEmail: false,
     showLocation: true,
-  })
+  });
 
-  const [isFormReady, setIsFormReady] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isFormReady, setIsFormReady] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // Ref to track the current object URL for cleanup
+  const objectUrlRef = useRef<string | null>(null);
+
+  // Cleanup object URL when component unmounts or when URL changes
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
+    };
+  }, []);
 
   // Hook pour l'upload d'avatar
   const {
     upload: uploadAvatar,
     delete: deleteAvatar,
     isUploading,
-    isDeleting,
-    progress: uploadProgress
+    isDeleting: _isDeleting,
+    progress: uploadProgress,
   } = useAvatarUpload({
     userId: currentUser?.id || '',
-    onSuccess: (url) => {
-      setPreviewUrl(url)
-    }
-  })
+    onSuccess: url => {
+      setPreviewUrl(url);
+    },
+  });
 
   // Initialize form data when profile loads
   if (profile && !isFormReady) {
@@ -66,62 +79,72 @@ export default function ProfileEdit() {
       occupation: profile.occupation || '',
       website: profile.website || '',
       education: profile.education || '',
-    })
+    });
     setPrivacySettings({
       isPublic: profile.is_public ?? true,
       showEmail: false,
       showLocation: true,
-    })
-    setIsFormReady(true)
+    });
+    setIsFormReady(true);
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
+    const { name, value } = e.target;
+    setFormData(prev => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     try {
       // Compresser l'image avant upload
-      const compressedFile = await compressImage(file, 512, 0.85)
+      const compressedFile = await compressImage(file, 512, 0.85);
+
+      // Revoke old object URL to prevent memory leak
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
 
       // Prévisualisation locale immédiate
-      const localPreview = URL.createObjectURL(compressedFile)
-      setPreviewUrl(localPreview)
+      const localPreview = URL.createObjectURL(compressedFile);
+      objectUrlRef.current = localPreview;
+      setPreviewUrl(localPreview);
 
       // Upload
-      uploadAvatar(compressedFile)
-    } catch (error) {
-      console.error('Image preparation error:', error);
-      toast.error('Erreur lors de la préparation de l\'image')
+      uploadAvatar(compressedFile);
+    } catch {
+      toast.error("Erreur lors de la préparation de l'image");
     }
-  }
+  };
 
   const handleAvatarClick = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const handleRemoveAvatar = () => {
     // Supprimer l'avatar du serveur si il existe
     if (profile?.avatar_url) {
       // Extraire le path du fichier depuis l'URL
-      const urlParts = profile.avatar_url.split('/avatars/')
+      const urlParts = profile.avatar_url.split('/avatars/');
       if (urlParts.length > 1) {
-        const path = `avatars/${urlParts[1]}`
-        deleteAvatar(path)
+        const path = `avatars/${urlParts[1]}`;
+        deleteAvatar(path);
       }
     }
-    setPreviewUrl(null)
-  }
+    // Revoke object URL to prevent memory leak
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+    setPreviewUrl(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     updateMutation.mutate(
       {
@@ -135,15 +158,15 @@ export default function ProfileEdit() {
       },
       {
         onSuccess: () => {
-          toast.success('Profil mis à jour avec succès')
-          navigate(ROUTE_PATHS.userProfile.replace(':userId', currentUser?.id || ''))
+          toast.success('Profil mis à jour avec succès');
+          navigate(ROUTE_PATHS.userProfile.replace(':userId', currentUser?.id || ''));
         },
         onError: () => {
-          toast.error('Erreur lors de la mise à jour du profil')
+          toast.error('Erreur lors de la mise à jour du profil');
         },
       }
-    )
-  }
+    );
+  };
 
   if (!currentUser) {
     return (
@@ -159,7 +182,7 @@ export default function ProfileEdit() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (profileLoading) {
@@ -167,13 +190,13 @@ export default function ProfileEdit() {
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
         <div className="container max-w-2xl mx-auto px-4">
           <div className="space-y-6">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <div key={i} className="h-20 bg-muted rounded animate-pulse" />
             ))}
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!profile) {
@@ -190,10 +213,10 @@ export default function ProfileEdit() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const avatarUrl = previewUrl || profile.avatar_url
+  const avatarUrl = previewUrl || profile.avatar_url;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
@@ -223,9 +246,7 @@ export default function ProfileEdit() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Informations de profil</CardTitle>
-            <CardDescription>
-              Mettez à jour vos informations personnelles
-            </CardDescription>
+            <CardDescription>Mettez à jour vos informations personnelles</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -301,9 +322,7 @@ export default function ProfileEdit() {
                   {isUploading && (
                     <div className="space-y-1">
                       <Progress value={uploadProgress} className="h-2" />
-                      <p className="text-xs text-muted-foreground">
-                        Upload: {uploadProgress}%
-                      </p>
+                      <p className="text-xs text-muted-foreground">Upload: {uploadProgress}%</p>
                     </div>
                   )}
 
@@ -319,9 +338,7 @@ export default function ProfileEdit() {
                   <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900">
                     ✓ Vérifié
                   </Badge>
-                  <p className="text-sm text-muted-foreground">
-                    Votre compte a été vérifié
-                  </p>
+                  <p className="text-sm text-muted-foreground">Votre compte a été vérifié</p>
                 </div>
               )}
 
@@ -427,9 +444,7 @@ export default function ProfileEdit() {
                   type="url"
                   data-testid="website-input"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Inclure https:// ou http://
-                </p>
+                <p className="text-xs text-muted-foreground">Inclure https:// ou http://</p>
               </div>
 
               {/* Actions */}
@@ -460,9 +475,7 @@ export default function ProfileEdit() {
         <Card>
           <CardHeader>
             <CardTitle>Confidentialité</CardTitle>
-            <CardDescription>
-              Contrôlez qui peut voir votre profil
-            </CardDescription>
+            <CardDescription>Contrôlez qui peut voir votre profil</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -488,8 +501,8 @@ export default function ProfileEdit() {
                 <Switch
                   id="is-public"
                   checked={privacySettings.isPublic}
-                  onCheckedChange={(checked) =>
-                    setPrivacySettings((prev) => ({ ...prev, isPublic: checked }))
+                  onCheckedChange={checked =>
+                    setPrivacySettings(prev => ({ ...prev, isPublic: checked }))
                   }
                 />
               </div>
@@ -507,8 +520,8 @@ export default function ProfileEdit() {
                 <Switch
                   id="show-email"
                   checked={privacySettings.showEmail}
-                  onCheckedChange={(checked) =>
-                    setPrivacySettings((prev) => ({ ...prev, showEmail: checked }))
+                  onCheckedChange={checked =>
+                    setPrivacySettings(prev => ({ ...prev, showEmail: checked }))
                   }
                 />
               </div>
@@ -526,8 +539,8 @@ export default function ProfileEdit() {
                 <Switch
                   id="show-location"
                   checked={privacySettings.showLocation}
-                  onCheckedChange={(checked) =>
-                    setPrivacySettings((prev) => ({ ...prev, showLocation: checked }))
+                  onCheckedChange={checked =>
+                    setPrivacySettings(prev => ({ ...prev, showLocation: checked }))
                   }
                 />
               </div>
@@ -538,9 +551,7 @@ export default function ProfileEdit() {
                   <Badge variant={privacySettings.isPublic ? 'default' : 'secondary'}>
                     {privacySettings.isPublic ? 'Public' : 'Privé'}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Statut actuel du profil
-                  </span>
+                  <span className="text-sm text-muted-foreground">Statut actuel du profil</span>
                 </div>
               </div>
             </div>
@@ -548,5 +559,5 @@ export default function ProfileEdit() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
