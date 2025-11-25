@@ -139,7 +139,8 @@ const UserSettings: React.FC = () => {
         toast.success('Données importées', {
           description: 'Vos paramètres ont été restaurés avec succès.'
         });
-      } catch {
+      } catch (error) {
+        console.error('Import error:', error);
         toast.error('Erreur d\'import', {
           description: 'Le fichier sélectionné n\'est pas valide.'
         });
