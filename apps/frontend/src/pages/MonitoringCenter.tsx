@@ -2,8 +2,6 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useUserRoles } from '@/hooks/useUserRoles';
 import { UnifiedMonitoringDashboard } from '@/components/monitoring/UnifiedMonitoringDashboard';
 
 const MonitoringCenter = () => {

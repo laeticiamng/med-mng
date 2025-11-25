@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback } from 'react';
 import { toast as originalToast } from '@/hooks/use-toast';
-import { useAccessibility } from '@/components/accessibility/AccessibilityProvider';
+import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
 interface ToastContextType {
   showSuccess: (message: string, title?: string) => void;
