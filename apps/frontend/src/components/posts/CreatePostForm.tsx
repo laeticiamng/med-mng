@@ -92,8 +92,9 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
       }
 
       uploadImages(compressedFiles)
-    } catch {
-      toast.error('Erreur lors de la préparation des images')
+    } catch (error) {
+      console.error('Image compression error:', error);
+      toast.error('Erreur lors de la préparation des images');
     }
 
     // Réinitialiser l'input
