@@ -157,17 +157,33 @@ class Logger {
    */
   private async sendToRemote(entry: LogEntry): Promise<void> {
     try {
-      // TODO: Integrate with your logging service (Sentry, LogRocket, custom backend)
-      // Example with custom backend:
-      /*
-      await fetch('/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      });
-      */
+      // Sentry integration
+      const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+      if (sentryDsn && typeof window !== 'undefined') {
+        // Dynamic import of Sentry to avoid bundle bloat if not used
+        const Sentry = await import('@sentry/browser').catch(() => null);
 
-      // For now, we'll use Supabase to log errors
+        if (Sentry) {
+          if (entry.level === 'error') {
+            Sentry.captureException(
+              entry.stack ? new Error(entry.message) : entry.message,
+              {
+                level: 'error',
+                tags: entry.context,
+                extra: { data: entry.data, timestamp: entry.timestamp },
+              }
+            );
+          } else if (entry.level === 'warn') {
+            Sentry.captureMessage(entry.message, {
+              level: 'warning',
+              tags: entry.context,
+              extra: { data: entry.data, timestamp: entry.timestamp },
+            });
+          }
+        }
+      }
+
+      // Also log to Supabase for persistent storage and analytics
       if (typeof window !== 'undefined' && window.supabase) {
         await window.supabase
           .from('application_logs')

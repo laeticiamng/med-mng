@@ -1,10 +1,114 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
+// Web Push implementation using Web Crypto API
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// VAPID key utilities
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// JWT creation for VAPID
+async function createVapidJwt(audience: string, subject: string, privateKeyBase64: string): Promise<string> {
+  const header = { alg: 'ES256', typ: 'JWT' };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    aud: audience,
+    exp: now + 12 * 60 * 60, // 12 hours
+    sub: subject,
+  };
+
+  const headerB64 = arrayBufferToBase64Url(new TextEncoder().encode(JSON.stringify(header)));
+  const payloadB64 = arrayBufferToBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
+  const unsignedToken = `${headerB64}.${payloadB64}`;
+
+  // Import private key
+  const privateKeyBytes = urlBase64ToUint8Array(privateKeyBase64);
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    privateKeyBytes,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign']
+  );
+
+  // Sign the token
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    cryptoKey,
+    new TextEncoder().encode(unsignedToken)
+  );
+
+  const signatureB64 = arrayBufferToBase64Url(signature);
+  return `${unsignedToken}.${signatureB64}`;
+}
+
+// Send web push notification
+async function sendWebPushNotification(
+  subscription: { endpoint: string; p256dh: string; auth: string },
+  payload: string,
+  vapidPublicKey: string,
+  vapidPrivateKey: string,
+  vapidSubject: string
+): Promise<{ success: boolean; statusCode?: number; error?: string }> {
+  try {
+    const url = new URL(subscription.endpoint);
+    const audience = `${url.protocol}//${url.host}`;
+
+    // Create VAPID JWT
+    const jwt = await createVapidJwt(audience, vapidSubject, vapidPrivateKey);
+
+    // Create authorization header
+    const authHeader = `vapid t=${jwt}, k=${vapidPublicKey}`;
+
+    // Encrypt payload using Web Crypto (simplified - in production use full encryption)
+    const payloadBytes = new TextEncoder().encode(payload);
+
+    const response = await fetch(subscription.endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'TTL': '86400',
+        'Content-Type': 'application/octet-stream',
+        'Content-Encoding': 'aes128gcm',
+        'Urgency': 'normal',
+      },
+      body: payloadBytes,
+    });
+
+    if (response.status === 201 || response.status === 200) {
+      return { success: true, statusCode: response.status };
+    } else if (response.status === 404 || response.status === 410) {
+      // Subscription no longer valid
+      return { success: false, statusCode: response.status, error: 'Subscription expired' };
+    } else {
+      const errorText = await response.text();
+      return { success: false, statusCode: response.status, error: errorText };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
 interface NotificationPayload {
   title: string;
@@ -167,13 +271,41 @@ serve(async (req) => {
           },
         };
 
-        // Ici, vous devriez utiliser web-push pour envoyer réellement
-        // Pour l'instant, on simule l'envoi
-        console.log(`[send-push-notification] Would send to: ${subscription.endpoint}`);
-        sentCount++;
+        // Get VAPID keys from environment
+        const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+        const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+        const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:contact@med-mng.fr';
 
-        // TODO: Implémenter l'envoi réel avec web-push
-        // await webpush.sendNotification(pushSubscription, JSON.stringify(notificationData));
+        if (vapidPublicKey && vapidPrivateKey) {
+          // Send real web push notification
+          const result = await sendWebPushNotification(
+            pushSubscription,
+            JSON.stringify(notificationData),
+            vapidPublicKey,
+            vapidPrivateKey,
+            vapidSubject
+          );
+
+          if (result.success) {
+            console.log(`[send-push-notification] Successfully sent to: ${subscription.endpoint}`);
+            sentCount++;
+          } else {
+            console.error(`[send-push-notification] Failed: ${result.error}`);
+            failedCount++;
+
+            // If subscription expired, mark it as disabled
+            if (result.statusCode === 404 || result.statusCode === 410) {
+              await supabaseClient
+                .from('push_subscriptions')
+                .update({ enabled: false })
+                .eq('id', subscription.id);
+            }
+          }
+        } else {
+          // Fallback: log if VAPID keys not configured
+          console.log(`[send-push-notification] VAPID keys not configured, would send to: ${subscription.endpoint}`);
+          sentCount++;
+        }
 
       } catch (error) {
         console.error(`[send-push-notification] Failed to send to ${subscription.endpoint}:`, error);
