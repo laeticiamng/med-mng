@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +11,133 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import {
-  User, Bell, Shield, Eye, Palette, Database,
-  Download, Upload, Trash2, Save, AlertTriangle,
-  Mail, Phone, Sun, Moon, Monitor, Type, Contrast
+  User,
+  Bell,
+  Shield,
+  Eye,
+  Palette,
+  Database,
+  Download,
+  Upload,
+  Trash2,
+  Save,
+  AlertTriangle,
+  Mail,
+  Phone,
+  Sun,
+  Moon,
+  Monitor,
+  Type,
+  Contrast,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '@/components/ui/theme-provider';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
+
+// Storage keys for persisting user settings
+const STORAGE_KEYS = {
+  profile: 'med-mng-user-profile',
+  notifications: 'med-mng-user-notifications',
+  privacy: 'med-mng-user-privacy',
+  appearance: 'med-mng-user-appearance',
+} as const;
+
+// Section identifiers for save operations
+const SECTIONS = {
+  profile: 'profil',
+  notifications: 'notifications',
+  privacy: 'confidentialité',
+  appearance: 'apparence',
+} as const;
+
+// Default settings values
+const defaultProfileData = {
+  firstName: 'Dr. Marie',
+  lastName: 'Dubois',
+  email: 'marie.dubois@medmng.fr',
+  phone: '+33 6 12 34 56 78',
+  specialty: 'Cardiologie',
+  institution: 'CHU de Lyon',
+  bio: 'Cardiologue spécialisée dans les pathologies cardiovasculaires complexes.',
+  location: 'Lyon, France',
+  website: 'https://dr-dubois.fr',
+};
+
+const defaultNotificationSettings = {
+  emailNotifications: true,
+  pushNotifications: true,
+  weeklyDigest: true,
+  courseReminders: true,
+  communityUpdates: false,
+  securityAlerts: true,
+  marketingEmails: false,
+};
+
+const defaultPrivacySettings = {
+  profileVisibility: 'public',
+  showEmail: false,
+  showPhone: false,
+  allowDataCollection: true,
+  shareProgress: true,
+  allowAnalytics: true,
+};
+
+const defaultAppearanceSettings = {
+  fontSize: 16,
+  reduceMotion: false,
+  highContrast: false,
+  compactMode: false,
+  colorScheme: 'default' as 'default' | 'blue' | 'green' | 'purple',
+};
+
+// Dangerous property names that could lead to prototype pollution
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+// Helper function to validate that parsed data only contains expected keys
+function validateSettings<T extends Record<string, unknown>>(
+  parsed: unknown,
+  defaults: T
+): Partial<T> {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return {};
+  }
+  const validKeys = Object.keys(defaults);
+  const result: Partial<T> = {};
+  for (const key of validKeys) {
+    if (
+      Object.prototype.hasOwnProperty.call(parsed, key) &&
+      !DANGEROUS_KEYS.has(key) &&
+      typeof (parsed as Record<string, unknown>)[key] === typeof defaults[key]
+    ) {
+      result[key as keyof T] = (parsed as Record<string, unknown>)[key] as T[keyof T];
+    }
+  }
+  return result;
+}
+
+// Helper function to safely load settings from localStorage
+function loadSettings<T extends Record<string, unknown>>(key: string, defaults: T): T {
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const validated = validateSettings(parsed, defaults);
+      return { ...defaults, ...validated };
+    }
+  } catch {
+    // If parsing fails, return defaults
+  }
+  return defaults;
+}
+
+// Helper function to save settings to localStorage
+function saveSettings(key: string, data: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // Silently fail if localStorage is not available
+  }
+}
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -25,63 +145,88 @@ const UserSettings: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
 
-  // État des paramètres
-  const [profileData, setProfileData] = useState({
-    firstName: 'Dr. Marie',
-    lastName: 'Dubois',
-    email: 'marie.dubois@medmng.fr',
-    phone: '+33 6 12 34 56 78',
-    specialty: 'Cardiologie',
-    institution: 'CHU de Lyon',
-    bio: 'Cardiologue spécialisée dans les pathologies cardiovasculaires complexes.',
-    location: 'Lyon, France',
-    website: 'https://dr-dubois.fr'
-  });
+  // Initialize state from localStorage or use defaults
+  const [profileData, setProfileData] = useState(() =>
+    loadSettings(STORAGE_KEYS.profile, defaultProfileData)
+  );
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    weeklyDigest: true,
-    courseReminders: true,
-    communityUpdates: false,
-    securityAlerts: true,
-    marketingEmails: false
-  });
+  const [notificationSettings, setNotificationSettings] = useState(() =>
+    loadSettings(STORAGE_KEYS.notifications, defaultNotificationSettings)
+  );
 
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: 'public',
-    showEmail: false,
-    showPhone: false,
-    allowDataCollection: true,
-    shareProgress: true,
-    allowAnalytics: true
-  });
+  const [privacySettings, setPrivacySettings] = useState(() =>
+    loadSettings(STORAGE_KEYS.privacy, defaultPrivacySettings)
+  );
 
-  const [appearanceSettings, setAppearanceSettings] = useState({
-    fontSize: 16,
-    reduceMotion: false,
-    highContrast: false,
-    compactMode: false,
-    colorScheme: 'default' as 'default' | 'blue' | 'green' | 'purple'
-  });
+  const [appearanceSettings, setAppearanceSettings] = useState(() =>
+    loadSettings(STORAGE_KEYS.appearance, defaultAppearanceSettings)
+  );
 
-  const handleSave = async (section: string) => {
-    setIsLoading(true);
-    try {
-      // Simulation de sauvegarde
-      await new Promise(resolve => setTimeout(resolve, 1000));
+  // Apply appearance settings on mount and when they change
+  useEffect(() => {
+    const root = document.documentElement;
 
-      toast.success('Paramètres sauvegardés !', {
-        description: `Les paramètres de ${section} ont été mis à jour avec succès.`
-      });
-    } catch {
-      toast.error('Erreur lors de la sauvegarde', {
-        description: 'Veuillez réessayer plus tard.'
-      });
-    } finally {
-      setIsLoading(false);
+    // Apply font size
+    root.style.setProperty('--user-font-size', `${appearanceSettings.fontSize}px`);
+
+    // Apply reduced motion preference
+    if (appearanceSettings.reduceMotion) {
+      root.classList.add('reduce-motion');
+    } else {
+      root.classList.remove('reduce-motion');
     }
-  };
+
+    // Apply high contrast mode
+    if (appearanceSettings.highContrast) {
+      root.classList.add('high-contrast');
+    } else {
+      root.classList.remove('high-contrast');
+    }
+
+    // Apply compact mode
+    if (appearanceSettings.compactMode) {
+      root.classList.add('compact-mode');
+    } else {
+      root.classList.remove('compact-mode');
+    }
+
+    // Apply color scheme
+    root.setAttribute('data-color-scheme', appearanceSettings.colorScheme);
+  }, [appearanceSettings]);
+
+  const handleSave = useCallback(
+    async (section: string) => {
+      setIsLoading(true);
+      try {
+        // Persist settings to localStorage based on section
+        switch (section) {
+          case SECTIONS.profile:
+            saveSettings(STORAGE_KEYS.profile, profileData);
+            break;
+          case SECTIONS.notifications:
+            saveSettings(STORAGE_KEYS.notifications, notificationSettings);
+            break;
+          case SECTIONS.privacy:
+            saveSettings(STORAGE_KEYS.privacy, privacySettings);
+            break;
+          case SECTIONS.appearance:
+            saveSettings(STORAGE_KEYS.appearance, appearanceSettings);
+            break;
+        }
+
+        toast.success('Paramètres sauvegardés !', {
+          description: `Les paramètres de ${section} ont été mis à jour avec succès.`,
+        });
+      } catch {
+        toast.error('Erreur lors de la sauvegarde', {
+          description: 'Veuillez réessayer plus tard.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [profileData, notificationSettings, privacySettings, appearanceSettings]
+  );
 
   const handleExportData = () => {
     // Simulation d'export de données
@@ -90,9 +235,9 @@ const UserSettings: React.FC = () => {
       settings: {
         notifications: notificationSettings,
         privacy: privacySettings,
-        appearance: appearanceSettings
+        appearance: appearanceSettings,
       },
-      exportDate: new Date().toISOString()
+      exportDate: new Date().toISOString(),
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -104,7 +249,7 @@ const UserSettings: React.FC = () => {
     URL.revokeObjectURL(url);
 
     toast.success('Données exportées', {
-      description: 'Vos données ont été téléchargées avec succès.'
+      description: 'Vos données ont été téléchargées avec succès.',
     });
   };
 
@@ -113,7 +258,7 @@ const UserSettings: React.FC = () => {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = event => {
       try {
         const data = JSON.parse(event.target?.result as string);
 
@@ -137,11 +282,11 @@ const UserSettings: React.FC = () => {
         }
 
         toast.success('Données importées', {
-          description: 'Vos paramètres ont été restaurés avec succès.'
+          description: 'Vos paramètres ont été restaurés avec succès.',
         });
       } catch {
-        toast.error('Erreur d\'import', {
-          description: 'Le fichier sélectionné n\'est pas valide.'
+        toast.error("Erreur d'import", {
+          description: "Le fichier sélectionné n'est pas valide.",
         });
       }
     };
@@ -159,21 +304,24 @@ const UserSettings: React.FC = () => {
     { id: 'privacy', label: 'Confidentialité', icon: Shield },
     { id: 'appearance', label: 'Apparence', icon: Palette },
     { id: 'data', label: 'Données', icon: Database },
-    { id: 'feedback', label: 'Feedback', icon: Mail }
+    { id: 'feedback', label: 'Feedback', icon: Mail },
   ];
 
   const colorSchemes = [
     { id: 'default', label: 'Par défaut', color: 'bg-primary' },
     { id: 'blue', label: 'Bleu', color: 'bg-blue-500' },
     { id: 'green', label: 'Vert', color: 'bg-green-500' },
-    { id: 'purple', label: 'Violet', color: 'bg-purple-500' }
+    { id: 'purple', label: 'Violet', color: 'bg-purple-500' },
   ];
 
   return (
     <>
       <Helmet>
         <title>Paramètres Utilisateur - MED-MNG</title>
-        <meta name="description" content="Gérez vos paramètres personnels, notifications et préférences sur MED-MNG." />
+        <meta
+          name="description"
+          content="Gérez vos paramètres personnels, notifications et préférences sur MED-MNG."
+        />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -188,7 +336,7 @@ const UserSettings: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <nav className="space-y-1">
-                    {sections.map((section) => (
+                    {sections.map(section => (
                       <button
                         key={section.id}
                         onClick={() => setActiveSection(section.id)}
@@ -227,7 +375,9 @@ const UserSettings: React.FC = () => {
                         <Label className="medical-label">Prénom</Label>
                         <Input
                           value={profileData.firstName}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, firstName: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -235,7 +385,9 @@ const UserSettings: React.FC = () => {
                         <Label className="medical-label">Nom</Label>
                         <Input
                           value={profileData.lastName}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, lastName: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -250,7 +402,9 @@ const UserSettings: React.FC = () => {
                         <Input
                           type="email"
                           value={profileData.email}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, email: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -262,7 +416,9 @@ const UserSettings: React.FC = () => {
                         <Input
                           type="tel"
                           value={profileData.phone}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, phone: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -273,7 +429,9 @@ const UserSettings: React.FC = () => {
                         <Label className="medical-label">Spécialité</Label>
                         <Input
                           value={profileData.specialty}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, specialty: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, specialty: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -281,7 +439,9 @@ const UserSettings: React.FC = () => {
                         <Label className="medical-label">Institution</Label>
                         <Input
                           value={profileData.institution}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, institution: e.target.value }))}
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, institution: e.target.value }))
+                          }
                           className="medical-input"
                         />
                       </div>
@@ -291,7 +451,7 @@ const UserSettings: React.FC = () => {
                       <Label className="medical-label">Biographie</Label>
                       <Textarea
                         value={profileData.bio}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                        onChange={e => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
                         className="medical-input resize-none"
                         rows={3}
                         placeholder="Décrivez brièvement votre parcours et vos expertises..."
@@ -300,7 +460,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('profil')}
+                        onClick={() => handleSave(SECTIONS.profile)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -338,18 +498,21 @@ const UserSettings: React.FC = () => {
                             {key === 'marketingEmails' && 'Emails marketing'}
                           </Label>
                           <p className="text-xs text-muted-foreground">
-                            {key === 'emailNotifications' && 'Recevez les notifications importantes par email'}
-                            {key === 'pushNotifications' && 'Notifications en temps réel sur votre appareil'}
+                            {key === 'emailNotifications' &&
+                              'Recevez les notifications importantes par email'}
+                            {key === 'pushNotifications' &&
+                              'Notifications en temps réel sur votre appareil'}
                             {key === 'weeklyDigest' && 'Résumé de votre activité chaque semaine'}
                             {key === 'courseReminders' && 'Rappels pour vos cours et formations'}
-                            {key === 'communityUpdates' && 'Nouveautés et discussions de la communauté'}
+                            {key === 'communityUpdates' &&
+                              'Nouveautés et discussions de la communauté'}
                             {key === 'securityAlerts' && 'Alertes importantes de sécurité'}
                             {key === 'marketingEmails' && 'Promotions et nouveautés produit'}
                           </p>
                         </div>
                         <Switch
                           checked={value}
-                          onCheckedChange={(checked) =>
+                          onCheckedChange={checked =>
                             setNotificationSettings(prev => ({ ...prev, [key]: checked }))
                           }
                         />
@@ -360,7 +523,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('notifications')}
+                        onClick={() => handleSave(SECTIONS.notifications)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -392,27 +555,38 @@ const UserSettings: React.FC = () => {
                           <div>
                             <Label className="text-sm font-medium">
                               {key === 'profileVisibility' && 'Profil public'}
-                              {key === 'showEmail' && 'Afficher l\'email'}
+                              {key === 'showEmail' && "Afficher l'email"}
                               {key === 'showPhone' && 'Afficher le téléphone'}
                               {key === 'allowDataCollection' && 'Collecte de données'}
                               {key === 'shareProgress' && 'Partager les progrès'}
                               {key === 'allowAnalytics' && 'Analytics et amélioration'}
                             </Label>
                             <p className="text-xs text-muted-foreground">
-                              {key === 'profileVisibility' && 'Votre profil est visible par les autres utilisateurs'}
-                              {key === 'showEmail' && 'Votre email apparaît sur votre profil public'}
-                              {key === 'showPhone' && 'Votre téléphone apparaît sur votre profil public'}
-                              {key === 'allowDataCollection' && 'Permettre la collecte de données pour améliorer l\'expérience'}
-                              {key === 'shareProgress' && 'Vos progrès sont visibles par la communauté'}
-                              {key === 'allowAnalytics' && 'Autoriser les données analytics pour améliorer la plateforme'}
+                              {key === 'profileVisibility' &&
+                                'Votre profil est visible par les autres utilisateurs'}
+                              {key === 'showEmail' &&
+                                'Votre email apparaît sur votre profil public'}
+                              {key === 'showPhone' &&
+                                'Votre téléphone apparaît sur votre profil public'}
+                              {key === 'allowDataCollection' &&
+                                "Permettre la collecte de données pour améliorer l'expérience"}
+                              {key === 'shareProgress' &&
+                                'Vos progrès sont visibles par la communauté'}
+                              {key === 'allowAnalytics' &&
+                                'Autoriser les données analytics pour améliorer la plateforme'}
                             </p>
                           </div>
                           <Switch
                             checked={typeof value === 'boolean' ? value : value === 'public'}
-                            onCheckedChange={(checked) =>
+                            onCheckedChange={checked =>
                               setPrivacySettings(prev => ({
                                 ...prev,
-                                [key]: key === 'profileVisibility' ? (checked ? 'public' : 'private') : checked
+                                [key]:
+                                  key === 'profileVisibility'
+                                    ? checked
+                                      ? 'public'
+                                      : 'private'
+                                    : checked,
                               }))
                             }
                           />
@@ -428,14 +602,15 @@ const UserSettings: React.FC = () => {
                         </h5>
                       </div>
                       <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                        Certaines fonctionnalités peuvent être limitées si vous désactivez la collecte de données.
-                        Vos données sont toujours protégées selon notre politique de confidentialité.
+                        Certaines fonctionnalités peuvent être limitées si vous désactivez la
+                        collecte de données. Vos données sont toujours protégées selon notre
+                        politique de confidentialité.
                       </p>
                     </div>
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('confidentialité')}
+                        onClick={() => handleSave(SECTIONS.privacy)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -474,7 +649,9 @@ const UserSettings: React.FC = () => {
                         <Label
                           htmlFor="theme-light"
                           className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                            theme === 'light' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            theme === 'light'
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
                           }`}
                         >
                           <RadioGroupItem value="light" id="theme-light" className="sr-only" />
@@ -487,7 +664,9 @@ const UserSettings: React.FC = () => {
                         <Label
                           htmlFor="theme-dark"
                           className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                            theme === 'dark' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            theme === 'dark'
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
                           }`}
                         >
                           <RadioGroupItem value="dark" id="theme-dark" className="sr-only" />
@@ -500,7 +679,9 @@ const UserSettings: React.FC = () => {
                         <Label
                           htmlFor="theme-system"
                           className={`flex flex-col items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                            theme === 'system' ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'
+                            theme === 'system'
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
                           }`}
                         >
                           <RadioGroupItem value="system" id="theme-system" className="sr-only" />
@@ -521,13 +702,15 @@ const UserSettings: React.FC = () => {
                         Schéma de couleurs
                       </h4>
                       <div className="grid grid-cols-4 gap-3">
-                        {colorSchemes.map((scheme) => (
+                        {colorSchemes.map(scheme => (
                           <button
                             key={scheme.id}
-                            onClick={() => setAppearanceSettings(prev => ({
-                              ...prev,
-                              colorScheme: scheme.id as typeof prev.colorScheme
-                            }))}
+                            onClick={() =>
+                              setAppearanceSettings(prev => ({
+                                ...prev,
+                                colorScheme: scheme.id as typeof prev.colorScheme,
+                              }))
+                            }
                             className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg transition-all ${
                               appearanceSettings.colorScheme === scheme.id
                                 ? 'border-primary bg-primary/5'
@@ -557,7 +740,9 @@ const UserSettings: React.FC = () => {
                         </div>
                         <Slider
                           value={[appearanceSettings.fontSize]}
-                          onValueChange={([value]) => setAppearanceSettings(prev => ({ ...prev, fontSize: value }))}
+                          onValueChange={([value]) =>
+                            setAppearanceSettings(prev => ({ ...prev, fontSize: value }))
+                          }
                           min={12}
                           max={24}
                           step={1}
@@ -565,7 +750,10 @@ const UserSettings: React.FC = () => {
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Exemple: <span style={{ fontSize: `${appearanceSettings.fontSize}px` }}>Texte de prévisualisation</span>
+                        Exemple:{' '}
+                        <span style={{ fontSize: `${appearanceSettings.fontSize}px` }}>
+                          Texte de prévisualisation
+                        </span>
                       </p>
                     </div>
 
@@ -588,7 +776,7 @@ const UserSettings: React.FC = () => {
                           </div>
                           <Switch
                             checked={appearanceSettings.reduceMotion}
-                            onCheckedChange={(checked) =>
+                            onCheckedChange={checked =>
                               setAppearanceSettings(prev => ({ ...prev, reduceMotion: checked }))
                             }
                           />
@@ -603,7 +791,7 @@ const UserSettings: React.FC = () => {
                           </div>
                           <Switch
                             checked={appearanceSettings.highContrast}
-                            onCheckedChange={(checked) =>
+                            onCheckedChange={checked =>
                               setAppearanceSettings(prev => ({ ...prev, highContrast: checked }))
                             }
                           />
@@ -618,7 +806,7 @@ const UserSettings: React.FC = () => {
                           </div>
                           <Switch
                             checked={appearanceSettings.compactMode}
-                            onCheckedChange={(checked) =>
+                            onCheckedChange={checked =>
                               setAppearanceSettings(prev => ({ ...prev, compactMode: checked }))
                             }
                           />
@@ -628,7 +816,7 @@ const UserSettings: React.FC = () => {
 
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleSave('apparence')}
+                        onClick={() => handleSave(SECTIONS.appearance)}
                         disabled={isLoading}
                         className="medical-btn-primary"
                       >
@@ -716,11 +904,7 @@ const UserSettings: React.FC = () => {
                           progression et créations seront définitivement perdues.
                         </p>
 
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="w-full md:w-auto"
-                        >
+                        <Button variant="destructive" size="sm" className="w-full md:w-auto">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Supprimer mon compte
                         </Button>
