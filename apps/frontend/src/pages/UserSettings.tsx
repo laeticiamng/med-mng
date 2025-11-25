@@ -19,6 +19,9 @@ import { toast } from 'sonner';
 import { useTheme } from '@/components/ui/theme-provider';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
 
+// Type for theme mode options
+type ThemeMode = 'light' | 'dark' | 'system';
+
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
@@ -468,7 +471,7 @@ const UserSettings: React.FC = () => {
                       </h4>
                       <RadioGroup
                         value={theme}
-                        onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}
+                        onValueChange={(value: ThemeMode) => setTheme(value)}
                         className="grid grid-cols-3 gap-4"
                       >
                         <Label
