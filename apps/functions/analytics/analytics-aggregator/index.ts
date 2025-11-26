@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
-
+import { corsHeaders } from '../../_shared/cors.ts'
+import { getErrorMessage } from '../../_shared/error-utils.ts'
 interface AnalyticsQuery {
   startDate?: string;
   endDate?: string;
@@ -26,10 +26,10 @@ serve(async (req) => {
     }
 
     // Créer client Supabase
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    );
 
     // Vérifier le token JWT
     const token = authHeader.replace('Bearer ', '');
@@ -59,13 +59,6 @@ serve(async (req) => {
     }
 
     console.log(`✅ analytics-aggregator autorisé pour admin ${user.id}`);
-
-    // Code original de la fonction
-    
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
     const { startDate, endDate, filters = {} }: AnalyticsQuery = await req.json();
 
@@ -133,13 +126,13 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Analytics aggregation error:', error);
     
     return new Response(
       JSON.stringify({ 
         error: 'Analytics aggregation failed',
-        details: error.message 
+        details: getErrorMessage(error) 
       }),
       { 
         status: 500,

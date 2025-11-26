@@ -1,5 +1,6 @@
 import { log } from '../logger.ts';
 
+import { getErrorMessage } from '../../../_shared/error-utils.ts';
 export interface RetryConfig {
   maxRetries: number;
   baseDelay: number;
@@ -30,7 +31,7 @@ export class RetryService {
           log('info', `${operationName} succeeded on attempt ${attempt}`);
         }
         return result;
-      } catch (error) {
+      } catch (error: unknown) {
         lastError = error as Error;
         
         if (attempt <= finalConfig.maxRetries) {
@@ -75,7 +76,7 @@ export class RetryService {
       'rate limit'
     ];
 
-    const errorMessage = error.message.toLowerCase();
+    const errorMessage = getErrorMessage(error).toLowerCase();
     return retryableMessages.some(msg => errorMessage.includes(msg));
   }
 }

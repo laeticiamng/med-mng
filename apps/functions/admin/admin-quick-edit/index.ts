@@ -1,7 +1,8 @@
 // ✅ ADMIN QUICK EDIT - API pour corrections manuelles ultra-rapides
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface QuickEditRequest {
   action: 'update' | 'get_changelog' | 'get_pending_corrections' | 'apply_correction';
   table_name?: string;
@@ -206,12 +207,12 @@ Deno.serve(async (req) => {
         throw new Error(`Action non supportée: ${action}`);
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur admin quick edit:', error);
     return new Response(
       JSON.stringify({
         error: 'Erreur lors de l\'opération',
-        details: error.message
+        details: getErrorMessage(error)
       }),
       {
         status: 500,

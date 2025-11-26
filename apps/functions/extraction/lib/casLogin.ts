@@ -162,12 +162,12 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
       debugInfo
     }
 
-  } catch (error) {
-    console.error('[AUTH] ❌ Erreur:', error.message)
+  } catch (error: unknown) {
+    console.error('[AUTH] ❌ Erreur:', getErrorMessage(error))
     return {
       success: false,
       cookies: '',
-      error: error.message,
+      error: getErrorMessage(error),
       debugInfo
     }
   }

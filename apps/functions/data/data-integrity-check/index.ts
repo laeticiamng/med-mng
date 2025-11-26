@@ -1,7 +1,8 @@
 // ✅ DATA INTEGRITY CHECK - Automatisation check intégrité post-import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface IntegrityCheckRequest {
   action: 'run_check' | 'get_status' | 'get_latest_reports';
   check_type?: 'post_import' | 'scheduled' | 'manual';
@@ -206,12 +207,12 @@ Deno.serve(async (req) => {
         throw new Error(`Action non supportée: ${action}`);
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur integrity check:', error);
     return new Response(
       JSON.stringify({
         error: 'Erreur lors du check d\'intégrité',
-        details: error.message
+        details: getErrorMessage(error)
       }),
       {
         status: 500,
@@ -255,12 +256,12 @@ async function performTableCheck(supabase: any, tableName: string): Promise<Chec
         await performGenericChecks(supabase, tableName, result);
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     result.issues.push({
       type: 'check_failed',
       severity: 'critical',
       count: 1,
-      description: `Échec du check pour ${tableName}: ${error.message}`
+      description: `Échec du check pour ${tableName}: ${getErrorMessage(error)}`
     });
   }
 

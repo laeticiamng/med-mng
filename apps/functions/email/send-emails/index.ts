@@ -9,8 +9,9 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface EmailRequest {
   type: 'welcome' | 'subscription_success';
   email: string;
@@ -123,7 +124,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: getErrorMessage(error) 
       }),
       {
         status: 500,

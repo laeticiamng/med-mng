@@ -105,8 +105,8 @@ async function sendWebPushNotification(
       const errorText = await response.text();
       return { success: false, statusCode: response.status, error: errorText };
     }
-  } catch (error) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
@@ -307,7 +307,7 @@ serve(async (req) => {
           sentCount++;
         }
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`[send-push-notification] Failed to send to ${subscription.endpoint}:`, error);
         failedCount++;
       }
@@ -348,7 +348,7 @@ serve(async (req) => {
   } catch (error: any) {
     console.error('[send-push-notification] Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -385,6 +385,7 @@ VITE_VAPID_PUBLIC_KEY=<your-public-key>
 ```typescript
 import webpush from 'web-push';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 webpush.setVapidDetails(
   Deno.env.get('VAPID_SUBJECT') ?? '',
   Deno.env.get('VAPID_PUBLIC_KEY') ?? '',

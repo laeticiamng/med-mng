@@ -1,9 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
-import { checkIdempotency, markCompleted, markFailed } from '../_shared/idempotency.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
+import { checkIdempotency, markCompleted, markFailed } from '../../_shared/idempotency.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -278,7 +279,7 @@ serve(async (req) => {
                 
               console.log(`💾 Track individuel ${track.id} créé`);
             }
-          } catch (error) {
+          } catch (error: unknown) {
             console.error(`❌ Erreur traitement track individuel ${track.id}:`, error);
           }
         }
@@ -308,7 +309,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur callback Suno:', error);
     
     // Marquer comme échoué si on a l'operation key
@@ -324,7 +325,7 @@ serve(async (req) => {
       }
     }
     
-    return new Response(JSON.stringify({ error: error.message, received: true }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error), received: true }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

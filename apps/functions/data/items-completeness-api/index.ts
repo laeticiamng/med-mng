@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
@@ -291,11 +292,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error in items-completeness-api:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Une erreur interne est survenue'
+      error: getErrorMessage(error) || 'Une erreur interne est survenue'
     }), {
       status: 500,
       headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }

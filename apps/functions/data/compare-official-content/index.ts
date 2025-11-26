@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ComparisonResult {
   item_code: string
   title: string
@@ -170,12 +171,12 @@ Deno.serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error in comparison:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: getErrorMessage(error) 
       }),
       {
         status: 500,

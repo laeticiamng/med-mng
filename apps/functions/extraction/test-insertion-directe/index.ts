@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -261,11 +262,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
     
-  } catch (error) {
-    logs.push(`💥 Erreur critique: ${error.message}`)
+  } catch (error: unknown) {
+    logs.push(`💥 Erreur critique: ${getErrorMessage(error)}`)
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       logs: logs
     }), {
       status: 500,
@@ -348,8 +349,8 @@ function parseCompetenceFromWikitext(page: any, logs: string[]): any {
     logs.push(`✅ Parsed: ${competence.objectif_id}`)
     return competence
     
-  } catch (error) {
-    logs.push(`❌ Erreur parsing: ${error.message}`)
+  } catch (error: unknown) {
+    logs.push(`❌ Erreur parsing: ${getErrorMessage(error)}`)
     return null
   }
 }

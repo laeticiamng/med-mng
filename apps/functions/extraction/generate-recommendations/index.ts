@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -242,7 +243,7 @@ Les recommandations doivent être pratiques et adaptées au contexte des notific
     console.error("❌ Error generating recommendations:", error);
     return new Response(
       JSON.stringify({
-        error: error.message || "Internal server error",
+        error: getErrorMessage(error) || "Internal server error",
       }),
       {
         status: 500,

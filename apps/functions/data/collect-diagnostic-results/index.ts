@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -111,11 +112,11 @@ serve(async (req) => {
       headers: { 'Content-Type': 'application/json' }
     });
     
-  } catch (error) {
-    logs.push(`💥 Erreur critique: ${error.message}`);
+  } catch (error: unknown) {
+    logs.push(`💥 Erreur critique: ${getErrorMessage(error)}`);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       logs: logs
     }), {
       status: 500,

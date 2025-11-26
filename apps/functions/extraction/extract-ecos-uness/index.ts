@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ExtractRequest {
   action: 'start' | 'resume';
   resumeFromSD?: number;
@@ -96,10 +97,10 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("❌ Erreur extraction ECOS:", error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: getErrorMessage(error),
       details: error.stack 
     }), {
       status: 500,
@@ -181,12 +182,12 @@ async function extractEcosSituations(supabase: any, username: string, password: 
       // Pause entre les requêtes
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`❌ Erreur traitement situation ${sdId}:`, error);
       totalErrors++;
       
       // En cas d'erreur de session, tenter une reconnexion
-      if (error.message.includes('session') || error.message.includes('401')) {
+      if (getErrorMessage(error).includes('session') || getErrorMessage(error).includes('401')) {
         console.log("🔄 Tentative de reconnexion CAS...");
         try {
           const newSessionCookies = await authenticateCAS(username, password);
@@ -343,7 +344,7 @@ async function extractSingleSituation(sdId: number, link: {url: string, title: s
       url_source: link.url
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`❌ Erreur extraction situation ${sdId}:`, error);
     return null;
   }

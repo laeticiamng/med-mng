@@ -1,5 +1,6 @@
 import { jsonResponse, errorResponse } from "../response.ts";
 
+import { getErrorMessage } from '../../../_shared/error-utils.ts';
 export async function handleQuota(req: Request, supabase: any, user: any, path: string) {
   console.log('🔍 handleQuota called with path:', path, 'method:', req.method);
   
@@ -29,9 +30,9 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
         can_generate: quota?.can_generate || false,
         last_reset_at: quota?.last_reset_at
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Quota fetch error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', getErrorMessage(error));
     }
   }
 
@@ -86,9 +87,9 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
 
       return jsonResponse(result, result.success ? 200 : 402);
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Check and consume error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', getErrorMessage(error));
     }
   }
 
@@ -105,9 +106,9 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
       }
       
       return jsonResponse(stats || {});
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Stats error:', error);
-      return errorResponse(500, 'SERVER_ERROR', error.message);
+      return errorResponse(500, 'SERVER_ERROR', getErrorMessage(error));
     }
   }
 

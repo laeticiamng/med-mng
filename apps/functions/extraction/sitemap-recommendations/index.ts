@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -172,11 +173,11 @@ Réponds UNIQUEMENT avec un JSON valide sans markdown:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in sitemap-recommendations:", error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Erreur inconnue",
+        error: error instanceof Error ? getErrorMessage(error) : "Erreur inconnue",
         recommendations: [],
         insight: "Une erreur s'est produite"
       }), 

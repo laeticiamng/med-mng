@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -91,7 +92,7 @@ Deno.serve(async (req) => {
         if (error) {
           console.error('[Extraction Monitoring] Error fetching status:', error)
           return new Response(
-            JSON.stringify({ success: false, error: error.message }),
+            JSON.stringify({ success: false, error: getErrorMessage(error) }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
@@ -127,7 +128,7 @@ Deno.serve(async (req) => {
         if (error) {
           console.error('[Extraction Monitoring] Error fetching recent extractions:', error)
           return new Response(
-            JSON.stringify({ success: false, error: error.message }),
+            JSON.stringify({ success: false, error: getErrorMessage(error) }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
@@ -159,7 +160,7 @@ Deno.serve(async (req) => {
         if (error) {
           console.error('[Extraction Monitoring] Error fetching running extractions:', error)
           return new Response(
-            JSON.stringify({ success: false, error: error.message }),
+            JSON.stringify({ success: false, error: getErrorMessage(error) }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
@@ -202,7 +203,7 @@ Deno.serve(async (req) => {
         if (error) {
           console.error('[Extraction Monitoring] Error fetching events:', error)
           return new Response(
-            JSON.stringify({ success: false, error: error.message }),
+            JSON.stringify({ success: false, error: getErrorMessage(error) }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
@@ -271,7 +272,7 @@ Deno.serve(async (req) => {
         )
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[Extraction Monitoring] Unexpected error:', error)
     return new Response(
       JSON.stringify({ success: false, error: 'Internal server error' }),

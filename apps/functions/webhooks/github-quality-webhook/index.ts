@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-github-event, x-hub-signature-256",
@@ -69,7 +70,7 @@ async function postPRComment(repoFullName: string, prNumber: number, comment: st
     } else {
       console.log('✅ Commentaire posté sur la PR');
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur post commentaire GitHub:', error);
   }
 }
@@ -176,7 +177,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("❌ Erreur webhook:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

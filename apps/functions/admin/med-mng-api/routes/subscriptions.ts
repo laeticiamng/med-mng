@@ -3,6 +3,7 @@ import { log } from '../logger.ts';
 
 import { CreateSubscriptionRequest } from '../types.ts';
 
+import { getErrorMessage } from '../../../_shared/error-utils.ts';
 // ✅ SÉCURITÉ: Les subscriptions nécessitent authentification
 export async function handleSubscriptions(req: Request, supabase: any, user?: any) {
   // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification
@@ -27,7 +28,7 @@ export async function handleSubscriptions(req: Request, supabase: any, user?: an
     });
 
     if (error) {
-      log('error', 'Erreur création subscription', { error: error.message, user_id: user.id });
+      log('error', 'Erreur création subscription', { error: getErrorMessage(error), user_id: user.id });
       throw error;
     }
 

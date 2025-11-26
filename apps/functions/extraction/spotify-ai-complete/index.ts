@@ -1,8 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const GENERATION_TIMEOUTS = {
   queue_timeout: 300, // 5 minutes
   generation_timeout: 900, // 15 minutes
@@ -40,9 +41,9 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur Spotify IA:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
@@ -494,7 +495,7 @@ async function scheduleGenerationMonitoring(supabase: any, generationId: string,
       } else {
         console.log(`✅ Génération complétée: ${generationId}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Erreur monitoring:', error);
     }
   }, 42000); // 42 secondes simulées

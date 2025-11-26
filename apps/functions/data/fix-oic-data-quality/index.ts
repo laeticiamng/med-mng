@@ -1,8 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface CompetenceOIC {
   item_parent: string;
   objectif_id: string;
@@ -93,10 +94,10 @@ serve(async (req) => {
       });
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error in fix-oic-data-quality:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: getErrorMessage(error),
       stack: error.stack 
     }), {
       status: 500,
@@ -116,7 +117,7 @@ async function analyzeDataQuality(supabaseClient: any) {
     .order('ordre', { ascending: true });
 
   if (error) {
-    throw new Error(`Failed to fetch competences: ${error.message}`);
+    throw new Error(`Failed to fetch competences: ${getErrorMessage(error)}`);
   }
 
   console.log(`📊 Analyzing ${competences.length} competences...`);
@@ -258,7 +259,7 @@ async function fixDataQuality(supabaseClient: any) {
     .limit(1000)
 
   if (error) {
-    throw new Error(`Failed to fetch competences: ${error.message}`);
+    throw new Error(`Failed to fetch competences: ${getErrorMessage(error)}`);
   }
 
   console.log(`🛠️ Processing ${competences.length} competences for fixes...`);
@@ -390,8 +391,8 @@ async function fixDataQuality(supabaseClient: any) {
         console.log(`📈 Progress: ${report.totalProcessed}/${competences.length} processed`);
       }
 
-    } catch (error) {
-      report.errors.push(`Error processing ${comp.objectif_id}: ${error.message}`);
+    } catch (error: unknown) {
+      report.errors.push(`Error processing ${comp.objectif_id}: ${getErrorMessage(error)}`);
     }
   }
 

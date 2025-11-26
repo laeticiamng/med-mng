@@ -23,6 +23,7 @@ import { RetryService } from './middleware/retry.ts';
 import { csrfProtection, generateCSRFToken } from './middleware/csrf.ts';
 import { alertingService, alertCriticalError } from './middleware/alerting.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const rateMap = new Map<string, { count: number; reset: number }>();
 
 function checkRate(key: string, limit: number, windowMs: number) {
@@ -115,7 +116,7 @@ serve(async (req) => {
         if (bodyPath) {
           path = bodyPath.startsWith('/') ? bodyPath : `/${bodyPath}`;
         }
-      } catch (error) {
+      } catch (error: unknown) {
         log('warn', 'Impossible de lire le chemin depuis le corps de la requête', { error: (error as Error).message });
       }
     }
@@ -166,7 +167,7 @@ serve(async (req) => {
         return new Response(JSON.stringify({ csrf_token: token }), {
           headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
         });
-      } catch (error) {
+      } catch (error: unknown) {
         return errorResponse(400, 'INVALID_REQUEST', 'Invalid request body');
       }
     }
@@ -282,18 +283,18 @@ serve(async (req) => {
     MonitoringService.endRequest(requestId, 404);
     return errorResponse(404, 'NOT_FOUND', 'Route not found');
 
-  } catch (error) {
-    const statusCode = error instanceof Error && error.message.includes('validation') ? 400 : 500;
+  } catch (error: unknown) {
+    const statusCode = error instanceof Error && getErrorMessage(error).includes('validation') ? 400 : 500;
     
     log('error', 'Unhandled API Error', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       requestId
     });
 
     // Send critical alert for 500 errors
     if (statusCode >= 500) {
-      await alertCriticalError('api_handler', `Unhandled server error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
+      await alertCriticalError('api_handler', `Unhandled server error: ${error instanceof Error ? getErrorMessage(error) : 'Unknown error'}`, {
         path,
         requestId,
         statusCode
@@ -307,7 +308,7 @@ serve(async (req) => {
     return errorResponse(
       statusCode, 
       statusCode === 400 ? 'VALIDATION_ERROR' : 'SERVER_ERROR', 
-      error instanceof Error ? error.message : 'An unexpected error occurred'
+      error instanceof Error ? getErrorMessage(error) : 'An unexpected error occurred'
     );
   }
 });

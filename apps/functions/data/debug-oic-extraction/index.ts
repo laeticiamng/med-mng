@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -82,8 +83,8 @@ serve(async (req) => {
         } else if (testResponse.status === 403) {
           results.push('🚫 Accès interdit - API protégée')
         }
-      } catch (error) {
-        results.push(`❌ Erreur test API: ${error.message}`)
+      } catch (error: unknown) {
+        results.push(`❌ Erreur test API: ${getErrorMessage(error)}`)
       }
     }
     
@@ -130,8 +131,8 @@ serve(async (req) => {
           const errorText = await response.text()
           results.push(`Erreur: ${errorText.substring(0, 500)}`)
         }
-      } catch (error) {
-        results.push(`❌ Erreur test catégorie: ${error.message}`)
+      } catch (error: unknown) {
+        results.push(`❌ Erreur test catégorie: ${getErrorMessage(error)}`)
       }
     }
     
@@ -176,8 +177,8 @@ serve(async (req) => {
           } else {
             results.push(`"${variant}": Erreur ${response.status}`)
           }
-        } catch (error) {
-          results.push(`"${variant}": Exception ${error.message}`)
+        } catch (error: unknown) {
+          results.push(`"${variant}": Exception ${getErrorMessage(error)}`)
         }
       }
     }
@@ -229,8 +230,8 @@ serve(async (req) => {
             }
           }
         }
-      } catch (error) {
-        results.push(`❌ Erreur test contenu: ${error.message}`)
+      } catch (error: unknown) {
+        results.push(`❌ Erreur test contenu: ${getErrorMessage(error)}`)
       }
     }
     
@@ -248,11 +249,11 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur debug OIC:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: getErrorMessage(error),
         timestamp: new Date().toISOString()
       }),
       { 

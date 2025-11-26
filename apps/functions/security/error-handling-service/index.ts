@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface EnhancedErrorLog {
   error: {
     message: string;
@@ -107,7 +108,7 @@ serve(async (req) => {
       );
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error handling service failure:', error);
     
     return new Response(
@@ -116,7 +117,7 @@ serve(async (req) => {
         code: 500,
         message: 'Error handling service failed',
         timestamp: new Date().toISOString(),
-        details: error.message 
+        details: getErrorMessage(error) 
       }),
       { 
         status: 500,
@@ -133,14 +134,14 @@ async function handleErrorLog(req: Request, supabase: any) {
   const { error, context, timestamp }: EnhancedErrorLog = await req.json();
 
   console.log(`🚨 Enhanced Error Logged [${error.severity.toUpperCase()}]:`, {
-    message: error.message,
+    message: getErrorMessage(error),
     category: error.category,
     component: context.component,
     requestId: error.requestId
   });
 
   // Generate error hash for deduplication
-  const errorHash = await hashError(`${error.message}-${error.category}-${context.component}`);
+  const errorHash = await hashError(`${getErrorMessage(error)}-${error.category}-${context.component}`);
 
   // Enhanced metadata
   const enhancedMetadata = {
@@ -161,7 +162,7 @@ async function handleErrorLog(req: Request, supabase: any) {
     .from('enhanced_error_logs')
     .insert({
       user_id: context.userId,
-      error_message: error.message,
+      error_message: getErrorMessage(error),
       error_stack: error.stack,
       error_name: error.name || 'Error',
       error_code: error.code,
@@ -231,7 +232,7 @@ async function handleErrorQuery(req: Request, supabase: any) {
 }
 
 async function trackErrorPattern(error: any, context: any, supabase: any) {
-  const errorKey = `${error.category}-${error.message}`;
+  const errorKey = `${error.category}-${getErrorMessage(error)}`;
   const now = new Date().toISOString();
   const oneHour = 60 * 60 * 1000;
 
@@ -240,7 +241,7 @@ async function trackErrorPattern(error: any, context: any, supabase: any) {
     .from('enhanced_error_logs')
     .select('created_at, user_id, metadata')
     .eq('category', error.category)
-    .eq('error_message', error.message)
+    .eq('error_message', getErrorMessage(error))
     .gte('created_at', new Date(Date.now() - oneHour).toISOString())
     .order('created_at', { ascending: false })
     .limit(20);
@@ -271,7 +272,7 @@ async function trackErrorPattern(error: any, context: any, supabase: any) {
       .upsert({
         pattern_key: errorKey,
         error_category: error.category,
-        error_message: error.message,
+        error_message: getErrorMessage(error),
         severity: error.severity,
         occurrence_count: errorCount,
         unique_users: uniqueUsers,
@@ -288,7 +289,7 @@ async function trackErrorPattern(error: any, context: any, supabase: any) {
         type: 'error_pattern',
         severity: error.severity === 'critical' ? 'urgent' : 'high',
         title: `Error Pattern Detected: ${error.category}`,
-        message: `Pattern detected for "${error.message}" - ${errorCount} occurrences affecting ${uniqueUsers} users`,
+        message: `Pattern detected for "${getErrorMessage(error)}" - ${errorCount} occurrences affecting ${uniqueUsers} users`,
         data: {
           pattern_key: errorKey,
           category: error.category,
@@ -348,7 +349,7 @@ async function handleErrorNotifications(error: any, context: any, errorId: strin
         type: 'system_error',
         severity: error.severity === 'critical' ? 'urgent' : 'high',
         title: `${error.severity.toUpperCase()} System Error`,
-        message: `${error.category} error in ${context.component}: ${error.message}`,
+        message: `${error.category} error in ${context.component}: ${getErrorMessage(error)}`,
         data: {
           error_id: errorId,
           category: error.category,
@@ -386,7 +387,7 @@ async function sendExternalAlerts(error: any, context: any, errorId: string) {
         attachments: [{
           color: 'danger',
           title: `${error.category.toUpperCase()} Error in ${context.component}`,
-          text: error.message,
+          text: getErrorMessage(error),
           fields: [
             { title: 'Severity', value: error.severity, short: true },
             { title: 'Category', value: error.category, short: true },
@@ -421,7 +422,7 @@ function getUserFriendlyErrorMessage(error: any): string {
     case 'authz':
       return 'You don\'t have permission to perform this action.';
     case 'validation':
-      return error.message; // Validation messages are usually user-friendly
+      return getErrorMessage(error); // Validation messages are usually user-friendly
     case 'network':
       return 'Network connection issue. Please check your internet connection.';
     case 'external_api':
@@ -469,7 +470,7 @@ async function getErrorStats(supabase: any, timeframe: string) {
 
   if (error) {
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

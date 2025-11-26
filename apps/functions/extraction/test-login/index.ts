@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { casLogin } from "../lib/casLogin.ts"
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -123,11 +124,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     })
 
-  } catch (error) {
-    console.error('[TEST] ❌ Erreur:', error.message)
+  } catch (error: unknown) {
+    console.error('[TEST] ❌ Erreur:', getErrorMessage(error))
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       stack: error.stack
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

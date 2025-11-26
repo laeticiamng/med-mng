@@ -1,6 +1,7 @@
 import { jsonResponse, errorResponse } from '../response.ts';
 import { log } from '../logger.ts';
 
+import { getErrorMessage } from '../../../_shared/error-utils.ts';
 // ✅ SÉCURITÉ: RGPD routes nécessitent authentification pour protéger les données utilisateurs
 export async function handleRGPD(req: Request, supabase: any, path: string, url: URL, user?: any): Promise<Response | null> {
   // ✅ SÉCURITÉ CRITIQUE: Vérifier authentification pour toutes les routes RGPD
@@ -55,7 +56,7 @@ export async function handleRGPD(req: Request, supabase: any, path: string, url:
           contact_for_questions: 'dpo@medmng.com'
         }
       });
-    } catch (error) {
+    } catch (error: unknown) {
       log('error', 'GDPR export error', error);
       return errorResponse(500, 'EXPORT_ERROR', 'Failed to export user data');
     }
@@ -122,7 +123,7 @@ export async function handleRGPD(req: Request, supabase: any, path: string, url:
         purge_summary: purgeResult,
         compliance_note: 'All personal data has been permanently deleted in compliance with GDPR Article 17'
       });
-    } catch (error) {
+    } catch (error: unknown) {
       log('error', 'GDPR purge error', error);
       return errorResponse(500, 'PURGE_ERROR', 'Failed to purge user data');
     }
@@ -168,7 +169,7 @@ export async function handleRGPD(req: Request, supabase: any, path: string, url:
           right_to_object: 'Contact support to object to processing'
         }
       });
-    } catch (error) {
+    } catch (error: unknown) {
       log('error', 'GDPR status check error', error);
       return errorResponse(500, 'STATUS_ERROR', 'Failed to check user data status');
     }
@@ -254,7 +255,7 @@ async function exportUserData(supabase: any, user_id?: string, email?: string) {
     }
 
     return userData;
-  } catch (error) {
+  } catch (error: unknown) {
     log('error', 'User data export error', error);
     throw error;
   }
@@ -298,7 +299,7 @@ async function purgeUserData(supabase: any, user_id: string) {
         if (error) {
           purgeResult.errors.push({
             table,
-            error: error.message
+            error: getErrorMessage(error)
           });
         } else {
           purgeResult.tables_processed.push({
@@ -308,10 +309,10 @@ async function purgeUserData(supabase: any, user_id: string) {
           purgeResult.total_purged += existingData.length;
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       purgeResult.errors.push({
         table,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
       });
     }
   }
@@ -330,10 +331,10 @@ async function purgeUserData(supabase: any, user_id: string) {
       });
       purgeResult.total_purged += 1;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     purgeResult.errors.push({
       table: 'profiles',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     });
   }
 
@@ -395,7 +396,7 @@ async function getUserDataStatus(supabase: any, user_id: string) {
     }
 
     return status;
-  } catch (error) {
+  } catch (error: unknown) {
     log('error', 'User data status error', error);
     throw error;
   }

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -336,12 +337,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     })
 
-  } catch (error) {
-    console.error('[DEBUG] ❌ Erreur:', error.message)
-    debugInfo.push({ error: error.message })
+  } catch (error: unknown) {
+    console.error('[DEBUG] ❌ Erreur:', getErrorMessage(error))
+    debugInfo.push({ error: getErrorMessage(error) })
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       debug: debugInfo
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

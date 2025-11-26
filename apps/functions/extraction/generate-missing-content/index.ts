@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 /**
  * Génère le contenu pédagogique manquant à partir des compétences OIC
  */
@@ -215,12 +216,12 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('💥 Erreur génération:', error);
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack
       }),
       {

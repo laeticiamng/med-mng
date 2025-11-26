@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { loginWithCAS, testCASConnectivity } from '../lib/casLogin.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -126,12 +127,12 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur test:', error)
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack 
       }),
       { 
@@ -203,8 +204,8 @@ async function testLisaItemAccess(cookieJar: any) {
         console.log(`❌ Item ${itemId}: HTTP ${response.status}`)
       }
       
-    } catch (error) {
-      console.error(`❌ Erreur item ${itemId}:`, error.message)
+    } catch (error: unknown) {
+      console.error(`❌ Erreur item ${itemId}:`, getErrorMessage(error))
     }
     
     // Petite pause entre les tests
@@ -239,7 +240,7 @@ async function testDatabaseSave(supabase: any, sampleItems: any[]) {
       })
     
     if (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: getErrorMessage(error) }
     }
     
     return { 
@@ -247,10 +248,10 @@ async function testDatabaseSave(supabase: any, sampleItems: any[]) {
       message: `Item test ${testItem.item_id} sauvegardé avec succès`
     }
     
-  } catch (error) {
+  } catch (error: unknown) {
     return { 
       success: false, 
-      message: error.message 
+      message: getErrorMessage(error) 
     }
   }
 }
