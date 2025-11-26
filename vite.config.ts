@@ -4,18 +4,25 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
 
-// https://vitejs.dev/config/
+// Root vite config - used when building from root directory
+// Delegates to apps/frontend but adjusts paths accordingly
 export default defineConfig(({ mode }) => ({
+  // Set root to frontend directory
+  root: path.resolve(__dirname, 'apps/frontend'),
+  
+  // Public directory relative to root
+  publicDir: 'public',
+  
   server: {
     host: "::",
     port: 8080,
   },
+  
   plugins: [
     react({
       tsDecorators: true,
     }),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -64,10 +71,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        // Cache agressif de tous les assets statiques
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff,ttf,webp,jpg,jpeg}'],
         globIgnores: ['**/node_modules/**/*', '**/dev-dist/**/*'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB max par fichier
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
@@ -79,7 +85,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -93,7 +99,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -108,7 +114,7 @@ export default defineConfig(({ mode }) => ({
               networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 minutes
+                maxAgeSeconds: 60 * 5
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -116,14 +122,13 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            // Cache agressif des images avec support WebP
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 200, // Augmenté pour plus d'images
-                maxAgeSeconds: 60 * 60 * 24 * 90 // 90 jours
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 90
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -131,14 +136,13 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            // Cache des assets JavaScript et CSS
             urlPattern: /\.(?:js|css)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-resources',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 jours
+                maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
           },
@@ -149,7 +153,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'fonts-cache',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
+                maxAgeSeconds: 60 * 60 * 24 * 365
               }
             }
           }
@@ -161,49 +165,43 @@ export default defineConfig(({ mode }) => ({
       }
     })
   ].filter(Boolean),
+  
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./apps/frontend/src"),
       "@shared": path.resolve(__dirname, "./packages/shared/src"),
     },
   },
+  
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
+  
   esbuild: {
     target: 'esnext',
     logOverride: { 
       'this-is-undefined-in-esm': 'silent'
     }
   },
+  
   build: {
     target: 'esnext',
-
-    // ⚡ OPTIMIZATION: Chunk splitting for better caching
+    outDir: path.resolve(__dirname, 'dist'),
     chunkSizeWarningLimit: 1000,
-
-    // ⚡ MINIFICATION & SOURCE MAPS
     minify: 'terser',
     sourcemap: mode === 'development',
-
+    
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;
         warn(warning);
       },
-
-      // ⚡ ADVANCED CHUNKING STRATEGY
-      // Separates code into smaller, independently cacheable chunks
+      
       output: {
         manualChunks: {
-          // React and core dependencies
           'react-core': ['react', 'react-dom', 'react-router-dom'],
-
-          // Query and state management
           'react-query': ['@tanstack/react-query', '@tanstack/react-query-persist-client'],
           'state': ['zustand'],
-
-          // UI Components
           'ui-core': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-popover',
@@ -212,24 +210,14 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-scroll-area'
           ],
           'ui-form': ['react-hook-form', 'zod'],
-
-          // Utilities
           'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
-
-          // Heavy libraries
           'charts': ['recharts', 'chart.js'],
           'icons': ['lucide-react'],
           'animations': ['framer-motion'],
-
-          // Audio & Media
-          'audio': [],
-
-          // Large third-party packages
           'xlsx': ['xlsx'],
           'pdf': ['jspdf', 'html2canvas'],
         },
-
-        // Optimize chunk names for production
+        
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
