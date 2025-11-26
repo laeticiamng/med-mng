@@ -2,27 +2,27 @@ import logger from '@/lib/logger';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Sparkles, AlertTriangle } from 'lucide-react';
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
-import { EdnHeader } from "@/components/edn/EdnHeader";
-import { EdnFilters } from "@/components/edn/EdnFilters";
-import { EdnTabsContent } from "@/components/edn/EdnTabsContent";
-import { AdvancedSearchModal } from "@/components/edn/AdvancedSearchModal";
-import { useIAQuota } from "@/hooks/useIAQuota";
-import { useSubscription } from "@/hooks/useSubscription";
-import { useEdnFilters } from "@/hooks/useEdnFilters";
-import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
-import { useEdnItemsInfinite, usePrefetchFullItem } from "@/hooks/useEdnItems";
-import { useEdnModal } from "@/hooks/useEdnModal";
-import { calculateItemsStats } from "@/utils/completionScore";
-import { useTrackSearch, useTrackItemView } from "@/hooks/useEdnAnalytics";
-import { usePerformanceMetrics, usePageLoadTime } from "@/hooks/usePerformanceMetrics";
-import { useTrendingDetection } from "@/hooks/useTrendingDetection";
-import type { EdnItem, EdnItemUnified } from "@shared/types/edn";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { EdnItemModal } from '@/components/edn/premium/EdnItemModal';
+import { EdnHeader } from '@/components/edn/EdnHeader';
+import { EdnFilters } from '@/components/edn/EdnFilters';
+import { EdnTabsContent } from '@/components/edn/EdnTabsContent';
+import { AdvancedSearchModal } from '@/components/edn/AdvancedSearchModal';
+import { useIAQuota } from '@/hooks/useIAQuota';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useEdnFilters } from '@/hooks/useEdnFilters';
+import { useAdvancedFilters } from '@/hooks/useAdvancedFilters';
+import { useEdnItemsInfinite, usePrefetchFullItem } from '@/hooks/useEdnItems';
+import { useEdnModal } from '@/hooks/useEdnModal';
+import { calculateItemsStats } from '@/utils/completionScore';
+import { useTrackSearch, useTrackItemView } from '@/hooks/useEdnAnalytics';
+import { usePerformanceMetrics, usePageLoadTime } from '@/hooks/usePerformanceMetrics';
+import { useTrendingDetection } from '@/hooks/useTrendingDetection';
+import type { EdnItem, EdnItemUnified } from '@shared/types/edn';
 
 export default function EdnComplete() {
   // ============================================
@@ -31,7 +31,7 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState('immersive');
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  
+
   const { modalState, openModal, closeModal } = useEdnModal();
   const { quota } = useIAQuota();
   const { subscription } = useSubscription();
@@ -42,17 +42,17 @@ export default function EdnComplete() {
   // ============================================
   // DATA FETCHING avec INFINITE SCROLL
   // ============================================
-  const { 
-    data, 
-    fetchNextPage, 
-    hasNextPage, 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
     isFetchingNextPage,
     isLoading,
-    error: queryError 
+    error: queryError,
   } = useEdnItemsInfinite();
-  
+
   const prefetchItem = usePrefetchFullItem();
-  
+
   // ============================================
   // ANALYTICS & PERFORMANCE
   // ============================================
@@ -65,7 +65,7 @@ export default function EdnComplete() {
     viewThreshold: 10,
     searchThreshold: 5,
   });
-  
+
   // ============================================
   // DONNÉES ET ÉTATS DÉRIVÉS
   // ============================================
@@ -73,7 +73,7 @@ export default function EdnComplete() {
     if (!data?.pages) return [];
     return data.pages.flatMap(page => page.items);
   }, [data]);
-  
+
   const totalCount = data?.pages[0]?.count || 0;
   const loadingError = queryError ? String(queryError) : null;
   const stats = calculateItemsStats(unifiedItems);
@@ -90,17 +90,17 @@ export default function EdnComplete() {
     setSortBy,
     resetAllFilters,
     hasActiveFilters,
-    filteredItems: basicFilteredItems
+    filteredItems: basicFilteredItems,
   } = useEdnFilters(unifiedItems);
-  
+
   // Filtres avancés
   const advancedFilters = useAdvancedFilters(basicFilteredItems);
-  
+
   // Items finaux après tous les filtres
-  const filteredItems = advancedFilters.isActive 
-    ? advancedFilters.filteredItems 
+  const filteredItems = advancedFilters.isActive
+    ? advancedFilters.filteredItems
     : basicFilteredItems;
-  
+
   // Tracker les recherches
   useEffect(() => {
     if (searchTerm.trim()) {
@@ -118,7 +118,7 @@ export default function EdnComplete() {
         .select('*')
         .eq('item_code', itemCode)
         .single();
-      
+
       if (error) throw error;
       if (data) {
         openModal(data as unknown as EdnItem);
@@ -126,38 +126,44 @@ export default function EdnComplete() {
     } catch (error) {
       logger.error('[EDN] Error loading full item:', error);
       toast({
-        title: "Erreur",
+        title: 'Erreur',
         description: "Impossible de charger l'item complet.",
-        variant: "destructive"
+        variant: 'destructive',
       });
     }
   };
 
-  const handleOpenItem = useCallback(async (unifiedItem: EdnItemUnified, tab?: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .select('*')
-        .eq('item_code', unifiedItem.item_code)
-        .single();
-      
-      if (error) throw error;
-      if (data) {
-        openModal(data as unknown as EdnItem, tab);
+  const handleOpenItem = useCallback(
+    async (unifiedItem: EdnItemUnified, tab?: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('*')
+          .eq('item_code', unifiedItem.item_code)
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          openModal(data as unknown as EdnItem, tab);
+        }
+      } catch (error) {
+        logger.error('[EDN] Error loading full item:', error);
+        toast({
+          title: 'Erreur',
+          description: "Impossible de charger l'item complet.",
+          variant: 'destructive',
+        });
       }
-    } catch (error) {
-      logger.error('[EDN] Error loading full item:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger l'item complet.",
-        variant: "destructive"
-      });
-    }
-  }, [openModal, toast]);
-  
-  const handlePrefetchItem = useCallback((itemCode: string) => {
-    prefetchItem(itemCode);
-  }, [prefetchItem]);
+    },
+    [openModal, toast]
+  );
+
+  const handlePrefetchItem = useCallback(
+    (itemCode: string) => {
+      prefetchItem(itemCode);
+    },
+    [prefetchItem]
+  );
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -170,8 +176,8 @@ export default function EdnComplete() {
     if (slug && unifiedItems.length > 0) {
       const normalizedSlug = slug.toLowerCase();
       const unifiedItem = unifiedItems.find(
-        i => i.slug?.toLowerCase() === normalizedSlug || 
-             i.item_code.toLowerCase() === normalizedSlug
+        i =>
+          i.slug?.toLowerCase() === normalizedSlug || i.item_code.toLowerCase() === normalizedSlug
       );
       if (unifiedItem) {
         fetchFullItem(unifiedItem.item_code);
@@ -194,11 +200,7 @@ export default function EdnComplete() {
               <AlertDescription>{loadingError}</AlertDescription>
             </Alert>
           )}
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.reload()}
-            className="mt-4"
-          >
+          <Button variant="outline" onClick={() => window.location.reload()} className="mt-4">
             Réessayer
           </Button>
         </div>
@@ -213,9 +215,10 @@ export default function EdnComplete() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="min-h-screen">
         {/* Header */}
-        <EdnHeader 
-          totalItems={stats.total} 
-          completeItems={stats.complete} 
+        <EdnHeader
+          totalItems={stats.total}
+          completeItems={stats.complete}
+          withTabsProvider={false}
         />
 
         <div className="container mx-auto px-6 py-4">
@@ -225,11 +228,18 @@ export default function EdnComplete() {
             <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
               <strong className="font-semibold">Accès gratuit illimité aux révisions EDN</strong>
               <div className="mt-1 space-y-1">
-                <div>✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong></div>
-                <div>✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong></div>
-                <div>✅ Faire les quiz : <strong>GRATUIT</strong></div>
+                <div>
+                  ✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong>
+                </div>
+                <div>
+                  ✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong>
+                </div>
+                <div>
+                  ✅ Faire les quiz : <strong>GRATUIT</strong>
+                </div>
                 <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
-                  🎵 Les crédits ({quota || 80}/160) servent uniquement à <strong>générer des musiques IA personnalisées</strong>
+                  🎵 Les crédits ({quota || 80}/160) servent uniquement à{' '}
+                  <strong>générer des musiques IA personnalisées</strong>
                 </div>
               </div>
             </AlertDescription>
@@ -251,7 +261,7 @@ export default function EdnComplete() {
               advancedFilters.resetFilters();
             }}
           />
-          
+
           {/* Modal recherche avancée */}
           <AdvancedSearchModal
             filters={advancedFilters.filters}
@@ -278,6 +288,7 @@ export default function EdnComplete() {
             page={0}
             quota={quota}
             subscription={subscription}
+            withTabsProvider={false}
           />
         </div>
       </Tabs>
