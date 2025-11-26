@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface HealthCheckResult {
   service: string;
   status: 'healthy' | 'unhealthy' | 'degraded';
@@ -41,13 +42,13 @@ async function checkServiceHealth(url: string, serviceName: string): Promise<Hea
       lastCheck: new Date().toISOString(),
       errorMessage: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       service: serviceName,
       status: 'unhealthy',
       responseTime: Date.now() - startTime,
       lastCheck: new Date().toISOString(),
-      errorMessage: error.message
+      errorMessage: getErrorMessage(error)
     };
   }
 }
@@ -98,7 +99,7 @@ async function sendSlackAlert(alert: AlertPayload) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message)
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to send Slack alert:', error);
   }
 }
@@ -132,7 +133,7 @@ async function sendDiscordAlert(alert: AlertPayload) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ embeds: [embed] })
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to send Discord alert:', error);
   }
 }
@@ -154,7 +155,7 @@ async function logIncident(alert: AlertPayload) {
     if (error) {
       console.error('Failed to log incident:', error);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to log incident:', error);
   }
 }
@@ -228,13 +229,13 @@ serve(async (req) => {
       lastCheck: new Date().toISOString(),
       errorMessage: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       service: serviceName,
       status: 'unhealthy',
       responseTime: Date.now() - startTime,
       lastCheck: new Date().toISOString(),
-      errorMessage: error.message
+      errorMessage: getErrorMessage(error)
     };
   }
 }
@@ -285,7 +286,7 @@ async function sendSlackAlert(alert: AlertPayload) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message)
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to send Slack alert:', error);
   }
 }
@@ -319,7 +320,7 @@ async function sendDiscordAlert(alert: AlertPayload) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ embeds: [embed] })
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to send Discord alert:', error);
   }
 }
@@ -341,7 +342,7 @@ async function logIncident(alert: AlertPayload) {
     if (error) {
       console.error('Failed to log incident:', error);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to log incident:', error);
   }
 }
@@ -473,12 +474,12 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Monitoring function error:', error);
     
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message,
+      message: getErrorMessage(error),
       timestamp: new Date().toISOString()
     }), {
       status: 500,

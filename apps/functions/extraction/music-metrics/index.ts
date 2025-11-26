@@ -6,8 +6,9 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -131,10 +132,10 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching metrics:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }), 
+      JSON.stringify({ success: false, error: getErrorMessage(error) }), 
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

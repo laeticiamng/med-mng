@@ -1,8 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const GENERATION_COSTS = {
   'rang_a': 3,
   'rang_b': 5,
@@ -216,12 +217,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur génération musicale sécurisée:', error);
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Music generation failed',
+      error: getErrorMessage(error) || 'Music generation failed',
       details: 'Please try again or contact support if the problem persists'
     }), {
       status: 500,

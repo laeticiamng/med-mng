@@ -101,9 +101,9 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
       
       console.log(`✅ Total cumulé: ${totalFound} compétences`);
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Erreur lors de la requête:', error);
-      if (error.message.includes('AUTH_REQUIRED')) {
+      if (getErrorMessage(error).includes('AUTH_REQUIRED')) {
         throw error; // Propager l'erreur d'authentification
       }
       break;
@@ -181,7 +181,7 @@ export async function getPageContent(pageIds: number[], authCookies: string = ''
       // Délai pour éviter le rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`❌ Erreur batch ${i+1}:`, error);
     }
   }
@@ -277,7 +277,7 @@ export async function testPublicAccess(): Promise<boolean> {
     console.log('🔐 Aucune API publique trouvée - authentification requise');
     return false;
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur test API:', error);
     return false;
   }

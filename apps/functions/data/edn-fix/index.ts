@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -90,7 +91,7 @@ Deno.serve(async (req) => {
       if (error) {
         console.error('[EDN Fix] Error fetching items:', error)
         return new Response(
-          JSON.stringify({ success: false, error: error.message }),
+          JSON.stringify({ success: false, error: getErrorMessage(error) }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
@@ -367,8 +368,8 @@ Deno.serve(async (req) => {
               updated++
             }
           }
-        } catch (error) {
-          errors.push({ item_code: item.item_code, error: error.message })
+        } catch (error: unknown) {
+          errors.push({ item_code: item.item_code, error: getErrorMessage(error) })
         }
       }
 
@@ -388,7 +389,7 @@ Deno.serve(async (req) => {
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[EDN Fix] Unexpected error:', error)
     return new Response(
       JSON.stringify({ success: false, error: 'Internal server error' }),

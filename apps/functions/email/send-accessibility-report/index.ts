@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "npm:resend@2.0.0";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
@@ -520,7 +521,7 @@ const handler = async (req: Request): Promise<Response> => {
             config_id: config.id,
             recipients: config.recipients || [],
             status: "failed",
-            error_message: error.message,
+            error_message: getErrorMessage(error),
           });
       }
     } catch (historyError) {
@@ -529,7 +530,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: getErrorMessage(error),
         success: false 
       }),
       {

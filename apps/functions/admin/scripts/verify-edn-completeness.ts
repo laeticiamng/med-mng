@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 // Supabase connection
 const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -110,7 +111,7 @@ async function fetchAllEdnItems(): Promise<EdnItem[]> {
     `);
 
   if (error) {
-    throw new Error(`Failed to fetch EDN items: ${error.message}`);
+    throw new Error(`Failed to fetch EDN items: ${getErrorMessage(error)}`);
   }
 
   console.log(`✅ Fetched ${data.length} EDN items`);
@@ -494,7 +495,7 @@ async function main() {
     }
 
     process.exit(0);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('\n❌ Error running completeness verification:', error);
     process.exit(1);
   }

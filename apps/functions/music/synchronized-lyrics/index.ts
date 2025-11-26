@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const securityHeaders = {
   'Content-Security-Policy': "default-src 'self'",
   'X-Frame-Options': 'DENY',
@@ -102,10 +103,10 @@ serve(async (req) => {
         throw new Error('Invalid action');
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in synchronized-lyrics:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { 
         status: 500, 
         headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
@@ -212,7 +213,7 @@ async function generateLyricsFromSuno(supabase: any, request: LyricsRequest) {
       throw new Error('No lyrics found for this Suno audio');
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching Suno lyrics:', error);
     throw new Error('Failed to generate lyrics from Suno');
   }
@@ -256,7 +257,7 @@ async function syncTimestampsWithSuno(supabase: any, request: LyricsRequest) {
       throw new Error('No timestamps available for this Suno audio');
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error syncing Suno timestamps:', error);
     throw new Error('Failed to sync timestamps with Suno');
   }

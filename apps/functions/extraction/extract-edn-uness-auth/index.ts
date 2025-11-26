@@ -1,8 +1,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 // Interface pour les requêtes
 interface ExtractRequest {
   action: 'test' | 'fullExtraction'
@@ -160,12 +161,12 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique:', error)
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack 
       }),
       { 
@@ -377,11 +378,11 @@ async function authenticateWithCAS(email: string, password: string) {
     
     throw new Error('Échec final - impossible d\'accéder à LiSA avec authentification')
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[AUTH] Erreur:', error)
     return {
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     }
   }
 }
@@ -505,7 +506,7 @@ async function extractEDNItems(
         
         if (error) {
           console.error(`[ITEM] ${itemId} - Erreur DB:`, error)
-          errors.push(`Item ${itemId}: ${error.message}`)
+          errors.push(`Item ${itemId}: ${getErrorMessage(error)}`)
           totalErrors++
         } else {
           console.log(`[ITEM] ${itemId} - ✅ Sauvegardé (${isUsingPrintable ? 'printable' : 'normal'})`)
@@ -545,9 +546,9 @@ async function extractEDNItems(
       errors
     }
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique extraction:', error)
-    errors.push(`Erreur critique: ${error.message}`)
+    errors.push(`Erreur critique: ${getErrorMessage(error)}`)
     return {
       totalProcessed,
       totalSaved,

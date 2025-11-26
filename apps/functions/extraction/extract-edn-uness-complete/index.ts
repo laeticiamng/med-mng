@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
@@ -199,12 +200,12 @@ async function retryWithBackoff<T>(
     try {
       logger.debug(`${context} - Tentative ${attempt + 1}/${maxRetries + 1}`);
       return await fn();
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
 
       if (attempt < maxRetries) {
         const delayMs = baseDelay * Math.pow(2, attempt);
-        logger.warn(`${context} - Échec tentative ${attempt + 1}, retry dans ${delayMs}ms`, { error: error.message });
+        logger.warn(`${context} - Échec tentative ${attempt + 1}, retry dans ${delayMs}ms`, { error: getErrorMessage(error) });
         await delay(delayMs);
       }
     }
@@ -319,12 +320,12 @@ serve(async (req) => {
     
       logger.debug(`${context} - Tentative ${attempt + 1}/${maxRetries + 1}`);
       return await fn();
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
 
       if (attempt < maxRetries) {
         const delayMs = baseDelay * Math.pow(2, attempt);
-        logger.warn(`${context} - Échec tentative ${attempt + 1}, retry dans ${delayMs}ms`, { error: error.message });
+        logger.warn(`${context} - Échec tentative ${attempt + 1}, retry dans ${delayMs}ms`, { error: getErrorMessage(error) });
         await delay(delayMs);
       }
     }
@@ -468,17 +469,17 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
     logger.error("❌ ERREUR GLOBALE extraction EDN complète", {
-      error: error.message,
+      error: getErrorMessage(error),
       stack: error.stack,
       durationMs: duration
     });
 
     const errorResponse = {
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       code: error.code || 'UNKNOWN_ERROR',
       details: error.stack,
       durationMs: duration
@@ -628,20 +629,20 @@ async function extractCompleteEdnItems(
         // Pause entre les requêtes
         await delay(config.requestDelayMs);
 
-      } catch (error) {
+      } catch (error: unknown) {
         totalErrors++;
         const itemDuration = Date.now() - itemStartTime;
         processingTimes.push(itemDuration);
 
         logger.error(`❌ Erreur traitement item ${itemId} après ${itemDuration}ms`, {
-          error: error.message,
+          error: getErrorMessage(error),
           retryable: error.retryable
         });
 
-        warnings.push(`Item ${itemId}: ${error.message}`);
+        warnings.push(`Item ${itemId}: ${getErrorMessage(error)}`);
 
         // En cas d'erreur de session, tenter une reconnexion
-        if (error.message.includes('session') || error.message.includes('401')) {
+        if (getErrorMessage(error).includes('session') || getErrorMessage(error).includes('401')) {
           logger.warn("🔄 Tentative de reconnexion CAS...");
           try {
             const newSessionCookies = await retryWithBackoff(
@@ -678,7 +679,7 @@ async function extractCompleteEdnItems(
       warnings
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     const totalDuration = Date.now() - extractionStartTime;
     logger.error("❌ Erreur dans l'extraction complète", error);
 
@@ -692,7 +693,7 @@ async function extractCompleteEdnItems(
       lastProcessedItem: 0,
       duration: totalDuration,
       averageProcessingTime: 0,
-      error: error.message,
+      error: getErrorMessage(error),
       warnings
     };
   }
@@ -772,13 +773,13 @@ async function authenticateCAS(username: string, password: string): Promise<stri
       false
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof EdnExtractionError) {
       throw error;
     }
 
     throw new EdnExtractionError(
-      `Erreur lors de l'authentification CAS: ${error.message}`,
+      `Erreur lors de l'authentification CAS: ${getErrorMessage(error)}`,
       'CAS_ERROR',
       undefined,
       true
@@ -872,8 +873,8 @@ async function extractCompleteItemData(
           printableSuccess = true;
           break;
         }
-      } catch (error) {
-        logger.debug(`⚠️ Échec version imprimable ${printableUrl}: ${error.message}`);
+      } catch (error: unknown) {
+        logger.debug(`⚠️ Échec version imprimable ${printableUrl}: ${getErrorMessage(error)}`);
       }
     }
 
@@ -907,7 +908,7 @@ async function extractCompleteItemData(
       extraction_status: extractionStatus
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`❌ Erreur extraction complète item ${itemId}`, error);
 
     if (error instanceof EdnExtractionError) {
@@ -1056,7 +1057,7 @@ function extractRangsAdvanced(html: string, rang: 'A' | 'B', itemId: number): st
 
     logger.info(`📋 Rang ${rang} item ${itemId}: ${rangs.length} connaissances extraites`);
 
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error(`❌ Erreur extraction rang ${rang} pour item ${itemId}`, error);
     rangs.push(`Erreur d'extraction pour rang ${rang} item ${itemId}`);
   }

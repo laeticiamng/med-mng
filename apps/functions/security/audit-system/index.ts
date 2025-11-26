@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface AuditRequest {
   auditType: 'database' | 'code' | 'ui_consistency' | 'performance';
   autoFix?: boolean;
@@ -115,9 +116,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Audit error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -405,12 +406,12 @@ async function applyAutomaticFixes(supabase: any, reportId: string): Promise<any
           description: fixApplied ? 'Fix applied successfully' : 'Fix not applicable'
         });
         
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`Error applying fix for ${finding.type}:`, error);
         fixResults.push({
           type: finding.type,
           applied: false,
-          error: error.message
+          error: getErrorMessage(error)
         });
       }
     }

@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ErrorLog {
   error: {
     message: string;
@@ -76,7 +77,7 @@ serve(async (req) => {
 
     const { error, userId, userAgent, url, timestamp }: ErrorLog = await req.json();
 
-    console.log('🚨 Error logged:', error.message, 'severity:', error.severity);
+    console.log('🚨 Error logged:', getErrorMessage(error), 'severity:', error.severity);
 
     // Enrichir l'erreur avec des métadonnées
     const errorMetadata = {
@@ -84,7 +85,7 @@ serve(async (req) => {
       page: url || 'unknown',
       timestamp,
       user_id: userId,
-      error_hash: await hashError(error.message + error.stack)
+      error_hash: await hashError(getErrorMessage(error) + error.stack)
     };
 
     // Enregistrer dans error_logs
@@ -92,7 +93,7 @@ serve(async (req) => {
       .from('error_logs')
       .insert({
         user_id: userId,
-        error_message: error.message,
+        error_message: getErrorMessage(error),
         error_stack: error.stack,
         context: error.context,
         severity: error.severity,
@@ -114,7 +115,7 @@ serve(async (req) => {
           user_id: userId,
           type: 'error',
           title: `Erreur ${error.severity}`,
-          message: `Une erreur ${error.severity} s'est produite: ${error.message.substring(0, 100)}...`,
+          message: `Une erreur ${error.severity} s'est produite: ${getErrorMessage(error).substring(0, 100)}...`,
           category: 'system',
           priority: error.severity === 'critical' ? 'urgent' : 'high',
           actionable: true,
@@ -131,7 +132,7 @@ serve(async (req) => {
     const { data: recentErrors } = await supabase
       .from('error_logs')
       .select('error_message')
-      .eq('error_message', error.message)
+      .eq('error_message', getErrorMessage(error))
       .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString()) // Dernière heure
       .limit(10);
 
@@ -147,7 +148,7 @@ serve(async (req) => {
           user_id: null, // Notification système
           type: 'critical',
           title: 'Pattern d\'erreur détecté',
-          message: `L'erreur "${error.message}" s'est reproduite ${errorCount} fois dans la dernière heure`,
+          message: `L'erreur "${getErrorMessage(error)}" s'est reproduite ${errorCount} fois dans la dernière heure`,
           category: 'system',
           priority: 'urgent',
           actionable: true,
@@ -175,13 +176,13 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error logger failure:', error);
     
     return new Response(
       JSON.stringify({ 
         error: 'Failed to log error',
-        details: error.message 
+        details: getErrorMessage(error) 
       }),
       { 
         status: 500,

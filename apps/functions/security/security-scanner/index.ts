@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface SecurityIncident {
   type: 'secret_detected' | 'suspicious_pattern' | 'build_scan'
   severity: 'low' | 'medium' | 'high' | 'critical'
@@ -130,7 +131,7 @@ async function sendWebhookAlert(incident: SecurityIncident): Promise<void> {
         body: JSON.stringify(slackPayload),
       });
       console.log('✅ Slack alert sent');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send Slack alert:', error);
     }
   }
@@ -163,7 +164,7 @@ async function sendWebhookAlert(incident: SecurityIncident): Promise<void> {
         body: JSON.stringify(teamsPayload),
       });
       console.log('✅ Teams alert sent');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send Teams alert:', error);
     }
   }
@@ -194,7 +195,7 @@ async function sendWebhookAlert(incident: SecurityIncident): Promise<void> {
         body: JSON.stringify(discordPayload),
       });
       console.log('✅ Discord alert sent');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send Discord alert:', error);
     }
   }
@@ -363,10 +364,10 @@ Deno.serve(async (req) => {
         )
     }
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('🚨 Security Scanner Error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

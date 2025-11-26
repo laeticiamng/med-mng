@@ -2,8 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { casLogin } from "../lib/casLogin.ts"
 import { CookieJar } from "../lib/cookieJar.ts"
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ExtractionParams {
   action: 'test' | 'fullExtraction'
   maxItems?: number
@@ -73,7 +74,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       }
       
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       if (attempt === maxRetries) throw error
       const waitTime = Math.pow(2, attempt) * 1000
       console.log(`[RETRY] Network error, waiting ${waitTime}ms (attempt ${attempt}/${maxRetries})`)
@@ -150,7 +151,7 @@ serve(async (req) => {
       }
       
       return response
-    } catch (error) {
+    } catch (error: unknown) {
       if (attempt === maxRetries) throw error
       const waitTime = Math.pow(2, attempt) * 1000
       console.log(`[RETRY] Network error, waiting ${waitTime}ms (attempt ${attempt}/${maxRetries})`)
@@ -291,17 +292,17 @@ serve(async (req) => {
         
         saved++
         
-      } catch (error) {
+      } catch (error: unknown) {
         errors++
-        console.error(`[ITEM] ${itemId}: ❌ ${error.message}`)
+        console.error(`[ITEM] ${itemId}: ❌ ${getErrorMessage(error)}`)
         errorDetails.push({
           itemId,
-          error: error.message,
+          error: getErrorMessage(error),
           timestamp: new Date().toISOString()
         })
         
         // Arrêt en cas d'erreur d'authentification
-        if (error.message.includes('session expirée') || error.message.includes('Connexion')) {
+        if (getErrorMessage(error).includes('session expirée') || getErrorMessage(error).includes('Connexion')) {
           console.error('[EXTRACTION] ❌ Session expirée, arrêt de l\'extraction')
           break
         }
@@ -334,11 +335,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     })
 
-  } catch (error) {
-    console.error('[EXTRACTION] ❌ Erreur globale:', error.message)
+  } catch (error: unknown) {
+    console.error('[EXTRACTION] ❌ Erreur globale:', getErrorMessage(error))
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       stack: error.stack
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

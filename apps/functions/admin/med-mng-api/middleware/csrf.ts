@@ -2,6 +2,7 @@ import { errorResponse } from '../response.ts';
 import { log } from '../logger.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 
+import { getErrorMessage } from '../../../_shared/error-utils.ts';
 // Créer client Supabase pour stockage CSRF
 const getSupabaseClient = () => {
   return createClient(
@@ -30,7 +31,7 @@ export async function generateCSRFToken(userId: string): Promise<string> {
     });
 
   if (error) {
-    log('error', 'Failed to store CSRF token', { error: error.message, userId });
+    log('error', 'Failed to store CSRF token', { error: getErrorMessage(error), userId });
     throw new Error('Failed to generate CSRF token');
   }
 
@@ -79,7 +80,7 @@ async function cleanExpiredTokens(): Promise<void> {
     .lt('expires_at', new Date().toISOString());
 
   if (error) {
-    log('warn', 'Failed to clean expired CSRF tokens', { error: error.message });
+    log('warn', 'Failed to clean expired CSRF tokens', { error: getErrorMessage(error) });
   }
 }
 
@@ -118,11 +119,11 @@ export async function getCSRFMetrics() {
     .select('*', { count: 'exact', head: true });
 
   if (error) {
-    log('error', 'Failed to get CSRF metrics', { error: error.message });
+    log('error', 'Failed to get CSRF metrics', { error: getErrorMessage(error) });
     return {
       activeTokens: 0,
       lastCleanup: new Date().toISOString(),
-      error: error.message
+      error: getErrorMessage(error)
     };
   }
 

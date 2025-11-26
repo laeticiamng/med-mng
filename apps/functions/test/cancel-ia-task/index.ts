@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const REFUND_AMOUNTS = {
   'music': 10,      // Coût génération musique
   'qcm': 5,         // Coût génération QCM
@@ -268,11 +269,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur Cancel IA Task:', error);
     return new Response(JSON.stringify({ 
       error: 'Erreur interne serveur',
-      details: error.message 
+      details: getErrorMessage(error) 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

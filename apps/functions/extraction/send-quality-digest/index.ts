@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "npm:resend@2.0.0";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -238,12 +239,12 @@ const handler = async (req: Request): Promise<Response> => {
           status: 'sent',
         });
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`Erreur pour l'utilisateur ${config.user_id}:`, error);
         results.push({
           user_id: config.user_id,
           status: 'error',
-          error: error.message,
+          error: getErrorMessage(error),
         });
       }
     }
@@ -262,7 +263,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Erreur dans send-quality-digest:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -7,19 +7,20 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
-import { SunoAPIClient, getCorrectSunoModel, SunoGenerationOptions } from '../_shared/suno-api-client.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
+import { SunoAPIClient, getCorrectSunoModel, SunoGenerationOptions } from '../../_shared/suno-api-client.ts';
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 import { 
   buildRichEducationalPrompt, 
   buildRichStyle, 
   buildExpressiveTitle 
-} from '../_shared/prompt-builders.ts';
+} from '../../_shared/prompt-builders.ts';
 import { 
   insertMusicTrack, 
   insertGenerationMetric, 
   getAuthenticatedUser,
   MusicTrackInsertData
-} from '../_shared/music-database.ts';
+} from '../../_shared/music-database.ts';
 
 // Interfaces de requête/réponse
 interface MusicGenerationRequest {
@@ -289,9 +290,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ ERREUR DÉTAILLÉE:', {
-      message: error.message,
+      message: getErrorMessage(error),
       stack: error.stack,
       name: error.name,
       cause: error.cause
@@ -299,7 +300,7 @@ serve(async (req) => {
     
     const errorResponse: MusicGenerationResponse = {
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     };
 
     return new Response(JSON.stringify(errorResponse), {

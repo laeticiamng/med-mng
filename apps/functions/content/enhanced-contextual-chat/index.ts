@@ -1,8 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -147,12 +148,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur enhanced chat:', error);
     
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Enhanced chat failed',
+      error: getErrorMessage(error) || 'Enhanced chat failed',
       source: 'error'
     }), {
       status: 500,
@@ -223,7 +224,7 @@ async function searchEdnKnowledgeBase(
       source: 'edn_local' as const
     })).sort((a, b) => b.relevance_score - a.relevance_score);
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur searchEdnKnowledgeBase:', error);
     return [];
   }
@@ -273,7 +274,7 @@ Question: ${query}`;
     }
 
     return null;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur web fallback:', error);
     return null;
   }
@@ -447,7 +448,7 @@ async function logChatInteraction(supabase: any, params: any) {
     if (error) {
       console.error('Erreur logging chat:', error);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur logChatInteraction:', error);
   }
 }

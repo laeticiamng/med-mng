@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -114,7 +115,7 @@ serve(async (req) => {
       // Based on last known state
       mediumCount = 2; // Storage functions (non-controllable)
       lowCount = 2; // Extension + PostgreSQL version
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error running linter:", error);
     }
 
@@ -230,10 +231,10 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("❌ Error in security-metrics:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

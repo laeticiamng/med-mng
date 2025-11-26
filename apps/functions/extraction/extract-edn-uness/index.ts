@@ -1,8 +1,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ExtractRequest {
   action: string
   resumeFromItem?: number
@@ -179,12 +180,12 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique:', error)
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack 
       }),
       { 
@@ -380,11 +381,11 @@ async function authenticateUNESS(username: string, password: string, existingSes
     
     throw new Error('Impossible d\'accéder à LiSA avec ces identifiants')
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur authentification:', error)
     return {
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       sessionData: null
     }
   }
@@ -429,8 +430,8 @@ async function followRedirectionToLisa(cookies: Map<string, string>, userAgent: 
     }
     
     return { success: false, error: 'Accès LiSA refusé' }
-  } catch (error) {
-    return { success: false, error: error.message }
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error) }
   }
 }
 
@@ -511,7 +512,7 @@ async function extractCompletEdnItems(
             
             if (error) {
               console.error(`❌ Erreur DB item ${item.numero}:`, error)
-              errors.push(`Item ${item.numero}: ${error.message}`)
+              errors.push(`Item ${item.numero}: ${getErrorMessage(error)}`)
               totalErrors++
             } else {
               console.log(`✅ Item ${item.numero} sauvegardé`)
@@ -552,7 +553,7 @@ async function extractCompletEdnItems(
       errors
     }
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique extraction:', error)
     return {
       totalProcessed,
@@ -560,7 +561,7 @@ async function extractCompletEdnItems(
       totalErrors: totalErrors + 1,
       itemsWithPrintableVersion,
       extractedItems,
-      errors: [...errors, `Erreur critique: ${error.message}`]
+      errors: [...errors, `Erreur critique: ${getErrorMessage(error)}`]
     }
   }
 }
@@ -648,7 +649,7 @@ async function extractLISA2025(cookies: string) {
     const html = await response.text()
     return extractItemsFromHTML(html, cookies)
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur extraction:', error)
     throw error
   }
@@ -870,7 +871,7 @@ async function discoverAllItems(cookies: string) {
     console.log(`✅ ${uniqueItems.length} items uniques découverts`)
     return uniqueItems
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur découverte items:', error)
     
     // Fallback: générer URLs connues pour les 367 items
@@ -966,8 +967,8 @@ async function extractSingleItem(item: {numero: number, titre: string, url: stri
       date_import: new Date().toISOString()
     }
     
-  } catch (error) {
-    console.error(`❌ Erreur extraction item ${item.numero}:`, error.message)
+  } catch (error: unknown) {
+    console.error(`❌ Erreur extraction item ${item.numero}:`, getErrorMessage(error))
     return null
   }
 }

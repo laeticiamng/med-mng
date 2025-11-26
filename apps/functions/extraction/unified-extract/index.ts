@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { z } from 'https://esm.sh/zod@3.23.8';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 // 🔒 SÉCURITÉ: Schéma de validation Zod pour les requêtes entrantes
 const payloadSchema = z.object({
   mode: z.enum(["batch", "single", "report"]).optional(),
@@ -147,11 +148,11 @@ serve(async (req) => {
                   data,
                   timestamp: new Date().toISOString()
                 };
-              } catch (error) {
+              } catch (error: unknown) {
                 return {
                   id,
                   success: false,
-                  error: error.message,
+                  error: getErrorMessage(error),
                   timestamp: new Date().toISOString()
                 };
               }
@@ -264,11 +265,11 @@ serve(async (req) => {
           .single();
 
         if (error) {
-          console.error(`❌ Extraction failed: ${error.message}`);
+          console.error(`❌ Extraction failed: ${getErrorMessage(error)}`);
           return new Response(
             JSON.stringify({
               success: false,
-              error: error.message,
+              error: getErrorMessage(error),
               itemId: targetId
             }),
             {
@@ -291,12 +292,12 @@ serve(async (req) => {
         );
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`💥 Fatal error in unified-extract:`, error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack
       }),
       {

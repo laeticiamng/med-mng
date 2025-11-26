@@ -19,8 +19,9 @@ if (!CAS_PASSWORD) {
   throw new Error('CAS_PASSWORD manquant - variable d\'environnement requise')
 }
 
-import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../../_shared/cors.ts'
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -101,7 +102,7 @@ serve(async (req) => {
     let requestBody
     try {
       requestBody = await req.json()
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erreur parsing JSON:', error)
       return new Response(
         JSON.stringify({ error: 'Format de requête invalide' }),
@@ -126,10 +127,10 @@ serve(async (req) => {
         throw new Error('Action non reconnue')
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur dans extract-edn-objectifs:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
@@ -199,9 +200,9 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
       }
       
       console.log('✅ API accessible - extraction possible')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Erreur test API:', error)
-      throw new Error(`API_ACCESS_ERROR: ${error.message}`)
+      throw new Error(`API_ACCESS_ERROR: ${getErrorMessage(error)}`)
     }
     
     // Mettre à jour le statut
@@ -280,7 +281,7 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
           } else {
             console.log(`⚠️  Parsing échoué pour ${page.title} - competence null`)
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error(`💥 Erreur parsing page ${page.title}:`, error)
           console.error('📄 Page content preview:', page.revisions?.[0]?.content?.substring(0, 200))
         }
@@ -304,14 +305,14 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
       })
       .eq('session_id', session_id)
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('💥 Erreur critique extraction:', error)
     
     await supabaseClient
       .from('oic_extraction_progress')
       .update({
         status: 'erreur',
-        error_message: error.message,
+        error_message: getErrorMessage(error),
         last_activity: new Date().toISOString()
       })
       .eq('session_id', session_id)
@@ -326,7 +327,7 @@ async function getExtractionStatus(supabaseClient: any, session_id: string) {
     .single()
 
   if (error) {
-    throw new Error(`Session non trouvée: ${error.message}`)
+    throw new Error(`Session non trouvée: ${getErrorMessage(error)}`)
   }
 
   return new Response(
@@ -343,7 +344,7 @@ async function generateRapport(supabaseClient: any) {
 
     if (error) {
       console.error('Erreur génération rapport:', error)
-      throw new Error(`Erreur génération rapport: ${error.message}`)
+      throw new Error(`Erreur génération rapport: ${getErrorMessage(error)}`)
     }
 
     const reportData = data || {
@@ -369,7 +370,7 @@ async function generateRapport(supabaseClient: any) {
       JSON.stringify(stats),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur generateRapport:', error)
     
     // Retourner un rapport vide en cas d'erreur
@@ -494,7 +495,7 @@ async function authenticateAndGetCookies(): Promise<string> {
     
     return unessConsolidatedCookies
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur lors de l\'authentification CAS:', error)
     console.error('📊 Stack trace:', error.stack)
     throw error
@@ -575,7 +576,7 @@ async function insertTestData(supabaseClient: any) {
   if (error) {
     console.error('❌ INSERT_ERR:', {
       code: error.code,
-      message: error.message,
+      message: getErrorMessage(error),
       details: error.details,
       hint: error.hint
     })

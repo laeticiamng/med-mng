@@ -1,8 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface CompetenceData {
   rangA: string[];
   rangB: string[];
@@ -492,11 +493,11 @@ serve(async (req) => {
         successCount++;
         console.log(`✅ Item IC-${itemNumber} mis à jour avec succès`);
 
-      } catch (error) {
+      } catch (error: unknown) {
         errorCount++;
         errors.push({
           item_code: existingItem.item_code,
-          error: error instanceof Error ? error.message : 'Erreur inconnue'
+          error: error instanceof Error ? getErrorMessage(error) : 'Erreur inconnue'
         });
         console.error(`❌ Erreur item ${existingItem.item_code}:`, error);
       }
@@ -517,11 +518,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur générale:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error instanceof Error ? error.message : 'Erreur inconnue lors de la ré-importation'
+      error: error instanceof Error ? getErrorMessage(error) : 'Erreur inconnue lors de la ré-importation'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders } from '../../_shared/cors.ts';
 
+import { getErrorMessage } from '../../_shared/error-utils.ts';
 interface ImportRequest {
   batchId: string;
   csvData?: string;
@@ -193,12 +194,12 @@ serve(async (req) => {
           .eq("batch_id", batchId)
           .eq("row_number", i + 2);
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`Error processing row ${i + 2}:`, error);
         errorCount++;
         errors.push({
           row: i + 2,
-          error: error.message
+          error: getErrorMessage(error)
         });
 
         // Marquer comme erreur
@@ -206,7 +207,7 @@ serve(async (req) => {
           .from("import_raw_data")
           .update({ 
             processed: true, 
-            error_message: error.message 
+            error_message: getErrorMessage(error) 
           })
           .eq("batch_id", batchId)
           .eq("row_number", i + 2);
@@ -246,9 +247,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Import error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
