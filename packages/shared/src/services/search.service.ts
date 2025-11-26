@@ -519,7 +519,7 @@ export async function searchWithCursor(
   }
 }
 
-// Type aliases for backward compatibility with hooks
+// Export type aliases for easier imports
 export type SearchResult = ServiceSearchResult
 export type PostSearchResult = PostServiceSearchResult
 export type UserSearchResult = UserServiceSearchResult
