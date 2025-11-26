@@ -161,7 +161,7 @@ class Logger {
       const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
       if (sentryDsn && typeof window !== 'undefined') {
         // Dynamic import of Sentry to avoid bundle bloat if not used
-        const Sentry = await import('@sentry/browser').catch(() => null);
+        const Sentry = await import('@sentry/react').catch(() => null);
 
         if (Sentry) {
           if (entry.level === 'error') {
