@@ -518,3 +518,10 @@ export async function searchWithCursor(
     throw error
   }
 }
+
+// Export type aliases for easier imports
+export type SearchResult = ServiceSearchResult
+export type PostSearchResult = PostServiceSearchResult
+export type UserSearchResult = UserServiceSearchResult
+export type TeamSearchResult = TeamServiceSearchResult
+export type SearchFilters = ServiceSearchFilters
