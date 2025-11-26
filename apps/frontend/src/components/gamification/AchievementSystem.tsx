@@ -21,7 +21,7 @@ import {
   UserBadge,
   UserAura,
   GamificationStats
-} from '@med-mng/shared/src/services/badges.service';
+} from '@shared/services/badges.service';
 
 interface Achievement {
   id: string;
