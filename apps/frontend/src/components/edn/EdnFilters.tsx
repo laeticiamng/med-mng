@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Search, BarChart3, Grid, List, RotateCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { CategoryType, SortByType } from '@shared/types/edn';
 
 interface EdnFiltersProps {
@@ -29,7 +35,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
   viewMode,
   setViewMode,
   hasActiveFilters,
-  resetAllFilters
+  resetAllFilters,
 }) => {
   const navigate = useNavigate();
 
@@ -38,12 +44,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
       {/* Reset Button */}
       {hasActiveFilters && (
         <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={resetAllFilters}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={resetAllFilters} className="gap-2">
             <RotateCcw className="h-4 w-4" />
             Réinitialiser
           </Button>
@@ -56,7 +57,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
         <Input
           placeholder="Rechercher un item (ex: IC-1, Cardiologie...)"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           className="pl-10"
         />
       </div>
@@ -96,13 +97,13 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
             <BarChart3 className="h-4 w-4" />
             Analytics
           </Button>
-          
+
           <div className="flex gap-1 border rounded-md">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className="rounded-r-none"
+              className={`rounded-r-none ${viewMode === 'grid' ? 'default' : ''}`}
               aria-label="Grid view"
             >
               <Grid className="h-4 w-4" />
@@ -111,7 +112,7 @@ export const EdnFilters: React.FC<EdnFiltersProps> = ({
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="rounded-l-none"
+              className={`rounded-l-none ${viewMode === 'list' ? 'default' : ''}`}
               aria-label="List view"
             >
               <List className="h-4 w-4" />
