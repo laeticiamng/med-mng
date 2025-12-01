@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SearchFilters } from '@shared/services/search.service'
+import { ServiceSearchFilters } from '@shared/services/search.service'
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ import { Search, FileText, User, Users, Leaf } from 'lucide-react'
 export default function AdvancedSearch() {
   const [query, setQuery] = useState('')
   const [searchType, setSearchType] = useState<'global' | 'posts' | 'users' | 'teams' | 'wellness'>('posts')
-  const [filters, setFilters] = useState<SearchFilters>({
+  const [filters, setFilters] = useState<ServiceSearchFilters>({
     limit: 50,
     offset: 0,
   })
