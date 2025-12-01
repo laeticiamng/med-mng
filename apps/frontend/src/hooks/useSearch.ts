@@ -14,13 +14,13 @@ import {
   logSearchResultClick,
   deleteSearchHistoryItem,
   clearSearchHistory,
-  SearchResult,
-  PostSearchResult,
-  UserSearchResult,
-  TeamSearchResult,
+  ServiceSearchResult,
+  PostServiceSearchResult,
+  UserServiceSearchResult,
+  TeamServiceSearchResult,
   SearchSuggestion,
   SearchHistory,
-  SearchFilters,
+  ServiceSearchFilters,
 } from '@shared/services/search.service'
 
 // Global search hook
@@ -34,7 +34,7 @@ export function useGlobalSearch(query: string, limit: number = 50) {
 }
 
 // Post search hook with filters
-export function useSearchPosts(query: string, filters?: SearchFilters) {
+export function useSearchPosts(query: string, filters?: ServiceSearchFilters) {
   return useQuery({
     queryKey: ['search', 'posts', query, filters],
     queryFn: () => searchPosts(query, filters),

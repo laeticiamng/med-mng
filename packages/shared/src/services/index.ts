@@ -68,38 +68,5 @@ export * from './healthService.js';
 export * from './logService.js';
 export * from './performanceMonitoringService.js';
 export * from './rateLimitService.js';
-// Export teams.service but exclude searchTeams to avoid conflict with search.service
-export {
-  createTeam,
-  getTeam,
-  getTeamBySlug,
-  getUserTeams,
-  updateTeam,
-  deleteTeam,
-  searchTeamsService, // Export the service version, not the alias
-  addTeamMember,
-  getTeamMembers,
-  getTeamMember,
-  updateTeamMemberRole,
-  removeTeamMember,
-  inviteToTeam,
-  getTeamInvitations,
-  acceptInvitation,
-  declineInvitation,
-  createChannel,
-  getTeamChannels,
-  getChannel,
-  updateChannel,
-  deleteChannel,
-  postMessage,
-  getChannelMessages,
-  updateMessage,
-  deleteMessage,
-  logTeamActivity,
-  getTeamActivityLog,
-  type Team,
-  type TeamMember,
-  type TeamInvitation,
-  type TeamChannel,
-  type TeamMessage
-} from './teams.service.js';
+// Note: teams.service.js doesn't exist yet, so we don't export it
+// searchTeams is already exported from search.service.js
