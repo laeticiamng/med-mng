@@ -158,8 +158,8 @@ export async function searchTeamsService(query: string, visibility?: string): Pr
   return data || []
 }
 
-// Alias for backward compatibility (not re-exported in index.ts to avoid conflict)
-export const searchTeams = searchTeamsService
+// Note: searchTeams is exported from search.service.ts
+// Use searchTeamsService directly to avoid conflicts
 
 // Team Member Methods
 export async function addTeamMember(
