@@ -1,8 +1,15 @@
 // Barrel export for all services
 // This allows importing services like: import { musicService } from '@shared/services'
+// Note: Types from services use 'Service' prefix to avoid conflicts with global types
 
 // Activity & Social
-export * from './activity-feed.service.js';
+export {
+  type ActivityType,
+  type TargetType,
+  type ActivityItem,
+  activityFeedService,
+} from './activity-feed.service.js';
+
 export * from './posts.service.js';
 export * from './post-comments.service.js';
 export * from './user-activity.service.js';
@@ -12,7 +19,12 @@ export * from './admin.service.js';
 export * from './moderation.service.js';
 export * from './monitoringService.js';
 export * from './performanceAnalyticsService.js';
-export * from './platformAnalytics.service.js';
+export {
+  type PlatformHealthMetrics,
+  type UserActivityAnalytics,
+  type PlatformContentAnalytics,
+  platformAnalyticsService,
+} from './platformAnalytics.service.js';
 export * from './reports.service.js';
 
 // Content & Learning
@@ -21,7 +33,26 @@ export * from './ednTableauxService.js';
 export * from './pedagogicalContentService.js';
 export * from './qcmService.js';
 export * from './recommendations.service.js';
-export * from './search.service.js';
+export {
+  type ServiceSearchResult,
+  type PostServiceSearchResult,
+  type UserServiceSearchResult,
+  type TeamServiceSearchResult,
+  type WellnessServiceSearchResult,
+  type SearchSuggestion,
+  type SearchHistory,
+  type ServiceSearchFilters,
+  globalSearch,
+  searchPosts,
+  searchUsers,
+  searchTeams,
+  searchWellness,
+  getSearchSuggestions,
+  saveSearchHistory,
+  getSearchHistory,
+  getTrendingSearches,
+  clearSearchHistory,
+} from './search.service.js';
 
 // User Management
 export * from './user-collections.service.js';
@@ -46,7 +77,11 @@ export * from './pushNotifications.js';
 export * from './newsletter.service.js';
 
 // Support & Help
-export * from './contact-support.service.js';
+export {
+  type SupportTicket,
+  type SupportTicketResponse,
+  contactSupportService,
+} from './contact-support.service.js';
 export * from './help.service.js';
 
 // Gamification
@@ -68,5 +103,3 @@ export * from './healthService.js';
 export * from './logService.js';
 export * from './performanceMonitoringService.js';
 export * from './rateLimitService.js';
-// Note: teams.service.js doesn't exist yet, so we don't export it
-// searchTeams is already exported from search.service.js
