@@ -10,7 +10,9 @@
     "./types": "./src/types/index.ts",
     "./schemas": "./src/schemas/index.ts",
     "./utils": "./src/utils/index.ts",
-    "./parsers": "./src/parsers/index.ts"
+    "./parsers": "./src/parsers/index.ts",
+    "./services": "./src/services/index.ts",
+    "./services/*": "./src/services/*"
   },
   "dependencies": {
     "zod": "^3.23.8"
