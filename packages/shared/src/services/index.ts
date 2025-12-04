@@ -45,7 +45,7 @@ export {
   globalSearch,
   searchPosts,
   searchUsers,
-  searchTeams,
+  // searchTeams exported from teams.service.js to avoid conflict
   searchWellness,
   getSearchSuggestions,
   saveSearchHistory,
@@ -86,6 +86,43 @@ export * from './help.service.js';
 
 // Gamification
 export * from './badges.service.js';
+
+// Teams
+export {
+  type Team,
+  type TeamMember,
+  type TeamInvitation,
+  type TeamChannel,
+  type TeamMessage,
+  createTeam,
+  getTeam,
+  getTeamBySlug,
+  getUserTeams,
+  updateTeam,
+  deleteTeam,
+  searchTeamsService,
+  searchTeams,
+  addTeamMember,
+  getTeamMembers,
+  getTeamMember,
+  updateTeamMemberRole,
+  removeTeamMember,
+  inviteToTeam,
+  getTeamInvitations,
+  acceptInvitation,
+  declineInvitation,
+  createChannel,
+  getTeamChannels,
+  getChannel,
+  updateChannel,
+  deleteChannel,
+  postMessage,
+  getChannelMessages,
+  updateMessage,
+  deleteMessage,
+  logTeamActivity,
+  getTeamActivityLog,
+} from './teams.service.js';
 
 // Health & Wellness
 export * from './wellness.service.js';
