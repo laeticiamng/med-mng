@@ -16,7 +16,7 @@ export const AdminPanel: React.FC = () => {
     // ✅ SÉCURISÉ: Vérification stricte des droits d'administration
     if (!user) {
       toast.error('Accès non autorisé - Connexion requise');
-      navigate('/med-mng-login', { replace: true });
+      navigate('/med-mng/login', { replace: true });
       return;
     }
 
@@ -58,7 +58,7 @@ export const AdminPanel: React.FC = () => {
               : 'Vous n\'avez pas les droits administrateur nécessaires'}
           </p>
           <Button
-            onClick={() => navigate(!user ? '/med-mng-login' : '/')}
+            onClick={() => navigate(!user ? '/med-mng/login' : '/')}
             aria-label={!user ? 'Se connecter pour accéder au panel d\'administration' : 'Retourner à la page d\'accueil'}
           >
             {!user ? 'Se connecter' : 'Retour à l\'accueil'}

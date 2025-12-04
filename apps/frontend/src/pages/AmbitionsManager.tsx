@@ -30,7 +30,7 @@ export default function AmbitionsManager() {
             <p className="text-muted-foreground mb-4">
               Connectez-vous pour gérer vos ambitions
             </p>
-            <Button onClick={() => navigate('/med-mng-login')}>
+            <Button onClick={() => navigate('/med-mng/login')}>
               Se connecter
             </Button>
           </CardContent>

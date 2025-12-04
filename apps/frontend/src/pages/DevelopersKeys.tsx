@@ -13,7 +13,7 @@ export default function DevelopersKeys() {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   const [showKeys, setShowKeys] = useState<Record<number, boolean>>({});
