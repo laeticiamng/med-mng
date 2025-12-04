@@ -40,7 +40,7 @@ export default function TeamsDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentification requise</CardTitle>
@@ -63,13 +63,13 @@ export default function TeamsDashboard() {
         <meta name="description" content="Gérez vos équipes et collaborez avec d'autres étudiants en médecine" />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 dark:from-primary/10 dark:via-background dark:to-purple-500/10">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Équipes</h1>
-              <p className="text-gray-600">Collaborez avec d'autres étudiants et apprenez ensemble</p>
+              <h1 className="text-4xl font-bold text-foreground mb-2">Équipes</h1>
+              <p className="text-muted-foreground">Collaborez avec d'autres étudiants et apprenez ensemble</p>
             </div>
             <Link to="/teams/create">
               <Button size="lg" className="gap-2">
@@ -85,11 +85,11 @@ export default function TeamsDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Mes Équipes</p>
-                    <p className="text-3xl font-bold text-blue-600">{myTeams.length}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Mes Équipes</p>
+                    <p className="text-3xl font-bold text-primary">{myTeams.length}</p>
                   </div>
-                  <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Users className="h-6 w-6 text-blue-600" />
+                  <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Users className="h-6 w-6 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -99,13 +99,13 @@ export default function TeamsDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Membres Total</p>
-                    <p className="text-3xl font-bold text-green-600">
+                    <p className="text-sm text-muted-foreground mb-1">Membres Total</p>
+                    <p className="text-3xl font-bold text-success">
                       {myTeams.reduce((acc, team: any) => acc + (team.member_count || 0), 0)}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  <div className="h-12 w-12 bg-success/10 rounded-full flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-success" />
                   </div>
                 </div>
               </CardContent>
@@ -115,11 +115,11 @@ export default function TeamsDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Activité Récente</p>
-                    <p className="text-3xl font-bold text-purple-600">24h</p>
+                    <p className="text-sm text-muted-foreground mb-1">Activité Récente</p>
+                    <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">24h</p>
                   </div>
-                  <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-purple-600" />
+                  <div className="h-12 w-12 bg-purple-500/10 rounded-full flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                   </div>
                 </div>
               </CardContent>
@@ -143,7 +143,7 @@ export default function TeamsDashboard() {
             {activeTab === 'discover' && (
               <div className="mb-6">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                   <Input
                     placeholder="Rechercher des équipes publiques..."
                     value={searchQuery}
@@ -172,11 +172,11 @@ export default function TeamsDashboard() {
               ) : myTeams.length === 0 ? (
                 <Card>
                   <CardContent className="py-16 text-center">
-                    <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       Aucune équipe pour le moment
                     </h3>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-muted-foreground mb-6">
                       Créez votre première équipe ou rejoignez une équipe existante
                     </p>
                     <div className="flex gap-4 justify-center">
@@ -205,11 +205,11 @@ export default function TeamsDashboard() {
               {searchQuery.length === 0 ? (
                 <Card>
                   <CardContent className="py-16 text-center">
-                    <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       Recherchez des équipes
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                       Utilisez la barre de recherche pour trouver des équipes publiques
                     </p>
                   </CardContent>
@@ -231,11 +231,11 @@ export default function TeamsDashboard() {
               ) : searchResults.length === 0 ? (
                 <Card>
                   <CardContent className="py-16 text-center">
-                    <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       Aucune équipe trouvée
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                       Essayez avec d'autres mots-clés ou créez votre propre équipe
                     </p>
                   </CardContent>
@@ -278,7 +278,7 @@ function TeamCard({ team, isPublic = false }: { team: any; isPublic?: boolean })
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
               <span>{team.member_count || 0} membres</span>
@@ -290,7 +290,7 @@ function TeamCard({ team, isPublic = false }: { team: any; isPublic?: boolean })
             )}
           </div>
           {team.created_at && (
-            <div className="mt-3 text-xs text-gray-500">
+            <div className="mt-3 text-xs text-muted-foreground/70">
               Créé le {new Date(team.created_at).toLocaleDateString('fr-FR')}
             </div>
           )}

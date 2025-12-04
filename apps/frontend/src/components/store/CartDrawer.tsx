@@ -152,7 +152,7 @@ export const CartDrawer = () => {
                     </>
                   ) : (
                     <>
-                      <ExternalLink className="w-4 w-4 mr-2" />
+                      <ExternalLink className="w-4 h-4 mr-2" />
                       Payer avec Shopify
                     </>
                   )}
