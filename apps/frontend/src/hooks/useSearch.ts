@@ -3,7 +3,7 @@ import {
   globalSearch,
   searchPosts,
   searchUsers,
-  searchTeams,
+  searchTeamsGlobal,
   searchWellness,
   getSearchSuggestions,
   getSearchHistory,
@@ -14,13 +14,13 @@ import {
   logSearchResultClick,
   deleteSearchHistoryItem,
   clearSearchHistory,
-  ServiceSearchResult,
-  PostServiceSearchResult,
-  UserServiceSearchResult,
-  TeamServiceSearchResult,
-  SearchSuggestion,
-  SearchHistory,
-  ServiceSearchFilters,
+  type ServiceSearchResult,
+  type PostServiceSearchResult,
+  type UserServiceSearchResult,
+  type TeamServiceSearchResult,
+  type SearchSuggestion,
+  type SearchHistory,
+  type ServiceSearchFilters,
 } from '@shared/services/search.service'
 
 // Global search hook
@@ -57,7 +57,7 @@ export function useSearchUsers(query: string, limit: number = 50) {
 export function useSearchTeams(query: string, limit: number = 50) {
   return useQuery({
     queryKey: ['search', 'teams', query],
-    queryFn: () => searchTeams(query, limit),
+    queryFn: () => searchTeamsGlobal(query, limit),
     enabled: query.length > 0,
     staleTime: 1000 * 60 * 5,
   })

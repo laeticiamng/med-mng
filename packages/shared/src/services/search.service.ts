@@ -521,6 +521,4 @@ export async function searchWithCursor(
 
 // Type exports are handled by the package barrel exports
 // Use ServiceSearchResult, PostServiceSearchResult, etc. when importing
-
-// Alias for backward compatibility - searchTeams points to searchTeamsGlobal
-export const searchTeams = searchTeamsGlobal
+// Note: searchTeams is exported from teams.service.ts to avoid conflicts
