@@ -27,12 +27,12 @@ import {
   deleteMessage,
   logTeamActivity,
   getTeamActivityLog,
-  Team,
-  TeamMember,
-  TeamInvitation,
-  TeamChannel,
-  TeamMessage,
-} from '@shared/services/teams.service'
+  type Team,
+  type TeamMember,
+  type TeamInvitation,
+  type TeamChannel,
+  type TeamMessage,
+} from '@shared/services'
 
 // Team Queries
 export function useFetchTeam(teamId: string) {
