@@ -92,7 +92,7 @@ export const AdvancedMixer = () => {
     setTracks(prev => prev.map(track => {
       if (track.id === trackId) {
         if (track.audio && !track.isPlaying) {
-          track.audio.play().catch(console.error);
+          track.audio.play().catch(() => { /* Audio playback failed silently */ });
           return { ...track, isPlaying: true };
         } else if (track.audio && track.isPlaying) {
           track.audio.pause();
@@ -146,7 +146,7 @@ export const AdvancedMixer = () => {
     tracks.forEach(track => {
       if (track.audio) {
         if (!isPlaying) {
-          track.audio.play().catch(console.error);
+          track.audio.play().catch(() => { /* Audio playback failed silently */ });
         } else {
           track.audio.pause();
         }

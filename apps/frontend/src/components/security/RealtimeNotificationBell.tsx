@@ -113,11 +113,15 @@ export const RealtimeNotificationBell = () => {
                 return (
                   <div
                     key={notification.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${notification.title} - ${isUnread ? 'Non lue' : 'Lue'}`}
                     className={cn(
-                      'p-4 cursor-pointer transition-colors hover:bg-muted/50',
+                      'p-4 cursor-pointer transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary',
                       isUnread && 'bg-muted/30'
                     )}
                     onClick={() => markAsRead(notification.id)}
+                    onKeyDown={(e) => e.key === 'Enter' && markAsRead(notification.id)}
                   >
                     <div className="flex items-start gap-3">
                       <div

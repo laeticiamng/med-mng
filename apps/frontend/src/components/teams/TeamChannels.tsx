@@ -38,7 +38,7 @@ import {
 } from '@/hooks/useTeams';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { TeamChannel, TeamMessage } from '@shared/services/teams.service';
+import type { TeamChannel, TeamMessage } from '@shared/services';
 
 interface TeamChannelsProps {
   teamId: string;

@@ -182,10 +182,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               </Badge>
             </div>
             <div className="absolute top-4 right-4 flex gap-2">
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="secondary"
                 onClick={() => setIsFullscreen(true)}
+                aria-label="Afficher en plein écran"
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>
@@ -226,9 +227,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               <button
                 key={vignette.id}
                 onClick={() => setCurrentVignette(index)}
+                aria-label={`Afficher ${vignette.title}`}
+                aria-current={index === currentVignette ? 'true' : undefined}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all
-                  ${index === currentVignette 
-                    ? 'border-indigo-500 ring-2 ring-indigo-200' 
+                  ${index === currentVignette
+                    ? 'border-indigo-500 ring-2 ring-indigo-200'
                     : 'border-gray-200 hover:border-gray-300'
                   }`}
               >

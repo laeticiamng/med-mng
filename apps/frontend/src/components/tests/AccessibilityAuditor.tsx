@@ -125,7 +125,10 @@ export const AccessibilityAuditor: React.FC<{ enabled?: boolean }> = ({
       });
 
     } catch (error) {
-      console.error('Erreur lors de l\'audit d\'accessibilité:', error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error('Erreur lors de l\'audit d\'accessibilité:', error);
+      }
       foundIssues.push({
         type: 'error',
         category: 'general',
