@@ -141,7 +141,8 @@ export * from './api.service.js';
 export * from './alertService.js';
 export * from './contentReporting.service.js';
 export * from './events.service.js';
-export * from './healthService.js';
+// healthService.js uses node:os and is backend-only - do not export for browser compatibility
+// import { healthService } from '@shared/services/healthService' for backend usage
 export * from './logService.js';
 export * from './performanceMonitoringService.js';
 export * from './rateLimitService.js';

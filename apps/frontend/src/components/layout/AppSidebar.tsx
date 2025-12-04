@@ -142,7 +142,7 @@ export const AppSidebar: React.FC = () => {
         { path: ROUTE_PATHS.quests, label: 'Quêtes', icon: Map },
         { path: ROUTE_PATHS.leaderboard, label: 'Classement', icon: Award },
         { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Star },
-        { path: '/badges', label: 'Badges', icon: Award },
+        { path: ROUTE_PATHS.badges, label: 'Badges', icon: Award },
       ],
     },
     {
@@ -162,9 +162,9 @@ export const AppSidebar: React.FC = () => {
       icon: Users2,
       items: [
         { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users2 },
-        { path: '/teams', label: 'Équipes', icon: Users },
+        { path: ROUTE_PATHS.teams, label: 'Équipes', icon: Users },
         { path: ROUTE_PATHS.users, label: 'Utilisateurs', icon: Users },
-        { path: '/activity', label: 'Fil d\'Activité', icon: Activity },
+        { path: ROUTE_PATHS.activity, label: 'Fil d\'Activité', icon: Activity },
       ],
     },
     {
@@ -172,8 +172,8 @@ export const AppSidebar: React.FC = () => {
       label: 'Bien-être',
       icon: Heart,
       items: [
-        { path: '/wellness', label: 'Bien-être', icon: Heart },
-        { path: '/rituals', label: 'Rituels', icon: Sparkles },
+        { path: ROUTE_PATHS.wellness, label: 'Bien-être', icon: Heart },
+        { path: ROUTE_PATHS.wellnessRituals, label: 'Rituels', icon: Sparkles },
         { path: ROUTE_PATHS.journal, label: 'Journal', icon: FileText },
         { path: ROUTE_PATHS.sessions, label: 'Sessions', icon: Calendar },
       ],
