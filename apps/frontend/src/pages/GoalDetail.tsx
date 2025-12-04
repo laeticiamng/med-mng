@@ -86,7 +86,7 @@ export const GoalDetail: React.FC = () => {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);

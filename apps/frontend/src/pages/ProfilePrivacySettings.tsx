@@ -18,7 +18,7 @@ export default function ProfilePrivacySettings() {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   const { toast } = useToast();

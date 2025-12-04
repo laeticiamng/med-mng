@@ -61,7 +61,7 @@ export default function Community() {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   const navigate = useNavigate();

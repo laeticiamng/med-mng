@@ -12,7 +12,7 @@ export default function DevelopersWebhooks() {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   const webhooks = [

@@ -101,7 +101,7 @@ export default function ReportViewer() {
   });
 
   if (!user) {
-    return <Navigate to="/med-mng-login" replace />;
+    return <Navigate to="/med-mng/login" replace />;
   }
 
   if (!loadingMyRoles && !isAdmin) {
