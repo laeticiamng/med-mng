@@ -8,31 +8,31 @@ export {
   type TargetType,
   type ActivityItem,
   activityFeedService,
-} from './activity-feed.service.js';
+} from './activity-feed.service';
 
-export * from './posts.service.js';
-export * from './post-comments.service.js';
-export * from './user-activity.service.js';
+export * from './posts.service';
+export * from './post-comments.service';
+export * from './user-activity.service';
 
 // Admin & Monitoring
-export * from './admin.service.js';
-export * from './moderation.service.js';
-export * from './monitoringService.js';
-export * from './performanceAnalyticsService.js';
+export * from './admin.service';
+export * from './moderation.service';
+export * from './monitoringService';
+export * from './performanceAnalyticsService';
 export {
   type PlatformHealthMetrics,
   type UserActivityAnalytics,
   type PlatformContentAnalytics,
   platformAnalyticsService,
-} from './platformAnalytics.service.js';
-export * from './reports.service.js';
+} from './platformAnalytics.service';
+export * from './reports.service';
 
 // Content & Learning
-export * from './ecosService.js';
-export * from './ednTableauxService.js';
-export * from './pedagogicalContentService.js';
-export * from './qcmService.js';
-export * from './recommendations.service.js';
+export * from './ecosService';
+export * from './ednTableauxService';
+export * from './pedagogicalContentService';
+export * from './qcmService';
+export * from './recommendations.service';
 export {
   type ServiceSearchResult,
   type PostServiceSearchResult,
@@ -57,40 +57,40 @@ export {
   logSearch,
   logSearchResultClick,
   searchWithCursor,
-} from './search.service.js';
+} from './search.service';
 
 // User Management
-export * from './user-collections.service.js';
-export * from './user-favorites.service.js';
-export * from './user-profile.service.js';
-export * from './user-security.service.js';
-export * from './user-viewing-history.service.js';
-export * from './userManagement.service.js';
+export * from './user-collections.service';
+export * from './user-favorites.service';
+export * from './user-profile.service';
+export * from './user-security.service';
+export * from './user-viewing-history.service';
+export * from './userManagement.service';
 
 // Revision & Study Methods
-export * from './revision-methods.service.js';
+export * from './revision-methods.service';
 
 // Music & Media
-export * from './musicService.js';
-export * from './musicQueueService.js';
-export * from './musicCacheService.js';
-export * from './musicAnalyticsService.js';
+export * from './musicService';
+export * from './musicQueueService';
+export * from './musicCacheService';
+export * from './musicAnalyticsService';
 
 // Notifications & Communication
-export * from './notifications.service.js';
-export * from './pushNotifications.js';
-export * from './newsletter.service.js';
+export * from './notifications.service';
+export * from './pushNotifications';
+export * from './newsletter.service';
 
 // Support & Help
 export {
   type SupportTicket,
   type SupportTicketResponse,
   contactSupportService,
-} from './contact-support.service.js';
-export * from './help.service.js';
+} from './contact-support.service';
+export * from './help.service';
 
 // Gamification
-export * from './badges.service.js';
+export * from './badges.service';
 
 // Teams
 export {
@@ -127,21 +127,21 @@ export {
   deleteMessage,
   logTeamActivity,
   getTeamActivityLog,
-} from './teams.service.js';
+} from './teams.service';
 
 // Health & Wellness
-export * from './wellness.service.js';
+export * from './wellness.service';
 
 // Data Management
-export * from './data-export.service.js';
-export * from './export-jobs.service.js';
+export * from './data-export.service';
+export * from './export-jobs.service';
 
 // Infrastructure
-export * from './api.service.js';
-export * from './alertService.js';
-export * from './contentReporting.service.js';
-export * from './events.service.js';
-export * from './healthService.js';
-export * from './logService.js';
-export * from './performanceMonitoringService.js';
-export * from './rateLimitService.js';
+export * from './api.service';
+export * from './alertService';
+export * from './contentReporting.service';
+export * from './events.service';
+export * from './healthService';
+export * from './logService';
+export * from './performanceMonitoringService';
+export * from './rateLimitService';
