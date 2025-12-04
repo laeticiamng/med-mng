@@ -158,8 +158,13 @@ export async function searchTeamsService(query: string, visibility?: string): Pr
   return data || []
 }
 
-// Alias for backward compatibility with useTeams hook
-export const searchTeams = searchTeamsService
+/**
+ * Search teams by query string
+ * Alias for backward compatibility with useTeams hook
+ */
+export async function searchTeams(query: string, visibility?: string): Promise<Team[]> {
+  return searchTeamsService(query, visibility)
+}
 
 // Team Member Methods
 export async function addTeamMember(
