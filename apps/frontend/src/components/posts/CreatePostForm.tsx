@@ -93,7 +93,10 @@ export function CreatePostForm({ onSuccess }: CreatePostFormProps) {
 
       uploadImages(compressedFiles)
     } catch (error) {
-      console.error('Image compression error:', error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error('Image compression error:', error);
+      }
       toast.error('Erreur lors de la préparation des images');
     }
 
