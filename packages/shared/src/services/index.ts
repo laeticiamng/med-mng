@@ -45,13 +45,18 @@ export {
   globalSearch,
   searchPosts,
   searchUsers,
-  // searchTeams exported from teams.service.js to avoid conflict
+  searchTeamsGlobal,
   searchWellness,
   getSearchSuggestions,
-  saveSearchHistory,
   getSearchHistory,
   getTrendingSearches,
+  getRecentSearches,
+  getPopularSearches,
   clearSearchHistory,
+  deleteSearchHistoryItem,
+  logSearch,
+  logSearchResultClick,
+  searchWithCursor,
 } from './search.service.js';
 
 // User Management
