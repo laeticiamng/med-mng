@@ -15,10 +15,10 @@ export const AuditHeader = ({ loading, report, onRunAudit, onExportReport }: Aud
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Audit & Conformité EDN Items
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Vérification de la conformité des items EDN au schéma v2 et contrôles de qualité
         </p>
       </div>

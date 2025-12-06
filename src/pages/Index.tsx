@@ -277,7 +277,7 @@ const Index = () => {
 
       {/* Admin Audit Button premium */}
       {isAdmin && <div className="fixed bottom-6 right-6 z-50">
-          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit-general')} className="shadow-2xl">
+          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit')} className="shadow-2xl">
             <BarChart3 className="h-5 w-5 mr-2" />
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>

@@ -13,11 +13,11 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'valid':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'invalid':
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+        return <AlertTriangle className="h-4 w-4 text-warning" />;
       case 'error':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       default:
         return null;
     }
@@ -26,13 +26,13 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'valid':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-success/10 text-success border-success/20';
       case 'invalid':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-warning/10 text-warning-foreground border-warning/20';
       case 'error':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-destructive/10 text-destructive border-destructive/20';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -51,7 +51,7 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
             </Badge>
           </div>
           
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-sm text-muted-foreground mb-3">
             Slug: {item.slug}
           </p>
 
@@ -59,33 +59,33 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
             <div className="flex items-center gap-2">
               {item.completeness.rangA ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-success" />
               ) : (
-                <XCircle className="h-4 w-4 text-red-600" />
+                <XCircle className="h-4 w-4 text-destructive" />
               )}
               <span className="text-sm">Rang A</span>
             </div>
             <div className="flex items-center gap-2">
               {item.completeness.rangB ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-success" />
               ) : (
-                <XCircle className="h-4 w-4 text-red-600" />
+                <XCircle className="h-4 w-4 text-destructive" />
               )}
               <span className="text-sm">Rang B</span>
             </div>
             <div className="flex items-center gap-2">
               {item.completeness.parolesMusicales ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-success" />
               ) : (
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
               )}
               <span className="text-sm">Paroles</span>
             </div>
             <div className="flex items-center gap-2">
               {item.completeness.generationConfig ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-success" />
               ) : (
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
               )}
               <span className="text-sm">Config</span>
             </div>
@@ -94,11 +94,11 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
           {/* Erreurs */}
           {item.errors.length > 0 && (
             <div className="mb-3">
-              <p className="text-sm font-medium text-red-800 mb-1">Erreurs:</p>
-              <ul className="text-sm text-red-700 space-y-1">
+              <p className="text-sm font-medium text-destructive mb-1">Erreurs:</p>
+              <ul className="text-sm text-destructive/80 space-y-1">
                 {item.errors.map((error, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="text-red-500">•</span>
+                    <span className="text-destructive">•</span>
                     <span>{error}</span>
                   </li>
                 ))}
@@ -109,11 +109,11 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
           {/* Avertissements */}
           {item.warnings.length > 0 && (
             <div>
-              <p className="text-sm font-medium text-yellow-800 mb-1">Avertissements:</p>
-              <ul className="text-sm text-yellow-700 space-y-1">
+              <p className="text-sm font-medium text-warning-foreground mb-1">Avertissements:</p>
+              <ul className="text-sm text-warning-foreground/80 space-y-1">
                 {item.warnings.map((warning, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="text-yellow-500">•</span>
+                    <span className="text-warning">•</span>
                     <span>{warning}</span>
                   </li>
                 ))}

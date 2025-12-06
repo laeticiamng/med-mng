@@ -24,10 +24,10 @@ export const AuditProgress = ({ report }: AuditProgressProps) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Validation Globale</span>
-            <span className="text-sm text-gray-600">{validationRate}%</span>
+            <span className="text-sm text-muted-foreground">{validationRate}%</span>
           </div>
           <Progress value={validationRate} className="h-2" />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             {report.validItems} items sur {report.totalItems} respectent le schéma v2
           </p>
         </div>
