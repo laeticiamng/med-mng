@@ -158,22 +158,22 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
     return (
-      <div className="relative h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg overflow-hidden">
+      <div className="relative h-16 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-end justify-center">
           {waveform.map((amplitude, index) => (
             <div
               key={index}
               className={`w-1 mx-px transition-colors duration-200 ${
                 (index / waveform.length) * 100 <= progress
-                  ? 'bg-blue-600'
-                  : 'bg-blue-300'
+                  ? 'bg-primary'
+                  : 'bg-primary/30'
               }`}
               style={{ height: `${Math.max(2, amplitude * 60)}px` }}
             />
           ))}
         </div>
         <div 
-          className="absolute top-0 bottom-0 w-0.5 bg-red-500 transition-all duration-100"
+          className="absolute top-0 bottom-0 w-0.5 bg-destructive transition-all duration-100"
           style={{ left: `${progress}%` }}
         />
       </div>
@@ -181,9 +181,9 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
   };
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+    <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-purple-800">
+        <CardTitle className="flex items-center gap-3 text-accent">
           <Play className="h-6 w-6" />
           Paroles Synchronisées - {title}
         </CardTitle>
@@ -197,14 +197,14 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
         {renderWaveform()}
 
         {/* Controls principaux */}
-        <div className="flex items-center justify-center gap-4 p-4 bg-white/60 rounded-lg border border-purple-200">
+        <div className="flex items-center justify-center gap-4 p-4 bg-background/60 rounded-lg border border-accent/20">
           <Button onClick={skipBackward} variant="outline" size="sm">
             <SkipBack className="h-4 w-4" />
           </Button>
           
           <Button
             onClick={togglePlayPause}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90"
             size="lg"
           >
             {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
@@ -217,7 +217,7 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
 
         {/* Progress Bar */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-purple-700">
+          <div className="flex justify-between text-sm text-accent">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -231,7 +231,7 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
         </div>
 
         {/* Volume Control */}
-        <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-purple-200">
+        <div className="flex items-center gap-3 p-3 bg-background/60 rounded-lg border border-accent/20">
           <Button onClick={toggleMute} variant="outline" size="sm">
             {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           </Button>
@@ -247,31 +247,31 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
         {/* Lyrics Display */}
         <div 
           ref={lyricsContainerRef}
-          className="max-h-80 overflow-y-auto bg-white/80 rounded-lg border border-purple-200 p-4 space-y-2"
+          className="max-h-80 overflow-y-auto bg-background/80 rounded-lg border border-accent/20 p-4 space-y-2"
         >
           {lyrics.length > 0 ? (
             lyrics.map((lyric, index) => (
               <div
                 key={index}
-                className={`p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-purple-100 ${
+                className={`p-3 rounded-lg transition-all duration-300 cursor-pointer hover:bg-accent/10 ${
                   index === currentLyricIndex
-                    ? 'bg-gradient-to-r from-purple-200 to-pink-200 border-l-4 border-purple-500 text-purple-900 font-semibold scale-105'
+                    ? 'bg-gradient-to-r from-accent/20 to-primary/20 border-l-4 border-accent text-accent font-semibold scale-105'
                     : index < currentLyricIndex
-                    ? 'text-gray-500 bg-gray-50'
-                    : 'text-gray-700 bg-white hover:bg-purple-50'
+                    ? 'text-muted-foreground bg-muted/50'
+                    : 'text-foreground bg-background hover:bg-accent/10'
                 }`}
                 onClick={() => seekToLyric(lyric.time)}
               >
                 <div className="flex justify-between items-center">
                   <span className="text-sm">{lyric.text}</span>
-                  <span className="text-xs text-purple-600 ml-2">
+                  <span className="text-xs text-accent ml-2">
                     {formatTime(lyric.time)}
                   </span>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               Aucune parole synchronisée disponible
             </div>
           )}
@@ -279,8 +279,8 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
 
         {/* Progress Indicator */}
         {lyrics.length > 0 && (
-          <div className="bg-white/60 rounded-lg p-3 border border-purple-200">
-            <div className="flex justify-between text-sm text-purple-700 mb-2">
+          <div className="bg-background/60 rounded-lg p-3 border border-accent/20">
+            <div className="flex justify-between text-sm text-accent mb-2">
               <span>Progression</span>
               <span>{currentLyricIndex + 1} / {lyrics.length}</span>
             </div>

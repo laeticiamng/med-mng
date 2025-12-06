@@ -12,7 +12,7 @@ export const ParolesMusicalesEmptyState: React.FC<ParolesMusicalesEmptyStateProp
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Music className="h-6 w-6 text-amber-600" />
+          <Music className="h-6 w-6 text-warning" />
           Génération Musicale - {itemCode}
         </CardTitle>
         <CardDescription>
@@ -21,15 +21,15 @@ export const ParolesMusicalesEmptyState: React.FC<ParolesMusicalesEmptyStateProp
       </CardHeader>
       <CardContent>
         <div className="text-center py-12">
-          <AlertTriangle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          <AlertTriangle className="h-16 w-16 text-warning mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             Données manquantes
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Les paroles et les tableaux de données ne sont pas encore disponibles pour cet item.
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800 text-sm">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+            <p className="text-primary text-sm">
               📝 <strong>En cours de développement</strong> - Le contenu musical sera ajouté prochainement.
             </p>
           </div>

@@ -201,13 +201,13 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
                 />
               </div>
               
-              <span className="text-sm text-gray-500 min-w-[100px]">
+              <span className="text-sm text-muted-foreground min-w-[100px]">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Volume2 className="h-4 w-4 text-gray-500" />
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
               <Slider
                 value={[volume]}
                 max={100}
@@ -215,7 +215,7 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
                 onValueChange={handleVolumeChange}
                 className="w-32"
               />
-              <span className="text-sm text-gray-500 min-w-[40px]">{volume}%</span>
+              <span className="text-sm text-muted-foreground min-w-[40px]">{volume}%</span>
             </div>
           </CardContent>
         </Card>
@@ -261,7 +261,7 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+          <div className="text-sm text-muted-foreground bg-primary/10 p-3 rounded-lg">
             <TranslatedText text="Format: [MM:SS.XX] Texte de la ligne" />
             <br />
             <TranslatedText text="Exemple: [01:23.45] Première ligne des paroles" />
@@ -275,11 +275,11 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
           />
           
           {currentLineIndex >= 0 && lyricsData?.lyrics_data && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
-              <div className="text-sm text-yellow-800">
+            <div className="bg-warning/10 border-l-4 border-warning p-3">
+              <div className="text-sm text-warning">
                 <strong>Ligne actuelle:</strong> {lyricsData.lyrics_data[currentLineIndex]?.text}
               </div>
-              <div className="text-xs text-yellow-600">
+              <div className="text-xs text-warning/80">
                 Temps: {formatTime(lyricsData.lyrics_data[currentLineIndex]?.time || 0)}
               </div>
             </div>
@@ -297,7 +297,7 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
             <Button
               onClick={handleSave}
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <Save className="h-4 w-4 mr-2" />
               <TranslatedText text={loading ? "Sauvegarde..." : "Sauvegarder"} />
