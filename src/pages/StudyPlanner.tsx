@@ -121,29 +121,29 @@ const StudyPlanner = () => {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'edn': return 'bg-blue-100 text-blue-800';
-      case 'music': return 'bg-purple-100 text-purple-800';
-      case 'quiz': return 'bg-green-100 text-green-800';
-      case 'revision': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'edn': return 'bg-primary/10 text-primary';
+      case 'music': return 'bg-accent/10 text-accent';
+      case 'quiz': return 'bg-success/10 text-success';
+      case 'revision': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'easy': return 'bg-success/10 text-success';
+      case 'medium': return 'bg-warning/10 text-warning';
+      case 'hard': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-destructive/10 text-destructive';
+      case 'medium': return 'bg-warning/10 text-warning';
+      case 'low': return 'bg-success/10 text-success';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 

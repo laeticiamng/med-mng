@@ -13,13 +13,13 @@ export const SLAMetricsDisplay: React.FC<SLAMetricsDisplayProps> = ({ slas }) =>
   const getStatusColor = (status: SLAMetric['status']) => {
     switch (status) {
       case 'met':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-success/10 text-success dark:bg-success/20 dark:text-success';
       case 'warning':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning';
       case 'breach':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive';
       default:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary';
     }
   };
 

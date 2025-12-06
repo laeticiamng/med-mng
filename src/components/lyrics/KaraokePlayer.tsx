@@ -189,7 +189,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher dans les paroles..."
-            className="bg-white/10 border-white/20 text-white placeholder-white/60"
+            className="bg-background/10 border-border/20 text-foreground placeholder-muted-foreground"
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <Button variant="secondary" size="sm" onClick={handleSearch}>
@@ -200,7 +200,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
         {/* Export */}
         <div className="flex items-center space-x-2">
           <Select value={exportFormat} onValueChange={(value: 'lrc' | 'srt' | 'txt') => setExportFormat(value)}>
-            <SelectTrigger className="w-24 bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="w-24 bg-background/10 border-border/20 text-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

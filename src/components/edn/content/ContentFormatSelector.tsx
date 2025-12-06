@@ -242,13 +242,13 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
           </CardHeader>
           <CardContent>
             <div className="bg-white p-4 rounded-lg border border-yellow-200">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
                 {generatePreviewContent(contentFormats.find(f => f.id === previewFormat)!)}
               </pre>
             </div>
             <div className="mt-4 flex gap-2">
               <Button
-                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
+                className="bg-gradient-to-r from-warning to-warning/80 hover:from-warning/90 hover:to-warning/70 text-warning-foreground"
               >
                 Générer le contenu complet
               </Button>
