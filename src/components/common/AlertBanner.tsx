@@ -102,15 +102,15 @@ export function AlertBanner({
   const getPriorityColor = () => {
     switch (priority) {
       case 'urgent':
-        return 'bg-red-600 text-white';
+        return 'bg-destructive text-destructive-foreground';
       case 'high':
-        return 'bg-orange-500 text-white';
+        return 'bg-warning text-warning-foreground';
       case 'medium':
-        return 'bg-yellow-500 text-black';
+        return 'bg-warning/80 text-foreground';
       case 'low':
-        return 'bg-blue-500 text-white';
+        return 'bg-primary text-primary-foreground';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -200,7 +200,7 @@ export function AlertBanner({
       {/* Critical alert additional styling */}
       {type === 'critical' && (
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 border-2 border-red-500 rounded animate-pulse" />
+          <div className="absolute inset-0 border-2 border-destructive rounded animate-pulse" />
         </div>
       )}
 

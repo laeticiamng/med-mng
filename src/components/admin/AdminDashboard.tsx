@@ -340,12 +340,12 @@ export const AdminDashboard: React.FC = () => {
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {recentActivity.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">Aucune activité récente</p>
+                <p className="text-center text-muted-foreground py-8">Aucune activité récente</p>
               ) : (
                 recentActivity.map((activity) => (
                   <div key={activity.id} className={`flex items-center justify-between p-3 border rounded-lg ${getStatusColor(activity.status)}`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : activity.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-success' : activity.status === 'warning' ? 'bg-warning' : 'bg-destructive'}`} />
                       <div>
                         <p className="text-sm font-medium">{activity.description}</p>
                         <p className="text-xs opacity-70">
@@ -541,7 +541,7 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Dernière mise à jour</span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-muted-foreground">
                         {new Date(systemStats.lastUpdate).toLocaleTimeString('fr-FR', {
                           hour: '2-digit',
                           minute: '2-digit'
@@ -594,28 +594,28 @@ export const AdminDashboard: React.FC = () => {
                     <Database className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">Migration données</div>
-                      <div className="text-sm text-gray-600">Outils de migration et backup</div>
+                      <div className="text-sm text-muted-foreground">Outils de migration et backup</div>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto p-4 justify-start">
                     <Search className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">Recherche avancée</div>
-                      <div className="text-sm text-gray-600">Filtrage et recherche intelligente</div>
+                      <div className="text-sm text-muted-foreground">Filtrage et recherche intelligente</div>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto p-4 justify-start">
                     <Edit className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">Édition rapide</div>
-                      <div className="text-sm text-gray-600">Modification en lot</div>
+                      <div className="text-sm text-muted-foreground">Modification en lot</div>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto p-4 justify-start">
                     <Activity className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">Monitoring temps réel</div>
-                      <div className="text-sm text-gray-600">Surveillance système</div>
+                      <div className="text-sm text-muted-foreground">Surveillance système</div>
                     </div>
                   </Button>
                 </CardContent>
