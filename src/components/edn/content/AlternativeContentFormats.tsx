@@ -105,7 +105,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
       title: 'Roman médical',
       description: 'Récit narratif intégrant les connaissances médicales',
       icon: BookOpen,
-      color: 'bg-emerald-500',
+      color: 'bg-success',
       estimated_time: '5-7 minutes de lecture'
     },
     {
@@ -113,7 +113,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
       title: 'Script podcast',
       description: 'Dialogue pédagogique entre experts médicaux',
       icon: Headphones,
-      color: 'bg-purple-500',
+      color: 'bg-accent',
       estimated_time: '15 minutes d\'écoute'
     },
     {
@@ -121,7 +121,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
       title: 'Script vidéo',
       description: 'Contenu vidéo éducatif avec indications visuelles',
       icon: Video,
-      color: 'bg-blue-500',
+      color: 'bg-primary',
       estimated_time: '10 minutes de visionnage'
     },
     {
@@ -129,7 +129,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
       title: 'Infographie',
       description: 'Présentation visuelle synthétique des concepts',
       icon: FileText,
-      color: 'bg-orange-500',
+      color: 'bg-warning',
       estimated_time: '2-3 minutes de lecture'
     }
   ];
@@ -164,7 +164,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-lg ${format.color} text-white`}>
+                    <div className={`p-3 rounded-lg ${format.color} text-primary-foreground`}>
                       <format.icon className="h-6 w-6" />
                     </div>
                     <div>
@@ -239,33 +239,33 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
       </Tabs>
 
       {/* Résumé des fonctionnalités */}
-      <Card className="bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200">
+      <Card className="bg-gradient-to-r from-muted to-muted/50 border-border">
         <CardHeader>
-          <CardTitle className="text-gray-800">Avantages des formats alternatifs</CardTitle>
+          <CardTitle className="text-foreground">Avantages des formats alternatifs</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h4 className="font-semibold text-emerald-700">📚 Diversité pédagogique</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-semibold text-success">📚 Diversité pédagogique</h4>
+              <p className="text-sm text-muted-foreground">
                 Adaptez votre apprentissage selon vos préférences : lecture, écoute, visuel
               </p>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-purple-700">🎯 Mémorisation renforcée</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-semibold text-accent">🎯 Mémorisation renforcée</h4>
+              <p className="text-sm text-muted-foreground">
                 Les différents formats stimulent différentes zones du cerveau pour une meilleure rétention
               </p>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-blue-700">⚡ Accessible partout</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-semibold text-primary">⚡ Accessible partout</h4>
+              <p className="text-sm text-muted-foreground">
                 Révisez en déplacement avec les formats audio et téléchargeables
               </p>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-orange-700">🔄 Contenu adaptatif</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-semibold text-warning">🔄 Contenu adaptatif</h4>
+              <p className="text-sm text-muted-foreground">
                 Chaque format est spécialement conçu pour maximiser l'efficacité pédagogique
               </p>
             </div>

@@ -81,17 +81,17 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
   return (
     <div className={containerClass}>
       <Card className={`border-2 border-orange-200 ${isFullscreen ? 'border-none' : ''}`}>
-        <CardHeader className={`bg-gradient-to-r from-orange-500 to-red-500 text-white ${isFullscreen ? 'px-6 py-4' : ''}`}>
+        <CardHeader className={`bg-gradient-to-r from-primary to-accent text-primary-foreground ${isFullscreen ? 'px-6 py-4' : ''}`}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
               {data.title} - Bande Dessinée
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+              <Badge variant="outline" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
                 {data.panels.length} panels
               </Badge>
-              <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+              <Badge variant="outline" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
                 {data.style}
               </Badge>
             </div>
@@ -181,7 +181,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                         {data.panels[currentPanel].text}
                       </p>
                       {data.panels[currentPanel].character && (
-                        <p className="text-xs text-blue-600 mt-1">
+                        <p className="text-xs text-primary mt-1">
                           — {data.panels[currentPanel].character}
                         </p>
                       )}
@@ -216,13 +216,13 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                         }}
                       />
                       <div className="absolute top-2 left-2">
-                        <Badge className="bg-black bg-opacity-70 text-white">
+                        <Badge className="bg-foreground/70 text-background">
                           {index + 1}
                         </Badge>
                       </div>
                       {panel.text && (
-                        <div className="p-2 bg-white border-t">
-                          <p className="text-xs text-gray-600 line-clamp-2">
+                        <div className="p-2 bg-card border-t">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
                             {panel.text}
                           </p>
                         </div>
