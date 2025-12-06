@@ -274,10 +274,10 @@ function SignupPattern() {
               {password && (
                 <div className="space-y-1">
                   <div className="flex gap-1">
-                    <div className={`h-1 flex-1 rounded ${password.length >= 8 ? 'bg-green-500' : 'bg-muted'}`} />
-                    <div className={`h-1 flex-1 rounded ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-muted'}`} />
-                    <div className={`h-1 flex-1 rounded ${/[0-9]/.test(password) ? 'bg-green-500' : 'bg-muted'}`} />
-                    <div className={`h-1 flex-1 rounded ${/[^A-Za-z0-9]/.test(password) ? 'bg-green-500' : 'bg-muted'}`} />
+                    <div className={`h-1 flex-1 rounded ${password.length >= 8 ? 'bg-success' : 'bg-muted'}`} />
+                    <div className={`h-1 flex-1 rounded ${/[A-Z]/.test(password) ? 'bg-success' : 'bg-muted'}`} />
+                    <div className={`h-1 flex-1 rounded ${/[0-9]/.test(password) ? 'bg-success' : 'bg-muted'}`} />
+                    <div className={`h-1 flex-1 rounded ${/[^A-Za-z0-9]/.test(password) ? 'bg-success' : 'bg-muted'}`} />
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Doit contenir 8+ caractères, majuscule, chiffre et caractère spécial
@@ -382,8 +382,8 @@ function ForgotPasswordPattern() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
-            <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
-              <Mail className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="mx-auto w-12 h-12 bg-success/10 dark:bg-success/20 rounded-full flex items-center justify-center mb-4">
+              <Mail className="h-6 w-6 text-success" />
             </div>
             <CardTitle className="text-2xl font-bold">Email envoyé</CardTitle>
             <CardDescription>

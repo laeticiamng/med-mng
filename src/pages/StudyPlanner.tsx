@@ -381,21 +381,21 @@ const StudyPlanner = () => {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-success rounded-full"></div>
                       Facile
                     </span>
                     <span className="font-semibold">95%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-warning rounded-full"></div>
                       Moyen
                     </span>
                     <span className="font-semibold">82%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-destructive rounded-full"></div>
                       Difficile
                     </span>
                     <span className="font-semibold">68%</span>
