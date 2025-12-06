@@ -112,25 +112,25 @@ export const AuditComprehensif = () => {
   };
 
   const dataDistribution = [
-    { name: 'Excellent', value: Object.values(auditComplet).filter(i => i.status === 'excellent').length, color: '#10B981' },
-    { name: 'Bon', value: Object.values(auditComplet).filter(i => i.status === 'bon').length, color: '#3B82F6' },
-    { name: 'À améliorer', value: Object.values(auditComplet).filter(i => i.status === 'ameliorer').length, color: '#F59E0B' },
-    { name: 'Insuffisant', value: Object.values(auditComplet).filter(i => i.status === 'insuffisant').length, color: '#EF4444' }
+    { name: 'Excellent', value: Object.values(auditComplet).filter(i => i.status === 'excellent').length, color: 'hsl(var(--success))' },
+    { name: 'Bon', value: Object.values(auditComplet).filter(i => i.status === 'bon').length, color: 'hsl(var(--primary))' },
+    { name: 'À améliorer', value: Object.values(auditComplet).filter(i => i.status === 'ameliorer').length, color: 'hsl(var(--warning))' },
+    { name: 'Insuffisant', value: Object.values(auditComplet).filter(i => i.status === 'insuffisant').length, color: 'hsl(var(--destructive))' }
   ];
 
   const getPrioriteColor = (priorite: string) => {
-    if (priorite.includes('CRITIQUE')) return 'text-red-700';
-    if (priorite.includes('URGENT')) return 'text-orange-700';
-    return 'text-blue-700';
+    if (priorite.includes('CRITIQUE')) return 'text-destructive';
+    if (priorite.includes('URGENT')) return 'text-warning';
+    return 'text-primary';
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'insuffisant': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'excellent': return 'bg-success/10 text-success border-success/30';
+      case 'bon': return 'bg-primary/10 text-primary border-primary/30';
+      case 'ameliorer': return 'bg-warning/10 text-warning border-warning/30';
+      case 'insuffisant': return 'bg-destructive/10 text-destructive border-destructive/30';
+      default: return 'bg-muted text-muted-foreground border-muted';
     }
   };
 
@@ -202,7 +202,7 @@ export const AuditComprehensif = () => {
               <XAxis dataKey="item" />
               <YAxis domain={[60, 100]} />
               <Tooltip />
-              <Bar dataKey="score" fill="#3B82F6" />
+              <Bar dataKey="score" fill="hsl(var(--primary))" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -210,7 +210,7 @@ export const AuditComprehensif = () => {
 
       {/* Analyse détaillée par item selon LiSA */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
+        <h2 className="text-2xl font-bold text-foreground flex items-center space-x-2">
           <Target className="h-6 w-6" />
           <span>Analyse Détaillée par Item selon LiSA</span>
         </h2>
@@ -221,18 +221,18 @@ export const AuditComprehensif = () => {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-xl font-bold text-gray-800">{code}</h3>
+                    <h3 className="text-xl font-bold text-foreground">{code}</h3>
                     <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                    <div className="text-2xl font-bold text-gray-800">{item.scoreGlobal}%</div>
+                    <div className="text-2xl font-bold text-foreground">{item.scoreGlobal}%</div>
                   </div>
-                  <p className="text-gray-600 mb-2">{item.title}</p>
+                  <p className="text-muted-foreground mb-2">{item.title}</p>
                   <p className={`font-medium ${getPrioriteColor(item.priorite)}`}>{item.priorite}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Métriques LiSA</h4>
+                  <h4 className="font-medium text-foreground mb-2">Métriques LiSA</h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Conformité LiSA:</span>
@@ -254,7 +254,7 @@ export const AuditComprehensif = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Concepts LiSA Officiels</h4>
+                  <h4 className="font-medium text-foreground mb-2">Concepts LiSA Officiels</h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Rang A:</span>
@@ -268,7 +268,7 @@ export const AuditComprehensif = () => {
                       <span>Total LiSA:</span>
                       <span className="font-medium">{item.conceptsLiSATotal}</span>
                     </div>
-                    <div className="flex justify-between font-semibold text-blue-600">
+                    <div className="flex justify-between font-semibold text-primary">
                       <span>Conformité:</span>
                       <span>{Math.round((item.conformiteELisa/100) * item.conceptsLiSATotal)}/{item.conceptsLiSATotal}</span>
                     </div>
@@ -276,11 +276,11 @@ export const AuditComprehensif = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Actions Prioritaires LiSA</h4>
+                  <h4 className="font-medium text-foreground mb-2">Actions Prioritaires LiSA</h4>
                   <ul className="space-y-1 text-sm">
                     {item.actions.map((action, index) => (
                       <li key={index} className="flex items-start space-x-2">
-                        <span className="text-blue-500 mt-1">•</span>
+                        <span className="text-primary mt-1">•</span>
                         <span>{action}</span>
                       </li>
                     ))}
@@ -293,16 +293,16 @@ export const AuditComprehensif = () => {
       </div>
 
       {/* Plan d'action stratégique selon LiSA */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="p-6 bg-gradient-to-r from-primary/10 to-accent/10">
         <div className="flex items-center space-x-2 mb-4">
-          <Award className="h-6 w-6 text-blue-600" />
-          <h3 className="text-xl font-semibold text-gray-800">Plan d'Action Stratégique selon LiSA</h3>
+          <Award className="h-6 w-6 text-primary" />
+          <h3 className="text-xl font-semibold text-foreground">Plan d'Action Stratégique selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-3">🚨 Actions Critiques LiSA (0-3 mois)</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h4 className="font-medium text-destructive mb-3">🚨 Actions Critiques LiSA (0-3 mois)</h4>
+            <ul className="space-y-2 text-sm text-foreground">
               <li>• <strong>IC-5:</strong> Compléter 5 concepts Rang A manquants</li>
               <li>• <strong>IC-3:</strong> Ajouter 4 concepts LiSA manquants</li>
               <li>• Atteindre conformité LiSA minimale 80%</li>
@@ -311,8 +311,8 @@ export const AuditComprehensif = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-orange-700 mb-3">⚠️ Actions Urgentes LiSA (3-6 mois)</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h4 className="font-medium text-warning mb-3">⚠️ Actions Urgentes LiSA (3-6 mois)</h4>
+            <ul className="space-y-2 text-sm text-foreground">
               <li>• <strong>IC-1:</strong> Maintenir niveau et moderniser</li>
               <li>• <strong>IC-2:</strong> Conserver excellence déontologique</li>
               <li>• Actualiser tous contenus selon LiSA 2024</li>
@@ -321,8 +321,8 @@ export const AuditComprehensif = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-blue-700 mb-3">📈 Excellence LiSA (6-12 mois)</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <h4 className="font-medium text-primary mb-3">📈 Excellence LiSA (6-12 mois)</h4>
+            <ul className="space-y-2 text-sm text-foreground">
               <li>• Généraliser modèle IC-4 (95% excellence)</li>
               <li>• Atteindre 90% conformité LiSA globale</li>
               <li>• 84/84 concepts LiSA maîtrisés</li>
@@ -334,23 +334,23 @@ export const AuditComprehensif = () => {
 
       {/* Indicateurs LiSA */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Indicateurs de Performance LiSA</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Indicateurs de Performance LiSA</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{Object.values(auditComplet).filter(i => i.status === 'excellent').length}/5</div>
-            <div className="text-sm text-gray-600">Items Excellents</div>
+          <div className="text-center p-4 bg-muted rounded-lg">
+            <div className="text-2xl font-bold text-foreground">{Object.values(auditComplet).filter(i => i.status === 'excellent').length}/5</div>
+            <div className="text-sm text-muted-foreground">Items Excellents</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangA}/65</div>
-            <div className="text-sm text-gray-600">Concepts Rang A</div>
+          <div className="text-center p-4 bg-muted rounded-lg">
+            <div className="text-2xl font-bold text-foreground">{metriquesGlobales.totalConceptsRangA}/65</div>
+            <div className="text-sm text-muted-foreground">Concepts Rang A</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangB}/10</div>
-            <div className="text-sm text-gray-600">Concepts Rang B</div>
+          <div className="text-center p-4 bg-muted rounded-lg">
+            <div className="text-2xl font-bold text-foreground">{metriquesGlobales.totalConceptsRangB}/10</div>
+            <div className="text-sm text-muted-foreground">Concepts Rang B</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{Math.round((metriquesGlobales.totalConceptsLiSA / 84) * 100)}%</div>
-            <div className="text-sm text-gray-600">Complétude LiSA</div>
+          <div className="text-center p-4 bg-muted rounded-lg">
+            <div className="text-2xl font-bold text-foreground">{Math.round((metriquesGlobales.totalConceptsLiSA / 84) * 100)}%</div>
+            <div className="text-sm text-muted-foreground">Complétude LiSA</div>
           </div>
         </div>
       </Card>
