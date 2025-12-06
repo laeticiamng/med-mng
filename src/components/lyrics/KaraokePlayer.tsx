@@ -143,7 +143,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-6 rounded-lg ${className}`}>
+      <div className={`bg-gradient-to-br from-accent via-primary to-primary/80 text-primary-foreground p-6 rounded-lg ${className}`}>
         <div className="animate-pulse text-center">
           <TranslatedText text="Chargement des paroles synchronisées..." />
         </div>
@@ -153,12 +153,12 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
 
   if (!lyricsData?.lyrics_data || lyricsData.lyrics_data.length === 0) {
     return (
-      <div className={`bg-gradient-to-br from-gray-800 to-gray-900 text-white p-8 rounded-lg text-center ${className}`}>
-        <Volume2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+      <div className={`bg-gradient-to-br from-muted to-muted/80 text-foreground p-8 rounded-lg text-center ${className}`}>
+        <Volume2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-xl font-semibold mb-2">
           <TranslatedText text="Paroles non disponibles" />
         </h3>
-        <p className="text-gray-400">
+        <p className="text-muted-foreground">
           <TranslatedText text="Les paroles synchronisées ne sont pas encore disponibles pour cette chanson" />
         </p>
       </div>
@@ -166,7 +166,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
   }
 
   return (
-    <div className={`bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white rounded-lg overflow-hidden ${className}`}>
+    <div className={`bg-gradient-to-br from-accent via-primary to-primary/80 text-primary-foreground rounded-lg overflow-hidden ${className}`}>
       {/* Header avec contrôles */}
       <div className="p-4 bg-black/20 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">

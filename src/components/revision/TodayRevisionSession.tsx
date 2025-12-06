@@ -78,47 +78,47 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
     const strugglingConcepts = sessionResults.filter(r => !r.success);
 
     return (
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+      <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-800">
+          <CardTitle className="flex items-center gap-2 text-success">
             <CheckCircle2 className="h-6 w-6" />
             Session de révision terminée !
           </CardTitle>
-          <CardDescription className="text-green-700">
+          <CardDescription className="text-success/80">
             Excellente session de révision personnalisée
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Résultats de la session */}
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-white/60 rounded-lg p-3">
-              <p className="text-2xl font-bold text-green-600">{Math.round(successRate)}%</p>
-              <p className="text-sm text-green-700">Taux de réussite</p>
+            <div className="bg-background/60 rounded-lg p-3">
+              <p className="text-2xl font-bold text-success">{Math.round(successRate)}%</p>
+              <p className="text-sm text-success/80">Taux de réussite</p>
             </div>
-            <div className="bg-white/60 rounded-lg p-3">
-              <p className="text-2xl font-bold text-blue-600">{sessionDuration}min</p>
-              <p className="text-sm text-blue-700">Durée</p>
+            <div className="bg-background/60 rounded-lg p-3">
+              <p className="text-2xl font-bold text-primary">{sessionDuration}min</p>
+              <p className="text-sm text-primary/80">Durée</p>
             </div>
-            <div className="bg-white/60 rounded-lg p-3">
-              <p className="text-2xl font-bold text-purple-600">{items.length}</p>
-              <p className="text-sm text-purple-700">Concepts</p>
+            <div className="bg-background/60 rounded-lg p-3">
+              <p className="text-2xl font-bold text-accent">{items.length}</p>
+              <p className="text-sm text-accent/80">Concepts</p>
             </div>
           </div>
 
           {/* Concepts à retravailler */}
           {strugglingConcepts.length > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <h4 className="font-medium text-orange-800 mb-2 flex items-center gap-2">
+            <div className="bg-warning/5 border border-warning/20 rounded-lg p-4">
+              <h4 className="font-medium text-warning mb-2 flex items-center gap-2">
                 <Target className="h-4 w-4" />
                 Concepts à retravailler ({strugglingConcepts.length})
               </h4>
               <div className="space-y-2">
                 {strugglingConcepts.map((result, index) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
-                    <Badge variant="secondary" className="text-orange-700">
+                    <Badge variant="secondary" className="text-warning">
                       {result.item.item_code}
                     </Badge>
-                    <span className="text-orange-600">{result.item.concept}</span>
+                    <span className="text-warning/90">{result.item.concept}</span>
                   </div>
                 ))}
               </div>
@@ -138,9 +138,9 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
 
   if (!currentItem) {
     return (
-      <Card className="border-gray-200">
+      <Card className="border-border">
         <CardContent className="p-6 text-center">
-          <p className="text-gray-500">Aucun concept à réviser</p>
+          <p className="text-muted-foreground">Aucun concept à réviser</p>
         </CardContent>
       </Card>
     );
@@ -150,7 +150,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
     <div className="space-y-4">
       {/* Progression */}
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <span>Question {currentIndex + 1} sur {items.length}</span>
           <span>{Math.round(progress)}% complété</span>
         </div>
@@ -158,10 +158,10 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
       </div>
 
       {/* Carte de révision actuelle */}
-      <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-blue-800">
+            <CardTitle className="flex items-center gap-2 text-primary">
               <Brain className="h-5 w-5" />
               {currentItem.concept}
             </CardTitle>
@@ -178,21 +178,21 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
               </Badge>
             </div>
           </div>
-          <CardDescription className="text-blue-700">
+          <CardDescription className="text-primary/80">
             Erreurs: {currentItem.error_frequency} • Maîtrise: {currentItem.mastery_level}%
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Question de révision */}
-          <div className="bg-white/60 rounded-lg p-4 border border-blue-200">
-            <p className="font-medium text-gray-800 mb-2">
+          <div className="bg-background/60 rounded-lg p-4 border border-primary/20">
+            <p className="font-medium text-foreground mb-2">
               Pouvez-vous expliquer ce concept ?
             </p>
-            <p className="text-gray-700">{currentItem.concept}</p>
+            <p className="text-foreground/80">{currentItem.concept}</p>
             
             {currentItem.tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1">
-                <span className="text-xs text-gray-500">Mots-clés:</span>
+                <span className="text-xs text-muted-foreground">Mots-clés:</span>
                 {currentItem.tags.map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {tag}
@@ -204,9 +204,9 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
 
           {/* Réponse (si révélée) */}
           {showAnswer && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2">Points clés à retenir:</h4>
-              <ul className="space-y-1 text-green-700">
+            <div className="bg-success/5 border border-success/20 rounded-lg p-4">
+              <h4 className="font-medium text-success mb-2">Points clés à retenir:</h4>
+              <ul className="space-y-1 text-success/90">
                 <li>• Concept fondamental de {currentItem.item_code}</li>
                 <li>• {currentItem.concept}</li>
                 {currentItem.tags.map((tag, index) => (
@@ -221,7 +221,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
             {!showAnswer ? (
               <Button 
                 onClick={handleRevealAnswer}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-primary hover:bg-primary/90"
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Révéler la réponse
@@ -231,14 +231,14 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
                 <Button 
                   onClick={() => handleAnswer(false)}
                   variant="outline"
-                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                  className="flex-1 border-destructive/20 text-destructive hover:bg-destructive/5"
                 >
                   <XCircle className="h-4 w-4 mr-2" />
                   Difficile
                 </Button>
                 <Button 
                   onClick={() => handleAnswer(true)}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1 bg-success hover:bg-success/90"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Maîtrisé

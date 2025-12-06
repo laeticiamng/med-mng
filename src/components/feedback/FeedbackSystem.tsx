@@ -27,10 +27,10 @@ export const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const feedbackTypes = [
-    { id: 'general', label: 'Général', icon: MessageSquare, color: 'bg-blue-100 text-blue-800' },
-    { id: 'bug', label: 'Bug/Problème', icon: Bug, color: 'bg-red-100 text-red-800' },
-    { id: 'feature', label: 'Nouvelle fonctionnalité', icon: Lightbulb, color: 'bg-yellow-100 text-yellow-800' },
-    { id: 'improvement', label: 'Amélioration', icon: ThumbsUp, color: 'bg-green-100 text-green-800' }
+    { id: 'general', label: 'Général', icon: MessageSquare, color: 'bg-primary/10 text-primary' },
+    { id: 'bug', label: 'Bug/Problème', icon: Bug, color: 'bg-destructive/10 text-destructive' },
+    { id: 'feature', label: 'Nouvelle fonctionnalité', icon: Lightbulb, color: 'bg-warning/10 text-warning' },
+    { id: 'improvement', label: 'Amélioration', icon: ThumbsUp, color: 'bg-success/10 text-success' }
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,8 +104,8 @@ export const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
                 <Star
                   className={`w-6 h-6 ${
                     star <= rating 
-                      ? 'fill-yellow-400 text-yellow-400' 
-                      : 'text-gray-300'
+                      ? 'fill-warning text-warning' 
+                      : 'text-muted-foreground'
                   }`}
                 />
               </button>

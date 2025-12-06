@@ -46,13 +46,13 @@ export const MusicLibraryGrid = ({ musics, playingId, onPlay, onDelete }: MusicL
             <div className="p-4">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                  <h3 className="font-semibold text-foreground mb-1 truncate">
                     {music.title}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {music.item_code || 'N/A'} - Rang {music.rang}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-muted-foreground/70 mt-1">
                     Style: {music.music_style}
                   </p>
                 </div>
@@ -60,14 +60,14 @@ export const MusicLibraryGrid = ({ musics, playingId, onPlay, onDelete }: MusicL
                   variant="ghost"
                   size="sm"
                   onClick={() => onDelete(music.id)}
-                  className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-destructive hover:text-destructive/80 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-muted-foreground/70">
                   {new Date(music.created_at).toLocaleDateString('fr-FR')}
                 </span>
                 <Button

@@ -109,10 +109,10 @@ export const SentryErrorMonitor = () => {
 
   const getErrorIcon = (level: string) => {
     switch (level) {
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'warning': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      case 'info': return <CheckCircle className="h-4 w-4 text-blue-500" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
+      case 'error': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'warning': return <AlertCircle className="h-4 w-4 text-warning" />;
+      case 'info': return <CheckCircle className="h-4 w-4 text-primary" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -171,19 +171,19 @@ export const SentryErrorMonitor = () => {
       <CardContent>
         <div className="space-y-4">
           {/* Statut de connexion */}
-          <Card className={`p-4 ${isConnected ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+          <Card className={`p-4 ${isConnected ? 'border-success/20 bg-success/5' : 'border-destructive/20 bg-destructive/5'}`}>
             <div className="flex items-center gap-2">
               {isConnected ? (
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-success" />
               ) : (
-                <XCircle className="h-5 w-5 text-red-600" />
+                <XCircle className="h-5 w-5 text-destructive" />
               )}
-              <span className={`font-medium ${isConnected ? 'text-green-800' : 'text-red-800'}`}>
+              <span className={`font-medium ${isConnected ? 'text-success' : 'text-destructive'}`}>
                 {isConnected ? 'Sentry opérationnel' : 'Sentry non configuré'}
               </span>
             </div>
             {!isConnected && (
-              <p className="text-sm text-red-600 mt-1">
+              <p className="text-sm text-destructive/80 mt-1">
                 Configurez votre DSN Sentry dans src/utils/sentry.ts pour activer le monitoring
               </p>
             )}
@@ -248,11 +248,11 @@ export const SentryErrorMonitor = () => {
 
           {/* Configuration */}
           {import.meta.env.MODE === 'development' && (
-            <Card className="p-4 border-blue-200 bg-blue-50">
-              <CardTitle className="text-sm text-blue-800 mb-2">
+            <Card className="p-4 border-primary/20 bg-primary/5">
+              <CardTitle className="text-sm text-primary mb-2">
                 Configuration développement
               </CardTitle>
-              <div className="text-sm text-blue-700 space-y-1">
+              <div className="text-sm text-primary/80 space-y-1">
                 <p>• Erreurs simulées toutes les 30 secondes</p>
                 <p>• DSN Sentry à configurer dans src/utils/sentry.ts</p>
                 <p>• Les erreurs sont automatiquement envoyées vers Sentry si configuré</p>

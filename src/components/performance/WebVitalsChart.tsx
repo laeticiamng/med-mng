@@ -55,13 +55,13 @@ export const WebVitalsChart: React.FC<WebVitalsChartProps> = ({ data, detailed =
   const getRatingColor = (rating: WebVital['rating']) => {
     switch (rating) {
       case 'good':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-success/10 text-success';
       case 'needs-improvement':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-warning/10 text-warning';
       case 'poor':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-destructive/10 text-destructive';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -95,13 +95,13 @@ export const WebVitalsChart: React.FC<WebVitalsChartProps> = ({ data, detailed =
   const getProgressColor = (rating: WebVital['rating']) => {
     switch (rating) {
       case 'good':
-        return 'bg-green-500';
+        return 'bg-success';
       case 'needs-improvement':
-        return 'bg-yellow-500';
+        return 'bg-warning';
       case 'poor':
-        return 'bg-red-500';
+        return 'bg-destructive';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted-foreground';
     }
   };
 
@@ -167,7 +167,7 @@ export const WebVitalsChart: React.FC<WebVitalsChartProps> = ({ data, detailed =
               </Badge>
             </div>
             <div className="text-xl font-bold">{config.format(vital.value)}</div>
-            <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+            <div className="w-full bg-muted rounded-full h-2">
               <div 
                 className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(vital.rating)}`}
                 style={{ width: `${Math.min(getProgressValue(key, vital.value), 100)}%` }}
