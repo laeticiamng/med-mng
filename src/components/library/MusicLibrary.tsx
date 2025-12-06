@@ -99,7 +99,7 @@ export const MusicLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
+              <div className="w-3 h-3 rounded-full bg-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">Rang A</p>
                 <p className="text-2xl font-bold">{tracksByType.rang_a}</p>
@@ -110,7 +110,7 @@ export const MusicLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
+              <div className="w-3 h-3 rounded-full bg-success" />
               <div>
                 <p className="text-sm text-muted-foreground">Rang B</p>
                 <p className="text-2xl font-bold">{tracksByType.rang_b}</p>
@@ -121,7 +121,7 @@ export const MusicLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-purple-500" />
+              <div className="w-3 h-3 rounded-full bg-accent" />
               <div>
                 <p className="text-sm text-muted-foreground">Mix A+B</p>
                 <p className="text-2xl font-bold">{tracksByType.mix}</p>
@@ -246,7 +246,7 @@ export const MusicLibrary = () => {
                       onClick={() => toggleFavorite(track.id)}
                       className="h-8 w-8"
                     >
-                      <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-current text-red-500' : ''}`} />
+                      <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-current text-destructive' : ''}`} />
                     </Button>
 
                     <DropdownMenu>

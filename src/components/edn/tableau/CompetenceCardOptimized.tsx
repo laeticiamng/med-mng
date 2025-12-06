@@ -208,7 +208,7 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
           <div className="flex items-start gap-4 flex-1">
             {/* Numéro et badge */}
             <div className="flex flex-col items-center gap-2">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors.primary} text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-105 transition-transform`}>
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors.primary} text-primary-foreground flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-105 transition-transform`}>
                 {competence.ordre_affichage || index + 1}
               </div>
               {competence.objectif_id && (

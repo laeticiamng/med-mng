@@ -107,19 +107,19 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
       </Card>
 
       {/* Action Buttons for selected Rang */}
-      <Card className="border-l-4 border-l-blue-500">
+      <Card className="border-l-4 border-l-primary">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 {activeRang === 'A' ? (
                   <>
-                    <BookOpen className="h-5 w-5 text-blue-500" />
+                    <BookOpen className="h-5 w-5 text-primary" />
                     Rang A - Compétences Fondamentales
                   </>
                 ) : (
                   <>
-                    <Brain className="h-5 w-5 text-purple-500" />
+                    <Brain className="h-5 w-5 text-accent" />
                     Rang B - Expertise Avancée
                   </>
                 )}

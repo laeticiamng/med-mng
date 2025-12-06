@@ -153,7 +153,7 @@ export function NotificationCenter({
               </Badge>
             )}
             {criticalCount > 0 && (
-              <Badge variant="destructive" className="bg-red-600">
+              <Badge variant="destructive" className="bg-destructive">
                 {criticalCount} critique{criticalCount > 1 ? 's' : ''}
               </Badge>
             )}

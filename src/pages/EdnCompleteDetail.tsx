@@ -99,7 +99,7 @@ export default function EdnCompleteDetail() {
                   {item.item_code}
                 </Badge>
                 {item.is_validated && (
-                  <Badge variant="default" className="bg-green-500">
+                  <Badge variant="default" className="bg-success">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Validé
                   </Badge>
@@ -147,7 +147,7 @@ export default function EdnCompleteDetail() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2">
-                    <Brain className="h-4 w-4 text-blue-500" />
+                    <Brain className="h-4 w-4 text-primary" />
                     <div>
                       <p className="text-sm text-muted-foreground">Domaine</p>
                       <p className="font-medium">{item.domaine_medical}</p>
@@ -160,7 +160,7 @@ export default function EdnCompleteDetail() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-green-500" />
+                  <Users className="h-4 w-4 text-success" />
                   <div>
                     <p className="text-sm text-muted-foreground">Compétences</p>
                     <p className="font-medium">{item.competences_count_total || 0}</p>
@@ -172,7 +172,7 @@ export default function EdnCompleteDetail() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-purple-500" />
+                  <Clock className="h-4 w-4 text-accent" />
                   <div>
                     <p className="text-sm text-muted-foreground">Mis à jour</p>
                     <p className="font-medium text-sm">
@@ -202,7 +202,7 @@ export default function EdnCompleteDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Award className="h-5 w-5 text-blue-500" />
+                      <Award className="h-5 w-5 text-primary" />
                       Compétences Rang A
                       <Badge variant="secondary">{item.competences_count_rang_a || 0}</Badge>
                     </CardTitle>
@@ -242,7 +242,7 @@ export default function EdnCompleteDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Award className="h-5 w-5 text-purple-500" />
+                      <Award className="h-5 w-5 text-accent" />
                       Compétences Rang B
                       <Badge variant="secondary">{item.competences_count_rang_b || 0}</Badge>
                     </CardTitle>

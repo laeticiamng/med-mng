@@ -41,7 +41,7 @@ export const SceneInteractiveSection = ({
             </div>
             
             <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center">
-              <div className={`bg-white/95 backdrop-blur-sm px-6 py-3 rounded-full ${theme.glowColor} shadow-lg border-3 border-white/50 ${theme.accent} font-bold text-2xl`}>
+              <div className={`bg-card/95 backdrop-blur-sm px-6 py-3 rounded-full ${theme.glowColor} shadow-lg border-3 border-border/50 ${theme.accent} font-bold text-2xl`}>
                 {character.name}
               </div>
               <div className={`mt-2 text-lg ${theme.accent} opacity-80 font-semibold`}>
@@ -55,7 +55,7 @@ export const SceneInteractiveSection = ({
           <div className="relative transform hover:scale-110 transition-all duration-500">
             <div className={`w-56 h-64 bg-gradient-to-b ${theme.primary} rounded-t-full opacity-80 ${theme.glowColor} shadow-2xl`} />
             <div className={`w-64 h-36 bg-gradient-to-b ${theme.primary} rounded-b-3xl opacity-70 -mt-6 ${theme.glowColor} shadow-xl`} />
-            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-white text-3xl font-bold">
+            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-primary-foreground text-3xl font-bold">
               MÉDECIN
             </div>
           </div>
@@ -64,7 +64,7 @@ export const SceneInteractiveSection = ({
             <div className="text-8xl animate-bounce">
               {theme.particle}
             </div>
-            <div className={`bg-white/95 backdrop-blur-sm px-12 py-6 rounded-full ${theme.glowColor} shadow-lg border-3 border-white/50 ${isAnimating ? 'scale-125' : 'scale-100'} transition-all duration-500`}>
+            <div className={`bg-card/95 backdrop-blur-sm px-12 py-6 rounded-full ${theme.glowColor} shadow-lg border-3 border-border/50 ${isAnimating ? 'scale-125' : 'scale-100'} transition-all duration-500`}>
               <span className={`${theme.accent} font-bold text-3xl`}>
                 {motsCles[currentWordIndex]}
               </span>
@@ -72,9 +72,9 @@ export const SceneInteractiveSection = ({
           </div>
           
           <div className="relative transform hover:scale-110 transition-all duration-500">
-            <div className={`w-56 h-64 bg-gradient-to-b from-gray-600 to-gray-800 rounded-t-full opacity-80 shadow-2xl`} />
-            <div className={`w-64 h-36 bg-gradient-to-b from-gray-700 to-gray-900 rounded-b-3xl opacity-70 -mt-6 shadow-xl`} />
-            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-white text-3xl font-bold">
+            <div className={`w-56 h-64 bg-gradient-to-b from-muted to-muted-foreground rounded-t-full opacity-80 shadow-2xl`} />
+            <div className={`w-64 h-36 bg-gradient-to-b from-muted-foreground to-muted rounded-b-3xl opacity-70 -mt-6 shadow-xl`} />
+            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-primary-foreground text-3xl font-bold">
               PATIENT
             </div>
           </div>
@@ -95,7 +95,7 @@ export const SceneInteractiveSection = ({
         {motsCles.map((mot, index) => (
           <div
             key={index}
-            className={`p-6 bg-white/90 backdrop-blur-sm rounded-xl ${theme.glowColor} shadow-lg border-2 border-white/50 transform hover:scale-105 transition-all duration-300`}
+            className={`p-6 bg-card/90 backdrop-blur-sm rounded-xl ${theme.glowColor} shadow-lg border-2 border-border/50 transform hover:scale-105 transition-all duration-300`}
           >
             <span className={`${theme.accent} font-bold text-lg`}>
               {mot}
