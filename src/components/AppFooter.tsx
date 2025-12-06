@@ -47,17 +47,23 @@ export const AppFooter = () => {
               <Link to={ROUTE_PATHS.medMngLibrary} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Bibliothèque
               </Link>
-              <Link to={ROUTE_PATHS.medMngCreate} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Créer
+              <Link to={ROUTE_PATHS.favorites} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Favoris
+              </Link>
+              <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Succès
+              </Link>
+              <Link to={ROUTE_PATHS.studyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Planificateur
               </Link>
               <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Statistiques
               </Link>
+              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Communauté
+              </Link>
               <Link to={ROUTE_PATHS.designSystem} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Design System
-              </Link>
-              <Link to={ROUTE_PATHS.accessibilityDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Accessibilité Dashboard
               </Link>
               <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Installer l'App
