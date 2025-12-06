@@ -375,7 +375,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Palette className="h-5 w-5 text-purple-500" />
+                  <Palette className="h-5 w-5 text-accent" />
                   Cohérence UI
                 </CardTitle>
                 <CardDescription>
@@ -391,7 +391,7 @@ export default function AdminAudit() {
                 >
                   {isRunningAudit.ui_consistency ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-purple-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-accent border-t-transparent rounded-full" />
                       Analyse...
                     </>
                   ) : (
@@ -408,7 +408,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Zap className="h-5 w-5 text-orange-500" />
+                  <Zap className="h-5 w-5 text-warning" />
                   Performance
                 </CardTitle>
                 <CardDescription>

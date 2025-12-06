@@ -79,7 +79,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
                         <div key={index} className="leading-relaxed break-words font-medium">
                           {ligne.startsWith('•') || ligne.startsWith('-') ? (
                             <div className="flex items-start gap-2">
-                              <span className="text-amber-500 font-bold mt-0.5">•</span>
+                              <span className="text-warning font-bold mt-0.5">•</span>
                               <span>{ligne.replace(/^[•-]\s*/, '')}</span>
                             </div>
                           ) : (

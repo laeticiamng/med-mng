@@ -407,9 +407,9 @@ const CGU = () => {
                 </ul>
               </div>
 
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <h4 className="font-semibold text-amber-900 mb-2">⚠️ Important - Contenus non récupérables :</h4>
-                <p className="text-sm text-amber-900">
+              <div className="bg-warning/10 p-4 rounded-lg border border-warning/30">
+                <h4 className="font-semibold text-warning mb-2">⚠️ Important - Contenus non récupérables :</h4>
+                <p className="text-sm text-warning">
                   Les chansons générées par Suno AI ne peuvent pas être téléchargées (streaming uniquement). 
                   Après résiliation, vous perdez l'accès à ces contenus. Nous vous recommandons de créer 
                   des playlists et d'exporter vos notes pédagogiques avant de résilier.

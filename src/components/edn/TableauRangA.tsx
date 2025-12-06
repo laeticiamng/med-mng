@@ -219,7 +219,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
   // console.log('TableauRangA - Processed data:', { theme, colonnesUtiles: colonnesUtiles.length, lignesEnrichies: lignesEnrichies.length });
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6 rounded-xl">
+    <div className="space-y-8 bg-gradient-to-br from-warning/10 via-warning/5 to-primary/5 p-6 rounded-xl">
       <TableauRangAHeader theme={theme} itemCode={itemCode} totalCompetences={lignesEnrichies.length} />
       
       {lignesEnrichies.length > 0 ? (

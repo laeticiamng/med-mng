@@ -229,11 +229,11 @@ export const UptimeMonitor = () => {
           </div>
 
           {/* Incidents récents (simulation) */}
-          <Card className="p-4 border-orange-200 bg-orange-50">
-            <CardTitle className="text-sm text-orange-800 mb-2">
+          <Card className="p-4 border-warning/30 bg-warning/10">
+            <CardTitle className="text-sm text-warning mb-2">
               Incidents récents (7 derniers jours)
             </CardTitle>
-            <div className="space-y-2 text-sm text-orange-700">
+            <div className="space-y-2 text-sm text-warning">
               <div className="flex justify-between">
                 <span>• Dégradation Edge Functions (2min)</span>
                 <span>Il y a 2 jours</span>
