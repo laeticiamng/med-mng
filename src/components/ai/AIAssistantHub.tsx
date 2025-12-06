@@ -428,15 +428,15 @@ Comment souhaitez-vous que nous procédions ? Je peux créer un plan personnalis
                 <div className={`flex gap-3 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
-                      ? 'bg-primary text-white' 
-                      : 'bg-gradient-to-br from-blue-500 to-purple-500 text-white'
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-gradient-to-br from-primary to-accent text-primary-foreground'
                   }`}>
                     {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
                   
                   <div className={`rounded-lg p-4 ${
                     message.type === 'user' 
-                      ? 'bg-primary text-white' 
+                      ? 'bg-primary text-primary-foreground' 
                       : 'bg-card border'
                   }`}>
                     <div className="whitespace-pre-wrap text-sm">{message.content}</div>
@@ -479,7 +479,7 @@ Comment souhaitez-vous que nous procédions ? Je peux créer un plan personnalis
 
             {isTyping && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground flex items-center justify-center">
                   <Bot className="w-4 h-4" />
                 </div>
                 <div className="bg-card border rounded-lg p-4">

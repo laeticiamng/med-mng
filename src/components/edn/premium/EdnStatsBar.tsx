@@ -53,59 +53,59 @@ export const EdnStatsBar: React.FC<EdnStatsBarProps> = ({ items, filteredItems }
       value: stats.total,
       subtitle: "IC-1 à IC-367",
       icon: BookOpen,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
+      color: "text-primary",
+      bgColor: "bg-primary/5",
+      borderColor: "border-primary/20"
     },
     {
       title: "Affichés",
       value: stats.displayed,
       subtitle: "Filtrés",
       icon: Target,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
+      color: "text-accent",
+      bgColor: "bg-accent/5",
+      borderColor: "border-accent/20"
     },
     {
       title: "Complets",
       value: stats.complete,
       subtitle: `${stats.completion}% du total`,
       icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200"
+      color: "text-success",
+      bgColor: "bg-success/5",
+      borderColor: "border-success/20"
     },
     {
       title: "Avec Musique",
       value: stats.withMusic,
       subtitle: "Paroles intégrées",
       icon: Music,
-      color: "text-pink-600",
-      bgColor: "bg-pink-50",
-      borderColor: "border-pink-200"
+      color: "text-accent",
+      bgColor: "bg-accent/5",
+      borderColor: "border-accent/20"
     },
     {
       title: "Scènes Immersives",
       value: stats.withScene,
       subtitle: "Expériences 3D",
       icon: Users,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
+      color: "text-warning",
+      bgColor: "bg-warning/5",
+      borderColor: "border-warning/20"
     },
     {
       title: "Quiz Interactifs",
       value: stats.withQuiz,
       subtitle: "Évaluations",
       icon: Brain,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-      borderColor: "border-indigo-200"
+      color: "text-primary",
+      bgColor: "bg-primary/5",
+      borderColor: "border-primary/20"
     }
   ];
 
   return (
-    <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-6">
+    <div className="bg-background/60 backdrop-blur-sm border-y border-accent/20 py-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {statCards.map((stat, index) => {
@@ -122,10 +122,10 @@ export const EdnStatsBar: React.FC<EdnStatsBarProps> = ({ items, filteredItems }
                   <div className={`text-2xl font-bold ${stat.color}`}>
                     {stat.value}
                   </div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">
+                  <div className="text-sm font-medium text-foreground mb-1">
                     {stat.title}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {stat.subtitle}
                   </div>
                 </CardContent>
@@ -135,21 +135,21 @@ export const EdnStatsBar: React.FC<EdnStatsBarProps> = ({ items, filteredItems }
         </div>
         
         {/* Barre de progression globale */}
-        <div className="mt-6 bg-white/80 rounded-lg p-4">
+        <div className="mt-6 bg-background/80 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-gold-500" />
-              <span className="font-semibold text-gray-800">Progression Globale EDN</span>
+              <Award className="h-5 w-5 text-warning" />
+              <span className="font-semibold text-foreground">Progression Globale EDN</span>
             </div>
-            <span className="text-lg font-bold text-green-600">{stats.completion}%</span>
+            <span className="text-lg font-bold text-success">{stats.completion}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-muted rounded-full h-3">
             <div 
-              className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-success/80 to-success h-3 rounded-full transition-all duration-500"
               style={{ width: `${stats.completion}%` }}
             ></div>
           </div>
-          <div className="flex justify-between text-xs text-gray-600 mt-1">
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>0</span>
             <span>{stats.complete} items complets</span>
             <span>367</span>

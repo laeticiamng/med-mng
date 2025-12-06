@@ -108,9 +108,9 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
 
   if (editMode) {
     return (
-      <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+      <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between text-amber-800">
+          <CardTitle className="flex items-center justify-between text-warning-foreground">
             <div className="flex items-center gap-3">
               <FileText className="h-6 w-6" />
               Édition des Paroles - {title}
@@ -131,11 +131,11 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
         </CardHeader>
         
         <CardContent className="space-y-4">
-          <div className="bg-white/60 rounded-lg p-4 border border-amber-200">
-            <h4 className="font-semibold text-amber-800 mb-3">Format des paroles</h4>
-            <div className="text-sm text-amber-700 space-y-2">
+          <div className="bg-background/60 rounded-lg p-4 border border-warning/20">
+            <h4 className="font-semibold text-warning-foreground mb-3">Format des paroles</h4>
+            <div className="text-sm text-warning-foreground/80 space-y-2">
               <p><strong>Format LRC (recommandé):</strong></p>
-              <code className="block bg-amber-100 p-2 rounded text-xs">
+              <code className="block bg-warning/10 p-2 rounded text-xs">
                 [00:12.50]Première ligne de paroles<br/>
                 [00:18.30]Deuxième ligne de paroles<br/>
                 [00:24.80]Troisième ligne...
@@ -148,11 +148,11 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
             value={rawLyrics}
             onChange={(e) => setRawLyrics(e.target.value)}
             placeholder="Saisissez les paroles ici..."
-            className="min-h-80 bg-white/80 border-amber-200"
+            className="min-h-80 bg-background/80 border-warning/20"
           />
 
           <div className="flex justify-between items-center">
-            <div className="text-sm text-amber-600">
+            <div className="text-sm text-warning-foreground/80">
               {rawLyrics.split('\n').filter(line => line.trim()).length} lignes
             </div>
           </div>
@@ -172,16 +172,16 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
       />
 
       {/* Contrôles d'édition */}
-      <Card className="bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200">
+      <Card className="bg-gradient-to-br from-muted/50 to-muted/30 border-border">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between text-gray-800">
+          <CardTitle className="flex items-center justify-between text-foreground">
             <div className="flex items-center gap-3">
               <Music className="h-5 w-5" />
               Gestion des Paroles
             </div>
             <div className="flex items-center gap-2">
               {hasTimestamps && (
-                <Badge variant="default" className="bg-green-100 text-green-800">
+                <Badge variant="default" className="bg-success/10 text-success">
                   Synchronisées
                 </Badge>
               )}
@@ -203,7 +203,7 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Actions d'édition */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-700">Édition</h4>
+              <h4 className="font-semibold text-foreground">Édition</h4>
               <div className="flex flex-col gap-2">
                 <Button
                   onClick={() => setEditMode(true)}
@@ -237,7 +237,7 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
 
             {/* Actions d'export */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-700">Export</h4>
+              <h4 className="font-semibold text-foreground">Export</h4>
               <div className="flex flex-col gap-2">
                 <Button
                   onClick={() => handleExport('lrc')}
@@ -274,27 +274,27 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
 
           {/* Informations */}
           {lyrics.length > 0 && (
-            <div className="mt-4 p-3 bg-white/60 rounded-lg border border-gray-200">
+            <div className="mt-4 p-3 bg-background/60 rounded-lg border border-border">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-gray-600">Lignes:</span>
-                  <div className="text-gray-800">{lyrics.length}</div>
+                  <span className="font-medium text-muted-foreground">Lignes:</span>
+                  <div className="text-foreground">{lyrics.length}</div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-600">Durée:</span>
-                  <div className="text-gray-800">
+                  <span className="font-medium text-muted-foreground">Durée:</span>
+                  <div className="text-foreground">
                     {lyrics.length > 0 ? `${Math.round(lyrics[lyrics.length - 1].time)}s` : '-'}
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-600">Format:</span>
-                  <div className="text-gray-800">
+                  <span className="font-medium text-muted-foreground">Format:</span>
+                  <div className="text-foreground">
                     {hasTimestamps ? 'Synchronisé' : 'Auto-sync'}
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-600">Statut:</span>
-                  <div className="text-gray-800">
+                  <span className="font-medium text-muted-foreground">Statut:</span>
+                  <div className="text-foreground">
                     {isLoading ? 'Chargement...' : error ? 'Erreur' : 'Prêt'}
                   </div>
                 </div>
