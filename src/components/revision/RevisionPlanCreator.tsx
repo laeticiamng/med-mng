@@ -310,7 +310,7 @@ export const RevisionPlanCreator: React.FC = () => {
         >
           {creating ? (
             <>
-              <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+              <div className="animate-spin h-4 w-4 mr-2 border-2 border-primary-foreground border-t-transparent rounded-full" />
               Création...
             </>
           ) : (
