@@ -145,11 +145,11 @@ export const AuditIC1Completeness = () => {
                 <CardTitle className="text-lg">Rang A - Colloque singulier</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3">
                   {report.contentAnalysis.rangA.hasContent ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <span className="font-medium">
                     {report.contentAnalysis.rangA.competencesCount} compétences
@@ -158,11 +158,11 @@ export const AuditIC1Completeness = () => {
                 
                 {report.contentAnalysis.rangA.missingCompetences.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-orange-800 mb-2">Compétences manquantes:</p>
-                    <ul className="text-sm text-orange-700 space-y-1">
+                    <p className="text-sm font-medium text-warning mb-2">Compétences manquantes:</p>
+                    <ul className="text-sm text-warning/80 space-y-1">
                       {report.contentAnalysis.rangA.missingCompetences.map((comp, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <span className="text-orange-500">•</span>
+                          <span className="text-warning">•</span>
                           <span>{comp}</span>
                         </li>
                       ))}
@@ -177,11 +177,11 @@ export const AuditIC1Completeness = () => {
                 <CardTitle className="text-lg">Rang B - Outils pratiques</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3">
                   {report.contentAnalysis.rangB.hasContent ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <span className="font-medium">
                     {report.contentAnalysis.rangB.competencesCount} compétences
@@ -190,11 +190,11 @@ export const AuditIC1Completeness = () => {
                 
                 {report.contentAnalysis.rangB.missingCompetences.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-orange-800 mb-2">Compétences manquantes:</p>
-                    <ul className="text-sm text-orange-700 space-y-1">
+                    <p className="text-sm font-medium text-warning mb-2">Compétences manquantes:</p>
+                    <ul className="text-sm text-warning/80 space-y-1">
                       {report.contentAnalysis.rangB.missingCompetences.map((comp, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <span className="text-orange-500">•</span>
+                          <span className="text-warning">•</span>
                           <span>{comp}</span>
                         </li>
                       ))}
@@ -217,9 +217,9 @@ export const AuditIC1Completeness = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   {report.medicalContentCheck.hasRelationMedecinMalade ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4" />
@@ -229,9 +229,9 @@ export const AuditIC1Completeness = () => {
 
                 <div className="flex items-center gap-3">
                   {report.medicalContentCheck.hasCorpsHumainDimensions ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <div className="flex items-center gap-2">
                     <Activity className="h-4 w-4" />
@@ -241,9 +241,9 @@ export const AuditIC1Completeness = () => {
 
                 <div className="flex items-center gap-3">
                   {report.medicalContentCheck.hasMaladiesImpact ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" />
@@ -253,9 +253,9 @@ export const AuditIC1Completeness = () => {
 
                 <div className="flex items-center gap-3">
                   {report.medicalContentCheck.hasPratiquesCliniques ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <div className="flex items-center gap-2">
                     <Stethoscope className="h-4 w-4" />
@@ -279,7 +279,7 @@ export const AuditIC1Completeness = () => {
                 <ul className="space-y-2">
                   {report.recommendations.map((rec, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-blue-500 mt-1">•</span>
+                      <span className="text-primary mt-1">•</span>
                       <span className="text-sm">{rec}</span>
                     </li>
                   ))}
@@ -290,16 +290,16 @@ export const AuditIC1Completeness = () => {
 
           {/* Éléments manquants */}
           {report.missingElements.length > 0 && (
-            <Card className="border-orange-200 bg-orange-50">
+            <Card className="border-warning/20 bg-warning/5">
               <CardHeader>
-                <CardTitle className="text-orange-800">Éléments manquants</CardTitle>
+                <CardTitle className="text-warning">Éléments manquants</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
                   {report.missingElements.map((element, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <XCircle className="h-4 w-4 text-orange-600 mt-0.5" />
-                      <span className="text-sm text-orange-700">{element}</span>
+                      <XCircle className="h-4 w-4 text-warning mt-0.5" />
+                      <span className="text-sm text-warning/80">{element}</span>
                     </li>
                   ))}
                 </ul>
