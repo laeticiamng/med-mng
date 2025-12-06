@@ -65,13 +65,13 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
 
   if (!data || !data.chapters || data.chapters.length === 0) {
     return (
-      <Card className={`border-2 border-blue-200 ${className}`}>
+      <Card className={`border-2 border-primary/20 ${className}`}>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <BookOpen className="h-16 w-16 text-blue-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
+          <BookOpen className="h-16 w-16 text-primary/40 mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
             Roman pédagogique en préparation
           </h3>
-          <p className="text-gray-500 text-center max-w-md">
+          <p className="text-muted-foreground text-center max-w-md">
             Le roman médical pour {data?.item_code || 'cet item'} est en cours de génération IA
           </p>
         </CardContent>
@@ -82,25 +82,25 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
   const currentChapterData = data.chapters[currentChapter];
 
   return (
-    <Card className={`border-2 border-blue-200 ${className}`}>
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+    <Card className={`border-2 border-primary/20 ${className}`}>
+      <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
             {data.title}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+            <Badge variant="outline" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
               {data.chapters.length} chapitres
             </Badge>
-            <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+            <Badge variant="outline" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
               <Clock className="h-3 w-3 mr-1" />
               {data.reading_time_minutes} min
             </Badge>
           </div>
         </div>
         {data.subtitle && (
-          <p className="text-blue-100 text-sm mt-1">{data.subtitle}</p>
+          <p className="text-primary-foreground/80 text-sm mt-1">{data.subtitle}</p>
         )}
       </CardHeader>
 
@@ -197,10 +197,10 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
         </ScrollArea>
 
         {/* Navigation rapide chapitres */}
-        <div className="p-4 bg-gray-50 border-t">
+        <div className="p-4 bg-muted border-t">
           <div className="flex items-center gap-2 overflow-x-auto">
-            <Bookmark className="h-4 w-4 text-gray-500 flex-shrink-0" />
-            <span className="text-sm font-medium text-gray-600 flex-shrink-0">Chapitres:</span>
+            <Bookmark className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-sm font-medium text-muted-foreground flex-shrink-0">Chapitres:</span>
             {data.chapters.map((chapter, index) => (
               <Button
                 key={chapter.id}
@@ -219,8 +219,8 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
         </div>
 
         {/* Footer informatif */}
-        <div className="p-4 bg-gray-50 border-t">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+        <div className="p-4 bg-muted border-t">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />

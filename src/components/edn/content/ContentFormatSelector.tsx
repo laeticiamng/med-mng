@@ -32,9 +32,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Bande Dessinée',
     description: 'Format visuel avec bulles et illustrations',
     icon: Book,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/20',
     example: 'Vignettes illustrées avec dialogues et narration visuelle'
   },
   {
@@ -42,9 +42,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Roman',
     description: 'Récit narratif détaillé et immersif',
     icon: BookOpen,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
+    borderColor: 'border-success/20',
     example: 'Histoire complète avec personnages et intrigue médicale'
   },
   {
@@ -52,9 +52,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Poésie',
     description: 'Vers rythmés et mémorables',
     icon: PenTool,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200',
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
+    borderColor: 'border-accent/20',
     example: 'Strophes rimées pour faciliter la mémorisation'
   },
   {
@@ -62,9 +62,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Nouvelle',
     description: 'Récit court et intense',
     icon: FileText,
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-200',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
+    borderColor: 'border-warning/20',
     example: 'Histoire concentrée sur un cas clinique précis'
   },
   {
@@ -72,9 +72,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Fable',
     description: 'Récit moral avec leçon médicale',
     icon: Heart,
-    color: 'text-rose-600',
-    bgColor: 'bg-rose-50',
-    borderColor: 'border-rose-200',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+    borderColor: 'border-destructive/20',
     example: 'Histoire avec morale sur l\'éthique médicale'
   },
   {
@@ -82,9 +82,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Conte',
     description: 'Narration traditionnelle adaptée',
     icon: Sparkles,
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-50',
-    borderColor: 'border-indigo-200',
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
+    borderColor: 'border-accent/20',
     example: 'Récit merveilleux transposé en contexte médical'
   },
   {
@@ -92,9 +92,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Rap',
     description: 'Texte rythmé et percutant',
     icon: Music,
-    color: 'text-red-600',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+    borderColor: 'border-destructive/20',
     example: 'Paroles rythmées avec flow et rimes médicales'
   },
   {
@@ -102,9 +102,9 @@ const contentFormats: ContentFormat[] = [
     name: 'Pièce de Théâtre',
     description: 'Dialogue et mise en scène',
     icon: Scroll,
-    color: 'text-teal-600',
-    bgColor: 'bg-teal-50',
-    borderColor: 'border-teal-200',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
+    borderColor: 'border-success/20',
     example: 'Scènes dialoguées entre médecins et patients'
   }
 ];
@@ -161,9 +161,9 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200">
+      <Card className="bg-gradient-to-br from-muted to-primary/5 border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-slate-800">
+          <CardTitle className="flex items-center gap-3 text-foreground">
             <FileText className="h-6 w-6" />
             Formats de Contenu Éducatif
           </CardTitle>
@@ -185,7 +185,7 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
               className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
                 isSelected
                   ? `${format.borderColor} border-2 shadow-lg`
-                  : 'border border-gray-200 hover:shadow-md'
+                  : 'border border-border hover:shadow-md'
               }`}
               onClick={() => handleFormatClick(format)}
             >
@@ -202,11 +202,11 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
               </CardHeader>
               <CardContent className="pt-0">
                 {isSelected && (
-                  <Badge variant="secondary" className="w-full justify-center mb-2 bg-green-100 text-green-800">
+                  <Badge variant="secondary" className="w-full justify-center mb-2 bg-success/10 text-success">
                     ✓ Sélectionné
                   </Badge>
                 )}
-                <p className="text-xs text-gray-600 text-center">
+                <p className="text-xs text-muted-foreground text-center">
                   {format.example}
                 </p>
                 
@@ -231,9 +231,9 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
 
       {/* Aperçu du contenu */}
       {previewFormat && (
-        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardHeader>
-            <CardTitle className="text-yellow-800">
+            <CardTitle className="text-warning">
               Aperçu - {contentFormats.find(f => f.id === previewFormat)?.name}
             </CardTitle>
             <CardDescription>
@@ -241,7 +241,7 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-white p-4 rounded-lg border border-yellow-200">
+            <div className="bg-card p-4 rounded-lg border border-warning/20">
               <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
                 {generatePreviewContent(contentFormats.find(f => f.id === previewFormat)!)}
               </pre>

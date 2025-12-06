@@ -256,7 +256,7 @@ export const EdnAuditDashboard: React.FC = () => {
         description="Dashboard d'audit pour analyser et compléter les items EDN avec l'intelligence artificielle"
         noindex={true}
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-muted via-primary/5 to-accent/10 p-6">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
