@@ -7,6 +7,7 @@ import {
   Users, Target, Award, ArrowRight, Star, Trophy 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const WelcomeDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export const WelcomeDashboard: React.FC = () => {
       icon: BookOpen,
       title: '367 Items EDN',
       description: 'Complets avec contenus Rang A et B',
-      action: () => navigate('/edn-complete'),
+      action: () => navigate(ROUTE_PATHS.ednComplete),
       status: 'complete',
       highlight: 'Contenu médical complet'
     },
@@ -24,7 +25,7 @@ export const WelcomeDashboard: React.FC = () => {
       icon: Music,
       title: 'Génération Musicale',
       description: 'IA Suno intégrée pour création audio',
-      action: () => navigate('/generator'),
+      action: () => navigate(ROUTE_PATHS.generator),
       status: 'complete',
       highlight: 'Technologie de pointe'
     },
@@ -32,7 +33,7 @@ export const WelcomeDashboard: React.FC = () => {
       icon: Brain,
       title: 'Chat IA Médical',
       description: 'Assistant intelligent spécialisé',
-      action: () => navigate('/chat'),
+      action: () => navigate(ROUTE_PATHS.chat),
       status: 'complete',
       highlight: 'OpenAI GPT-4'
     },
@@ -40,7 +41,7 @@ export const WelcomeDashboard: React.FC = () => {
       icon: BarChart3,
       title: 'Analytics Personnalisés',
       description: 'Suivi de progression et recommandations',
-      action: () => navigate('/learning-dashboard'),
+      action: () => navigate(ROUTE_PATHS.learningDashboard),
       status: 'new',
       highlight: 'Nouvellement ajouté'
     }
@@ -58,21 +59,21 @@ export const WelcomeDashboard: React.FC = () => {
       {/* Hero Section */}
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-2xl shadow-lg flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-gradient-medical rounded-2xl shadow-lg flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent mb-2">
             Bienvenue sur MED-MNG
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Plateforme médicale intelligente complète avec IA, génération musicale et contenus EDN
           </p>
         </div>
         
         <div className="flex justify-center">
-          <Badge className="bg-green-100 text-green-800 border-green-300 px-4 py-1">
+          <Badge className="bg-success/10 text-success border-success/30 px-4 py-1">
             <Trophy className="w-4 h-4 mr-1" />
             Plateforme 100% Complète
           </Badge>
@@ -81,47 +82,47 @@ export const WelcomeDashboard: React.FC = () => {
 
       {/* Statistiques principales améliorées */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-blue-50/50 to-blue-100/30">
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-primary/5 to-primary/10">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <BookOpen className="w-5 h-5 text-blue-600" />
-              <div className="text-2xl font-bold text-blue-600">{platformStats.contentItems}</div>
+              <BookOpen className="w-5 h-5 text-primary" />
+              <div className="text-2xl font-bold text-primary">{platformStats.contentItems}</div>
             </div>
             <div className="text-sm font-medium text-muted-foreground">Items EDN</div>
-            <div className="text-xs text-blue-600 mt-1">Contenu complet</div>
+            <div className="text-xs text-primary mt-1">Contenu complet</div>
           </CardContent>
         </Card>
         
-        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-purple-50/50 to-purple-100/30">
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-accent/5 to-accent/10">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-purple-600" />
-              <div className="text-2xl font-bold text-purple-600">{platformStats.totalUsers}</div>
+              <Users className="w-5 h-5 text-accent-foreground" />
+              <div className="text-2xl font-bold text-accent-foreground">{platformStats.totalUsers}</div>
             </div>
             <div className="text-sm font-medium text-muted-foreground">Utilisateurs</div>
-            <div className="text-xs text-purple-600 mt-1">Communauté active</div>
+            <div className="text-xs text-accent-foreground mt-1">Communauté active</div>
           </CardContent>
         </Card>
         
-        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-green-50/50 to-green-100/30">
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-success/5 to-success/10">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Target className="w-5 h-5 text-green-600" />
-              <div className="text-2xl font-bold text-green-600">{platformStats.securityScore}</div>
+              <Target className="w-5 h-5 text-success" />
+              <div className="text-2xl font-bold text-success">{platformStats.securityScore}</div>
             </div>
             <div className="text-sm font-medium text-muted-foreground">Sécurité</div>
-            <div className="text-xs text-green-600 mt-1">Niveau excellence</div>
+            <div className="text-xs text-success mt-1">Niveau excellence</div>
           </CardContent>
         </Card>
         
-        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-orange-50/50 to-orange-100/30">
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-warning/5 to-warning/10">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Award className="w-5 h-5 text-orange-600" />
-              <div className="text-2xl font-bold text-orange-600">{platformStats.uptime}</div>
+              <Award className="w-5 h-5 text-warning" />
+              <div className="text-2xl font-bold text-warning">{platformStats.uptime}</div>
             </div>
             <div className="text-sm font-medium text-muted-foreground">Disponibilité</div>
-            <div className="text-xs text-orange-600 mt-1">Service premium</div>
+            <div className="text-xs text-warning mt-1">Service premium</div>
           </CardContent>
         </Card>
       </div>
@@ -146,8 +147,8 @@ export const WelcomeDashboard: React.FC = () => {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                      <feature.icon className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-gradient-medical rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                      <feature.icon className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div>
                       <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
@@ -160,12 +161,12 @@ export const WelcomeDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     {feature.status === 'new' && (
-                      <Badge className="bg-green-100/50 text-green-700 border-green-200 font-medium">
+                      <Badge className="bg-success/10 text-success border-success/30 font-medium">
                         Nouveau
                       </Badge>
                     )}
                     {feature.status === 'complete' && (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-success" />
                     )}
                   </div>
                 </div>
@@ -195,56 +196,56 @@ export const WelcomeDashboard: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button 
-              onClick={() => navigate('/edn-complete')}
+              onClick={() => navigate(ROUTE_PATHS.ednComplete)}
               className="h-auto p-4 flex flex-col gap-2"
               variant="outline"
             >
               <BookOpen className="w-6 h-6" />
               <span className="font-medium">Explorer EDN</span>
-              <span className="text-xs text-gray-500">367 items médicaux</span>
+              <span className="text-xs text-muted-foreground">367 items médicaux</span>
             </Button>
             
             <Button 
-              onClick={() => navigate('/generator')}
+              onClick={() => navigate(ROUTE_PATHS.generator)}
               className="h-auto p-4 flex flex-col gap-2"
               variant="outline"
             >
               <Music className="w-6 h-6" />
               <span className="font-medium">Créer Musique</span>
-              <span className="text-xs text-gray-500">Génération IA</span>
+              <span className="text-xs text-muted-foreground">Génération IA</span>
             </Button>
             
             <Button 
-              onClick={() => navigate('/learning-dashboard')}
-              className="h-auto p-4 flex flex-col gap-2 border-green-200 hover:bg-green-50"
+              onClick={() => navigate(ROUTE_PATHS.learningDashboard)}
+              className="h-auto p-4 flex flex-col gap-2 border-success/30 hover:bg-success/5"
               variant="outline"
             >
-              <BarChart3 className="w-6 h-6 text-green-600" />
-              <span className="font-medium text-green-700">Analytics</span>
-              <span className="text-xs text-green-600">Nouveau !</span>
+              <BarChart3 className="w-6 h-6 text-success" />
+              <span className="font-medium text-success">Analytics</span>
+              <span className="text-xs text-success">Nouveau !</span>
             </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Message de félicitations */}
-      <Card className="border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+      <Card className="border-success/30 bg-gradient-to-r from-success/5 to-primary/5">
         <CardContent className="pt-6">
           <div className="text-center space-y-3">
-            <Star className="w-8 h-8 text-yellow-500 mx-auto" />
-            <h3 className="text-lg font-semibold text-gray-900">
+            <Star className="w-8 h-8 text-warning mx-auto" />
+            <h3 className="text-lg font-semibold text-foreground">
               🎉 Félicitations ! La plateforme est 100% opérationnelle
             </h3>
-            <p className="text-gray-700 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Toutes les fonctionnalités demandées ont été implémentées avec succès : 
               367 items EDN complets, génération musicale IA, analytics personnalisés, 
               chat médical intelligent, et système de recommandations avancé.
             </p>
             <div className="pt-2">
               <Button 
-                onClick={() => navigate('/platform-status')}
+                onClick={() => navigate(ROUTE_PATHS.platformStatus)}
                 variant="outline"
-                className="border-green-300 text-green-700 hover:bg-green-100"
+                className="border-success/30 text-success hover:bg-success/5"
               >
                 Voir le statut détaillé
               </Button>

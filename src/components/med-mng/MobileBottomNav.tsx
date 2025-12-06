@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Library, Plus, CreditCard, User } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { cn } from '@/lib/utils';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface BottomNavItemProps {
   icon: React.ReactNode;
@@ -63,38 +64,38 @@ export const MobileBottomNav: React.FC = () => {
     {
       icon: <Home className="h-5 w-5" />,
       label: "Accueil",
-      path: "/",
-      onClick: () => navigate("/")
+      path: ROUTE_PATHS.home,
+      onClick: () => navigate(ROUTE_PATHS.home)
     },
     {
       icon: <Library className="h-5 w-5" />,
       label: "Bibliothèque", 
-      path: "/med-mng/library",
-      onClick: () => navigate("/med-mng/library")
+      path: ROUTE_PATHS.medMngLibrary,
+      onClick: () => navigate(ROUTE_PATHS.medMngLibrary)
     },
     {
       icon: <Plus className="h-5 w-5" />,
       label: "Créer",
-      path: "/med-mng/create", 
-      onClick: () => navigate("/med-mng/create")
+      path: ROUTE_PATHS.medMngCreate, 
+      onClick: () => navigate(ROUTE_PATHS.medMngCreate)
     },
     {
       icon: <CreditCard className="h-5 w-5" />,
       label: "Abonnements",
-      path: "/med-mng/pricing",
-      onClick: () => navigate("/med-mng/pricing")
+      path: ROUTE_PATHS.medMngPricing,
+      onClick: () => navigate(ROUTE_PATHS.medMngPricing)
     },
     {
       icon: <User className="h-5 w-5" />,
       label: "Profil",
-      path: "/med-mng/profile", 
-      onClick: () => navigate("/med-mng/profile")
+      path: ROUTE_PATHS.medMngProfile, 
+      onClick: () => navigate(ROUTE_PATHS.medMngProfile)
     }
   ];
 
   return (
     <nav 
-      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white border-t border-border shadow-lg"
+      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-card border-t border-border shadow-lg"
       role="tablist"
       aria-label="Navigation principale mobile"
     >
@@ -112,7 +113,7 @@ export const MobileBottomNav: React.FC = () => {
       </div>
       
       {/* Safe area padding for iPhone with home indicator */}
-      <div className="h-[env(safe-area-inset-bottom)] bg-white" />
+      <div className="h-[env(safe-area-inset-bottom)] bg-card" />
     </nav>
   );
 };

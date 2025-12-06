@@ -10,7 +10,7 @@ const Achievements: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <Helmet>
         <title>Succès et Gamification - MED MNG</title>
         <meta name="description" content="Suivez votre progression, débloquez des succès et relevez des défis dans votre apprentissage médical." />
@@ -32,11 +32,11 @@ const Achievements: React.FC = () => {
             </Button>
             
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Trophy className="w-8 h-8 text-yellow-500" />
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Trophy className="w-8 h-8 text-warning" />
                 Succès & Progression
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Suivez votre progression et débloquez des récompenses exclusives
               </p>
             </div>
@@ -45,27 +45,27 @@ const Achievements: React.FC = () => {
 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+          <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
             <CardContent className="p-6 text-center">
-              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">12</h3>
-              <p className="text-gray-600">Badges Obtenus</p>
+              <Trophy className="w-12 h-12 text-warning mx-auto mb-3" />
+              <h3 className="text-2xl font-bold text-foreground">12</h3>
+              <p className="text-muted-foreground">Badges Obtenus</p>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30">
             <CardContent className="p-6 text-center">
-              <Star className="w-12 h-12 text-blue-500 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">2,450</h3>
-              <p className="text-gray-600">Points XP</p>
+              <Star className="w-12 h-12 text-primary mx-auto mb-3" />
+              <h3 className="text-2xl font-bold text-foreground">2,450</h3>
+              <p className="text-muted-foreground">Points XP</p>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+          <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success/30">
             <CardContent className="p-6 text-center">
-              <Target className="w-12 h-12 text-green-500 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-gray-900">8</h3>
-              <p className="text-gray-600">Défis Complétés</p>
+              <Target className="w-12 h-12 text-success mx-auto mb-3" />
+              <h3 className="text-2xl font-bold text-foreground">8</h3>
+              <p className="text-muted-foreground">Défis Complétés</p>
             </CardContent>
           </Card>
         </div>
@@ -74,7 +74,7 @@ const Achievements: React.FC = () => {
         <GamificationPanel />
 
         {/* Section motivation */}
-        <Card className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        <Card className="mt-8 bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
           <CardHeader>
             <CardTitle className="text-center">🎯 Continuez sur votre lancée !</CardTitle>
             <CardDescription className="text-center">

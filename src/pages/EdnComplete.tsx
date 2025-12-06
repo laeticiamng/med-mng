@@ -357,15 +357,15 @@ export default function EdnComplete() {
 
         <div className="container mx-auto px-6 py-4">
         {/* Bannière informative sur l'accès gratuit */}
-        <Alert className="mb-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-          <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
+        <Alert className="mb-4 bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-sm text-foreground">
             <strong className="font-semibold">Accès gratuit illimité aux révisions EDN</strong>
             <div className="mt-1 space-y-1">
               <div>✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong></div>
               <div>✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong></div>
               <div>✅ Faire les quiz : <strong>GRATUIT</strong></div>
-              <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+              <div className="mt-2 pt-2 border-t border-primary/20 dark:border-primary/30">
                 🎵 Les crédits ({quota || 80}/160) servent uniquement à <strong>générer des musiques IA personnalisées</strong>
               </div>
             </div>
@@ -597,41 +597,41 @@ export default function EdnComplete() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="p-4 bg-primary/5 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
-                        <Music className="h-5 w-5 text-blue-600" />
+                        <Music className="h-5 w-5 text-primary" />
                         <span className="font-medium">Musique IA</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Générez des chansons mnémotechniques personnalisées
                       </p>
-                      <p className="text-xs mt-2 text-blue-600">
+                      <p className="text-xs mt-2 text-primary">
                         Coût: 5 crédits par génération
                       </p>
                     </div>
                     
-                    <div className="p-4 bg-green-50 rounded-lg">
+                    <div className="p-4 bg-success/5 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
-                        <Brain className="h-5 w-5 text-green-600" />
+                        <Brain className="h-5 w-5 text-success" />
                         <span className="font-medium">QCM IA</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Créez des QCM adaptatifs intelligents
                       </p>
-                      <p className="text-xs mt-2 text-green-600">
+                      <p className="text-xs mt-2 text-success">
                         Coût: 2 crédits par QCM
                       </p>
                     </div>
                     
-                    <div className="p-4 bg-purple-50 rounded-lg">
+                    <div className="p-4 bg-accent/10 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
-                        <FileText className="h-5 w-5 text-purple-600" />
+                        <FileText className="h-5 w-5 text-accent-foreground" />
                         <span className="font-medium">Bandes Dessinées</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Transformez les concepts en BD éducatives
                       </p>
-                      <p className="text-xs mt-2 text-purple-600">
+                      <p className="text-xs mt-2 text-accent-foreground">
                         Coût: 10 crédits par BD
                       </p>
                     </div>

@@ -1,9 +1,9 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "@/config/routes";
 
 const MainSections = () => {
   const sections = [
@@ -21,7 +21,7 @@ const MainSections = () => {
         "Scènes immersives interactives",
         "Quiz d'auto-évaluation"
       ],
-      href: "/edn",
+      href: ROUTE_PATHS.ednComplete,
       badge: "Complet"
     },
     {
@@ -38,7 +38,7 @@ const MainSections = () => {
         "Feedback personnalisé",
         "Entraînement progressif"
       ],
-      href: "/ecos",
+      href: ROUTE_PATHS.ecosIndex,
       badge: "Bientôt"
     },
     {
@@ -55,7 +55,7 @@ const MainSections = () => {
         "Historique des conversations",
         "Support multilingue"
       ],
-      href: "/chat",
+      href: ROUTE_PATHS.chat,
       badge: "IA Avancée"
     },
     {
@@ -72,7 +72,7 @@ const MainSections = () => {
         "Recommandations d'amélioration",
         "Métriques de qualité"
       ],
-      href: "/audit-completeness",
+      href: ROUTE_PATHS.auditCompleteness,
       badge: "Audit"
     },
     {
@@ -89,7 +89,7 @@ const MainSections = () => {
         "Mémorisation facilitée",
         "Bibliothèque personnelle"
       ],
-      href: "/generator",
+      href: ROUTE_PATHS.generator,
       badge: "Créatif"
     }
   ];
