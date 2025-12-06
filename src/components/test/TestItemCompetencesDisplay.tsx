@@ -96,7 +96,7 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">Aucune parole musicale</p>
+            <p className="text-muted-foreground">Aucune parole musicale</p>
           )}
         </CardContent>
       </Card>

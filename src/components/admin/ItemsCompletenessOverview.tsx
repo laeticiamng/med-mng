@@ -37,10 +37,10 @@ export const ItemsCompletenessOverview: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'complete': return 'bg-green-500';
-      case 'incomplete': return 'bg-yellow-500';
-      case 'critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'complete': return 'bg-success';
+      case 'incomplete': return 'bg-warning';
+      case 'critical': return 'bg-destructive';
+      default: return 'bg-muted-foreground';
     }
   };
 
@@ -96,7 +96,7 @@ export const ItemsCompletenessOverview: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Taux de Complétude</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -112,10 +112,10 @@ export const ItemsCompletenessOverview: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Problèmes Critiques</CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-destructive">
                 {currentReport.summary.critical_issues}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -146,7 +146,7 @@ export const ItemsCompletenessOverview: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              <AlertTriangle className="h-5 w-5 text-warning" />
               Alertes Actives ({unresolvedAlerts.length})
             </CardTitle>
           </CardHeader>
@@ -184,7 +184,7 @@ export const ItemsCompletenessOverview: React.FC = () => {
               
               {unresolvedAlerts.length === 0 && (
                 <div className="text-center py-6 text-muted-foreground">
-                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
                   Aucune alerte active
                 </div>
               )}
@@ -196,7 +196,7 @@ export const ItemsCompletenessOverview: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-500" />
+              <TrendingUp className="h-5 w-5 text-primary" />
               Historique des Audits
             </CardTitle>
           </CardHeader>
@@ -226,14 +226,14 @@ export const ItemsCompletenessOverview: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     {report.summary.critical_issues > 0 && (
-                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <AlertCircle className="h-4 w-4 text-destructive" />
                     )}
                     <div className={`w-3 h-3 rounded-full ${
                       report.summary.completion_rate >= 80 
-                        ? 'bg-green-500' 
+                        ? 'bg-success' 
                         : report.summary.completion_rate >= 60 
-                        ? 'bg-yellow-500' 
-                        : 'bg-red-500'
+                        ? 'bg-warning' 
+                        : 'bg-destructive'
                     }`} />
                   </div>
                 </div>
