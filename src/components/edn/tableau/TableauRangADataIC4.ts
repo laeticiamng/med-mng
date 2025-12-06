@@ -182,65 +182,65 @@ export const colonnesConfigIC4 = [
   {
     nom: 'Concept',
     icone: '🎯',
-    couleur: 'bg-blue-600',
-    couleurCellule: 'bg-blue-50 border-blue-300',
-    couleurTexte: 'text-blue-800 font-bold',
+    couleur: 'bg-primary',
+    couleurCellule: 'bg-primary/10 border-primary/30',
+    couleurTexte: 'text-primary font-bold',
     obligatoire: true
   },
   {
     nom: 'Définition',
     icone: '📖',
-    couleur: 'bg-green-600',
-    couleurCellule: 'bg-green-50 border-green-300',
-    couleurTexte: 'text-green-800',
+    couleur: 'bg-success',
+    couleurCellule: 'bg-success/10 border-success/30',
+    couleurTexte: 'text-success',
     obligatoire: true
   },
   {
     nom: 'Exemple',
     icone: '💡',
-    couleur: 'bg-amber-600',
-    couleurCellule: 'bg-amber-50 border-amber-300',
-    couleurTexte: 'text-amber-800',
+    couleur: 'bg-warning',
+    couleurCellule: 'bg-warning/10 border-warning/30',
+    couleurTexte: 'text-warning',
     obligatoire: false
   },
   {
     nom: 'Piège',
     icone: '⚠️',
-    couleur: 'bg-red-600',
-    couleurCellule: 'bg-red-50 border-red-300',
-    couleurTexte: 'text-red-800 font-semibold',
+    couleur: 'bg-destructive',
+    couleurCellule: 'bg-destructive/10 border-destructive/30',
+    couleurTexte: 'text-destructive font-semibold',
     obligatoire: false
   },
   {
     nom: 'Mnémotechnique',
     icone: '🧠',
-    couleur: 'bg-purple-600',
-    couleurCellule: 'bg-purple-50 border-purple-300',
-    couleurTexte: 'text-purple-800 font-medium italic',
+    couleur: 'bg-accent',
+    couleurCellule: 'bg-accent/10 border-accent/30',
+    couleurTexte: 'text-accent-foreground font-medium italic',
     obligatoire: false
   },
   {
     nom: 'Subtilité',
     icone: '🔍',
-    couleur: 'bg-indigo-600',
-    couleurCellule: 'bg-indigo-50 border-indigo-300',
-    couleurTexte: 'text-indigo-800',
+    couleur: 'bg-secondary',
+    couleurCellule: 'bg-secondary/50 border-secondary/30',
+    couleurTexte: 'text-secondary-foreground',
     obligatoire: false
   },
   {
     nom: 'Application',
     icone: '🎯',
-    couleur: 'bg-teal-600',
-    couleurCellule: 'bg-teal-50 border-teal-300',
-    couleurTexte: 'text-teal-800 font-medium',
+    couleur: 'bg-muted',
+    couleurCellule: 'bg-muted/50 border-muted/30',
+    couleurTexte: 'text-muted-foreground font-medium',
     obligatoire: false
   },
   {
     nom: 'Vigilance',
     icone: '🛡️',
-    couleur: 'bg-orange-600',
-    couleurCellule: 'bg-orange-50 border-orange-300',
-    couleurTexte: 'text-orange-800 font-semibold',
+    couleur: 'bg-warning',
+    couleurCellule: 'bg-warning/10 border-warning/30',
+    couleurTexte: 'text-warning font-semibold',
     obligatoire: false
   }
 ];

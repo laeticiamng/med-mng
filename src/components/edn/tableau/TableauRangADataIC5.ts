@@ -90,12 +90,12 @@ export const conceptsRangBIC5 = [
 ];
 
 export const colonnesConfigIC5 = [
-  { nom: 'Concept Systémique', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50 border-blue-300', couleurTexte: 'text-blue-900' },
-  { nom: 'Définition Structurelle', couleur: 'bg-emerald-600', couleurCellule: 'bg-emerald-50 border-emerald-300', couleurTexte: 'text-emerald-900' },
-  { nom: 'Exemple Concret', couleur: 'bg-amber-600', couleurCellule: 'bg-amber-50 border-amber-300', couleurTexte: 'text-amber-900' },
-  { nom: 'Piège Organisationnel', couleur: 'bg-red-600', couleurCellule: 'bg-red-50 border-red-300', couleurTexte: 'text-red-900' },
-  { nom: 'Mémo Système', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50 border-purple-300', couleurTexte: 'text-purple-900' },
-  { nom: 'Subtilité Évolutive', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50 border-indigo-300', couleurTexte: 'text-indigo-900' },
-  { nom: 'Application Pratique', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50 border-teal-300', couleurTexte: 'text-teal-900' },
-  { nom: 'Vigilance Réglementaire', couleur: 'bg-slate-600', couleurCellule: 'bg-slate-50 border-slate-300', couleurTexte: 'text-slate-900' }
+  { nom: 'Concept Systémique', couleur: 'bg-primary', couleurCellule: 'bg-primary/10 border-primary/30', couleurTexte: 'text-primary' },
+  { nom: 'Définition Structurelle', couleur: 'bg-success', couleurCellule: 'bg-success/10 border-success/30', couleurTexte: 'text-success' },
+  { nom: 'Exemple Concret', couleur: 'bg-warning', couleurCellule: 'bg-warning/10 border-warning/30', couleurTexte: 'text-warning' },
+  { nom: 'Piège Organisationnel', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10 border-destructive/30', couleurTexte: 'text-destructive' },
+  { nom: 'Mémo Système', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent-foreground' },
+  { nom: 'Subtilité Évolutive', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/50 border-secondary/30', couleurTexte: 'text-secondary-foreground' },
+  { nom: 'Application Pratique', couleur: 'bg-muted', couleurCellule: 'bg-muted/50 border-muted/30', couleurTexte: 'text-muted-foreground' },
+  { nom: 'Vigilance Réglementaire', couleur: 'bg-muted-foreground', couleurCellule: 'bg-muted/50 border-muted-foreground/30', couleurTexte: 'text-foreground' }
 ];

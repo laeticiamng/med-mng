@@ -50,14 +50,14 @@ export const processStandardTableauData = (data: any, isRangB: boolean = false) 
 
   // Configuration des colonnes standard
   const colonnes = [
-    { nom: 'Thème', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50 border-blue-300', couleurTexte: 'text-blue-900' },
-    { nom: 'Contenu', couleur: 'bg-emerald-600', couleurCellule: 'bg-emerald-50 border-emerald-300', couleurTexte: 'text-emerald-900' },
-    { nom: 'Mots-clés', couleur: 'bg-amber-600', couleurCellule: 'bg-amber-50 border-amber-300', couleurTexte: 'text-amber-900' },
-    { nom: 'Point clé', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50 border-purple-300', couleurTexte: 'text-purple-900' },
-    { nom: 'À retenir', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50 border-indigo-300', couleurTexte: 'text-indigo-900' },
-    { nom: 'Attention', couleur: 'bg-red-600', couleurCellule: 'bg-red-50 border-red-300', couleurTexte: 'text-red-900' },
-    { nom: 'Application', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50 border-teal-300', couleurTexte: 'text-teal-900' },
-    { nom: 'Vigilance', couleur: 'bg-slate-600', couleurCellule: 'bg-slate-50 border-slate-300', couleurTexte: 'text-slate-900' }
+    { nom: 'Thème', couleur: 'bg-primary', couleurCellule: 'bg-primary/10 border-primary/30', couleurTexte: 'text-primary' },
+    { nom: 'Contenu', couleur: 'bg-success', couleurCellule: 'bg-success/10 border-success/30', couleurTexte: 'text-success' },
+    { nom: 'Mots-clés', couleur: 'bg-warning', couleurCellule: 'bg-warning/10 border-warning/30', couleurTexte: 'text-warning' },
+    { nom: 'Point clé', couleur: 'bg-accent', couleurCellule: 'bg-accent/10 border-accent/30', couleurTexte: 'text-accent-foreground' },
+    { nom: 'À retenir', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/50 border-secondary/30', couleurTexte: 'text-secondary-foreground' },
+    { nom: 'Attention', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10 border-destructive/30', couleurTexte: 'text-destructive' },
+    { nom: 'Application', couleur: 'bg-muted', couleurCellule: 'bg-muted/50 border-muted/30', couleurTexte: 'text-muted-foreground' },
+    { nom: 'Vigilance', couleur: 'bg-muted-foreground', couleurCellule: 'bg-muted/50 border-muted-foreground/30', couleurTexte: 'text-foreground' }
   ];
 
   return {
