@@ -1,5 +1,9 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Home, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumBackground } from "@/components/ui/premium-background";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,15 +16,33 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <Link to="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </Link>
+    <PremiumBackground>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <PremiumCard variant="glass" className="text-center p-12 max-w-md">
+          <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-destructive/10 flex items-center justify-center">
+            <span className="text-5xl font-bold text-destructive">404</span>
+          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-4">
+            Page introuvable
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            La page que vous recherchez n'existe pas ou a été déplacée.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="outline" onClick={() => window.history.back()}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour
+            </Button>
+            <Button asChild>
+              <Link to="/">
+                <Home className="w-4 h-4 mr-2" />
+                Accueil
+              </Link>
+            </Button>
+          </div>
+        </PremiumCard>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
 
