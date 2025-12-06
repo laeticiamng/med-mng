@@ -42,11 +42,11 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
 
   if (completed) {
     return (
-      <Card className="p-4 border-green-200 bg-green-50 mb-4">
+      <Card className="p-4 border-success/30 bg-success/10 mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-green-800 font-medium">IC-2 complété à 100% !</span>
+            <CheckCircle className="h-5 w-5 text-success" />
+            <span className="text-success font-medium">IC-2 complété à 100% !</span>
           </div>
           <Button 
             onClick={() => setCompleted(false)} 
@@ -62,11 +62,11 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
 
   if (error) {
     return (
-      <Card className="p-4 border-red-200 bg-red-50 mb-4">
+      <Card className="p-4 border-destructive/30 bg-destructive/10 mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
-            <span className="text-red-800 text-sm">{error}</span>
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <span className="text-destructive text-sm">{error}</span>
           </div>
           <Button 
             onClick={handleComplete} 
@@ -82,15 +82,15 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
   }
 
   return (
-    <Card className="p-4 border-blue-200 bg-blue-50 mb-4">
+    <Card className="p-4 border-primary/30 bg-primary/10 mb-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Zap className="h-5 w-5 text-blue-600" />
+          <Zap className="h-5 w-5 text-primary" />
           <div className="flex flex-col">
-            <span className="text-blue-800 font-medium text-sm">
+            <span className="text-primary font-medium text-sm">
               Compléter automatiquement IC-2
             </span>
-            <span className="text-blue-600 text-xs">
+            <span className="text-primary/70 text-xs">
               Compléter depuis Supabase les éléments IC-2 manquants
             </span>
           </div>

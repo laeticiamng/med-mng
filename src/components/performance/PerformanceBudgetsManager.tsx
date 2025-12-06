@@ -138,8 +138,8 @@ export const PerformanceBudgetsManager: React.FC<PerformanceBudgetsManagerProps>
   };
 
   const getBudgetStatus = (budget: PerformanceBudget) => {
-    if (!budget.active) return { label: 'Inactif', color: 'bg-gray-100 text-gray-800' };
-    return { label: 'Actif', color: 'bg-green-100 text-green-800' };
+    if (!budget.active) return { label: 'Inactif', color: 'bg-muted text-muted-foreground' };
+    return { label: 'Actif', color: 'bg-success/20 text-success' };
   };
 
   return (
@@ -222,10 +222,10 @@ export const PerformanceBudgetsManager: React.FC<PerformanceBudgetsManagerProps>
                       </div>
                     </TableCell>
                     <TableCell>{budget.target_value}{unit}</TableCell>
-                    <TableCell className="text-yellow-600">
+                    <TableCell className="text-warning">
                       {budget.warning_threshold}{unit}
                     </TableCell>
-                    <TableCell className="text-red-600">
+                    <TableCell className="text-destructive">
                       {budget.critical_threshold}{unit}
                     </TableCell>
                     <TableCell>
@@ -401,14 +401,14 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
       </div>
 
       {formData.warning_threshold <= formData.target_value && (
-        <div className="flex items-center gap-2 text-yellow-600 text-sm">
+        <div className="flex items-center gap-2 text-warning text-sm">
           <AlertTriangle className="h-4 w-4" />
           Le seuil warning devrait être supérieur à la valeur cible
         </div>
       )}
 
       {formData.critical_threshold <= formData.warning_threshold && (
-        <div className="flex items-center gap-2 text-red-600 text-sm">
+        <div className="flex items-center gap-2 text-destructive text-sm">
           <AlertTriangle className="h-4 w-4" />
           Le seuil critique devrait être supérieur au seuil warning
         </div>

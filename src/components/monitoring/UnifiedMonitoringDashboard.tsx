@@ -152,19 +152,19 @@ export function UnifiedMonitoringDashboard() {
 
   const getHealthIcon = (health: string) => {
     switch (health) {
-      case 'healthy': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'warning': return <AlertCircle className="h-5 w-5 text-yellow-600" />;
-      case 'critical': return <AlertCircle className="h-5 w-5 text-red-600" />;
-      default: return <Activity className="h-5 w-5 text-gray-600" />;
+      case 'healthy': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'warning': return <AlertCircle className="h-5 w-5 text-warning" />;
+      case 'critical': return <AlertCircle className="h-5 w-5 text-destructive" />;
+      default: return <Activity className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
   const getHealthColor = (health: string) => {
     switch (health) {
-      case 'healthy': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'critical': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'healthy': return 'text-success';
+      case 'warning': return 'text-warning';
+      case 'critical': return 'text-destructive';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -350,8 +350,8 @@ export function UnifiedMonitoringDashboard() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-green-600">Sécurisé</span>
+                  <CheckCircle className="h-5 w-5 text-success" />
+                  <span className="text-success">Sécurisé</span>
                 </div>
                 <Badge variant="outline">RLS Actif</Badge>
               </div>

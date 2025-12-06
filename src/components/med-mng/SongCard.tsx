@@ -130,11 +130,11 @@ export const SongCard: React.FC<SongCardProps> = ({
   const titleInfo = parseTitle();
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 bg-white touch-manipulation">
+    <Card className="group hover:shadow-lg transition-all duration-200 bg-card touch-manipulation">
       <CardContent className="p-0">
         {/* Cover Image */}
-        <div className="relative aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-lg flex items-center justify-center">
-          <Music className="h-8 w-8 sm:h-12 sm:w-12 text-white/80" />
+        <div className="relative aspect-square bg-gradient-to-br from-primary to-accent rounded-t-lg flex items-center justify-center">
+          <Music className="h-8 w-8 sm:h-12 sm:w-12 text-primary-foreground/80" />
           
           {/* AI Badge (Conformité AI Act) */}
           <div className="absolute top-2 left-2">
@@ -159,7 +159,7 @@ export const SongCard: React.FC<SongCardProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20 opacity-0 group-hover:opacity-100 md:transition-opacity min-h-[44px] min-w-[44px]"
+                  className="text-primary-foreground hover:bg-primary-foreground/20 opacity-0 group-hover:opacity-100 md:transition-opacity min-h-[44px] min-w-[44px]"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -173,7 +173,7 @@ export const SongCard: React.FC<SongCardProps> = ({
                   {isLikeLoading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
                   ) : (
-                    <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                    <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-destructive text-destructive' : ''}`} />
                   )}
                   {song.is_liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </DropdownMenuItem>
@@ -204,7 +204,7 @@ export const SongCard: React.FC<SongCardProps> = ({
                 <DropdownMenuItem 
                   onClick={handleRemove} 
                   disabled={isLoading}
-                  className="text-red-600 focus:text-red-600"
+                  className="text-destructive focus:text-destructive"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
@@ -222,17 +222,17 @@ export const SongCard: React.FC<SongCardProps> = ({
         <div className="p-3 sm:p-4">
           {/* Item name (highlighted) */}
           <div className="mb-2">
-            <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
+            <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight">
               {itemTitle || fallbackTitle || titleInfo.item || song.title}
             </h3>
             {titleInfo.rang && (
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 {titleInfo.rang} • {titleInfo.style}
               </p>
             )}
           </div>
           
-          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground mb-3">
             <span>{getDuration()}</span>
             <span className="hidden sm:inline">{formatDate(song.added_to_library_at)}</span>
             <span className="sm:hidden">{formatDate(song.added_to_library_at).split(' ')[0]}</span>
@@ -245,7 +245,7 @@ export const SongCard: React.FC<SongCardProps> = ({
               size="sm"
               onClick={handleToggleLike}
               disabled={isLikeLoading}
-              className={`${song.is_liked ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition-colors min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px]`}
+              className={`${song.is_liked ? 'text-destructive' : 'text-muted-foreground'} hover:text-destructive transition-colors min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px]`}
             >
               {isLikeLoading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
@@ -257,7 +257,7 @@ export const SongCard: React.FC<SongCardProps> = ({
             <Button
               onClick={onPlay}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white transition-colors flex-1 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex-1 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
             >
               <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
               <span className="hidden sm:inline">Écouter</span>

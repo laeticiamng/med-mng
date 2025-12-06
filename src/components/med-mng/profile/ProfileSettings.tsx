@@ -71,7 +71,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="notifications">Notifications push</Label>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Recevoir des notifications dans le navigateur
               </p>
             </div>
@@ -87,7 +87,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-updates">Mises à jour par email</Label>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Recevoir des nouvelles et mises à jour par email
               </p>
             </div>
@@ -115,7 +115,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="sound-effects">Effets sonores</Label>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Activer les sons d'interface
               </p>
             </div>
@@ -131,7 +131,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="auto-play">Lecture automatique</Label>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Démarrer automatiquement la lecture des chansons
               </p>
             </div>
@@ -179,7 +179,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="dark-mode">Mode sombre</Label>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Utiliser un thème sombre pour l'interface
               </p>
             </div>
@@ -241,9 +241,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => 
 
           <Separator />
 
-          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-            <h4 className="font-semibold text-red-800 mb-2">Zone de danger</h4>
-            <p className="text-sm text-red-600 mb-4">
+          <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/30">
+            <h4 className="font-semibold text-destructive mb-2">Zone de danger</h4>
+            <p className="text-sm text-destructive/80 mb-4">
               Cette action supprimera définitivement votre compte et toutes vos données.
             </p>
             <Button variant="destructive" size="sm" className="flex items-center gap-2">
