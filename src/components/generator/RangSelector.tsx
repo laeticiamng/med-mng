@@ -13,35 +13,35 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <label className="text-lg font-semibold text-gray-900">
+      <label className="text-lg font-semibold text-foreground">
         <TranslatedText text="Rang" />
       </label>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <PremiumCard 
           variant={selectedRang === 'A' ? 'elevated' : 'default'}
-          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : 'hover:shadow-lg'}`}
+          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'A' ? 'ring-2 ring-primary shadow-primary/20' : 'hover:shadow-lg'}`}
           onClick={() => setSelectedRang('A')}
         >
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A</h3>
-          <p className="text-gray-600 text-sm">Compétences fondamentales</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Rang A</h3>
+          <p className="text-muted-foreground text-sm">Compétences fondamentales</p>
         </PremiumCard>
         
         <PremiumCard 
           variant={selectedRang === 'B' ? 'elevated' : 'default'}
-          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : 'hover:shadow-lg'}`}
+          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'B' ? 'ring-2 ring-accent shadow-accent/20' : 'hover:shadow-lg'}`}
           onClick={() => setSelectedRang('B')}
         >
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Rang B</h3>
-          <p className="text-gray-600 text-sm">Compétences approfondies</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Rang B</h3>
+          <p className="text-muted-foreground text-sm">Compétences approfondies</p>
         </PremiumCard>
         
         <PremiumCard 
           variant={selectedRang === 'AB' ? 'elevated' : 'default'}
-          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'AB' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
+          className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'AB' ? 'ring-2 ring-warning shadow-warning/20' : 'hover:shadow-lg'}`}
           onClick={() => setSelectedRang('AB')}
         >
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A+B</h3>
-          <p className="text-gray-600 text-sm">Compétences complètes</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Rang A+B</h3>
+          <p className="text-muted-foreground text-sm">Compétences complètes</p>
         </PremiumCard>
       </div>
     </div>

@@ -151,14 +151,14 @@ const EdnIndex = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-primary/10 flex items-center justify-center">
         <div className="text-center space-y-6">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">
               Chargement MED MNG EDN
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Préparation des 367 items avec compétences complètes...
             </p>
           </div>
@@ -168,9 +168,9 @@ const EdnIndex = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-primary/10">
       {/* Header Unifié */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-purple-200/50 sticky top-0 z-40">
+      <div className="bg-card/80 backdrop-blur-lg border-b border-primary/20 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-4">
@@ -195,12 +195,12 @@ const EdnIndex = () => {
           {/* Search and Filters Premium Mobile */}
           <div className="flex flex-col gap-4">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 ${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground ${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
               <Input
                 placeholder={isMobile ? "Rechercher items..." : "Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 pr-4 ${isMobile ? 'py-4 text-base rounded-xl' : 'py-3 text-lg'} border-purple-200 focus:border-purple-400 bg-white/70 transition-all duration-300 focus:shadow-lg focus:scale-[1.02]`}
+                className={`pl-10 pr-4 ${isMobile ? 'py-4 text-base rounded-xl' : 'py-3 text-lg'} border-primary/20 focus:border-primary bg-card/70 transition-all duration-300 focus:shadow-lg focus:scale-[1.02]`}
               />
               {searchTerm && (
                 <Button
@@ -275,8 +275,8 @@ const EdnIndex = () => {
                   <CardContent className={`${isMobile ? 'p-2' : 'p-4'} text-center`}>
                     <IconComponent className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6'} ${stat.color} mx-auto mb-2`} />
                     <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold ${stat.color}`}>{stat.value}</div>
-                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-700 mb-1`}>{isMobile ? stat.title.split(' ')[0] : stat.title}</div>
-                    {!isMobile && <div className="text-xs text-gray-500">{stat.subtitle}</div>}
+                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-foreground mb-1`}>{isMobile ? stat.title.split(' ')[0] : stat.title}</div>
+                    {!isMobile && <div className="text-xs text-muted-foreground">{stat.subtitle}</div>}
                   </CardContent>
                 </Card>
               );
@@ -284,21 +284,21 @@ const EdnIndex = () => {
           </div>
           
           {/* Progression globale */}
-          <div className="bg-white/80 rounded-lg p-4">
+          <div className="bg-card/80 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-gray-800">Progression Globale EDN</span>
+                <Award className="h-5 w-5 text-warning" />
+                <span className="font-semibold text-foreground">Progression Globale EDN</span>
               </div>
-              <span className="text-lg font-bold text-green-600">{stats.completion}%</span>
+              <span className="text-lg font-bold text-success">{stats.completion}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-muted rounded-full h-3">
               <div 
-                className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-success to-success/80 h-3 rounded-full transition-all duration-500"
                 style={{ width: `${stats.completion}%` }}
               ></div>
             </div>
-            <div className="flex justify-between text-xs text-gray-600 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>0</span>
               <span>{stats.complete} items complets</span>
               <span>367</span>
@@ -311,9 +311,9 @@ const EdnIndex = () => {
       <div className="container mx-auto px-4 py-8">
         {filteredItems.length === 0 ? (
           <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun item trouvé</h3>
-            <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">Aucun item trouvé</h3>
+            <p className="text-muted-foreground">Essayez de modifier vos critères de recherche ou de filtrage.</p>
           </div>
         ) : (
           <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
