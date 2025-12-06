@@ -53,9 +53,9 @@ export function CompletenessAuditDashboard() {
     
     switch (level) {
       case 'complete':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Complet</Badge>
+        return <Badge className="bg-success/10 text-success border-success/20">Complet</Badge>
       case 'warning':
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">À améliorer</Badge>
+        return <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">À améliorer</Badge>
       case 'critical':
         return <Badge variant="destructive">Critique</Badge>
     }
@@ -150,9 +150,9 @@ export function CompletenessAuditDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">Items Complets</p>
-                    <p className="text-2xl font-bold text-green-600">{auditResult.summary.complete_items}</p>
+                    <p className="text-2xl font-bold text-success">{auditResult.summary.complete_items}</p>
                   </div>
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-success" />
                 </div>
               </CardContent>
             </Card>
@@ -162,9 +162,9 @@ export function CompletenessAuditDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">À Améliorer</p>
-                    <p className="text-2xl font-bold text-orange-500">{auditResult.summary.incomplete_items}</p>
+                    <p className="text-2xl font-bold text-warning">{auditResult.summary.incomplete_items}</p>
                   </div>
-                  <AlertTriangle className="h-5 w-5 text-orange-500" />
+                  <AlertTriangle className="h-5 w-5 text-warning" />
                 </div>
               </CardContent>
             </Card>
@@ -203,7 +203,7 @@ export function CompletenessAuditDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-500" />
+                  <AlertTriangle className="h-5 w-5 text-warning" />
                   Items à Améliorer ({auditResult.incomplete_items.length})
                 </CardTitle>
                 <CardDescription>
@@ -224,7 +224,7 @@ export function CompletenessAuditDashboard() {
                           {item.title}
                         </p>
                         {item.issues.length > 0 && (
-                          <p className="text-xs text-red-600 mt-1">
+                          <p className="text-xs text-destructive mt-1">
                             {ednTableauxService.formatIssues(item.issues)}
                           </p>
                         )}
@@ -241,14 +241,14 @@ export function CompletenessAuditDashboard() {
 
           {/* État parfait */}
           {auditResult.incomplete_items.length === 0 && (
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-success/20 bg-success/5">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     Parfait ! Tous les items sont complets
                   </h3>
-                  <p className="text-green-700">
+                  <p className="text-muted-foreground">
                     {auditResult.summary.total_items} items vérifiés avec succès
                   </p>
                 </div>

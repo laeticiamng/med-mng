@@ -201,9 +201,9 @@ export const EdnExtractionTest = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {extractionResult.success ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   Résultats de l'extraction
                 </CardTitle>
@@ -211,13 +211,13 @@ export const EdnExtractionTest = () => {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-success">
                       {extractionResult.stats.totalProcessed}
                     </div>
                     <div className="text-sm text-muted-foreground">Items traités</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
+                    <div className="text-2xl font-bold text-destructive">
                       {extractionResult.stats.totalErrors}
                     </div>
                     <div className="text-sm text-muted-foreground">Erreurs</div>
