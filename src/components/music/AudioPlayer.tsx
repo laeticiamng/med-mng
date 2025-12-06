@@ -316,7 +316,7 @@ export function AudioPlayer({
               variant="ghost" 
               size="sm"
               onClick={handleLike}
-              className={cn(isLiked && "text-red-500")}
+              className={cn(isLiked && "text-destructive")}
             >
               <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
             </Button>

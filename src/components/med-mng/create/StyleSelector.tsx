@@ -106,7 +106,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
             <SelectItem value="placeholder" disabled>-- Choisir un style --</SelectItem>
             
             {/* Styles populaires */}
-            <SelectItem value="popular" disabled className="font-medium text-xs uppercase tracking-wider text-gray-500">
+            <SelectItem value="popular" disabled className="font-medium text-xs uppercase tracking-wider text-muted-foreground">
               🔥 Styles Populaires
             </SelectItem>
             {legacyStyles.map((s) => (
@@ -122,13 +122,13 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
               
               return (
                 <React.Fragment key={categoryKey}>
-                  <SelectItem value={categoryKey} disabled className="font-medium text-xs uppercase tracking-wider text-gray-500">
+                  <SelectItem value={categoryKey} disabled className="font-medium text-xs uppercase tracking-wider text-muted-foreground">
                     {categoryLabel}
                   </SelectItem>
                   {stylesInCategory.map((s) => (
                     <SelectItem key={s.value} value={s.value} className="pl-4">
                       <div className="flex items-center gap-2">
-                        {s.premium && <Sparkles className="h-3 w-3 text-purple-600" />}
+                        {s.premium && <Sparkles className="h-3 w-3 text-accent" />}
                         {s.label}
                       </div>
                     </SelectItem>
@@ -141,7 +141,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
 
         {/* Aperçu du style sélectionné */}
         {style && (
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
+          <Card className="bg-gradient-to-r from-primary/5 to-accent/10">
             <CardContent className="p-4">
               {(() => {
                 const selectedStyle = allMusicStyles.find(s => s.value === style);
@@ -153,15 +153,15 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
                       <h4 className="font-medium">{selectedStyle.label}</h4>
                       {selectedStyle.premium && (
                         <div className="flex items-center gap-1">
-                          <Sparkles className="h-3 w-3 text-purple-600" />
-                          <span className="text-xs text-purple-600 font-medium">Premium</span>
+                          <Sparkles className="h-3 w-3 text-accent" />
+                          <span className="text-xs text-accent font-medium">Premium</span>
                         </div>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">{selectedStyle.description}</p>
+                    <p className="text-sm text-muted-foreground">{selectedStyle.description}</p>
                     <div className="flex flex-wrap gap-1">
                       {selectedStyle.mood.slice(0, 3).map((mood) => (
-                        <span key={mood} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        <span key={mood} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                           {mood}
                         </span>
                       ))}
@@ -175,22 +175,22 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
 
         {/* Promotion du mode avancé */}
         {allowCombinations && !showAdvanced && (
-          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+          <Card className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/20">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-purple-600" />
+                <Sparkles className="h-4 w-4 text-accent" />
                 Créations Musicales Uniques
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm text-gray-700 mb-3">
+              <p className="text-sm text-foreground mb-3">
                 Combinez plusieurs styles musicaux pour créer des compositions totalement personnalisées !
               </p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAdvanced(true)}
-                className="w-full border-purple-200 hover:bg-purple-50"
+                className="w-full border-accent/20 hover:bg-accent/10"
               >
                 <Palette className="h-4 w-4 mr-2" />
                 Découvrir le Mode Créateur
