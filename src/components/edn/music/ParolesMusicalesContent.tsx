@@ -58,11 +58,11 @@ export const ParolesMusicalesContent: React.FC<ParolesMusicalesContentProps> = (
       <div className="grid gap-6 md:grid-cols-2">
         {/* Colonne Rang A à gauche */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-amber-200">
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+          <div className="flex items-center gap-2 pb-2 border-b border-warning/20">
+            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">
               Rang A
             </Badge>
-            <span className="font-semibold text-amber-800">Fondamentaux</span>
+            <span className="font-semibold text-warning">Fondamentaux</span>
           </div>
           
           <ParolesMusicalesRangTab
@@ -82,11 +82,11 @@ export const ParolesMusicalesContent: React.FC<ParolesMusicalesContentProps> = (
 
         {/* Colonne Rang B à droite */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-blue-200">
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+          <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
               Rang B
             </Badge>
-            <span className="font-semibold text-blue-800">Approfondissements</span>
+            <span className="font-semibold text-primary">Approfondissements</span>
           </div>
           
           <ParolesMusicalesRangTab
@@ -107,16 +107,16 @@ export const ParolesMusicalesContent: React.FC<ParolesMusicalesContentProps> = (
 
       {/* Version mobile avec onglets pour petits écrans */}
       <div className="md:hidden">
-        <div className="flex border-b border-gray-200 mb-4">
+        <div className="flex border-b border-border mb-4">
           <button
             onClick={() => onTabChange('rang-a')}
             className={`flex-1 py-2 px-4 text-center font-medium transition-colors ${
               activeTab === 'rang-a'
-                ? 'border-b-2 border-amber-500 text-amber-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-warning text-warning'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300 mr-2">
+            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 mr-2">
               Rang A
             </Badge>
             Fondamentaux
@@ -125,11 +125,11 @@ export const ParolesMusicalesContent: React.FC<ParolesMusicalesContentProps> = (
             onClick={() => onTabChange('rang-b')}
             className={`flex-1 py-2 px-4 text-center font-medium transition-colors ${
               activeTab === 'rang-b'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 mr-2">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 mr-2">
               Rang B
             </Badge>
             Approfondissements
