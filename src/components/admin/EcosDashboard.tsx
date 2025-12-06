@@ -155,8 +155,8 @@ export const EcosDashboard: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">Total Situations</p>
                 <p className="text-3xl font-bold">{analytics.total_situations}</p>
               </div>
-              <div className="p-3 bg-blue-500/10 rounded-full">
-                <Book className="h-6 w-6 text-blue-500" />
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Book className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -169,8 +169,8 @@ export const EcosDashboard: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">Compétences Uniques</p>
                 <p className="text-3xl font-bold">{analytics.total_competences}</p>
               </div>
-              <div className="p-3 bg-green-500/10 rounded-full">
-                <Target className="h-6 w-6 text-green-500" />
+              <div className="p-3 bg-success/10 rounded-full">
+                <Target className="h-6 w-6 text-success" />
               </div>
             </div>
           </CardContent>
@@ -185,8 +185,8 @@ export const EcosDashboard: React.FC = () => {
                   {analytics.avg_competences_per_situation.toFixed(1)}
                 </p>
               </div>
-              <div className="p-3 bg-purple-500/10 rounded-full">
-                <Award className="h-6 w-6 text-purple-500" />
+              <div className="p-3 bg-accent/10 rounded-full">
+                <Award className="h-6 w-6 text-accent" />
               </div>
             </div>
           </CardContent>
@@ -201,13 +201,13 @@ export const EcosDashboard: React.FC = () => {
                   {Math.round((analytics.distribution_by_competences.with_competences / analytics.total_situations) * 100)}%
                 </p>
               </div>
-              <div className="p-3 bg-orange-500/10 rounded-full">
-                <TrendingUp className="h-6 w-6 text-orange-500" />
+              <div className="p-3 bg-warning/10 rounded-full">
+                <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>
             <Progress 
               value={(analytics.distribution_by_competences.with_competences / analytics.total_situations) * 100} 
-              className="mt-2" 
+              className="mt-2"
             />
           </CardContent>
         </Card>

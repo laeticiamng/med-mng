@@ -22,8 +22,8 @@ export const MusicStyleIndicator = ({ selectedStyle }: MusicStyleIndicatorProps)
     <div className="text-center">
       <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
         hasPremiumStyles 
-          ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200'
-          : 'bg-amber-100 text-amber-800'
+          ? 'bg-gradient-to-r from-accent/10 to-accent/5 text-accent border border-accent/20'
+          : 'bg-warning/10 text-warning'
       }`}>
         <Music className="h-4 w-4" />
         {hasPremiumStyles && <Sparkles className="h-4 w-4" />}

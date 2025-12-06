@@ -382,28 +382,28 @@ export const AdminAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-3xl font-bold text-green-600">
+            <div className="text-center p-4 bg-success/5 rounded-lg">
+              <div className="text-3xl font-bold text-success">
                 {analyticsData.performance.uptime}%
               </div>
               <div className="text-sm font-medium">Disponibilité</div>
-              <Badge className="mt-2 bg-green-100 text-green-800">Excellent</Badge>
+              <Badge className="mt-2 bg-success/10 text-success">Excellent</Badge>
             </div>
             
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-3xl font-bold text-blue-600">
+            <div className="text-center p-4 bg-primary/5 rounded-lg">
+              <div className="text-3xl font-bold text-primary">
                 {analyticsData.performance.averageLoadTime}s
               </div>
               <div className="text-sm font-medium">Temps de chargement</div>
-              <Badge className="mt-2 bg-blue-100 text-blue-800">Bon</Badge>
+              <Badge className="mt-2 bg-primary/10 text-primary">Bon</Badge>
             </div>
             
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <div className="text-3xl font-bold text-yellow-600">
+            <div className="text-center p-4 bg-warning/10 rounded-lg">
+              <div className="text-3xl font-bold text-warning">
                 {analyticsData.performance.errorRate}%
               </div>
               <div className="text-sm font-medium">Taux d'erreur</div>
-              <Badge className="mt-2 bg-yellow-100 text-yellow-800">Acceptable</Badge>
+              <Badge className="mt-2 bg-warning/10 text-warning">Acceptable</Badge>
             </div>
           </div>
         </CardContent>

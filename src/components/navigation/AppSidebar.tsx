@@ -186,7 +186,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {/* Header */}
         <div className={`p-4 border-b ${isCollapsed ? 'px-2' : 'px-4'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm">
               M
             </div>
             {!isCollapsed && (
@@ -269,7 +269,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         <div className={`p-4 border-t bg-muted/20 ${isCollapsed ? 'px-2' : 'px-4'}`}>
           {isCollapsed ? (
             <div className="flex justify-center">
-              <Sparkles className="h-5 w-5 text-yellow-500" />
+              <Sparkles className="h-5 w-5 text-warning" />
             </div>
           ) : (
             <div className="space-y-2">
@@ -278,7 +278,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                 <span className="font-medium">23 restants</span>
               </div>
               <div className="w-full bg-muted rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full" style={{ width: '65%' }} />
+                <div className="bg-gradient-to-r from-primary to-accent h-1.5 rounded-full" style={{ width: '65%' }} />
               </div>
               <div className="text-xs text-muted-foreground">
                 Plan Premium • Expires 31/12/2025

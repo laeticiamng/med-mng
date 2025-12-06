@@ -33,15 +33,15 @@ export const GeneratedSongDisplay: React.FC<GeneratedSongDisplayProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
-        <Music className="h-16 w-16 text-white/80" />
+      <div className="aspect-square bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mb-4">
+        <Music className="h-16 w-16 text-primary-foreground/80" />
       </div>
       
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-foreground mb-2">
           {generatedSong.title}
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-muted-foreground mb-4">
           Style: {musicStyles.find(s => s.value === style)?.label}
         </p>
       </div>
@@ -49,7 +49,7 @@ export const GeneratedSongDisplay: React.FC<GeneratedSongDisplayProps> = ({
       <div className="flex gap-2">
         <Button
           onClick={onPlay}
-          className="flex-1 bg-green-600 hover:bg-green-700 transition-colors"
+          className="flex-1 bg-success hover:bg-success/90 transition-colors"
         >
           <Play className="h-4 w-4 mr-2" />
           Écouter
