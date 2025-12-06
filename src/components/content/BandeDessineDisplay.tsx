@@ -75,7 +75,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
   }
 
   const containerClass = isFullscreen 
-    ? 'fixed inset-0 z-50 bg-black bg-opacity-95 flex flex-col'
+    ? 'fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col'
     : `${className}`;
 
   return (
