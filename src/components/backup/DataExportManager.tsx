@@ -125,19 +125,19 @@ export const DataExportManager: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'running': return <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />;
-      case 'failed': return <AlertTriangle className="w-4 h-4 text-red-600" />;
-      default: return <Clock className="w-4 h-4 text-gray-600" />;
+      case 'completed': return <CheckCircle className="w-4 h-4 text-success" />;
+      case 'running': return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
+      case 'failed': return <AlertTriangle className="w-4 h-4 text-destructive" />;
+      default: return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-50 border-green-200';
-      case 'running': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'failed': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'completed': return 'text-success bg-success/5 border-success/20';
+      case 'running': return 'text-primary bg-primary/5 border-primary/20';
+      case 'failed': return 'text-destructive bg-destructive/5 border-destructive/20';
+      default: return 'text-muted-foreground bg-muted border-border';
     }
   };
 
@@ -209,7 +209,7 @@ export const DataExportManager: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-green-600 border-green-200">
+          <Badge variant="outline" className="text-success border-success/20">
             <Shield className="w-3 h-3 mr-1" />
             Sécurisé
           </Badge>
@@ -402,8 +402,8 @@ export const DataExportManager: React.FC = () => {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{schedule.name}</h4>
                             <Badge variant="outline" className={
-                              schedule.frequency === 'daily' ? 'text-blue-600' :
-                              schedule.frequency === 'weekly' ? 'text-green-600' : 'text-purple-600'
+                              schedule.frequency === 'daily' ? 'text-primary' :
+                              schedule.frequency === 'weekly' ? 'text-success' : 'text-accent'
                             }>
                               {schedule.frequency === 'daily' ? 'Quotidien' :
                                schedule.frequency === 'weekly' ? 'Hebdomadaire' : 'Mensuel'}
@@ -478,7 +478,7 @@ export const DataExportManager: React.FC = () => {
                           Chiffrement des données stockées
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-green-600">
+                      <Badge variant="outline" className="text-success">
                         Activé
                       </Badge>
                     </div>
@@ -490,7 +490,7 @@ export const DataExportManager: React.FC = () => {
                           Chiffrement des transferts
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-green-600">
+                      <Badge variant="outline" className="text-success">
                         Activé
                       </Badge>
                     </div>
@@ -507,7 +507,7 @@ export const DataExportManager: React.FC = () => {
                           Logs détaillés des exports
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-green-600">
+                      <Badge variant="outline" className="text-success">
                         Activé
                       </Badge>
                     </div>
@@ -519,7 +519,7 @@ export const DataExportManager: React.FC = () => {
                           Requise pour exports critiques
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-green-600">
+                      <Badge variant="outline" className="text-success">
                         Activé
                       </Badge>
                     </div>
@@ -527,23 +527,23 @@ export const DataExportManager: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">Conformité RGPD</span>
+                  <Shield className="w-4 h-4 text-primary" />
+                  <span className="font-medium text-foreground">Conformité RGPD</span>
                 </div>
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-muted-foreground">
                   Tous les exports respectent les exigences du RGPD. 
                   Les données personnelles sont automatiquement anonymisées dans les exports partagés.
                 </p>
               </div>
 
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="font-medium text-green-900">Certifications de sécurité</span>
+                  <CheckCircle className="w-4 h-4 text-success" />
+                  <span className="font-medium text-foreground">Certifications de sécurité</span>
                 </div>
-                <p className="text-sm text-green-800">
+                <p className="text-sm text-muted-foreground">
                   Notre infrastructure est certifiée ISO 27001 et SOC 2 Type II. 
                   Tous les exports bénéficient de ces standards de sécurité.
                 </p>
