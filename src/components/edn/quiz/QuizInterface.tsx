@@ -189,31 +189,31 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
 
   if (isCompleted && results) {
     return (
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+      <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-green-800">
+          <CardTitle className="flex items-center gap-3 text-success">
             <CheckCircle className="h-6 w-6" />
             Quiz Terminé - {itemCode}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Score principal */}
-          <div className="text-center p-6 bg-white/60 rounded-lg border border-green-200">
-            <div className="text-4xl font-bold text-green-700 mb-2">
+          <div className="text-center p-6 bg-background/60 rounded-lg border border-success/20">
+            <div className="text-4xl font-bold text-success mb-2">
               {results.score}%
             </div>
-            <div className="text-lg text-green-600">
+            <div className="text-lg text-success/80">
               {results.correctAnswers} / {results.totalQuestions} bonnes réponses
             </div>
-            <div className="text-sm text-gray-600 mt-2">
+            <div className="text-sm text-muted-foreground mt-2">
               Temps total: {formatTime(results.timeSpent)}
             </div>
           </div>
 
           {/* Détail des performances */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/60 rounded-lg p-4 border border-green-200">
-              <h4 className="font-semibold text-green-800 mb-3">Par niveau</h4>
+            <div className="bg-background/60 rounded-lg p-4 border border-success/20">
+              <h4 className="font-semibold text-success mb-3">Par niveau</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Rang A:</span>
@@ -226,8 +226,8 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
               </div>
             </div>
             
-            <div className="bg-white/60 rounded-lg p-4 border border-green-200">
-              <h4 className="font-semibold text-green-800 mb-3">Par difficulté</h4>
+            <div className="bg-background/60 rounded-lg p-4 border border-success/20">
+              <h4 className="font-semibold text-success mb-3">Par difficulté</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Facile:</span>
@@ -263,9 +263,9 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
 
   if (!currentQ) {
     return (
-      <Card className="bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+      <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
         <CardContent className="p-6 text-center">
-          <div className="text-red-600">Aucune question disponible pour cette configuration.</div>
+          <div className="text-destructive">Aucune question disponible pour cette configuration.</div>
           <Button onClick={onReturnToConfig} className="mt-4">
             Retour à la configuration
           </Button>
@@ -275,10 +275,10 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
   }
 
   return (
-    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+    <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-blue-800">
+          <CardTitle className="flex items-center gap-3 text-primary">
             <Clock className="h-5 w-5" />
             Quiz {itemCode} - Question {currentQuestion + 1}/{questions.length}
           </CardTitle>
@@ -297,8 +297,8 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
       
       <CardContent className="space-y-6">
         {/* Question */}
-        <div className="bg-white/60 rounded-lg p-6 border border-blue-200">
-          <h3 className="text-lg font-semibold text-blue-900 mb-4">
+        <div className="bg-background/60 rounded-lg p-6 border border-primary/20">
+          <h3 className="text-lg font-semibold text-primary mb-4">
             {currentQ.question}
           </h3>
           
@@ -308,20 +308,20 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
               const isSelected = selectedAnswers[currentQuestion] === index;
               const isCorrectOption = index === currentQ.correctAnswer;
               
-              let optionClass = "p-4 rounded-lg border-2 transition-all cursor-pointer hover:border-blue-300";
+              let optionClass = "p-4 rounded-lg border-2 transition-all cursor-pointer hover:border-primary/30";
               
               if (showExplanation) {
                 if (isCorrectOption) {
-                  optionClass += " bg-green-100 border-green-400 text-green-800";
+                  optionClass += " bg-success/10 border-success text-success";
                 } else if (isSelected && !isCorrectOption) {
-                  optionClass += " bg-red-100 border-red-400 text-red-800";
+                  optionClass += " bg-destructive/10 border-destructive text-destructive";
                 } else {
-                  optionClass += " bg-gray-50 border-gray-200 text-gray-600";
+                  optionClass += " bg-muted/50 border-border text-muted-foreground";
                 }
               } else if (isSelected) {
-                optionClass += " bg-blue-100 border-blue-400 text-blue-800";
+                optionClass += " bg-primary/10 border-primary text-primary";
               } else {
-                optionClass += " bg-white border-gray-200 hover:bg-blue-50";
+                optionClass += " bg-background border-border hover:bg-primary/5";
               }
 
               return (
@@ -336,10 +336,10 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
                     </div>
                     <div className="flex-1">{option}</div>
                     {showExplanation && isCorrectOption && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     )}
                     {showExplanation && isSelected && !isCorrectOption && (
-                      <XCircle className="h-5 w-5 text-red-600" />
+                      <XCircle className="h-5 w-5 text-destructive" />
                     )}
                   </div>
                 </div>
@@ -350,18 +350,18 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
 
         {/* Explication */}
         {showExplanation && (
-          <div className={`rounded-lg p-4 border-2 ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
-            <h4 className={`font-semibold mb-2 ${isCorrect ? 'text-green-800' : 'text-orange-800'}`}>
+          <div className={`rounded-lg p-4 border-2 ${isCorrect ? 'bg-success/5 border-success/20' : 'bg-warning/5 border-warning/20'}`}>
+            <h4 className={`font-semibold mb-2 ${isCorrect ? 'text-success' : 'text-warning'}`}>
               {isCorrect ? '✅ Bonne réponse !' : '❌ Réponse incorrecte'}
             </h4>
-            <p className={isCorrect ? 'text-green-700' : 'text-orange-700'}>
+            <p className={isCorrect ? 'text-success/80' : 'text-warning-foreground'}>
               {currentQ.explanation}
             </p>
             
             {!isCorrect && currentQ.commonErrors.length > 0 && (
-              <div className="mt-3 p-3 bg-orange-100 rounded border border-orange-200">
-                <h5 className="font-medium text-orange-800 mb-1">Erreurs fréquentes à éviter :</h5>
-                <ul className="text-sm text-orange-700 list-disc list-inside">
+              <div className="mt-3 p-3 bg-warning/10 rounded border border-warning/20">
+                <h5 className="font-medium text-warning-foreground mb-1">Erreurs fréquentes à éviter :</h5>
+                <ul className="text-sm text-warning-foreground/80 list-disc list-inside">
                   {currentQ.commonErrors.map((error, index) => (
                     <li key={index}>{error}</li>
                   ))}
@@ -385,7 +385,7 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
           <Button
             onClick={handleNextQuestion}
             disabled={!showExplanation}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
           >
             {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
             <ArrowRight className="h-4 w-4 ml-2" />

@@ -172,7 +172,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       {/* En-tête avec profil utilisateur */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-white font-bold text-xl">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-primary-foreground font-bold text-xl">
             {userMetrics.userName.charAt(0)}
           </div>
           <div>

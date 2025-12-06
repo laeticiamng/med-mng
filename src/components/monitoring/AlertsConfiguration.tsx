@@ -119,15 +119,15 @@ export const AlertsConfiguration = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'low':
-        return 'bg-blue-500';
+        return 'bg-primary';
       case 'medium':
-        return 'bg-yellow-500';
+        return 'bg-warning';
       case 'high':
-        return 'bg-orange-500';
+        return 'bg-warning';
       case 'critical':
-        return 'bg-red-500';
+        return 'bg-destructive';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted';
     }
   };
 
@@ -161,7 +161,7 @@ export const AlertsConfiguration = () => {
                         <h3 className="font-medium">{rule.name}</h3>
                         <Badge 
                           variant="outline" 
-                          className={`${getSeverityColor(rule.severity)} text-white`}
+                          className={`${getSeverityColor(rule.severity)} text-primary-foreground`}
                         >
                           {rule.severity}
                         </Badge>

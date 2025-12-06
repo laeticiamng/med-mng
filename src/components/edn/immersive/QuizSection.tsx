@@ -49,10 +49,10 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-red-600">⚠️ Quiz - Contenu indisponible</CardTitle>
+          <CardTitle className="text-destructive">⚠️ Quiz - Contenu indisponible</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Les questions du quiz ne sont pas encore disponibles dans Supabase.</p>
+          <p className="text-muted-foreground">Les questions du quiz ne sont pas encore disponibles dans Supabase.</p>
         </CardContent>
       </Card>
     );
@@ -104,14 +104,14 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
               Rang {currentQuestion.rang}
             </Badge>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             Question {currentQuestionIndex + 1}/{questions.length}
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-          <span className="text-sm text-blue-700">Répartition: 70% Rang A, 30% Rang B</span>
+        <div className="flex justify-between items-center p-3 bg-primary/5 rounded">
+          <span className="text-sm text-primary">Répartition: 70% Rang A, 30% Rang B</span>
           <span className="text-sm font-medium">Score: {score.correct}/{score.total} ({getScorePercentage()}%)</span>
         </div>
 
@@ -127,20 +127,20 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
                 className={`w-full p-3 text-left rounded border transition-colors ${
                   showExplanation
                     ? index === currentQuestion.correct
-                      ? 'bg-green-100 border-green-500 text-green-800'
+                      ? 'bg-success/10 border-success text-success'
                       : selectedAnswer === index
-                      ? 'bg-red-100 border-red-500 text-red-800'
-                      : 'bg-gray-50 border-gray-300'
-                    : 'bg-white border-gray-300 hover:bg-blue-50 hover:border-blue-400'
+                      ? 'bg-destructive/10 border-destructive text-destructive'
+                      : 'bg-muted border-border'
+                    : 'bg-background border-border hover:bg-primary/5 hover:border-primary/40'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span>{option}</span>
                   {showExplanation && (
                     <>
-                      {index === currentQuestion.correct && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      {index === currentQuestion.correct && <CheckCircle className="w-5 h-5 text-success" />}
                       {selectedAnswer === index && index !== currentQuestion.correct && (
-                        <XCircle className="w-5 h-5 text-red-600" />
+                        <XCircle className="w-5 h-5 text-destructive" />
                       )}
                     </>
                   )}
@@ -150,8 +150,8 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
           </div>
 
           {showExplanation && (
-            <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-              <p className="text-yellow-800">
+            <div className="p-4 bg-warning/10 border-l-4 border-warning rounded">
+              <p className="text-warning-foreground">
                 <strong>Explication :</strong> {currentQuestion.explication}
               </p>
             </div>
@@ -180,13 +180,13 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
                 Quiz terminé ! Score final : {getScorePercentage()}%
               </p>
               {getScorePercentage() >= 80 && (
-                <p className="text-green-600">🎉 Excellent travail !</p>
+                <p className="text-success">🎉 Excellent travail !</p>
               )}
               {getScorePercentage() >= 60 && getScorePercentage() < 80 && (
-                <p className="text-yellow-600">👍 Bon travail, continuez vos efforts !</p>
+                <p className="text-warning">👍 Bon travail, continuez vos efforts !</p>
               )}
               {getScorePercentage() < 60 && (
-                <p className="text-red-600">📚 Révisez et réessayez !</p>
+                <p className="text-destructive">📚 Révisez et réessayez !</p>
               )}
             </div>
           )}

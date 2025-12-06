@@ -147,21 +147,21 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header Spotify-like */}
-      <Card className="bg-gradient-to-r from-green-600 to-green-700 text-white border-green-500">
+      <Card className="bg-gradient-to-r from-success to-success/80 text-success-foreground border-success/50">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-full">
+              <div className="p-3 bg-success-foreground/20 rounded-full">
                 <Music className="h-8 w-8" />
               </div>
               <div>
                 <CardTitle className="text-2xl font-bold">Spotify IA Médical</CardTitle>
-                <CardDescription className="text-green-100">
+                <CardDescription className="text-success-foreground/80">
                   Génération musicale personnalisée pour {itemData.title}
                 </CardDescription>
               </div>
             </div>
-            <Badge className="bg-white/20 text-white border-white/30">
+            <Badge className="bg-success-foreground/20 text-success-foreground border-success-foreground/30">
               <Zap className="h-3 w-3 mr-1" />
               IA Suno
             </Badge>
@@ -316,8 +316,8 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
                       </div>
                     </div>
 
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-blue-800 text-sm">
+                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <p className="text-primary text-sm">
                         {generationStatus.feedback?.message}
                       </p>
                     </div>
@@ -394,9 +394,9 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
       </Tabs>
 
       {/* Footer anti-download */}
-      <Card className="bg-red-50 border-red-200">
+      <Card className="bg-destructive/5 border-destructive/20">
         <CardContent className="p-4">
-          <div className="flex items-center gap-2 text-red-800 text-sm">
+          <div className="flex items-center gap-2 text-destructive text-sm">
             <AlertCircle className="h-4 w-4" />
             <span className="font-medium">Streaming Seulement</span>
             <span>•</span>
