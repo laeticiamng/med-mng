@@ -8,14 +8,14 @@ export const processTableauRangAIC10 = (data: any) => {
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
-    { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50', couleurTexte: 'text-teal-800' },
-    { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50', couleurTexte: 'text-purple-800' },
-    { nom: 'Exemple', description: 'Application clinique', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50', couleurTexte: 'text-blue-800' },
-    { nom: 'Piège', description: 'Réductionnisme', couleur: 'bg-red-600', couleurCellule: 'bg-red-50', couleurTexte: 'text-red-800' },
-    { nom: 'Mnémo', description: 'Mémorisation', couleur: 'bg-yellow-600', couleurCellule: 'bg-yellow-50', couleurTexte: 'text-yellow-800' },
-    { nom: 'Subtilité', description: 'Nuances importantes', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50', couleurTexte: 'text-indigo-800' },
-    { nom: 'Application', description: 'Mise en pratique', couleur: 'bg-green-600', couleurCellule: 'bg-green-50', couleurTexte: 'text-green-800' },
-    { nom: 'Vigilance', description: 'Points d\'attention', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50', couleurTexte: 'text-orange-800' }
+    { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-muted', couleurCellule: 'bg-muted/50', couleurTexte: 'text-muted-foreground' },
+    { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent-foreground' },
+    { nom: 'Exemple', description: 'Application clinique', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary' },
+    { nom: 'Piège', description: 'Réductionnisme', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10', couleurTexte: 'text-destructive' },
+    { nom: 'Mnémo', description: 'Mémorisation', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' },
+    { nom: 'Subtilité', description: 'Nuances importantes', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/10', couleurTexte: 'text-secondary-foreground' },
+    { nom: 'Application', description: 'Mise en pratique', couleur: 'bg-success', couleurCellule: 'bg-success/10', couleurTexte: 'text-success' },
+    { nom: 'Vigilance', description: 'Points d\'attention', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [
