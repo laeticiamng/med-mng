@@ -11,13 +11,13 @@ export const ParolesMusicalesErrorDisplay: React.FC<ParolesMusicalesErrorDisplay
   if (!lastError) return null;
 
   return (
-    <Card className="border-red-200 bg-red-50">
+    <Card className="border-destructive/30 bg-destructive/10">
       <CardContent className="pt-6">
-        <div className="flex items-center gap-2 text-red-700">
+        <div className="flex items-center gap-2 text-destructive">
           <AlertTriangle className="h-5 w-5" />
           <span className="font-semibold">Erreur de génération</span>
         </div>
-        <p className="text-red-600 mt-2">{lastError}</p>
+        <p className="text-destructive mt-2">{lastError}</p>
       </CardContent>
     </Card>
   );

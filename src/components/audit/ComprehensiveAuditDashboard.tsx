@@ -63,25 +63,25 @@ export const ComprehensiveAuditDashboard = () => {
 
   const getStatusIcon = (status: 'good' | 'warning' | 'error') => {
     switch (status) {
-      case 'good': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case 'error': return <XCircle className="h-5 w-5 text-red-600" />;
+      case 'good': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'error': return <XCircle className="h-5 w-5 text-destructive" />;
     }
   };
 
   const getStatusColor = (status: 'good' | 'warning' | 'error') => {
     switch (status) {
-      case 'good': return 'bg-green-100 text-green-800 border-green-200';
-      case 'warning': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'error': return 'bg-red-100 text-red-800 border-red-200';
+      case 'good': return 'bg-success/10 text-success border-success/30';
+      case 'warning': return 'bg-warning/10 text-warning border-warning/30';
+      case 'error': return 'bg-destructive/10 text-destructive border-destructive/30';
     }
   };
 
   const getCategoryIcon = (category: 'critical' | 'warning' | 'info') => {
     switch (category) {
-      case 'critical': return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'info': return <CheckCircle className="h-4 w-4 text-blue-600" />;
+      case 'critical': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'info': return <CheckCircle className="h-4 w-4 text-primary" />;
     }
   };
 
@@ -209,7 +209,7 @@ export const ComprehensiveAuditDashboard = () => {
                     <p className="text-sm text-muted-foreground">Items EDN</p>
                     <p className="text-2xl font-bold">{auditResult.metrics.totalItems}</p>
                   </div>
-                  <CheckCircle className="h-8 w-8 text-blue-500" />
+                  <CheckCircle className="h-8 w-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -219,9 +219,9 @@ export const ComprehensiveAuditDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Items Valides</p>
-                    <p className="text-2xl font-bold text-green-600">{auditResult.metrics.validItems}</p>
+                    <p className="text-2xl font-bold text-success">{auditResult.metrics.validItems}</p>
                   </div>
-                  <CheckCircle className="h-8 w-8 text-green-500" />
+                  <CheckCircle className="h-8 w-8 text-success" />
                 </div>
               </CardContent>
             </Card>
@@ -231,9 +231,9 @@ export const ComprehensiveAuditDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Taux d'erreur</p>
-                    <p className="text-2xl font-bold text-red-600">{auditResult.metrics.errorRate}%</p>
+                    <p className="text-2xl font-bold text-destructive">{auditResult.metrics.errorRate}%</p>
                   </div>
-                  <XCircle className="h-8 w-8 text-red-500" />
+                  <XCircle className="h-8 w-8 text-destructive" />
                 </div>
               </CardContent>
             </Card>
@@ -243,7 +243,7 @@ export const ComprehensiveAuditDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Qualité Code</p>
-                    <p className="text-2xl font-bold text-blue-600">{auditResult.metrics.codeQuality}%</p>
+                    <p className="text-2xl font-bold text-primary">{auditResult.metrics.codeQuality}%</p>
                   </div>
                   <div className="w-8 h-8">
                     <Progress value={auditResult.metrics.codeQuality} className="h-2" />
@@ -310,7 +310,7 @@ export const ComprehensiveAuditDashboard = () => {
                 <div className="space-y-2">
                   {auditResult.recommendations.map((recommendation, index) => (
                     <div key={index} className="flex items-start gap-2 p-2">
-                      <span className="text-blue-500 mt-1">•</span>
+                      <span className="text-primary mt-1">•</span>
                       <span className="text-sm">{recommendation}</span>
                     </div>
                   ))}

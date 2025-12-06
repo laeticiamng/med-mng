@@ -282,11 +282,11 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
                     className={`flex items-center space-x-2 p-3 rounded border transition-colors ${
                       showExplanation 
                         ? isCorrect 
-                          ? 'bg-green-50 border-green-200' 
+                          ? 'bg-success/10 border-success/30' 
                           : isUserChoice 
-                            ? 'bg-red-50 border-red-200' 
-                            : 'bg-gray-50'
-                        : 'hover:bg-gray-50'
+                            ? 'bg-destructive/10 border-destructive/30' 
+                            : 'bg-muted'
+                        : 'hover:bg-muted'
                     }`}
                   >
                     <RadioGroupItem value={option} id={`option-${index}`} />
@@ -295,10 +295,10 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
                       {option}
                     </Label>
                     {showExplanation && isCorrect && (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                     )}
                     {showExplanation && isUserChoice && !isCorrect && (
-                      <XCircle className="h-4 w-4 text-red-600" />
+                      <XCircle className="h-4 w-4 text-destructive" />
                     )}
                   </div>
                 );
@@ -314,7 +314,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
                   <BookOpen className="h-4 w-4 text-primary" />
                   <span className="font-medium">Explication</span>
                 </div>
-                <p className="text-sm text-muted-foreground bg-blue-50 p-3 rounded">
+                <p className="text-sm text-muted-foreground bg-primary/10 p-3 rounded">
                   {currentQuestion.explanation}
                 </p>
                 <Button onClick={nextQuestion} className="w-full">
@@ -355,19 +355,19 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
           
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="space-y-2">
-              <CheckCircle className="h-6 w-6 mx-auto text-green-600" />
+              <CheckCircle className="h-6 w-6 mx-auto text-success" />
               <p className="text-sm text-muted-foreground">Bonnes réponses</p>
-              <p className="font-bold text-green-600">{sessionResults.correct_answers}</p>
+              <p className="font-bold text-success">{sessionResults.correct_answers}</p>
             </div>
             <div className="space-y-2">
-              <XCircle className="h-6 w-6 mx-auto text-red-600" />
+              <XCircle className="h-6 w-6 mx-auto text-destructive" />
               <p className="text-sm text-muted-foreground">Erreurs</p>
-              <p className="font-bold text-red-600">{sessionResults.incorrect_answers}</p>
+              <p className="font-bold text-destructive">{sessionResults.incorrect_answers}</p>
             </div>
             <div className="space-y-2">
-              <Target className="h-6 w-6 mx-auto text-blue-600" />
+              <Target className="h-6 w-6 mx-auto text-primary" />
               <p className="text-sm text-muted-foreground">Total</p>
-              <p className="font-bold text-blue-600">{sessionResults.total_questions}</p>
+              <p className="font-bold text-primary">{sessionResults.total_questions}</p>
             </div>
           </div>
           

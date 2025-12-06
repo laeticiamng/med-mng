@@ -86,11 +86,11 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
         {/* Options de génération */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Rang A */}
-          <Card className="border-orange-200 hover:shadow-md transition-shadow">
+          <Card className="border-warning/30 hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2">
-                  <Badge className="bg-orange-500">Rang A</Badge>
+                  <Badge className="bg-warning text-warning-foreground">Rang A</Badge>
                   <span className="text-sm text-muted-foreground">
                     {getCompetencesCount('A')} compétences
                   </span>
@@ -102,7 +102,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                 <Button
                   onClick={() => handleGenerate('A')}
                   disabled={musicGeneration.isGenerating || !hasData('A')}
-                  className="w-full bg-orange-500 hover:bg-orange-600"
+                  className="w-full bg-warning hover:bg-warning/90 text-warning-foreground"
                   size="sm"
                 >
                   <Play className="h-4 w-4 mr-1" />
@@ -113,11 +113,11 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
           </Card>
 
           {/* Rang B */}
-          <Card className="border-purple-200 hover:shadow-md transition-shadow">
+          <Card className="border-accent/30 hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2">
-                  <Badge className="bg-purple-500">Rang B</Badge>
+                  <Badge className="bg-accent text-accent-foreground">Rang B</Badge>
                   <span className="text-sm text-muted-foreground">
                     {getCompetencesCount('B')} compétences
                   </span>
@@ -129,7 +129,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                 <Button
                   onClick={() => handleGenerate('B')}
                   disabled={musicGeneration.isGenerating || !hasData('B')}
-                  className="w-full bg-purple-500 hover:bg-purple-600"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                   size="sm"
                 >
                   <Play className="h-4 w-4 mr-1" />
@@ -140,11 +140,11 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
           </Card>
 
           {/* Mix A+B */}
-          <Card className="border-blue-200 hover:shadow-md transition-shadow">
+          <Card className="border-primary/30 hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2">
-                  <Badge className="bg-blue-500">Mix A+B</Badge>
+                  <Badge className="bg-primary text-primary-foreground">Mix A+B</Badge>
                   <span className="text-sm text-muted-foreground">
                     {getCompetencesCount('Mix')} compétences
                   </span>
@@ -156,7 +156,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                 <Button
                   onClick={() => handleGenerate('Mix')}
                   disabled={musicGeneration.isGenerating || (!hasData('A') && !hasData('B'))}
-                  className="w-full bg-blue-500 hover:bg-blue-600"
+                  className="w-full"
                   size="sm"
                 >
                   <Play className="h-4 w-4 mr-1" />
