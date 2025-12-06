@@ -80,12 +80,12 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
         <Button
           onClick={onGenerate}
           disabled={isGenerating || !canGenerate}
-          className="w-full bg-blue-600 hover:bg-blue-700"
+          className="w-full bg-primary hover:bg-primary/90"
           size="lg"
         >
           {isGenerating ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
               Génération en cours...
             </>
           ) : (

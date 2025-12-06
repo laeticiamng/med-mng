@@ -203,10 +203,10 @@ export const AdminChatMonitoring: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Réponses EDN</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.edn_responses}</p>
+                  <p className="text-sm text-muted-foreground">Réponses EDN</p>
+                  <p className="text-2xl font-bold text-success">{stats.edn_responses}</p>
                 </div>
-                <Database className="h-8 w-8 text-green-600" />
+                <Database className="h-8 w-8 text-success" />
               </div>
             </CardContent>
           </Card>
@@ -215,10 +215,10 @@ export const AdminChatMonitoring: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Fallback Web</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.web_fallback_responses}</p>
+                  <p className="text-sm text-muted-foreground">Fallback Web</p>
+                  <p className="text-2xl font-bold text-warning">{stats.web_fallback_responses}</p>
                 </div>
-                <Globe className="h-8 w-8 text-orange-600" />
+                <Globe className="h-8 w-8 text-warning" />
               </div>
             </CardContent>
           </Card>
@@ -227,12 +227,12 @@ export const AdminChatMonitoring: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Qualité Moy.</p>
+                  <p className="text-sm text-muted-foreground">Qualité Moy.</p>
                   <p className="text-2xl font-bold">
                     {stats.avg_response_quality ? stats.avg_response_quality.toFixed(1) : 'N/A'}
                   </p>
                 </div>
-                <BarChart3 className="h-8 w-8 text-blue-600" />
+                <BarChart3 className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -281,29 +281,29 @@ export const AdminChatMonitoring: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-4">
               {chatLogs.map((log) => (
-                <div key={log.id} className="border rounded-lg p-4 bg-gray-50">
+                <div key={log.id} className="border rounded-lg p-4 bg-muted/50">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       {getSourceBadge(log.response_source, log.web_fallback_used)}
                       {getQualityIndicator(log.response_quality_score)}
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {new Date(log.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       {log.user_id.substring(0, 8)}...
                     </span>
                   </div>
 
                   <div className="space-y-2">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Question:</p>
-                      <p className="text-sm text-gray-600 italic">"{log.question}"</p>
+                      <p className="text-sm font-medium text-foreground">Question:</p>
+                      <p className="text-sm text-muted-foreground italic">"{log.question}"</p>
                     </div>
 
                     {log.edn_context_items.length > 0 && (
                       <div>
-                        <p className="text-xs text-gray-500">Items EDN utilisés:</p>
+                        <p className="text-xs text-muted-foreground">Items EDN utilisés:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {log.edn_context_items.map((item, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
@@ -315,8 +315,8 @@ export const AdminChatMonitoring: React.FC = () => {
                     )}
 
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Réponse:</p>
-                      <p className="text-sm text-gray-600 line-clamp-3">
+                      <p className="text-sm font-medium text-foreground">Réponse:</p>
+                      <p className="text-sm text-muted-foreground line-clamp-3">
                         {log.response.substring(0, 200)}
                         {log.response.length > 200 && '...'}
                       </p>
@@ -326,8 +326,8 @@ export const AdminChatMonitoring: React.FC = () => {
               ))}
 
               {chatLogs.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                <div className="text-center py-8 text-muted-foreground">
+                  <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
                   <p>Aucun log de chat trouvé pour les filtres sélectionnés</p>
                 </div>
               )}
@@ -348,9 +348,9 @@ export const AdminChatMonitoring: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {stats.most_asked_topics.map((topic, index) => (
-                <div key={index} className="text-center p-2 bg-gray-50 rounded">
+                <div key={index} className="text-center p-2 bg-muted/50 rounded">
                   <p className="text-sm font-medium">{topic.topic}</p>
-                  <p className="text-xs text-gray-500">{topic.count} fois</p>
+                  <p className="text-xs text-muted-foreground">{topic.count} fois</p>
                 </div>
               ))}
             </div>

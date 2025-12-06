@@ -26,13 +26,13 @@ interface TableauDisplayProps {
 export function TableauDisplay({ tableau, rang, isComplete, className }: TableauDisplayProps) {
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
-      <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-red-50/50 to-orange-50/50", className)}>
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-orange-600 opacity-80"></div>
+      <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-destructive to-warning opacity-80"></div>
         
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-orange-100 rounded-xl flex items-center justify-center">
-              <XCircle className="h-5 w-5 text-red-600" />
+            <div className="w-10 h-10 bg-gradient-to-br from-destructive/10 to-warning/10 rounded-xl flex items-center justify-center">
+              <XCircle className="h-5 w-5 text-destructive" />
             </div>
             <div>
               <CardTitle className="text-lg font-bold text-foreground">
@@ -46,14 +46,14 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
         </CardHeader>
         
         <CardContent>
-          <div className="bg-red-50/30 border border-red-200/50 rounded-xl p-4">
+          <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-red-800 mb-1">
+                <p className="text-sm font-medium text-destructive mb-1">
                   Tableau non disponible
                 </p>
-                <p className="text-xs text-red-600">
+                <p className="text-xs text-destructive/80">
                   Le tableau Rang {rang} n'est pas encore disponible pour cet item.
                 </p>
               </div>
@@ -65,17 +65,17 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
   }
 
   const statusIcon = isComplete ? (
-    <CheckCircle className="h-5 w-5 text-green-600" />
+    <CheckCircle className="h-5 w-5 text-success" />
   ) : (
-    <AlertTriangle className="h-5 w-5 text-orange-500" />
+    <AlertTriangle className="h-5 w-5 text-warning" />
   )
 
   const statusBadge = isComplete ? (
-    <Badge variant="secondary" className="bg-green-100/50 text-green-700 border-green-200 font-medium px-3 py-1">
+    <Badge variant="secondary" className="bg-success/10 text-success border-success/20 font-medium px-3 py-1">
       Complet
     </Badge>
   ) : (
-    <Badge variant="secondary" className="bg-orange-100/50 text-orange-700 border-orange-200 font-medium px-3 py-1">
+    <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20 font-medium px-3 py-1">
       En développement
     </Badge>
   )
@@ -84,15 +84,15 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
     <Card className={cn(
       "transition-all duration-300 border-0 shadow-sm hover:shadow-lg",
       isComplete 
-        ? "bg-gradient-to-br from-green-50/50 to-emerald-50/50" 
-        : "bg-gradient-to-br from-orange-50/50 to-amber-50/50",
+        ? "bg-gradient-to-br from-success/5 to-success/10" 
+        : "bg-gradient-to-br from-warning/5 to-warning/10",
       className
     )}>
       {/* Indicateur de progression */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${
         isComplete 
-          ? 'bg-gradient-to-r from-green-500 to-emerald-600' 
-          : 'bg-gradient-to-r from-orange-500 to-amber-600'
+          ? 'bg-gradient-to-r from-success to-success/80' 
+          : 'bg-gradient-to-r from-warning to-warning/80'
       } opacity-80`}></div>
       
       <CardHeader className="pb-4">
@@ -100,8 +100,8 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${
               isComplete 
-                ? 'bg-gradient-to-br from-green-100 to-emerald-100' 
-                : 'bg-gradient-to-br from-orange-100 to-amber-100'
+                ? 'bg-gradient-to-br from-success/10 to-success/20' 
+                : 'bg-gradient-to-br from-warning/10 to-warning/20'
             }`}>
               {statusIcon}
             </div>
@@ -163,8 +163,8 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
         {/* Résumé */}
         <div className={`mt-6 p-4 rounded-xl border ${
           isComplete 
-            ? 'border-green-200/50 bg-green-50/30' 
-            : 'border-orange-200/50 bg-orange-50/30'
+            ? 'border-success/20 bg-success/5' 
+            : 'border-warning/20 bg-warning/5'
         }`}>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-3 font-medium text-muted-foreground">
