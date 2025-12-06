@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, BookOpen, Music, BarChart3, MessageSquare, Settings, 
-  User, LogOut, Brain, Target, Award, Sparkles 
+  User, LogOut, Sparkles, Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,23 +43,23 @@ export const MainNavigation: React.FC = () => {
   ];
 
   return (
-    <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-card/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-lg shadow-md flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-primary via-primary/80 to-accent rounded-lg shadow-md flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <span className="font-bold text-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+              <span className="font-bold text-xl bg-gradient-to-r from-foreground via-foreground/90 to-foreground bg-clip-text text-transparent">
                 MED MNG
               </span>
-              <div className="text-xs text-gray-500 font-medium">Platform</div>
+              <div className="text-xs text-muted-foreground font-medium">Platform</div>
             </div>
           </Link>
 
-          {/* Navigation principale */}
+          {/* Navigation principale - Desktop */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
               if (item.authRequired && !user) return null;
@@ -74,8 +74,8 @@ export const MainNavigation: React.FC = () => {
                   to={item.path}
                   className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isItemActive
-                      ? 'bg-blue-50 text-blue-700 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'bg-primary/10 text-primary shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -86,7 +86,7 @@ export const MainNavigation: React.FC = () => {
                     </Badge>
                   )}
                   {item.isNew && (
-                    <Badge variant="default" className="ml-1 h-5 text-xs bg-green-500">
+                    <Badge className="ml-1 h-5 text-xs bg-success text-success-foreground">
                       Nouveau
                     </Badge>
                   )}
@@ -101,18 +101,18 @@ export const MainNavigation: React.FC = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary-foreground" />
                     </div>
-                    <span className="hidden sm:block text-sm font-medium">
+                    <span className="hidden sm:block text-sm font-medium text-foreground">
                       {user.email?.split('@')[0]}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-3 py-2 border-b">
-                    <p className="text-sm font-medium">{user.email}</p>
-                    <p className="text-xs text-gray-500">Utilisateur connecté</p>
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-sm font-medium text-foreground">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">Utilisateur connecté</p>
                   </div>
                   
                   <DropdownMenuItem onClick={() => navigate('/med-mng/profile')}>
@@ -139,14 +139,14 @@ export const MainNavigation: React.FC = () => {
                   
                   <DropdownMenuSeparator />
                   
-                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -157,52 +157,60 @@ export const MainNavigation: React.FC = () => {
                 <Button 
                   size="sm"
                   onClick={() => navigate('/med-mng/signup')}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
                 >
                   S'inscrire
                 </Button>
               </div>
             )}
-          </div>
 
-          {/* Navigation mobile */}
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <div className="w-6 h-6 flex flex-col justify-center items-center">
-                    <div className="w-4 h-0.5 bg-gray-600 mb-1"></div>
-                    <div className="w-4 h-0.5 bg-gray-600 mb-1"></div>
-                    <div className="w-4 h-0.5 bg-gray-600"></div>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {navItems.map((item) => {
-                  if (item.authRequired && !user) return null;
+            {/* Navigation mobile */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Menu className="w-5 h-5 text-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {navItems.map((item) => {
+                    if (item.authRequired && !user) return null;
+                    
+                    return (
+                      <DropdownMenuItem 
+                        key={item.path}
+                        onClick={() => navigate(item.path)}
+                      >
+                        <item.icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                        {item.badge && (
+                          <Badge variant="secondary" className="ml-auto h-5 text-xs">
+                            {item.badge}
+                          </Badge>
+                        )}
+                        {item.isNew && (
+                          <Badge className="ml-auto h-5 text-xs bg-success text-success-foreground">
+                            New
+                          </Badge>
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
                   
-                  return (
-                    <DropdownMenuItem 
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                    >
-                      <item.icon className="w-4 h-4 mr-2" />
-                      {item.label}
-                      {item.badge && (
-                        <Badge variant="secondary" className="ml-auto h-5 text-xs">
-                          {item.badge}
-                        </Badge>
-                      )}
-                      {item.isNew && (
-                        <Badge variant="default" className="ml-auto h-5 text-xs bg-green-500">
-                          New
-                        </Badge>
-                      )}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {!user && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/med-mng/login')}>
+                        Connexion
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/med-mng/signup')}>
+                        S'inscrire
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>

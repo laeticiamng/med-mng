@@ -126,7 +126,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
                 variant="secondary"
                 onClick={generateImage}
                 disabled={isGenerating}
-                className="flex items-center gap-1 bg-white/90 hover:bg-white text-blue-600"
+                className="flex items-center gap-1 bg-card/90 hover:bg-card text-primary"
               >
                 {isGenerating ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

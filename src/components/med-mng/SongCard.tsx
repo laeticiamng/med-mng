@@ -146,7 +146,7 @@ export const SongCard: React.FC<SongCardProps> = ({
             <Button
               onClick={onPlay}
               size="lg"
-              className="rounded-full bg-white text-blue-600 hover:bg-white/90 shadow-lg min-h-[48px] min-w-[48px]"
+              className="rounded-full bg-card text-primary hover:bg-card/90 shadow-lg min-h-[48px] min-w-[48px]"
             >
               <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-1" />
             </Button>

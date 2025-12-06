@@ -35,7 +35,7 @@ export const MusicLibraryGrid = ({ musics, playingId, onPlay, onDelete }: MusicL
                 <Button
                   onClick={() => onPlay(music)}
                   size="lg"
-                  className="rounded-full bg-white text-amber-600 hover:bg-white/90 shadow-lg"
+                  className="rounded-full bg-card text-warning hover:bg-card/90 shadow-lg"
                 >
                   <Play className={`h-6 w-6 ${playingId === music.id ? 'animate-pulse' : 'ml-1'}`} />
                 </Button>
