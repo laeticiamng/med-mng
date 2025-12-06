@@ -53,6 +53,15 @@ export const AppFooter = () => {
               <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Statistiques
               </Link>
+              <Link to={ROUTE_PATHS.designSystem} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Design System
+              </Link>
+              <Link to={ROUTE_PATHS.accessibilityDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Accessibilité Dashboard
+              </Link>
+              <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Installer l'App
+              </Link>
             </div>
           </div>
           
