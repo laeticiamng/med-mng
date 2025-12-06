@@ -271,8 +271,8 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                           </h4>
                         )}
                         <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-3 w-3 text-gray-400" />
-                          <span className="text-xs text-gray-500">
+                          <Clock className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
                             {formatDate(session.updatedAt)}
                           </span>
                           {session.context && (
@@ -280,7 +280,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                               {session.context}
                             </Badge>
                           )}
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-muted-foreground/70">
                             {session.messages.filter(m => m.role !== 'system').length} messages
                           </span>
                         </div>

@@ -70,12 +70,12 @@ export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
   // Affichage optimisé avec grille normale pour éviter react-window
   return (
     <div className="w-full">
-      <div className="mb-4 text-sm text-gray-600 bg-white/80 p-3 rounded-lg">
+      <div className="mb-4 text-sm text-muted-foreground bg-card/80 p-3 rounded-lg">
         📊 Affichage optimisé: {items.length} items • {columnCount} colonnes • Performance maximale
       </div>
       
       <div 
-        className="grid gap-6 auto-rows-max scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-gray-100"
+        className="grid gap-6 auto-rows-max scrollbar-thin scrollbar-thumb-accent/50 scrollbar-track-muted"
         style={{
           gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
           maxHeight: '800px',
@@ -87,7 +87,7 @@ export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
       
       {items.length > 20 && (
         <div className="mt-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm">
             📈 {items.length} items affichés simultanément
           </div>
         </div>

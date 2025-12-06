@@ -92,7 +92,7 @@ const Favorites: React.FC = () => {
       description: 'Tous mes items préférés en cardiologie',
       itemCount: 12,
       createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      color: 'bg-red-100 text-red-700'
+      color: 'bg-destructive/10 text-destructive'
     },
     {
       id: '2',
@@ -100,7 +100,7 @@ const Favorites: React.FC = () => {
       description: 'Collection spéciale pour les révisions',
       itemCount: 8,
       createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
-      color: 'bg-blue-100 text-blue-700'
+      color: 'bg-primary/10 text-primary'
     },
     {
       id: '3',
@@ -108,7 +108,7 @@ const Favorites: React.FC = () => {
       description: 'Mes musiques préférées pour la concentration',
       itemCount: 15,
       createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      color: 'bg-purple-100 text-purple-700'
+      color: 'bg-accent/10 text-accent'
     }
   ];
 
@@ -124,11 +124,11 @@ const Favorites: React.FC = () => {
 
   const getTypeColor = (type: FavoriteItem['type']) => {
     switch (type) {
-      case 'edn': return 'bg-blue-100 text-blue-700';
-      case 'music': return 'bg-purple-100 text-purple-700';
-      case 'playlist': return 'bg-green-100 text-green-700';
-      case 'quiz': return 'bg-yellow-100 text-yellow-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'edn': return 'bg-primary/10 text-primary';
+      case 'music': return 'bg-accent/10 text-accent';
+      case 'playlist': return 'bg-success/10 text-success';
+      case 'quiz': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -143,7 +143,7 @@ const Favorites: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-destructive/10">
       <Helmet>
         <title>Mes Favoris - MED MNG</title>
         <meta name="description" content="Gérez vos contenus favoris, collections personnalisées et éléments sauvegardés." />
@@ -165,11 +165,11 @@ const Favorites: React.FC = () => {
             </Button>
             
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Heart className="w-8 h-8 text-red-500" />
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Heart className="w-8 h-8 text-destructive" />
                 Mes Favoris
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Retrouvez tous vos contenus préférés et collections personnalisées
               </p>
             </div>
@@ -185,30 +185,30 @@ const Favorites: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-gray-900">{favoriteItems.length}</div>
-              <div className="text-sm text-gray-600">Items Favoris</div>
+              <div className="text-2xl font-bold text-foreground">{favoriteItems.length}</div>
+              <div className="text-sm text-muted-foreground">Items Favoris</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-gray-900">{collections.length}</div>
-              <div className="text-sm text-gray-600">Collections</div>
+              <div className="text-2xl font-bold text-foreground">{collections.length}</div>
+              <div className="text-sm text-muted-foreground">Collections</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-foreground">
                 {favoriteItems.filter(item => item.lastAccessed && item.lastAccessed > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}
               </div>
-              <div className="text-sm text-gray-600">Consultés Aujourd'hui</div>
+              <div className="text-sm text-muted-foreground">Consultés Aujourd'hui</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-foreground">
                 {Math.round(favoriteItems.filter(item => item.progress).reduce((acc, item) => acc + (item.progress || 0), 0) / favoriteItems.filter(item => item.progress).length)}%
               </div>
-              <div className="text-sm text-gray-600">Progression Moyenne</div>
+              <div className="text-sm text-muted-foreground">Progression Moyenne</div>
             </CardContent>
           </Card>
         </div>
@@ -227,7 +227,7 @@ const Favorites: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         placeholder="Rechercher dans mes favoris..."
                         value={searchQuery}
@@ -277,15 +277,15 @@ const Favorites: React.FC = () => {
                             <TypeIcon className="w-5 h-5" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
-                            <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                            <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
                             <Badge variant="outline" className="text-xs">
                               {item.category}
                             </Badge>
                           </div>
                         </div>
                         
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-red-500">
+                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -297,9 +297,9 @@ const Favorites: React.FC = () => {
                             <span>Progression</span>
                             <span>{item.progress}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full" 
+                              className="bg-primary h-2 rounded-full" 
                               style={{ width: `${item.progress}%` }}
                             ></div>
                           </div>
@@ -307,7 +307,7 @@ const Favorites: React.FC = () => {
                       )}
 
                       {item.duration && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                           <Clock className="w-4 h-4" />
                           {item.duration}
                         </div>
@@ -324,7 +324,7 @@ const Favorites: React.FC = () => {
 
                       {/* Actions */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
                           Ajouté {new Intl.RelativeTimeFormat('fr', { numeric: 'auto' }).format(
                             Math.ceil((item.addedAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)), 'day'
@@ -347,11 +347,11 @@ const Favorites: React.FC = () => {
             {filteredItems.length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     Aucun favori trouvé
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-muted-foreground mb-6">
                     {searchQuery ? 'Aucun résultat pour votre recherche.' : 'Commencez à ajouter des contenus à vos favoris !'}
                   </p>
                   <Button onClick={() => navigate('/edn-complete')}>
@@ -372,16 +372,16 @@ const Favorites: React.FC = () => {
                       <div className={`p-3 rounded-lg ${collection.color}`}>
                         <FolderPlus className="w-6 h-6" />
                       </div>
-                      <Button variant="ghost" size="sm" className="text-gray-400">
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                     
-                    <h3 className="font-semibold text-gray-900 mb-2">{collection.name}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{collection.description}</p>
+                    <h3 className="font-semibold text-foreground mb-2">{collection.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">{collection.description}</p>
                     
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-muted-foreground">
                         {collection.itemCount} éléments
                       </div>
                       <Button size="sm">

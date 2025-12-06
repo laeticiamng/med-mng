@@ -81,23 +81,23 @@ const MedMngLibraryComponent = () => {
 
   if (isLoading) {
     return (
-      <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-2">
               Ma bibliothèque musicale
             </h1>
-            <p className="text-gray-600">Chargement de vos chansons...</p>
+            <p className="text-muted-foreground">Chargement de vos chansons...</p>
           </div>
           
           <SkeletonLibraryGrid count={12} />
           
           {showSlowLoading && (
-            <div className="text-center mt-8 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-700 font-medium">
+            <div className="text-center mt-8 p-4 bg-primary/10 rounded-lg">
+              <p className="text-primary font-medium">
                 Chargement plus long que d'habitude ?
               </p>
-              <p className="text-blue-600 text-sm mt-1">
+              <p className="text-primary/80 text-sm mt-1">
                 Nous récupérons vos données...
               </p>
             </div>
@@ -135,7 +135,7 @@ const MedMngLibraryComponent = () => {
   }
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -143,13 +143,13 @@ const MedMngLibraryComponent = () => {
             <TranslatedText 
               text="Ma bibliothèque musicale"
               as="h1"
-              className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2"
+              className="text-2xl sm:text-4xl font-bold text-foreground mb-2"
               showLoader
             />
             <TranslatedText 
               text={`${filteredSongs.length} chanson${filteredSongs.length > 1 ? 's' : ''} dans votre collection`}
               as="p"
-              className="text-gray-600"
+              className="text-muted-foreground"
             />
           </div>
           <div className="text-right">
@@ -293,21 +293,21 @@ const MedMngLibraryComponent = () => {
   function renderPlaylistsSection() {
     return (
       <div className="text-center py-16">
-        <ListMusic className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+        <ListMusic className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
         <TranslatedText 
           text="Gérez vos playlists"
           as="h3"
-          className="text-xl font-semibold text-gray-900 mb-2"
+          className="text-xl font-semibold text-foreground mb-2"
         />
         <TranslatedText 
           text="Créez et organisez vos playlists de chansons"
           as="p"
-          className="text-gray-600 mb-6"
+          className="text-muted-foreground mb-6"
         />
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button 
             onClick={() => navigate('/med-mng/playlists')} 
-            className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6"
+            className="min-h-[48px] px-6"
           >
             <ListMusic className="h-4 w-4 mr-2" />
             <TranslatedText text="Voir mes playlists" />

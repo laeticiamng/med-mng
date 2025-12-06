@@ -297,7 +297,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               onClick={() => setShowDebug(!showDebug)}
               variant="ghost"
               size="lg"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-muted-foreground hover:text-foreground"
               title="Debug audio"
             >
               <Bug className="h-4 w-4" />

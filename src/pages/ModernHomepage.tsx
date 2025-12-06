@@ -202,7 +202,7 @@ const ModernHomepage = () => {
                         {module.icon}
                       </div>
                       {module.popular && (
-                        <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                        <Badge className="bg-gradient-to-r from-accent to-primary text-primary-foreground">
                           Populaire
                         </Badge>
                       )}
@@ -287,13 +287,13 @@ const ModernHomepage = () => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-gradient-to-r from-purple-600 to-blue-600">
+        <section className="py-20 bg-gradient-to-r from-accent to-primary">
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-3xl mx-auto space-y-6">
-              <h2 className="text-4xl font-bold text-white">
+              <h2 className="text-4xl font-bold text-primary-foreground">
                 Prêt à transformer votre apprentissage ?
               </h2>
-              <p className="text-xl text-purple-100">
+              <p className="text-xl text-primary-foreground/80">
                 Rejoignez plus de 15,000 étudiants et professionnels qui ont déjà révolutionné 
                 leur façon d'apprendre la médecine avec MED-MNG.
               </p>
@@ -311,7 +311,7 @@ const ModernHomepage = () => {
                   size="lg" 
                   variant="outline"
                   onClick={() => navigate('/statistics')}
-                  className="flex items-center gap-2 px-8 py-3 text-lg border-white text-white hover:bg-white hover:text-purple-600"
+                  className="flex items-center gap-2 px-8 py-3 text-lg border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-accent"
                 >
                   <TrendingUp className="h-5 w-5" />
                   Voir les statistiques

@@ -21,7 +21,7 @@ export const MusicDurationSelector = ({
 
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium text-gray-700">
+      <Label className="text-sm font-medium text-foreground">
         Durée de la musique : {formatDuration(duration)}
       </Label>
       <div className="px-2">
@@ -34,7 +34,7 @@ export const MusicDurationSelector = ({
           disabled={disabled}
           className="w-full"
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
           <span>1:00</span>
           <span>5:00</span>
           <span>10:00</span>
