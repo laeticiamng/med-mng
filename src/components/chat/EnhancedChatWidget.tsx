@@ -83,19 +83,19 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
   };
 
   return (
-    <Card className="bg-white border-gray-200 shadow-lg">
+    <Card className="bg-background border-border shadow-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-gray-800">
+        <CardTitle className="flex items-center justify-between text-foreground">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-blue-600" />
+            <MessageSquare className="h-5 w-5 text-primary" />
             <span>Chat IA Médical</span>
             {enableWebFallback ? (
-              <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700">
+              <Badge variant="outline" className="text-xs bg-warning/10 text-warning">
                 <Globe className="h-3 w-3 mr-1" />
                 Web activé
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
+              <Badge variant="outline" className="text-xs bg-success/10 text-success">
                 <Database className="h-3 w-3 mr-1" />
                 EDN uniquement
               </Badge>
@@ -122,18 +122,18 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
         </CardTitle>
 
         {showSettings && (
-          <div className="pt-3 border-t border-gray-200">
+          <div className="pt-3 border-t border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-gray-600" />
-                <span className="text-sm text-gray-700">Fallback web</span>
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground">Fallback web</span>
               </div>
               <Switch
                 checked={enableWebFallback}
                 onCheckedChange={toggleWebFallback}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Si activé, utilise des sources web quand l'information n'est pas trouvée dans la base EDN
             </p>
           </div>
@@ -142,11 +142,11 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
 
       <CardContent className="space-y-4">
         {/* Zone de messages */}
-        <ScrollArea className={`${maxHeight} border rounded-lg bg-gray-50`}>
+        <ScrollArea className={`${maxHeight} border rounded-lg bg-muted/30`}>
           <div className="p-4 space-y-4">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+              <div className="text-center text-muted-foreground py-8">
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
                 <p className="text-sm">Commencez une conversation...</p>
                 {contextItems.length > 0 && (
                   <p className="text-xs mt-1">
@@ -160,8 +160,8 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
                   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-lg p-3 ${
                       message.role === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white border border-gray-200'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background border border-border'
                     }`}>
                       <div className="text-sm whitespace-pre-wrap">
                         {message.content}
@@ -175,7 +175,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
                           >
                             {getSourceLabel(message.source)}
                           </Badge>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground">
                             {message.timestamp.toLocaleTimeString()}
                           </span>
                         </div>
@@ -206,9 +206,9 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
             
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-200 rounded-lg p-3 max-w-[80%]">
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full" />
+                <div className="bg-background border border-border rounded-lg p-3 max-w-[80%]">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
                     <span className="text-sm">L'IA réfléchit...</span>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
           <Button
             onClick={handleSend}
             disabled={!inputValue.trim() || isLoading}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -242,7 +242,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
 
         {/* Informations contextuelles */}
         {contextItems.length > 0 && (
-          <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded border border-blue-200">
+          <div className="text-xs text-muted-foreground bg-primary/5 p-2 rounded border border-primary/20">
             <span className="font-medium">Contexte spécialisé:</span> {contextItems.join(', ')}
           </div>
         )}
