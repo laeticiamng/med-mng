@@ -98,7 +98,7 @@ export const WelcomeScreen = ({ onComplete }) => {
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className={`w-16 h-16 rounded-full ${currentWelcomeStep.color} flex items-center justify-center animate-gentle-float`}>
-              <currentWelcomeStep.icon className="w-8 h-8 text-white" />
+              <currentWelcomeStep.icon className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
           

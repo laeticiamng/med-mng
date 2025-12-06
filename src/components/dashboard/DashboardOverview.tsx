@@ -8,6 +8,7 @@ import {
   Trophy, Star, Play, HeadphonesIcon, Calendar, BarChart3
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface QuickStat {
   label: string;
@@ -112,7 +113,7 @@ export const DashboardOverview: React.FC = () => {
             Suivez votre progression et découvrez de nouveaux contenus
           </p>
         </div>
-        <Button onClick={() => navigate('/edn-complete')}>
+        <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
           <BookOpen className="w-4 h-4 mr-2" />
           Continuer l'étude
         </Button>
@@ -185,7 +186,7 @@ export const DashboardOverview: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start" 
-              onClick={() => navigate('/generator')}
+              onClick={() => navigate(ROUTE_PATHS.generator)}
             >
               <Music className="w-4 h-4 mr-2" />
               Générer une musique
@@ -193,7 +194,7 @@ export const DashboardOverview: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => navigate('/ecos')}
+              onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
             >
               <Users className="w-4 h-4 mr-2" />
               Démarrer un ECOS
@@ -201,7 +202,7 @@ export const DashboardOverview: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => navigate('/chat')}
+              onClick={() => navigate(ROUTE_PATHS.chat)}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Poser une question IA
@@ -209,7 +210,7 @@ export const DashboardOverview: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => navigate('/med-mng/analytics')}
+              onClick={() => navigate(ROUTE_PATHS.medMngAnalytics)}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Voir mes statistiques
@@ -270,7 +271,7 @@ export const DashboardOverview: React.FC = () => {
               <p className="text-sm text-muted-foreground mb-3">
                 Complétez ce module pour renforcer vos connaissances en psychiatrie
               </p>
-              <Button size="sm" onClick={() => navigate('/edn-complete/ic-058')}>
+              <Button size="sm" onClick={() => navigate(`${ROUTE_PATHS.ednComplete}/ic-058`)}>
                 <Play className="w-3 h-3 mr-1" />
                 Commencer
               </Button>
