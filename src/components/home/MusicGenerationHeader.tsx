@@ -11,10 +11,10 @@ interface MusicGenerationHeaderProps {
 export const MusicGenerationHeader = ({ remainingFree, maxFreeGenerations }: MusicGenerationHeaderProps) => {
   return (
     <div className="text-center mb-12">
-      <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      <h2 className="text-4xl font-bold text-foreground mb-4">
         <TranslatedText text="Génération Musicale IA" />
       </h2>
-      <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
+      <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
         <TranslatedText text="Transformez vos contenus EDN en chansons personnalisées avec l'intelligence artificielle. Apprenez en musique et créez votre bibliothèque médicale unique." />
       </p>
 

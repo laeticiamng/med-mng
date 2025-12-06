@@ -11,14 +11,14 @@ export const ParolesDisplay = ({ parolesArray, rang, textColor }: ParolesDisplay
       {parolesArray.map((ligne, index) => {
         if (ligne.startsWith('[') && ligne.endsWith(']')) {
           return (
-            <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}>
+            <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-warning' : 'text-primary'} my-4 text-center`}>
               {ligne}
             </div>
           );
         }
         if (ligne.includes(' - ')) {
           return (
-            <div key={index} className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${rang === 'A' ? 'border-amber-300' : 'border-blue-300'} pb-3`}>
+            <div key={index} className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${rang === 'A' ? 'border-warning/30' : 'border-primary/30'} pb-3`}>
               {ligne}
             </div>
           );

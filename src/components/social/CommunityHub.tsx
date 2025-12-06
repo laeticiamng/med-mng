@@ -276,10 +276,10 @@ export const CommunityHub = () => {
 
   const getPostTypeColor = (type: string) => {
     switch (type) {
-      case 'question': return 'bg-blue-100 text-blue-600';
-      case 'study_tip': return 'bg-green-100 text-green-600';
-      case 'achievement': return 'bg-yellow-100 text-yellow-600';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'question': return 'bg-primary/10 text-primary';
+      case 'study_tip': return 'bg-success/10 text-success';
+      case 'achievement': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 

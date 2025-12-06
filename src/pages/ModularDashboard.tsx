@@ -173,13 +173,13 @@ export default function ModularDashboard() {
                 <p className="text-xs text-muted-foreground">Progression</p>
                 <div className="flex items-center gap-2">
                   <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className="w-3/4 h-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                    <div className="w-3/4 h-full bg-gradient-to-r from-primary to-accent" />
                   </div>
                   <span className="text-xs font-medium">75%</span>
                 </div>
               </div>
               
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                 M
               </div>
             </div>

@@ -222,10 +222,10 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
 
   const getFileIcon = (type: DroppedFile['type']) => {
     switch (type) {
-      case 'audio': return <Music className="h-6 w-6 text-purple-500" />;
-      case 'image': return <Image className="h-6 w-6 text-green-500" />;
-      case 'document': return <FileText className="h-6 w-6 text-blue-500" />;
-      default: return <File className="h-6 w-6 text-gray-500" />;
+      case 'audio': return <Music className="h-6 w-6 text-accent" />;
+      case 'image': return <Image className="h-6 w-6 text-success" />;
+      case 'document': return <FileText className="h-6 w-6 text-primary" />;
+      default: return <File className="h-6 w-6 text-muted-foreground" />;
     }
   };
 

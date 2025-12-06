@@ -64,13 +64,13 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
                 {item.scene_immersive.scenario && (
                   <div>
                     <h4 className="font-semibold mb-2">Scénario :</h4>
-                    <p className="text-gray-700">{item.scene_immersive.scenario}</p>
+                    <p className="text-muted-foreground">{item.scene_immersive.scenario}</p>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="p-4 bg-red-50 border border-red-200 rounded">
-                <p className="text-red-600">⚠️ Scène immersive non disponible dans Supabase</p>
+              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded">
+                <p className="text-destructive">⚠️ Scène immersive non disponible dans Supabase</p>
               </div>
             )}
           </div>
