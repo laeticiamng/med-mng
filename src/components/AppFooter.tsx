@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Music, ExternalLink } from "lucide-react";
+import { ROUTE_PATHS } from "@/config/routes";
 
 export const AppFooter = () => {
   return (
@@ -21,16 +22,16 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-4 text-foreground">Formations</h3>
             <div className="space-y-2">
-              <Link to="/edn-complete" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Items EDN
               </Link>
-              <Link to="/ecos" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Situations ECOS
               </Link>
-              <Link to="/generator" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Générateur Musical
               </Link>
-              <Link to="/chat" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Assistant IA
               </Link>
             </div>
@@ -40,16 +41,16 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-4 text-foreground">Outils</h3>
             <div className="space-y-2">
-              <Link to="/learning-dashboard" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.learningDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Analytics
               </Link>
-              <Link to="/med-mng/library" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.medMngLibrary} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Bibliothèque
               </Link>
-              <Link to="/med-mng/create" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.medMngCreate} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Créer
               </Link>
-              <Link to="/statistics" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Statistiques
               </Link>
             </div>
@@ -59,19 +60,19 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-4 text-foreground">Légal</h3>
             <div className="space-y-2">
-              <Link to="/mentions-legales" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Mentions Légales
               </Link>
-              <Link to="/politique-confidentialite" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Politique de Confidentialité
               </Link>
-              <Link to="/cgu" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 CGU
               </Link>
-              <Link to="/declaration-accessibilite" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.declarationAccessibilite} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Accessibilité
               </Link>
-              <Link to="/mes-donnees-rgpd" className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+              <Link to={ROUTE_PATHS.mesDonneesRgpd} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Mes données RGPD
               </Link>
               <a href="mailto:contact@emotionscare.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-sm transition-colors">
