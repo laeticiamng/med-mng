@@ -300,7 +300,7 @@ export const useModernStatsData = (): StatItem[] => {
       change: { value: 8.1, type: 'increase', period: 'cette semaine' },
       target: { current: 2.4, goal: 3, unit: 'h/jour' },
       icon: Clock,
-      color: 'bg-purple-500',
+      color: 'bg-accent',
       description: 'Temps moyen d\'étude par utilisateur'
     },
     {
@@ -309,7 +309,7 @@ export const useModernStatsData = (): StatItem[] => {
       value: 45230,
       change: { value: 23.7, type: 'increase', period: 'ce mois' },
       icon: Music,
-      color: 'bg-pink-500',
+      color: 'bg-accent',
       description: 'Contenus musicaux créés par l\'IA'
     },
     {

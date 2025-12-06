@@ -362,7 +362,7 @@ export default function EdnCompleteDetail() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Music className="h-5 w-5 text-pink-500" />
+                    <Music className="h-5 w-5 text-accent" />
                     Paroles Musicales
                   </CardTitle>
                 </CardHeader>

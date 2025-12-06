@@ -116,9 +116,9 @@ Grâce à mes erreurs... quelle surprise !`;
 
   if (!hasCurrentSession || !currentErrors.length) {
     return (
-      <Card className="border-gray-200">
+      <Card className="border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-500">
+          <CardTitle className="flex items-center gap-2 text-muted-foreground">
             <Music className="h-5 w-5" />
             Générateur de Chanson d'Erreurs
           </CardTitle>
@@ -131,35 +131,35 @@ Grâce à mes erreurs... quelle surprise !`;
   }
 
   return (
-    <Card className="border-orange-200 bg-orange-50/50">
+    <Card className="border-warning/20 bg-warning/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-orange-800">
+        <CardTitle className="flex items-center gap-2 text-warning">
           <Brain className="h-5 w-5" />
           Transformer vos erreurs en chanson
         </CardTitle>
-        <CardDescription className="text-orange-700">
+        <CardDescription className="text-warning/80">
           {currentErrors.length} erreur(s) détectée(s) - Créez une chanson pour mieux les retenir !
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         
         {/* Résumé des erreurs */}
-        <div className="bg-white/60 rounded-lg p-4 border border-orange-200">
+        <div className="bg-card/60 rounded-lg p-4 border border-warning/20">
           <div className="flex items-center gap-2 mb-3">
-            <Target className="h-4 w-4 text-orange-600" />
-            <span className="font-medium text-orange-800">Erreurs à réviser :</span>
+            <Target className="h-4 w-4 text-warning" />
+            <span className="font-medium text-warning">Erreurs à réviser :</span>
           </div>
           <div className="space-y-2">
             {currentErrors.slice(0, 3).map((error, index) => (
               <div key={index} className="text-sm">
-                <span className="font-medium text-gray-700">Q{index + 1}:</span>
-                <span className="text-gray-600 ml-1">
+                <span className="font-medium text-foreground">Q{index + 1}:</span>
+                <span className="text-muted-foreground ml-1">
                   {error.question.substring(0, 60)}...
                 </span>
               </div>
             ))}
             {currentErrors.length > 3 && (
-              <div className="text-sm text-orange-600 font-medium">
+              <div className="text-sm text-warning font-medium">
                 +{currentErrors.length - 3} autres erreurs
               </div>
             )}
@@ -168,11 +168,11 @@ Grâce à mes erreurs... quelle surprise !`;
 
         {/* Sélection du style */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-orange-800">
+          <label className="text-sm font-medium text-warning">
             Style musical
           </label>
           <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-            <SelectTrigger className="bg-white/60 border-orange-200">
+            <SelectTrigger className="bg-card/60 border-warning/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -189,11 +189,11 @@ Grâce à mes erreurs... quelle surprise !`;
         <Button
           onClick={handleGenerate}
           disabled={isGenerating}
-          className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+          className="w-full bg-gradient-to-r from-warning to-destructive hover:from-warning/90 hover:to-destructive/90 text-warning-foreground"
         >
           {isGenerating ? (
             <>
-              <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+              <div className="animate-spin h-4 w-4 mr-2 border-2 border-warning-foreground border-t-transparent rounded-full" />
               Génération...
             </>
           ) : (

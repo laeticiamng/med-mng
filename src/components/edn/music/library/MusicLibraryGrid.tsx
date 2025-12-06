@@ -27,8 +27,8 @@ export const MusicLibraryGrid = ({ musics, playingId, onPlay, onDelete }: MusicL
         <Card key={music.id} className="group hover:shadow-lg transition-all duration-200">
           <CardContent className="p-0">
             {/* Cover */}
-            <div className="relative aspect-square bg-gradient-to-br from-amber-500 to-orange-500 rounded-t-lg flex items-center justify-center">
-              <Music className="h-12 w-12 text-white/80" />
+            <div className="relative aspect-square bg-gradient-to-br from-warning to-warning/80 rounded-t-lg flex items-center justify-center">
+              <Music className="h-12 w-12 text-warning-foreground/80" />
               
               {/* Play Button Overlay */}
               <div className="absolute inset-0 bg-black/20 rounded-t-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">

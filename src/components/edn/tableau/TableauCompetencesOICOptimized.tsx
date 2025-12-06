@@ -40,14 +40,14 @@ const CompetenceCompactCard: React.FC<{
   rang: 'A' | 'B';
 }> = ({ competence, index, rang }) => {
   const themeColors = rang === 'A' 
-    ? 'from-blue-500 to-blue-600'
-    : 'from-purple-500 to-purple-600';
+    ? 'from-primary to-primary/80'
+    : 'from-accent to-accent/80';
 
   return (
     <Card className="hover:shadow-md transition-all duration-200 border border-border/50 group">
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${themeColors} text-white flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform`}>
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform`}>
             {competence.ordre_affichage || index + 1}
           </div>
           <div className="flex-1 min-w-0">
@@ -116,8 +116,8 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
 
   const { title, competences, count, theme } = data;
   const themeColors = rang === 'A' 
-    ? 'from-blue-500 to-blue-600'
-    : 'from-purple-500 to-purple-600';
+    ? 'from-primary to-primary/80'
+    : 'from-accent to-accent/80';
 
   return (
     <div className="w-full space-y-6">
@@ -126,7 +126,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors} text-white flex items-center justify-center shadow-lg`}>
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center shadow-lg`}>
                 <Book className="w-6 h-6" />
               </div>
               <div>
