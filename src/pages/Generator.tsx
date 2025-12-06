@@ -2,6 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { toast } from 'sonner';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
@@ -151,7 +152,7 @@ const Generator = () => {
       <div className="bg-card/70 backdrop-blur-xl border-b border-border shadow-lg" role="banner">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-6">
-            <PremiumButton variant="glass" size="md" onClick={() => navigate('/')} aria-label="Retourner à l'accueil">
+            <PremiumButton variant="glass" size="md" onClick={() => navigate(ROUTE_PATHS.home)} aria-label="Retourner à l'accueil">
               <ArrowLeft className="h-5 w-5 mr-2" aria-hidden="true" />
               <TranslatedText text="Retour" />
             </PremiumButton>

@@ -476,7 +476,7 @@ const CGU = () => {
 
           {/* Retour */}
           <div className="text-center pt-6">
-            <Link to="/">
+            <Link to={ROUTE_PATHS.home}>
               <Button className="flex items-center space-x-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Retour à l'accueil</span>

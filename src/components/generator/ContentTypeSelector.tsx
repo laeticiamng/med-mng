@@ -24,7 +24,7 @@ export const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <PremiumCard 
           variant={contentType === 'edn' ? 'elevated' : 'default'}
-          className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'edn' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
+          className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'edn' ? 'ring-2 ring-warning shadow-warning/20' : 'hover:shadow-lg'}`}
           onClick={() => onContentTypeChange('edn')}
         >
           <BookOpen className="h-12 w-12 mx-auto mb-4 text-primary" />
@@ -37,7 +37,7 @@ export const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
         
         <PremiumCard 
           variant={contentType === 'ecos' ? 'elevated' : 'default'}
-          className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'ecos' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
+          className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'ecos' ? 'ring-2 ring-warning shadow-warning/20' : 'hover:shadow-lg'}`}
           onClick={() => onContentTypeChange('ecos')}
         >
           <Users className="h-12 w-12 mx-auto mb-4 text-success" />

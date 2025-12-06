@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Download, Smartphone, CheckCircle, Zap, Wifi, Heart } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -107,7 +108,7 @@ const InstallPWA: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <Button 
-                  onClick={() => navigate('/')} 
+                  onClick={() => navigate(ROUTE_PATHS.home)} 
                   className="w-full bg-success hover:bg-success/90"
                 >
                   Ouvrir l'application
@@ -249,7 +250,7 @@ const InstallPWA: React.FC = () => {
           {/* CTA Final */}
           <div className="text-center">
             <Button 
-              onClick={() => navigate('/')} 
+              onClick={() => navigate(ROUTE_PATHS.home)} 
               variant="outline"
               size="lg"
             >

@@ -121,7 +121,7 @@ const MedMngLibraryComponent = () => {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => navigate('/med-mng/create')}
+                onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
                 className="w-full min-h-[48px]"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -174,7 +174,7 @@ const MedMngLibraryComponent = () => {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
           <Button 
-            onClick={() => navigate('/med-mng/create')}
+            onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
             className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
@@ -182,7 +182,7 @@ const MedMngLibraryComponent = () => {
           </Button>
           <Button 
             variant="outline"
-            onClick={() => navigate('/med-mng/playlists')}
+            onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)}
             className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
           >
             <ListMusic className="h-4 w-4" />
@@ -270,7 +270,7 @@ const MedMngLibraryComponent = () => {
           className="text-muted-foreground mb-6"
         />
         {(!library || library.length === 0) && activeTab === 'all' && (
-          <Button onClick={() => navigate('/med-mng/create')} className="min-h-[48px] px-6">
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngCreate)} className="min-h-[48px] px-6">
             <TranslatedText text="Créer ma première chanson" />
           </Button>
         )}
@@ -306,7 +306,7 @@ const MedMngLibraryComponent = () => {
         />
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button 
-            onClick={() => navigate('/med-mng/playlists')} 
+            onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)} 
             className="min-h-[48px] px-6"
           >
             <ListMusic className="h-4 w-4 mr-2" />

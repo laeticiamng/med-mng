@@ -358,7 +358,7 @@ export default function AdminAudit() {
                 >
                   {isRunningAudit.code ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-green-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-success border-t-transparent rounded-full" />
                       Analyse...
                     </>
                   ) : (

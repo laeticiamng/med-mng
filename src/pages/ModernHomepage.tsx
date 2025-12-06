@@ -20,6 +20,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const ModernHomepage = () => {
   const navigate = useNavigate();
@@ -144,7 +145,7 @@ const ModernHomepage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button 
                   size="lg" 
-                  onClick={() => navigate('/edn-complete')}
+                  onClick={() => navigate(ROUTE_PATHS.ednComplete)}
                   className="flex items-center gap-2 px-8 py-3 text-lg"
                 >
                   <Play className="h-5 w-5" />
@@ -153,7 +154,7 @@ const ModernHomepage = () => {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  onClick={() => navigate('/community')}
+                  onClick={() => navigate(ROUTE_PATHS.community)}
                   className="flex items-center gap-2 px-8 py-3 text-lg"
                 >
                   <Users className="h-5 w-5" />
@@ -192,7 +193,7 @@ const ModernHomepage = () => {
                 <Card 
                   key={index} 
                   className={`transition-all hover:shadow-lg cursor-pointer group ${
-                    module.popular ? 'ring-2 ring-purple-200' : ''
+                    module.popular ? 'ring-2 ring-accent/30' : ''
                   }`}
                   onClick={() => navigate(module.route)}
                 >
@@ -301,7 +302,7 @@ const ModernHomepage = () => {
                 <Button 
                   size="lg" 
                   variant="secondary"
-                  onClick={() => navigate('/med-mng/signup')}
+                  onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
                   className="flex items-center gap-2 px-8 py-3 text-lg"
                 >
                   <Heart className="h-5 w-5" />
@@ -310,7 +311,7 @@ const ModernHomepage = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  onClick={() => navigate('/statistics')}
+                  onClick={() => navigate(ROUTE_PATHS.statistics)}
                   className="flex items-center gap-2 px-8 py-3 text-lg border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-accent"
                 >
                   <TrendingUp className="h-5 w-5" />
