@@ -186,7 +186,7 @@ export const SystemMonitor: React.FC = () => {
                   {metrics.cpu.cores} cœurs • {metrics.cpu.temperature}°C
                 </p>
               </div>
-              <Cpu className="w-8 h-8 text-blue-500" />
+              <Cpu className="w-8 h-8 text-primary" />
             </div>
             <Progress value={metrics.cpu.usage} className="mt-3 h-2" />
           </CardContent>
@@ -204,7 +204,7 @@ export const SystemMonitor: React.FC = () => {
                   {formatBytes(metrics.memory.used * 1024 * 1024)} / {formatBytes(metrics.memory.total * 1024 * 1024)}
                 </p>
               </div>
-              <HardDrive className="w-8 h-8 text-green-500" />
+              <HardDrive className="w-8 h-8 text-success" />
             </div>
             <Progress value={(metrics.memory.used / metrics.memory.total) * 100} className="mt-3 h-2" />
           </CardContent>
@@ -222,7 +222,7 @@ export const SystemMonitor: React.FC = () => {
                   {formatBytes(metrics.disk.available * 1024 * 1024 * 1024)} libres
                 </p>
               </div>
-              <Database className="w-8 h-8 text-purple-500" />
+              <Database className="w-8 h-8 text-accent" />
             </div>
             <Progress value={(metrics.disk.used / metrics.disk.total) * 100} className="mt-3 h-2" />
           </CardContent>
@@ -240,7 +240,7 @@ export const SystemMonitor: React.FC = () => {
                   ↓{metrics.network.inbound.toFixed(1)} ↑{metrics.network.outbound.toFixed(1)} MB/s
                 </p>
               </div>
-              <Network className="w-8 h-8 text-orange-500" />
+              <Network className="w-8 h-8 text-warning" />
             </div>
             <div className="mt-3 flex gap-2">
               <div className="flex-1">
@@ -395,13 +395,13 @@ export const SystemMonitor: React.FC = () => {
                 
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Temps de requête moyen</span>
-                  <Badge variant="outline" className="text-green-600">{metrics.database.queryTime}ms</Badge>
+                  <Badge variant="outline" className="text-success">{metrics.database.queryTime}ms</Badge>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Taux de cache hit</span>
-                    <span className="text-sm text-green-600">{metrics.database.cacheHitRate}%</span>
+                    <span className="text-sm text-success">{metrics.database.cacheHitRate}%</span>
                   </div>
                   <Progress value={metrics.database.cacheHitRate} className="h-2" />
                 </div>

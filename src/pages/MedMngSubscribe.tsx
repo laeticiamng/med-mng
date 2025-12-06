@@ -79,39 +79,39 @@ export const MedMngSubscribe = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/10 px-4 py-8">
       <div className="container mx-auto max-w-2xl">
         <Card className="shadow-lg">
-          <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+          <CardHeader className="text-center bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-t-lg">
             <CardTitle className="text-2xl">Finaliser votre abonnement</CardTitle>
-            <CardDescription className="text-blue-100">
+            <CardDescription className="text-primary-foreground/80">
               Plan {plan.name} - {plan.price}€/mois
             </CardDescription>
           </CardHeader>
           
           <CardContent className="p-6">
-            <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <h3 className="font-semibold text-blue-800 mb-2">✨ Votre abonnement {plan.name} inclut :</h3>
-              <ul className="space-y-2 text-blue-700">
+            <div className="bg-primary/10 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-primary mb-2">✨ Votre abonnement {plan.name} inclut :</h3>
+              <ul className="space-y-2 text-primary/80">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <span>{plan.songs} chansons/mois pour la génération musicale</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <span>Qualité audio premium</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <span>QCM et tableaux illimités</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <span>Support prioritaire</span>
                 </li>
                 {plan.name === 'Premium' && (
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-success" />
                     <span>Bandes dessinées éducatives</span>
                   </li>
                 )}
@@ -119,18 +119,18 @@ export const MedMngSubscribe = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-gray-800">Choisissez votre mode de paiement :</h3>
+              <h3 className="font-semibold text-foreground">Choisissez votre mode de paiement :</h3>
               
               <Button
                 onClick={() => handleSubscription('demo')}
                 disabled={isProcessing}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+                className="w-full bg-success hover:bg-success/90 text-success-foreground py-3"
               >
                 <CreditCard className="h-5 w-5 mr-2" />
                 {isProcessing ? 'Traitement...' : `Activer l'abonnement (Démo)`}
               </Button>
 
-              <div className="text-center text-sm text-gray-500">
+              <div className="text-center text-sm text-muted-foreground">
                 <p>✅ Email de confirmation automatique</p>
                 <p>🔄 Renouvellement automatique mensuel</p>
                 <p>❌ Résiliation possible à tout moment</p>
