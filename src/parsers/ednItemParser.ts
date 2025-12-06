@@ -50,14 +50,14 @@ export interface ParsedEDNItem {
 
 // Configuration des colonnes standardisée
 const STANDARD_COLUMNS_CONFIG = [
-  { nom: 'Concept', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50', couleurTexte: 'text-blue-800' },
-  { nom: 'Définition', couleur: 'bg-green-600', couleurCellule: 'bg-green-50', couleurTexte: 'text-green-800' },
-  { nom: 'Exemple', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50', couleurTexte: 'text-purple-800' },
-  { nom: 'Piège', couleur: 'bg-red-600', couleurCellule: 'bg-red-50', couleurTexte: 'text-red-800' },
-  { nom: 'Mnémo', couleur: 'bg-yellow-600', couleurCellule: 'bg-yellow-50', couleurTexte: 'text-yellow-800' },
-  { nom: 'Subtilité', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50', couleurTexte: 'text-indigo-800' },
-  { nom: 'Application', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50', couleurTexte: 'text-teal-800' },
-  { nom: 'Vigilance', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50', couleurTexte: 'text-orange-800' }
+  { nom: 'Concept', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary' },
+  { nom: 'Définition', couleur: 'bg-success', couleurCellule: 'bg-success/10', couleurTexte: 'text-success' },
+  { nom: 'Exemple', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent-foreground' },
+  { nom: 'Piège', couleur: 'bg-destructive', couleurCellule: 'bg-destructive/10', couleurTexte: 'text-destructive' },
+  { nom: 'Mnémo', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' },
+  { nom: 'Subtilité', couleur: 'bg-secondary', couleurCellule: 'bg-secondary/10', couleurTexte: 'text-secondary-foreground' },
+  { nom: 'Application', couleur: 'bg-muted', couleurCellule: 'bg-muted/50', couleurTexte: 'text-muted-foreground' },
+  { nom: 'Vigilance', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' }
 ];
 
 /**
