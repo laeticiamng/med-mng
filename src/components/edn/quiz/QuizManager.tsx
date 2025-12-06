@@ -161,7 +161,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
               <Music className="h-4 w-4" />
               Chanson d'Erreurs
               {currentErrors.length > 0 && (
-                <span className="ml-1 px-2 py-0.5 text-xs bg-orange-500 text-white rounded-full">
+                <span className="ml-1 px-2 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {currentErrors.length}
                 </span>
               )}
@@ -169,41 +169,41 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
           </TabsList>
 
           <TabsContent value="results" className="space-y-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-blue-800">
+                <CardTitle className="flex items-center gap-3 text-primary">
                   <Trophy className="h-6 w-6" />
                   Résultats du Quiz {item.item_code}
                 </CardTitle>
-                <CardDescription className="text-blue-700">
+                <CardDescription className="text-primary/70">
                   Quiz terminé avec {quizResults.correctAnswers} bonnes réponses sur {quizResults.totalQuestions}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="bg-background/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-success">
                       {Math.round((quizResults.score / quizResults.totalQuestions) * 100)}%
                     </div>
-                    <div className="text-sm text-gray-600">Score</div>
+                    <div className="text-sm text-muted-foreground">Score</div>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                  <div className="bg-background/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-primary">
                       {quizResults.correctAnswers}
                     </div>
-                    <div className="text-sm text-gray-600">Correctes</div>
+                    <div className="text-sm text-muted-foreground">Correctes</div>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-orange-600">
+                  <div className="bg-background/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-warning">
                       {quizResults.wrongAnswers}
                     </div>
-                    <div className="text-sm text-gray-600">Erreurs</div>
+                    <div className="text-sm text-muted-foreground">Erreurs</div>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-purple-600">
+                  <div className="bg-background/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-accent">
                       {Math.round(quizResults.timeSpent / 60)}min
                     </div>
-                    <div className="text-sm text-gray-600">Temps</div>
+                    <div className="text-sm text-muted-foreground">Temps</div>
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
 
   return (
     <div className="p-6 text-center">
-      <div className="text-gray-600">Chargement du quiz...</div>
+      <div className="text-muted-foreground">Chargement du quiz...</div>
     </div>
   );
 };

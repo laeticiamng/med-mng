@@ -221,14 +221,14 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
   };
 
   return (
-    <Card className="bg-gradient-to-br from-emerald-50 to-cyan-50 border-emerald-200" style={{ maxHeight }}>
+    <Card className="bg-gradient-to-br from-success/5 to-accent/5 border-success/20" style={{ maxHeight }}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-emerald-800">
+          <CardTitle className="flex items-center gap-3 text-success">
             <MessageSquare className="h-6 w-6" />
             Assistant IA Médical
             {context?.itemCode && (
-              <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">
+              <Badge variant="secondary" className="bg-success/10 text-success">
                 {context.itemCode}
               </Badge>
             )}
@@ -236,7 +236,7 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
           
           <div className="flex items-center gap-2">
             {/* Mode Selection */}
-            <div className="flex rounded-lg border border-emerald-200 overflow-hidden">
+            <div className="flex rounded-lg border border-success/20 overflow-hidden">
               <Button
                 size="sm"
                 variant={chatMode === 'contextual' ? 'default' : 'ghost'}
@@ -329,8 +329,8 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
 
         {/* Questions rapides */}
         {messages.length <= 1 && context?.itemCode && (
-          <div className="bg-white/60 rounded-lg p-3 border border-emerald-200">
-            <h4 className="text-sm font-semibold text-emerald-800 mb-2">Questions suggérées :</h4>
+          <div className="bg-background/60 rounded-lg p-3 border border-success/20">
+            <h4 className="text-sm font-semibold text-success mb-2">Questions suggérées :</h4>
             <div className="flex flex-wrap gap-2">
               {getQuickQuestions().map((question, index) => (
                 <Button
@@ -355,19 +355,19 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             disabled={isLoading}
-            className="bg-white/80 border-emerald-200 focus:border-emerald-400"
+            className="bg-background/80 border-success/20 focus:border-success"
           />
           <Button
             onClick={sendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700"
+            className="bg-gradient-to-r from-success to-accent hover:from-success/90 hover:to-accent/90"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
         
         {/* Info mode */}
-        <div className="text-xs text-emerald-600 text-center">
+        <div className="text-xs text-success text-center">
           Mode : {chatMode === 'contextual' ? 'Contextuel' : chatMode === 'quiz' ? 'Génération de Quiz' : 'Général'}
           {context?.itemCode && ` • Spécialisé sur ${context.itemCode}`}
         </div>

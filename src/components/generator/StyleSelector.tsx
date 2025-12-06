@@ -16,17 +16,17 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
 
   return (
     <div className="space-y-4">
-      <label className="text-lg font-semibold text-gray-900">
+      <label className="text-lg font-semibold text-foreground">
         <TranslatedText text="Style musical" />
       </label>
       <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-        <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
+        <SelectTrigger className="h-14 text-base bg-background/50 backdrop-blur-sm border-border/30 shadow-lg">
           <SelectValue placeholder="Choisissez un style musical" />
         </SelectTrigger>
-        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
+        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-80 overflow-y-auto">
           {Object.entries(stylesByGenre).map(([genre, styles]: [string, any[]]) => (
             <div key={genre}>
-              <div className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-100">
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground bg-muted">
                 {genre}
               </div>
               {styles.map((style) => (
