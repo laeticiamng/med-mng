@@ -92,7 +92,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
               <ul className="space-y-1 text-sm">
                 {mode.steps.map((step, i) => (
                   <li key={i} className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <CheckCircle className="h-3 w-3 text-success" />
                     {step}
                   </li>
                 ))}
@@ -151,11 +151,11 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       </Card>
 
       {/* Conseils */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-blue-200 dark:border-blue-800">
+      <Card className="bg-gradient-to-r from-primary/5 to-accent/5 dark:from-primary/10 dark:to-accent/10 border-primary/20 dark:border-primary/30">
         <CardHeader>
-          <CardTitle className="text-blue-900 dark:text-blue-100">💡 Conseils pour réviser efficacement</CardTitle>
+          <CardTitle className="text-primary dark:text-primary">💡 Conseils pour réviser efficacement</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+        <CardContent className="space-y-2 text-sm text-primary/80 dark:text-primary/90">
           <div>✅ Commencez par les items que vous maîtrisez le moins</div>
           <div>✅ Révisez régulièrement (répétition espacée)</div>
           <div>✅ Utilisez la musique pour mémoriser les concepts difficiles</div>
