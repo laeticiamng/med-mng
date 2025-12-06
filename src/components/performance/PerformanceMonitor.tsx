@@ -16,7 +16,11 @@ import {
 /**
  * Moniteur de Performance en Temps Réel (Composant Léger)
  */
-export const PerformanceMonitor = ({ isMinimal = true }) => {
+interface PerformanceMonitorProps {
+  isMinimal?: boolean;
+}
+
+export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ isMinimal = true }) => {
   const [metrics, setMetrics] = useState({
     fps: 60,
     memory: 45,

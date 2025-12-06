@@ -21,7 +21,11 @@ import { ROUTE_PATHS } from '@/config/routes';
 /**
  * Écran de Bienvenue Interactif pour Nouveaux Utilisateurs
  */
-export const WelcomeScreen = ({ onComplete }) => {
+interface WelcomeScreenProps {
+  onComplete?: () => void;
+}
+
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
