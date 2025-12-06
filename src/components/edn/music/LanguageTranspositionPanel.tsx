@@ -47,28 +47,28 @@ export const LanguageTranspositionPanel = ({
   };
 
   return (
-    <Card className="border-2 border-dashed border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+    <Card className="border-2 border-dashed border-accent/20 bg-gradient-to-r from-accent/5 to-accent/10">
       <CardHeader 
-        className="cursor-pointer hover:bg-purple-100/50 transition-colors"
+        className="cursor-pointer hover:bg-accent/10 transition-colors"
         onClick={onToggle}
       >
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Languages className="h-5 w-5 text-purple-600" />
+            <Languages className="h-5 w-5 text-accent" />
             <TranslatedText text="Transposer dans une autre langue" />
           </div>
           {isVisible ? (
-            <ChevronUp className="h-5 w-5 text-purple-600" />
+            <ChevronUp className="h-5 w-5 text-accent" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-purple-600" />
+            <ChevronDown className="h-5 w-5 text-accent" />
           )}
         </CardTitle>
       </CardHeader>
       
       {isVisible && (
         <CardContent className="space-y-4">
-          <div className="bg-purple-100 rounded-lg p-3">
-            <p className="text-sm text-purple-800">
+          <div className="bg-accent/10 rounded-lg p-3">
+            <p className="text-sm text-accent">
               <TranslatedText text="Vous pouvez transposer vos musiques générées dans d'autres langues tout en gardant la même mélodie et le même style musical." />
             </p>
           </div>
@@ -101,7 +101,7 @@ export const LanguageTranspositionPanel = ({
                   <Button
                     onClick={() => handleTranspose('A')}
                     disabled={isTransposing.rangA || !selectedTargetLanguage}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                   >
                     <Music className="h-4 w-4 mr-2" />
                     {isTransposing.rangA ? (
@@ -116,7 +116,7 @@ export const LanguageTranspositionPanel = ({
                   <Button
                     onClick={() => handleTranspose('B')}
                     disabled={isTransposing.rangB || !selectedTargetLanguage}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                    className="bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success/70"
                   >
                     <Music className="h-4 w-4 mr-2" />
                     {isTransposing.rangB ? (

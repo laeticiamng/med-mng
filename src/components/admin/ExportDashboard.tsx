@@ -238,11 +238,11 @@ export const ExportDashboard = () => {
           </div>
 
           {/* Avertissement */}
-          <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-warning/10 border border-warning/20 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-yellow-800">Information importante</p>
-              <p className="text-yellow-700">
+              <p className="font-medium text-warning">Information importante</p>
+              <p className="text-warning/80">
                 Les exports sont limités à 10 000 enregistrements par table pour des raisons de performance. 
                 Pour des exports plus volumineux, contactez l'équipe technique.
               </p>
