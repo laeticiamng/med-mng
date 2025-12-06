@@ -213,11 +213,11 @@ export const CollaborativeStudy: React.FC = () => {
     const end = new Date(start.getTime() + session.duration_minutes * 60000);
 
     if (session.is_active && now >= start && now <= end) {
-      return { status: 'active', label: 'En cours', color: 'bg-green-500' };
+      return { status: 'active', label: 'En cours', color: 'bg-success' };
     } else if (now < start) {
-      return { status: 'scheduled', label: 'Programmée', color: 'bg-blue-500' };
+      return { status: 'scheduled', label: 'Programmée', color: 'bg-primary' };
     } else {
-      return { status: 'ended', label: 'Terminée', color: 'bg-gray-500' };
+      return { status: 'ended', label: 'Terminée', color: 'bg-muted' };
     }
   };
 

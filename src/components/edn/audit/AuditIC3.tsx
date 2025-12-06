@@ -49,19 +49,19 @@ export const AuditIC3 = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'excellent': return 'bg-success/10 text-success border-success/30';
+      case 'bon': return 'bg-primary/10 text-primary border-primary/30';
+      case 'ameliorer': return 'bg-warning/10 text-warning border-warning/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'excellent': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'bon': return <Info className="h-5 w-5 text-blue-600" />;
-      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      default: return <Info className="h-5 w-5 text-gray-600" />;
+      case 'excellent': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'bon': return <Info className="h-5 w-5 text-primary" />;
+      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      default: return <Info className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -76,16 +76,16 @@ export const AuditIC3 = () => {
     <div className="space-y-6 p-4">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Target className="h-6 w-6 text-yellow-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-3 : Raisonnement et décision en médecine (EBM)</h2>
+          <Target className="h-6 w-6 text-warning" />
+          <h2 className="text-2xl font-bold text-foreground">Audit IC-3 : Raisonnement et décision en médecine (EBM)</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-yellow-600">{scoreGlobal}%</div>
-            <div className="text-sm text-gray-600">Score global</div>
+            <div className="text-3xl font-bold text-warning">{scoreGlobal}%</div>
+            <div className="text-sm text-muted-foreground">Score global</div>
           </div>
-          <Badge className="bg-yellow-100 text-yellow-800 text-lg px-4 py-2">
+          <Badge className="bg-warning/10 text-warning text-lg px-4 py-2">
             ⚠️ 15 Rang A + 8 Rang B LiSA
           </Badge>
         </div>
@@ -97,12 +97,12 @@ export const AuditIC3 = () => {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
-                <h3 className="font-semibold text-gray-800 capitalize">
+                <h3 className="font-semibold text-foreground capitalize">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-gray-800">{result.score}%</div>
+                <div className="text-xl font-bold text-foreground">{result.score}%</div>
                 <Badge className={`text-xs ${getStatusColor(result.status)}`}>
                   {result.status}
                 </Badge>
@@ -112,8 +112,8 @@ export const AuditIC3 = () => {
             <div className="space-y-2">
               {result.details.map((detail, index) => (
                 <div key={index} className="flex items-start space-x-2 text-sm">
-                  <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{detail}</span>
+                  <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">{detail}</span>
                 </div>
               ))}
             </div>
@@ -121,29 +121,29 @@ export const AuditIC3 = () => {
         ))}
       </div>
 
-      <Card className="p-6 bg-gradient-to-r from-yellow-50 to-orange-50">
+      <Card className="p-6 bg-gradient-to-r from-warning/5 to-warning/10">
         <div className="flex items-center space-x-2 mb-4">
-          <AlertTriangle className="h-5 w-5 text-yellow-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Plan amélioration IC-3 selon LiSA</h3>
+          <AlertTriangle className="h-5 w-5 text-warning" />
+          <h3 className="text-lg font-semibold text-foreground">Plan amélioration IC-3 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (2/15)</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-destructive mb-2">🚨 Concepts Rang A manquants (2/15)</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• TICE et aide décision clinique</li>
               <li>• Particularités controverse en santé</li>
             </ul>
-            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Concepts Rang B manquants (2/8)</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-warning mt-4 mb-2">📋 Concepts Rang B manquants (2/8)</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Modèle dynamiques décisionnelles</li>
               <li>• Architectures systèmes information</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA acquis</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-success mb-2">✅ Concepts LiSA acquis</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• EBM et niveaux de preuve</li>
               <li>• Styles de raisonnement</li>
               <li>• Décision partagée/paternaliste</li>

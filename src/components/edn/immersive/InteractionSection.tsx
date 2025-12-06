@@ -23,10 +23,10 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-red-600">⚠️ Interaction - Contenu indisponible</CardTitle>
+          <CardTitle className="text-destructive">⚠️ Interaction - Contenu indisponible</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">L'interaction n'est pas encore disponible dans Supabase.</p>
+          <p className="text-muted-foreground">L'interaction n'est pas encore disponible dans Supabase.</p>
         </CardContent>
       </Card>
     );
@@ -91,15 +91,15 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
         <div className="grid md:grid-cols-2 gap-6">
           {/* Concepts */}
           <div>
-            <h3 className="font-semibold mb-4 text-blue-800">Concepts</h3>
+            <h3 className="font-semibold mb-4 text-primary">Concepts</h3>
             <div className="space-y-2">
               {concepts.map((concept: any) => (
                 <div
                   key={concept.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, concept.id)}
-                  className={`p-3 bg-blue-100 border-2 border-blue-300 rounded cursor-move transition-all ${
-                    draggedItem === concept.id ? 'opacity-50' : 'hover:bg-blue-200'
+                  className={`p-3 bg-primary/10 border-2 border-primary/30 rounded cursor-move transition-all ${
+                    draggedItem === concept.id ? 'opacity-50' : 'hover:bg-primary/20'
                   } ${matches[concept.id] ? 'opacity-50' : ''}`}
                 >
                   {concept.text}
@@ -110,23 +110,23 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
 
           {/* Definitions */}
           <div>
-            <h3 className="font-semibold mb-4 text-green-800">Définitions</h3>
+            <h3 className="font-semibold mb-4 text-success">Définitions</h3>
             <div className="space-y-2">
               {definitions.map((definition: any) => (
                 <div
                   key={definition.id}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, definition.id)}
-                  className={`p-3 bg-green-100 border-2 border-dashed border-green-300 rounded min-h-[60px] transition-all ${
+                  className={`p-3 bg-success/10 border-2 border-dashed border-success/30 rounded min-h-[60px] transition-all ${
                     Object.values(matches).includes(definition.id) 
-                      ? 'bg-green-200 border-solid border-green-400' 
-                      : 'hover:bg-green-200'
+                      ? 'bg-success/20 border-solid border-success/50' 
+                      : 'hover:bg-success/20'
                   }`}
                 >
-                  <div className="text-sm text-green-700 mb-1">Zone de dépôt</div>
+                  <div className="text-sm text-success mb-1">Zone de dépôt</div>
                   <div>{definition.text}</div>
                   {Object.values(matches).includes(definition.id) && (
-                    <div className="mt-2 flex items-center gap-1 text-green-600">
+                    <div className="mt-2 flex items-center gap-1 text-success">
                       <CheckCircle className="w-4 h-4" />
                       <span className="text-xs">Association créée</span>
                     </div>
@@ -139,13 +139,13 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
 
         {feedback && (
           <div className={`p-4 rounded border-l-4 ${
-            feedback.includes('100%') ? 'bg-green-50 border-green-400' : 'bg-yellow-50 border-yellow-400'
+            feedback.includes('100%') ? 'bg-success/10 border-success' : 'bg-warning/10 border-warning'
           }`}>
             <div className="flex items-center gap-2">
               {feedback.includes('100%') ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-success" />
               ) : (
-                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                <AlertCircle className="w-5 h-5 text-warning" />
               )}
               <span className="font-medium">{feedback}</span>
             </div>
@@ -168,7 +168,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
           </Button>
         </div>
 
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           <p>💡 Glissez les concepts vers les définitions correspondantes, puis cliquez sur "Vérifier les réponses".</p>
         </div>
       </CardContent>

@@ -19,11 +19,11 @@ export const PerformanceAlertsPanel: React.FC<PerformanceAlertsPanelProps> = ({
   const getSeverityColor = (severity: PerformanceAlert['severity']) => {
     switch (severity) {
       case 'critical':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive';
       case 'warning':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning';
       default:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary';
     }
   };
 
@@ -121,7 +121,7 @@ export const PerformanceAlertsPanel: React.FC<PerformanceAlertsPanelProps> = ({
                 )}
                 
                 {alert.resolved && (
-                  <Badge className="bg-green-100 text-green-800">Résolue</Badge>
+                  <Badge className="bg-success/10 text-success">Résolue</Badge>
                 )}
               </div>
             </div>
@@ -132,7 +132,7 @@ export const PerformanceAlertsPanel: React.FC<PerformanceAlertsPanelProps> = ({
       {alerts.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
-            <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
+            <CheckCircle className="h-12 w-12 mx-auto text-success mb-4" />
             <h3 className="text-lg font-semibold mb-2">Aucune alerte active</h3>
             <p className="text-muted-foreground">
               Toutes les métriques sont dans les limites acceptables.
