@@ -19,16 +19,16 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
       case 'premium':
         return {
           name: 'Premium',
-          icon: <Crown className="h-5 w-5 text-yellow-600" />,
-          color: 'bg-yellow-100 text-yellow-800',
+          icon: <Crown className="h-5 w-5 text-warning" />,
+          color: 'bg-warning/10 text-warning',
           features: ['50 crédits/mois', 'Qualité audio premium', 'Support prioritaire'],
           price: '9,99€/mois'
         };
       case 'pro':
         return {
           name: 'Pro',
-          icon: <Star className="h-5 w-5 text-purple-600" />,
-          color: 'bg-purple-100 text-purple-800',
+          icon: <Star className="h-5 w-5 text-accent" />,
+          color: 'bg-accent/10 text-accent-foreground',
           features: ['100 crédits/mois', 'Qualité audio HD', 'API access', 'Support dédié'],
           price: '19,99€/mois'
         };
@@ -128,10 +128,10 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
 
       {/* Upgrade Options */}
       {profile?.subscription_plan === 'free' && (
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-primary/5 to-accent/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-yellow-600" />
+              <Crown className="h-5 w-5 text-warning" />
               Améliorez votre plan
             </CardTitle>
             <CardDescription>

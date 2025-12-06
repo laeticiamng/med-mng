@@ -37,10 +37,10 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
     const masteredRate = (stats.masteredItems / stats.totalItems) * 100;
     const inProgressRate = (stats.inProgressItems / stats.totalItems) * 100;
     
-    if (masteredRate >= 70) return { trend: 'excellent', color: 'text-green-600', icon: TrendingUp };
-    if (masteredRate >= 50) return { trend: 'bon', color: 'text-blue-600', icon: TrendingUp };
-    if (inProgressRate >= 30) return { trend: 'progression', color: 'text-yellow-600', icon: TrendingUp };
-    return { trend: 'à améliorer', color: 'text-red-600', icon: TrendingDown };
+    if (masteredRate >= 70) return { trend: 'excellent', color: 'text-success', icon: TrendingUp };
+    if (masteredRate >= 50) return { trend: 'bon', color: 'text-primary', icon: TrendingUp };
+    if (inProgressRate >= 30) return { trend: 'progression', color: 'text-warning', icon: TrendingUp };
+    return { trend: 'à améliorer', color: 'text-destructive', icon: TrendingDown };
   };
 
   const masteryTrend = getMasteryTrend();
@@ -97,24 +97,24 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Maîtrise globale</span>
+                <span className="text-sm text-muted-foreground">Maîtrise globale</span>
                 <span className="text-sm font-medium">{stats.masteryRate}%</span>
               </div>
               <Progress value={stats.masteryRate} className="w-full" />
             </div>
             
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-green-50 rounded p-2">
-                <p className="font-medium text-green-800">{stats.masteredItems}</p>
-                <p className="text-green-600">Maîtrisé</p>
+              <div className="bg-success/10 rounded p-2">
+                <p className="font-medium text-success">{stats.masteredItems}</p>
+                <p className="text-success">Maîtrisé</p>
               </div>
-              <div className="bg-yellow-50 rounded p-2">
-                <p className="font-medium text-yellow-800">{stats.inProgressItems}</p>
-                <p className="text-yellow-600">En cours</p>
+              <div className="bg-warning/10 rounded p-2">
+                <p className="font-medium text-warning">{stats.inProgressItems}</p>
+                <p className="text-warning">En cours</p>
               </div>
-              <div className="bg-red-50 rounded p-2">
-                <p className="font-medium text-red-800">{stats.strugglingItems}</p>
-                <p className="text-red-600">Difficile</p>
+              <div className="bg-destructive/10 rounded p-2">
+                <p className="font-medium text-destructive">{stats.strugglingItems}</p>
+                <p className="text-destructive">Difficile</p>
               </div>
             </div>
 
@@ -134,21 +134,21 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="bg-blue-50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-blue-800">
+              <div className="bg-primary/10 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-primary">
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm font-medium">Temps pour 80% de maîtrise</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-600 mt-1">
+                <p className="text-2xl font-bold text-primary mt-1">
                   {predictedDays} jour{predictedDays > 1 ? 's' : ''}
                 </p>
-                <p className="text-xs text-blue-600">
+                <p className="text-xs text-primary">
                   Basé sur votre rythme actuel de {stats.todayTarget} concepts/jour
                 </p>
               </div>
 
-              <div className="bg-purple-50 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-purple-800">
+              <div className="bg-accent/10 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-accent-foreground">
                   <Zap className="h-4 w-4" />
                   <span className="text-sm font-medium">Objectif quotidien</span>
                 </div>
@@ -157,7 +157,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                     value={stats.todayTarget > 0 ? (stats.todayCompleted / stats.todayTarget) * 100 : 0} 
                     className="flex-1" 
                   />
-                  <span className="text-sm font-medium text-purple-600">
+                  <span className="text-sm font-medium text-accent-foreground">
                     {stats.todayCompleted}/{stats.todayTarget}
                   </span>
                 </div>
@@ -187,7 +187,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                     <Badge variant="outline" className="text-xs">
                       {domain.domain}
                     </Badge>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       {domain.total} concept{domain.total > 1 ? 's' : ''}
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                   </span>
                 </div>
                 <Progress value={domain.masteryRate} className="w-full" />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{domain.mastered} maîtrisé{domain.mastered > 1 ? 's' : ''}</span>
                   <span>{domain.struggling} en difficulté</span>
                 </div>
@@ -224,7 +224,7 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
               .sort((a, b) => b.priority_score - a.priority_score)
               .slice(0, 5)
               .map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm">{item.concept}</span>
@@ -236,25 +236,25 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
                         {item.difficulty_level}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>{item.item_code}</span>
                       <span>{item.error_frequency} erreur(s)</span>
                       <span>Maîtrise: {item.mastery_level}%</span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-red-600">
+                    <p className="text-sm font-medium text-destructive">
                       {item.priority_score}
                     </p>
-                    <p className="text-xs text-gray-500">priorité</p>
+                    <p className="text-xs text-muted-foreground">priorité</p>
                   </div>
                 </div>
               ))}
             
             {revisionItems.filter(item => item.mastery_level < 60).length === 0 && (
               <div className="text-center py-4">
-                <Brain className="h-8 w-8 mx-auto text-green-500 mb-2" />
-                <p className="text-green-600 font-medium">
+                <Brain className="h-8 w-8 mx-auto text-success mb-2" />
+                <p className="text-success font-medium">
                   Excellent ! Aucun concept en difficulté majeure.
                 </p>
               </div>
