@@ -105,23 +105,23 @@ export function ExtractionFeedback({
 
   const getStatusIcon = () => {
     switch (extraction.status) {
-      case 'running': return <Play className={`h-5 w-5 text-blue-500 ${pulse ? 'scale-110' : ''} transition-transform`} />;
-      case 'completed': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed': return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'paused': return <Pause className="h-5 w-5 text-yellow-500" />;
-      case 'cancelled': return <Square className="h-5 w-5 text-gray-500" />;
-      default: return <Clock className="h-5 w-5 text-gray-500" />;
+      case 'running': return <Play className={`h-5 w-5 text-primary ${pulse ? 'scale-110' : ''} transition-transform`} />;
+      case 'completed': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'failed': return <XCircle className="h-5 w-5 text-destructive" />;
+      case 'paused': return <Pause className="h-5 w-5 text-warning" />;
+      case 'cancelled': return <Square className="h-5 w-5 text-muted-foreground" />;
+      default: return <Clock className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = () => {
     switch (extraction.status) {
-      case 'running': return 'border-blue-500 bg-blue-50';
-      case 'completed': return 'border-green-500 bg-green-50';
-      case 'failed': return 'border-red-500 bg-red-50';
-      case 'paused': return 'border-yellow-500 bg-yellow-50';
-      case 'cancelled': return 'border-gray-500 bg-gray-50';
-      default: return 'border-gray-300 bg-gray-50';
+      case 'running': return 'border-primary bg-primary/5';
+      case 'completed': return 'border-success bg-success/5';
+      case 'failed': return 'border-destructive bg-destructive/5';
+      case 'paused': return 'border-warning bg-warning/5';
+      case 'cancelled': return 'border-muted bg-muted/50';
+      default: return 'border-border bg-muted/50';
     }
   };
 
@@ -162,9 +162,9 @@ export function ExtractionFeedback({
       ? (extraction.failed_items / extraction.processed_items) * 100 
       : 0;
     
-    if (errorRate > 15) return 'bg-red-500';
-    if (errorRate > 5) return 'bg-yellow-500';
-    return 'bg-blue-500';
+    if (errorRate > 15) return 'bg-destructive';
+    if (errorRate > 5) return 'bg-warning';
+    return 'bg-primary';
   };
 
   return (
@@ -243,29 +243,29 @@ export function ExtractionFeedback({
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className="text-center p-2 bg-white/50 rounded border">
-              <div className="font-bold text-green-600 text-xl">
+            <div className="text-center p-2 bg-background/50 rounded border">
+              <div className="font-bold text-success text-xl">
                 {calculateSuccess()}
               </div>
               <div className="text-xs text-muted-foreground">Succès</div>
             </div>
             
-            <div className="text-center p-2 bg-white/50 rounded border">
-              <div className="font-bold text-red-600 text-xl">
+            <div className="text-center p-2 bg-background/50 rounded border">
+              <div className="font-bold text-destructive text-xl">
                 {extraction.failed_items}
               </div>
               <div className="text-xs text-muted-foreground">Échecs</div>
             </div>
             
-            <div className="text-center p-2 bg-white/50 rounded border">
-              <div className="font-bold text-orange-600 text-xl">
+            <div className="text-center p-2 bg-background/50 rounded border">
+              <div className="font-bold text-warning text-xl">
                 {extraction.corrupted_items || 0}
               </div>
               <div className="text-xs text-muted-foreground">Corrompus</div>
             </div>
             
-            <div className="text-center p-2 bg-white/50 rounded border">
-              <div className="font-bold text-blue-600 text-xl">
+            <div className="text-center p-2 bg-background/50 rounded border">
+              <div className="font-bold text-primary text-xl">
                 {extraction.processing_speed_items_per_min || '--'}
               </div>
               <div className="text-xs text-muted-foreground">Items/min</div>
@@ -294,8 +294,8 @@ export function ExtractionFeedback({
 
           {/* Performance Indicator */}
           {extraction.status === 'running' && extraction.processing_speed_items_per_min && (
-            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border">
-              <Zap className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border">
+              <Zap className="h-4 w-4 text-primary" />
               <span className="text-sm">
                 Performance: {extraction.processing_speed_items_per_min} items/min
                 {extraction.processing_speed_items_per_min > 100 && (
@@ -384,7 +384,7 @@ export function ExtractionFeedback({
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span>Taux de succès:</span>
-                    <span className="text-green-600">
+                    <span className="text-success">
                       {extraction.processed_items > 0 
                         ? ((calculateSuccess() / extraction.processed_items) * 100).toFixed(1) 
                         : 0}%
@@ -392,7 +392,7 @@ export function ExtractionFeedback({
                   </div>
                   <div className="flex justify-between">
                     <span>Taux d'erreur:</span>
-                    <span className="text-red-600">
+                    <span className="text-destructive">
                       {extraction.processed_items > 0 
                         ? ((extraction.failed_items / extraction.processed_items) * 100).toFixed(1) 
                         : 0}%

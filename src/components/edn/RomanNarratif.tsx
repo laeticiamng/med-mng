@@ -98,11 +98,11 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
   const getChapterColor = (type: string) => {
     switch (type) {
-      case 'intro': return 'border-blue-300 bg-blue-50';
-      case 'rang-a': return 'border-green-300 bg-green-50';
-      case 'rang-b': return 'border-purple-300 bg-purple-50';
-      case 'conclusion': return 'border-yellow-300 bg-yellow-50';
-      default: return 'border-gray-300 bg-gray-50';
+      case 'intro': return 'border-primary/30 bg-primary/5';
+      case 'rang-a': return 'border-success/30 bg-success/5';
+      case 'rang-b': return 'border-accent/30 bg-accent/5';
+      case 'conclusion': return 'border-warning/30 bg-warning/5';
+      default: return 'border-border bg-muted/50';
     }
   };
 
@@ -116,7 +116,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-600">Génération du roman en cours...</p>
+          <p className="text-muted-foreground">Génération du roman en cours...</p>
         </CardContent>
       </Card>
     );
@@ -127,22 +127,22 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   return (
     <div className="space-y-6">
       {/* Header avec navigation */}
-      <Card className="border-2 border-emerald-200">
-        <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
+      <Card className="border-2 border-success/30">
+        <CardHeader className="bg-gradient-to-r from-success to-accent text-success-foreground">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-background">
               <BookOpen className="h-6 w-6" />
               Roman Narratif - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Badge className="bg-white/20 text-white">
+              <Badge className="bg-background/20 text-background">
                 Chapitre {currentChapter + 1} / {chapters.length}
               </Badge>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-                className="text-white hover:bg-white/20"
+                className="text-background hover:bg-background/20"
               >
                 {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
               </Button>
@@ -171,7 +171,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Précédent
               </Button>
-              <div className="text-sm text-gray-600 text-center flex-1 mx-4">
+              <div className="text-sm text-muted-foreground text-center flex-1 mx-4">
                 {currentChap.title}
               </div>
               <Button 
@@ -257,8 +257,8 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
                 }}
                 className={`w-full text-left p-3 rounded-lg border transition-all
                   ${index === currentChapter 
-                    ? 'border-emerald-300 bg-emerald-50 text-emerald-800' 
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-success/30 bg-success/5 text-success' 
+                    : 'border-border hover:border-border/80 hover:bg-muted/50'
                   }`}
               >
                 <div className="flex items-center justify-between">

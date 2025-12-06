@@ -52,7 +52,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
             {data.title || 'Compétences fondamentales'}
           </h2>
           {data.subtitle && (
-            <p className="text-gray-600">{data.subtitle}</p>
+            <p className="text-muted-foreground">{data.subtitle}</p>
           )}
         </div>
 
@@ -231,11 +231,11 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
           {footerComponent}
         </>
       ) : (
-        <Card className="p-8 text-center bg-white/50 backdrop-blur-sm border-amber-200">
-          <p className="text-amber-700 text-lg">
+        <Card className="p-8 text-center bg-background/50 backdrop-blur-sm border-warning/20">
+          <p className="text-warning text-lg">
             Les concepts de ce tableau sont en cours de traitement...
           </p>
-          <Badge variant="outline" className="mt-4 text-amber-600 border-amber-300">
+          <Badge variant="outline" className="mt-4 text-warning border-warning/30">
             Contenu en développement
           </Badge>
         </Card>

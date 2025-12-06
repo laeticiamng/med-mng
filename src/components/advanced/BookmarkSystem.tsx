@@ -153,11 +153,11 @@ export const BookmarkSystem: React.FC<BookmarkSystemProps> = ({
 
   const getTypeColor = (type: BookmarkItem['type']) => {
     switch (type) {
-      case 'edn': return 'bg-blue-100 text-blue-800';
-      case 'ecos': return 'bg-green-100 text-green-800';
-      case 'music': return 'bg-purple-100 text-purple-800';
-      case 'quiz': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'edn': return 'bg-primary/10 text-primary';
+      case 'ecos': return 'bg-success/10 text-success';
+      case 'music': return 'bg-accent/10 text-accent';
+      case 'quiz': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -259,7 +259,7 @@ export const BookmarkSystem: React.FC<BookmarkSystemProps> = ({
                 
                 <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                   <span className="flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <Star className="w-3 h-3 fill-warning text-warning" />
                     {bookmark.rating}
                   </span>
                   <span className="flex items-center gap-1">
