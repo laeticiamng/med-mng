@@ -140,7 +140,7 @@ export const WelcomeScreen = ({ onComplete }) => {
                 </p>
                 
                 <div className="flex items-center justify-center gap-2 text-sm">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                  <Star className="w-4 h-4 text-warning fill-current" />
                   <span>Recommandé par 98% des utilisateurs</span>
                 </div>
               </div>

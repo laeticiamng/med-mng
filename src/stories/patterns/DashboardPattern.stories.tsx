@@ -108,15 +108,15 @@ const MetricCard = ({
         <div className="text-2xl font-bold">{value}</div>
         <div className="flex items-center text-xs mt-1">
           {isPositive ? (
-            <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <ArrowUpRight className="h-4 w-4 text-success" />
           ) : (
-            <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <ArrowDownRight className="h-4 w-4 text-destructive" />
           )}
           <span
             className={
               isPositive
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
+                ? 'text-success'
+                : 'text-destructive'
             }
           >
             {change}
