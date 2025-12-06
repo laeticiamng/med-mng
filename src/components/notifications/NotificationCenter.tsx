@@ -40,26 +40,26 @@ interface Notification {
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
     case 'success':
-      return <CheckCircle className="w-4 h-4 text-green-500" />;
+      return <CheckCircle className="w-4 h-4 text-success" />;
     case 'warning':
-      return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      return <AlertTriangle className="w-4 h-4 text-warning" />;
     case 'error':
-      return <AlertCircle className="w-4 h-4 text-red-500" />;
+      return <AlertCircle className="w-4 h-4 text-destructive" />;
     default:
-      return <Info className="w-4 h-4 text-blue-500" />;
+      return <Info className="w-4 h-4 text-primary" />;
   }
 };
 
 const getNotificationBorderColor = (type: Notification['type']) => {
   switch (type) {
     case 'success':
-      return 'border-l-green-500';
+      return 'border-l-success';
     case 'warning':
-      return 'border-l-yellow-500';
+      return 'border-l-warning';
     case 'error':
-      return 'border-l-red-500';
+      return 'border-l-destructive';
     default:
-      return 'border-l-blue-500';
+      return 'border-l-primary';
   }
 };
 
@@ -127,8 +127,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const NotificationItem: React.FC<{ notification: Notification }> = ({ notification }) => (
     <div
       className={`p-4 border-l-4 ${getNotificationBorderColor(notification.type)} ${
-        !notification.read ? 'bg-blue-50/50' : 'bg-white'
-      } border border-gray-200 rounded-r-lg cursor-pointer hover:bg-gray-50 transition-colors`}
+        !notification.read ? 'bg-primary/5' : 'bg-card'
+      } border border-border rounded-r-lg cursor-pointer hover:bg-muted transition-colors`}
       onClick={() => handleNotificationClick(notification)}
     >
       <div className="flex items-start justify-between">
@@ -136,19 +136,19 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           {getNotificationIcon(notification.type)}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <h4 className="text-sm font-medium text-gray-900">
+              <h4 className="text-sm font-medium text-foreground">
                 {notification.title}
               </h4>
               {!notification.read && (
-                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                <div className="w-2 h-2 bg-primary rounded-full" />
               )}
             </div>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               {notification.message}
             </p>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">
-                {formatDistanceToNow(notification.timestamp, { 
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(notification.timestamp, {
                   addSuffix: true, 
                   locale: fr 
                 })}
@@ -216,11 +216,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <div className="p-4">
           {demoNotifications.length === 0 ? (
             <div className="text-center py-12">
-              <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 Aucune notification
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Vous n'avez aucune notification pour le moment.
               </p>
             </div>

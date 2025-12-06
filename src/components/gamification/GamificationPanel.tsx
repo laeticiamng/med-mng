@@ -168,20 +168,20 @@ export const GamificationPanel: React.FC = () => {
 
   const getBadgeColor = (rarity: Badge['rarity']) => {
     switch (rarity) {
-      case 'common': return 'text-gray-500 bg-gray-100';
-      case 'rare': return 'text-blue-500 bg-blue-100';
-      case 'epic': return 'text-purple-500 bg-purple-100';
-      case 'legendary': return 'text-yellow-500 bg-yellow-100';
-      default: return 'text-gray-500 bg-gray-100';
+      case 'common': return 'text-muted-foreground bg-muted';
+      case 'rare': return 'text-primary bg-primary/10';
+      case 'epic': return 'text-accent-foreground bg-accent';
+      case 'legendary': return 'text-warning bg-warning/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
   const getDifficultyColor = (difficulty: Challenge['difficulty']) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'hard': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'easy': return 'bg-success';
+      case 'medium': return 'bg-warning';
+      case 'hard': return 'bg-destructive';
+      default: return 'bg-muted';
     }
   };
 
@@ -202,12 +202,12 @@ export const GamificationPanel: React.FC = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Niveau {userLevel.current}</h2>
-              <p className="text-blue-600 font-medium">{userLevel.title}</p>
+              <h2 className="text-2xl font-bold text-foreground">Niveau {userLevel.current}</h2>
+              <p className="text-primary font-medium">{userLevel.title}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">XP Total</p>
-              <p className="text-xl font-bold text-gray-900">{userLevel.xp.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">XP Total</p>
+              <p className="text-xl font-bold text-foreground">{userLevel.xp.toLocaleString()}</p>
             </div>
           </div>
           
@@ -253,12 +253,12 @@ export const GamificationPanel: React.FC = () => {
                         <h4 className="font-medium">{challenge.title}</h4>
                         <div className={`w-2 h-2 rounded-full ${getDifficultyColor(challenge.difficulty)}`} />
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{challenge.description}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{challenge.description}</p>
                       <Badge variant="outline" className="text-xs">
                         {challenge.reward}
                       </Badge>
                     </div>
-                    <div className="text-right text-sm text-gray-500">
+                    <div className="text-right text-sm text-muted-foreground">
                       <Clock className="w-3 h-3 inline mr-1" />
                       {challenge.timeLeft}
                     </div>
@@ -295,10 +295,10 @@ export const GamificationPanel: React.FC = () => {
                 return (
                   <div key={achievement.id} className="p-4 border rounded-lg">
                     <div className="flex items-start gap-3">
-                      <CategoryIcon className="w-5 h-5 text-gray-500 mt-1" />
+                      <CategoryIcon className="w-5 h-5 text-muted-foreground mt-1" />
                       <div className="flex-1">
                         <h4 className="font-medium mb-1">{achievement.title}</h4>
-                        <p className="text-sm text-gray-600 mb-2">{achievement.description}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
                         <Badge variant="outline" className="text-xs mb-3">
                           {achievement.reward}
                         </Badge>
@@ -339,14 +339,14 @@ export const GamificationPanel: React.FC = () => {
                     <div 
                       key={badge.id} 
                       className={`p-4 border rounded-lg text-center transition-all hover:scale-105 ${
-                        badge.earned ? 'bg-white shadow-sm' : 'bg-gray-50 opacity-60'
+                        badge.earned ? 'bg-card shadow-sm' : 'bg-muted opacity-60'
                       }`}
                     >
                       <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${getBadgeColor(badge.rarity)}`}>
                         <BadgeIcon className="w-6 h-6" />
                       </div>
                       <h4 className="font-medium text-sm mb-1">{badge.name}</h4>
-                      <p className="text-xs text-gray-600 mb-2">{badge.description}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{badge.description}</p>
                       
                       {badge.earned ? (
                         <Badge variant="secondary" className="text-xs">
@@ -354,7 +354,7 @@ export const GamificationPanel: React.FC = () => {
                         </Badge>
                       ) : badge.progress !== undefined ? (
                         <div className="space-y-1">
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             {badge.progress}/{badge.maxProgress}
                           </div>
                           <Progress 
@@ -399,7 +399,7 @@ export const GamificationPanel: React.FC = () => {
                   <div 
                     key={user.rank} 
                     className={`flex items-center p-3 rounded-lg ${
-                      user.isCurrentUser ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
+                      user.isCurrentUser ? 'bg-primary/10 border border-primary/20' : 'bg-muted'
                     }`}
                   >
                     <div className="w-8 text-center font-bold text-lg">
@@ -408,7 +408,7 @@ export const GamificationPanel: React.FC = () => {
                     <div className="text-2xl mx-3">{user.avatar}</div>
                     <div className="flex-1">
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-gray-600">{user.xp.toLocaleString()} XP</p>
+                      <p className="text-sm text-muted-foreground">{user.xp.toLocaleString()} XP</p>
                     </div>
                     {user.isCurrentUser && (
                       <Badge className="ml-2">C'est vous !</Badge>
