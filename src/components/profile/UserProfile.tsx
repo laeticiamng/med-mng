@@ -130,8 +130,8 @@ export const UserProfile: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Calendar className="w-6 h-6 text-primary" />
             </div>
             <p className="text-2xl font-bold">{userStats.totalSessions}</p>
             <p className="text-sm text-muted-foreground">Sessions</p>
@@ -140,8 +140,8 @@ export const UserProfile: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Clock className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Clock className="w-6 h-6 text-success" />
             </div>
             <p className="text-2xl font-bold">{userStats.studyHours}h</p>
             <p className="text-sm text-muted-foreground">Étude</p>
@@ -150,8 +150,8 @@ export const UserProfile: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+              <Brain className="w-6 h-6 text-accent-foreground" />
             </div>
             <p className="text-2xl font-bold">{userStats.completedItems}</p>
             <p className="text-sm text-muted-foreground">Items</p>
@@ -160,8 +160,8 @@ export const UserProfile: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <TrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-2">
+              <TrendingUp className="w-6 h-6 text-warning" />
             </div>
             <p className="text-2xl font-bold">{userStats.averageScore}%</p>
             <p className="text-sm text-muted-foreground">Score moyen</p>
@@ -184,7 +184,7 @@ export const UserProfile: React.FC = () => {
           {recentAchievements.map((achievement) => (
             <div key={achievement.id} className="flex items-center gap-4 p-3 rounded-lg border">
               <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRarityColor(achievement.rarity)}`}>
-                <achievement.icon className="w-6 h-6 text-white" />
+                <achievement.icon className="w-6 h-6 text-primary-foreground" />
               </div>
               <div className="flex-1">
                 <h4 className="font-medium">{achievement.name}</h4>

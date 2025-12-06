@@ -57,13 +57,13 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
   const hasData = (rang: RangType) => getCompetencesCount(rang) > 0;
 
   return (
-    <Card className={`border-2 border-blue-200 ${className}`}>
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+    <Card className={`border-2 border-primary/20 ${className}`}>
+      <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
         <CardTitle className="flex items-center gap-2">
           <Music className="h-5 w-5" />
           Génération Musicale IA - {itemCode}
         </CardTitle>
-        <p className="text-blue-100 text-sm">
+        <p className="text-primary-foreground/80 text-sm">
           Transformez les compétences médicales en chansons mémorisables
         </p>
       </CardHeader>
@@ -71,14 +71,14 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
       <CardContent className="p-6 space-y-6">
         {/* Progress pendant la génération */}
         {musicGeneration.isGenerating && (
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-primary/20 bg-primary/10">
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-3">
-                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                <span className="font-medium text-blue-800">Génération en cours...</span>
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <span className="font-medium text-primary">Génération en cours...</span>
               </div>
               <Progress value={75} className="mb-2" />
-              <p className="text-sm text-blue-600">{musicGeneration.generationProgress}</p>
+              <p className="text-sm text-primary">{musicGeneration.generationProgress}</p>
             </CardContent>
           </Card>
         )}
@@ -170,13 +170,13 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
         <Separator />
 
         {/* Informations sur la structure */}
-        <Card className="bg-gray-50 border-gray-200">
+        <Card className="bg-muted border-border">
           <CardContent className="p-4">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Volume2 className="h-4 w-4" />
               Structure musicale garantie
             </h4>
-            <div className="text-sm space-y-1 text-gray-600">
+            <div className="text-sm space-y-1 text-muted-foreground">
               <div>🎵 <strong>Couplet 1</strong> - Introduction des concepts</div>
               <div>🎤 <strong>Refrain</strong> - Points clés à retenir</div>
               <div>🎵 <strong>Couplet 2</strong> - Développement pratique</div>
@@ -189,12 +189,12 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
 
         {/* Dernière génération */}
         {lastGenerated && (
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-success/20 bg-success/10">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <span className="font-medium text-green-800">
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                  <span className="font-medium text-success">
                     Dernière génération : Rang {lastGenerated.rang}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                   })}
                   size="sm"
                   variant="outline"
-                  className="border-green-300 text-green-700 hover:bg-green-100"
+                  className="border-success/30 text-success hover:bg-success/10"
                 >
                   <Play className="h-4 w-4 mr-1" />
                   Écouter

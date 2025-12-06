@@ -22,7 +22,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   const variantClasses = {
-    default: 'text-gray-600',
+    default: 'text-muted-foreground',
     primary: 'text-primary',
     secondary: 'text-secondary'
   };
@@ -72,7 +72,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     <div className={cn('relative', className)}>
       {children}
       {isLoading && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
           <LoadingSpinner text={text} size="lg" />
         </div>
       )}
