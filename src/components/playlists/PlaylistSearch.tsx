@@ -53,7 +53,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
       {/* Barre de recherche principale */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -62,7 +62,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
-        <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleSearch} className="bg-primary hover:bg-primary/90">
           <TranslatedText text="Rechercher" />
         </Button>
         <Button
@@ -82,9 +82,9 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
 
       {/* Filtres avancés */}
       {showFilters && (
-        <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
+        <div className="bg-muted/50 p-4 rounded-lg border space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-900">
+            <h4 className="font-medium text-foreground">
               <TranslatedText text="Filtres avancés" />
             </h4>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -96,7 +96,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Filtre de confidentialité */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 <TranslatedText text="Confidentialité" />
               </label>
               <Select
@@ -124,7 +124,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
 
             {/* Tri par */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 <TranslatedText text="Trier par" />
               </label>
               <Select
@@ -155,7 +155,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
 
             {/* Ordre de tri */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 <TranslatedText text="Ordre" />
               </label>
               <Select
@@ -179,7 +179,7 @@ export const PlaylistSearch: React.FC<PlaylistSearchProps> = ({ onSearch, classN
             </div>
           </div>
 
-          <Button onClick={handleSearch} className="w-full bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSearch} className="w-full bg-primary hover:bg-primary/90">
             <TranslatedText text="Appliquer les filtres" />
           </Button>
         </div>

@@ -25,7 +25,7 @@ export const TranslatedText: React.FC<TranslatedTextProps> = ({
   if (isLoading && showLoader) {
     return (
       <Component className={className}>
-        <span className="animate-pulse bg-gray-200 rounded px-2 py-1">
+        <span className="animate-pulse bg-muted rounded px-2 py-1">
           {text}
         </span>
       </Component>
