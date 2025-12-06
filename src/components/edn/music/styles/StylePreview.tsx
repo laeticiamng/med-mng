@@ -46,12 +46,12 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
   };
 
   return (
-    <Card className={`${hasPremiumStyles ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200' : 'bg-gradient-to-br from-blue-50 to-indigo-50'}`}>
+    <Card className={`${hasPremiumStyles ? 'bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20' : 'bg-gradient-to-br from-primary/5 to-accent/10'}`}>
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Titre de la composition */}
           <div className="flex items-center gap-2">
-            {hasPremiumStyles && <Sparkles className="h-5 w-5 text-purple-600" />}
+            {hasPremiumStyles && <Sparkles className="h-5 w-5 text-accent" />}
             <h3 className="font-semibold text-lg">
               {selectedStyles.length === 1 ? 'Style Sélectionné' : 'Composition Personnalisée'}
             </h3>

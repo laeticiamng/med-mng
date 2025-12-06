@@ -172,7 +172,7 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                             {competence.objectif_id}
                           </Badge>
                         )}
-                        <h4 className={`text-xs font-bold leading-tight ${isPlaceholder ? 'text-gray-600' : 'text-foreground group-hover:text-primary'} transition-colors duration-200`}>
+                        <h4 className={`text-xs font-bold leading-tight ${isPlaceholder ? 'text-muted-foreground' : 'text-foreground group-hover:text-primary'} transition-colors duration-200`}>
                           {competence.titre_complet || competence.intitule}
                         </h4>
                       </div>
@@ -191,7 +191,7 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                           </div>
                         )}
                         {competence.description && (
-                          <div className={`${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
+                          <div className={`${isPlaceholder ? 'text-muted-foreground' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
                             <div 
                               dangerouslySetInnerHTML={createSafeHtml(
                                 competence.description

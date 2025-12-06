@@ -38,7 +38,7 @@ export const RangAudioPlayer: React.FC<RangAudioPlayerProps> = ({
   return (
     <div className="mt-4 space-y-2">
       {/* Bouton de test simple */}
-      <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
+      <div className="flex items-center gap-2 p-3 bg-card rounded-lg border">
         <Button
           onClick={() => onPlayAudio(generatedAudio, `Rang ${rang} - ${itemCode}`)}
           className="flex items-center gap-2"
@@ -50,7 +50,7 @@ export const RangAudioPlayer: React.FC<RangAudioPlayerProps> = ({
           )}
           Test Audio Suno {rang}
         </Button>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-muted-foreground">
           {currentTrack?.url === generatedAudio && isPlaying ? '🎵 En cours...' : '⏸️ Prêt'}
         </span>
       </div>
