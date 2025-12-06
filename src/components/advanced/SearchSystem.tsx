@@ -280,7 +280,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
                         
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                            <Star className="w-3 h-3 fill-warning text-warning" />
                             {result.rating}
                           </span>
                           <span>•</span>
