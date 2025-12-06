@@ -212,7 +212,7 @@ export const HelpCenter = ({ isOpen, onClose }) => {
                                 <span>{article.duration}</span>
                                 <span>{article.difficulty}</span>
                                 <div className="flex items-center gap-1">
-                                  <Star className="w-3 h-3 fill-current text-yellow-500" />
+                                  <Star className="w-3 h-3 fill-current text-warning" />
                                   {article.rating}
                                 </div>
                               </div>

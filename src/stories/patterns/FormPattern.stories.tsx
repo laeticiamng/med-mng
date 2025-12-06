@@ -352,7 +352,7 @@ const CompleteFormExample = () => {
               </span>
             )}
             {submitSuccess && (
-              <span className="px-2 py-1 rounded bg-green-500/10 text-green-600">
+              <span className="px-2 py-1 rounded bg-success/10 text-success">
                 ✓ Envoyé avec succès
               </span>
             )}
