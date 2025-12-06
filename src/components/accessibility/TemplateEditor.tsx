@@ -311,7 +311,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       <div className="flex items-center gap-2">
-                        {template.is_default && <Star className="h-3 w-3 text-yellow-500" />}
+                        {template.is_default && <Star className="h-3 w-3 text-warning" />}
                         <span>{template.name}</span>
                       </div>
                     </SelectItem>

@@ -59,7 +59,7 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Sélection classique pour compatibilité - TOUJOURS VISIBLE */}
-        <div className="p-4 border rounded-lg bg-amber-50">
+        <div className="p-4 border rounded-lg bg-warning/10">
           <label className="text-sm font-medium mb-2 block">✨ Sélection rapide (recommandée) :</label>
           <Select value={selectedStyle} onValueChange={onStyleChange}>
             <SelectTrigger className="w-full">
@@ -75,7 +75,7 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
             </SelectContent>
           </Select>
           {!selectedStyle && (
-            <p className="text-xs text-orange-600 mt-1">
+            <p className="text-xs text-warning mt-1">
               ⚠️ Vous devez sélectionner un style pour pouvoir générer de la musique
             </p>
           )}
@@ -133,8 +133,8 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
                       key={style.value}
                       className={`p-3 border rounded-lg cursor-pointer transition-all ${
                         selectedStyle === style.value 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          ? 'border-primary bg-primary/10 shadow-md' 
+                          : 'border-border hover:border-muted-foreground hover:bg-muted/50'
                       }`}
                       onClick={() => onStyleChange(style.value)}
                     >
@@ -148,12 +148,12 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
                           {style.energy === 'high' && <span className="text-xs">🔥</span>}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-600">{style.description}</p>
+                      <p className="text-xs text-muted-foreground">{style.description}</p>
                     </div>
                   ))}
                 </div>
                 {filteredStyles.length === 0 && (
-                  <p className="text-center text-gray-500 py-4">
+                  <p className="text-center text-muted-foreground py-4">
                     Aucun style ne correspond aux filtres sélectionnés
                   </p>
                 )}

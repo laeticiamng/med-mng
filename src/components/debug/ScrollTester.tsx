@@ -45,7 +45,7 @@ export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false 
   };
 
   return (
-    <Card className="fixed top-4 right-4 w-80 z-[9999] shadow-xl bg-white/95 backdrop-blur">
+    <Card className="fixed top-4 right-4 w-80 z-[9999] shadow-xl bg-card/95 backdrop-blur">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <TestTube className="h-4 w-4" />
@@ -63,11 +63,11 @@ export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false 
           Test Scroll
         </Button>
         
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           Ouvre la console pour voir les résultats
         </div>
         
-        <div className="bg-yellow-50 p-2 rounded text-xs">
+        <div className="bg-warning/10 p-2 rounded text-xs">
           <AlertCircle className="h-3 w-3 inline mr-1" />
           Vérifie overflow-hidden sur modals
         </div>

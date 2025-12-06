@@ -116,18 +116,18 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
   
   const themeColors = rang === 'A' 
     ? {
-        primary: 'from-blue-500 to-blue-600',
-        bg: 'bg-blue-50/50',
-        border: 'border-l-blue-500',
-        text: 'text-blue-900',
-        accent: 'bg-blue-100/50'
+        primary: 'from-primary to-primary/80',
+        bg: 'bg-primary/5',
+        border: 'border-l-primary',
+        text: 'text-primary',
+        accent: 'bg-primary/10'
       }
     : {
-        primary: 'from-purple-500 to-purple-600', 
-        bg: 'bg-purple-50/50',
-        border: 'border-l-purple-500',
-        text: 'text-purple-900',
-        accent: 'bg-purple-100/50'
+        primary: 'from-accent to-accent/80', 
+        bg: 'bg-accent/5',
+        border: 'border-l-accent',
+        text: 'text-accent',
+        accent: 'bg-accent/10'
       };
 
   // Analyser le contenu disponible
@@ -143,43 +143,43 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
       key: 'mecanismes', 
       title: 'Mécanismes d\'action', 
       content: competence.mecanismes, 
-      icon: <Settings className="w-4 h-4 text-green-600" />,
-      colorClass: 'border-l-green-500 bg-green-50/30'
+      icon: <Settings className="w-4 h-4 text-success" />,
+      colorClass: 'border-l-success bg-success/5'
     },
     { 
       key: 'indications', 
       title: 'Indications cliniques', 
       content: competence.indications, 
-      icon: <Target className="w-4 h-4 text-blue-600" />,
-      colorClass: 'border-l-blue-500 bg-blue-50/30'
+      icon: <Target className="w-4 h-4 text-primary" />,
+      colorClass: 'border-l-primary bg-primary/5'
     },
     { 
       key: 'surveillance', 
       title: 'Modalités de surveillance', 
       content: competence.modalites_surveillance, 
-      icon: <Eye className="w-4 h-4 text-indigo-600" />,
-      colorClass: 'border-l-indigo-500 bg-indigo-50/30'
+      icon: <Eye className="w-4 h-4 text-accent" />,
+      colorClass: 'border-l-accent bg-accent/5'
     },
     { 
       key: 'effets', 
       title: 'Effets indésirables', 
       content: competence.effets_indesirables, 
-      icon: <AlertTriangle className="w-4 h-4 text-red-600" />,
-      colorClass: 'border-l-red-500 bg-red-50/30'
+      icon: <AlertTriangle className="w-4 h-4 text-destructive" />,
+      colorClass: 'border-l-destructive bg-destructive/5'
     },
     { 
       key: 'interactions', 
       title: 'Interactions médicamenteuses', 
       content: competence.interactions, 
-      icon: <Heart className="w-4 h-4 text-pink-600" />,
-      colorClass: 'border-l-pink-500 bg-pink-50/30'
+      icon: <Heart className="w-4 h-4 text-warning" />,
+      colorClass: 'border-l-warning bg-warning/5'
     },
     { 
       key: 'echec', 
       title: 'Causes d\'échec thérapeutique', 
       content: competence.causes_echec, 
-      icon: <AlertTriangle className="w-4 h-4 text-orange-600" />,
-      colorClass: 'border-l-orange-500 bg-orange-50/30'
+      icon: <AlertTriangle className="w-4 h-4 text-warning" />,
+      colorClass: 'border-l-warning bg-warning/5'
     }
   ].filter(section => section.content && section.content.trim().length > 0);
 

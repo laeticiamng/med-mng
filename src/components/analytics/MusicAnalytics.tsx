@@ -217,7 +217,7 @@ export const MusicAnalytics: React.FC = () => {
       <div className="p-6">
         <div className="animate-pulse space-y-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            <div key={i} className="h-32 bg-muted rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -227,11 +227,11 @@ export const MusicAnalytics: React.FC = () => {
   if (!stats) {
     return (
       <Card className="p-12 text-center">
-        <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-foreground mb-2">
           <TranslatedText text="Pas encore de données" />
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           <TranslatedText text="Commencez à écouter de la musique pour voir vos statistiques" />
         </p>
       </Card>
@@ -243,10 +243,10 @@ export const MusicAnalytics: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-foreground">
             <TranslatedText text="Vos Statistiques d'Écoute" />
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             <TranslatedText text="Analysez vos habitudes musicales et votre progression" />
           </p>
         </div>
@@ -272,14 +272,14 @@ export const MusicAnalytics: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   <TranslatedText text="Temps d'écoute" />
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-foreground">
                   {formatDuration(stats.totalListenTime)}
                 </p>
               </div>
-              <Clock className="h-8 w-8 text-blue-600" />
+              <Clock className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -288,14 +288,14 @@ export const MusicAnalytics: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   <TranslatedText text="Chansons écoutées" />
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-foreground">
                   {stats.songsPlayed}
                 </p>
               </div>
-              <Music className="h-8 w-8 text-green-600" />
+              <Music className="h-8 w-8 text-success" />
             </div>
           </CardContent>
         </Card>
@@ -304,14 +304,14 @@ export const MusicAnalytics: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   <TranslatedText text="Playlists créées" />
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-foreground">
                   {stats.playlistsCreated}
                 </p>
               </div>
-              <Users className="h-8 w-8 text-purple-600" />
+              <Users className="h-8 w-8 text-accent" />
             </div>
           </CardContent>
         </Card>
@@ -320,14 +320,14 @@ export const MusicAnalytics: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   <TranslatedText text="Série d'écoute" />
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-foreground">
                   {stats.streakDays}j
                 </p>
               </div>
-              <Activity className="h-8 w-8 text-orange-600" />
+              <Activity className="h-8 w-8 text-warning" />
             </div>
           </CardContent>
         </Card>
@@ -347,17 +347,17 @@ export const MusicAnalytics: React.FC = () => {
             <div className="space-y-3">
               {stats.weeklyStats.map((day, index) => (
                 <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{day.day}</span>
+                  <span className="text-sm text-muted-foreground">{day.day}</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                    <div className="w-32 bg-muted rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
                         style={{
                           width: `${Math.min(100, (day.minutes / Math.max(...stats.weeklyStats.map(d => d.minutes))) * 100)}%`
                         }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-900 min-w-[3rem]">
+                    <span className="text-sm font-medium text-foreground min-w-[3rem]">
                       {day.minutes}min
                     </span>
                   </div>
@@ -384,15 +384,15 @@ export const MusicAnalytics: React.FC = () => {
                       {index + 1}
                     </Badge>
                     <div>
-                      <p className="font-medium text-gray-900 text-sm truncate max-w-40">
+                      <p className="font-medium text-foreground text-sm truncate max-w-40">
                         {song.title}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {song.playCount} écoute{song.playCount > 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     {formatDuration(Math.round(song.totalTime / 60))}
                   </span>
                 </div>
@@ -414,54 +414,54 @@ export const MusicAnalytics: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Badge temps d'écoute */}
             <div className={`p-4 rounded-lg border-2 text-center ${
-              stats.totalListenTime >= 60 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-gray-50'
+              stats.totalListenTime >= 60 ? 'border-warning bg-warning/10' : 'border-border bg-muted/30'
             }`}>
               <Clock className={`h-8 w-8 mx-auto mb-2 ${
-                stats.totalListenTime >= 60 ? 'text-yellow-600' : 'text-gray-400'
+                stats.totalListenTime >= 60 ? 'text-warning' : 'text-muted-foreground'
               }`} />
               <p className="text-sm font-medium">
                 <TranslatedText text="Mélomane" />
               </p>
-              <p className="text-xs text-gray-600">1h d'écoute</p>
+              <p className="text-xs text-muted-foreground">1h d'écoute</p>
             </div>
 
             {/* Badge playlists */}
             <div className={`p-4 rounded-lg border-2 text-center ${
-              stats.playlistsCreated >= 3 ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50'
+              stats.playlistsCreated >= 3 ? 'border-primary bg-primary/10' : 'border-border bg-muted/30'
             }`}>
               <Users className={`h-8 w-8 mx-auto mb-2 ${
-                stats.playlistsCreated >= 3 ? 'text-blue-600' : 'text-gray-400'
+                stats.playlistsCreated >= 3 ? 'text-primary' : 'text-muted-foreground'
               }`} />
               <p className="text-sm font-medium">
                 <TranslatedText text="Organisateur" />
               </p>
-              <p className="text-xs text-gray-600">3 playlists</p>
+              <p className="text-xs text-muted-foreground">3 playlists</p>
             </div>
 
             {/* Badge série */}
             <div className={`p-4 rounded-lg border-2 text-center ${
-              stats.streakDays >= 7 ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50'
+              stats.streakDays >= 7 ? 'border-success bg-success/10' : 'border-border bg-muted/30'
             }`}>
               <Activity className={`h-8 w-8 mx-auto mb-2 ${
-                stats.streakDays >= 7 ? 'text-green-600' : 'text-gray-400'
+                stats.streakDays >= 7 ? 'text-success' : 'text-muted-foreground'
               }`} />
               <p className="text-sm font-medium">
                 <TranslatedText text="Assidu" />
               </p>
-              <p className="text-xs text-gray-600">7 jours consécutifs</p>
+              <p className="text-xs text-muted-foreground">7 jours consécutifs</p>
             </div>
 
             {/* Badge diversité */}
             <div className={`p-4 rounded-lg border-2 text-center ${
-              stats.songsPlayed >= 20 ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-gray-50'
+              stats.songsPlayed >= 20 ? 'border-accent bg-accent/10' : 'border-border bg-muted/30'
             }`}>
               <Music className={`h-8 w-8 mx-auto mb-2 ${
-                stats.songsPlayed >= 20 ? 'text-purple-600' : 'text-gray-400'
+                stats.songsPlayed >= 20 ? 'text-accent' : 'text-muted-foreground'
               }`} />
               <p className="text-sm font-medium">
                 <TranslatedText text="Explorateur" />
               </p>
-              <p className="text-xs text-gray-600">20 chansons</p>
+              <p className="text-xs text-muted-foreground">20 chansons</p>
             </div>
           </div>
         </CardContent>
