@@ -101,7 +101,7 @@ export const CVSSCalculator = () => {
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-4">
-              <div className="text-center p-6 bg-gradient-medical rounded-lg text-white">
+              <div className="text-center p-6 bg-gradient-to-r from-primary to-accent rounded-lg text-primary-foreground">
                 <div className="text-sm opacity-90 mb-2">Score de Base</div>
                 <div className="text-5xl font-bold">{score.baseScore}</div>
                 <Badge variant={getSeverityColor(score.baseSeverity)} className="mt-3">

@@ -257,20 +257,20 @@ export default function AdminImport() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'processing': return <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full" />;
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'failed': return <X className="h-4 w-4 text-red-500" />;
-      default: return <AlertCircle className="h-4 w-4 text-gray-500" />;
+      case 'processing': return <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />;
+      case 'completed': return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'failed': return <X className="h-4 w-4 text-destructive" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-warning/10 text-warning';
+      case 'processing': return 'bg-primary/10 text-primary';
+      case 'completed': return 'bg-success/10 text-success';
+      case 'failed': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -278,8 +278,8 @@ export default function AdminImport() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Import de Fiches EDN</h1>
-          <p className="text-gray-600 mt-2">Importez vos fiches pédagogiques en masse depuis CSV, Excel ou Google Sheets</p>
+          <h1 className="text-3xl font-bold text-foreground">Import de Fiches EDN</h1>
+          <p className="text-muted-foreground mt-2">Importez vos fiches pédagogiques en masse depuis CSV, Excel ou Google Sheets</p>
         </div>
       </div>
 
@@ -324,7 +324,7 @@ export default function AdminImport() {
                   />
                 </div>
                 
-                <div className="text-center text-gray-500">ou</div>
+                <div className="text-center text-muted-foreground">ou</div>
                 
                 <div>
                   <Label htmlFor="csv-data">Coller les données CSV</Label>
@@ -379,7 +379,7 @@ export default function AdminImport() {
               >
                 {isUploading ? (
                   <>
-                    <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+                    <div className="animate-spin h-4 w-4 mr-2 border-2 border-primary-foreground border-t-transparent rounded-full" />
                     Import en cours...
                   </>
                 ) : (
@@ -405,12 +405,12 @@ export default function AdminImport() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Les intégrations Google Sheets permettent un import automatique à chaque modification de votre feuille.
               </p>
               
               {googleIntegrations.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Aucune intégration Google Sheets configurée</p>
                   <p className="text-sm">Contactez l'administrateur pour configurer une intégration</p>
@@ -422,20 +422,20 @@ export default function AdminImport() {
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-medium">{integration.sheet_name}</h4>
-                          <p className="text-sm text-gray-600">ID: {integration.sheet_id}</p>
+                          <p className="text-sm text-muted-foreground">ID: {integration.sheet_id}</p>
                           {integration.last_sync && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Dernière sync: {new Date(integration.last_sync).toLocaleString()}
                             </p>
                           )}
                         </div>
-                        <Badge className={integration.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                        <Badge className={integration.is_active ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}>
                           {integration.is_active ? 'Actif' : 'Inactif'}
                         </Badge>
                       </div>
                       
-                      <div className="mt-3 p-3 bg-gray-50 rounded text-sm font-mono">
-                        <p className="text-xs text-gray-600 mb-1">URL Webhook:</p>
+                      <div className="mt-3 p-3 bg-muted rounded text-sm font-mono">
+                        <p className="text-xs text-muted-foreground mb-1">URL Webhook:</p>
                         <p className="break-all">
                           {window.location.origin}/functions/v1/google-sheets-webhook?token={integration.webhook_token}
                         </p>
@@ -461,7 +461,7 @@ export default function AdminImport() {
             </CardHeader>
             <CardContent>
               {importBatches.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Aucun import effectué</p>
                 </div>
@@ -474,7 +474,7 @@ export default function AdminImport() {
                           {getStatusIcon(batch.status)}
                           <div>
                             <h4 className="font-medium">{batch.filename}</h4>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                               {new Date(batch.created_at).toLocaleString()}
                             </p>
                           </div>
@@ -492,10 +492,10 @@ export default function AdminImport() {
                           </div>
                           <Progress value={(batch.processed_rows / batch.total_rows) * 100} />
                           
-                          <div className="flex justify-between text-sm text-gray-600">
-                            <span className="text-green-600">✓ {batch.success_rows} réussies</span>
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span className="text-success">✓ {batch.success_rows} réussies</span>
                             {batch.error_rows > 0 && (
-                              <span className="text-red-600">✗ {batch.error_rows} erreurs</span>
+                              <span className="text-destructive">✗ {batch.error_rows} erreurs</span>
                             )}
                           </div>
                         </div>
@@ -503,10 +503,10 @@ export default function AdminImport() {
 
                       {batch.errors && batch.errors.length > 0 && (
                         <details className="mt-3">
-                          <summary className="cursor-pointer text-sm text-red-600">
+                          <summary className="cursor-pointer text-sm text-destructive">
                             Voir les erreurs ({batch.errors.length})
                           </summary>
-                          <div className="mt-2 p-3 bg-red-50 rounded text-sm">
+                          <div className="mt-2 p-3 bg-destructive/5 rounded text-sm">
                             {batch.errors.slice(0, 5).map((error, index) => (
                               <div key={index} className="text-red-700">
                                 Ligne {error.row}: {error.error}

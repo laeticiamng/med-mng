@@ -106,10 +106,10 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
 
       <CardContent className="p-0">
         {/* Barre de progression */}
-        <div className="p-4 bg-gray-50 border-b">
+        <div className="p-4 bg-muted border-b">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Progression de lecture</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {Math.round(readingProgress)}% complété
             </span>
           </div>
@@ -117,7 +117,7 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
         </div>
 
         {/* Contrôles de lecture */}
-        <div className="p-4 bg-gray-50 border-b flex items-center justify-between flex-wrap gap-2">
+        <div className="p-4 bg-muted border-b flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -153,21 +153,21 @@ export const RomanDisplay: React.FC<RomanDisplayProps> = ({
         </div>
 
         {/* Navigation chapitres */}
-        <div className="p-4 bg-blue-50 border-b">
+        <div className="p-4 bg-primary/5 border-b">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-blue-900">
+              <h3 className="font-semibold text-primary">
                 Chapitre {currentChapterData.chapter_number}: {currentChapterData.title}
               </h3>
               <div className="flex flex-wrap gap-1 mt-2">
                 {currentChapterData.medical_concepts.map((concept, index) => (
-                  <Badge key={index} variant="outline" className="text-xs bg-blue-100 border-blue-300">
+                  <Badge key={index} variant="outline" className="text-xs bg-primary/10 border-primary/30">
                     {concept}
                   </Badge>
                 ))}
               </div>
             </div>
-            <Badge className="bg-blue-600">
+            <Badge className="bg-primary">
               {currentChapter + 1}/{data.chapters.length}
             </Badge>
           </div>
