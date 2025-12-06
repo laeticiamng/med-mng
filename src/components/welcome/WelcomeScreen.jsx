@@ -16,6 +16,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 /**
  * Écran de Bienvenue Interactif pour Nouveaux Utilisateurs
@@ -43,21 +44,21 @@ export const WelcomeScreen = ({ onComplete }) => {
       description: "Surveillez vos métriques et performances en temps réel",
       icon: BarChart3,
       color: "bg-success",
-      action: { label: "Voir le Dashboard", path: "/dashboard" }
+      action: { label: "Voir le Dashboard", path: ROUTE_PATHS.dashboard }
     },
     {
       title: "Création Musicale",
       description: "Générez des contenus audio personnalisés pour vos patients",
       icon: Music,
-      color: "bg-purple-500",
-      action: { label: "Créer une Piste", path: "/med-mng/create" }
+      color: "bg-accent",
+      action: { label: "Créer une Piste", path: ROUTE_PATHS.medMngCreate }
     },
     {
       title: "Monitoring Système", 
       description: "Système de surveillance avancé avec alertes intelligentes",
       icon: Shield,
       color: "bg-warning",
-      action: { label: "Voir le Monitoring", path: "/system-management" }
+      action: { label: "Voir le Monitoring", path: ROUTE_PATHS.systemManagement }
     }
   ];
 
