@@ -258,7 +258,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Lecteur audio principal */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+      <Card className="bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
         <CardContent className="p-6">
           {currentTrack ? (
             <div className="flex items-center gap-6">
@@ -277,7 +277,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
                     <Badge variant="secondary">{currentTrack.specialty}</Badge>
                   )}
                   {currentTrack.binaural && (
-                    <Badge variant="default" className="bg-purple-500">
+                    <Badge variant="default" className="bg-accent">
                       Binaural {currentTrack.frequency}
                     </Badge>
                   )}
@@ -299,7 +299,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
                   size="sm"
                   onClick={() => toggleLike(currentTrack.id)}
                 >
-                  <Heart className={`w-5 h-5 ${currentTrack.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                  <Heart className={`w-5 h-5 ${currentTrack.isLiked ? 'fill-destructive text-destructive' : ''}`} />
                 </Button>
               </div>
             </div>
@@ -594,7 +594,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
                           toggleLike(track.id);
                         }}
                       >
-                        <Heart className={`w-4 h-4 ${track.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                        <Heart className={`w-4 h-4 ${track.isLiked ? 'fill-destructive text-destructive' : ''}`} />
                       </Button>
                       <Button variant="ghost" size="sm">
                         <Download className="w-4 h-4" />
@@ -639,7 +639,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-6 text-center">
-                <Music className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <Music className="w-8 h-8 text-primary mx-auto mb-2" />
                 <p className="text-2xl font-bold">{recentTracks.length}</p>
                 <p className="text-sm text-muted-foreground">Musiques générées</p>
               </CardContent>
@@ -647,7 +647,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
             
             <Card>
               <CardContent className="p-6 text-center">
-                <Clock className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <Clock className="w-8 h-8 text-success mx-auto mb-2" />
                 <p className="text-2xl font-bold">47h</p>
                 <p className="text-sm text-muted-foreground">Temps d'écoute</p>
               </CardContent>
@@ -655,7 +655,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
             
             <Card>
               <CardContent className="p-6 text-center">
-                <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                <Heart className="w-8 h-8 text-destructive mx-auto mb-2" />
                 <p className="text-2xl font-bold">{recentTracks.filter(t => t.isLiked).length}</p>
                 <p className="text-sm text-muted-foreground">Favoris</p>
               </CardContent>

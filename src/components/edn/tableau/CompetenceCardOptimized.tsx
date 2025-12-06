@@ -136,8 +136,8 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
       key: 'sommaire', 
       title: 'Vue d\'ensemble', 
       content: competence.sommaire, 
-      icon: <Lightbulb className="w-4 h-4 text-amber-600" />,
-      colorClass: 'border-l-amber-500 bg-amber-50/30'
+      icon: <Lightbulb className="w-4 h-4 text-warning" />,
+      colorClass: 'border-l-warning bg-warning/5'
     },
     { 
       key: 'mecanismes', 

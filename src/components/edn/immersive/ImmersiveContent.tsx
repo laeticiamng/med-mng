@@ -31,8 +31,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
             {item.pitch_intro ? (
               <p className="text-lg leading-relaxed">{item.pitch_intro}</p>
             ) : (
-              <div className="p-4 bg-red-50 border border-red-200 rounded">
-                <p className="text-red-600">⚠️ Pitch d'introduction non disponible dans Supabase</p>
+              <div className="p-4 bg-destructive/5 border border-destructive/20 rounded">
+                <p className="text-destructive">⚠️ Pitch d'introduction non disponible dans Supabase</p>
               </div>
             )}
           </div>
@@ -43,9 +43,9 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
           <div className="prose max-w-none">
             <h2 className="text-2xl font-bold mb-4">Scène immersive</h2>
             {item.scene_immersive ? (
-              <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+              <div className="p-6 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg">
                 <h3 className="text-xl font-semibold mb-3">Contexte</h3>
-                <p className="text-gray-700 mb-4">{item.scene_immersive.setting || 'Contexte médical professionnel'}</p>
+                <p className="text-muted-foreground mb-4">{item.scene_immersive.setting || 'Contexte médical professionnel'}</p>
                 
                 {item.scene_immersive.characters && (
                   <div className="mb-4">

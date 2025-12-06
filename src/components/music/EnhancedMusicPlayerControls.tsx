@@ -270,7 +270,7 @@ export const EnhancedMusicPlayerControls: React.FC<EnhancedMusicPlayerControlsPr
 
       {/* Messages d'état */}
       {getStreamingMessage() && (
-        <Alert className="border-blue-200 bg-blue-50">
+        <Alert className="border-primary/20 bg-primary/5">
           <Wifi className="h-4 w-4" />
           <AlertDescription>
             <div className="flex items-center justify-between">
@@ -324,7 +324,7 @@ export const EnhancedMusicPlayerControls: React.FC<EnhancedMusicPlayerControlsPr
 
       {/* Métriques détaillées (développement) */}
       {showDetailedMetrics && streamingDelay && (
-        <Alert className="border-gray-200 bg-gray-50">
+        <Alert className="border-muted bg-muted/50">
           <Clock className="h-4 w-4" />
           <AlertDescription>
             <div className="text-xs space-y-1">
