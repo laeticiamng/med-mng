@@ -17,6 +17,7 @@ import {
   Info,
   CheckCircle
 } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 
 /**
  * Centre de Notifications Avancé
@@ -32,7 +33,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       read: false,
       category: 'music',
       icon: Music,
-      action: { label: 'Écouter', path: '/med-mng/library' }
+      action: { label: 'Écouter', path: ROUTE_PATHS.medMngLibrary }
     },
     {
       id: 2,
@@ -43,7 +44,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       read: false,
       category: 'system',
       icon: Settings,
-      action: { label: 'Détails', path: '/admin-panel' }
+      action: { label: 'Détails', path: ROUTE_PATHS.adminPanel }
     },
     {
       id: 3,
@@ -54,7 +55,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       read: true,
       category: 'users',
       icon: Users,
-      action: { label: 'Voir', path: '/admin-panel' }
+      action: { label: 'Voir', path: ROUTE_PATHS.adminPanel }
     },
     {
       id: 4,
@@ -65,7 +66,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       read: true,
       category: 'security',
       icon: Shield,
-      action: { label: 'Rapport', path: '/audit' }
+      action: { label: 'Rapport', path: ROUTE_PATHS.audit }
     },
     {
       id: 5,
@@ -76,7 +77,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       read: false,
       category: 'system',
       icon: TrendingUp,
-      action: { label: 'Mettre à jour', path: '/admin-panel' }
+      action: { label: 'Mettre à jour', path: ROUTE_PATHS.adminPanel }
     }
   ]);
 

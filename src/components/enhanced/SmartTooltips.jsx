@@ -18,18 +18,18 @@ export const SmartTooltip = ({
 
   const getIcon = () => {
     switch (type) {
-      case 'tip': return <Lightbulb className="w-3 h-3 text-yellow-500" />;
+      case 'tip': return <Lightbulb className="w-3 h-3 text-warning" />;
       case 'shortcut': return <Zap className="w-3 h-3 text-primary" />;
-      case 'advanced': return <Star className="w-3 h-3 text-purple-500" />;
-      default: return <Info className="w-3 h-3 text-blue-500" />;
+      case 'advanced': return <Star className="w-3 h-3 text-accent" />;
+      default: return <Info className="w-3 h-3 text-primary" />;
     }
   };
 
   const getTooltipClass = () => {
     switch (type) {
-      case 'tip': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+      case 'tip': return 'bg-warning/10 border-warning/20 text-warning-foreground';
       case 'shortcut': return 'bg-primary/5 border-primary/20 text-primary';
-      case 'advanced': return 'bg-purple-50 border-purple-200 text-purple-800';
+      case 'advanced': return 'bg-accent/10 border-accent/20 text-accent-foreground';
       default: return 'bg-background border-border text-foreground';
     }
   };

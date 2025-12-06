@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Music, ArrowLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface CreateSongHeaderProps {
   remainingCredits?: number;
@@ -18,7 +19,7 @@ export const CreateSongHeader: React.FC<CreateSongHeaderProps> = ({ remainingCre
       <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
         <Button
           variant="outline"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(ROUTE_PATHS.home)}
           className="flex items-center gap-2 bg-background/80 hover:bg-background shadow-sm"
         >
           <Home className="h-4 w-4" />
@@ -27,7 +28,7 @@ export const CreateSongHeader: React.FC<CreateSongHeaderProps> = ({ remainingCre
         
         <Button
           variant="outline"
-          onClick={() => navigate('/med-mng/library')}
+          onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
           className="flex items-center gap-2 bg-background/80 hover:bg-background shadow-sm"
         >
           <Music className="h-4 w-4" />
@@ -36,7 +37,7 @@ export const CreateSongHeader: React.FC<CreateSongHeaderProps> = ({ remainingCre
         
         <Button
           variant="outline"
-          onClick={() => navigate('/med-mng/pricing')}
+          onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
           className="flex items-center gap-2 bg-background/80 hover:bg-background shadow-sm"
         >
           <TranslatedText text="Voir les Plans" />

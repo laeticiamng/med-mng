@@ -17,6 +17,7 @@ import {
   Settings,
   BarChart3
 } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 
 /**
  * Dashboard Overview - Vue d'ensemble optimisée de la plateforme
@@ -39,10 +40,10 @@ export const DashboardOverview = () => {
   ]);
 
   const quickActions = [
-    { icon: Music, title: 'Créer Musique', desc: 'Générer du contenu musical', path: '/med-mng/create', color: 'bg-purple-500' },
-    { icon: FileText, title: 'Audit System', desc: 'Lancer un audit complet', path: '/audit', color: 'bg-blue-500' },
-    { icon: Brain, title: 'EDN Analysis', desc: 'Analyser les données EDN', path: '/edn-complete', color: 'bg-green-500' },
-    { icon: BarChart3, title: 'Analytics', desc: 'Voir les métriques', path: '/med-mng/analytics', color: 'bg-orange-500' },
+    { icon: Music, title: 'Créer Musique', desc: 'Générer du contenu musical', path: ROUTE_PATHS.medMngCreate, color: 'bg-accent' },
+    { icon: FileText, title: 'Audit System', desc: 'Lancer un audit complet', path: ROUTE_PATHS.audit, color: 'bg-primary' },
+    { icon: Brain, title: 'EDN Analysis', desc: 'Analyser les données EDN', path: ROUTE_PATHS.ednComplete, color: 'bg-success' },
+    { icon: BarChart3, title: 'Analytics', desc: 'Voir les métriques', path: ROUTE_PATHS.medMngAnalytics, color: 'bg-warning' },
   ];
 
   return (
@@ -115,7 +116,7 @@ export const DashboardOverview = () => {
             <Card key={index} className="medical-card hover:shadow-md transition-all cursor-pointer group">
               <CardContent className="p-6">
                 <div className={`w-12 h-12 rounded-lg ${action.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <action.icon className="w-6 h-6 text-white" />
+                  <action.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold mb-2">{action.title}</h3>
                 <p className="text-sm text-muted-foreground">{action.desc}</p>
@@ -141,7 +142,7 @@ export const DashboardOverview = () => {
                 <div className={`w-2 h-2 rounded-full ${
                   activity.status === 'success' ? 'bg-success' :
                   activity.status === 'info' ? 'bg-primary' :
-                  activity.status === 'music' ? 'bg-purple-500' : 'bg-muted'
+                  activity.status === 'music' ? 'bg-accent' : 'bg-muted'
                 }`} />
                 <div className="flex-1">
                   <p className="font-medium text-sm">{activity.title}</p>
