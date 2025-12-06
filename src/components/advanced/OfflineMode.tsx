@@ -162,10 +162,10 @@ export const OfflineMode: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Statut de connexion */}
-      <Alert className={isOnline ? 'border-green-200 bg-green-50' : 'border-orange-200 bg-orange-50'}>
+      <Alert className={isOnline ? 'border-success/20 bg-success/5' : 'border-warning/20 bg-warning/5'}>
         <div className="flex items-center gap-2">
-          {isOnline ? <Wifi className="h-4 w-4 text-green-600" /> : <WifiOff className="h-4 w-4 text-orange-600" />}
-          <AlertDescription className={isOnline ? 'text-green-800' : 'text-orange-800'}>
+          {isOnline ? <Wifi className="h-4 w-4 text-success" /> : <WifiOff className="h-4 w-4 text-warning" />}
+          <AlertDescription className={isOnline ? 'text-success' : 'text-warning'}>
             {isOnline ? 'Connecté à Internet' : 'Mode hors ligne actif - Vos données sont disponibles localement'}
           </AlertDescription>
         </div>
@@ -216,9 +216,9 @@ export const OfflineMode: React.FC = () => {
             </div>
 
             {syncStatus.errors.length > 0 && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">
+              <Alert className="border-destructive/20 bg-destructive/5">
+                <AlertCircle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive">
                   {syncStatus.errors.join(', ')}
                 </AlertDescription>
               </Alert>
@@ -263,7 +263,7 @@ export const OfflineMode: React.FC = () => {
                         <span>Téléchargé le {item.downloadedAt.toLocaleDateString()}</span>
                         {item.lastSynced && (
                           <span className="flex items-center gap-1">
-                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            <CheckCircle className="h-3 w-3 text-success" />
                             Synchronisé
                           </span>
                         )}
