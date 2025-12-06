@@ -34,28 +34,28 @@ export const DashboardOverview: React.FC = () => {
       value: '47',
       change: '+12 cette semaine',
       icon: BookOpen,
-      color: 'text-blue-600'
+      color: 'text-primary'
     },
     {
       label: 'Musiques Générées',
       value: '23',
       change: '+5 aujourd\'hui',
       icon: Music,
-      color: 'text-purple-600'
+      color: 'text-accent'
     },
     {
       label: 'Temps d\'Étude',
       value: '8h 32m',
       change: '+2h cette semaine',
       icon: Clock,
-      color: 'text-green-600'
+      color: 'text-success'
     },
     {
       label: 'Score Moyen',
       value: '84%',
       change: '+7% ce mois',
       icon: Target,
-      color: 'text-orange-600'
+      color: 'text-warning'
     }
   ];
 
@@ -92,11 +92,11 @@ export const DashboardOverview: React.FC = () => {
 
   const getActivityIcon = (type: Activity['type']) => {
     switch (type) {
-      case 'music': return <Music className="w-4 h-4 text-purple-500" />;
-      case 'study': return <BookOpen className="w-4 h-4 text-blue-500" />;
-      case 'quiz': return <Target className="w-4 h-4 text-green-500" />;
-      case 'achievement': return <Trophy className="w-4 h-4 text-yellow-500" />;
-      default: return <Star className="w-4 h-4 text-gray-500" />;
+      case 'music': return <Music className="w-4 h-4 text-accent" />;
+      case 'study': return <BookOpen className="w-4 h-4 text-primary" />;
+      case 'quiz': return <Target className="w-4 h-4 text-success" />;
+      case 'achievement': return <Trophy className="w-4 h-4 text-warning" />;
+      default: return <Star className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -105,10 +105,10 @@ export const DashboardOverview: React.FC = () => {
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Tableau de Bord
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-muted-foreground mt-1">
             Suivez votre progression et découvrez de nouveaux contenus
           </p>
         </div>
@@ -125,12 +125,12 @@ export const DashboardOverview: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 </div>
                 <stat.icon className={`w-8 h-8 ${stat.color}`} />
               </div>
-              <p className="text-xs text-green-600 mt-2">{stat.change}</p>
+              <p className="text-xs text-success mt-2">{stat.change}</p>
             </CardContent>
           </Card>
         ))}
@@ -152,21 +152,21 @@ export const DashboardOverview: React.FC = () => {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-medium">Items Rang A</span>
-                <span className="text-sm text-gray-500">47/183</span>
+                <span className="text-sm text-muted-foreground">47/183</span>
               </div>
               <Progress value={26} className="h-2" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-medium">Items Rang B</span>
-                <span className="text-sm text-gray-500">23/184</span>
+                <span className="text-sm text-muted-foreground">23/184</span>
               </div>
               <Progress value={13} className="h-2" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-medium">Compétences OIC</span>
-                <span className="text-sm text-gray-500">312/4872</span>
+                <span className="text-sm text-muted-foreground">312/4872</span>
               </div>
               <Progress value={6} className="h-2" />
             </div>
@@ -236,14 +236,14 @@ export const DashboardOverview: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {activity.title}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {activity.timestamp}
                       </p>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       {activity.description}
                     </p>
                   </div>
@@ -267,7 +267,7 @@ export const DashboardOverview: React.FC = () => {
                 <h4 className="font-medium">IC-058 Schizophrénie</h4>
                 <Badge variant="secondary">Psychiatrie</Badge>
               </div>
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 Complétez ce module pour renforcer vos connaissances en psychiatrie
               </p>
               <Button size="sm" onClick={() => navigate('/edn-complete/ic-058')}>
@@ -281,7 +281,7 @@ export const DashboardOverview: React.FC = () => {
                 <h4 className="font-medium">Révision Cardiologie</h4>
                 <Badge variant="outline">Révision</Badge>
               </div>
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 Il est temps de réviser vos items de cardiologie étudiés il y a une semaine
               </p>
               <Button size="sm" variant="outline">
@@ -295,7 +295,7 @@ export const DashboardOverview: React.FC = () => {
                 <h4 className="font-medium">Playlist Urgences</h4>
                 <Badge variant="secondary">Musique</Badge>
               </div>
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 Découvrez notre playlist spécialement conçue pour les items d'urgence
               </p>
               <Button size="sm" variant="outline">

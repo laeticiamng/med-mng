@@ -223,11 +223,11 @@ export const AnalyticsTracker: React.FC = () => {
 
   const getEventIcon = (type: ActivityEvent['type']) => {
     switch (type) {
-      case 'navigation': return <Eye className="h-4 w-4 text-blue-500" />;
-      case 'interaction': return <MousePointer className="h-4 w-4 text-green-500" />;
-      case 'achievement': return <Award className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <Zap className="h-4 w-4 text-red-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      case 'navigation': return <Eye className="h-4 w-4 text-primary" />;
+      case 'interaction': return <MousePointer className="h-4 w-4 text-success" />;
+      case 'achievement': return <Award className="h-4 w-4 text-warning" />;
+      case 'error': return <Zap className="h-4 w-4 text-destructive" />;
+      default: return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -314,7 +314,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Pages vues</p>
                     <p className="text-2xl font-bold">{analyticsData.userBehavior.pageViews}</p>
                   </div>
-                  <Eye className="h-8 w-8 text-blue-500" />
+                  <Eye className="h-8 w-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -326,7 +326,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Taux de clic</p>
                     <p className="text-2xl font-bold">{analyticsData.userBehavior.clickRate.toFixed(1)}%</p>
                   </div>
-                  <MousePointer className="h-8 w-8 text-green-500" />
+                  <MousePointer className="h-8 w-8 text-success" />
                 </div>
               </CardContent>
             </Card>
@@ -339,7 +339,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-2xl font-bold">{analyticsData.userBehavior.bounceRate.toFixed(1)}%</p>
                     <Progress value={analyticsData.userBehavior.bounceRate} className="mt-2 h-2" />
                   </div>
-                  <TrendingUp className="h-8 w-8 text-orange-500" />
+                  <TrendingUp className="h-8 w-8 text-warning" />
                 </div>
               </CardContent>
             </Card>
@@ -351,7 +351,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Visites de retour</p>
                     <p className="text-2xl font-bold">{analyticsData.userBehavior.returnVisits}</p>
                   </div>
-                  <Users className="h-8 w-8 text-purple-500" />
+                  <Users className="h-8 w-8 text-accent" />
                 </div>
               </CardContent>
             </Card>
@@ -368,7 +368,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-2xl font-bold">{analyticsData.learningMetrics.completionRate.toFixed(1)}%</p>
                     <Progress value={analyticsData.learningMetrics.completionRate} className="mt-2 h-2" />
                   </div>
-                  <Target className="h-8 w-8 text-green-500" />
+                  <Target className="h-8 w-8 text-success" />
                 </div>
               </CardContent>
             </Card>
@@ -380,7 +380,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Score moyen</p>
                     <p className="text-2xl font-bold">{analyticsData.learningMetrics.averageScore.toFixed(1)}/100</p>
                   </div>
-                  <Brain className="h-8 w-8 text-blue-500" />
+                  <Brain className="h-8 w-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -392,7 +392,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Temps d'étude</p>
                     <p className="text-2xl font-bold">{formatTime(analyticsData.learningMetrics.timeSpent)}</p>
                   </div>
-                  <Clock className="h-8 w-8 text-orange-500" />
+                  <Clock className="h-8 w-8 text-warning" />
                 </div>
               </CardContent>
             </Card>
@@ -404,7 +404,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Modules complétés</p>
                     <p className="text-2xl font-bold">{analyticsData.learningMetrics.modulesCompleted}</p>
                   </div>
-                  <Award className="h-8 w-8 text-yellow-500" />
+                  <Award className="h-8 w-8 text-warning" />
                 </div>
               </CardContent>
             </Card>
@@ -416,7 +416,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Série actuelle</p>
                     <p className="text-2xl font-bold">{analyticsData.learningMetrics.streakDays} jours</p>
                   </div>
-                  <Heart className="h-8 w-8 text-red-500" />
+                  <Heart className="h-8 w-8 text-destructive" />
                 </div>
               </CardContent>
             </Card>
@@ -468,7 +468,7 @@ export const AnalyticsTracker: React.FC = () => {
                       className="mt-2 h-2" 
                     />
                   </div>
-                  <Zap className="h-8 w-8 text-yellow-500" />
+                  <Zap className="h-8 w-8 text-warning" />
                 </div>
               </CardContent>
             </Card>
@@ -481,7 +481,7 @@ export const AnalyticsTracker: React.FC = () => {
                     <p className="text-2xl font-bold">{analyticsData.performance.satisfaction.toFixed(1)}%</p>
                     <Progress value={analyticsData.performance.satisfaction} className="mt-2 h-2" />
                   </div>
-                  <Heart className="h-8 w-8 text-red-500" />
+                  <Heart className="h-8 w-8 text-destructive" />
                 </div>
               </CardContent>
             </Card>

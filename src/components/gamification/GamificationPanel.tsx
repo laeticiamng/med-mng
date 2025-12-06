@@ -198,7 +198,7 @@ export const GamificationPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Niveau et XP */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>

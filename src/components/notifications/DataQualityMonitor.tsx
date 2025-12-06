@@ -256,30 +256,30 @@ export function DataQualityMonitor() {
 
   const getIssueIcon = (type: string) => {
     switch (type) {
-      case 'corrupted_data': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'missing_field': return <AlertTriangle className="h-4 w-4 text-orange-500" />;
-      case 'invalid_format': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'duplicate': return <AlertTriangle className="h-4 w-4 text-blue-500" />;
+      case 'corrupted_data': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'missing_field': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'invalid_format': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'duplicate': return <AlertTriangle className="h-4 w-4 text-primary" />;
       default: return <AlertTriangle className="h-4 w-4" />;
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'border-red-500 bg-red-50';
-      case 'high': return 'border-orange-500 bg-orange-50';
-      case 'medium': return 'border-yellow-500 bg-yellow-50';
-      case 'low': return 'border-blue-500 bg-blue-50';
-      default: return 'border-gray-500 bg-gray-50';
+      case 'critical': return 'border-destructive bg-destructive/5';
+      case 'high': return 'border-warning bg-warning/5';
+      case 'medium': return 'border-warning bg-warning/5';
+      case 'low': return 'border-primary bg-primary/5';
+      default: return 'border-border bg-muted';
     }
   };
 
   const getTableStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'critical': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'healthy': return 'text-success';
+      case 'warning': return 'text-warning';
+      case 'critical': return 'text-destructive';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -344,7 +344,7 @@ export function DataQualityMonitor() {
 
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {metrics.completeness.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">Complétude</div>
@@ -353,7 +353,7 @@ export function DataQualityMonitor() {
 
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-primary">
                 {metrics.validity.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">Validité</div>
@@ -362,7 +362,7 @@ export function DataQualityMonitor() {
 
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-accent">
                 {metrics.consistency.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">Cohérence</div>
@@ -371,7 +371,7 @@ export function DataQualityMonitor() {
 
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-warning">
                 {metrics.accuracy.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">Précision</div>
@@ -426,7 +426,7 @@ export function DataQualityMonitor() {
                   </div>
                   <div className="flex justify-between">
                     <span>Problèmes:</span>
-                    <span className={table.issues_count > 0 ? 'text-red-600' : 'text-green-600'}>
+                    <span className={table.issues_count > 0 ? 'text-destructive' : 'text-success'}>
                       {table.issues_count}
                     </span>
                   </div>
@@ -475,7 +475,7 @@ export function DataQualityMonitor() {
           <div className="space-y-3">
             {filteredIssues.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-success" />
                 <p>Aucun problème de qualité détecté</p>
               </div>
             ) : (
