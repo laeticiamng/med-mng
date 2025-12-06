@@ -207,7 +207,7 @@ const StudyPlanner = () => {
                         {getTypeIcon(session.type)}
                         <CardTitle className="text-lg">{session.title}</CardTitle>
                       </div>
-                      {session.completed && <CheckCircle className="h-5 w-5 text-green-600" />}
+                      {session.completed && <CheckCircle className="h-5 w-5 text-success" />}
                     </div>
                     <div className="flex gap-2">
                       <Badge className={getTypeColor(session.type)}>
@@ -314,7 +314,7 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Sessions Complétées</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-green-600">24</div>
+                  <div className="text-3xl font-bold text-success">24</div>
                   <p className="text-sm text-muted-foreground">cette semaine</p>
                 </CardContent>
               </Card>
@@ -324,7 +324,7 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Temps d'Étude</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">18h</div>
+                  <div className="text-3xl font-bold text-primary">18h</div>
                   <p className="text-sm text-muted-foreground">cette semaine</p>
                 </CardContent>
               </Card>
@@ -334,7 +334,7 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Objectifs Atteints</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">3/5</div>
+                  <div className="text-3xl font-bold text-accent">3/5</div>
                   <p className="text-sm text-muted-foreground">ce mois</p>
                 </CardContent>
               </Card>
@@ -409,21 +409,21 @@ const StudyPlanner = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
                     <div>
                       <p className="text-sm font-medium">Augmentez les révisions</p>
                       <p className="text-xs text-muted-foreground">Recommandé pour améliorer la rétention</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <CheckCircle className="h-5 w-5 text-success mt-0.5" />
                     <div>
                       <p className="text-sm font-medium">Excellent rythme</p>
                       <p className="text-xs text-muted-foreground">Maintenez ce niveau d'activité</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Target className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <Target className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <p className="text-sm font-medium">Focus cardiologie</p>
                       <p className="text-xs text-muted-foreground">Domaine à approfondir prioritairement</p>

@@ -144,8 +144,8 @@ export const PerformanceMonitor: React.FC = () => {
                 onClick={() => setIsMonitoring(!isMonitoring)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
                   isMonitoring 
-                    ? 'bg-red-100 text-red-800 hover:bg-red-200' 
-                    : 'bg-green-100 text-green-800 hover:bg-green-200'
+                    ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' 
+                    : 'bg-success/10 text-success hover:bg-success/20'
                 }`}
               >
                 {isMonitoring ? 'Arrêter' : 'Démarrer'} monitoring
@@ -417,9 +417,9 @@ export const PerformanceMonitor: React.FC = () => {
                             <>
                               {history[history.length - 1][metric as keyof PerformanceMetrics] >
                               history[history.length - 2][metric as keyof PerformanceMetrics] ? (
-                                <TrendingUp className="h-4 w-4 text-red-500" />
+                                <TrendingUp className="h-4 w-4 text-destructive" />
                               ) : (
-                                <TrendingDown className="h-4 w-4 text-green-500" />
+                                <TrendingDown className="h-4 w-4 text-success" />
                               )}
                             </>
                           )}
@@ -430,7 +430,7 @@ export const PerformanceMonitor: React.FC = () => {
                         </div>
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500" />
+                        <div className="h-full bg-gradient-to-r from-success to-primary rounded-full transition-all duration-500" />
                       </div>
                     </div>
                   ))}
