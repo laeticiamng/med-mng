@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
@@ -412,7 +413,7 @@ export default function EdnComplete() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/learning-dashboard')}
+                onClick={() => navigate(ROUTE_PATHS.learningDashboard)}
                 className="flex items-center gap-2"
               >
                 <BarChart3 className="h-4 w-4" />

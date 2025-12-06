@@ -1,8 +1,8 @@
-
 import { Button } from '@/components/ui/button';
 import { Music, Library } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface MusicGenerationActionsProps {
   remainingFree: number;
@@ -14,7 +14,7 @@ export const MusicGenerationActions = ({ remainingFree }: MusicGenerationActions
   return (
     <div className="flex flex-col sm:flex-row gap-4 justify-center">
       <Button 
-        onClick={() => navigate('/edn')}
+        onClick={() => navigate(ROUTE_PATHS.ednLegacy)}
         size="lg"
         className="bg-warning text-warning-foreground hover:bg-warning/90 px-8 py-3 text-lg"
       >
@@ -22,7 +22,7 @@ export const MusicGenerationActions = ({ remainingFree }: MusicGenerationActions
         <TranslatedText text={remainingFree > 0 ? "Générer gratuitement" : "Générer ma Musique"} />
       </Button>
       <Button 
-        onClick={() => navigate('/edn/music-library')}
+        onClick={() => navigate(ROUTE_PATHS.ednMusicLibrary)}
         variant="outline"
         size="lg"
         className="border-warning text-warning hover:bg-warning/10 px-8 py-3 text-lg"
@@ -33,7 +33,7 @@ export const MusicGenerationActions = ({ remainingFree }: MusicGenerationActions
       
       {remainingFree === 0 && (
         <Button 
-          onClick={() => navigate('/med-mng/pricing')}
+          onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
           size="lg"
           className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-lg"
         >

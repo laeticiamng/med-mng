@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Keyboard, Search, Music, BookOpen, BarChart3, Home, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface ShortcutGroup {
   title: string;
@@ -23,10 +24,10 @@ export const KeyboardShortcuts: React.FC = () => {
       title: 'Navigation',
       shortcuts: [
         { keys: ['Ctrl', 'K'], description: 'Ouvrir la recherche rapide' },
-        { keys: ['G', 'H'], description: 'Aller à l\'accueil', action: () => navigate('/') },
-        { keys: ['G', 'M'], description: 'Aller au générateur musical', action: () => navigate('/generator') },
-        { keys: ['G', 'E'], description: 'Aller à EDN', action: () => navigate('/edn-complete') },
-        { keys: ['G', 'D'], description: 'Aller au dashboard', action: () => navigate('/dashboard') },
+        { keys: ['G', 'H'], description: 'Aller à l\'accueil', action: () => navigate(ROUTE_PATHS.home) },
+        { keys: ['G', 'M'], description: 'Aller au générateur musical', action: () => navigate(ROUTE_PATHS.generator) },
+        { keys: ['G', 'E'], description: 'Aller à EDN', action: () => navigate(ROUTE_PATHS.ednComplete) },
+        { keys: ['G', 'D'], description: 'Aller au dashboard', action: () => navigate(ROUTE_PATHS.dashboard) },
       ]
     },
     {

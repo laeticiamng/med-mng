@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Keyboard, Zap, Search, Music, BarChart3, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { ROUTE_PATHS } from '@/config/routes';
 
 /**
  * Système de Raccourcis Clavier Avancé
@@ -14,19 +15,19 @@ export const KeyboardShortcuts = () => {
 
   const shortcuts = [
     // Navigation principale
-    { key: '⌘+D', action: 'Dashboard', path: '/dashboard', icon: BarChart3 },
-    { key: '⌘+M', action: 'Créer Musique', path: '/med-mng/create', icon: Music },
-    { key: '⌘+A', action: 'Analytics', path: '/med-mng/analytics', icon: BarChart3 },
-    { key: '⌘+S', action: 'Système Monitoring', path: '/system-management', icon: Shield },
+    { key: '⌘+D', action: 'Dashboard', path: ROUTE_PATHS.dashboard, icon: BarChart3 },
+    { key: '⌘+M', action: 'Créer Musique', path: ROUTE_PATHS.medMngCreate, icon: Music },
+    { key: '⌘+A', action: 'Analytics', path: ROUTE_PATHS.medMngAnalytics, icon: BarChart3 },
+    { key: '⌘+S', action: 'Système Monitoring', path: ROUTE_PATHS.systemManagement, icon: Shield },
     
     // Recherche et navigation rapide
-    { key: '⌘+K', action: 'Recherche rapide', path: '/library', icon: Search },
+    { key: '⌘+K', action: 'Recherche rapide', path: ROUTE_PATHS.library, icon: Search },
     { key: '⌘+/', action: 'Aide', action_type: 'help', icon: Keyboard },
     { key: 'Esc', action: 'Fermer modales', action_type: 'close', icon: Zap },
     
     // Actions spéciales
-    { key: '⌘+Shift+N', action: 'Nouvelle génération', path: '/med-mng/create', icon: Music },
-    { key: '⌘+Shift+D', action: 'Export données', path: '/platform-settings', icon: BarChart3 },
+    { key: '⌘+Shift+N', action: 'Nouvelle génération', path: ROUTE_PATHS.medMngCreate, icon: Music },
+    { key: '⌘+Shift+D', action: 'Export données', path: ROUTE_PATHS.platformSettings, icon: BarChart3 },
   ];
 
   useEffect(() => {
@@ -52,27 +53,27 @@ export const KeyboardShortcuts = () => {
         switch (key.toLowerCase()) {
           case 'd':
             event.preventDefault();
-            navigate('/dashboard');
+            navigate(ROUTE_PATHS.dashboard);
             toast.success('Navigation vers Dashboard');
             break;
           case 'm':
             event.preventDefault();
-            navigate('/med-mng/create');
+            navigate(ROUTE_PATHS.medMngCreate);
             toast.success('Navigation vers Création Musicale');
             break;
           case 'a':
             event.preventDefault();
-            navigate('/med-mng/analytics');
+            navigate(ROUTE_PATHS.medMngAnalytics);
             toast.success('Navigation vers Analytics');
             break;
           case 's':
             event.preventDefault();
-            navigate('/system-management');
+            navigate(ROUTE_PATHS.systemManagement);
             toast.success('Navigation vers Monitoring Système');
             break;
           case 'k':
             event.preventDefault();
-            navigate('/library');
+            navigate(ROUTE_PATHS.library);
             toast.success('Navigation vers Bibliothèque');
             break;
         }
@@ -83,12 +84,12 @@ export const KeyboardShortcuts = () => {
         switch (key.toLowerCase()) {
           case 'n':
             event.preventDefault();
-            navigate('/med-mng/create');
+            navigate(ROUTE_PATHS.medMngCreate);
             toast.success('Nouvelle génération musicale');
             break;
           case 'd':
             event.preventDefault();
-            navigate('/platform-settings');
+            navigate(ROUTE_PATHS.platformSettings);
             toast.success('Navigation vers Export de données');
             break;
         }

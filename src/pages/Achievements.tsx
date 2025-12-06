@@ -5,6 +5,7 @@ import { GamificationPanel } from '@/components/gamification/GamificationPanel';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Trophy, Star, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const Achievements: React.FC = () => {
   const navigate = useNavigate();
@@ -84,10 +85,10 @@ const Achievements: React.FC = () => {
           </CardHeader>
           <CardContent className="text-center">
             <div className="flex justify-center gap-4">
-              <Button onClick={() => navigate('/edn-complete')}>
+              <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
                 Continuer l'étude
               </Button>
-              <Button variant="outline" onClick={() => navigate('/generator')}>
+              <Button variant="outline" onClick={() => navigate(ROUTE_PATHS.generator)}>
                 Générer une musique
               </Button>
             </div>
