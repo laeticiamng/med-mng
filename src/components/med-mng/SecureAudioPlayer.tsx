@@ -116,7 +116,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       {/* Header avec sécurité */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-green-600" />
+          <Shield className="h-4 w-4 text-success" />
           <span className="font-medium text-sm">{title}</span>
         </div>
         
@@ -209,7 +209,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       )}
 
       {/* Avertissement de sécurité */}
-      <div className="text-xs text-muted-foreground border-l-2 border-green-500 pl-2">
+      <div className="text-xs text-muted-foreground border-l-2 border-success pl-2">
         🔒 Audio protégé par streaming sécurisé - Téléchargement impossible
       </div>
     </div>

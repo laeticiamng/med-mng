@@ -262,10 +262,10 @@ export function ExtractionMonitoringDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'running': return 'bg-primary';
-      case 'completed': return 'bg-green-500';
+      case 'completed': return 'bg-success';
       case 'failed': return 'bg-destructive';
-      case 'paused': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+      case 'paused': return 'bg-warning';
+      default: return 'bg-muted-foreground';
     }
   };
 
@@ -306,7 +306,7 @@ export function ExtractionMonitoringDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${autoRefresh ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+          <div className={`h-2 w-2 rounded-full ${autoRefresh ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
           <Select value={refreshInterval.toString()} onValueChange={(v) => setRefreshInterval(Number(v))}>
             <SelectTrigger className="w-20">
               <SelectValue />
@@ -446,12 +446,12 @@ export function ExtractionMonitoringDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Activity className="h-4 w-4 text-blue-500" />
+                <Activity className="h-4 w-4 text-primary" />
                 En Cours
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.running_extractions}</div>
+              <div className="text-2xl font-bold text-primary">{stats.running_extractions}</div>
               <p className="text-xs text-muted-foreground">Actives maintenant</p>
             </CardContent>
           </Card>
@@ -472,12 +472,12 @@ export function ExtractionMonitoringDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 Taux de Réussite
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {Math.round(stats.success_rate_7d)}%
               </div>
               <p className="text-xs text-muted-foreground">7 derniers jours</p>
@@ -487,12 +487,12 @@ export function ExtractionMonitoringDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-red-500" />
+                <AlertCircle className="h-4 w-4 text-destructive" />
                 Échecs (7j)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.failed_extractions_7d}</div>
+              <div className="text-2xl font-bold text-destructive">{stats.failed_extractions_7d}</div>
               <p className="text-xs text-muted-foreground">-{Math.round(stats.failed_extractions_7d * 0.2)} vs semaine dernière</p>
             </CardContent>
           </Card>
@@ -540,13 +540,13 @@ export function ExtractionMonitoringDashboard() {
 
       {/* Alertes critiques */}
       {userQuotas.length > 0 && (
-        <Alert className="mb-6 border-orange-200 bg-orange-50">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
+        <Alert className="mb-6 border-warning/30 bg-warning/10">
+          <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertDescription>
-            <span className="font-medium text-orange-800">
+            <span className="font-medium text-warning">
               {userQuotas.length} utilisateur(s) avec quotas critiques
             </span>
-            <span className="text-orange-700 ml-2">
+            <span className="text-warning/80 ml-2">
               - Surveillance renforcée recommandée
             </span>
           </AlertDescription>
@@ -634,11 +634,11 @@ export function ExtractionMonitoringDashboard() {
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Traités:</span>
-                        <span className="ml-1 font-medium text-green-600">{extraction.processed_items}</span>
+                        <span className="ml-1 font-medium text-success">{extraction.processed_items}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Échecs:</span>
-                        <span className="ml-1 font-medium text-red-600">{extraction.failed_items}</span>
+                        <span className="ml-1 font-medium text-destructive">{extraction.failed_items}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Durée:</span>
@@ -649,8 +649,8 @@ export function ExtractionMonitoringDashboard() {
                     </div>
                     
                     {extraction.failed_items > 0 && (
-                      <div className="flex justify-between items-center p-2 bg-red-50 rounded border-l-4 border-red-400">
-                        <span className="text-sm text-red-700">
+                      <div className="flex justify-between items-center p-2 bg-destructive/10 rounded border-l-4 border-destructive">
+                        <span className="text-sm text-destructive">
                           Taux d'échec: {Math.round((extraction.failed_items / extraction.processed_items) * 100)}%
                         </span>
                         {extraction.failed_items > extraction.total_items * 0.05 && (
@@ -691,7 +691,7 @@ export function ExtractionMonitoringDashboard() {
                   <div className="text-sm">
                     {extraction.processed_items}/{extraction.total_items} items
                     {extraction.failed_items > 0 && (
-                      <span className="text-red-600 ml-2">
+                      <span className="text-destructive ml-2">
                         ({extraction.failed_items} échecs)
                       </span>
                     )}
@@ -703,7 +703,7 @@ export function ExtractionMonitoringDashboard() {
                   )}
                 </div>
                 {extraction.error_message && (
-                  <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                  <div className="mt-2 text-sm text-destructive bg-destructive/10 p-2 rounded">
                     {extraction.error_message}
                   </div>
                 )}
@@ -781,7 +781,7 @@ export function ExtractionMonitoringDashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm">
-                          <span className="font-medium text-red-600">{user.credits_left}</span> crédits restants
+                          <span className="font-medium text-destructive">{user.credits_left}</span> crédits restants
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Usage: {user.quota_usage_daily}% aujourd'hui
@@ -827,15 +827,15 @@ export function ExtractionMonitoringDashboard() {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span>Croissance volume</span>
-                    <span className="font-medium text-green-600">+23%</span>
+                    <span className="font-medium text-success">+23%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Amélioration qualité</span>
-                    <span className="font-medium text-green-600">+15%</span>
+                    <span className="font-medium text-success">+15%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Réduction erreurs</span>
-                    <span className="font-medium text-green-600">-34%</span>
+                    <span className="font-medium text-success">-34%</span>
                   </div>
                 </div>
               </CardContent>

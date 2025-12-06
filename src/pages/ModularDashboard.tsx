@@ -14,6 +14,7 @@ import { StudyPlanManager } from '@/components/study/StudyPlanManager';
 import { StudyCalendar } from '@/components/calendar/StudyCalendar';
 import { SystemSettings } from '@/components/settings/SystemSettings';
 import { AIChat } from '@/components/ai/AIChat';
+import { ROUTE_PATHS } from '@/config/routes';
 
 // Lazy loaded components
 const RealTimeAnalytics = React.lazy(() => import('@/components/analytics/RealTimeAnalytics').then(m => ({ default: m.RealTimeAnalytics })));
@@ -45,7 +46,7 @@ export default function ModularDashboard() {
       name: 'Analytics Avancées',
       description: 'Analyse détaillée de votre progression et performances',
       icon: BarChart3,
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-primary to-primary/80',
       component: AdvancedAnalyticsDashboard
     },
     {
@@ -53,7 +54,7 @@ export default function ModularDashboard() {
       name: 'Générateur Musical IA',
       description: 'Création de musiques personnalisées pour l\'étude',
       icon: Music,
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-accent to-accent/80',
       component: AdvancedMusicGenerator
     },
     {
@@ -61,7 +62,7 @@ export default function ModularDashboard() {
       name: 'Assistant IA Médical',
       description: 'Chat intelligent pour l\'assistance médicale',
       icon: MessageSquare,
-      color: 'from-green-500 to-green-600',
+      color: 'from-success to-success/80',
       component: AIChat
     },
     {
@@ -69,7 +70,7 @@ export default function ModularDashboard() {
       name: 'Analytics Temps Réel',
       description: 'Données en direct et métriques avancées',
       icon: TrendingUp,
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-warning to-warning/80',
       component: () => import('@/components/analytics/RealTimeAnalytics').then(m => m.RealTimeAnalytics)
     },
     {
@@ -77,7 +78,7 @@ export default function ModularDashboard() {
       name: 'Profil Utilisateur',
       description: 'Gestion complète du profil et préférences',
       icon: Settings,
-      color: 'from-gray-500 to-gray-600',
+      color: 'from-muted-foreground to-muted-foreground/80',
       component: () => import('@/components/profile/UserProfileManager').then(m => m.UserProfileManager)
     },
     {
@@ -85,7 +86,7 @@ export default function ModularDashboard() {
       name: 'Système de Récompenses',
       description: 'Achievements et progression gamifiée',
       icon: Brain,
-      color: 'from-yellow-500 to-yellow-600',
+      color: 'from-warning to-warning/80',
       component: () => import('@/components/gamification/AchievementSystem').then(m => m.AchievementSystem)
     },
     {
@@ -93,7 +94,7 @@ export default function ModularDashboard() {
       name: 'Hub Communautaire',
       description: 'Interactions sociales et groupes d\'étude',
       icon: Users,
-      color: 'from-pink-500 to-pink-600',
+      color: 'from-accent to-accent/80',
       component: () => import('@/components/social/CommunityHub').then(m => m.CommunityHub)
     },
     {
@@ -101,7 +102,7 @@ export default function ModularDashboard() {
       name: 'Plans d\'Étude',
       description: 'Gestion et suivi des plans d\'apprentissage',
       icon: Target,
-      color: 'from-indigo-500 to-indigo-600',
+      color: 'from-primary to-primary/80',
       component: StudyPlanManager
     },
     {
@@ -109,7 +110,7 @@ export default function ModularDashboard() {
       name: 'Calendrier d\'Étude',
       description: 'Planning et organisation des sessions',
       icon: Calendar,
-      color: 'from-cyan-500 to-cyan-600',
+      color: 'from-primary to-primary/80',
       component: StudyCalendar
     },
     {
@@ -117,7 +118,7 @@ export default function ModularDashboard() {
       name: 'Paramètres Système',
       description: 'Configuration et monitoring avancés',
       icon: Settings,
-      color: 'from-red-500 to-red-600',
+      color: 'from-destructive to-destructive/80',
       component: SystemSettings
     }
   ];
@@ -127,22 +128,22 @@ export default function ModularDashboard() {
       title: 'Interface EDN',
       description: 'Accéder aux items EDN complets',
       icon: BookOpen,
-      action: () => navigate('/edn-complete'),
-      color: 'bg-blue-500'
+      action: () => navigate(ROUTE_PATHS.ednComplete),
+      color: 'bg-primary'
     },
     {
       title: 'Communauté',
       description: 'Rejoindre la communauté médicale',
       icon: Users,
-      action: () => navigate('/community'),
-      color: 'bg-green-500'
+      action: () => navigate(ROUTE_PATHS.community),
+      color: 'bg-success'
     },
     {
       title: 'Paramètres',
       description: 'Configurer votre profil',
       icon: Settings,
-      action: () => navigate('/settings'),
-      color: 'bg-gray-500'
+      action: () => navigate(ROUTE_PATHS.settings),
+      color: 'bg-muted-foreground'
     }
   ];
 
@@ -255,14 +256,14 @@ export default function ModularDashboard() {
           <div className="fixed bottom-4 right-4 space-y-2">
             <div className="bg-card border rounded-lg p-3 shadow-lg">
               <div className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                 <span className="text-muted-foreground">Système opérationnel</span>
               </div>
             </div>
             
             <div className="bg-card border rounded-lg p-3 shadow-lg">
               <div className="flex items-center gap-2 text-sm">
-                <Sparkles className="w-4 h-4 text-yellow-500" />
+                <Sparkles className="w-4 h-4 text-warning" />
                 <span className="text-muted-foreground">23 crédits IA</span>
               </div>
             </div>
