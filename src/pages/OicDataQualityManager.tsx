@@ -106,9 +106,9 @@ const OicDataQualityManager = () => {
 
   const getHealthScoreColor = (score: string) => {
     const numScore = parseFloat(score);
-    if (numScore >= 80) return 'text-green-600';
-    if (numScore >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (numScore >= 80) return 'text-success';
+    if (numScore >= 60) return 'text-warning';
+    return 'text-destructive';
   };
 
   return (
@@ -269,7 +269,7 @@ const OicDataQualityManager = () => {
                 </div>
 
                 {fixResult.report.errors.length > 0 && (
-                  <div className="text-sm text-red-600">
+                  <div className="text-sm text-destructive">
                     ⚠️ {fixResult.report.errors.length} erreurs détectées
                   </div>
                 )}

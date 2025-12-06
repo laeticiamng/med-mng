@@ -316,10 +316,10 @@ export const TroubleshootingFAQ = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'high': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'medium': return 'bg-warning/10 text-warning border-warning/20';
+      case 'low': return 'bg-success/10 text-success border-success/20';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -364,21 +364,21 @@ export const TroubleshootingFAQ = () => {
           </div>
 
           {/* Statistiques */}
-          <Card className="p-4 border-blue-200 bg-blue-50">
+          <Card className="p-4 border-primary/20 bg-primary/5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-blue-600">{faqData.length}</div>
-                <div className="text-sm text-blue-700">Questions totales</div>
+                <div className="text-2xl font-bold text-primary">{faqData.length}</div>
+                <div className="text-sm text-primary/80">Questions totales</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-primary">
                   {faqData.filter(f => f.priority === 'high').length}
                 </div>
-                <div className="text-sm text-blue-700">Priorité haute</div>
+                <div className="text-sm text-primary/80">Priorité haute</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">{filteredFAQ.length}</div>
-                <div className="text-sm text-blue-700">Résultats filtrés</div>
+                <div className="text-2xl font-bold text-primary">{filteredFAQ.length}</div>
+                <div className="text-sm text-primary/80">Résultats filtrés</div>
               </div>
             </div>
           </Card>

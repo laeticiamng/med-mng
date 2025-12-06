@@ -99,19 +99,19 @@ export const SystemMonitor: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'text-green-600 bg-green-50 border-green-200';
-      case 'warning': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'offline': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'online': return 'text-success bg-success/5 border-success/20';
+      case 'warning': return 'text-warning bg-warning/5 border-warning/20';
+      case 'offline': return 'text-destructive bg-destructive/5 border-destructive/20';
+      default: return 'text-muted-foreground bg-muted border-border';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'online': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-600" />;
-      case 'offline': return <AlertTriangle className="w-4 h-4 text-red-600" />;
-      default: return <Clock className="w-4 h-4 text-gray-600" />;
+      case 'online': return <CheckCircle className="w-4 h-4 text-success" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4 text-warning" />;
+      case 'offline': return <AlertTriangle className="w-4 h-4 text-destructive" />;
+      default: return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -123,9 +123,9 @@ export const SystemMonitor: React.FC = () => {
   };
 
   const getUsageColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-red-600';
-    if (percentage >= 60) return 'text-yellow-600';
-    return 'text-green-600';
+    if (percentage >= 80) return 'text-destructive';
+    if (percentage >= 60) return 'text-warning';
+    return 'text-success';
   };
 
   useEffect(() => {
@@ -165,7 +165,7 @@ export const SystemMonitor: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-green-600 border-green-200">
+          <Badge variant="outline" className="text-success border-success/20">
             <Activity className="w-3 h-3 mr-1" />
             Système opérationnel
           </Badge>
@@ -233,7 +233,7 @@ export const SystemMonitor: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Réseau</p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-warning">
                   {metrics.network.latency}ms
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -286,7 +286,7 @@ export const SystemMonitor: React.FC = () => {
                         
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Temps de réponse:</span>
-                          <span className={`font-medium ${service.responseTime > 1000 ? 'text-red-600' : service.responseTime > 500 ? 'text-yellow-600' : 'text-green-600'}`}>
+                          <span className={`font-medium ${service.responseTime > 1000 ? 'text-destructive' : service.responseTime > 500 ? 'text-warning' : 'text-success'}`}>
                             {service.responseTime}ms
                           </span>
                         </div>

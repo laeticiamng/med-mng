@@ -289,7 +289,7 @@ export const useModernStatsData = (): StatItem[] => {
       change: { value: 5.2, type: 'increase', period: 'cette semaine' },
       target: { current: 87.3, goal: 95, unit: '%' },
       icon: Target,
-      color: 'bg-green-500',
+      color: 'bg-success',
       description: 'Pourcentage d\'items EDN complétés'
     },
     {
@@ -319,7 +319,7 @@ export const useModernStatsData = (): StatItem[] => {
       unit: '%',
       change: { value: 3.1, type: 'increase', period: 'cette semaine' },
       icon: Heart,
-      color: 'bg-red-500',
+      color: 'bg-destructive',
       description: 'Taux d\'engagement moyen'
     },
     {
