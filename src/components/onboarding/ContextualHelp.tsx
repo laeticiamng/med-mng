@@ -84,7 +84,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-medical-accent text-white hover:bg-medical-accent/80 p-0"
+                className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-accent text-accent-foreground hover:bg-accent/80 p-0"
                 onClick={() => setIsVisible(true)}
               >
                 <HelpCircle className="h-3 w-3" />
