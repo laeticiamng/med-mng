@@ -61,17 +61,17 @@ const SortableSongItem: React.FC<SortableSongItemProps> = ({ song, isPlaying, on
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center p-4 bg-white rounded-lg border hover:bg-gray-50 transition-colors ${
+      className={`group flex items-center p-4 bg-card rounded-lg border border-border hover:bg-muted transition-colors ${
         isDragging ? 'shadow-lg' : ''
       }`}
     >
       {/* Drag Handle */}
       <div {...attributes} {...listeners} className="cursor-grab hover:cursor-grabbing mr-3">
-        <GripVertical className="h-4 w-4 text-gray-400" />
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
       {/* Position */}
-      <div className="w-8 text-sm text-gray-500 mr-4">
+      <div className="w-8 text-sm text-muted-foreground mr-4">
         {song.position + 1}
       </div>
 
@@ -91,8 +91,8 @@ const SortableSongItem: React.FC<SortableSongItemProps> = ({ song, isPlaying, on
 
       {/* Song Info */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-gray-900 truncate">{song.title}</h4>
-        <p className="text-sm text-gray-500">
+        <h4 className="font-medium text-foreground truncate">{song.title}</h4>
+        <p className="text-sm text-muted-foreground">
           Ajoutée le {formatDate(song.added_at)}
         </p>
       </div>
@@ -102,7 +102,7 @@ const SortableSongItem: React.FC<SortableSongItemProps> = ({ song, isPlaying, on
         variant="ghost"
         size="sm"
         onClick={onRemove}
-        className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
+        className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive/80"
       >
         <X className="h-4 w-4" />
       </Button>
@@ -217,11 +217,11 @@ export const PlaylistDetail = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
+          <div className="h-4 bg-muted rounded w-1/2 mb-8"></div>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              <div key={i} className="h-16 bg-muted rounded"></div>
             ))}
           </div>
         </div>
@@ -232,8 +232,8 @@ export const PlaylistDetail = () => {
   if (!playlist) {
     return (
       <div className="p-6 text-center">
-        <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-foreground mb-2">
           <TranslatedText text="Playlist introuvable" />
         </h2>
         <Button onClick={() => navigate('/med-mng/playlists')} variant="outline">
@@ -277,14 +277,14 @@ export const PlaylistDetail = () => {
       {/* Liste des chansons */}
       {songs.length === 0 ? (
         <Card className="p-12 text-center">
-          <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             <TranslatedText text="Playlist vide" />
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             <TranslatedText text="Ajoutez des chansons à cette playlist depuis votre bibliothèque" />
           </p>
-          <Button onClick={() => navigate('/med-mng/library')} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => navigate('/med-mng/library')}>
             <TranslatedText text="Parcourir ma bibliothèque" />
           </Button>
         </Card>
