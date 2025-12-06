@@ -179,7 +179,7 @@ export const RevisionDashboard: React.FC = () => {
                     <BookOpen className="h-5 w-5" />
                     {currentPlan.plan_name}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {currentPlan.completion_rate}% terminé
                   </span>
                 </CardTitle>
@@ -192,19 +192,19 @@ export const RevisionDashboard: React.FC = () => {
                 <Progress value={currentPlan.completion_rate} className="w-full" />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <span className="font-medium text-blue-800">Concepts ciblés</span>
-                    <p className="text-blue-600">{currentPlan.target_items.length}</p>
+                  <div className="bg-primary/10 rounded-lg p-3">
+                    <span className="font-medium text-primary">Concepts ciblés</span>
+                    <p className="text-primary/80">{currentPlan.target_items.length}</p>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-3">
-                    <span className="font-medium text-green-800">Jours restants</span>
-                    <p className="text-green-600">
+                  <div className="bg-success/10 rounded-lg p-3">
+                    <span className="font-medium text-success">Jours restants</span>
+                    <p className="text-success/80">
                       {Math.max(0, currentPlan.estimated_duration_days - Math.floor((new Date().getTime() - new Date(currentPlan.created_at).getTime()) / (1000 * 60 * 60 * 24)))}
                     </p>
                   </div>
-                  <div className="bg-purple-50 rounded-lg p-3">
-                    <span className="font-medium text-purple-800">Objectif quotidien</span>
-                    <p className="text-purple-600">{currentPlan.daily_target} concepts</p>
+                  <div className="bg-accent/10 rounded-lg p-3">
+                    <span className="font-medium text-accent-foreground">Objectif quotidien</span>
+                    <p className="text-accent-foreground/80">{currentPlan.daily_target} concepts</p>
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ export const RevisionDashboard: React.FC = () => {
                         <span className="capitalize">{level === 'easy' ? 'Facile' : level === 'medium' ? 'Moyen' : 'Difficile'}</span>
                         <span>{count} concepts</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${colors[level]}`}
                           style={{ width: `${percentage}%` }}
@@ -272,14 +272,14 @@ export const RevisionDashboard: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   {revisionItems.slice(0, 5).map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{item.concept}</p>
-                        <p className="text-xs text-gray-500">{item.item_code}</p>
+                        <p className="text-xs text-muted-foreground">{item.item_code}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium">{item.priority_score}</p>
-                        <p className="text-xs text-gray-500">priorité</p>
+                        <p className="text-xs text-muted-foreground">priorité</p>
                       </div>
                     </div>
                   ))}

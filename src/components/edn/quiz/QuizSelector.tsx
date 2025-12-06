@@ -47,33 +47,33 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
       <CardContent className="space-y-6">
         
         {/* Informations sur l'item */}
-        <div className="bg-white/60 rounded-lg p-4 border border-blue-200">
+        <div className="bg-card/60 rounded-lg p-4 border border-border">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-blue-800">Informations</h3>
+            <h3 className="font-semibold text-primary">Informations</h3>
             <Badge variant="secondary">{totalQuestions} questions total</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="text-center p-3 bg-white rounded border">
-              <Brain className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+            <div className="text-center p-3 bg-card rounded border">
+              <Brain className="h-6 w-6 mx-auto mb-2 text-primary" />
               <div className="font-medium">Item {itemCode}</div>
-              <div className="text-gray-600">Compétences médicales</div>
+              <div className="text-muted-foreground">Compétences médicales</div>
             </div>
-            <div className="text-center p-3 bg-white rounded border">
-              <Target className="h-6 w-6 mx-auto mb-2 text-green-600" />
+            <div className="text-center p-3 bg-card rounded border">
+              <Target className="h-6 w-6 mx-auto mb-2 text-success" />
               <div className="font-medium">Rang A & B</div>
-              <div className="text-gray-600">Niveaux disponibles</div>
+              <div className="text-muted-foreground">Niveaux disponibles</div>
             </div>
-            <div className="text-center p-3 bg-white rounded border">
-              <Zap className="h-6 w-6 mx-auto mb-2 text-amber-600" />
+            <div className="text-center p-3 bg-card rounded border">
+              <Zap className="h-6 w-6 mx-auto mb-2 text-warning" />
               <div className="font-medium">QCM Adaptatif</div>
-              <div className="text-gray-600">Génération d'erreurs</div>
+              <div className="text-muted-foreground">Génération d'erreurs</div>
             </div>
           </div>
         </div>
 
         {/* Configuration du nombre de questions */}
         <div className="space-y-3">
-          <label className="text-sm font-medium text-blue-800">
+          <label className="text-sm font-medium text-primary">
             Nombre de questions
           </label>
           <Select
@@ -83,7 +83,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
               numberOfQuestions: parseInt(value)
             })}
           >
-            <SelectTrigger className="bg-white/60 border-blue-200">
+            <SelectTrigger className="bg-card/60 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -100,7 +100,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
 
         {/* Type de questions */}
         <div className="space-y-3">
-          <label className="text-sm font-medium text-blue-800">
+          <label className="text-sm font-medium text-primary">
             Type de compétences
           </label>
           <Select
@@ -110,7 +110,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
               questionType: value
             })}
           >
-            <SelectTrigger className="bg-white/60 border-blue-200">
+            <SelectTrigger className="bg-card/60 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -129,7 +129,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
 
         {/* Niveau de difficulté */}
         <div className="space-y-3">
-          <label className="text-sm font-medium text-blue-800">
+          <label className="text-sm font-medium text-primary">
             Niveau de difficulté
           </label>
           <Select
@@ -139,7 +139,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
               difficulty: value
             })}
           >
-            <SelectTrigger className="bg-white/60 border-blue-200">
+            <SelectTrigger className="bg-card/60 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -157,26 +157,26 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
         </div>
 
         {/* Résumé de la configuration */}
-        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-4 border border-blue-200">
-          <h4 className="font-semibold text-blue-800 mb-3">Résumé de votre quiz</h4>
+        <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+          <h4 className="font-semibold text-primary mb-3">Résumé de votre quiz</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-blue-700">Questions :</span>
+              <span className="text-primary/80">Questions :</span>
               <span className="font-medium">{config.numberOfQuestions}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-blue-700">Type :</span>
+              <span className="text-primary/80">Type :</span>
               <span className="font-medium">
                 {config.questionType === 'mixed' ? 'Rang A + B' :
                  config.questionType === 'rang-a' ? 'Rang A' : 'Rang B'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-blue-700">Difficulté :</span>
+              <span className="text-primary/80">Difficulté :</span>
               <span className="font-medium capitalize">{config.difficulty}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-blue-700">Durée estimée :</span>
+              <span className="text-primary/80">Durée estimée :</span>
               <span className="font-medium">{Math.ceil(config.numberOfQuestions * 1.5)} min</span>
             </div>
           </div>
@@ -185,7 +185,7 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
         {/* Bouton de lancement */}
         <Button
           onClick={() => onStartQuiz(config)}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3"
           size="lg"
         >
           <Play className="h-5 w-5 mr-2" />
