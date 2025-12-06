@@ -200,13 +200,13 @@ export const useEnhancedChat = () => {
   const getSourceColor = (source?: string) => {
     switch (source) {
       case 'edn_local':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success/10 text-success';
       case 'web_fallback':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-warning/10 text-warning';
       case 'edn_limited':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning/20 text-warning';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 

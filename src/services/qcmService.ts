@@ -276,9 +276,9 @@ class QcmService {
   }
 
   getScoreColor(score: number): string {
-    if (score >= 80) return 'text-green-600 bg-green-50';
-    if (score >= 60) return 'text-orange-600 bg-orange-50';
-    return 'text-red-600 bg-red-50';
+    if (score >= 80) return 'text-success bg-success/10';
+    if (score >= 60) return 'text-warning bg-warning/10';
+    return 'text-destructive bg-destructive/10';
   }
 
   getScoreBadgeVariant(score: number): 'default' | 'secondary' | 'destructive' {

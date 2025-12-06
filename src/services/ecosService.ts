@@ -185,12 +185,12 @@ class EcosService {
 
   getCompetenceColor(competence: string): string {
     const colors = [
-      'bg-blue-100 text-blue-800',
-      'bg-green-100 text-green-800', 
-      'bg-purple-100 text-purple-800',
-      'bg-orange-100 text-orange-800',
-      'bg-pink-100 text-pink-800',
-      'bg-indigo-100 text-indigo-800'
+      'bg-primary/10 text-primary',
+      'bg-success/10 text-success', 
+      'bg-accent/10 text-accent-foreground',
+      'bg-warning/10 text-warning',
+      'bg-destructive/10 text-destructive',
+      'bg-secondary text-secondary-foreground'
     ];
     
     let hash = 0;
