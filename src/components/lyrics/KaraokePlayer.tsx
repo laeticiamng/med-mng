@@ -229,13 +229,13 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
             <div
               key={index}
               data-line-index={index}
-              className={`
+            className={`
                 transition-all duration-300 cursor-pointer py-2 px-3 rounded
                 ${isActive 
-                  ? 'bg-white/20 text-white text-xl font-bold transform scale-105' 
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-foreground/20 text-foreground text-xl font-bold transform scale-105' 
+                  : 'text-foreground/70 hover:text-foreground hover:bg-foreground/10'
                 }
-                ${isInSearchResults ? 'bg-yellow-500/20 border border-yellow-400/50' : ''}
+                ${isInSearchResults ? 'bg-warning/20 border border-warning/50' : ''}
               `}
               onClick={() => onSeek(line.time)}
             >
@@ -243,7 +243,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
                 <span className={`${isActive ? 'text-shadow-lg' : ''}`}>
                   {line.text}
                 </span>
-                <span className="text-xs text-white/50 ml-4">
+                <span className="text-xs text-foreground/50 ml-4">
                   {formatTime(line.time)}
                 </span>
               </div>
