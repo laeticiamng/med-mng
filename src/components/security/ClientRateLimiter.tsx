@@ -208,7 +208,7 @@ export const ClientRateLimiter = () => {
             {/* Configuration des limits */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {rateLimits.map((limit) => (
-                <Card key={limit.endpoint} className={`p-4 ${limit.blocked ? 'border-red-200 bg-red-50' : ''}`}>
+                <Card key={limit.endpoint} className={`p-4 ${limit.blocked ? 'border-destructive/30 bg-destructive/10' : ''}`}>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">{limit.endpoint}</span>
@@ -230,12 +230,12 @@ export const ClientRateLimiter = () => {
                         <span>{limit.currentCount}/{limit.maxRequests}</span>
                       </div>
                       
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full transition-all ${
-                            limit.blocked ? 'bg-red-500' : 
-                            getProgressPercentage(limit.currentCount, limit.maxRequests) > 75 ? 'bg-yellow-500' : 
-                            'bg-green-500'
+                            limit.blocked ? 'bg-destructive' : 
+                            getProgressPercentage(limit.currentCount, limit.maxRequests) > 75 ? 'bg-warning' : 
+                            'bg-success'
                           }`}
                           style={{ 
                             width: `${getProgressPercentage(limit.currentCount, limit.maxRequests)}%` 
@@ -265,9 +265,9 @@ export const ClientRateLimiter = () => {
 
             {/* Alertes actives */}
             {rateLimits.some(limit => limit.blocked) && (
-              <Alert className="border-red-200 bg-red-50">
+              <Alert className="border-destructive/30 bg-destructive/10">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">
+                <AlertDescription className="text-destructive">
                   <strong>Rate limits actifs:</strong> Certains endpoints sont temporairement bloqués.
                   Les requêtes seront automatiquement réactivées après la période de cooldown.
                 </AlertDescription>
@@ -293,7 +293,7 @@ export const ClientRateLimiter = () => {
                       <div 
                         key={index}
                         className={`flex items-center justify-between p-2 rounded text-sm ${
-                          attempt.blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                          attempt.blocked ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'
                         }`}
                       >
                         <span className="font-medium">{attempt.endpoint}</span>
@@ -317,20 +317,20 @@ export const ClientRateLimiter = () => {
 
             {/* Configuration pour développement */}
             {import.meta.env.MODE === 'development' && (
-              <Card className="border-blue-200 bg-blue-50">
+              <Card className="border-primary/30 bg-primary/10">
                 <CardHeader>
-                  <CardTitle className="text-sm text-blue-800">
+                  <CardTitle className="text-sm text-primary">
                     Configuration de développement
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-blue-700 space-y-2">
+                  <div className="text-sm text-primary/80 space-y-2">
                     <p>• Rate limiting implémenté côté client uniquement (demo)</p>
                     <p>• En production, combiner avec rate limiting serveur (Supabase/Edge Functions)</p>
                     <p>• Persistance en localStorage possible pour survie entre sessions</p>
                     <p>• Intégration avec le monitoring Sentry pour alertes</p>
                     
-                    <div className="mt-3 p-2 bg-blue-100 rounded text-xs">
+                    <div className="mt-3 p-2 bg-primary/20 rounded text-xs">
                       <strong>Endpoints configurés:</strong>
                       <ul className="list-disc list-inside mt-1">
                         <li>Génération musicale: 5 req/min</li>

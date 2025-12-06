@@ -127,19 +127,19 @@ export const RealTimeDashboard = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-600 dark:text-green-400';
-      case 'warning': return 'text-yellow-600 dark:text-yellow-400';
-      case 'error': return 'text-red-600 dark:text-red-400';
-      default: return 'text-blue-600 dark:text-blue-400';
+      case 'success': return 'text-success';
+      case 'warning': return 'text-warning';
+      case 'error': return 'text-destructive';
+      default: return 'text-primary';
     }
   };
 
   const getHealthIcon = (health: string) => {
     switch (health) {
-      case 'healthy': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      case 'healthy': return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'error': return <XCircle className="h-4 w-4 text-destructive" />;
+      default: return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -154,7 +154,7 @@ export const RealTimeDashboard = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-success' : 'bg-destructive'}`} />
           <span className="text-sm text-muted-foreground">
             {isConnected ? 'Connecté' : 'Déconnecté'}
           </span>
@@ -177,7 +177,7 @@ export const RealTimeDashboard = () => {
               <div className="text-2xl font-bold">{metric.value}</div>
               {metric.change && (
                 <p className="text-xs text-muted-foreground">
-                  <span className={metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
+                  <span className={metric.change.startsWith('+') ? 'text-success' : 'text-destructive'}>
                     {metric.change}
                   </span>
                   {' '}depuis la dernière heure
@@ -264,7 +264,7 @@ export const RealTimeDashboard = () => {
             <div className="space-y-3 max-h-80 overflow-y-auto">
               {recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-start gap-3 text-sm">
-                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                  <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="truncate">{activity.message}</p>
                     <p className="text-xs text-muted-foreground">
@@ -309,21 +309,21 @@ export const RealTimeDashboard = () => {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-success">
                     {Math.round(liveStats.responseTime)}ms
                   </div>
                   <div className="text-sm text-muted-foreground">Temps de réponse moyen</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">99.8%</div>
+                  <div className="text-2xl font-bold text-primary">99.8%</div>
                   <div className="text-sm text-muted-foreground">Disponibilité</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">2.3s</div>
+                  <div className="text-2xl font-bold text-accent">2.3s</div>
                   <div className="text-sm text-muted-foreground">Temps de chargement</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">156</div>
+                  <div className="text-2xl font-bold text-warning">156</div>
                   <div className="text-sm text-muted-foreground">Requêtes/min</div>
                 </div>
               </div>
