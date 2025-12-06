@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, AlertTriangle, Shield, Scale, Users, Zap, Ban } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const CGU = () => {
   return (
@@ -10,7 +11,7 @@ const CGU = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2 text-primary hover:underline">
+            <Link to={ROUTE_PATHS.home} className="flex items-center space-x-2 text-primary hover:underline">
               <ArrowLeft className="h-4 w-4" />
               <span>Retour à l'accueil</span>
             </Link>
@@ -339,7 +340,7 @@ const CGU = () => {
             <div className="text-muted-foreground">
               <p className="mb-3">
                 Le traitement de vos données personnelles est régi par notre{' '}
-                <Link to="/politique-confidentialite" className="text-primary font-semibold hover:underline">
+                <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary font-semibold hover:underline">
                   Politique de Confidentialité
                 </Link>{' '}
                 conforme au RGPD (UE 2016/679).

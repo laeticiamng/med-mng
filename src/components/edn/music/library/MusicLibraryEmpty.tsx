@@ -1,8 +1,8 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface MusicLibraryEmptyProps {
   searchTerm: string;
@@ -21,7 +21,7 @@ export const MusicLibraryEmpty = ({ searchTerm }: MusicLibraryEmptyProps) => {
           : 'Générez vos premières musiques depuis les items EDN pour les voir apparaître ici'} />
       </p>
       {!searchTerm && (
-        <Link to="/edn">
+        <Link to={ROUTE_PATHS.ednLegacy}>
           <Button className="bg-warning hover:bg-warning/90 text-warning-foreground">
             <TranslatedText text="Explorer les items EDN" />
           </Button>

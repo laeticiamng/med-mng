@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -8,7 +8,7 @@ import { TableauxNavigator } from "@/components/edn/TableauxNavigator"
 import { ednTableauxService } from "@/services/ednTableauxService"
 import { ArrowLeft, RefreshCw, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
-import { Link } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
 
 interface ItemTableauxData {
   item_id: string
@@ -100,7 +100,7 @@ export function EdnItemTableauxPage() {
       <div className="container mx-auto py-6">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/edn">
+            <Link to={ROUTE_PATHS.ednLegacy}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
             </Link>
@@ -131,7 +131,7 @@ export function EdnItemTableauxPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/edn">
+            <Link to={ROUTE_PATHS.ednLegacy}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour aux items
             </Link>
@@ -184,7 +184,7 @@ export function EdnItemTableauxPage() {
             </div>
             <div>
               <span className="font-medium">État global:</span>
-              <span className={`ml-2 ${itemData.completeness.overall_complete ? 'text-green-600' : 'text-orange-500'}`}>
+              <span className={`ml-2 ${itemData.completeness.overall_complete ? 'text-success' : 'text-warning'}`}>
                 {itemData.completeness.overall_complete ? 'Complet' : 'Incomplet'}
               </span>
             </div>

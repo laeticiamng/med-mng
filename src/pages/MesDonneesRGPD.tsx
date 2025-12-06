@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
@@ -177,7 +178,7 @@ const MesDonneesRGPD = () => {
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link to="/med-mng/profile" className="flex items-center space-x-2 text-primary hover:text-primary/80">
+            <Link to={ROUTE_PATHS.medMngProfile} className="flex items-center space-x-2 text-primary hover:text-primary/80">
               <ArrowLeft className="h-4 w-4" />
               <span>Retour au profil</span>
             </Link>

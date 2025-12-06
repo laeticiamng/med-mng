@@ -1,6 +1,6 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
 import { Music } from 'lucide-react';
 import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
@@ -96,7 +96,7 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
               <p className="text-warning mb-4">
                 <TranslatedText text="Les paroles pour cet item sont en cours de création." />
               </p>
-              <Link to="/edn/music-library">
+              <Link to={ROUTE_PATHS.ednMusicLibrary}>
                 <Button className="bg-warning hover:bg-warning/90 text-warning-foreground">
                   <Music className="h-4 w-4 mr-2" />
                   <TranslatedText text="Voir ma bibliothèque musicale" />
