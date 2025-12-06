@@ -88,11 +88,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
   const getVignetteColor = (type: string) => {
     switch (type) {
-      case 'intro': return 'border-blue-300 bg-blue-50';
-      case 'rang-a': return 'border-green-300 bg-green-50';
-      case 'rang-b': return 'border-purple-300 bg-purple-50';
-      case 'conclusion': return 'border-yellow-300 bg-yellow-50';
-      default: return 'border-gray-300 bg-gray-50';
+      case 'intro': return 'border-primary/30 bg-primary/5';
+      case 'rang-a': return 'border-success/30 bg-success/5';
+      case 'rang-b': return 'border-accent/30 bg-accent/5';
+      case 'conclusion': return 'border-warning/30 bg-warning/5';
+      default: return 'border-border bg-muted';
     }
   };
 
@@ -108,7 +108,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
   if (vignettes.length === 0) {
     return (
-      <Card className="border-2 border-orange-200">
+      <Card className="border-2 border-warning/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Image className="h-6 w-6" />
@@ -116,7 +116,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-600">Génération de la BD en cours...</p>
+          <p className="text-muted-foreground">Génération de la BD en cours...</p>
         </CardContent>
       </Card>
     );
@@ -127,14 +127,14 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   return (
     <div className="space-y-6">
       {/* Header avec navigation */}
-      <Card className="border-2 border-indigo-200">
-        <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
+      <Card className="border-2 border-accent/20">
+        <CardHeader className="bg-gradient-to-r from-accent to-primary text-primary-foreground">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Image className="h-6 w-6" />
               BD Interactive - {itemCode}
             </CardTitle>
-            <Badge className="bg-white/20 text-white">
+            <Badge className="bg-primary-foreground/20 text-primary-foreground">
               {currentVignette + 1} / {vignettes.length}
             </Badge>
           </div>
@@ -150,7 +150,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               <ChevronLeft className="h-4 w-4 mr-1" />
               Précédent
             </Button>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               {currentVig.title}
             </div>
             <Button 
@@ -194,7 +194,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           
           <div className={isMobile ? 'p-4' : 'p-6'}>
             <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
-            <p className="text-gray-600 mb-4">{currentVig.description}</p>
+            <p className="text-muted-foreground mb-4">{currentVig.description}</p>
             
             {currentVig.competences && (
               <div className="flex items-center gap-2 mb-4">
@@ -228,8 +228,8 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
                 onClick={() => setCurrentVignette(index)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all
                   ${index === currentVignette 
-                    ? 'border-indigo-500 ring-2 ring-indigo-200' 
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-accent ring-2 ring-accent/20' 
+                    : 'border-border hover:border-muted-foreground'
                   }`}
               >
                 <img 
