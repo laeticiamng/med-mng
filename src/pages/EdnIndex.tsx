@@ -174,14 +174,14 @@ const EdnIndex = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="h-7 w-7 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="h-7 w-7 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                   Items EDN MED MNG • Interface Unifiée
                 </h1>
-                <p className="text-gray-600">367 items • Rangs A & B complets • Tous contenus pédagogiques</p>
+                <p className="text-muted-foreground">367 items • Rangs A & B complets • Tous contenus pédagogiques</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-2">

@@ -29,7 +29,7 @@ const ModernHomepage = () => {
       title: 'Items EDN Complets',
       description: 'Tous les items de connaissances avec tableaux interactifs, rang A et B',
       icon: <BookOpen className="h-8 w-8" />,
-      color: 'bg-blue-100 text-blue-600',
+      color: 'bg-primary/10 text-primary',
       route: '/edn-complete',
       badge: '367 Items',
       popular: true
@@ -38,7 +38,7 @@ const ModernHomepage = () => {
       title: 'Génération Musicale',
       description: 'Créez des mnémotechniques musicales personnalisées avec IA',
       icon: <Music className="h-8 w-8" />,
-      color: 'bg-purple-100 text-purple-600',
+      color: 'bg-accent/10 text-accent',
       route: '/med-mng/create',
       badge: 'IA Avancée',
       popular: true
@@ -47,7 +47,7 @@ const ModernHomepage = () => {
       title: 'Planificateur d\'Études',
       description: 'Organisez vos révisions avec des objectifs personnalisés',
       icon: <Target className="h-8 w-8" />,
-      color: 'bg-green-100 text-green-600',
+      color: 'bg-success/10 text-success',
       route: '/study-planner',
       badge: 'Nouveau',
       popular: false
@@ -56,7 +56,7 @@ const ModernHomepage = () => {
       title: 'Hub Communautaire',
       description: 'Échangez avec 2,847 étudiants et professionnels',
       icon: <Users className="h-8 w-8" />,
-      color: 'bg-orange-100 text-orange-600',
+      color: 'bg-warning/10 text-warning',
       route: '/community',
       badge: '2.8k Membres',
       popular: false
@@ -64,10 +64,10 @@ const ModernHomepage = () => {
   ];
 
   const quickStats = [
-    { icon: <Users className="h-6 w-6" />, value: '15,847', label: 'Utilisateurs actifs', color: 'text-blue-600' },
-    { icon: <BookOpen className="h-6 w-6" />, value: '367', label: 'Items EDN', color: 'text-green-600' },
-    { icon: <Music className="h-6 w-6" />, value: '8,432', label: 'Musiques générées', color: 'text-purple-600' },
-    { icon: <Award className="h-6 w-6" />, value: '92.3%', label: 'Taux de réussite', color: 'text-orange-600' }
+    { icon: <Users className="h-6 w-6" />, value: '15,847', label: 'Utilisateurs actifs', color: 'text-primary' },
+    { icon: <BookOpen className="h-6 w-6" />, value: '367', label: 'Items EDN', color: 'text-success' },
+    { icon: <Music className="h-6 w-6" />, value: '8,432', label: 'Musiques générées', color: 'text-accent' },
+    { icon: <Award className="h-6 w-6" />, value: '92.3%', label: 'Taux de réussite', color: 'text-warning' }
   ];
 
   const recentUpdates = [
@@ -122,10 +122,10 @@ const ModernHomepage = () => {
 
       <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-24">
+        <section className="relative bg-gradient-to-br from-primary/5 via-accent/5 to-secondary py-24">
           <div className="container mx-auto px-6">
             <div className="text-center space-y-8 max-w-4xl mx-auto">
-              <Badge className="bg-purple-100 text-purple-800 text-sm px-4 py-2">
+              <Badge className="bg-accent/10 text-accent text-sm px-4 py-2">
                 🚀 Plateforme révolutionnaire d'apprentissage médical
               </Badge>
               
@@ -236,9 +236,9 @@ const ModernHomepage = () => {
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <div className={`p-2 rounded-lg ${
-                            update.type === 'update' ? 'bg-blue-100 text-blue-600' :
-                            update.type === 'event' ? 'bg-green-100 text-green-600' :
-                            'bg-purple-100 text-purple-600'
+                            update.type === 'update' ? 'bg-primary/10 text-primary' :
+                            update.type === 'event' ? 'bg-success/10 text-success' :
+                            'bg-accent/10 text-accent'
                           }`}>
                             {update.type === 'update' && <TrendingUp className="h-4 w-4" />}
                             {update.type === 'event' && <Calendar className="h-4 w-4" />}
@@ -269,7 +269,7 @@ const ModernHomepage = () => {
                         </div>
                         <p className="text-foreground mb-4 italic">"{testimonial.text}"</p>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold">
+                          <div className="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
                             {testimonial.name.split(' ').map(n => n[0]).join('')}
                           </div>
                           <div>

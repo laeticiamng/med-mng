@@ -201,21 +201,21 @@ const MedMngPlayerComponent = () => {
             <div>
               <Card className="mb-6">
                 <CardContent className="p-0">
-                  <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-lg flex items-center justify-center">
-                    <Music className="h-24 w-24 text-white/80" />
+                  <div className="aspect-square bg-gradient-to-br from-primary to-accent rounded-t-lg flex items-center justify-center">
+                    <Music className="h-24 w-24 text-primary-foreground/80" />
                   </div>
                   <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-2xl font-bold text-foreground mb-2">
                       {song.title}
                     </h1>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       Créé le {new Date(song.created_at).toLocaleDateString('fr-FR')}
                     </p>
                     <div className="flex items-center gap-4">
                       <Button
                         variant="outline"
                         onClick={handleToggleLike}
-                        className={song.is_liked ? 'text-red-500 border-red-500' : ''}
+                        className={song.is_liked ? 'text-destructive border-destructive' : ''}
                       >
                         <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-current' : ''}`} />
                         {song.is_liked ? 'Aimé' : 'Aimer'}
@@ -246,7 +246,7 @@ const MedMngPlayerComponent = () => {
                       onValueChange={handleSeek}
                       className="w-full mb-2"
                     />
-                    <div className="flex justify-between text-sm text-gray-500">
+                    <div className="flex justify-between text-sm text-muted-foreground">
                       <span>{formatTime(currentTime)}</span>
                       <span>{formatTime(duration)}</span>
                     </div>
@@ -265,10 +265,10 @@ const MedMngPlayerComponent = () => {
                     <Button
                       onClick={handlePlayPause}
                       disabled={isLoading}
-                      className="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground w-12 h-12 rounded-full"
                     >
                       {isLoading ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground"></div>
                       ) : isPlaying ? (
                         <Pause className="h-6 w-6" />
                       ) : (
