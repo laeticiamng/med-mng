@@ -91,7 +91,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                 {category.items.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
-                    className="bg-white p-3 rounded-lg border border-amber-200 text-center text-amber-800 font-medium"
+                    className="bg-card p-3 rounded-lg border border-amber-200 text-center text-amber-800 font-medium"
                   >
                     {item}
                   </div>
@@ -102,12 +102,12 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         </div>
 
         <div className="text-center">
-          <Card className="p-6 bg-green-50 border-green-300">
-            <Trophy className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <p className="text-xl text-green-800 font-bold">
+          <Card className="p-6 bg-success/10 border-success">
+            <Trophy className="h-12 w-12 text-success mx-auto mb-4" />
+            <p className="text-xl text-success font-bold">
               {rewards?.completion || 'Concepts maîtrisés !'}
             </p>
-            <p className="text-green-700 mt-2">
+            <p className="text-success mt-2">
               {rewards?.message || 'Vous avez acquis les connaissances essentielles.'}
             </p>
           </Card>
@@ -229,8 +229,8 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
               </div>
             </RadioGroup>
             {showResults && question.justification && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                <p className="text-sm text-blue-800">
+              <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded">
+                <p className="text-sm text-primary">
                   <strong>Justification :</strong> {question.justification}
                 </p>
               </div>
@@ -266,14 +266,14 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                   className={`w-4 h-4 rounded-full ${
                     i < (score / allQuestions.length) * 10
                       ? 'bg-amber-500'
-                      : 'bg-gray-200'
+                      : 'bg-muted'
                   }`}
                 />
               ))}
             </div>
             <Button
               onClick={resetQuiz}
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 text-primary-foreground"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Recommencer le quiz
@@ -292,13 +292,13 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
           <Badge variant="outline" className="text-amber-700 border-amber-300">
             Question {currentQuestion + 1}/{allQuestions.length}
           </Badge>
-          <Badge variant="outline" className="text-blue-700 border-blue-300">
+          <Badge variant="outline" className="text-primary border-primary/30">
             {allQuestions[currentQuestion].type.toUpperCase()}
           </Badge>
         </div>
       </div>
 
-      <Card className="p-4 md:p-8 bg-white/90 border-amber-200">
+      <Card className="p-4 md:p-8 bg-card/90 border-amber-200">
         {renderQuestion(allQuestions[currentQuestion])}
       </Card>
 
@@ -315,8 +315,8 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                   index === currentQuestion
                     ? 'bg-amber-600'
                     : answers[allQuestions[index].id] !== undefined
-                    ? 'bg-green-400'
-                    : 'bg-gray-200'
+                    ? 'bg-success'
+                    : 'bg-muted'
                 }`}
               />
             ))}
@@ -337,14 +337,14 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
           {currentQuestion === allQuestions.length - 1 ? (
             <Button
               onClick={() => finishQuiz(questions)}
-              className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none"
+              className="bg-success hover:bg-success/90 text-primary-foreground flex-1 md:flex-none"
             >
               Terminer le quiz
             </Button>
           ) : (
             <Button
               onClick={() => setCurrentQuestion(Math.min(allQuestions.length - 1, currentQuestion + 1))}
-              className="bg-amber-600 hover:bg-amber-700 text-white flex-1 md:flex-none"
+              className="bg-amber-600 hover:bg-amber-700 text-primary-foreground flex-1 md:flex-none"
             >
               Suivant
             </Button>

@@ -76,18 +76,18 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
                 key={index}
                 className={`p-4 cursor-pointer transition-all duration-300 ${
                   matchResult === 'correct'
-                    ? 'bg-green-50 border-green-300 shadow-lg'
+                    ? 'bg-success/10 border-success shadow-lg'
                     : matchResult === 'incorrect'
-                    ? 'bg-red-50 border-red-300'
+                    ? 'bg-destructive/10 border-destructive'
                     : matches[phrase]
-                    ? 'bg-blue-50 border-blue-300'
-                    : 'bg-white border-amber-200 hover:bg-amber-50'
+                    ? 'bg-primary/10 border-primary'
+                    : 'bg-background border-amber-200 hover:bg-amber-50'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-amber-900 font-medium">{phrase}</span>
-                  {matchResult === 'correct' && <CheckCircle className="h-5 w-5 text-green-600" />}
-                  {matchResult === 'incorrect' && <XCircle className="h-5 w-5 text-red-600" />}
+                  {matchResult === 'correct' && <CheckCircle className="h-5 w-5 text-success" />}
+                  {matchResult === 'incorrect' && <XCircle className="h-5 w-5 text-destructive" />}
                 </div>
                 {matches[phrase] && (
                   <Badge variant="outline" className="mt-2">
@@ -114,7 +114,7 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
                 }
               }}
             >
-              <span className="text-blue-900 font-medium">{concept}</span>
+              <span className="text-primary font-medium">{concept}</span>
             </Card>
           ))}
         </div>
@@ -125,7 +125,7 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
           <Button
             onClick={checkAnswers}
             disabled={Object.keys(matches).length < phrases.length}
-            className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3"
+            className="bg-amber-600 hover:bg-amber-700 text-primary-foreground px-8 py-3"
             size="lg"
           >
             Vérifier mes réponses
@@ -136,8 +136,8 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
               Score: {score}/{config.exemples.length}
             </div>
             {score === config.exemples.length && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="text-green-800 font-medium">
+              <div className="bg-success/10 border border-success/20 rounded-lg p-4">
+                <div className="text-success font-medium">
                   🎉 Parfait ! {config.feedback}
                 </div>
               </div>
