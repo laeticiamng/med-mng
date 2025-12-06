@@ -74,15 +74,16 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
-  // Clé de rechargement pour forcer le re-fetch
-  const [reloadKey, setReloadKey] = useState(0);
+  // Flag pour éviter les re-fetch inutiles au premier rendu
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Réinitialiser la page quand on change de filtre/recherche
+  // Seulement APRÈS le premier rendu
   useEffect(() => {
+    if (!isInitialized) return;
     setPage(0);
     setImmersiveItems([]);
-    setReloadKey(prev => prev + 1); // Force re-fetch même si page reste 0
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategory, sortBy, isInitialized]);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -104,7 +105,10 @@ export default function EdnComplete() {
     }, 10000);
     
     fetchAllData()
-      .then(() => clearTimeout(timeoutId))
+      .then(() => {
+        clearTimeout(timeoutId);
+        setIsInitialized(true); // Marquer comme initialisé après le premier chargement
+      })
       .catch(err => {
         clearTimeout(timeoutId);
         console.error('Error loading data:', err);
@@ -113,7 +117,7 @@ export default function EdnComplete() {
       });
     
     return () => clearTimeout(timeoutId);
-  }, [page, reloadKey]); // Ajout de reloadKey pour forcer le re-fetch
+  }, [page, searchTerm, selectedCategory, sortBy]); // Dépendances directes au lieu de reloadKey
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
