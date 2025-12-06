@@ -51,22 +51,41 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const [translations, setTranslations] = useState<Record<string, any>>({});
   const [isTranslating, setIsTranslating] = useState(false);
 
+  // Importer les traductions statiquement pour éviter les problèmes Vite
+  const translationModules: Record<Language, Record<string, any>> = {
+    fr: {}, // Will be loaded
+    en: {},
+    es: {},
+    it: {},
+    zh: {},
+    ja: {}
+  };
+
   // Charger les traductions pour la langue courante
   useEffect(() => {
     const loadTranslations = async () => {
       try {
-        const translationModule = await import(`../locales/${currentLanguage}/common.json`);
+        // Utiliser des imports statiques conditionnels
+        let translationModule: any;
+        switch (currentLanguage) {
+          case 'en':
+            translationModule = await import('../locales/en/common.json');
+            break;
+          case 'fr':
+          default:
+            translationModule = await import('../locales/fr/common.json');
+            break;
+        }
         setTranslations(translationModule.default || translationModule);
       } catch (error) {
         console.warn(`Erreur lors du chargement des traductions pour ${currentLanguage}:`, error);
         // Fallback vers le français
-        if (currentLanguage !== 'fr') {
-          try {
-            const fallbackModule = await import('../locales/fr/common.json');
-            setTranslations(fallbackModule.default || fallbackModule);
-          } catch (fallbackError) {
-            console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
-          }
+        try {
+          const fallbackModule = await import('../locales/fr/common.json');
+          setTranslations(fallbackModule.default || fallbackModule);
+        } catch (fallbackError) {
+          console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
+          setTranslations({});
         }
       }
     };
