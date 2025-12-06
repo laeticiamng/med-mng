@@ -19,18 +19,18 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <label className="text-lg font-semibold text-gray-900">
+      <label className="text-lg font-semibold text-foreground">
         <TranslatedText text="Item EDN" />
       </label>
       <Select value={selectedItem} onValueChange={setSelectedItem}>
-        <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
+        <SelectTrigger className="h-14 text-base bg-background/50 backdrop-blur-sm border-border/30 shadow-lg">
           <SelectValue placeholder="Sélectionnez un item EDN" />
         </SelectTrigger>
-        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
+        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-80 overflow-y-auto">
           {itemsLoading ? (
-            <div className="px-2 py-3 text-center text-gray-500">Chargement des items...</div>
+            <div className="px-2 py-3 text-center text-muted-foreground">Chargement des items...</div>
           ) : itemsError ? (
-            <div className="px-2 py-3 text-center text-red-500">Erreur: {itemsError}</div>
+            <div className="px-2 py-3 text-center text-destructive">Erreur: {itemsError}</div>
           ) : (
             allEdnItems.map((item) => (
               <SelectItem key={item.item_code} value={item.item_code} className="text-base py-3">

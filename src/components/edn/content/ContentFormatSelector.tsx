@@ -231,9 +231,9 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
 
       {/* Aperçu du contenu */}
       {previewFormat && (
-        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardHeader>
-            <CardTitle className="text-yellow-800">
+            <CardTitle className="text-warning">
               Aperçu - {contentFormats.find(f => f.id === previewFormat)?.name}
             </CardTitle>
             <CardDescription>
@@ -241,14 +241,14 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-white p-4 rounded-lg border border-yellow-200">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+            <div className="bg-card p-4 rounded-lg border border-warning/20">
+              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
                 {generatePreviewContent(contentFormats.find(f => f.id === previewFormat)!)}
               </pre>
             </div>
             <div className="mt-4 flex gap-2">
               <Button
-                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
+                className="bg-gradient-to-r from-warning to-warning/80 hover:from-warning/90 hover:to-warning/70 text-warning-foreground"
               >
                 Générer le contenu complet
               </Button>
