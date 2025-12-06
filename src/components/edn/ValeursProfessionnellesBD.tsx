@@ -54,7 +54,7 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
   ];
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-blue-50 via-green-50 to-amber-50 p-6 rounded-xl">
+    <div className="space-y-8 bg-gradient-to-br from-primary/5 via-success/5 to-warning/10 p-6 rounded-xl">
       <ComicHeader title={itemData.title} />
       
       {/* Layout en grille comme une vraie bande dessinée */}
@@ -66,9 +66,9 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
 
       {/* Séparateur thématique */}
       <div className="flex items-center justify-center my-8">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent"></div>
-        <div className="mx-4 text-blue-600 font-bold text-lg">⚕️ ⚖️ ⚕️</div>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent"></div>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+        <div className="mx-4 text-primary font-bold text-lg">⚕️ ⚖️ ⚕️</div>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
       </div>
 
       <ComicFooter />

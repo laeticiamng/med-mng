@@ -60,12 +60,12 @@ export const NotificationCenter: React.FC = () => {
 
   const getNotificationColor = (type: string) => {
     const colorMap = {
-      success: 'bg-green-100 border-green-200',
-      warning: 'bg-yellow-100 border-yellow-200',
-      error: 'bg-red-100 border-red-200',
-      info: 'bg-blue-100 border-blue-200'
+      success: 'bg-success/10 border-success/20',
+      warning: 'bg-warning/10 border-warning/20',
+      error: 'bg-destructive/10 border-destructive/20',
+      info: 'bg-primary/10 border-primary/20'
     };
-    return colorMap[type as keyof typeof colorMap] || 'bg-gray-100 border-gray-200';
+    return colorMap[type as keyof typeof colorMap] || 'bg-muted border-muted';
   };
 
   return (
