@@ -60,7 +60,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           return (
             <div key={index} className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${item.color}`}>
-                <IconComponent className="w-4 h-4 text-white" />
+                <IconComponent className="w-4 h-4 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-sm">
@@ -96,7 +96,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.color}`}>
-                    <IconComponent className="w-5 h-5 text-white" />
+                    <IconComponent className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="font-medium">{item.label}</p>
@@ -130,7 +130,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                 {showAchievements && item.achievements && item.achievements.length > 0 && (
                   <div className="pt-2 border-t">
                     <div className="flex items-center gap-2 mb-2">
-                      <Award className="w-4 h-4 text-amber-500" />
+                      <Award className="w-4 h-4 text-warning" />
                       <span className="text-sm font-medium">Récompenses</span>
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -214,7 +214,7 @@ export const useProgressData = () => {
       target: 50,
       unit: 'créations',
       icon: Zap,
-      color: 'bg-purple-500',
+      color: 'bg-accent',
       trend: 'up',
       achievements: ['Créatif', 'Innovant']
     },
@@ -225,7 +225,7 @@ export const useProgressData = () => {
       target: 5.0,
       unit: '★',
       icon: Star,
-      color: 'bg-amber-500',
+      color: 'bg-warning',
       trend: 'up',
       achievements: ['Qualité', 'Excellence']
     }

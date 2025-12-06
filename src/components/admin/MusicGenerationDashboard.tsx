@@ -47,7 +47,7 @@ export const MusicGenerationDashboard: React.FC = () => {
                 <Music className="h-7 w-7" />
                 Dashboard Génération Musicale
               </CardTitle>
-              <CardDescription className="text-green-100 mt-2">
+              <CardDescription className="text-success-foreground/80 mt-2">
                 Monitoring et analytics des générations Suno en temps réel
               </CardDescription>
             </div>
@@ -64,8 +64,8 @@ export const MusicGenerationDashboard: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <BarChart3 className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <BarChart3 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{adminStats.stats.total_generations}</p>
@@ -77,8 +77,8 @@ export const MusicGenerationDashboard: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-success/10 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{adminStats.stats.success_rate}%</p>

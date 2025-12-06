@@ -21,17 +21,17 @@ export const PerformanceMonitor = () => {
 
   const getMetricColor = (rating: string) => {
     switch (rating) {
-      case 'good': return 'bg-green-500';
-      case 'needs-improvement': return 'bg-yellow-500';
-      case 'poor': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'good': return 'bg-success';
+      case 'needs-improvement': return 'bg-warning';
+      case 'poor': return 'bg-destructive';
+      default: return 'bg-muted';
     }
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 50) return 'text-warning';
+    return 'text-destructive';
   };
 
   return (
@@ -80,7 +80,7 @@ export const PerformanceMonitor = () => {
                   </div>
                   <Badge 
                     variant="outline" 
-                    className={`${getMetricColor(metric.rating)} text-white border-none`}
+                    className={`${getMetricColor(metric.rating)} text-primary-foreground border-none`}
                   >
                     {metric.rating === 'good' ? 'Bon' : 
                      metric.rating === 'needs-improvement' ? 'Moyen' : 'Faible'}
@@ -127,14 +127,14 @@ export const PerformanceMonitor = () => {
 
           {/* Recommandations */}
           {!isGood && (
-            <Card className="p-4 border-yellow-200 bg-yellow-50">
-              <CardTitle className="text-sm text-yellow-800 mb-2">
+            <Card className="p-4 border-warning/20 bg-warning/5">
+              <CardTitle className="text-sm text-warning-foreground mb-2">
                 Recommandations d'amélioration
               </CardTitle>
-              <div className="space-y-1 text-sm text-yellow-700">
+              <div className="space-y-1 text-sm text-warning-foreground/80">
                 {generateReport().recommendations.map((rec, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <span className="text-yellow-500 mt-0.5">•</span>
+                    <span className="text-warning mt-0.5">•</span>
                     <span>{rec}</span>
                   </div>
                 ))}

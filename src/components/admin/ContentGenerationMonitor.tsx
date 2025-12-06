@@ -78,7 +78,7 @@ export const ContentGenerationMonitor: React.FC = () => {
     return (
       <Card>
         <CardContent className="text-center p-8">
-          <AlertTriangle className="h-8 w-8 mx-auto text-yellow-500 mb-4" />
+          <AlertTriangle className="h-8 w-8 mx-auto text-warning mb-4" />
           <p className="text-muted-foreground">Impossible de charger les analytics</p>
           <Button onClick={handleRefresh} className="mt-4">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -90,15 +90,15 @@ export const ContentGenerationMonitor: React.FC = () => {
   }
 
   const contentTypeData = [
-    { name: 'Bandes Dessinées', value: analytics.by_type.comic, color: '#3b82f6', icon: Palette },
-    { name: 'Romans', value: analytics.by_type.novel, color: '#10b981', icon: BookOpen },
-    { name: 'Poèmes', value: analytics.by_type.poem, color: '#8b5cf6', icon: Sparkles },
+    { name: 'Bandes Dessinées', value: analytics.by_type.comic, color: 'hsl(var(--primary))', icon: Palette },
+    { name: 'Romans', value: analytics.by_type.novel, color: 'hsl(var(--success))', icon: BookOpen },
+    { name: 'Poèmes', value: analytics.by_type.poem, color: 'hsl(var(--accent))', icon: Sparkles },
   ];
 
   const statusData = [
-    { name: 'Terminés', value: analytics.by_status.completed, color: '#10b981', icon: CheckCircle },
-    { name: 'En cours', value: analytics.by_status.generating, color: '#f59e0b', icon: Clock },
-    { name: 'Erreurs', value: analytics.by_status.error, color: '#ef4444', icon: XCircle },
+    { name: 'Terminés', value: analytics.by_status.completed, color: 'hsl(var(--success))', icon: CheckCircle },
+    { name: 'En cours', value: analytics.by_status.generating, color: 'hsl(var(--warning))', icon: Clock },
+    { name: 'Erreurs', value: analytics.by_status.error, color: 'hsl(var(--destructive))', icon: XCircle },
   ];
 
   const completionRate = analytics.total_content > 0 
@@ -155,8 +155,8 @@ export const ContentGenerationMonitor: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">Items Uniques</p>
                 <p className="text-2xl font-bold">{analytics.unique_items}</p>
               </div>
-              <div className="p-3 bg-blue-500/10 rounded-full">
-                <Sparkles className="h-6 w-6 text-blue-500" />
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Sparkles className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -169,8 +169,8 @@ export const ContentGenerationMonitor: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">Taux de Réussite</p>
                 <p className="text-2xl font-bold">{completionRate}%</p>
               </div>
-              <div className="p-3 bg-green-500/10 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-500" />
+              <div className="p-3 bg-success/10 rounded-full">
+                <CheckCircle className="h-6 w-6 text-success" />
               </div>
             </div>
             <Progress value={completionRate} className="mt-2" />
@@ -184,8 +184,8 @@ export const ContentGenerationMonitor: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">En Cours</p>
                 <p className="text-2xl font-bold">{analytics.by_status.generating}</p>
               </div>
-              <div className="p-3 bg-orange-500/10 rounded-full">
-                <Clock className="h-6 w-6 text-orange-500" />
+              <div className="p-3 bg-warning/10 rounded-full">
+                <Clock className="h-6 w-6 text-warning" />
               </div>
             </div>
           </CardContent>

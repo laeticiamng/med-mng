@@ -28,10 +28,10 @@ const EdnImmersive = () => {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-warning/10 to-warning/5 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Item non trouvé</h2>
-          <p className="text-gray-600">L'item EDN demandé n'existe pas ou n'est pas disponible.</p>
+          <h2 className="text-2xl font-bold text-foreground mb-4">Item non trouvé</h2>
+          <p className="text-muted-foreground">L'item EDN demandé n'existe pas ou n'est pas disponible.</p>
           <Link to="/edn-complete" className="mt-4 inline-block">
             <Button>Retour à la liste</Button>
           </Link>
@@ -44,20 +44,20 @@ const EdnImmersive = () => {
   const hasPrev = currentSection > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 overflow-auto">
+    <div className="min-h-screen bg-gradient-to-br from-warning/10 to-warning/5 overflow-auto">
       {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-10">
+      <div className="bg-card/90 backdrop-blur-sm border-b border-warning/20 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <Link to="/edn-complete" className="flex items-center gap-2 text-amber-700 hover:text-amber-900">
+              <Link to="/edn-complete" className="flex items-center gap-2 text-warning-foreground hover:text-foreground">
                 <ArrowLeft className="h-4 w-4" />
                 Retour
               </Link>
-              <Badge variant="outline" className="text-amber-700 border-amber-300">
+              <Badge variant="outline" className="text-warning-foreground border-warning/30">
                 {item.item_code}
               </Badge>
-              <h1 className="text-xl font-bold text-gray-900">{item.title}</h1>
+              <h1 className="text-xl font-bold text-foreground">{item.title}</h1>
             </div>
             
             <div className="flex items-center gap-4">
@@ -70,17 +70,17 @@ const EdnImmersive = () => {
                 {isAudioPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 Audio
               </Button>
-              <Volume2 className="h-5 w-5 text-gray-600" />
+              <Volume2 className="h-5 w-5 text-muted-foreground" />
             </div>
           </div>
           
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>Section {currentSection + 1} sur {sections.length}</span>
               <span>{Math.round(progress)}% complété</span>
             </div>
             <Progress value={progress} className="h-2" />
-            <div className="text-sm font-medium text-amber-700">
+            <div className="text-sm font-medium text-warning-foreground">
               {sections[currentSection]}
             </div>
           </div>
@@ -92,8 +92,8 @@ const EdnImmersive = () => {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Navigation */}
           <div className="lg:col-span-1">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg sticky top-32">
-              <h3 className="font-semibold text-gray-900 mb-4">Navigation</h3>
+            <div className="bg-card/90 backdrop-blur-sm rounded-xl p-6 shadow-lg sticky top-32">
+              <h3 className="font-semibold text-foreground mb-4">Navigation</h3>
               
               <div className="space-y-2 mb-6">
                 {sections.map((section, index) => (
@@ -102,19 +102,19 @@ const EdnImmersive = () => {
                     onClick={() => setSection(index)}
                     className={`w-full text-left p-3 rounded-lg text-sm transition-all ${
                       index === currentSection
-                        ? 'bg-amber-100 text-amber-800 border-2 border-amber-300'
+                        ? 'bg-warning/10 text-warning-foreground border-2 border-warning/30'
                         : index < currentSection
-                        ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                        ? 'bg-success/10 text-success hover:bg-success/20'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
                         index === currentSection
-                          ? 'bg-amber-500 text-white'
+                          ? 'bg-warning text-warning-foreground'
                           : index < currentSection
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-300 text-gray-600'
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-muted-foreground/30 text-muted-foreground'
                       }`}>
                         {index + 1}
                       </div>
@@ -148,7 +148,7 @@ const EdnImmersive = () => {
           
           {/* Main content - Scroll enabled */}
           <div className="lg:col-span-3">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+            <div className="bg-card/90 backdrop-blur-sm rounded-xl p-8 shadow-lg">
               <ImmersiveContent
                 item={item}
                 currentSection={currentSection}
