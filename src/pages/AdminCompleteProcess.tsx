@@ -206,7 +206,7 @@ const AdminCompleteProcess = () => {
               onClick={runReimportProcess}
               disabled={isRunning || isReimporting}
               size="lg"
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-success hover:bg-success/90 text-success-foreground"
             >
               {isReimporting ? (
                 <>

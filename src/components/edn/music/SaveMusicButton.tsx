@@ -117,8 +117,8 @@ export const SaveMusicButton = ({
         variant={isSaved ? "default" : "outline"}
         className={`flex items-center gap-2 ${
           isSaved 
-            ? 'bg-green-600 hover:bg-green-700 text-white' 
-            : 'hover:bg-gray-50'
+            ? 'bg-success hover:bg-success/90 text-success-foreground' 
+            : 'hover:bg-secondary'
         }`}
       >
         {isSaved ? (
@@ -140,8 +140,8 @@ export const SaveMusicButton = ({
           variant="outline"
           className={`flex items-center gap-2 ${
             isFavorite 
-              ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-              : 'hover:bg-red-50 hover:border-red-200 hover:text-red-600'
+              ? 'bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive/20' 
+              : 'hover:bg-destructive/10 hover:border-destructive/20 hover:text-destructive'
           }`}
         >
           <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />

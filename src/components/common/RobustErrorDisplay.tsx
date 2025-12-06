@@ -61,11 +61,11 @@ export function RobustErrorDisplay({
 
   const getErrorColor = () => {
     switch (severity) {
-      case 'critical': return 'border-red-500 bg-red-50 text-red-900';
-      case 'high': return 'border-orange-500 bg-orange-50 text-orange-900';
-      case 'medium': return 'border-yellow-500 bg-yellow-50 text-yellow-900';
-      case 'low': return 'border-blue-500 bg-blue-50 text-blue-900';
-      default: return 'border-gray-500 bg-gray-50 text-gray-900';
+      case 'critical': return 'border-destructive bg-destructive/5 text-destructive';
+      case 'high': return 'border-destructive/70 bg-destructive/5 text-destructive';
+      case 'medium': return 'border-warning bg-warning/5 text-warning-foreground';
+      case 'low': return 'border-primary bg-primary/5 text-primary';
+      default: return 'border-border bg-muted text-muted-foreground';
     }
   };
 
