@@ -61,14 +61,14 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-serif text-amber-900 mb-4">Interaction Pratique</h2>
-        <p className="text-amber-700 text-lg">{config.description}</p>
+        <h2 className="text-3xl font-serif text-warning-foreground mb-4">Interaction Pratique</h2>
+        <p className="text-warning-foreground/80 text-lg">{config.description}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Phrases */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-amber-800 mb-4">Phrases à associer</h3>
+          <h3 className="text-xl font-semibold text-warning-foreground mb-4">Phrases à associer</h3>
           {phrases.map((phrase, index) => {
             const matchResult = getMatchResult(phrase);
             return (
@@ -81,11 +81,11 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
                     ? 'bg-destructive/10 border-destructive'
                     : matches[phrase]
                     ? 'bg-primary/10 border-primary'
-                    : 'bg-background border-amber-200 hover:bg-amber-50'
+                    : 'bg-background border-warning/20 hover:bg-warning/5'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-amber-900 font-medium">{phrase}</span>
+                  <span className="text-foreground font-medium">{phrase}</span>
                   {matchResult === 'correct' && <CheckCircle className="h-5 w-5 text-success" />}
                   {matchResult === 'incorrect' && <XCircle className="h-5 w-5 text-destructive" />}
                 </div>
@@ -101,11 +101,11 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
 
         {/* Concepts */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-amber-800 mb-4">Concepts</h3>
+          <h3 className="text-xl font-semibold text-warning-foreground mb-4">Concepts</h3>
           {concepts.map((concept, index) => (
             <Card
               key={index}
-              className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 cursor-pointer transition-all duration-300"
+              className="p-4 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 hover:from-primary/10 hover:to-accent/10 cursor-pointer transition-all duration-300"
               onClick={() => {
                 // Simple matching logic for demo
                 const availablePhrase = phrases.find(p => !matches[p]);
@@ -125,14 +125,14 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
           <Button
             onClick={checkAnswers}
             disabled={Object.keys(matches).length < phrases.length}
-            className="bg-amber-600 hover:bg-amber-700 text-primary-foreground px-8 py-3"
+            className="bg-warning hover:bg-warning/90 text-warning-foreground px-8 py-3"
             size="lg"
           >
             Vérifier mes réponses
           </Button>
         ) : (
           <div className="space-y-4">
-            <div className="text-2xl font-bold text-amber-900">
+            <div className="text-2xl font-bold text-foreground">
               Score: {score}/{config.exemples.length}
             </div>
             {score === config.exemples.length && (
@@ -145,7 +145,7 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
             <Button
               onClick={resetGame}
               variant="outline"
-              className="border-amber-300 text-amber-700 hover:bg-amber-50"
+              className="border-warning/30 text-warning hover:bg-warning/5"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Recommencer

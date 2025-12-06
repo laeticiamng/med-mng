@@ -36,9 +36,9 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+      <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-amber-800">
+          <CardTitle className="flex items-center gap-3 text-warning-foreground">
             <BookOpen className="h-6 w-6" />
             Contenu Éducatif Interactif - {itemData.title}
           </CardTitle>
@@ -91,9 +91,9 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       </Tabs>
 
       {/* Résumé des compétences couvertes */}
-      <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+      <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-emerald-800">
+          <CardTitle className="flex items-center gap-2 text-success">
             <Wand2 className="h-5 w-5" />
             Compétences couvertes
           </CardTitle>
@@ -101,20 +101,20 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h4 className="font-semibold text-emerald-700">📚 Rang A (Fondamental)</h4>
-              <p className="text-sm text-emerald-600">
+              <h4 className="font-semibold text-success">📚 Rang A (Fondamental)</h4>
+              <p className="text-sm text-success/80">
                 Compétences de base essentielles à maîtriser pour comprendre {itemData.title}
               </p>
-              <div className="text-xs text-emerald-500">
+              <div className="text-xs text-success/60">
                 {itemData.tableau_rang_a ? '✅ Contenu disponible' : '⚠️ En cours de création'}
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-emerald-700">🎯 Rang B (Avancé)</h4>
-              <p className="text-sm text-emerald-600">
+              <h4 className="font-semibold text-success">🎯 Rang B (Avancé)</h4>
+              <p className="text-sm text-success/80">
                 Compétences approfondies pour une maîtrise complète du sujet
               </p>
-              <div className="text-xs text-emerald-500">
+              <div className="text-xs text-success/60">
                 {itemData.tableau_rang_b ? '✅ Contenu disponible' : '⚠️ En cours de création'}
               </div>
             </div>
