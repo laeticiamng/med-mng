@@ -136,9 +136,9 @@ export const PerformanceDashboard: React.FC = () => {
   };
 
   const getScoreColor = (score: number): string => {
-    if (score >= 90) return 'text-green-500';
-    if (score >= 70) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getOverallScore = (): number => {
@@ -352,15 +352,15 @@ export const PerformanceDashboard: React.FC = () => {
                   <span className="text-sm">Lazy loading activé</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                   <span className="text-sm">Compression gzip</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                   <span className="text-sm">Mise en cache des ressources</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                  <AlertTriangle className="w-4 h-4 text-warning" />
                   <span className="text-sm">Service Worker manquant</span>
                 </div>
               </CardContent>

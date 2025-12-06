@@ -170,7 +170,7 @@ export const LearningAnalytics: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-orange-500" />
+              <TrendingDown className="h-5 w-5 text-warning" />
               À Améliorer
             </CardTitle>
             <CardDescription>

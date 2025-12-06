@@ -12,7 +12,7 @@ export const ParolesMusicalesHeader: React.FC<ParolesMusicalesHeaderProps> = ({ 
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Music className="h-6 w-6 text-amber-600" />
+          <Music className="h-6 w-6 text-warning" />
           Génération Musicale - {itemCode}
         </CardTitle>
         <CardDescription>

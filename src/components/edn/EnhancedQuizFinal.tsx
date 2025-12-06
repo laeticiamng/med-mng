@@ -111,9 +111,9 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     <div className="space-y-6">
       
       {/* En-tête du quiz amélioré */}
-      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+      <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-amber-800">
+          <CardTitle className="flex items-center gap-3 text-warning">
             <Trophy className="h-6 w-6" />
             Quiz Interactif - {itemTitle}
           </CardTitle>
@@ -123,7 +123,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
               variant="outline"
               size="sm"
               onClick={handleResetQuiz}
-              className="text-amber-700 border-amber-300 hover:bg-amber-100"
+              className="text-warning border-warning/50 hover:bg-warning/10"
             >
               <RotateCcw className="h-4 w-4 mr-1" />
               Reconfigurer
@@ -134,29 +134,29 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
         {/* Configuration active */}
         {quizConfig && (
           <CardContent>
-            <div className="bg-card/60 rounded-lg p-4 mb-4 border border-amber-200">
+            <div className="bg-card/60 rounded-lg p-4 mb-4 border border-warning/30">
               <div className="flex items-center gap-2 mb-2">
-                <Settings className="h-4 w-4 text-amber-600" />
-                <span className="font-medium text-amber-800">Configuration active</span>
+                <Settings className="h-4 w-4 text-warning" />
+                <span className="font-medium text-warning">Configuration active</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-amber-700">Questions:</span>
+                  <span className="text-warning/80">Questions:</span>
                   <div className="font-semibold">{quizConfig.numberOfQuestions}</div>
                 </div>
                 <div>
-                  <span className="text-amber-700">Type:</span>
+                  <span className="text-warning/80">Type:</span>
                   <div className="font-semibold">
                     {quizConfig.questionType === 'mixed' ? 'Mixte' :
                      quizConfig.questionType === 'rang-a' ? 'Rang A' : 'Rang B'}
                   </div>
                 </div>
                 <div>
-                  <span className="text-amber-700">Difficulté:</span>
+                  <span className="text-warning/80">Difficulté:</span>
                   <div className="font-semibold capitalize">{quizConfig.difficulty}</div>
                 </div>
                 <div>
-                  <span className="text-amber-700">Durée:</span>
+                  <span className="text-warning/80">Durée:</span>
                   <div className="font-semibold">{Math.ceil(quizConfig.numberOfQuestions * 1.5)} min</div>
                 </div>
               </div>
@@ -164,13 +164,13 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
             
             {hasCurrentSession && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-card rounded-lg border border-amber-200">
-                  <div className="text-lg font-bold text-amber-600">
+                <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
+                  <div className="text-lg font-bold text-warning">
                     {currentSession?.totalQuestions || 0}
                   </div>
-                  <div className="text-xs text-amber-700">Questions totales</div>
+                  <div className="text-xs text-warning/80">Questions totales</div>
                 </div>
-                <div className="text-center p-3 bg-card rounded-lg border border-amber-200">
+                <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
                   <div className="text-lg font-bold text-destructive">
                     {currentErrors.length}
                   </div>

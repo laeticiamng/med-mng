@@ -330,7 +330,7 @@ export const useModernStatsData = (): StatItem[] => {
       change: { value: 2.3, type: 'increase', period: 'ce mois' },
       target: { current: 89.5, goal: 95, unit: '%' },
       icon: Trophy,
-      color: 'bg-amber-500',
+      color: 'bg-warning',
       description: 'Réussite aux évaluations'
     },
     {
@@ -339,7 +339,7 @@ export const useModernStatsData = (): StatItem[] => {
       value: 1247,
       change: { value: 15.2, type: 'increase', period: 'maintenant' },
       icon: Activity,
-      color: 'bg-cyan-500',
+      color: 'bg-accent',
       description: 'Utilisateurs actuellement connectés'
     },
     {
@@ -349,7 +349,7 @@ export const useModernStatsData = (): StatItem[] => {
       unit: '/5',
       change: { value: 0.3, type: 'increase', period: 'ce mois' },
       icon: Star,
-      color: 'bg-orange-500',
+      color: 'bg-warning',
       description: 'Note moyenne des utilisateurs'
     }
   ];

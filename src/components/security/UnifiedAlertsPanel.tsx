@@ -79,7 +79,7 @@ export const UnifiedAlertsPanel = () => {
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-amber-500">{stats.medium}</div>
+                <div className="text-2xl font-bold text-warning/80">{stats.medium}</div>
                 <p className="text-xs text-muted-foreground">Moyennes</p>
               </CardContent>
             </Card>
