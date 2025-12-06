@@ -46,9 +46,9 @@ export const RevisionDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <Card className="border-red-200 bg-red-50">
+      <Card className="border-destructive/20 bg-destructive/5">
         <CardContent className="p-6">
-          <div className="flex items-center gap-2 text-red-600">
+          <div className="flex items-center gap-2 text-destructive">
             <AlertCircle className="h-5 w-5" />
             <span>Erreur: {error}</span>
           </div>
@@ -68,50 +68,50 @@ export const RevisionDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* En-tête avec statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 font-medium">Maîtrise globale</p>
-                <p className="text-2xl font-bold text-blue-800">{stats.masteryRate}%</p>
+                <p className="text-sm text-primary font-medium">Maîtrise globale</p>
+                <p className="text-2xl font-bold text-primary">{stats.masteryRate}%</p>
               </div>
-              <Trophy className="h-8 w-8 text-blue-500" />
+              <Trophy className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+        <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 font-medium">Concepts maîtrisés</p>
-                <p className="text-2xl font-bold text-green-800">{stats.masteredItems}</p>
+                <p className="text-sm text-success font-medium">Concepts maîtrisés</p>
+                <p className="text-2xl font-bold text-success">{stats.masteredItems}</p>
               </div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <CheckCircle2 className="h-8 w-8 text-success" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 font-medium">À réviser aujourd'hui</p>
-                <p className="text-2xl font-bold text-orange-800">{todayItems.length}</p>
+                <p className="text-sm text-warning-foreground font-medium">À réviser aujourd'hui</p>
+                <p className="text-2xl font-bold text-warning-foreground">{todayItems.length}</p>
               </div>
-              <Calendar className="h-8 w-8 text-orange-500" />
+              <Calendar className="h-8 w-8 text-warning" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+        <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-purple-600 font-medium">Objectif quotidien</p>
-                <p className="text-2xl font-bold text-purple-800">{currentPlan?.daily_target || 0}</p>
+                <p className="text-sm text-accent font-medium">Objectif quotidien</p>
+                <p className="text-2xl font-bold text-accent">{currentPlan?.daily_target || 0}</p>
               </div>
-              <Target className="h-8 w-8 text-purple-500" />
+              <Target className="h-8 w-8 text-accent" />
             </div>
           </CardContent>
         </Card>
@@ -157,11 +157,11 @@ export const RevisionDashboard: React.FC = () => {
                 <TodayRevisionSession items={todayItems} />
               ) : (
                 <div className="text-center py-8">
-                  <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                  <p className="text-lg font-medium text-green-800">
+                  <CheckCircle2 className="h-12 w-12 mx-auto text-success mb-4" />
+                  <p className="text-lg font-medium text-success">
                     Toutes vos révisions sont à jour !
                   </p>
-                  <p className="text-green-600 mt-2">
+                  <p className="text-success/80 mt-2">
                     Revenez demain pour continuer votre progression.
                   </p>
                 </div>
@@ -241,9 +241,9 @@ export const RevisionDashboard: React.FC = () => {
                   const count = revisionItems.filter(item => item.difficulty_level === level).length;
                   const percentage = revisionItems.length > 0 ? (count / revisionItems.length) * 100 : 0;
                   const colors = {
-                    easy: 'bg-green-500',
-                    medium: 'bg-yellow-500', 
-                    hard: 'bg-red-500'
+                    easy: 'bg-success',
+                    medium: 'bg-warning', 
+                    hard: 'bg-destructive'
                   };
                   
                   return (

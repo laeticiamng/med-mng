@@ -172,28 +172,28 @@ const MesDonneesRGPD = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link to="/med-mng/profile" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800">
+            <Link to="/med-mng/profile" className="flex items-center space-x-2 text-primary hover:text-primary/80">
               <ArrowLeft className="h-4 w-4" />
               <span>Retour au profil</span>
             </Link>
-            <div className="h-6 border-l border-gray-300" />
+            <div className="h-6 border-l border-border" />
             <div className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-800">Mes Données RGPD</h1>
+              <Shield className="h-6 w-6 text-primary" />
+              <h1 className="text-3xl font-bold text-foreground">Mes Données RGPD</h1>
             </div>
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Info RGPD */}
-          <Alert className="bg-blue-50 border-blue-200">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-900">
+          <Alert className="bg-primary/10 border-primary/20">
+            <Info className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-foreground">
               Conformément au RGPD (Articles 15, 17, 20), vous pouvez accéder, exporter ou supprimer vos données personnelles à tout moment.
             </AlertDescription>
           </Alert>
@@ -201,25 +201,25 @@ const MesDonneesRGPD = () => {
           {/* Vos droits */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-              <Database className="h-5 w-5 text-green-600" />
+              <Database className="h-5 w-5 text-success" />
               <span>Vos Droits RGPD</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-green-800 mb-2">✅ Droit d'accès (Art. 15)</h3>
-                <p className="text-sm text-gray-700">Consulter toutes vos données personnelles</p>
+              <div className="bg-success/10 p-4 rounded-lg">
+                <h3 className="font-semibold text-success mb-2">✅ Droit d'accès (Art. 15)</h3>
+                <p className="text-sm text-muted-foreground">Consulter toutes vos données personnelles</p>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-blue-800 mb-2">📥 Droit à la portabilité (Art. 20)</h3>
-                <p className="text-sm text-gray-700">Exporter vos données au format JSON</p>
+              <div className="bg-primary/10 p-4 rounded-lg">
+                <h3 className="font-semibold text-primary mb-2">📥 Droit à la portabilité (Art. 20)</h3>
+                <p className="text-sm text-muted-foreground">Exporter vos données au format JSON</p>
               </div>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-orange-800 mb-2">🗑️ Droit à l'effacement (Art. 17)</h3>
-                <p className="text-sm text-gray-700">Supprimer définitivement votre compte</p>
+              <div className="bg-warning/10 p-4 rounded-lg">
+                <h3 className="font-semibold text-warning-foreground mb-2">🗑️ Droit à l'effacement (Art. 17)</h3>
+                <p className="text-sm text-muted-foreground">Supprimer définitivement votre compte</p>
               </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-purple-800 mb-2">✏️ Droit de rectification (Art. 16)</h3>
-                <p className="text-sm text-gray-700">Modifier vos informations dans votre profil</p>
+              <div className="bg-accent/10 p-4 rounded-lg">
+                <h3 className="font-semibold text-accent mb-2">✏️ Droit de rectification (Art. 16)</h3>
+                <p className="text-sm text-muted-foreground">Modifier vos informations dans votre profil</p>
               </div>
             </div>
           </Card>
@@ -237,8 +237,8 @@ const MesDonneesRGPD = () => {
 
             {dataStatus && (
               <div className="space-y-3">
-                <Alert className="bg-green-50 border-green-200">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                <Alert className="bg-success/10 border-success/20">
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <AlertDescription>
                     <strong>Compte actif depuis:</strong> {new Date(dataStatus.account_created).toLocaleDateString('fr-FR')}
                   </AlertDescription>
@@ -246,15 +246,15 @@ const MesDonneesRGPD = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                   {Object.entries(dataStatus.data_summary || {}).map(([table, count]: [string, any]) => (
-                    <div key={table} className="bg-gray-50 p-3 rounded">
-                      <p className="font-semibold text-gray-600">{table}</p>
-                      <p className="text-2xl font-bold text-blue-600">{count}</p>
+                    <div key={table} className="bg-muted p-3 rounded">
+                      <p className="font-semibold text-muted-foreground">{table}</p>
+                      <p className="text-2xl font-bold text-primary">{count}</p>
                     </div>
                   ))}
                 </div>
 
                 {dataStatus.last_activity && (
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     <strong>Dernière activité:</strong> {new Date(dataStatus.last_activity).toLocaleString('fr-FR')}
                   </p>
                 )}
@@ -265,15 +265,15 @@ const MesDonneesRGPD = () => {
           {/* Export de données */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-              <Download className="h-5 w-5 text-blue-600" />
+              <Download className="h-5 w-5 text-primary" />
               <span>Exporter mes données</span>
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-muted-foreground mb-4">
               Téléchargez toutes vos données personnelles au format JSON structuré. Inclut : profil, bibliothèque, playlists, historique d'activités.
             </p>
-            <Alert className="mb-4 bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-900">
+            <Alert className="mb-4 bg-primary/10 border-primary/20">
+              <Info className="h-4 w-4 text-primary" />
+              <AlertDescription className="text-foreground">
                 <strong>Format:</strong> JSON (lisible par machine, conforme Article 20 RGPD)<br/>
                 <strong>Durée:</strong> Export instantané<br/>
                 <strong>Sécurité:</strong> Données chiffrées en transit
@@ -290,14 +290,14 @@ const MesDonneesRGPD = () => {
           </Card>
 
           {/* Suppression de compte */}
-          <Card className="p-6 border-red-200 bg-red-50/50">
-            <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2 text-red-800">
+          <Card className="p-6 border-destructive/20 bg-destructive/5">
+            <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2 text-destructive">
               <Trash2 className="h-5 w-5" />
               <span>Supprimer mon compte</span>
             </h2>
-            <Alert className="mb-4 bg-red-100 border-red-300">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-900">
+            <Alert className="mb-4 bg-destructive/10 border-destructive/30">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-destructive">
                 <strong>⚠️ ATTENTION: Action irréversible</strong><br/>
                 La suppression de votre compte entraînera:
                 <ul className="list-disc ml-5 mt-2 space-y-1">
@@ -321,9 +321,9 @@ const MesDonneesRGPD = () => {
               </Button>
             ) : (
               <div className="space-y-3">
-                <Alert className="bg-orange-100 border-orange-300">
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-900">
+                <Alert className="bg-warning/10 border-warning/30">
+                  <AlertTriangle className="h-4 w-4 text-warning" />
+                  <AlertDescription className="text-warning-foreground">
                     <strong>Confirmer la suppression définitive?</strong><br/>
                     Cette action ne peut pas être annulée.
                   </AlertDescription>
@@ -351,15 +351,15 @@ const MesDonneesRGPD = () => {
           </Card>
 
           {/* Contact */}
-          <Card className="p-6 bg-gradient-to-r from-blue-50 to-green-50">
+          <Card className="p-6 bg-gradient-to-r from-primary/5 to-accent/5">
             <h2 className="text-xl font-semibold mb-4">📧 Besoin d'aide?</h2>
-            <p className="text-gray-700 mb-3">
+            <p className="text-muted-foreground mb-3">
               Pour toute question sur vos données personnelles ou l'exercice de vos droits RGPD:
             </p>
             <div className="space-y-2 text-sm">
               <p><strong>Email RGPD:</strong> medmng@emotionscare.com</p>
               <p><strong>Délai de réponse:</strong> 5 jours ouvrés maximum</p>
-              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">CNIL</a></p>
+              <p><strong>CNIL:</strong> En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">CNIL</a></p>
             </div>
           </Card>
         </div>

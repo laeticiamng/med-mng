@@ -36,15 +36,15 @@ export const PerformanceAnalyticsDashboard = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 dark:text-green-400';
-    if (score >= 70) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getGradeColor = (grade: string) => {
-    if (grade === 'A+' || grade === 'A') return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-    if (grade === 'B') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-    return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    if (grade === 'A+' || grade === 'A') return 'bg-success/10 text-success';
+    if (grade === 'B') return 'bg-warning/10 text-warning-foreground';
+    return 'bg-destructive/10 text-destructive';
   };
 
   if (error) {
@@ -159,7 +159,7 @@ export const PerformanceAnalyticsDashboard = () => {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{statistics.slaBreaches}</div>
+              <div className="text-2xl font-bold text-destructive">{statistics.slaBreaches}</div>
               <div className="text-sm text-muted-foreground">
                 En cours ce mois
               </div>
