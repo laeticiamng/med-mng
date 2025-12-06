@@ -27,7 +27,7 @@ export const MusicGenerationHowItWorks = () => {
 
   return (
     <div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-4">
+      <h3 className="text-2xl font-bold text-foreground mb-4">
         <TranslatedText text="Comment ça marche ?" />
       </h3>
       <div className="space-y-4">
@@ -37,10 +37,10 @@ export const MusicGenerationHowItWorks = () => {
               <span className="text-warning font-bold">{step.number}</span>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900">
+              <h4 className="font-semibold text-foreground">
                 <TranslatedText text={step.title} />
               </h4>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 <TranslatedText text={step.description} />
               </p>
             </div>

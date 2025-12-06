@@ -9,7 +9,7 @@ export const InformationCard: React.FC = () => {
         <CardTitle className="text-lg">ℹ️ Comment ça fonctionne</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+        <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
           <div>
             <h4 className="font-semibold mb-2">Contenu garanti :</h4>
             <ul className="space-y-1">

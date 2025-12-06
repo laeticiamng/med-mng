@@ -452,7 +452,7 @@ export const CommunityHub = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleLike(post.id)}
-                        className={`flex items-center gap-2 ${post.isLiked ? 'text-red-500' : 'text-muted-foreground'}`}
+                        className={`flex items-center gap-2 ${post.isLiked ? 'text-destructive' : 'text-muted-foreground'}`}
                       >
                         <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
                         {post.likes}

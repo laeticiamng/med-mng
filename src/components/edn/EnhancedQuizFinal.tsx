@@ -217,9 +217,9 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
               itemTitle={itemTitle}
             />
           ) : (
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-green-800">
+                <CardTitle className="flex items-center gap-3 text-success">
                   <Trophy className="h-6 w-6" />
                   Aucune erreur détectée !
                 </CardTitle>
@@ -230,7 +230,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
               <CardContent>
                 <div className="text-center py-8">
                   <div className="text-6xl mb-4">🎉</div>
-                  <p className="text-green-700 font-medium">
+                  <p className="text-success font-medium">
                     Continuez comme ça ! Si vous faites des erreurs, 
                     vous pourrez générer une chanson personnalisée pour les réviser.
                   </p>

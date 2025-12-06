@@ -275,7 +275,7 @@ export const AdminUsersManager = () => {
                           {user.is_active ? (
                             <DropdownMenuItem 
                               onClick={() => handleUserAction(user.id, 'ban')}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Ban className="mr-2 h-4 w-4" />
                               Suspendre
@@ -283,7 +283,7 @@ export const AdminUsersManager = () => {
                           ) : (
                             <DropdownMenuItem 
                               onClick={() => handleUserAction(user.id, 'unban')}
-                              className="text-green-600"
+                              className="text-success"
                             >
                               <CheckCircle className="mr-2 h-4 w-4" />
                               Réactiver
