@@ -94,13 +94,13 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
 
   if (!data || !data.stanzas || data.stanzas.length === 0) {
     return (
-      <Card className={`border-2 border-purple-200 ${className}`}>
+      <Card className={`border-2 border-accent/20 ${className}`}>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <FileText className="h-16 w-16 text-purple-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
+          <FileText className="h-16 w-16 text-accent/60 mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
             Poème pédagogique en préparation
           </h3>
-          <p className="text-gray-500 text-center max-w-md">
+          <p className="text-muted-foreground text-center max-w-md">
             Le poème médical pour {data?.item_code || 'cet item'} est en cours de génération IA
           </p>
         </CardContent>
@@ -109,33 +109,33 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
   }
 
   return (
-    <Card className={`border-2 border-purple-200 ${className}`}>
-      <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+    <Card className={`border-2 border-accent/20 ${className}`}>
+      <CardHeader className="bg-gradient-to-r from-accent to-primary text-primary-foreground">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
             {data.title}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+            <Badge variant="outline" className="bg-background/20 text-primary-foreground border-primary-foreground/30">
               {data.stanzas.length} strophes
             </Badge>
-            <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+            <Badge variant="outline" className="bg-background/20 text-primary-foreground border-primary-foreground/30">
               {data.total_lines} vers
             </Badge>
-            <Badge variant="outline" className="bg-white/20 text-white border-white/30">
+            <Badge variant="outline" className="bg-background/20 text-primary-foreground border-primary-foreground/30">
               {data.rhyme_scheme}
             </Badge>
           </div>
         </div>
         {data.subtitle && (
-          <p className="text-purple-100 text-sm mt-1 italic">{data.subtitle}</p>
+          <p className="text-primary-foreground/80 text-sm mt-1 italic">{data.subtitle}</p>
         )}
       </CardHeader>
 
       <CardContent className="p-0">
         {/* Contrôles */}
-        <div className="p-4 bg-gray-50 border-b flex items-center justify-between flex-wrap gap-2">
+        <div className="p-4 bg-muted/50 border-b flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={decreaseFontSize}>
               <Type className="h-4 w-4" />
@@ -165,14 +165,14 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
         </div>
 
         {/* Concepts clés */}
-        <div className="p-4 bg-purple-50 border-b">
-          <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+        <div className="p-4 bg-accent/10 border-b">
+          <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
             <Heart className="h-4 w-4" />
             Concepts médicaux intégrés
           </h4>
           <div className="flex flex-wrap gap-2">
             {data.key_concepts.map((concept, index) => (
-              <Badge key={index} variant="outline" className="bg-purple-100 border-purple-300 text-purple-700">
+              <Badge key={index} variant="outline" className="bg-accent/10 border-accent/30 text-accent">
                 {concept}
               </Badge>
             ))}
@@ -188,8 +188,8 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
                   key={stanza.id}
                   className={`mb-8 p-4 rounded-lg transition-all cursor-pointer ${
                     highlightedStanza === stanzaIndex
-                      ? 'bg-purple-50 border-2 border-purple-200'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-accent/10 border-2 border-accent/20'
+                      : 'hover:bg-muted/50'
                   }`}
                   onMouseEnter={() => setHighlightedStanza(stanzaIndex)}
                   onMouseLeave={() => setHighlightedStanza(null)}
@@ -199,7 +199,7 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
                     <Badge variant="outline" className="text-xs">
                       Strophe {stanza.stanza_number}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                    <Badge variant="secondary" className="text-xs bg-accent/10 text-accent">
                       {stanza.medical_focus}
                     </Badge>
                   </div>
@@ -212,7 +212,7 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
                     {stanza.lines.map((line, lineIndex) => (
                       <p 
                         key={lineIndex} 
-                        className="text-gray-800 font-medium"
+                        className="text-foreground font-medium"
                         style={{ 
                           fontFamily: 'Georgia, serif',
                           textShadow: '0 1px 2px rgba(0,0,0,0.1)'
@@ -229,25 +229,25 @@ export const PoemeDisplay: React.FC<PoemeDisplayProps> = ({
         </ScrollArea>
 
         {/* Informations sur le style */}
-        <div className="p-4 bg-purple-50 border-t">
+        <div className="p-4 bg-accent/10 border-t">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
-              <span className="text-purple-700 font-medium">
+              <span className="text-accent font-medium">
                 Style: {data.style}
               </span>
-              <span className="text-purple-600">
+              <span className="text-accent/80">
                 Schéma de rimes: {data.rhyme_scheme}
               </span>
             </div>
-            <span className="text-gray-600">
+            <span className="text-muted-foreground">
               {data.total_lines} vers au total
             </span>
           </div>
         </div>
 
         {/* Footer informatif */}
-        <div className="p-4 bg-gray-50 border-t">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+        <div className="p-4 bg-muted/50 border-t">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
               📚 Contenu pédagogique généré par IA - Version unique partagée
             </span>
