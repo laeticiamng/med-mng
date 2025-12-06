@@ -61,8 +61,8 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Final EDN</h2>
-          <p className="text-amber-700">Questions non disponibles</p>
+          <h2 className="text-3xl font-serif text-foreground mb-4">Quiz Final EDN</h2>
+          <p className="text-muted-foreground">Questions non disponibles</p>
         </div>
       </div>
     );
@@ -73,25 +73,25 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-serif text-amber-900 mb-4">
+          <h2 className="text-3xl font-serif text-foreground mb-4">
             {questions.title || 'Quiz de Classification'}
           </h2>
-          <p className="text-amber-700 mb-6">
+          <p className="text-muted-foreground mb-6">
             Associez chaque élément à la bonne catégorie
           </p>
         </div>
 
         <div className="grid gap-6">
           {questions.categories.map((category, categoryIndex) => (
-            <Card key={categoryIndex} className="p-6 bg-gradient-to-r from-amber-50 to-blue-50 border-amber-300">
-              <h3 className="text-xl font-bold text-amber-900 mb-4 text-center">
+            <Card key={categoryIndex} className="p-6 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
+              <h3 className="text-xl font-bold text-foreground mb-4 text-center">
                 {category.name}
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
                 {category.items.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
-                    className="bg-card p-3 rounded-lg border border-amber-200 text-center text-amber-800 font-medium"
+                    className="bg-card p-3 rounded-lg border border-warning/20 text-center text-foreground font-medium"
                   >
                     {item}
                   </div>
@@ -139,8 +139,8 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Final EDN</h2>
-          <p className="text-amber-700">Aucune question disponible pour le moment</p>
+          <h2 className="text-3xl font-serif text-foreground mb-4">Quiz Final EDN</h2>
+          <p className="text-muted-foreground">Aucune question disponible pour le moment</p>
         </div>
       </div>
     );
@@ -163,7 +163,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       case 'qcm':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-900">{question.question}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
             <RadioGroup
               value={answers[question.id]?.toString()}
               onValueChange={(value) => handleAnswer(question.id, parseInt(value))}
@@ -171,7 +171,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
               {question.options?.map((option: string, index: number) => (
                 <div key={index} className="flex items-center space-x-2">
                   <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                  <Label htmlFor={`option-${index}`} className="text-amber-800">
+                  <Label htmlFor={`option-${index}`} className="text-foreground">
                     {option}
                   </Label>
                 </div>
@@ -183,12 +183,12 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       case 'qru':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-900">{question.question}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
             <Input
               placeholder="Votre réponse..."
               value={answers[question.id] || ''}
               onChange={(e) => handleAnswer(question.id, e.target.value)}
-              className="border-amber-300 focus:border-amber-500"
+              className="border-warning/30 focus:border-warning"
             />
           </div>
         );
@@ -196,15 +196,15 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       case 'qroc':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-900">{question.question}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
             <Input
               placeholder="Citez 2 éléments..."
               value={answers[question.id] || ''}
               onChange={(e) => handleAnswer(question.id, e.target.value)}
-              className="border-amber-300 focus:border-amber-500"
+              className="border-warning/30 focus:border-warning"
             />
             {question.points_cles && (
-              <p className="text-sm text-amber-600">
+              <p className="text-sm text-warning">
                 Points clés attendus : {question.points_cles.join(', ')}
               </p>
             )}
@@ -214,18 +214,18 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       case 'zap':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-900">{question.affirmation}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{question.affirmation}</h3>
             <RadioGroup
               value={answers[question.id]?.toString()}
               onValueChange={(value) => handleAnswer(question.id, value === 'true')}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="true" id="vrai" />
-                <Label htmlFor="vrai" className="text-amber-800">Vrai</Label>
+                <Label htmlFor="vrai" className="text-foreground">Vrai</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="false" id="faux" />
-                <Label htmlFor="faux" className="text-amber-800">Faux</Label>
+                <Label htmlFor="faux" className="text-foreground">Faux</Label>
               </div>
             </RadioGroup>
             {showResults && question.justification && (
@@ -247,16 +247,16 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <Trophy className="h-16 w-16 text-amber-600 mx-auto mb-4" />
-          <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Terminé !</h2>
-          <div className="text-6xl font-bold text-amber-800 mb-4">
+          <Trophy className="h-16 w-16 text-warning mx-auto mb-4" />
+          <h2 className="text-3xl font-serif text-foreground mb-4">Quiz Terminé !</h2>
+          <div className="text-6xl font-bold text-foreground mb-4">
             {score}/{allQuestions.length}
           </div>
         </div>
 
-        <Card className="p-8 bg-gradient-to-r from-amber-50 to-blue-50 border-amber-300">
+        <Card className="p-8 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
           <div className="text-center">
-            <p className="text-xl text-amber-900 font-medium mb-4">
+            <p className="text-xl text-foreground font-medium mb-4">
               {getRewardMessage()}
             </p>
             <div className="flex justify-center space-x-2 mb-6">
@@ -265,7 +265,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                   key={i}
                   className={`w-4 h-4 rounded-full ${
                     i < (score / allQuestions.length) * 10
-                      ? 'bg-amber-500'
+                      ? 'bg-warning'
                       : 'bg-muted'
                   }`}
                 />
@@ -273,7 +273,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             </div>
             <Button
               onClick={resetQuiz}
-              className="bg-amber-600 hover:bg-amber-700 text-primary-foreground"
+              className="bg-warning hover:bg-warning/90 text-warning-foreground"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Recommencer le quiz
@@ -287,9 +287,9 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Final EDN</h2>
+        <h2 className="text-3xl font-serif text-foreground mb-4">Quiz Final EDN</h2>
         <div className="flex justify-center space-x-4 mb-6">
-          <Badge variant="outline" className="text-amber-700 border-amber-300">
+          <Badge variant="outline" className="text-warning border-warning/30">
             Question {currentQuestion + 1}/{allQuestions.length}
           </Badge>
           <Badge variant="outline" className="text-primary border-primary/30">
@@ -298,7 +298,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         </div>
       </div>
 
-      <Card className="p-4 md:p-8 bg-card/90 border-amber-200">
+      <Card className="p-4 md:p-8 bg-card/90 border-warning/20">
         {renderQuestion(allQuestions[currentQuestion])}
       </Card>
 
@@ -313,7 +313,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                 onClick={() => setCurrentQuestion(index)}
                 className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors flex-shrink-0 ${
                   index === currentQuestion
-                    ? 'bg-amber-600'
+                    ? 'bg-warning'
                     : answers[allQuestions[index].id] !== undefined
                     ? 'bg-success'
                     : 'bg-muted'
@@ -329,7 +329,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
             disabled={currentQuestion === 0}
             variant="outline"
-            className="border-amber-300 text-amber-700 hover:bg-amber-50 flex-1 md:flex-none"
+            className="border-warning/30 text-warning hover:bg-warning/10 flex-1 md:flex-none"
           >
             Précédent
           </Button>
@@ -344,7 +344,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
           ) : (
             <Button
               onClick={() => setCurrentQuestion(Math.min(allQuestions.length - 1, currentQuestion + 1))}
-              className="bg-amber-600 hover:bg-amber-700 text-primary-foreground flex-1 md:flex-none"
+              className="bg-warning hover:bg-warning/90 text-warning-foreground flex-1 md:flex-none"
             >
               Suivant
             </Button>

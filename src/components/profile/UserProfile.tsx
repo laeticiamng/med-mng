@@ -81,9 +81,9 @@ export const UserProfile: React.FC = () => {
 
   const getRarityColor = (rarity: Achievement['rarity']) => {
     switch (rarity) {
-      case 'legendary': return 'bg-gradient-to-r from-yellow-400 to-orange-500';
-      case 'epic': return 'bg-gradient-to-r from-purple-500 to-purple-600';
-      case 'rare': return 'bg-gradient-to-r from-blue-500 to-blue-600';
+      case 'legendary': return 'bg-gradient-to-r from-warning to-warning/80';
+      case 'epic': return 'bg-gradient-to-r from-accent to-accent/80';
+      case 'rare': return 'bg-gradient-to-r from-primary to-primary/80';
       default: return 'bg-muted';
     }
   };
@@ -193,9 +193,9 @@ export const UserProfile: React.FC = () => {
                   Débloqué le {new Date(achievement.unlockedAt).toLocaleDateString('fr-FR')}
                 </p>
               </div>
-              <Badge variant="outline" className={achievement.rarity === 'legendary' ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400' : 
-                achievement.rarity === 'epic' ? 'border-purple-500 text-purple-700 dark:text-purple-400' :
-                achievement.rarity === 'rare' ? 'border-blue-500 text-blue-700 dark:text-blue-400' : ''}>
+              <Badge variant="outline" className={achievement.rarity === 'legendary' ? 'border-warning text-warning' : 
+                achievement.rarity === 'epic' ? 'border-accent text-accent-foreground' :
+                achievement.rarity === 'rare' ? 'border-primary text-primary' : ''}>
                 {achievement.rarity}
               </Badge>
             </div>

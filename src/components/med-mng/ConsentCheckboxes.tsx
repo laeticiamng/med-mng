@@ -109,9 +109,9 @@ export const ConsentCheckboxes = ({
             <span className="font-semibold">Suno AI (USA)</span> pour la génération de contenus musicaux et visuels.
             <span className="text-destructive ml-1">*</span>
           </Label>
-          <Alert className="mt-2 bg-amber-50 border-amber-200">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-xs text-amber-900">
+          <Alert className="mt-2 bg-warning/10 border-warning/20">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-xs text-warning-foreground">
               <strong>Transfert hors UE :</strong> OpenAI et Suno AI sont soumis au Cloud Act américain. 
               Vos prompts (sans données personnelles identifiantes) sont traités selon leurs politiques respectives. 
               Les contenus générés restent votre propriété et sont stockés en UE.

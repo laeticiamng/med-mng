@@ -56,14 +56,14 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
               {selectedStyles.length === 1 ? 'Style Sélectionné' : 'Composition Personnalisée'}
             </h3>
             {hasPremiumStyles && (
-              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <Badge className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground">
                 Premium
               </Badge>
             )}
           </div>
 
           {/* Description */}
-          <p className="text-gray-700">{generatePreviewDescription()}</p>
+          <p className="text-muted-foreground">{generatePreviewDescription()}</p>
 
           {/* Styles utilisés */}
           <div className="flex flex-wrap gap-2">
@@ -73,8 +73,8 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
                 variant="secondary"
                 className={`${
                   isPremiumStyle(style?.value || '') 
-                    ? 'bg-gradient-to-r from-purple-100 to-pink-100 border-purple-200' 
-                    : 'bg-blue-100 border-blue-200'
+                    ? 'bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20' 
+                    : 'bg-primary/10 border-primary/20'
                 }`}
               >
                 {style?.label}
@@ -100,13 +100,13 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
           </div>
 
           {/* Informations techniques */}
-          <div className="grid grid-cols-2 gap-4 p-3 bg-white/50 rounded-lg">
+          <div className="grid grid-cols-2 gap-4 p-3 bg-background/50 rounded-lg">
             <div>
-              <span className="text-sm text-gray-600">Durée estimée :</span>
+              <span className="text-sm text-muted-foreground">Durée estimée :</span>
               <p className="font-medium">{formatDuration(getEstimatedDuration())}</p>
             </div>
             <div>
-              <span className="text-sm text-gray-600">Complexité :</span>
+              <span className="text-sm text-muted-foreground">Complexité :</span>
               <p className="font-medium">
                 {selectedStyles.length === 1 ? 'Standard' : 
                  selectedStyles.length === 2 ? 'Élevée' : 'Très Élevée'}
@@ -139,9 +139,9 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
 
           {/* Note premium */}
           {hasPremiumStyles && (
-            <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg border border-purple-200">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <p className="text-sm text-purple-800">
+            <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-accent/10 to-accent/5 rounded-lg border border-accent/20">
+              <Sparkles className="h-4 w-4 text-accent" />
+              <p className="text-sm text-accent-foreground">
                 Cette composition utilise des styles premium pour une expérience musicale exceptionnelle
               </p>
             </div>
