@@ -63,10 +63,10 @@ export const StyleCombiner = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-purple-600" />
+          <Sparkles className="h-5 w-5 text-accent" />
           Combinaison de Styles Musicaux
         </CardTitle>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Combinez jusqu'à {maxCombinations} styles pour créer une expérience musicale unique
         </p>
       </CardHeader>
@@ -85,14 +85,14 @@ export const StyleCombiner = ({
                       key={styleValue}
                       variant="secondary"
                       className={`px-3 py-1 flex items-center gap-2 ${
-                        isPremiumStyle(styleValue) ? 'bg-gradient-to-r from-purple-100 to-pink-100 border-purple-200' : ''
+                        isPremiumStyle(styleValue) ? 'bg-gradient-to-r from-accent/20 to-primary/20 border-accent/30' : ''
                       }`}
                     >
-                      {isPremiumStyle(styleValue) && <Sparkles className="h-3 w-3 text-purple-600" />}
+                      {isPremiumStyle(styleValue) && <Sparkles className="h-3 w-3 text-accent" />}
                       {style?.label}
                       <button
                         onClick={() => removeStyle(styleValue)}
-                        className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                        className="ml-1 hover:bg-muted rounded-full p-0.5"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -102,15 +102,15 @@ export const StyleCombiner = ({
               </div>
               
               {selectedStyles.length >= 2 && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                  <p className="text-sm font-medium text-purple-800">
+                <div className="p-3 bg-gradient-to-r from-accent/10 to-primary/10 rounded-lg border border-accent/20">
+                  <p className="text-sm font-medium text-accent">
                     {getCombinationDescription()}
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">Aucun style sélectionné</p>
+            <p className="text-muted-foreground text-sm">Aucun style sélectionné</p>
           )}
         </div>
 
@@ -120,7 +120,7 @@ export const StyleCombiner = ({
         {getSuggestedStyles().length > 0 && (
           <div>
             <h4 className="font-medium mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" />
+              <Sparkles className="h-4 w-4 text-warning" />
               Suggestions Compatibles
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -135,7 +135,7 @@ export const StyleCombiner = ({
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   {style.label}
-                  {isPremiumStyle(style.value) && <Sparkles className="h-3 w-3 ml-1 text-purple-600" />}
+                  {isPremiumStyle(style.value) && <Sparkles className="h-3 w-3 ml-1 text-accent" />}
                 </Button>
               ))}
             </div>
@@ -177,15 +177,15 @@ export const StyleCombiner = ({
               
               return (
                 <div key={categoryKey} className="space-y-2">
-                  <h5 className="text-sm font-medium text-gray-700">{categoryLabel}</h5>
+                  <h5 className="text-sm font-medium text-muted-foreground">{categoryLabel}</h5>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {stylesInCategory.map((style) => (
                       <Card
                         key={style.value}
                         className={`p-3 cursor-pointer transition-all hover:shadow-md ${
                           selectedStyles.includes(style.value) 
-                            ? 'ring-2 ring-purple-500 bg-purple-50' 
-                            : 'hover:bg-gray-50'
+                            ? 'ring-2 ring-primary bg-primary/10' 
+                            : 'hover:bg-muted'
                         } ${
                           selectedStyles.length >= maxCombinations && !selectedStyles.includes(style.value)
                             ? 'opacity-50 cursor-not-allowed'
@@ -203,14 +203,14 @@ export const StyleCombiner = ({
                           <h6 className="font-medium text-sm flex items-center gap-1">
                             {style.label}
                             {isPremiumStyle(style.value) && (
-                              <Sparkles className="h-3 w-3 text-purple-600" />
+                              <Sparkles className="h-3 w-3 text-accent" />
                             )}
                           </h6>
                           {selectedStyles.includes(style.value) && (
                             <Badge variant="secondary" className="text-xs">Sélectionné</Badge>
                           )}
                         </div>
-                        <p className="text-xs text-gray-600 mb-2">{style.description}</p>
+                        <p className="text-xs text-muted-foreground mb-2">{style.description}</p>
                         <div className="flex flex-wrap gap-1">
                           {style.mood.slice(0, 2).map((mood) => (
                             <Badge key={mood} variant="outline" className="text-xs">
