@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
+import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
 interface AdminRouteProps {
   children: React.ReactNode;
 }
@@ -89,12 +90,11 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
                 Cette section est réservée aux administrateurs de la plateforme.
               </p>
               <div className="mt-4">
-                <a
-                  href="/"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
-                >
-                  Retour à l'accueil
-                </a>
+                <Button asChild>
+                  <Link to={ROUTE_PATHS.home}>
+                    Retour à l'accueil
+                  </Link>
+                </Button>
               </div>
             </AlertDescription>
           </Alert>

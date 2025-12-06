@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Accordion,
   AccordionContent,
@@ -8,28 +9,28 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HelpCircle, BookOpen, Music, Brain, Zap } from "lucide-react";
-
+import { ROUTE_PATHS } from '@/config/routes';
 const faqItems = [
   {
     id: "rang-ab",
     question: "Quelle est la différence entre Rang A et Rang B ?",
     answer: (
       <div className="space-y-3">
-        <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-          <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3 bg-primary/10 rounded-lg">
+          <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Rang A - Fondamentaux</p>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+            <p className="font-semibold text-foreground mb-1">Rang A - Fondamentaux</p>
+            <p className="text-sm text-muted-foreground">
               Connaissances de base essentielles que tout étudiant en médecine doit maîtriser. 
               Correspond aux objectifs du tronc commun de formation.
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
-          <Brain className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3 bg-accent/10 rounded-lg">
+          <Brain className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-purple-900 dark:text-purple-100 mb-1">Rang B - Expertise Avancée</p>
-            <p className="text-sm text-purple-700 dark:text-purple-300">
+            <p className="font-semibold text-foreground mb-1">Rang B - Expertise Avancée</p>
+            <p className="text-sm text-muted-foreground">
               Connaissances approfondies pour cas complexes et situations exceptionnelles. 
               Destiné aux étudiants avancés et internes.
             </p>
@@ -75,9 +76,9 @@ const faqItems = [
           <li>Styles musicaux variés pour maintenir l'attention</li>
           <li>Téléchargeables pour révision offline</li>
         </ul>
-        <div className="flex items-center gap-2 mt-3 p-2 bg-amber-50 dark:bg-amber-950/30 rounded">
-          <Zap className="w-4 h-4 text-amber-600" />
-          <p className="text-xs text-amber-700 dark:text-amber-300">
+        <div className="flex items-center gap-2 mt-3 p-2 bg-warning/10 rounded">
+          <Zap className="w-4 h-4 text-warning" />
+          <p className="text-xs text-muted-foreground">
             <strong>Gratuit</strong> : Consultez les paroles sans limite. 
             <strong>Crédits</strong> : Uniquement pour générer l'audio.
           </p>
@@ -92,22 +93,22 @@ const faqItems = [
     question: "À quoi servent les crédits ?",
     answer: (
       <div className="space-y-3">
-        <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
-          <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+        <div className="p-3 bg-success/10 rounded-lg border border-success/20">
+          <p className="text-sm font-semibold text-foreground mb-2">
             ✅ GRATUIT illimité
           </p>
-          <ul className="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300 ml-2">
+          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
             <li>Consulter les 367 items EDN</li>
             <li>Lire tout le contenu (Rang A + B)</li>
             <li>Faire tous les quiz</li>
             <li>Lire les paroles musicales</li>
           </ul>
         </div>
-        <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-          <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+        <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+          <p className="text-sm font-semibold text-foreground mb-2">
             🎵 Avec crédits (80/160 offerts)
           </p>
-          <ul className="list-disc list-inside space-y-1 text-sm text-blue-700 dark:text-blue-300 ml-2">
+          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
             <li>Générer des musiques IA personnalisées</li>
             <li>Télécharger les fichiers audio</li>
           </ul>
@@ -192,9 +193,9 @@ export const FaqSection: React.FC = () => {
         <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
           <p className="text-sm text-muted-foreground text-center">
             Vous avez une autre question ? 
-            <a href="#" className="text-primary font-medium ml-1 hover:underline">
+            <Link to={ROUTE_PATHS.chat} className="text-primary font-medium ml-1 hover:underline">
               Contactez l'Assistant IA
-            </a>
+            </Link>
           </p>
         </div>
       </CardContent>

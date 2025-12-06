@@ -167,9 +167,9 @@ const MedMngPlayerComponent = () => {
 
   if (!song) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/10 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Chanson introuvable</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Chanson introuvable</h1>
           <Button onClick={() => navigate('/med-mng/library')}>
             Retour à la bibliothèque
           </Button>
@@ -179,7 +179,7 @@ const MedMngPlayerComponent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/10">
       <audio ref={audioRef} preload="metadata" />
       
       <div className="container mx-auto px-4 py-8">

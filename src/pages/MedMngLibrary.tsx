@@ -112,9 +112,9 @@ const MedMngLibraryComponent = () => {
       <MedMngLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center max-w-md mx-auto">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-gray-900 mb-4" />
-            <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-6" />
+            <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-foreground mb-4" />
+            <TranslatedText text={errorMessage} as="p" className="text-muted-foreground mb-6" />
             <div className="space-y-3">
               <Button onClick={() => refetch()} className="w-full min-h-[48px]">
                 {retryText}
@@ -175,7 +175,7 @@ const MedMngLibraryComponent = () => {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
           <Button 
             onClick={() => navigate('/med-mng/create')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] w-full sm:w-auto"
+            className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <TranslatedText text="Créer une chanson" />
@@ -254,11 +254,11 @@ const MedMngLibraryComponent = () => {
   function renderSongGrid() {
     return filteredSongs.length === 0 ? (
       <div className="text-center py-16">
-        <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+        <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
         <TranslatedText 
           text={activeTab === 'favorites' ? 'Aucun favori' : (library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide')}
           as="h3"
-          className="text-xl font-semibold text-gray-900 mb-2"
+          className="text-xl font-semibold text-foreground mb-2"
         />
         <TranslatedText 
           text={activeTab === 'favorites' 
@@ -267,10 +267,10 @@ const MedMngLibraryComponent = () => {
               ? 'Aucune chanson ne correspond à votre recherche' 
               : 'Commencez par créer votre première chanson')}
           as="p"
-          className="text-gray-600 mb-6"
+          className="text-muted-foreground mb-6"
         />
         {(!library || library.length === 0) && activeTab === 'all' && (
-          <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6">
+          <Button onClick={() => navigate('/med-mng/create')} className="min-h-[48px] px-6">
             <TranslatedText text="Créer ma première chanson" />
           </Button>
         )}
