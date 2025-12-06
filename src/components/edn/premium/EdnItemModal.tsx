@@ -115,17 +115,17 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                    p-0 bg-gradient-to-br from-purple-50 to-indigo-50 flex flex-col overflow-auto`}
       >
         {/* Header */}
-        <DialogHeader className={`bg-gradient-to-r from-purple-600 to-indigo-600 text-white ${isMobile ? 'p-4' : 'p-6'} flex-shrink-0`}>
+        <DialogHeader className={`bg-gradient-to-r from-accent to-primary text-primary-foreground ${isMobile ? 'p-4' : 'p-6'} flex-shrink-0`}>
           <div className="flex items-center justify-between">
             <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
-              <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} bg-white/20 rounded-lg flex items-center justify-center`}>
-                <span className={`text-white font-bold ${isMobile ? 'text-sm' : 'text-lg'}`}>{itemNumber}</span>
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} bg-background/20 rounded-lg flex items-center justify-center`}>
+                <span className={`text-primary-foreground font-bold ${isMobile ? 'text-sm' : 'text-lg'}`}>{itemNumber}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <DialogTitle className={`${isMobile ? 'text-base' : 'text-2xl'} font-bold text-white mb-1 truncate`}>
+                <DialogTitle className={`${isMobile ? 'text-base' : 'text-2xl'} font-bold text-primary-foreground mb-1 truncate`}>
                   {isMobile ? finalItem.item_code : `${finalItem.item_code}: ${finalItem.title}`}
                 </DialogTitle>
-                <DialogDescription className="text-purple-100 text-sm truncate">
+                <DialogDescription className="text-primary-foreground/80 text-sm truncate">
                   {finalItem.subtitle || `Item de connaissance EDN ${finalItem.item_code}`}
                 </DialogDescription>
               </div>
@@ -137,7 +137,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="text-white hover:bg-white/20"
+                  className="text-primary-foreground hover:bg-background/20"
                 >
                   {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </Button>
@@ -146,7 +146,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="text-white hover:bg-white/20"
+                className="text-primary-foreground hover:bg-background/20"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -159,7 +159,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               {tabs.slice(1).map((tab) => {
                 const IconComponent = tab.icon;
                 return (
-                  <Badge key={tab.id} className="bg-white/20 text-white border-white/20">
+                  <Badge key={tab.id} className="bg-background/20 text-primary-foreground border-background/20">
                     <IconComponent className="h-3 w-3 mr-1" />
                     {tab.label}
                   </Badge>
@@ -170,7 +170,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
         </DialogHeader>
 
         {/* Navigation Tabs Premium Mobile */}
-        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm relative">
+        <div className="flex-shrink-0 border-b bg-background/80 backdrop-blur-sm relative">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             {isMobile ? (
               // Navigation mobile optimisée
@@ -187,8 +187,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                           className={`
                             flex flex-col items-center gap-1 px-3 py-2 rounded-lg min-w-[68px] transition-all duration-200 active:scale-95
                             ${isActive 
-                              ? 'bg-purple-600 text-white shadow-md' 
-                              : 'bg-white/80 text-gray-700 hover:bg-gray-100'
+                              ? 'bg-accent text-accent-foreground shadow-md' 
+                              : 'bg-background/80 text-muted-foreground hover:bg-muted'
                             }
                           `}
                         >
@@ -211,7 +211,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     <TabsTrigger
                       key={tab.id}
                       value={tab.id}
-                      className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                      className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-accent/10 data-[state=active]:text-accent"
                     >
                       <IconComponent className="h-4 w-4" />
                       <span>{tab.label}</span>
@@ -241,25 +241,25 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                           <h4 className="font-semibold">Contenu disponible</h4>
                           <div className="space-y-2 flex flex-wrap gap-2">
                             {finalItem.tableau_rang_a && (
-                              <Badge className="bg-blue-100 text-blue-800">Rang A</Badge>
+                              <Badge className="bg-primary/10 text-primary">Rang A</Badge>
                             )}
                             {finalItem.tableau_rang_b && (
-                              <Badge className="bg-purple-100 text-purple-800">Rang B</Badge>
+                              <Badge className="bg-accent/10 text-accent">Rang B</Badge>
                             )}
                             {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-                              <Badge className="bg-pink-100 text-pink-800">Musique</Badge>
+                              <Badge className="bg-success/10 text-success">Musique</Badge>
                             )}
                             {finalItem.scene_immersive && (
-                              <Badge className="bg-green-100 text-green-800">Scène</Badge>
+                              <Badge className="bg-success/10 text-success">Scène</Badge>
                             )}
                             {finalItem.quiz_questions && (
-                              <Badge className="bg-orange-100 text-orange-800">Quiz</Badge>
+                              <Badge className="bg-warning/10 text-warning">Quiz</Badge>
                             )}
                           </div>
                         </div>
                         <div>
                           <h4 className="font-semibold mb-2">Description</h4>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-muted-foreground text-sm">
                             {finalItem.pitch_intro || `Explorez l'item ${finalItem.item_code} avec tous ses contenus interactifs.`}
                           </p>
                         </div>
@@ -277,7 +277,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <h4 className="font-semibold mb-2">Compétences OIC Rang A</h4>
-                            <p className="text-sm text-gray-600">
+                              <p className="text-sm text-muted-foreground">
                               {completeItemData.competences_oic_rang_a ? 
                                 Array.isArray(completeItemData.competences_oic_rang_a) ?
                                   `${completeItemData.competences_oic_rang_a.length} compétences` :
@@ -288,7 +288,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                           </div>
                           <div>
                             <h4 className="font-semibold mb-2">Compétences OIC Rang B</h4>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                               {completeItemData.competences_oic_rang_b ? 
                                 Array.isArray(completeItemData.competences_oic_rang_b) ?
                                   `${completeItemData.competences_oic_rang_b.length} compétences` :
@@ -316,7 +316,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
+                    className="w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
                     onClick={() => {
                       const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
                       if (currentIndex > 0) {
@@ -330,7 +330,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
+                    className="w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
                     onClick={() => {
                       const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
                       if (currentIndex < tabs.length - 1) {

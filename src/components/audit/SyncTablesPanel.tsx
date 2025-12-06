@@ -71,27 +71,27 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
   };
 
   return (
-    <Card className="border-blue-200 bg-blue-50/50">
+    <Card className="border-primary/20 bg-primary/5">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-blue-600" />
+              <Database className="h-5 w-5 text-primary" />
               Synchronisation des tables EDN
             </CardTitle>
             <CardDescription>
               Copier les données OIC de edn_items_immersive vers edn_items_complete
             </CardDescription>
           </div>
-          <Badge variant="outline" className="text-xs border-blue-300 text-blue-700">
+          <Badge variant="outline" className="text-xs border-primary/30 text-primary">
             <Zap className="h-3 w-3 mr-1" />
             Synchronisation
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Alert className="border-blue-200 bg-blue-50">
-          <AlertTriangle className="h-4 w-4 text-blue-600" />
+        <Alert className="border-primary/20 bg-primary/5">
+          <AlertTriangle className="h-4 w-4 text-primary" />
           <AlertDescription>
             <div className="space-y-2">
               <p className="font-medium">Cette action va :</p>
@@ -111,9 +111,9 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
             <p className="text-sm font-medium">edn_items_immersive</p>
             <p className="text-xs text-muted-foreground">Source (OIC complètes)</p>
           </div>
-          <ArrowRight className="h-6 w-6 text-blue-600" />
+          <ArrowRight className="h-6 w-6 text-primary" />
           <div className="text-center">
-            <Database className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+            <Database className="h-8 w-8 text-primary mx-auto mb-2" />
             <p className="text-sm font-medium">edn_items_complete</p>
             <p className="text-xs text-muted-foreground">Destination (à synchroniser)</p>
           </div>
@@ -166,13 +166,13 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
         </Button>
 
         <div className="grid grid-cols-2 gap-2 text-center text-sm">
-          <div className="p-2 bg-green-50 rounded border border-green-200">
-            <div className="font-bold text-lg text-green-700">Source</div>
-            <div className="text-green-600">edn_items_immersive</div>
+          <div className="p-2 bg-success/10 rounded border border-success/20">
+            <div className="font-bold text-lg text-success">Source</div>
+            <div className="text-success">edn_items_immersive</div>
           </div>
-          <div className="p-2 bg-blue-50 rounded border border-blue-200">
-            <div className="font-bold text-lg text-blue-700">Destination</div>
-            <div className="text-blue-600">edn_items_complete</div>
+          <div className="p-2 bg-primary/10 rounded border border-primary/20">
+            <div className="font-bold text-lg text-primary">Destination</div>
+            <div className="text-primary">edn_items_complete</div>
           </div>
         </div>
       </CardContent>
