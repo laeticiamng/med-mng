@@ -46,28 +46,28 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
 
   const getFeatures = () => {
     const features = [];
-    if (finalItem.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-blue-600' });
-    if (finalItem.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-purple-600' });
+    if (finalItem.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-primary' });
+    if (finalItem.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-accent' });
     if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
-      features.push({ icon: Music, text: 'Musique', color: 'text-green-600' });
+      features.push({ icon: Music, text: 'Musique', color: 'text-success' });
     }
-    if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-orange-600' });
-    if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-red-600' });
-    if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-indigo-600' });
+    if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
+    if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-destructive' });
+    if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-primary' });
     return features;
   };
 
   const getCompletionColor = () => {
-    if (completionPercentage === 100) return 'text-green-600';
-    if (completionPercentage >= 80) return 'text-blue-600';
-    if (completionPercentage >= 60) return 'text-yellow-600';
-    return 'text-gray-600';
+    if (completionPercentage === 100) return 'text-success';
+    if (completionPercentage >= 80) return 'text-primary';
+    if (completionPercentage >= 60) return 'text-warning';
+    return 'text-muted-foreground';
   };
 
   const getCompletionBadge = () => {
     if (completionPercentage === 100) {
       return (
-        <Badge className="bg-green-100 text-green-700 border-green-200">
+        <Badge className="bg-success/10 text-success border-success/20">
           <CheckCircle className="h-3 w-3 mr-1" />
           Complet
         </Badge>
@@ -85,16 +85,16 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   const features = getFeatures();
 
   return (
-    <Card className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-purple-300/50 bg-white/80 backdrop-blur-sm overflow-hidden">
+    <Card className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-accent/30 bg-background/80 backdrop-blur-sm overflow-hidden">
       {/* Header avec gradient */}
-      <div className={`bg-gradient-to-r from-purple-500 to-indigo-500 ${isMobile ? 'p-3' : 'p-4'} text-white`}>
+      <div className={`bg-gradient-to-r from-accent to-primary ${isMobile ? 'p-3' : 'p-4'} text-accent-foreground`}>
         <div className={`flex items-start justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
           <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'}`}>
-            <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-white/20 rounded-lg flex items-center justify-center`}>
-              <span className={`text-white font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{itemNumber}</span>
+            <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-background/20 rounded-lg flex items-center justify-center`}>
+              <span className={`text-accent-foreground font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{itemNumber}</span>
             </div>
             {!isMobile && (
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/20">
+              <Badge variant="secondary" className="bg-background/20 text-accent-foreground border-background/20">
                 {finalItem.item_code}
               </Badge>
             )}
@@ -102,12 +102,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           {getCompletionBadge()}
         </div>
         
-        <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight text-white group-hover:text-purple-100 transition-colors`}>
+        <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight text-accent-foreground group-hover:text-accent-foreground/80 transition-colors`}>
           {isMobile ? `${itemNumber}. ${finalItem.title.length > 40 ? finalItem.title.substring(0, 40) + '...' : finalItem.title}` : `${itemNumber}. ${finalItem.title}`}
         </CardTitle>
         
         {finalItem.subtitle && !isMobile && (
-          <p className="text-purple-100 text-sm mt-2 line-clamp-2">
+          <p className="text-accent-foreground/80 text-sm mt-2 line-clamp-2">
             {finalItem.subtitle}
           </p>
         )}
@@ -117,7 +117,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Complétude</span>
+            <span className="text-sm font-medium text-muted-foreground">Complétude</span>
             <span className={`text-sm font-bold ${getCompletionColor()}`}>
               {completionPercentage}%
             </span>
@@ -135,10 +135,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             return (
               <div 
                 key={`${item.id}-feature-${feature.text}-${index}`}
-                className={`flex flex-col items-center ${isMobile ? 'p-1.5' : 'p-2'} bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors`}
+                className={`flex flex-col items-center ${isMobile ? 'p-1.5' : 'p-2'} bg-muted rounded-lg hover:bg-muted/80 transition-colors`}
               >
                 <IconComponent className={`h-4 w-4 ${feature.color} mb-1`} />
-                <span className="text-xs text-gray-600 font-medium">{feature.text}</span>
+                <span className="text-xs text-muted-foreground font-medium">{feature.text}</span>
               </div>
             );
           })}
@@ -147,7 +147,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Badges de compétences */}
         {!isMobile && (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-800">Compétences UNESS:</h4>
+            <h4 className="text-sm font-semibold text-foreground">Compétences UNESS:</h4>
             <CompetencesBadges item={finalItem} />
           </div>
         )}
@@ -160,7 +160,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               e.stopPropagation();
               onOpen();
             }}
-            className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
+            className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90 text-primary-foreground transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
             type="button"
           >
             <BookOpen className="h-4 w-4 mr-2" />
@@ -178,7 +178,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                   e.stopPropagation();
                   onOpen('music');
                 }}
-                className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+                className="flex-1 hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 active:scale-95"
                 type="button"
               >
                 <Music className="h-4 w-4 mr-1" />
@@ -192,7 +192,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                   e.stopPropagation();
                   onOpen('quiz');
                 }}
-                className="flex-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
+                className="flex-1 hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 active:scale-95"
                 type="button"
               >
                 <Brain className="h-4 w-4 mr-1" />
@@ -208,7 +208,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 e.stopPropagation();
                 onOpen('music');
               }}
-              className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+              className="px-3 hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 active:scale-95"
               type="button"
               title="Écouter la musique mnémotechnique"
             >

@@ -13,7 +13,7 @@ interface EdnItemNavigationProps {
 export const EdnItemNavigation = ({ activeSection, onSectionChange }: EdnItemNavigationProps) => {
   return (
     <div className="mb-8">
-      <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200">
+      <div className="bg-background/80 backdrop-blur-sm rounded-lg p-4 border border-warning/20">
         <div className="flex flex-wrap gap-2">
           <Button
             variant={activeSection === 'tableau-a' ? 'default' : 'outline'}

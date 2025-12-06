@@ -21,7 +21,7 @@ export const SunoGenerationStatus: React.FC<SunoGenerationStatusProps> = ({
 
   if (hasAudio) {
     return (
-      <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+      <Badge variant="default" className="bg-success/10 text-success border-success/20">
         <CheckCircle className="w-3 h-3 mr-1" />
         Rang {rang} prêt ! Cliquez pour écouter
       </Badge>
@@ -30,7 +30,7 @@ export const SunoGenerationStatus: React.FC<SunoGenerationStatusProps> = ({
 
   if (isPolling || pollingCount > 0) {
     return (
-      <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
         <Loader2 className="w-3 h-3 mr-1 animate-spin" />
         Génération Rang {rang} en cours... ({pollingCount} en attente)
       </Badge>
@@ -38,7 +38,7 @@ export const SunoGenerationStatus: React.FC<SunoGenerationStatusProps> = ({
   }
 
   return (
-    <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200">
+    <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
       <Clock className="w-3 h-3 mr-1" />
       En attente de génération Rang {rang}
     </Badge>

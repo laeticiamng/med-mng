@@ -116,7 +116,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
   if (!enabled) return null;
 
   return (
-    <Card className="fixed bottom-4 left-4 w-96 max-h-96 z-50 shadow-xl bg-white/95 backdrop-blur">
+    <Card className="fixed bottom-4 left-4 w-96 max-h-96 z-50 shadow-xl bg-background/95 backdrop-blur">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Volume2 className="h-4 w-4" />
@@ -150,7 +150,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
         {currentTrack && (
           <div>
             <h4 className="font-medium mb-1">Piste courante</h4>
-            <div className="bg-gray-50 p-2 rounded text-xs">
+            <div className="bg-muted p-2 rounded text-xs">
               <div>Titre: {currentTrack.title}</div>
               <div className="truncate">URL: {currentTrack.url.substring(0, 50)}...</div>
               <div className="flex items-center gap-1 mt-1">
@@ -197,13 +197,13 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
                     {typeof value === 'boolean' ? (
                       <>
                         {value ? 
-                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
-                          <AlertCircle className="h-3 w-3 text-red-500" />
+                          <CheckCircle className="h-3 w-3 text-success" /> : 
+                          <AlertCircle className="h-3 w-3 text-destructive" />
                         }
                         <span>{key}: {value ? 'OK' : 'KO'}</span>
                       </>
                     ) : (
-                      <span className="text-red-600">{key}: {String(value)}</span>
+                      <span className="text-destructive">{key}: {String(value)}</span>
                     )}
                   </div>
                 );
@@ -231,7 +231,7 @@ export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false
           </Alert>
         )}
 
-        <div className="text-xs text-gray-500 border-t pt-2">
+        <div className="text-xs text-muted-foreground border-t pt-2">
           MAJ: {debugInfo.timestamp}
         </div>
       </CardContent>
