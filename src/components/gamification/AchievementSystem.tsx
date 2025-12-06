@@ -192,21 +192,21 @@ export const AchievementSystem = () => {
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return 'text-gray-500 bg-gray-100';
-      case 'rare': return 'text-blue-500 bg-blue-100';
-      case 'epic': return 'text-purple-500 bg-purple-100';
-      case 'legendary': return 'text-yellow-500 bg-yellow-100';
-      default: return 'text-gray-500 bg-gray-100';
+      case 'common': return 'text-muted-foreground bg-muted';
+      case 'rare': return 'text-primary bg-primary/10';
+      case 'epic': return 'text-accent bg-accent/10';
+      case 'legendary': return 'text-warning bg-warning/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
   const getRarityBorder = (rarity: string) => {
     switch (rarity) {
-      case 'common': return 'border-gray-200';
-      case 'rare': return 'border-blue-200';
-      case 'epic': return 'border-purple-200';
-      case 'legendary': return 'border-yellow-200 shadow-lg';
-      default: return 'border-gray-200';
+      case 'common': return 'border-border';
+      case 'rare': return 'border-primary/20';
+      case 'epic': return 'border-accent/20';
+      case 'legendary': return 'border-warning/20 shadow-lg';
+      default: return 'border-border';
     }
   };
 
@@ -276,7 +276,7 @@ export const AchievementSystem = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="medical-card">
           <CardContent className="p-4 text-center">
-            <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+            <Trophy className="h-8 w-8 text-warning mx-auto mb-2" />
             <div className="text-2xl font-bold">{unlockedAchievements.length}</div>
             <div className="text-sm text-muted-foreground">Débloqués</div>
           </CardContent>
@@ -284,7 +284,7 @@ export const AchievementSystem = () => {
         
         <Card className="medical-card">
           <CardContent className="p-4 text-center">
-            <Star className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+            <Star className="h-8 w-8 text-primary mx-auto mb-2" />
             <div className="text-2xl font-bold">{totalPoints}</div>
             <div className="text-sm text-muted-foreground">Points totaux</div>
           </CardContent>
@@ -292,7 +292,7 @@ export const AchievementSystem = () => {
         
         <Card className="medical-card">
           <CardContent className="p-4 text-center">
-            <Zap className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+            <Zap className="h-8 w-8 text-accent mx-auto mb-2" />
             <div className="text-2xl font-bold">{userLevel.totalXp}</div>
             <div className="text-sm text-muted-foreground">XP total</div>
           </CardContent>
@@ -300,7 +300,7 @@ export const AchievementSystem = () => {
         
         <Card className="medical-card">
           <CardContent className="p-4 text-center">
-            <TrendingUp className="h-8 w-8 text-green-500 mx-auto mb-2" />
+            <TrendingUp className="h-8 w-8 text-success mx-auto mb-2" />
             <div className="text-2xl font-bold">{completionRate.toFixed(0)}%</div>
             <div className="text-sm text-muted-foreground">Progression</div>
           </CardContent>

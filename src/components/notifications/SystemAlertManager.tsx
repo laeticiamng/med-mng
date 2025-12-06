@@ -263,10 +263,10 @@ export function SystemAlertManager() {
 
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case 'critical': return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'info': return <Clock className="h-5 w-5 text-blue-500" />;
-      case 'success': return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'critical': return <XCircle className="h-5 w-5 text-destructive" />;
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'info': return <Clock className="h-5 w-5 text-primary" />;
+      case 'success': return <CheckCircle className="h-5 w-5 text-success" />;
       default: return <Bell className="h-5 w-5" />;
     }
   };
@@ -335,54 +335,54 @@ export function SystemAlertManager() {
       {/* Health Overview */}
       {health && (
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <Card className={health.extraction_failure_rate > 10 ? 'border-red-500' : ''}>
+          <Card className={health.extraction_failure_rate > 10 ? 'border-destructive' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-destructive">
                 {health.extraction_failure_rate.toFixed(1)}%
               </div>
               <div className="text-xs text-muted-foreground">Échecs extraction</div>
             </CardContent>
           </Card>
 
-          <Card className={health.data_corruption_incidents > 0 ? 'border-yellow-500' : ''}>
+          <Card className={health.data_corruption_incidents > 0 ? 'border-warning' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold text-warning">
                 {health.data_corruption_incidents}
               </div>
               <div className="text-xs text-muted-foreground">Incidents corruption</div>
             </CardContent>
           </Card>
 
-          <Card className={health.quota_violations > 0 ? 'border-orange-500' : ''}>
+          <Card className={health.quota_violations > 0 ? 'border-warning' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-warning">
                 {health.quota_violations}
               </div>
               <div className="text-xs text-muted-foreground">Violations quota</div>
             </CardContent>
           </Card>
 
-          <Card className={health.auth_failures > 0 ? 'border-red-500' : ''}>
+          <Card className={health.auth_failures > 0 ? 'border-destructive' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {health.auth_failures}
               </div>
               <div className="text-xs text-muted-foreground">Échecs auth</div>
             </CardContent>
           </Card>
 
-          <Card className={health.performance_degradation ? 'border-red-500' : ''}>
+          <Card className={health.performance_degradation ? 'border-destructive' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {health.performance_degradation ? '❌' : '✅'}
               </div>
               <div className="text-xs text-muted-foreground">Performance</div>
             </CardContent>
           </Card>
 
-          <Card className={health.security_alerts > 0 ? 'border-red-500' : ''}>
+          <Card className={health.security_alerts > 0 ? 'border-destructive' : ''}>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {health.security_alerts}
               </div>
               <div className="text-xs text-muted-foreground">Alertes sécurité</div>
@@ -414,7 +414,7 @@ export function SystemAlertManager() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center text-muted-foreground py-8">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-success" />
                 <p className="text-lg font-medium">Aucune alerte active</p>
                 <p className="text-sm">Tous les systèmes fonctionnent normalement</p>
               </div>
@@ -423,8 +423,8 @@ export function SystemAlertManager() {
         ) : (
           filteredAlerts.map((alert) => (
             <Card key={alert.id} className={`
-              ${alert.type === 'critical' && !alert.acknowledged ? 'border-red-500 bg-red-50' : ''}
-              ${alert.type === 'warning' && !alert.acknowledged ? 'border-yellow-500 bg-yellow-50' : ''}
+              ${alert.type === 'critical' && !alert.acknowledged ? 'border-destructive bg-destructive/5' : ''}
+              ${alert.type === 'warning' && !alert.acknowledged ? 'border-warning bg-warning/5' : ''}
               ${alert.acknowledged ? 'opacity-60' : ''}
               transition-all duration-200
             `}>
@@ -481,7 +481,7 @@ export function SystemAlertManager() {
                 <div className="flex justify-between items-center mt-3 text-xs text-muted-foreground">
                   <span>Source: {alert.source}</span>
                   {alert.acknowledged && (
-                    <span className="text-green-600">✓ Acquittée</span>
+                    <span className="text-success">✓ Acquittée</span>
                   )}
                 </div>
               </CardContent>

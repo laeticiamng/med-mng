@@ -145,7 +145,7 @@ export const ChallengeSystem: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500" />
+            <Trophy className="w-6 h-6 text-warning" />
             Défis Actifs
           </h2>
           <p className="text-muted-foreground">
