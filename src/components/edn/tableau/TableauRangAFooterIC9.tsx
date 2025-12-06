@@ -14,43 +14,43 @@ export const TableauRangAFooterIC9: React.FC<TableauRangAFooterIC9Props> = ({
   lignesCount
 }) => {
   return (
-    <Card className="mt-6 p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+    <Card className="mt-6 p-6 bg-gradient-to-r from-accent/5 to-accent/10 border-accent/20">
       <div className="flex items-center gap-3 mb-4">
-        <FileText className="h-6 w-6 text-purple-600" />
-        <h3 className="text-xl font-bold text-purple-800">
+        <FileText className="h-6 w-6 text-accent" />
+        <h3 className="text-xl font-bold text-accent">
           IC-9 : Certificats médicaux dans le cadre des violences
         </h3>
       </div>
       
       <div className="grid md:grid-cols-3 gap-4 mb-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-purple-600" />
-          <span className="text-sm font-medium text-purple-700">
+          <FileText className="h-5 w-5 text-accent" />
+          <span className="text-sm font-medium text-accent/80">
             {lignesCount} aspects médico-légaux
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-pink-600" />
-          <span className="text-sm font-medium text-pink-700">
+          <Shield className="h-5 w-5 text-primary" />
+          <span className="text-sm font-medium text-primary/80">
             {colonnesCount} mesures de protection
           </span>
         </div>
-        <Badge variant="outline" className="text-purple-600 border-purple-300 w-fit">
+        <Badge variant="outline" className="text-accent border-accent/30 w-fit">
           Expertise médico-légale
         </Badge>
       </div>
       
-      <div className="text-sm text-purple-700 leading-relaxed">
+      <div className="text-sm text-muted-foreground leading-relaxed">
         <p className="mb-2">
-          <strong>Objectif pédagogique :</strong> Maîtriser la rédaction des certificats médicaux 
+          <strong className="text-foreground">Objectif pédagogique :</strong> Maîtriser la rédaction des certificats médicaux 
           et l'accompagnement des victimes de violences.
         </p>
         <p className="mb-2">
-          <strong>Points clés :</strong> Rédaction objective et factuelle, respect du secret médical, 
+          <strong className="text-foreground">Points clés :</strong> Rédaction objective et factuelle, respect du secret médical, 
           accompagnement global des victimes et expertise médico-légale.
         </p>
         <p>
-          <strong>Vigilance :</strong> Ne pas interpréter les causes, respecter l'autonomie de la victime 
+          <strong className="text-foreground">Vigilance :</strong> Ne pas interpréter les causes, respecter l'autonomie de la victime 
           et connaître les limites de ses compétences.
         </p>
       </div>

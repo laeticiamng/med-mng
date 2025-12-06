@@ -14,43 +14,43 @@ export const TableauRangAFooterIC10: React.FC<TableauRangAFooterIC10Props> = ({
   lignesCount
 }) => {
   return (
-    <Card className="mt-6 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+    <Card className="mt-6 p-6 bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
       <div className="flex items-center gap-3 mb-4">
-        <Globe className="h-6 w-6 text-purple-600" />
-        <h3 className="text-xl font-bold text-purple-800">
+        <Globe className="h-6 w-6 text-accent" />
+        <h3 className="text-xl font-bold text-accent">
           IC-10 : Approches transversales du corps
         </h3>
       </div>
       
       <div className="grid md:grid-cols-3 gap-4 mb-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-5 w-5 text-purple-600" />
-          <span className="text-sm font-medium text-purple-700">
+          <Heart className="h-5 w-5 text-accent" />
+          <span className="text-sm font-medium text-accent/80">
             {lignesCount} dimensions corporelles
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-indigo-600" />
-          <span className="text-sm font-medium text-indigo-700">
+          <Users className="h-5 w-5 text-primary" />
+          <span className="text-sm font-medium text-primary/80">
             {colonnesCount} approches transversales
           </span>
         </div>
-        <Badge variant="outline" className="text-purple-600 border-purple-300 w-fit">
+        <Badge variant="outline" className="text-accent border-accent/30 w-fit">
           Approche holistique
         </Badge>
       </div>
       
-      <div className="text-sm text-purple-700 leading-relaxed">
+      <div className="text-sm text-muted-foreground leading-relaxed">
         <p className="mb-2">
-          <strong>Objectif pédagogique :</strong> Comprendre les dimensions multiples du corps humain 
+          <strong className="text-foreground">Objectif pédagogique :</strong> Comprendre les dimensions multiples du corps humain 
           et intégrer les approches transversales dans la pratique médicale.
         </p>
         <p className="mb-2">
-          <strong>Points clés :</strong> Dimensions culturelles, sociales et psychologiques du corps, 
+          <strong className="text-foreground">Points clés :</strong> Dimensions culturelles, sociales et psychologiques du corps, 
           personnalisation des soins selon les spécificités individuelles.
         </p>
         <p>
-          <strong>Vigilance :</strong> Éviter le réductionnisme biomédical, respecter les différences 
+          <strong className="text-foreground">Vigilance :</strong> Éviter le réductionnisme biomédical, respecter les différences 
           culturelles et maintenir une approche intégrative.
         </p>
       </div>

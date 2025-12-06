@@ -14,41 +14,41 @@ export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = fa
   const completionRate = Math.round((lignesCount / expectedCount) * 100);
   
   return (
-    <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <Card className="p-6 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Target className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-800">
+          <Target className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">
             Synthèse IC-3 - {isRangB ? 'Rang B' : 'Rang A'}
           </h3>
         </div>
-        <Badge variant="outline" className="text-blue-700 border-blue-300">
+        <Badge variant="outline" className="text-primary border-primary/30">
           {lignesCount}/{expectedCount} concepts E-LiSA
         </Badge>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div className="text-center p-3 bg-white rounded-lg border border-blue-100">
-          <div className="text-2xl font-bold text-blue-600">{completionRate}%</div>
-          <div className="text-sm text-gray-600">Conformité E-LiSA</div>
+        <div className="text-center p-3 bg-background rounded-lg border border-primary/10">
+          <div className="text-2xl font-bold text-primary">{completionRate}%</div>
+          <div className="text-sm text-muted-foreground">Conformité E-LiSA</div>
         </div>
-        <div className="text-center p-3 bg-white rounded-lg border border-blue-100">
-          <div className="text-2xl font-bold text-indigo-600">{colonnesCount}</div>
-          <div className="text-sm text-gray-600">Dimensions d'analyse</div>
+        <div className="text-center p-3 bg-background rounded-lg border border-primary/10">
+          <div className="text-2xl font-bold text-accent">{colonnesCount}</div>
+          <div className="text-sm text-muted-foreground">Dimensions d'analyse</div>
         </div>
-        <div className="text-center p-3 bg-white rounded-lg border border-blue-100">
-          <div className="text-2xl font-bold text-purple-600">{lignesCount}</div>
-          <div className="text-sm text-gray-600">Concepts maîtrisés</div>
+        <div className="text-center p-3 bg-background rounded-lg border border-primary/10">
+          <div className="text-2xl font-bold text-accent">{lignesCount}</div>
+          <div className="text-sm text-muted-foreground">Concepts maîtrisés</div>
         </div>
       </div>
 
       {completionRate < 100 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
           <div className="flex items-center space-x-2 mb-2">
-            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            <span className="font-medium text-yellow-800">Attention</span>
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <span className="font-medium text-warning">Attention</span>
           </div>
-          <p className="text-sm text-yellow-700">
+          <p className="text-sm text-warning/80">
             {expectedCount - lignesCount} concepts E-LiSA manquants pour une conformité complète du {isRangB ? 'Rang B' : 'Rang A'}.
           </p>
         </div>
@@ -56,11 +56,11 @@ export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = fa
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <h4 className="font-medium text-blue-700 mb-2 flex items-center">
+          <h4 className="font-medium text-primary mb-2 flex items-center">
             <BookOpen className="h-4 w-4 mr-1" />
             {isRangB ? 'Expertise avancée' : 'Fondamentaux essentiels'}
           </h4>
-          <ul className="text-sm text-gray-700 space-y-1">
+          <ul className="text-sm text-muted-foreground space-y-1">
             {isRangB ? (
               <>
                 <li>• Supports au raisonnement clinique</li>
@@ -80,11 +80,11 @@ export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = fa
         </div>
         
         <div>
-          <h4 className="font-medium text-indigo-700 mb-2 flex items-center">
+          <h4 className="font-medium text-accent mb-2 flex items-center">
             <TrendingUp className="h-4 w-4 mr-1" />
             Objectifs pédagogiques
           </h4>
-          <ul className="text-sm text-gray-700 space-y-1">
+          <ul className="text-sm text-muted-foreground space-y-1">
             {isRangB ? (
               <>
                 <li>• Maîtriser les outils de raisonnement</li>
