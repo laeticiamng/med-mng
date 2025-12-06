@@ -60,7 +60,7 @@ export const highlightSearchTerm = (text: string, searchTerm: string): React.Rea
   const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
   return parts.map((part, index) => 
     part.toLowerCase() === searchTerm.toLowerCase() 
-      ? <mark key={index} className="bg-yellow-200 text-yellow-900 px-1 rounded">{part}</mark>
+      ? <mark key={index} className="bg-warning/20 text-warning px-1 rounded">{part}</mark>
       : part
   );
 };

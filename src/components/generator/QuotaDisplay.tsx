@@ -21,9 +21,9 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   if (!user && remainingFree > 0) {
     return (
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-100 to-emerald-100 px-8 py-4 rounded-2xl border border-green-200/50 shadow-lg shadow-green-500/10">
-          <Music className="h-6 w-6 text-green-700" />
-          <span className="text-green-800 font-bold text-lg">
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-success/10 to-success/5 px-8 py-4 rounded-2xl border border-success/20 shadow-lg shadow-success/10">
+          <Music className="h-6 w-6 text-success" />
+          <span className="text-success font-bold text-lg">
             <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
           </span>
         </div>
@@ -34,13 +34,13 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   if (user && musicQuota) {
     return (
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-100 to-indigo-100 px-8 py-4 rounded-2xl border border-blue-200/50 shadow-lg shadow-blue-500/10">
-          <Music className="h-6 w-6 text-blue-700" />
-          <span className="text-blue-800 font-bold text-lg">
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-primary/5 px-8 py-4 rounded-2xl border border-primary/20 shadow-lg shadow-primary/10">
+          <Music className="h-6 w-6 text-primary" />
+          <span className="text-primary font-bold text-lg">
             {getUsageDisplay()}
           </span>
           {!musicQuota.can_generate && (
-            <Badge variant="secondary" className="bg-red-100 text-red-800">
+            <Badge variant="secondary" className="bg-destructive/10 text-destructive">
               Quota atteint
             </Badge>
           )}
