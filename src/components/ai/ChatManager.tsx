@@ -127,18 +127,18 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
           }
         />
       ) : (
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
           <CardContent className="p-8 text-center">
-            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Aucune conversation active
             </h3>
-            <p className="text-blue-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Créez une nouvelle conversation ou sélectionnez-en une existante
             </p>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">
+                <Button className="bg-gradient-to-r from-primary to-accent">
                   <Plus className="h-4 w-4 mr-2" />
                   Nouvelle conversation
                 </Button>
@@ -158,12 +158,12 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                     onKeyPress={(e) => e.key === 'Enter' && handleCreateSession()}
                   />
                   {context?.itemCode && (
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                      <div className="flex items-center gap-2 text-blue-800">
+                    <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+                      <div className="flex items-center gap-2 text-primary">
                         <BookOpen className="h-4 w-4" />
                         <span className="font-medium">Contexte spécialisé</span>
                       </div>
-                      <div className="text-sm text-blue-600 mt-1">
+                      <div className="text-sm text-primary/80 mt-1">
                         Cette conversation sera spécialisée sur l'item {context.itemCode} - {context.itemTitle}
                       </div>
                     </div>
@@ -185,9 +185,9 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
 
       {/* Gestionnaire de sessions */}
       {sessions.length > 0 && (
-        <Card className="bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200">
+        <Card className="bg-gradient-to-br from-muted/50 to-muted/30 border-border">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-gray-800">
+            <CardTitle className="flex items-center justify-between text-foreground">
               <div className="flex items-center gap-3">
                 <History className="h-5 w-5" />
                 Historique des conversations
@@ -214,12 +214,12 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                       onKeyPress={(e) => e.key === 'Enter' && handleCreateSession()}
                     />
                     {context?.itemCode && (
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <div className="flex items-center gap-2 text-blue-800">
+                      <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+                        <div className="flex items-center gap-2 text-primary">
                           <BookOpen className="h-4 w-4" />
                           <span className="font-medium">Contexte spécialisé</span>
                         </div>
-                        <div className="text-sm text-blue-600 mt-1">
+                        <div className="text-sm text-primary/80 mt-1">
                           Cette conversation sera spécialisée sur l'item {context.itemCode} - {context.itemTitle}
                         </div>
                       </div>
@@ -246,8 +246,8 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                     key={session.id}
                     className={`p-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm ${
                       currentSession?.id === session.id
-                        ? 'bg-blue-50 border-blue-200'
-                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                        ? 'bg-primary/5 border-primary/20'
+                        : 'bg-background border-border hover:bg-muted/50'
                     }`}
                     onClick={() => loadSession(session.id)}
                   >
@@ -266,7 +266,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
                             className="h-8"
                           />
                         ) : (
-                          <h4 className="font-medium text-gray-800 truncate">
+                          <h4 className="font-medium text-foreground truncate">
                             {session.title}
                           </h4>
                         )}

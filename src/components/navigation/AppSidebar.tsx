@@ -203,7 +203,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           <div className="px-4 py-3 bg-muted/30 border-b">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                 <span className="text-muted-foreground">En ligne</span>
               </div>
               <div className="text-muted-foreground">{onlineUsers} utilisateurs</div>
