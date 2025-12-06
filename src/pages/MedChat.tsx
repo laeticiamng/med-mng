@@ -12,6 +12,7 @@ import {
   ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -175,7 +176,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
             <Button 
               variant="outline" 
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate(ROUTE_PATHS.home)}
               className="shrink-0 hover:bg-primary/10"
             >
               <ArrowLeft className="h-4 w-4" />

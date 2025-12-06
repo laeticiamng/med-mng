@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { CheckCircle, Music, ArrowRight, Home, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,7 +120,7 @@ export const MedMngSuccess = () => {
 
             <div className="space-y-4">
               <Button
-                onClick={() => navigate('/generator')}
+                onClick={() => navigate(ROUTE_PATHS.generator)}
                 className="w-full bg-success hover:bg-success/90 text-success-foreground py-3"
                 size="lg"
               >
@@ -139,7 +140,7 @@ export const MedMngSuccess = () => {
               </Button>
 
               <Button
-                onClick={() => navigate('/')}
+                onClick={() => navigate(ROUTE_PATHS.home)}
                 variant="ghost"
                 className="w-full py-3"
                 size="lg"

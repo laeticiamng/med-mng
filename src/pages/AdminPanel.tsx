@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ export const AdminPanel: React.FC = () => {
     // Note: Dans un vrai système, vous devriez vérifier les rôles utilisateur
     if (!user) {
       toast.error('Accès non autorisé - Connexion requise');
-      navigate('/med-mng/login');
+      navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
@@ -31,7 +32,7 @@ export const AdminPanel: React.FC = () => {
           <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Accès restreint</h2>
           <p className="text-muted-foreground mb-4">Vous devez être connecté pour accéder au panel d'administration</p>
-          <Button onClick={() => navigate('/med-mng/login')}>
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngLogin)}>
             Se connecter
           </Button>
         </div>
@@ -49,7 +50,7 @@ export const AdminPanel: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(ROUTE_PATHS.home)}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />

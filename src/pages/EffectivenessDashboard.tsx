@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, RefreshCw, BarChart3, GitCompare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface RecommendationWithMeasurement {
   id: string;
@@ -127,7 +128,7 @@ export default function EffectivenessDashboard() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate(ROUTE_PATHS.home)}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
