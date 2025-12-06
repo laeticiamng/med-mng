@@ -115,11 +115,11 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
             
             {/* Afficher un avertissement si les paroles sont insuffisantes */}
             {(!item.paroles_musicales || item.paroles_musicales.length < 2) && (
-              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800">
+              <div className="mt-4 p-4 bg-warning/10 border border-warning/30 rounded-lg">
+                <p className="text-warning">
                   ⚠️ <strong>Paroles incomplètes</strong> - Cet item nécessite des paroles plus complètes avec au moins 3 couplets et un refrain répété.
                 </p>
-                <p className="text-yellow-700 mt-2 text-sm">
+                <p className="text-warning/80 mt-2 text-sm">
                   Données actuelles : {item.paroles_musicales?.length || 0} paragraphe(s) trouvé(s)
                 </p>
               </div>
@@ -159,8 +159,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
 
       default:
         return (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
-            <p className="text-yellow-700">Section en cours de développement...</p>
+          <div className="p-4 bg-warning/10 border border-warning/30 rounded">
+            <p className="text-warning">Section en cours de développement...</p>
           </div>
         );
     }

@@ -164,13 +164,13 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
               itemCode={itemCode}
             />
           ) : (
-            <Card className="border-dashed border-2 border-gray-300">
+            <Card className="border-dashed border-2 border-border">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <BookOpen className="h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
                   Compétences Rang A en préparation
                 </h3>
-                <p className="text-gray-500 text-center max-w-md">
+                <p className="text-muted-foreground text-center max-w-md">
                   Les compétences fondamentales pour {itemCode} sont en cours d'intégration
                 </p>
               </CardContent>
@@ -183,13 +183,13 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
               itemCode={itemCode}
             />
           ) : (
-            <Card className="border-dashed border-2 border-gray-300">
+            <Card className="border-dashed border-2 border-border">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Brain className="h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                <Brain className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
                   Expertise Rang B en préparation
                 </h3>
-                <p className="text-gray-500 text-center max-w-md">
+                <p className="text-muted-foreground text-center max-w-md">
                   Les compétences expertes pour {itemCode} sont en cours d'intégration
                 </p>
               </CardContent>

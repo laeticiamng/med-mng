@@ -250,11 +250,11 @@ export const UptimeMonitor = () => {
 
           {/* Badge pour README */}
           {import.meta.env.MODE === 'development' && (
-            <Card className="p-4 border-blue-200 bg-blue-50">
-              <CardTitle className="text-sm text-blue-800 mb-2">
+            <Card className="p-4 border-primary/30 bg-primary/5">
+              <CardTitle className="text-sm text-primary mb-2">
                 Badge Uptime pour README
               </CardTitle>
-              <code className="text-xs bg-white p-2 rounded block text-blue-700">
+              <code className="text-xs bg-card p-2 rounded block text-primary">
                 [![Uptime](https://img.shields.io/badge/Uptime-{averageUptime.toFixed(1)}%25-{averageUptime > 95 ? 'green' : 'yellow'})](https://status.med-mng.com)
               </code>
             </Card>

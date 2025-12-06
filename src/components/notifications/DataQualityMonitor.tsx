@@ -323,7 +323,7 @@ export function DataQualityMonitor() {
       {/* Métriques principales */}
       {metrics && (
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <Card className={`text-center ${metrics.overall_score < 80 ? 'border-red-500' : ''}`}>
+          <Card className={`text-center ${metrics.overall_score < 80 ? 'border-destructive' : ''}`}>
             <CardContent className="p-4">
               <div className="text-3xl font-bold">
                 {metrics.overall_score.toFixed(1)}%
@@ -331,9 +331,9 @@ export function DataQualityMonitor() {
               <div className="text-sm text-muted-foreground">Score Global</div>
               <div className="flex items-center justify-center mt-2">
                 {metrics.trend_7d < 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <TrendingUp className="h-4 w-4 text-success" />
                 ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
+                  <TrendingDown className="h-4 w-4 text-destructive" />
                 )}
                 <span className="text-xs ml-1">
                   {Math.abs(metrics.trend_7d)}% (7j)
@@ -385,10 +385,10 @@ export function DataQualityMonitor() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <span className="font-medium text-red-800">
+            <span className="font-medium text-destructive">
               {metrics.critical_issues} problème(s) critique(s) de qualité détecté(s)
             </span>
-            <span className="text-red-700 ml-2">
+            <span className="text-destructive/80 ml-2">
               - Action immédiate requise pour éviter la corruption de données
             </span>
           </AlertDescription>
@@ -514,7 +514,7 @@ export function DataQualityMonitor() {
 
                   <CardContent>
                     {issue.suggested_fix && (
-                      <div className="mb-3 p-2 bg-blue-50 rounded border">
+                      <div className="mb-3 p-2 bg-primary/10 rounded border">
                         <span className="text-sm font-medium">Correction suggérée: </span>
                         <span className="text-sm">{issue.suggested_fix}</span>
                       </div>
@@ -523,7 +523,7 @@ export function DataQualityMonitor() {
                     {issue.sample_values && (
                       <div className="mb-3">
                         <span className="text-sm font-medium">Exemples de valeurs: </span>
-                        <div className="text-xs font-mono bg-gray-100 p-2 rounded mt-1">
+                        <div className="text-xs font-mono bg-muted p-2 rounded mt-1">
                           {issue.sample_values.join(', ')}
                         </div>
                       </div>

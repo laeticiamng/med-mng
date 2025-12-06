@@ -256,7 +256,7 @@ export default function AdminImport() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'pending': return <Clock className="h-4 w-4 text-warning" />;
       case 'processing': return <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />;
       case 'completed': return <CheckCircle className="h-4 w-4 text-success" />;
       case 'failed': return <X className="h-4 w-4 text-destructive" />;
@@ -508,12 +508,12 @@ export default function AdminImport() {
                           </summary>
                           <div className="mt-2 p-3 bg-destructive/5 rounded text-sm">
                             {batch.errors.slice(0, 5).map((error, index) => (
-                              <div key={index} className="text-red-700">
+                              <div key={index} className="text-destructive">
                                 Ligne {error.row}: {error.error}
                               </div>
                             ))}
                             {batch.errors.length > 5 && (
-                              <div className="text-red-600 mt-1">
+                              <div className="text-destructive/80 mt-1">
                                 ... et {batch.errors.length - 5} autres erreurs
                               </div>
                             )}

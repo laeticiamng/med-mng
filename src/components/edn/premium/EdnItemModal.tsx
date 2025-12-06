@@ -112,7 +112,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
         className={`${isFullscreen || isMobile ? 'max-w-[100vw] max-h-[100vh] w-full h-full m-0 rounded-none' : 'max-w-6xl max-h-[90vh]'} 
-                   p-0 bg-gradient-to-br from-purple-50 to-indigo-50 flex flex-col overflow-auto`}
+                   p-0 bg-gradient-to-br from-accent/5 to-primary/5 flex flex-col overflow-auto`}
       >
         {/* Header */}
         <DialogHeader className={`bg-gradient-to-r from-accent to-primary text-primary-foreground ${isMobile ? 'p-4' : 'p-6'} flex-shrink-0`}>

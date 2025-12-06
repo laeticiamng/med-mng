@@ -451,16 +451,16 @@ export const SystemMonitor: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="p-4 bg-warning/10 border border-warning/30 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                    <span className="font-medium text-yellow-900">Service AI - Latence élevée</span>
-                    <Badge variant="outline" className="text-yellow-600">Warning</Badge>
+                    <AlertTriangle className="w-4 h-4 text-warning" />
+                    <span className="font-medium text-warning">Service AI - Latence élevée</span>
+                    <Badge variant="outline" className="text-warning">Warning</Badge>
                   </div>
-                  <p className="text-sm text-yellow-800">
+                  <p className="text-sm text-warning/90">
                     Le service d'IA présente des temps de réponse supérieurs à 2s depuis 15 minutes.
                   </p>
-                  <p className="text-xs text-yellow-600 mt-1">Il y a 2 minutes</p>
+                  <p className="text-xs text-warning/70 mt-1">Il y a 2 minutes</p>
                 </div>
 
                 <div className="p-4 bg-success/5 border border-success/20 rounded-lg">

@@ -322,14 +322,14 @@ const MedMngPlayerComponent = () => {
                           key={index}
                           className={`p-2 rounded ${
                             currentTime >= segment.start && currentTime <= segment.end
-                              ? 'bg-blue-100 text-blue-900'
-                              : 'text-gray-700'
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-muted-foreground'
                           }`}
                         >
                           {segment.text}
                         </div>
                       )) || (
-                        <p className="text-gray-500">Paroles non disponibles</p>
+                        <p className="text-muted-foreground">Paroles non disponibles</p>
                       )}
                     </div>
                   </CardContent>

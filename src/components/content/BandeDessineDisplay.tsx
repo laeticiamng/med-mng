@@ -60,13 +60,13 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
 
   if (!data || !data.panels || data.panels.length === 0) {
     return (
-      <Card className={`border-2 border-orange-200 ${className}`}>
+      <Card className={`border-2 border-warning/30 ${className}`}>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <BookOpen className="h-16 w-16 text-orange-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
+          <BookOpen className="h-16 w-16 text-warning mb-4" />
+          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
             Bande Dessinée en préparation
           </h3>
-          <p className="text-gray-500 text-center max-w-md">
+          <p className="text-muted-foreground text-center max-w-md">
             La BD pédagogique pour {data?.item_code || 'cet item'} est en cours de génération IA
           </p>
         </CardContent>
@@ -80,7 +80,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
 
   return (
     <div className={containerClass}>
-      <Card className={`border-2 border-orange-200 ${isFullscreen ? 'border-none' : ''}`}>
+      <Card className={`border-2 border-warning/30 ${isFullscreen ? 'border-none' : ''}`}>
         <CardHeader className={`bg-gradient-to-r from-primary to-accent text-primary-foreground ${isFullscreen ? 'px-6 py-4' : ''}`}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
 
         <CardContent className={`p-0 ${isFullscreen ? 'flex-1' : ''}`}>
           {/* Contrôles */}
-          <div className="p-4 bg-gray-50 border-b flex items-center justify-between flex-wrap gap-2">
+          <div className="p-4 bg-muted/50 border-b flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <Button
                 variant={viewMode === 'single' ? 'default' : 'outline'}
@@ -139,7 +139,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
           {viewMode === 'single' ? (
             <div className="relative">
               {/* Navigation panels */}
-              <div className="flex items-center justify-between p-4 bg-gray-100">
+              <div className="flex items-center justify-between p-4 bg-muted">
                 <Button variant="outline" size="sm" onClick={prevPanel}>
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Précédent
@@ -156,7 +156,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
               {/* Panel unique */}
               <div className={`flex flex-col items-center p-6 ${isFullscreen ? 'flex-1' : 'min-h-[500px]'}`}>
                 <div 
-                  className="relative bg-white border-2 border-gray-300 rounded-lg shadow-lg overflow-hidden"
+                  className="relative bg-card border-2 border-border rounded-lg shadow-lg overflow-hidden"
                   style={{ 
                     transform: `scale(${zoom})`,
                     transformOrigin: 'center',
@@ -176,8 +176,8 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                   
                   {/* Texte du panel */}
                   {data.panels[currentPanel]?.text && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 border-t">
-                      <p className="text-sm font-medium text-gray-800">
+                    <div className="absolute bottom-0 left-0 right-0 bg-card/90 p-3 border-t">
+                      <p className="text-sm font-medium text-foreground">
                         {data.panels[currentPanel].text}
                       </p>
                       {data.panels[currentPanel].character && (
@@ -199,7 +199,7 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                     <div
                       key={panel.id}
                       className={`relative cursor-pointer border-2 rounded-lg overflow-hidden transition-all hover:shadow-lg ${
-                        index === currentPanel ? 'border-orange-500 shadow-lg' : 'border-gray-200'
+                        index === currentPanel ? 'border-warning shadow-lg' : 'border-border'
                       }`}
                       onClick={() => {
                         setCurrentPanel(index);
@@ -235,8 +235,8 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
           )}
 
           {/* Footer informatif */}
-          <div className="p-4 bg-gray-50 border-t">
-            <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="p-4 bg-muted/50 border-t">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>
                 📚 Contenu pédagogique généré par IA - Version unique partagée
               </span>

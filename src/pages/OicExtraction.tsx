@@ -198,9 +198,9 @@ const OicExtraction = () => {
                 <span>Progrès: {stats.extracted}/{stats.total}</span>
                 <span>{stats.progress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
                   style={{ width: `${stats.progress}%` }}
                 />
               </div>
@@ -214,13 +214,13 @@ const OicExtraction = () => {
           <CardTitle>Logs en temps réel</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-96 overflow-y-auto bg-black text-green-400 p-4 rounded font-mono text-sm space-y-1">
+          <div className="h-96 overflow-y-auto bg-foreground text-success p-4 rounded font-mono text-sm space-y-1">
             {logs.map((log, index) => (
               <div key={index} className={`
-                ${log.type === 'success' ? 'text-green-400' : ''}
-                ${log.type === 'error' ? 'text-red-400' : ''}
-                ${log.type === 'progress' ? 'text-yellow-400' : ''}
-                ${log.type === 'info' ? 'text-blue-400' : ''}
+                ${log.type === 'success' ? 'text-success' : ''}
+                ${log.type === 'error' ? 'text-destructive' : ''}
+                ${log.type === 'progress' ? 'text-warning' : ''}
+                ${log.type === 'info' ? 'text-primary' : ''}
               `}>
                 [{log.time}] {log.message}
               </div>

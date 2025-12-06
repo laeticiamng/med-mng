@@ -197,7 +197,7 @@ export const SentryErrorMonitor = () => {
             
             {errors.length === 0 ? (
               <Card className="p-6 text-center border-dashed">
-                <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                <CheckCircle className="h-8 w-8 text-success mx-auto mb-2" />
                 <p className="text-muted-foreground">Aucune erreur détectée</p>
                 {import.meta.env.MODE === 'development' && (
                   <p className="text-xs text-muted-foreground mt-1">
