@@ -74,7 +74,7 @@ export const useAdvancedAccessibility = () => {
     if (event.key === 'Escape') {
       const activeModal = document.querySelector('[role="dialog"][aria-hidden="false"]');
       if (activeModal) {
-        const closeButton = activeModal.querySelector('[aria-label*="fermer"], [aria-label*="close"]');
+        const closeButton = activeModal.querySelector('[aria-label*="fermer"], [aria-label*="close"]') as HTMLElement | null;
         if (closeButton) {
           closeButton.click();
           announceToScreenReader('Modal fermée');
