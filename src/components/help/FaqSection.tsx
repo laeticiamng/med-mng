@@ -152,7 +152,7 @@ export const FaqSection: React.FC = () => {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground flex items-center justify-center">
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>

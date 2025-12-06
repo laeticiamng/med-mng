@@ -83,12 +83,12 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'achievement': return 'text-amber-500';
-      case 'learning': return 'text-blue-500';
-      case 'social': return 'text-green-500';
-      case 'system': return 'text-gray-500';
-      case 'creation': return 'text-purple-500';
-      case 'milestone': return 'text-pink-500';
+      case 'achievement': return 'text-warning';
+      case 'learning': return 'text-primary';
+      case 'social': return 'text-success';
+      case 'system': return 'text-muted-foreground';
+      case 'creation': return 'text-accent';
+      case 'milestone': return 'text-destructive';
       default: return 'text-muted-foreground';
     }
   };
@@ -124,7 +124,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
             Activité Récente
             {realTime && (
               <Badge variant="outline" className="ml-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+                <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse" />
                 En direct
               </Badge>
             )}

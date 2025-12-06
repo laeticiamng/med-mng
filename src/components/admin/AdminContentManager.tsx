@@ -311,13 +311,13 @@ export const AdminContentManager = () => {
                           {!item.is_validated && (
                             <DropdownMenuItem 
                               onClick={() => handleValidateItem(item.id, item.item_code)}
-                              className="text-green-600"
+                              className="text-success"
                             >
                               <CheckCircle className="mr-2 h-4 w-4" />
                               Valider
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem className="text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
                             Supprimer
                           </DropdownMenuItem>
@@ -349,7 +349,7 @@ export const AdminContentManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="text-sm font-medium text-muted-foreground">Items validés</div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-success">
               {items.filter(i => i.is_validated).length}
             </div>
           </CardContent>
@@ -357,7 +357,7 @@ export const AdminContentManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="text-sm font-medium text-muted-foreground">Items complets</div>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-primary">
               {items.filter(i => i.completeness_score >= 100).length}
             </div>
           </CardContent>

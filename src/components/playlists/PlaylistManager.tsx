@@ -137,7 +137,7 @@ export const PlaylistManager = () => {
       <div className="p-6">
         <div className="animate-pulse space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            <div key={i} className="h-32 bg-muted rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -149,17 +149,17 @@ export const PlaylistManager = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-foreground">
             <TranslatedText text="Mes Playlists" />
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             <TranslatedText text={`${filteredPlaylists.length} playlist${filteredPlaylists.length > 1 ? 's' : ''} trouvée${filteredPlaylists.length > 1 ? 's' : ''} sur ${playlists.length}`} />
           </p>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
               <TranslatedText text="Nouvelle Playlist" />
             </Button>
@@ -227,14 +227,14 @@ export const PlaylistManager = () => {
       {/* Liste des playlists */}
       {filteredPlaylists.length === 0 && playlists.length === 0 ? (
         <Card className="p-12 text-center">
-          <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             <TranslatedText text="Aucune playlist" />
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             <TranslatedText text="Créez votre première playlist pour organiser vos chansons" />
           </p>
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />
             <TranslatedText text="Créer ma première playlist" />
           </Button>

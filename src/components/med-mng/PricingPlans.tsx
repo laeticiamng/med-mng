@@ -119,13 +119,13 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       {plans.map((plan) => (
         <Card 
           key={plan.id} 
-          className={`relative ${plan.popular ? 'ring-2 ring-blue-500' : ''} ${plan.bestValue ? 'ring-2 ring-green-500' : ''}`}
+          className={`relative ${plan.popular ? 'ring-2 ring-primary' : ''} ${plan.bestValue ? 'ring-2 ring-success' : ''}`}
         >
           {plan.badge && (
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge 
                 variant={plan.popular ? 'default' : 'secondary'}
-                className={plan.popular ? 'bg-blue-500' : 'bg-green-500'}
+                className={plan.popular ? 'bg-primary' : 'bg-success'}
               >
                 {plan.badge}
               </Badge>
@@ -137,7 +137,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
             <div className="space-y-1">
               <div className="text-3xl font-bold">{plan.price}€</div>
               <div className="text-sm text-muted-foreground">/mois</div>
-              <div className="text-sm font-medium text-blue-600">{plan.songs}</div>
+              <div className="text-sm font-medium text-primary">{plan.songs}</div>
             </div>
             <CardDescription>{plan.songs} inclus</CardDescription>
           </CardHeader>
@@ -146,7 +146,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
             <ul className="space-y-3">
               {plan.features.map((feature, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-success flex-shrink-0" />
                   <span className="text-sm">{feature}</span>
                 </li>
               ))}
