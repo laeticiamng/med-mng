@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface AuditResult {
   id: string;
@@ -264,7 +265,7 @@ export const EdnAuditDashboard: React.FC = () => {
             <Button 
               variant="outline" 
               size="icon"
-              onClick={() => navigate('/edn-complete')}
+              onClick={() => navigate(ROUTE_PATHS.ednComplete)}
               aria-label="Retour aux items EDN"
             >
               <ArrowLeft className="h-4 w-4" />

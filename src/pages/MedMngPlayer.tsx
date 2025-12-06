@@ -20,6 +20,7 @@ import {
   Download
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const MedMngPlayerComponent = () => {
   const { songId } = useParams<{ songId: string }>();
@@ -170,7 +171,7 @@ const MedMngPlayerComponent = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/10 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Chanson introuvable</h1>
-          <Button onClick={() => navigate('/med-mng/library')}>
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
             Retour à la bibliothèque
           </Button>
         </div>
@@ -187,7 +188,7 @@ const MedMngPlayerComponent = () => {
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate('/med-mng/library')}
+            onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

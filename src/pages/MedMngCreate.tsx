@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ROUTE_PATHS } from '@/config/routes';
 
 // Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
 const ednitems = [
@@ -84,7 +85,7 @@ const MedMngCreateComponent = () => {
     // Vérifier les crédits avant de générer
     if (!quota || quota.remaining_credits <= 0) {
       toast.error('Crédits insuffisants. Veuillez souscrire à un abonnement.');
-      navigate('/med-mng/pricing');
+      navigate(ROUTE_PATHS.medMngPricing);
       return;
     }
 
@@ -126,7 +127,7 @@ const MedMngCreateComponent = () => {
                     Réessayer
                   </Button>
                   <Button 
-                    onClick={() => navigate('/med-mng/pricing')}
+                    onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
                     className="bg-primary hover:bg-primary/90"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
@@ -170,13 +171,13 @@ const MedMngCreateComponent = () => {
                 </div>
                 <div className="flex gap-3 justify-center">
                   <Button 
-                    onClick={() => navigate('/med-mng/library')}
+                    onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
                     variant="outline"
                   >
                     Ma Bibliothèque
                   </Button>
                   <Button 
-                    onClick={() => navigate('/med-mng/pricing')}
+                    onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
                     className="bg-primary hover:bg-primary/90"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />

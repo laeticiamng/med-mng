@@ -25,6 +25,7 @@ import { RecommendationAlertsPanel } from '@/components/accessibility/Recommenda
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ROUTE_PATHS } from '@/config/routes';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
 import {
   DropdownMenu,
@@ -218,7 +219,7 @@ const AccessibilityDashboard = () => {
           <Button 
             variant="default" 
             size="sm"
-            onClick={() => navigate('/effectiveness-dashboard')}
+            onClick={() => navigate(ROUTE_PATHS.effectivenessDashboard)}
           >
             <TrendingUp className="h-4 w-4 mr-2" />
             Statistiques d'efficacité

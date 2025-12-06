@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface Props {
   children: ReactNode;
@@ -89,7 +90,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, reset }) => {
               Réessayer
             </Button>
             <Button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate(ROUTE_PATHS.home)}
               className="flex-1 flex items-center gap-2"
               variant="outline"
             >
