@@ -577,13 +577,13 @@ export const SEOOptimizer: React.FC = () => {
                       <CardContent className="pt-4">
                         <div className="flex items-start gap-3">
                           {rec.type === 'error' && (
-                            <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
+                            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
                           )}
                           {rec.type === 'warning' && (
-                            <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
+                            <AlertTriangle className="w-5 h-5 text-warning mt-0.5" />
                           )}
                           {rec.type === 'info' && (
-                            <Info className="w-5 h-5 text-blue-500 mt-0.5" />
+                            <Info className="w-5 h-5 text-primary mt-0.5" />
                           )}
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -611,7 +611,7 @@ export const SEOOptimizer: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                  <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
                   <p className="text-muted-foreground">
                     Aucune recommandation - Votre SEO est optimisé !
                   </p>
@@ -630,21 +630,21 @@ export const SEOOptimizer: React.FC = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 border rounded-lg">
-                      <Globe className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+                      <Globe className="w-8 h-8 mx-auto mb-2 text-primary" />
                       <h3 className="font-semibold">Indexation</h3>
                       <p className="text-sm text-muted-foreground">
                         Pages indexées par Google
                       </p>
-                      <p className="text-2xl font-bold text-green-600">127</p>
+                      <p className="text-2xl font-bold text-success">127</p>
                     </div>
                     
                     <div className="text-center p-4 border rounded-lg">
-                      <TrendingUp className="w-8 h-8 mx-auto mb-2 text-green-500" />
+                      <TrendingUp className="w-8 h-8 mx-auto mb-2 text-success" />
                       <h3 className="font-semibold">Classement</h3>
                       <p className="text-sm text-muted-foreground">
                         Position moyenne
                       </p>
-                      <p className="text-2xl font-bold text-blue-600">23.4</p>
+                      <p className="text-2xl font-bold text-primary">23.4</p>
                     </div>
                     
                     <div className="text-center p-4 border rounded-lg">

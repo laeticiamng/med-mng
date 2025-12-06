@@ -177,8 +177,8 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
         barHeight = (dataArray[i] / 255) * canvas.height;
         
         const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
-        gradient.addColorStop(0, '#3b82f6');
-        gradient.addColorStop(1, '#8b5cf6');
+        gradient.addColorStop(0, 'hsl(var(--primary))');
+        gradient.addColorStop(1, 'hsl(var(--accent))');
         
         ctx.fillStyle = gradient;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -287,7 +287,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-black' : ''} ${className}`}>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}>
       <audio ref={audioRef} src={audioUrl} />
       
       <Card className={`${isFullscreen ? 'h-full border-0 rounded-none' : ''} overflow-hidden`}>
@@ -296,11 +296,11 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {/* Cover art */}
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg">
                 {coverUrl ? (
                   <img src={coverUrl} alt={title} className="w-full h-full object-cover rounded-lg" />
                 ) : (
-                  <Radio className="w-8 h-8 text-white" />
+                  <Radio className="w-8 h-8 text-primary-foreground" />
                 )}
               </div>
               
@@ -309,8 +309,8 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 <CardTitle className="text-xl font-bold truncate max-w-xs">
                   {title}
                 </CardTitle>
-                <p className="text-gray-600">{artist}</p>
-                <p className="text-sm text-gray-500">{album}</p>
+                <p className="text-muted-foreground">{artist}</p>
+                <p className="text-sm text-muted-foreground">{album}</p>
               </div>
             </div>
             
@@ -326,7 +326,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 onClick={toggleLike}
                 aria-label={isLiked ? "Retirer des favoris" : "Ajouter aux favoris"}
               >
-                <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                <Heart className={`h-4 w-4 ${isLiked ? 'fill-destructive text-destructive' : ''}`} />
               </Button>
               
               {onAddToPlaylist && (
@@ -369,7 +369,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
             <div className="h-32 w-full">
               <canvas 
                 ref={canvasRef} 
-                className="w-full h-full bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg"
+                className="w-full h-full bg-gradient-to-r from-muted to-muted/80 rounded-lg"
                 width="800" 
                 height="200"
               />
@@ -385,7 +385,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               onValueChange={(value) => handleSeek(value[0])}
               className="w-full"
             />
-            <div className="flex justify-between text-sm text-gray-500">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -397,7 +397,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={() => setIsShuffled(!isShuffled)}
-              className={isShuffled ? 'text-blue-600' : ''}
+              className={isShuffled ? 'text-primary' : ''}
               aria-label={isShuffled ? "Désactiver le mode aléatoire" : "Activer le mode aléatoire"}
             >
               <Shuffle className="h-4 w-4" />
@@ -415,11 +415,11 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
             <Button
               onClick={togglePlay}
               disabled={isLoading}
-              className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
               aria-label={isPlaying ? "Pause" : "Lecture"}
             >
               {isLoading ? (
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                <div className="animate-spin h-5 w-5 border-2 border-primary-foreground border-t-transparent rounded-full" />
               ) : isPlaying ? (
                 <Pause className="h-5 w-5" />
               ) : (
@@ -440,7 +440,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={toggleRepeat}
-              className={repeatMode !== 'none' ? 'text-blue-600' : ''}
+              className={repeatMode !== 'none' ? 'text-primary' : ''}
               aria-label={`Mode répétition: ${repeatMode === 'none' ? 'désactivé' : repeatMode === 'one' ? 'répéter une chanson' : 'répéter la playlist'}`}
             >
               <Repeat className="h-4 w-4" />
@@ -501,7 +501,6 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               currentTime={currentTime}
               isPlaying={isPlaying}
               onSeek={handleSeek}
-              className="mt-6"
             />
           )}
         </CardContent>
