@@ -97,15 +97,15 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
   const validation = validateCompetences();
 
   const getStatusColor = () => {
-    if (validation.complete) return "border-green-500 bg-green-50";
-    if (validation.issues.length < 3) return "border-yellow-500 bg-yellow-50";
-    return "border-red-500 bg-red-50";
+    if (validation.complete) return "border-success bg-success/5";
+    if (validation.issues.length < 3) return "border-warning bg-warning/5";
+    return "border-destructive bg-destructive/5";
   };
 
   const getStatusIcon = () => {
-    if (validation.complete) return <CheckCircle className="h-5 w-5 text-green-600" />;
-    if (validation.issues.length < 3) return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-    return <AlertTriangle className="h-5 w-5 text-red-600" />;
+    if (validation.complete) return <CheckCircle className="h-5 w-5 text-success" />;
+    if (validation.issues.length < 3) return <AlertTriangle className="h-5 w-5 text-warning" />;
+    return <AlertTriangle className="h-5 w-5 text-destructive" />;
   };
 
   return (
@@ -119,39 +119,39 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       <CardContent className={`space-y-4 ${isMobile ? 'p-4' : ''}`}>
         {/* Résumé */}
         <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4`}>
-          <div className="text-center p-3 rounded-lg bg-white border">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="text-center p-3 rounded-lg bg-background border">
+            <div className="text-2xl font-bold text-primary">
               {validation.rangA.count}
             </div>
-            <div className="text-sm text-gray-600">Compétences Rang A</div>
+            <div className="text-sm text-muted-foreground">Compétences Rang A</div>
             {validation.rangA.present ? (
-              <CheckCircle className="h-4 w-4 text-green-500 mx-auto mt-1" />
+              <CheckCircle className="h-4 w-4 text-success mx-auto mt-1" />
             ) : (
-              <AlertTriangle className="h-4 w-4 text-red-500 mx-auto mt-1" />
+              <AlertTriangle className="h-4 w-4 text-destructive mx-auto mt-1" />
             )}
           </div>
           
-          <div className="text-center p-3 rounded-lg bg-white border">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="text-center p-3 rounded-lg bg-background border">
+            <div className="text-2xl font-bold text-accent">
               {validation.rangB.count}
             </div>
-            <div className="text-sm text-gray-600">Compétences Rang B</div>
+            <div className="text-sm text-muted-foreground">Compétences Rang B</div>
             {validation.rangB.present ? (
-              <CheckCircle className="h-4 w-4 text-green-500 mx-auto mt-1" />
+              <CheckCircle className="h-4 w-4 text-success mx-auto mt-1" />
             ) : (
-              <AlertTriangle className="h-4 w-4 text-red-500 mx-auto mt-1" />
+              <AlertTriangle className="h-4 w-4 text-destructive mx-auto mt-1" />
             )}
           </div>
           
-          <div className="text-center p-3 rounded-lg bg-white border">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-3 rounded-lg bg-background border">
+            <div className="text-2xl font-bold text-success">
               {validation.complete ? "100%" : Math.round((6 - validation.issues.length) / 6 * 100) + "%"}
             </div>
-            <div className="text-sm text-gray-600">Complétude</div>
+            <div className="text-sm text-muted-foreground">Complétude</div>
             {validation.complete ? (
-              <CheckCircle className="h-4 w-4 text-green-500 mx-auto mt-1" />
+              <CheckCircle className="h-4 w-4 text-success mx-auto mt-1" />
             ) : (
-              <AlertTriangle className="h-4 w-4 text-yellow-500 mx-auto mt-1" />
+              <AlertTriangle className="h-4 w-4 text-warning mx-auto mt-1" />
             )}
           </div>
         </div>
@@ -159,18 +159,18 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Détails des compétences */}
         {validation.rangA.competences.length > 0 && (
           <div>
-            <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
+            <h4 className="font-semibold text-primary mb-2 flex items-center gap-2">
               <Info className="h-4 w-4" />
               Compétences Rang A ({validation.rangA.count})
             </h4>
             <div className="flex flex-wrap gap-1">
               {validation.rangA.competences.slice(0, 5).map((competence, index) => (
-                <Badge key={index} variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300">
+                <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/30">
                   {competence}
                 </Badge>
               ))}
               {validation.rangA.competences.length > 5 && (
-                <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700">
+                <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
                   +{validation.rangA.competences.length - 5} autres
                 </Badge>
               )}
@@ -180,18 +180,18 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
 
         {validation.rangB.competences.length > 0 && (
           <div>
-            <h4 className="font-semibold text-purple-700 mb-2 flex items-center gap-2">
+            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
               <Info className="h-4 w-4" />
               Compétences Rang B ({validation.rangB.count})
             </h4>
             <div className="flex flex-wrap gap-1">
               {validation.rangB.competences.slice(0, 5).map((competence, index) => (
-                <Badge key={index} variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-300">
+                <Badge key={index} variant="outline" className="text-xs bg-accent/5 text-accent border-accent/30">
                   {competence}
                 </Badge>
               ))}
               {validation.rangB.competences.length > 5 && (
-                <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700">
+                <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
                   +{validation.rangB.competences.length - 5} autres
                 </Badge>
               )}
@@ -202,13 +202,13 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Issues */}
         {validation.issues.length > 0 && (
           <div>
-            <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
+            <h4 className="font-semibold text-destructive mb-2 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
               Éléments manquants ({validation.issues.length})
             </h4>
             <div className="space-y-1">
               {validation.issues.map((issue, index) => (
-                <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                <div key={index} className="text-sm text-destructive bg-destructive/5 p-2 rounded border border-destructive/20">
                   • {issue}
                 </div>
               ))}
@@ -219,8 +219,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Status final */}
         <div className={`p-3 rounded-lg border ${
           validation.complete 
-            ? 'bg-green-50 border-green-200 text-green-800' 
-            : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+            ? 'bg-success/5 border-success/20 text-success' 
+            : 'bg-warning/5 border-warning/20 text-warning'
         }`}>
           <div className={`flex items-center gap-2 font-semibold ${isMobile ? 'text-sm' : ''}`}>
             {validation.complete ? (
@@ -243,9 +243,9 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Alerte spécifique pour les items avec 0 compétences mais présents */}
         {!validation.complete && validation.rangA.present && validation.rangB.present && 
          validation.rangA.count === 0 && validation.rangB.count === 0 && (
-          <Alert className="border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
+          <Alert className="border-primary/20 bg-primary/5">
+            <Info className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-primary">
               Les tableaux de compétences sont présents mais vides. Les compétences seront bientôt disponibles.
             </AlertDescription>
           </Alert>

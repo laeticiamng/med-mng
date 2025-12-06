@@ -108,7 +108,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
   if (chapters.length === 0) {
     return (
-      <Card className="border-2 border-orange-200">
+      <Card className="border-2 border-warning/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-6 w-6" />

@@ -58,7 +58,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!item.tableau_rang_a,
       count: rangACount,
       description: 'Compétences fondamentales',
-      color: rangACount > 0 ? 'text-blue-600 bg-blue-50 border-blue-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: rangACount > 0 ? 'text-primary bg-primary/10 border-primary/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'rang-b',
@@ -67,7 +67,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!item.tableau_rang_b,
       count: rangBCount,
       description: 'Compétences expertes',
-      color: rangBCount > 0 ? 'text-purple-600 bg-purple-50 border-purple-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: rangBCount > 0 ? 'text-accent bg-accent/10 border-accent/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'music',
@@ -76,7 +76,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!(item.paroles_musicales && item.paroles_musicales.length > 0),
       count: item.paroles_musicales?.length || 0,
       description: 'Chansons d\'apprentissage',
-      color: item.paroles_musicales?.length > 0 ? 'text-green-600 bg-green-50 border-green-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: item.paroles_musicales?.length > 0 ? 'text-success bg-success/10 border-success/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'scene',
@@ -85,7 +85,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!item.scene_immersive,
       count: item.scene_immersive ? 1 : 0,
       description: 'Expérience immersive',
-      color: item.scene_immersive ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: item.scene_immersive ? 'text-warning bg-warning/10 border-warning/20' : 'text-muted-foreground bg-muted border-border'
     },
     {
       id: 'quiz',
@@ -94,15 +94,15 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!item.quiz_questions,
       count: Array.isArray(item.quiz_questions) ? item.quiz_questions.length : (item.quiz_questions ? 1 : 0),
       description: 'Questions interactives',
-      color: item.quiz_questions ? 'text-red-600 bg-red-50 border-red-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: item.quiz_questions ? 'text-destructive bg-destructive/10 border-destructive/20' : 'text-muted-foreground bg-muted border-border'
     }
   ];
 
   const getStatusIcon = (available: boolean) => {
     if (available) {
-      return <CheckCircle className="h-3 w-3 text-green-500" />;
+      return <CheckCircle className="h-3 w-3 text-success" />;
     } else {
-      return <XCircle className="h-3 w-3 text-gray-400" />;
+      return <XCircle className="h-3 w-3 text-muted-foreground" />;
     }
   };
 
@@ -120,12 +120,12 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       {/* Badge de statut global */}
       <div className="flex items-center justify-center">
         {isComplete ? (
-          <Badge className="bg-green-100 text-green-800 border-green-300 px-3 py-1">
+          <Badge className="bg-success/10 text-success border-success/30 px-3 py-1">
             <CheckCircle className="h-4 w-4 mr-1" />
             Item Complet 100%
           </Badge>
         ) : (
-          <Badge variant="outline" className="text-orange-600 border-orange-300 px-3 py-1">
+          <Badge variant="outline" className="text-warning border-warning/30 px-3 py-1">
             <AlertCircle className="h-4 w-4 mr-1" />
             {globalCompletion}% Complété
           </Badge>
@@ -153,7 +153,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
                   {getStatusIcon(feature.available)}
                 </div>
               </Badge>
-              <div className="text-xs text-gray-500 text-center px-1">
+              <div className="text-xs text-muted-foreground text-center px-1">
                 {feature.description}
               </div>
             </div>
@@ -165,8 +165,8 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       <div className="space-y-2">
         {rangACount > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-blue-700 font-medium">Compétences Rang A:</span>
-            <Badge variant="outline" className="text-blue-700 border-blue-300">
+            <span className="text-primary font-medium">Compétences Rang A:</span>
+            <Badge variant="outline" className="text-primary border-primary/30">
               {rangACount} compétences fondamentales
             </Badge>
           </div>
@@ -174,16 +174,16 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
         
         {rangBCount > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-purple-700 font-medium">Compétences Rang B:</span>
-            <Badge variant="outline" className="text-purple-700 border-purple-300">
+            <span className="text-accent font-medium">Compétences Rang B:</span>
+            <Badge variant="outline" className="text-accent border-accent/30">
               {rangBCount} compétences expertes
             </Badge>
           </div>
         )}
         
         <div className="flex items-center justify-between text-sm font-bold">
-          <span className="text-gray-800">Total Compétences:</span>
-          <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+          <span className="text-foreground">Total Compétences:</span>
+          <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
             {rangACount + rangBCount} compétences UNESS
           </Badge>
         </div>
@@ -191,8 +191,8 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
 
       {/* Alerte si compétences manquantes */}
       {!isComplete && (
-        <div className="text-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
-          <div className="flex items-center justify-center gap-2 text-orange-700">
+        <div className="text-center p-3 bg-warning/10 border border-warning/20 rounded-lg">
+          <div className="flex items-center justify-center gap-2 text-warning">
             <Clock className="h-4 w-4" />
             <span className="text-sm font-medium">
               Contenu en cours de finalisation
