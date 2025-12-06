@@ -97,7 +97,7 @@ export const MusicLibrary: React.FC = () => {
             {tracks.length >= 19 && " (Problème RLS résolu!)"}
           </span>
           {debugMode && (
-            <span className="text-xs bg-yellow-100 px-2 py-1 rounded">
+            <span className="text-xs bg-warning/20 text-warning px-2 py-1 rounded">
               🐛 Debug: {new Date().toLocaleTimeString()}
             </span>
           )}
