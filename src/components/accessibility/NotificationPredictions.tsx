@@ -438,12 +438,12 @@ export function NotificationPredictions() {
                     • Prévision pour la semaine prochaine: <strong>{nextWeekTotal} notifications</strong> (moy. {Math.round(nextWeekTotal / 7)}/jour)
                   </li>
                   {trend === 'increasing' && (
-                    <li className="text-orange-600">
+                    <li className="text-warning">
                       • ⚠️ Augmentation du volume détectée - surveillez les performances de vos webhooks
                     </li>
                   )}
                   {getHighConfidencePredictions() < 4 && (
-                    <li className="text-orange-600">
+                    <li className="text-warning">
                       • ⚠️ Certaines prédictions ont une faible confiance - les volumes réels peuvent varier
                     </li>
                   )}

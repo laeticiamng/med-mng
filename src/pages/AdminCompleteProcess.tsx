@@ -169,9 +169,9 @@ const AdminCompleteProcess = () => {
         </Card>
 
         {/* Header - Ré-importation avec contenu spécifique */}
-        <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+        <Card className="border-2 border-success/30 bg-gradient-to-r from-success/5 to-success/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-800">
+            <CardTitle className="flex items-center gap-2 text-success">
               <RefreshCw className="h-6 w-6" />
               Ré-importation Complète avec Contenu Spécifique
             </CardTitle>
@@ -302,9 +302,9 @@ const AdminCompleteProcess = () => {
 
         {/* Reimport Results */}
         {reimportResults && (
-          <Card className="border-green-200">
+          <Card className="border-success/30">
             <CardHeader>
-              <CardTitle className="text-green-800">Résultats de la Ré-importation</CardTitle>
+              <CardTitle className="text-success">Résultats de la Ré-importation</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

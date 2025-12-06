@@ -268,7 +268,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
               <Button 
                 onClick={generateErrorSong}
                 disabled={isGeneratingErrorSong}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90"
               >
                 <Music className="h-4 w-4 mr-2" />
                 {isGeneratingErrorSong ? 'Génération...' : 'Chanson de mes Erreurs'}

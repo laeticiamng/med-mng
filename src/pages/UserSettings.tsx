@@ -442,7 +442,7 @@ const UserSettings: React.FC = () => {
                       </div>
                       
                       <div className="space-y-3">
-                        <p className="text-sm text-red-700 dark:text-red-300">
+                        <p className="text-sm text-destructive">
                           La suppression de votre compte est irréversible. Toutes vos données,
                           progression et créations seront définitivement perdues.
                         </p>
