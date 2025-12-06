@@ -60,8 +60,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
                   } relative overflow-hidden`}
                 >
                   {/* Indicateur de catégorie */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r opacity-60"
-                       style={{background: `linear-gradient(90deg, ${colonne.couleur?.includes('blue') ? 'hsl(var(--primary))' : colonne.couleur?.includes('green') ? 'hsl(var(--success))' : colonne.couleur?.includes('purple') ? 'hsl(var(--chart-5))' : 'hsl(var(--warning))'}, transparent)`}}>
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 to-transparent">
                   </div>
                   
                   <div className="mb-3 sm:mb-4">
