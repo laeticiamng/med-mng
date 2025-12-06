@@ -214,19 +214,19 @@ export const SubscriptionAudit: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'error': return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      default: return <Clock className="h-4 w-4 text-gray-600" />;
+      case 'success': return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'error': return <AlertTriangle className="h-4 w-4 text-destructive" />;
+      default: return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'bg-green-100 text-green-800';
-      case 'warning': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'success': return 'bg-success/10 text-success';
+      case 'warning': return 'bg-warning/10 text-warning';
+      case 'error': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -254,7 +254,7 @@ export const SubscriptionAudit: React.FC = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="h-5 w-5 text-gray-600" />
+                <Users className="h-5 w-5 text-muted-foreground" />
                 Utilisateurs
               </CardTitle>
             </CardHeader>
@@ -266,15 +266,15 @@ export const SubscriptionAudit: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Gratuit:</span>
-                  <Badge className="bg-gray-100 text-gray-800">{stats.freeUsers}</Badge>
+                  <Badge className="bg-muted text-muted-foreground">{stats.freeUsers}</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Standard:</span>
-                  <Badge className="bg-blue-100 text-blue-800">{stats.standardUsers}</Badge>
+                  <Badge className="bg-primary/10 text-primary">{stats.standardUsers}</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Premium:</span>
-                  <Badge className="bg-purple-100 text-purple-800">{stats.premiumUsers}</Badge>
+                  <Badge className="bg-accent/10 text-accent">{stats.premiumUsers}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -283,7 +283,7 @@ export const SubscriptionAudit: React.FC = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-green-600" />
+                <BarChart3 className="h-5 w-5 text-success" />
                 Générations
               </CardTitle>
             </CardHeader>
@@ -295,7 +295,7 @@ export const SubscriptionAudit: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Moyenne/utilisateur:</span>
-                  <Badge className="bg-green-100 text-green-800">{stats.averageUsage}</Badge>
+                  <Badge className="bg-success/10 text-success">{stats.averageUsage}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -304,7 +304,7 @@ export const SubscriptionAudit: React.FC = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Shield className="h-5 w-5 text-blue-600" />
+                <Shield className="h-5 w-5 text-primary" />
                 Système
               </CardTitle>
             </CardHeader>
@@ -312,19 +312,19 @@ export const SubscriptionAudit: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Tests réussis:</span>
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-success/10 text-success">
                     {auditResults.filter(r => r.status === 'success').length}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Avertissements:</span>
-                  <Badge className="bg-yellow-100 text-yellow-800">
+                  <Badge className="bg-warning/10 text-warning">
                     {auditResults.filter(r => r.status === 'warning').length}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Erreurs:</span>
-                  <Badge className="bg-red-100 text-red-800">
+                  <Badge className="bg-destructive/10 text-destructive">
                     {auditResults.filter(r => r.status === 'error').length}
                   </Badge>
                 </div>
@@ -354,18 +354,18 @@ export const SubscriptionAudit: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-gray-700 mb-2">{result.message}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{result.message}</p>
                   
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {new Date(result.timestamp).toLocaleString()}
                   </div>
                   
                   {result.details && (
                     <details className="mt-2">
-                      <summary className="text-xs text-blue-600 cursor-pointer">
+                      <summary className="text-xs text-primary cursor-pointer">
                         Voir détails
                       </summary>
-                      <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-auto">
+                      <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-auto">
                         {JSON.stringify(result.details, null, 2)}
                       </pre>
                     </details>

@@ -42,7 +42,7 @@ export const EdnItemHeader = ({ item }: EdnItemHeaderProps) => {
           </div>
           <Link
             to={`/edn/${item.slug}/immersive`}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-warning to-warning/80 text-warning-foreground px-4 py-2 rounded-lg hover:from-warning/90 hover:to-warning/70 transition-all"
           >
             <Play className="h-4 w-4" />
             <TranslatedText text="Mode Immersif" />

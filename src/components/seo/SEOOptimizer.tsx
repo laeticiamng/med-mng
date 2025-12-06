@@ -290,9 +290,9 @@ export const SEOOptimizer: React.FC = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getScoreBadgeVariant = (score: number) => {
@@ -648,12 +648,12 @@ export const SEOOptimizer: React.FC = () => {
                     </div>
                     
                     <div className="text-center p-4 border rounded-lg">
-                      <BarChart3 className="w-8 h-8 mx-auto mb-2 text-purple-500" />
+                      <BarChart3 className="w-8 h-8 mx-auto mb-2 text-accent" />
                       <h3 className="font-semibold">Trafic</h3>
                       <p className="text-sm text-muted-foreground">
                         Clics organiques (7j)
                       </p>
-                      <p className="text-2xl font-bold text-purple-600">1,247</p>
+                      <p className="text-2xl font-bold text-accent">1,247</p>
                     </div>
                   </div>
                 </CardContent>

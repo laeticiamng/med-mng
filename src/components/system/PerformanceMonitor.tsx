@@ -74,15 +74,15 @@ export const PerformanceMonitor: React.FC = () => {
   };
 
   const getScoreColor = (score: number, thresholds: { good: number; fair: number }) => {
-    if (score <= thresholds.good) return 'text-green-600';
-    if (score <= thresholds.fair) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score <= thresholds.good) return 'text-success';
+    if (score <= thresholds.fair) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getScoreBadge = (score: number, thresholds: { good: number; fair: number }) => {
-    if (score <= thresholds.good) return <Badge className="bg-green-100 text-green-800">Excellent</Badge>;
-    if (score <= thresholds.fair) return <Badge className="bg-yellow-100 text-yellow-800">Correct</Badge>;
-    return <Badge className="bg-red-100 text-red-800">À améliorer</Badge>;
+    if (score <= thresholds.good) return <Badge className="bg-success/10 text-success">Excellent</Badge>;
+    if (score <= thresholds.fair) return <Badge className="bg-warning/10 text-warning">Correct</Badge>;
+    return <Badge className="bg-destructive/10 text-destructive">À améliorer</Badge>;
   };
 
   const calculateOverallScore = () => {

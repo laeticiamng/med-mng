@@ -132,11 +132,11 @@ export const UserPersonalization: React.FC = () => {
   };
 
   const colorOptions = [
-    { value: 'blue', label: 'Bleu', color: 'bg-blue-500' },
-    { value: 'green', label: 'Vert', color: 'bg-green-500' },
-    { value: 'purple', label: 'Violet', color: 'bg-purple-500' },
-    { value: 'orange', label: 'Orange', color: 'bg-orange-500' },
-    { value: 'pink', label: 'Rose', color: 'bg-pink-500' },
+    { value: 'blue', label: 'Bleu', color: 'bg-primary' },
+    { value: 'green', label: 'Vert', color: 'bg-success' },
+    { value: 'purple', label: 'Violet', color: 'bg-accent' },
+    { value: 'orange', label: 'Orange', color: 'bg-warning' },
+    { value: 'pink', label: 'Rose', color: 'bg-destructive' },
   ];
 
   return (
