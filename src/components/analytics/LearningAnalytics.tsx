@@ -145,7 +145,7 @@ export const LearningAnalytics: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
+              <TrendingUp className="h-5 w-5 text-success" />
               Domaines Forts
             </CardTitle>
             <CardDescription>
@@ -204,7 +204,7 @@ export const LearningAnalytics: React.FC = () => {
         <CardContent>
           <div className="space-y-3">
             {stats.avg_engagement < 70 && (
-              <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
                 <p className="text-sm">
                   💡 <strong>Augmentez votre engagement :</strong> Essayez les modules musicaux et immersifs pour rendre l&apos;apprentissage plus interactif.
                 </p>
@@ -212,7 +212,7 @@ export const LearningAnalytics: React.FC = () => {
             )}
             
             {stats.improvement_areas.length > 2 && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
                 <p className="text-sm">
                   📚 <strong>Focus sur les bases :</strong> Concentrez-vous sur 2-3 items à la fois pour un apprentissage plus efficace.
                 </p>
@@ -220,7 +220,7 @@ export const LearningAnalytics: React.FC = () => {
             )}
             
             {stats.overall_progress > 80 && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
                 <p className="text-sm">
                   🎉 <strong>Excellent travail !</strong> Vous maîtrisez bien le contenu. Pensez à réviser régulièrement pour consolider vos acquis.
                 </p>

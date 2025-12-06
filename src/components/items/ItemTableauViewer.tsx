@@ -203,9 +203,9 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
               {completenessStatus.completeness_score}% complété
             </Badge>
             {completenessStatus.status === 'complete' ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-success" />
             ) : (
-              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              <AlertTriangle className="h-5 w-5 text-warning" />
             )}
           </div>
         )}
@@ -235,14 +235,14 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
             <BookOpen className="h-4 w-4" />
             Tableau Rang A
             {!item.tableau_rang_a && (
-              <AlertTriangle className="h-3 w-3 text-red-500" />
+              <AlertTriangle className="h-3 w-3 text-destructive" />
             )}
           </TabsTrigger>
           <TabsTrigger value="rang-b" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Tableau Rang B
             {!item.tableau_rang_b && (
-              <AlertTriangle className="h-3 w-3 text-red-500" />
+              <AlertTriangle className="h-3 w-3 text-destructive" />
             )}
           </TabsTrigger>
         </TabsList>

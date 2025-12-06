@@ -24,7 +24,7 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <CheckCircle className="h-5 w-5 text-green-500" />
+          <CheckCircle className="h-5 w-5 text-success" />
           Progression Globale
         </CardTitle>
         <CardDescription>
@@ -43,35 +43,35 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
 
         {/* Statistiques détaillées */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+          <div className="text-center p-3 bg-success/10 rounded-lg border border-success/20">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-700">Terminés</span>
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span className="text-sm font-medium text-success">Terminés</span>
             </div>
-            <div className="text-2xl font-bold text-green-800">{completedItems}</div>
-            <div className="text-xs text-green-600">
+            <div className="text-2xl font-bold text-success">{completedItems}</div>
+            <div className="text-xs text-success/80">
               {totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0}% du total
             </div>
           </div>
 
-          <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">En cours</span>
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">En cours</span>
             </div>
-            <div className="text-2xl font-bold text-blue-800">{inProgressItems}</div>
-            <div className="text-xs text-blue-600">
+            <div className="text-2xl font-bold text-primary">{inProgressItems}</div>
+            <div className="text-xs text-primary/80">
               {totalItems > 0 ? Math.round((inProgressItems / totalItems) * 100) : 0}% du total
             </div>
           </div>
 
-          <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+          <div className="text-center p-3 bg-warning/10 rounded-lg border border-warning/20">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <AlertCircle className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">À démarrer</span>
+              <AlertCircle className="h-4 w-4 text-warning" />
+              <span className="text-sm font-medium text-warning">À démarrer</span>
             </div>
-            <div className="text-2xl font-bold text-orange-800">{pendingItems}</div>
-            <div className="text-xs text-orange-600">
+            <div className="text-2xl font-bold text-warning">{pendingItems}</div>
+            <div className="text-xs text-warning/80">
               {totalItems > 0 ? Math.round((pendingItems / totalItems) * 100) : 0}% du total
             </div>
           </div>
@@ -80,17 +80,17 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
         {/* Badges de statut */}
         <div className="flex flex-wrap gap-2">
           {completionPercentage >= 90 && (
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
+            <Badge variant="secondary" className="bg-success/10 text-success">
               🏆 Presque terminé !
             </Badge>
           )}
           {completionPercentage >= 50 && completionPercentage < 90 && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
               🚀 Bon rythme
             </Badge>
           )}
           {completionPercentage < 25 && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            <Badge variant="secondary" className="bg-warning/10 text-warning">
               🌱 Début du parcours
             </Badge>
           )}

@@ -226,9 +226,9 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
 
   const getSourceIcon = (source?: string) => {
     switch (source) {
-      case 'edn': return <Book className="h-4 w-4 text-blue-500" />;
-      case 'web': return <Globe className="h-4 w-4 text-green-500" />;
-      case 'mixed': return <Brain className="h-4 w-4 text-purple-500" />;
+      case 'edn': return <Book className="h-4 w-4 text-primary" />;
+      case 'web': return <Globe className="h-4 w-4 text-success" />;
+      case 'mixed': return <Brain className="h-4 w-4 text-accent-foreground" />;
       default: return <MessageCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };

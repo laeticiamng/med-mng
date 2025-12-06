@@ -89,23 +89,23 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
   if (!data || !data.competences || data.competences.length === 0 || data.count === 0) {
     return (
       <Card className="w-full">
-        <CardHeader className={`${rang === 'A' ? 'bg-blue-50' : 'bg-purple-50'} border-b`}>
-          <CardTitle className={`${rang === 'A' ? 'text-blue-800' : 'text-purple-800'} flex items-center justify-between`}>
+        <CardHeader className={`${rang === 'A' ? 'bg-primary/5' : 'bg-accent/5'} border-b`}>
+          <CardTitle className={`${rang === 'A' ? 'text-primary' : 'text-accent-foreground'} flex items-center justify-between`}>
             <span>{itemCode} Rang {rang} - Compétences OIC</span>
-            <Badge variant="outline" className="ml-2 text-gray-500">
+            <Badge variant="outline" className="ml-2 text-muted-foreground">
               0 compétence OIC
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center">
           <div className="space-y-3">
-            <div className={`w-16 h-16 mx-auto rounded-full ${rang === 'A' ? 'bg-blue-100' : 'bg-purple-100'} flex items-center justify-center`}>
-              <Book className={`w-8 h-8 ${rang === 'A' ? 'text-blue-600' : 'text-purple-600'}`} />
+            <div className={`w-16 h-16 mx-auto rounded-full ${rang === 'A' ? 'bg-primary/10' : 'bg-accent/10'} flex items-center justify-center`}>
+              <Book className={`w-8 h-8 ${rang === 'A' ? 'text-primary' : 'text-accent-foreground'}`} />
             </div>
-            <h4 className="font-semibold text-gray-900">
+            <h4 className="font-semibold text-foreground">
               Aucune compétence OIC disponible
             </h4>
-            <p className="text-gray-600 text-sm max-w-md mx-auto">
+            <p className="text-muted-foreground text-sm max-w-md mx-auto">
               Cet item n'a pas encore de compétences OIC officielles définies pour le rang {rang}.
             </p>
           </div>
