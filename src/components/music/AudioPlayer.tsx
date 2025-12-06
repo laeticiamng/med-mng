@@ -271,7 +271,7 @@ export function AudioPlayer({
               className="h-12 w-12 rounded-full"
             >
               {isLoading ? (
-                <div className="animate-spin h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
               ) : isPlaying ? (
                 <Pause className="h-5 w-5" />
               ) : (

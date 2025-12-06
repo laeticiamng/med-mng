@@ -141,7 +141,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           >
             {isGenerating ? (
               <>
-                <div className="animate-spin h-5 w-5 mr-3 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                <div className="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full" />
                 <TranslatedText text="Génération en cours..." />
               </>
             ) : (
