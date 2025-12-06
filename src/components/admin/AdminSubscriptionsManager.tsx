@@ -204,7 +204,7 @@ export const AdminSubscriptionsManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-purple-600" />
+              <TrendingUp className="h-4 w-4 text-accent" />
               <div className="text-sm font-medium text-muted-foreground">Utilisation moyenne</div>
             </div>
             <div className="text-2xl font-bold">{stats.averageCreditsUsage}%</div>
@@ -214,7 +214,7 @@ export const AdminSubscriptionsManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <AlertTriangle className="h-4 w-4 text-warning" />
               <div className="text-sm font-medium text-muted-foreground">Taux de désabonnement</div>
             </div>
             <div className="text-2xl font-bold">{stats.churnRate}%</div>
@@ -320,14 +320,14 @@ export const AdminSubscriptionsManager = () => {
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleSubscriptionAction(subscription.id, 'suspend')}
-                            className="text-red-600"
+                            className="text-destructive"
                           >
                             <Ban className="mr-2 h-4 w-4" />
                             Suspendre
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleSubscriptionAction(subscription.id, 'reactivate')}
-                            className="text-green-600"
+                            className="text-success"
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Réactiver
