@@ -12,17 +12,17 @@ export const MusicLibraryHeader = ({ musicCount }: MusicLibraryHeaderProps) => {
     <div className="mb-8">
       <Link 
         to="/edn" 
-        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-4 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         <TranslatedText text="Retour aux items EDN" />
       </Link>
       
-      <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-amber-200">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="bg-background/80 backdrop-blur-sm rounded-lg p-6 border border-warning/20">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           <TranslatedText text="Ma Bibliothèque Musicale" />
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-muted-foreground">
           <TranslatedText text={`${musicCount} musique${musicCount > 1 ? 's' : ''} sauvegardée${musicCount > 1 ? 's' : ''}`} />
         </p>
       </div>
