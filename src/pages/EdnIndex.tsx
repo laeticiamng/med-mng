@@ -229,14 +229,14 @@ const EdnIndex = () => {
                     className={`
                       h-auto py-3 px-3 flex flex-col gap-1 transition-all duration-300 active:scale-95
                       ${selectedCategory === filter.value 
-                        ? 'bg-purple-600 text-white shadow-lg transform scale-105' 
-                        : 'bg-white/80 hover:bg-purple-50 hover:border-purple-300'
+                        ? 'bg-primary text-primary-foreground shadow-lg transform scale-105' 
+                        : 'bg-card/80 hover:bg-primary/10 hover:border-primary/30'
                       }
                     `}
                     onClick={() => setSelectedCategory(filter.value)}
                   >
                     <span className="text-sm font-semibold">{filter.label}</span>
-                    <span className={`text-xs ${selectedCategory === filter.value ? 'text-purple-100' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${selectedCategory === filter.value ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                       {filter.count}
                     </span>
                   </Button>
@@ -244,7 +244,7 @@ const EdnIndex = () => {
               </div>
             ) : (
               <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-white/70">
+                <TabsList className="grid w-full grid-cols-5 bg-card/70">
                   <TabsTrigger value="all">Tous (367)</TabsTrigger>
                   <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
                   <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
@@ -258,16 +258,16 @@ const EdnIndex = () => {
       </div>
 
       {/* Stats Bar */}
-      <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-4">
+      <div className="bg-card/60 backdrop-blur-sm border-y border-primary/20 py-4">
         <div className="container mx-auto px-4">
           <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'} gap-2 mb-4`}>
             {[
-              { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50" },
-              { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-purple-600", bgColor: "bg-purple-50" },
-              { title: "Complets", value: stats.complete, subtitle: `${stats.completion}%`, icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-50" },
-              { title: "Avec Musique", value: stats.withMusic, subtitle: "Paroles intégrées", icon: Music, color: "text-pink-600", bgColor: "bg-pink-50" },
-              { title: "Scènes Immersives", value: stats.withScene, subtitle: "Expériences 3D", icon: Users, color: "text-orange-600", bgColor: "bg-orange-50" },
-              { title: "Quiz Interactifs", value: stats.withQuiz, subtitle: "Évaluations", icon: Brain, color: "text-indigo-600", bgColor: "bg-indigo-50" }
+              { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-primary", bgColor: "bg-primary/10" },
+              { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-accent", bgColor: "bg-accent/10" },
+              { title: "Complets", value: stats.complete, subtitle: `${stats.completion}%`, icon: CheckCircle, color: "text-success", bgColor: "bg-success/10" },
+              { title: "Avec Musique", value: stats.withMusic, subtitle: "Paroles intégrées", icon: Music, color: "text-destructive", bgColor: "bg-destructive/10" },
+              { title: "Scènes Immersives", value: stats.withScene, subtitle: "Expériences 3D", icon: Users, color: "text-warning", bgColor: "bg-warning/10" },
+              { title: "Quiz Interactifs", value: stats.withQuiz, subtitle: "Évaluations", icon: Brain, color: "text-accent", bgColor: "bg-accent/10" }
             ].map((stat, index) => {
               const IconComponent = stat.icon;
               return (

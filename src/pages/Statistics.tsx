@@ -277,7 +277,7 @@ const Statistics = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold text-green-600 mb-2">📈 Croissance Positive</h3>
+                <h3 className="font-semibold text-success mb-2">📈 Croissance Positive</h3>
                 <p className="text-sm text-muted-foreground">
                   L'utilisation des modules EDN a augmenté de 15% ce mois, 
                   avec une forte adoption en cardiologie et neurologie.
@@ -285,7 +285,7 @@ const Statistics = () => {
               </div>
               
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold text-blue-600 mb-2">🎵 Innovation Musicale</h3>
+                <h3 className="font-semibold text-primary mb-2">🎵 Innovation Musicale</h3>
                 <p className="text-sm text-muted-foreground">
                   Les musiques mnémotechniques génèrent 40% d'amélioration 
                   des scores de mémorisation comparé aux méthodes traditionnelles.
@@ -293,7 +293,7 @@ const Statistics = () => {
               </div>
               
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold text-purple-600 mb-2">🎯 Objectifs Atteints</h3>
+                <h3 className="font-semibold text-accent mb-2">🎯 Objectifs Atteints</h3>
                 <p className="text-sm text-muted-foreground">
                   92% des utilisateurs atteignent leurs objectifs d'apprentissage 
                   grâce à l'approche multimodale de la plateforme.

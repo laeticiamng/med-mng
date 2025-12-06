@@ -25,7 +25,7 @@ export const SceneHeader = ({ theme, description, setting }: SceneHeaderProps) =
           <span className="text-6xl">{theme.uniqueElement}</span>
         </h2>
       </div>
-      <div className={`max-w-5xl mx-auto bg-white/95 backdrop-blur-lg p-10 rounded-3xl ${theme.glowColor} shadow-2xl border-4 border-white/30`}>
+      <div className={`max-w-5xl mx-auto bg-card/95 backdrop-blur-lg p-10 rounded-3xl ${theme.glowColor} shadow-2xl border-4 border-border/30`}>
         <p className={`text-2xl leading-relaxed ${theme.accent} font-medium`}>
           {description}
         </p>

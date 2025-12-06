@@ -192,7 +192,7 @@ const EcosIndex = () => {
                          style={{ animationDelay: `${index * 0.05}s` }}>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-sm">
                             SD{scenario.sd_id}
                           </div>
                           <div className="flex-1">

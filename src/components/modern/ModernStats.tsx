@@ -93,7 +93,7 @@ export const ModernStats: React.FC<ModernStatsProps> = ({
             >
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stat.color}`}>
-                  <IconComponent className="w-4 h-4 text-white" />
+                  <IconComponent className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{stat.label}</p>
@@ -137,7 +137,7 @@ export const ModernStats: React.FC<ModernStatsProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${stat.color}`}>
-                      <IconComponent className="w-6 h-6 text-white" />
+                      <IconComponent className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg">{stat.label}</h3>
@@ -204,7 +204,7 @@ export const ModernStats: React.FC<ModernStatsProps> = ({
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${stat.color}`}>
-                  <IconComponent className="w-5 h-5 text-white" />
+                  <IconComponent className="w-5 h-5 text-primary-foreground" />
                 </div>
                 {showTrends && stat.change && TrendIcon && (
                   <Badge 
