@@ -126,16 +126,16 @@ const PWAAnalytics: React.FC = () => {
         noindex={true}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-muted/50 p-6">
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                <h1 className="text-4xl font-bold text-foreground mb-2">
                   📊 Analytics PWA
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Suivez les performances et l'adoption de votre Progressive Web App
                 </p>
               </div>
@@ -146,9 +146,9 @@ const PWAAnalytics: React.FC = () => {
             </div>
 
             {/* Session actuelle */}
-            <Card className="mb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+            <Card className="mb-6 bg-gradient-to-r from-primary to-accent text-primary-foreground">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-primary-foreground">
                   <Activity className="w-5 h-5" />
                   Session Actuelle
                 </CardTitle>
@@ -210,15 +210,15 @@ const PWAAnalytics: React.FC = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       Utilisateurs Totaux
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-gray-900">
+                    <div className="text-3xl font-bold text-foreground">
                       {stats?.total_users || 0}
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <Users className="w-4 h-4" />
                       Utilisateurs uniques
                     </div>
@@ -227,15 +227,15 @@ const PWAAnalytics: React.FC = () => {
 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       Taux d'Installation
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-green-600">
+                    <div className="text-3xl font-bold text-success">
                       {installRate}%
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <Download className="w-4 h-4" />
                       {stats?.installed_users || 0} installations
                     </div>
@@ -244,15 +244,15 @@ const PWAAnalytics: React.FC = () => {
 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       Sessions Offline
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-orange-600">
+                    <div className="text-3xl font-bold text-warning">
                       {stats?.offline_sessions || 0}
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <WifiOff className="w-4 h-4" />
                       Utilisations hors ligne
                     </div>
@@ -261,15 +261,15 @@ const PWAAnalytics: React.FC = () => {
 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       Durée Moyenne
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-primary">
                       {Math.floor((stats?.avg_session_duration || 0) / 60)}m
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <Clock className="w-4 h-4" />
                       Par session
                     </div>
@@ -289,7 +289,7 @@ const PWAAnalytics: React.FC = () => {
                   <CardContent>
                     <div className="text-4xl font-bold">
                       {stats?.avg_fcp || 0}
-                      <span className="text-xl text-gray-500">ms</span>
+                      <span className="text-xl text-muted-foreground">ms</span>
                     </div>
                     <Badge variant={stats?.avg_fcp && stats.avg_fcp < 1800 ? 'default' : 'destructive'} className="mt-2">
                       {stats?.avg_fcp && stats.avg_fcp < 1800 ? 'Bon' : 'À améliorer'}
@@ -305,7 +305,7 @@ const PWAAnalytics: React.FC = () => {
                   <CardContent>
                     <div className="text-4xl font-bold">
                       {stats?.avg_lcp || 0}
-                      <span className="text-xl text-gray-500">ms</span>
+                      <span className="text-xl text-muted-foreground">ms</span>
                     </div>
                     <Badge variant={stats?.avg_lcp && stats.avg_lcp < 2500 ? 'default' : 'destructive'} className="mt-2">
                       {stats?.avg_lcp && stats.avg_lcp < 2500 ? 'Bon' : 'À améliorer'}
@@ -340,21 +340,21 @@ const PWAAnalytics: React.FC = () => {
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-blue-600" />
+                        <Smartphone className="w-5 h-5 text-primary" />
                         <span>Mobile</span>
                       </div>
                       <span className="font-bold">{stats?.device_breakdown.mobile || 0}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Tablet className="w-5 h-5 text-purple-600" />
+                        <Tablet className="w-5 h-5 text-accent" />
                         <span>Tablet</span>
                       </div>
                       <span className="font-bold">{stats?.device_breakdown.tablet || 0}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Monitor className="w-5 h-5 text-green-600" />
+                        <Monitor className="w-5 h-5 text-success" />
                         <span>Desktop</span>
                       </div>
                       <span className="font-bold">{stats?.device_breakdown.desktop || 0}</span>
@@ -392,17 +392,17 @@ const PWAAnalytics: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {!isSupported ? (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="text-yellow-900">
+                    <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
+                      <p className="text-warning">
                         ⚠️ Les notifications push ne sont pas supportées sur ce navigateur
                       </p>
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                         <div className="flex items-center gap-3">
                           {isSubscribed ? (
-                            <Bell className="w-6 h-6 text-green-600" />
+                            <Bell className="w-6 h-6 text-success" />
                           ) : (
                             <BellOff className="w-6 h-6 text-gray-400" />
                           )}
@@ -410,7 +410,7 @@ const PWAAnalytics: React.FC = () => {
                             <div className="font-semibold">
                               {isSubscribed ? 'Abonné aux notifications' : 'Non abonné'}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-muted-foreground">
                               Permission: {permission}
                             </div>
                           </div>

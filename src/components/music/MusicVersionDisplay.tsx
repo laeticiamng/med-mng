@@ -37,15 +37,15 @@ export const MusicVersionDisplay: React.FC<MusicVersionDisplayProps> = ({
   }
 
   const rangColors = {
-    A: 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800',
-    B: 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800',
-    AB: 'bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800'
+    A: 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30',
+    B: 'bg-success/5 border-success/20 dark:bg-success/10 dark:border-success/30',
+    AB: 'bg-accent/5 border-accent/20 dark:bg-accent/10 dark:border-accent/30'
   };
 
   const rangAccents = {
-    A: 'text-blue-600 dark:text-blue-400',
-    B: 'text-green-600 dark:text-green-400', 
-    AB: 'text-purple-600 dark:text-purple-400'
+    A: 'text-primary',
+    B: 'text-success', 
+    AB: 'text-accent'
   };
 
   return (

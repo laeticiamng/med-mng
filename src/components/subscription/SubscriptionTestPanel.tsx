@@ -163,20 +163,20 @@ export const SubscriptionTestPanel: React.FC = () => {
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
-      case 'free': return 'text-gray-600';
-      case 'standard': return 'text-blue-600';
-      case 'premium': return 'text-purple-600';
-      default: return 'text-gray-600';
+      case 'free': return 'text-muted-foreground';
+      case 'standard': return 'text-primary';
+      case 'premium': return 'text-accent';
+      default: return 'text-muted-foreground';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'created': return 'bg-gray-100 text-gray-800';
-      case 'testing': return 'bg-yellow-100 text-yellow-800';
-      case 'verified': return 'bg-green-100 text-green-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'created': return 'bg-muted text-muted-foreground';
+      case 'testing': return 'bg-warning/10 text-warning';
+      case 'verified': return 'bg-success/10 text-success';
+      case 'error': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -207,7 +207,7 @@ export const SubscriptionTestPanel: React.FC = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       <div>Email: {account.email}</div>
                       {account.quotaLimit !== undefined && (
                         <div>Quota: {account.quotaUsed || 0}/{account.quotaLimit}</div>
@@ -272,7 +272,7 @@ export const SubscriptionTestPanel: React.FC = () => {
                     <Badge variant="outline" className="capitalize">
                       {result.plan}
                     </Badge>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted-foreground">
                       {new Date(result.timestamp).toLocaleString()}
                     </span>
                   </div>

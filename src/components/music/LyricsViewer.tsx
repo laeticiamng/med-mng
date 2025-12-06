@@ -69,10 +69,10 @@ export const LyricsViewer: React.FC<LyricsViewerProps> = ({
 
   const getSectionColor = (type?: string) => {
     switch (type) {
-      case 'chorus': return 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800';
-      case 'verse': return 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800';
-      case 'bridge': return 'bg-purple-100 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800';
-      case 'outro': return 'bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800';
+      case 'chorus': return 'bg-primary/10 border-primary/20';
+      case 'verse': return 'bg-success/10 border-success/20';
+      case 'bridge': return 'bg-accent/10 border-accent/20';
+      case 'outro': return 'bg-warning/10 border-warning/20';
       default: return 'bg-muted/50 border-border';
     }
   };

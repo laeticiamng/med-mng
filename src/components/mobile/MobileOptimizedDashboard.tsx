@@ -172,7 +172,7 @@ export default function MobileOptimizedDashboard() {
 
         <Card className="p-4">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-green-500" />
+            <Zap className="h-4 w-4 text-success" />
             <span className="text-xs font-medium">Système</span>
           </div>
           <div className="mt-2">
@@ -186,15 +186,15 @@ export default function MobileOptimizedDashboard() {
 
       {/* Alertes */}
       {stats.recentAlerts > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-warning/20 bg-warning/5">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <span className="font-medium text-orange-800">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              <span className="font-medium text-warning">
                 {stats.recentAlerts} alerte{stats.recentAlerts > 1 ? 's' : ''} récente{stats.recentAlerts > 1 ? 's' : ''}
               </span>
             </div>
-            <p className="text-sm text-orange-700 mt-1">
+            <p className="text-sm text-warning/80 mt-1">
               Vérification d'intégrité recommandée
             </p>
           </CardContent>
@@ -215,13 +215,13 @@ export default function MobileOptimizedDashboard() {
               key={index}
               variant="ghost"
               className={`w-full justify-between h-auto p-3 ${
-                action.urgent ? 'border border-orange-200 bg-orange-50 hover:bg-orange-100' : ''
+                action.urgent ? 'border border-warning/20 bg-warning/5 hover:bg-warning/10' : ''
               }`}
               onClick={() => handleQuickAction(action.action)}
             >
               <div className="flex items-center gap-3">
                 <action.icon className={`h-4 w-4 ${
-                  action.urgent ? 'text-orange-600' : 'text-muted-foreground'
+                  action.urgent ? 'text-warning' : 'text-muted-foreground'
                 }`} />
                 <div className="text-left">
                   <div className="font-medium text-sm">{action.title}</div>
@@ -274,11 +274,11 @@ export default function MobileOptimizedDashboard() {
           <div className="text-xs text-muted-foreground">DAU</div>
         </div>
         <div className="space-y-1">
-          <div className="text-lg font-bold text-green-600">{stats.systemHealth}%</div>
+          <div className="text-lg font-bold text-success">{stats.systemHealth}%</div>
           <div className="text-xs text-muted-foreground">Uptime</div>
         </div>
         <div className="space-y-1">
-          <div className="text-lg font-bold text-orange-600">{stats.recentAlerts}</div>
+          <div className="text-lg font-bold text-warning">{stats.recentAlerts}</div>
           <div className="text-xs text-muted-foreground">Alertes</div>
         </div>
       </div>

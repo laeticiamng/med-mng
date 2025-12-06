@@ -212,7 +212,7 @@ export default function Community() {
                         <AvatarFallback>{member.name.slice(0, 2)}</AvatarFallback>
                       </Avatar>
                       {member.isOnline && (
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-success border-2 border-background rounded-full" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
