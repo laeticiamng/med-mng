@@ -74,12 +74,12 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   return (
     <PremiumCard variant="glass" className="mb-12 p-8">
       <div className="flex items-center gap-4 mb-8">
-        <Wand2 className="h-8 w-8 text-amber-600" />
+        <Wand2 className="h-8 w-8 text-warning" />
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-foreground">
             <TranslatedText text="Configuration de génération" />
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             <TranslatedText text="Sélectionnez le type de contenu, l'item et le style musical" />
           </p>
         </div>

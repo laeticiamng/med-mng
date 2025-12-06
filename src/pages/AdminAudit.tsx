@@ -213,8 +213,8 @@ export default function AdminAudit() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Audit & Nettoyage</h1>
-          <p className="text-gray-600 mt-2">Analysez et optimisez votre projet automatiquement</p>
+          <h1 className="text-3xl font-bold text-foreground">Audit & Nettoyage</h1>
+          <p className="text-muted-foreground mt-2">Analysez et optimisez votre projet automatiquement</p>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm">
@@ -226,7 +226,7 @@ export default function AdminAudit() {
             />
             Corrections automatiques
           </label>
-          <Button onClick={runFullAudit} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={runFullAudit} className="bg-primary hover:bg-primary/90">
             <Play className="h-4 w-4 mr-2" />
             Audit Complet
           </Button>
@@ -239,10 +239,10 @@ export default function AdminAudit() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Items Total</p>
+                <p className="text-sm text-muted-foreground">Items Total</p>
                 <p className="text-2xl font-bold">{metrics.totalItems}</p>
               </div>
-              <Database className="h-8 w-8 text-blue-500" />
+              <Database className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -251,10 +251,10 @@ export default function AdminAudit() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Doublons</p>
-                <p className="text-2xl font-bold text-red-600">{metrics.duplicates}</p>
+                <p className="text-sm text-muted-foreground">Doublons</p>
+                <p className="text-2xl font-bold text-destructive">{metrics.duplicates}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+              <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
           </CardContent>
         </Card>
@@ -263,10 +263,10 @@ export default function AdminAudit() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Incohérences</p>
-                <p className="text-2xl font-bold text-orange-600">{metrics.inconsistencies}</p>
+                <p className="text-sm text-muted-foreground">Incohérences</p>
+                <p className="text-2xl font-bold text-warning">{metrics.inconsistencies}</p>
               </div>
-              <XCircle className="h-8 w-8 text-orange-500" />
+              <XCircle className="h-8 w-8 text-warning" />
             </div>
           </CardContent>
         </Card>
@@ -275,10 +275,10 @@ export default function AdminAudit() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Complétude</p>
-                <p className="text-2xl font-bold text-green-600">{metrics.completeness}%</p>
+                <p className="text-sm text-muted-foreground">Complétude</p>
+                <p className="text-2xl font-bold text-success">{metrics.completeness}%</p>
               </div>
-              <BarChart3 className="h-8 w-8 text-green-500" />
+              <BarChart3 className="h-8 w-8 text-success" />
             </div>
           </CardContent>
         </Card>
@@ -287,10 +287,10 @@ export default function AdminAudit() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Performance</p>
-                <p className="text-2xl font-bold text-purple-600">{metrics.performance}%</p>
+                <p className="text-sm text-muted-foreground">Performance</p>
+                <p className="text-2xl font-bold text-accent">{metrics.performance}%</p>
               </div>
-              <Zap className="h-8 w-8 text-purple-500" />
+              <Zap className="h-8 w-8 text-accent" />
             </div>
           </CardContent>
         </Card>
@@ -463,7 +463,7 @@ export default function AdminAudit() {
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <h4 className="font-medium">Supprimer les doublons</h4>
-                    <p className="text-sm text-gray-600">Garde l'enregistrement le plus récent</p>
+                    <p className="text-sm text-muted-foreground">Garde l'enregistrement le plus récent</p>
                   </div>
                   <Button onClick={cleanupData} variant="destructive" size="sm">
                     <Trash2 className="h-4 w-4 mr-2" />
@@ -474,7 +474,7 @@ export default function AdminAudit() {
                 <div className="flex items-center justify-between p-3 border rounded-lg opacity-50">
                   <div>
                     <h4 className="font-medium">Corriger les slugs</h4>
-                    <p className="text-sm text-gray-600">Normalise les URLs</p>
+                    <p className="text-sm text-muted-foreground">Normalise les URLs</p>
                   </div>
                   <Button disabled size="sm">
                     <Settings className="h-4 w-4 mr-2" />
@@ -485,7 +485,7 @@ export default function AdminAudit() {
                 <div className="flex items-center justify-between p-3 border rounded-lg opacity-50">
                   <div>
                     <h4 className="font-medium">Optimiser les JSON</h4>
-                    <p className="text-sm text-gray-600">Valide et formate les données</p>
+                    <p className="text-sm text-muted-foreground">Valide et formate les données</p>
                   </div>
                   <Button disabled size="sm">
                     <Settings className="h-4 w-4 mr-2" />
@@ -513,7 +513,7 @@ export default function AdminAudit() {
             </CardHeader>
             <CardContent>
               {auditReports.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Aucun audit effectué</p>
                 </div>
@@ -526,7 +526,7 @@ export default function AdminAudit() {
                           {getStatusIcon(report.status)}
                           <div>
                             <h4 className="font-medium capitalize">{report.report_type}</h4>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                               {new Date(report.created_at).toLocaleString()}
                             </p>
                           </div>
@@ -551,7 +551,7 @@ export default function AdminAudit() {
                             </div>
                           ))}
                           {report.findings.length > 3 && (
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                               +{report.findings.length - 3} autres problèmes
                             </div>
                           )}

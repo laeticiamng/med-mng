@@ -39,10 +39,10 @@ export const MusicLibrary = () => {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'rang_a': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
-      case 'rang_b': return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
-      case 'mix': return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300';
+      case 'rang_a': return 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary';
+      case 'rang_b': return 'bg-success/10 text-success dark:bg-success/20 dark:text-success';
+      case 'mix': return 'bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent';
+      default: return 'bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground';
     }
   };
 
