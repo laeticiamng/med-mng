@@ -179,7 +179,7 @@ const AdminExtractEcos = () => {
                 <CardContent>
                   <div className="space-y-2">
                     <Progress value={progress} className="w-full" />
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Extraction des situations ECOS en cours... Cela peut prendre plusieurs minutes.
                     </p>
                   </div>
@@ -205,23 +205,23 @@ const AdminExtractEcos = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-4 bg-success/10 rounded-lg">
+                      <div className="text-2xl font-bold text-success">
                         {stats.totalProcessed}
                       </div>
-                      <div className="text-sm text-green-700">Situations traitées</div>
+                      <div className="text-sm text-success">Situations traitées</div>
                     </div>
-                    <div className="text-center p-4 bg-red-50 rounded-lg">
-                      <div className="text-2xl font-bold text-red-600">
+                    <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                      <div className="text-2xl font-bold text-destructive">
                         {stats.totalErrors}
                       </div>
-                      <div className="text-sm text-red-700">Erreurs</div>
+                      <div className="text-sm text-destructive">Erreurs</div>
                     </div>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-center p-4 bg-primary/10 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">
                         {stats.lastProcessedSituation}
                       </div>
-                      <div className="text-sm text-blue-700">Dernière situation</div>
+                      <div className="text-sm text-primary">Dernière situation</div>
                     </div>
                   </div>
                 </CardContent>
