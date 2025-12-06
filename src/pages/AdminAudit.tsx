@@ -309,7 +309,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Database className="h-5 w-5 text-blue-500" />
+                  <Database className="h-5 w-5 text-primary" />
                   Base de données
                 </CardTitle>
                 <CardDescription>
@@ -325,7 +325,7 @@ export default function AdminAudit() {
                 >
                   {isRunningAudit.database ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-primary border-t-transparent rounded-full" />
                       Analyse...
                     </>
                   ) : (
@@ -342,7 +342,7 @@ export default function AdminAudit() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Code className="h-5 w-5 text-green-500" />
+                  <Code className="h-5 w-5 text-success" />
                   Structure Code
                 </CardTitle>
                 <CardDescription>
@@ -424,7 +424,7 @@ export default function AdminAudit() {
                 >
                   {isRunningAudit.performance ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-orange-500 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-warning border-t-transparent rounded-full" />
                       Analyse...
                     </>
                   ) : (
@@ -443,7 +443,7 @@ export default function AdminAudit() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Trash2 className="h-5 w-5 text-red-500" />
+                <Trash2 className="h-5 w-5 text-destructive" />
                 Nettoyage Automatique
               </CardTitle>
               <CardDescription>

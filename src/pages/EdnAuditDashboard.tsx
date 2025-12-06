@@ -287,7 +287,7 @@ export const EdnAuditDashboard: React.FC = () => {
               <Button 
                 onClick={completeAllIncomplete}
                 disabled={isAuditing || isCompleting}
-                className="bg-gradient-to-r from-purple-600 to-pink-600"
+                className="bg-gradient-to-r from-accent to-accent/80"
               >
                 {isCompleting ? (
                   <>
@@ -305,7 +305,7 @@ export const EdnAuditDashboard: React.FC = () => {
             <Button 
               onClick={startAudit}
               disabled={isAuditing || isCompleting}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600"
+              className="bg-gradient-to-r from-primary to-primary/80"
             >
               {isAuditing ? (
                 <>
@@ -425,7 +425,7 @@ export const EdnAuditDashboard: React.FC = () => {
                           size="sm"
                           onClick={() => completeItem(result.item_code)}
                           disabled={completingItems.has(result.item_code)}
-                          className="ml-4 bg-gradient-to-r from-purple-600 to-pink-600"
+                          className="ml-4 bg-gradient-to-r from-accent to-accent/80"
                         >
                           {completingItems.has(result.item_code) ? (
                             <>

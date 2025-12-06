@@ -163,7 +163,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('whatsapp')}
-                  className="justify-start bg-green-50 hover:bg-green-100 text-green-700"
+                  className="justify-start bg-success/10 hover:bg-success/20 text-success"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp
@@ -173,7 +173,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('email')}
-                  className="justify-start bg-blue-50 hover:bg-blue-100 text-blue-700"
+                  className="justify-start bg-primary/10 hover:bg-primary/20 text-primary"
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   Email
@@ -183,7 +183,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('twitter')}
-                  className="justify-start bg-sky-50 hover:bg-sky-100 text-sky-700"
+                  className="justify-start bg-primary/10 hover:bg-primary/20 text-primary"
                 >
                   <Twitter className="w-4 h-4 mr-2" />
                   Twitter
@@ -193,7 +193,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('linkedin')}
-                  className="justify-start bg-blue-50 hover:bg-blue-100 text-blue-700"
+                  className="justify-start bg-primary/10 hover:bg-primary/20 text-primary"
                 >
                   <Linkedin className="w-4 h-4 mr-2" />
                   LinkedIn
@@ -203,7 +203,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('facebook')}
-                  className="justify-start bg-blue-50 hover:bg-blue-100 text-blue-600"
+                  className="justify-start bg-primary/10 hover:bg-primary/20 text-primary"
                 >
                   <Facebook className="w-4 h-4 mr-2" />
                   Facebook
@@ -213,7 +213,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => shareOnPlatform('telegram')}
-                  className="justify-start bg-sky-50 hover:bg-sky-100 text-sky-600"
+                  className="justify-start bg-primary/10 hover:bg-primary/20 text-primary"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Telegram

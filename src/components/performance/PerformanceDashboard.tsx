@@ -348,7 +348,7 @@ export const PerformanceDashboard: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                   <span className="text-sm">Lazy loading activé</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -374,7 +374,7 @@ export const PerformanceDashboard: React.FC = () => {
               <Card key={index}>
                 <CardContent className="pt-6">
                   <div className="flex items-start space-x-4">
-                    <TrendingUp className="w-5 h-5 text-blue-500 mt-0.5" />
+                    <TrendingUp className="w-5 h-5 text-primary mt-0.5" />
                     <div className="flex-1">
                       <h4 className="font-medium">{suggestion}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -390,7 +390,7 @@ export const PerformanceDashboard: React.FC = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-4">
-                  <Clock className="w-5 h-5 text-green-500 mt-0.5" />
+                  <Clock className="w-5 h-5 text-success mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-medium">Optimiser les images</h4>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -404,7 +404,7 @@ export const PerformanceDashboard: React.FC = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-start space-x-4">
-                  <Monitor className="w-5 h-5 text-blue-500 mt-0.5" />
+                  <Monitor className="w-5 h-5 text-primary mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-medium">Précharger les ressources critiques</h4>
                     <p className="text-sm text-muted-foreground mt-1">

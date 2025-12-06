@@ -84,10 +84,10 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
   if (loading) {
     return (
       <div className="space-y-4">
-        <label className="text-lg font-semibold text-gray-900">
+        <label className="text-lg font-semibold text-foreground">
           <TranslatedText text="Situation ECOS" />
         </label>
-        <div className="flex items-center justify-center h-14 bg-white/50 backdrop-blur-sm border border-white/30 rounded-lg">
+        <div className="flex items-center justify-center h-14 bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
           <span className="ml-2 text-sm text-muted-foreground">Chargement des situations...</span>
         </div>
@@ -98,7 +98,7 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <label className="text-lg font-semibold text-gray-900">
+        <label className="text-lg font-semibold text-foreground">
           <TranslatedText text="Situation ECOS" />
         </label>
         <Badge variant="secondary" className="text-xs">
@@ -107,10 +107,10 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
       </div>
       
       <Select value={selectedSituation} onValueChange={setSelectedSituation}>
-        <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
+        <SelectTrigger className="h-14 text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
           <SelectValue placeholder="Sélectionnez une situation ECOS officielle" />
         </SelectTrigger>
-        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-[400px]">
+        <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-[400px]">
           {situations.map((situation) => (
             <SelectItem 
               key={situation.sd_id} 
@@ -128,7 +128,7 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
       </Select>
 
       {selectedSituation && (
-        <div className="mt-4 p-4 bg-white/30 backdrop-blur-sm rounded-lg border border-white/20">
+        <div className="mt-4 p-4 bg-card/30 backdrop-blur-sm rounded-lg border border-border/20">
           {(() => {
             const selected = situations.find(s => s.sd_id.toString() === selectedSituation);
             if (!selected) return null;
@@ -136,15 +136,15 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
             return (
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Situation sélectionnée:</p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-sm font-medium text-muted-foreground">Situation sélectionnée:</p>
+                  <p className="text-base font-semibold text-foreground">
                     SD{selected.sd_id} - {selected.intitule_sd}
                   </p>
                 </div>
 
                 {selected.competences_associees && selected.competences_associees.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-gray-600 mb-1">Compétences:</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Compétences:</p>
                     <div className="flex flex-wrap gap-1">
                       {selected.competences_associees.slice(0, 3).map((comp, idx) => (
                         <Badge key={idx} variant="secondary" className="text-xs">

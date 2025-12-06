@@ -131,7 +131,7 @@ const ModernHomepage = () => {
               
               <h1 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
                 Révolutionnez votre
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                   {' '}apprentissage médical
                 </span>
               </h1>
