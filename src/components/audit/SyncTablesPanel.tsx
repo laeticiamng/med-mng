@@ -107,7 +107,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
         <div className="flex items-center justify-center gap-4 p-4 bg-background rounded-lg border">
           <div className="text-center">
-            <Database className="h-8 w-8 text-green-600 mx-auto mb-2" />
+            <Database className="h-8 w-8 text-success mx-auto mb-2" />
             <p className="text-sm font-medium">edn_items_immersive</p>
             <p className="text-xs text-muted-foreground">Source (OIC complètes)</p>
           </div>

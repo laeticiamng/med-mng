@@ -18,20 +18,20 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
           {/* En-tête de compétence amélioré */}
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-8 h-8 bg-gradient-to-r from-warning to-warning/80 rounded-full flex items-center justify-center text-warning-foreground font-bold text-sm">
                 {ligneIndex + 1}
               </div>
-              <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-amber-800 to-orange-800 bg-clip-text text-transparent leading-tight">
+              <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-warning to-warning/80 bg-clip-text text-transparent leading-tight">
                 {ligne[0]}
               </h3>
             </div>
             
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 sm:p-6 mx-1 sm:mx-0 shadow-sm">
+            <div className="bg-gradient-to-r from-warning/10 to-warning/5 border-2 border-warning/30 rounded-xl p-4 sm:p-6 mx-1 sm:mx-0 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-xs">💡</span>
+                <div className="w-6 h-6 bg-warning rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-warning-foreground text-xs">💡</span>
                 </div>
-                <p className="text-sm sm:text-lg text-amber-800 leading-relaxed text-left font-medium">
+                <p className="text-sm sm:text-lg text-warning leading-relaxed text-left font-medium">
                   {ligne[1]}
                 </p>
               </div>
@@ -65,7 +65,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
                   </div>
                   
                   <div className="mb-3 sm:mb-4">
-                    <div className={`inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-white ${colonne.couleur} max-w-full shadow-sm`}>
+                    <div className={`inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground ${colonne.couleur} max-w-full shadow-sm`}>
                       <span className="flex-shrink-0 mr-2">
                         {getColumnIcon(colonne.nom)}
                       </span>

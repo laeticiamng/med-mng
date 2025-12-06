@@ -191,11 +191,11 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
 
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
-      case 'success': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'info': return <Info className="w-5 h-5 text-blue-500" />;
-      case 'warning': return <AlertCircle className="w-5 h-5 text-yellow-500" />;
-      case 'error': return <XCircle className="w-5 h-5 text-red-500" />;
-      case 'achievement': return <Trophy className="w-5 h-5 text-purple-500" />;
+      case 'success': return <CheckCircle className="w-5 h-5 text-success" />;
+      case 'info': return <Info className="w-5 h-5 text-primary" />;
+      case 'warning': return <AlertCircle className="w-5 h-5 text-warning" />;
+      case 'error': return <XCircle className="w-5 h-5 text-destructive" />;
+      case 'achievement': return <Trophy className="w-5 h-5 text-accent" />;
       case 'content': return <BookOpen className="w-5 h-5 text-primary" />;
       default: return <Bell className="w-5 h-5 text-muted-foreground" />;
     }
