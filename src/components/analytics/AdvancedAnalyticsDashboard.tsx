@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { 
-  Users, 
-  Music, 
-  Brain, 
-  Target, 
-  TrendingUp, 
-  Calendar, 
+import {
+  Users,
+  Music,
+  Brain,
+  Target,
+  TrendingUp,
+  Calendar,
   Award,
   Clock,
   Headphones,
@@ -20,6 +20,18 @@ import {
   Activity,
   BarChart3
 } from 'lucide-react';
+
+// Couleurs sémantiques pour les graphiques
+const CHART_COLORS = {
+  primary: 'hsl(var(--primary))',
+  success: 'hsl(var(--success))',
+  warning: 'hsl(var(--warning))',
+  chart1: 'hsl(var(--chart-1))',
+  chart2: 'hsl(var(--chart-2))',
+  chart3: 'hsl(var(--chart-3))',
+  chart4: 'hsl(var(--chart-4))',
+  chart5: 'hsl(var(--chart-5))',
+};
 
 interface AdvancedAnalytics {
   totalStudyTime: number;
@@ -71,10 +83,10 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         streakDays: 12,
         completedItems: 89,
         favoriteGenres: [
-          { name: 'LoFi', count: 18, color: '#3B82F6' },
-          { name: 'Classical', count: 12, color: '#10B981' },
-          { name: 'Ambient', count: 8, color: '#F59E0B' },
-          { name: 'Jazz', count: 5, color: '#8B5CF6' }
+          { name: 'LoFi', count: 18, color: CHART_COLORS.chart1 },
+          { name: 'Classical', count: 12, color: CHART_COLORS.chart3 },
+          { name: 'Ambient', count: 8, color: CHART_COLORS.chart4 },
+          { name: 'Jazz', count: 5, color: CHART_COLORS.chart5 }
         ],
         weeklyActivity: [
           { day: 'Lun', study: 3.2, music: 2, quiz: 4 },
@@ -289,30 +301,30 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="study" 
+                    <Area
+                      type="monotone"
+                      dataKey="study"
                       stackId="1"
-                      stroke="#3B82F6" 
-                      fill="#3B82F6" 
+                      stroke={CHART_COLORS.chart1}
+                      fill={CHART_COLORS.chart1}
                       fillOpacity={0.6}
                       name="Étude (h)"
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="music" 
+                    <Area
+                      type="monotone"
+                      dataKey="music"
                       stackId="1"
-                      stroke="#10B981" 
-                      fill="#10B981" 
+                      stroke={CHART_COLORS.chart3}
+                      fill={CHART_COLORS.chart3}
                       fillOpacity={0.6}
                       name="Musique"
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="quiz" 
+                    <Area
+                      type="monotone"
+                      dataKey="quiz"
                       stackId="1"
-                      stroke="#F59E0B" 
-                      fill="#F59E0B" 
+                      stroke={CHART_COLORS.chart4}
+                      fill={CHART_COLORS.chart4}
                       fillOpacity={0.6}
                       name="Quiz"
                     />
@@ -334,7 +346,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill={CHART_COLORS.chart1}
                       dataKey="count"
                       label={({ name, count }) => `${name}: ${count}`}
                     >
@@ -365,12 +377,12 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                   <YAxis yAxisId="right" orientation="right" />
                   <Tooltip />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="items" fill="#3B82F6" name="Items complétés" />
-                  <Line 
-                    yAxisId="right" 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#10B981" 
+                  <Bar yAxisId="left" dataKey="items" fill={CHART_COLORS.chart1} name="Items complétés" />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="score"
+                    stroke={CHART_COLORS.chart3}
                     strokeWidth={3}
                     name="Score moyen (%)"
                   />
@@ -423,19 +435,19 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="efficiency" 
-                    stroke="#8B5CF6" 
-                    fill="#8B5CF6" 
+                  <Area
+                    type="monotone"
+                    dataKey="efficiency"
+                    stroke={CHART_COLORS.chart5}
+                    fill={CHART_COLORS.chart5}
                     fillOpacity={0.6}
                     name="Efficacité (%)"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="focus" 
-                    stroke="#F59E0B" 
-                    fill="#F59E0B" 
+                  <Area
+                    type="monotone"
+                    dataKey="focus"
+                    stroke={CHART_COLORS.chart4}
+                    fill={CHART_COLORS.chart4}
                     fillOpacity={0.4}
                     name="Concentration (%)"
                   />

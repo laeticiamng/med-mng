@@ -469,7 +469,7 @@ export function NotificationAnalytics() {
                           `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
                         }
                         outerRadius={80}
-                        fill="#8884d8"
+                        fill="hsl(var(--chart-1))"
                         dataKey="value"
                       >
                         {statusData.map((entry, index) => (
@@ -564,7 +564,7 @@ export function NotificationAnalytics() {
                         type="monotone"
                         dataKey="total"
                         name="Total"
-                        stroke="#8884d8"
+                        stroke="hsl(var(--chart-1))"
                         strokeWidth={2}
                         strokeDasharray="5 5"
                       />

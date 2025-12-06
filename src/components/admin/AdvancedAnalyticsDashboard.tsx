@@ -281,7 +281,7 @@ export default function AdvancedAnalyticsDashboard() {
                   labelLine={false}
                   label={({ feature, adoption_rate }) => `${feature}: ${adoption_rate}%`}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-1))"
                   dataKey="adoption_rate"
                   nameKey="feature"
                 >

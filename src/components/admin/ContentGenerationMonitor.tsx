@@ -207,7 +207,7 @@ export const ContentGenerationMonitor: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-1))"
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${value}`}
                 >
@@ -233,7 +233,7 @@ export const ContentGenerationMonitor: React.FC = () => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="value" fill="#8884d8">
+                <Bar dataKey="value" fill="hsl(var(--chart-1))">
                   {statusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

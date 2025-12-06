@@ -79,7 +79,7 @@ export const AuditComparatif = ({ itemCode = 'IC-4' }: AuditComparatifProps) => 
             <XAxis dataKey="item" />
             <YAxis domain={[70, 100]} />
             <Tooltip />
-            <Bar dataKey="global" fill="#3B82F6" name="Score Global" />
+            <Bar dataKey="global" fill="hsl(var(--primary))" name="Score Global" />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -92,8 +92,8 @@ export const AuditComparatif = ({ itemCode = 'IC-4' }: AuditComparatifProps) => 
             <PolarGrid />
             <PolarAngleAxis dataKey="critere" />
             <PolarRadiusAxis domain={[70, 100]} />
-            <Radar name="IC-4" dataKey="IC4" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
-            <Radar name="Moyenne" dataKey="Moyenne" stroke="#6B7280" fill="#6B7280" fillOpacity={0.1} />
+            <Radar name="IC-4" dataKey="IC4" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+            <Radar name="Moyenne" dataKey="Moyenne" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} />
             <Tooltip />
           </RadarChart>
         </ResponsiveContainer>

@@ -101,15 +101,15 @@ export const EcosDashboard: React.FC = () => {
   }));
 
   const distributionData = [
-    { 
-      name: 'Avec compétences', 
+    {
+      name: 'Avec compétences',
       value: analytics.distribution_by_competences.with_competences,
-      color: '#3b82f6'
+      color: 'hsl(var(--primary))'
     },
-    { 
-      name: 'Sans compétences', 
+    {
+      name: 'Sans compétences',
       value: analytics.distribution_by_competences.without_competences,
-      color: '#ef4444'
+      color: 'hsl(var(--destructive))'
     }
   ];
 
@@ -232,14 +232,14 @@ export const EcosDashboard: React.FC = () => {
                   fontSize={12}
                 />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name, props) => [
                     `${value} situations (${props.payload.percentage}%)`,
                     props.payload.fullName
                   ]}
-                  labelStyle={{ color: '#000' }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
-                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -260,7 +260,7 @@ export const EcosDashboard: React.FC = () => {
                   labelLine={false}
                   label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
                   outerRadius={120}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-1))"
                   dataKey="value"
                 >
                   {distributionData.map((entry, index) => (

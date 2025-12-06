@@ -32,12 +32,12 @@ export const PerformanceTrendsChart: React.FC<PerformanceTrendsChartProps> = ({
   const metrics = [...new Set(data.map(item => item.metric_name))];
   
   const colors = [
-    '#8884d8',
-    '#82ca9d',
-    '#ffc658',
-    '#ff7300',
-    '#00ff00',
-    '#ff00ff',
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--primary))',
   ];
 
   const formatTooltipValue = (value: any, name: string) => {
@@ -62,9 +62,9 @@ export const PerformanceTrendsChart: React.FC<PerformanceTrendsChartProps> = ({
               tick={{ fontSize: 10 }}
             />
             <YAxis fontSize={12} />
-            <Tooltip 
+            <Tooltip
               formatter={formatTooltipValue}
-              labelStyle={{ color: '#000' }}
+              labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
             <Legend />
             {metrics.map((metric, index) => (

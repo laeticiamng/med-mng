@@ -222,7 +222,7 @@ export const EmailStatistics: React.FC = () => {
                   labelLine={false}
                   label={(entry) => `${entry.name}: ${entry.value}`}
                   outerRadius={100}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-1))"
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
