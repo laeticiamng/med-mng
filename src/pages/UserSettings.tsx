@@ -351,14 +351,14 @@ const UserSettings: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <div className="bg-warning/10 dark:bg-warning/20 border border-warning/30 dark:border-warning/40 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                        <h5 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                        <AlertTriangle className="w-4 h-4 text-warning" />
+                        <h5 className="text-sm font-medium text-warning">
                           Information importante
                         </h5>
                       </div>
-                      <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                      <p className="text-xs text-warning/80">
                         Certaines fonctionnalités peuvent être limitées si vous désactivez la collecte de données.
                         Vos données sont toujours protégées selon notre politique de confidentialité.
                       </p>
@@ -433,10 +433,10 @@ const UserSettings: React.FC = () => {
 
                     <Separator />
 
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive/40 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="w-5 h-5 text-red-600" />
-                        <h4 className="font-medium text-red-800 dark:text-red-200">
+                        <AlertTriangle className="w-5 h-5 text-destructive" />
+                        <h4 className="font-medium text-destructive">
                           Zone Dangereuse
                         </h4>
                       </div>

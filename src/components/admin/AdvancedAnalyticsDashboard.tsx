@@ -185,7 +185,7 @@ export default function AdvancedAnalyticsDashboard() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-green-500" />
+              <Activity className="h-5 w-5 text-success" />
               <span className="text-sm font-medium">Uptime</span>
             </div>
             <div className="mt-2">
@@ -313,19 +313,19 @@ export default function AdvancedAnalyticsDashboard() {
               <div className="text-sm text-muted-foreground">Temps Réponse API</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500">
+              <div className="text-2xl font-bold text-warning">
                 {analytics.system_health.error_rate}%
               </div>
               <div className="text-sm text-muted-foreground">Taux d'Erreur</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">
+              <div className="text-2xl font-bold text-success">
                 {analytics.system_health.database_performance.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">Perf. Base</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500">
+              <div className="text-2xl font-bold text-primary">
                 {analytics.system_health.uptime_percentage.toFixed(2)}%
               </div>
               <div className="text-sm text-muted-foreground">Disponibilité</div>

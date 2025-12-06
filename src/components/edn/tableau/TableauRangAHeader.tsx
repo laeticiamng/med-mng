@@ -21,11 +21,11 @@ export const TableauRangAHeader: React.FC<TableauRangAHeaderProps> = ({
   };
 
   const getRangColor = () => {
-    return isRangB ? 'text-purple-700' : 'text-amber-700';
+    return isRangB ? 'text-accent' : 'text-warning';
   };
 
   const getBadgeColor = () => {
-    return isRangB ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-amber-100 text-amber-700 border-amber-300';
+    return isRangB ? 'bg-accent/10 text-accent border-accent/30' : 'bg-warning/10 text-warning border-warning/30';
   };
 
   return (
@@ -35,7 +35,7 @@ export const TableauRangAHeader: React.FC<TableauRangAHeaderProps> = ({
         <h2 className={`text-3xl font-serif ${getRangColor()}`}>
           {theme}
         </h2>
-        {isRangB ? <Star className="h-6 w-6 text-purple-600" /> : <BookOpen className="h-6 w-6 text-amber-600" />}
+        {isRangB ? <Star className="h-6 w-6 text-accent" /> : <BookOpen className="h-6 w-6 text-warning" />}
       </div>
       
       <div className="flex flex-wrap justify-center gap-3">
@@ -50,7 +50,7 @@ export const TableauRangAHeader: React.FC<TableauRangAHeaderProps> = ({
         </Badge>
       </div>
       
-      <div className={`text-sm ${isRangB ? 'text-purple-600' : 'text-amber-600'} font-medium`}>
+      <div className={`text-sm ${isRangB ? 'text-accent' : 'text-warning'} font-medium`}>
         {isRangB 
           ? '🎯 Expertise approfondie et maîtrise complète des enjeux'
           : '📚 Connaissances essentielles pour la pratique médicale'

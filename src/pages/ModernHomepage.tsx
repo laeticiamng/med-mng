@@ -207,7 +207,7 @@ const ModernHomepage = () => {
                         </Badge>
                       )}
                     </div>
-                    <CardTitle className="group-hover:text-purple-600 transition-colors">
+                    <CardTitle className="group-hover:text-primary transition-colors">
                       {module.title}
                     </CardTitle>
                     <CardDescription>{module.description}</CardDescription>
@@ -215,7 +215,7 @@ const ModernHomepage = () => {
                   <CardContent>
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">{module.badge}</Badge>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-purple-600 transition-colors" />
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                   </CardContent>
                 </Card>
@@ -264,7 +264,7 @@ const ModernHomepage = () => {
                       <CardContent className="p-6">
                         <div className="flex items-center gap-1 mb-3">
                           {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-current text-yellow-500" />
+                            <Star key={i} className="h-4 w-4 fill-current text-warning" />
                           ))}
                         </div>
                         <p className="text-foreground mb-4 italic">"{testimonial.text}"</p>

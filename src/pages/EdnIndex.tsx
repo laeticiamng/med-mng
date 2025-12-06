@@ -185,8 +185,8 @@ const EdnIndex = () => {
               </div>
             </div>
             <div className="flex items-center justify-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-sm text-green-600 font-medium">
+              <CheckCircle className="h-5 w-5 text-success" />
+              <span className="text-sm text-success font-medium">
                 100% des compétences UNESS intégrées • Interface premium unifiée
               </span>
             </div>

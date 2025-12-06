@@ -241,11 +241,11 @@ export const PlaylistManager = () => {
         </Card>
       ) : filteredPlaylists.length === 0 ? (
         <Card className="p-12 text-center">
-          <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             <TranslatedText text="Aucune playlist trouvée" />
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             <TranslatedText text="Modifiez vos critères de recherche ou créez une nouvelle playlist" />
           </p>
         </Card>
@@ -256,11 +256,11 @@ export const PlaylistManager = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex-1" onClick={() => navigate(`/med-mng/playlists/${playlist.id}`)}>
-                    <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-1">
+                    <CardTitle className="text-lg font-semibold text-foreground line-clamp-1">
                       {playlist.name}
                     </CardTitle>
                     {playlist.description && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {playlist.description}
                       </p>
                     )}
@@ -284,13 +284,13 @@ export const PlaylistManager = () => {
                         handleDeletePlaylist(playlist);
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent onClick={() => navigate(`/med-mng/playlists/${playlist.id}`)}>
-                <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center space-x-4">
                     <span>{playlist.song_count} chanson{playlist.song_count > 1 ? 's' : ''}</span>
                     <div className="flex items-center space-x-1">

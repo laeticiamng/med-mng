@@ -34,9 +34,9 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
   const maxQuestions = Math.min(totalQuestions, 50);
 
   return (
-    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+    <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-blue-800">
+        <CardTitle className="flex items-center gap-3 text-primary">
           <Settings className="h-6 w-6" />
           Configuration du Quiz - {itemCode}
         </CardTitle>
