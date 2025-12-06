@@ -499,16 +499,16 @@ export function NotificationAnalytics() {
                         </div>
                         <div className="w-full bg-muted rounded-full h-2">
                           <div
-                            className="bg-green-500 h-2 rounded-full transition-all"
+                            className="bg-success h-2 rounded-full transition-all"
                             style={{
                               width: `${platform.successRate}%`,
                             }}
                           />
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-green-600">{platform.success} succès</span>
+                          <span className="text-success">{platform.success} succès</span>
                           <span className="font-semibold">{platform.successRate}%</span>
-                          <span className="text-red-600">{platform.failed} échecs</span>
+                          <span className="text-destructive">{platform.failed} échecs</span>
                         </div>
                       </div>
                     ))}
@@ -536,8 +536,8 @@ export function NotificationAnalytics() {
                             return (
                               <div className="bg-background border rounded-lg p-3 shadow-lg">
                                 <p className="font-semibold mb-2">{data.date}</p>
-                                <p className="text-sm text-green-600">Succès: {data.success}</p>
-                                <p className="text-sm text-red-600">Échecs: {data.failed}</p>
+                                <p className="text-sm text-success">Succès: {data.success}</p>
+                                <p className="text-sm text-destructive">Échecs: {data.failed}</p>
                                 <p className="text-sm font-semibold mt-2">Total: {data.total}</p>
                               </div>
                             );

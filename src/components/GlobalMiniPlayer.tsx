@@ -79,10 +79,10 @@ export const GlobalMiniPlayer = () => {
           {/* Info piste */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="min-w-0 flex-1">
-              <h4 className="text-sm font-medium text-amber-900 truncate">
+              <h4 className="text-sm font-medium text-foreground truncate">
                 {currentTrack.title}
               </h4>
-              <p className="text-xs text-amber-600">
+              <p className="text-xs text-muted-foreground">
                 Rang {currentTrack.rang}
               </p>
             </div>
@@ -94,7 +94,7 @@ export const GlobalMiniPlayer = () => {
               onClick={skipBackward}
               variant="ghost"
               size="sm"
-              className="text-amber-600 hover:bg-amber-50"
+              className="text-muted-foreground hover:bg-muted"
             >
               <SkipBack className="h-4 w-4" />
             </Button>
@@ -110,7 +110,7 @@ export const GlobalMiniPlayer = () => {
               onClick={stop}
               variant="ghost"
               size="sm"
-              className="text-amber-600 hover:bg-amber-50"
+              className="text-muted-foreground hover:bg-muted"
             >
               <Square className="h-4 w-4" />
             </Button>
@@ -119,7 +119,7 @@ export const GlobalMiniPlayer = () => {
               onClick={skipForward}
               variant="ghost"
               size="sm"
-              className="text-amber-600 hover:bg-amber-50"
+              className="text-muted-foreground hover:bg-muted"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
@@ -128,7 +128,7 @@ export const GlobalMiniPlayer = () => {
           {/* Barre de progression et volume */}
           <div className="flex items-center gap-4 flex-1 justify-end">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="text-xs text-amber-600 whitespace-nowrap">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
                 {formatTime(currentTime)}
               </span>
               <Slider
@@ -138,7 +138,7 @@ export const GlobalMiniPlayer = () => {
                 onValueChange={handleSeek}
                 className="flex-1"
               />
-              <span className="text-xs text-amber-600 whitespace-nowrap">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
                 {formatTime(duration)}
               </span>
             </div>
@@ -148,7 +148,7 @@ export const GlobalMiniPlayer = () => {
                 onClick={toggleMute}
                 variant="ghost"
                 size="sm"
-                className="text-amber-600 hover:bg-amber-50"
+                className="text-muted-foreground hover:bg-muted"
               >
                 {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </Button>
@@ -166,7 +166,7 @@ export const GlobalMiniPlayer = () => {
                 onClick={maximize}
                 variant="ghost"
                 size="sm"
-                className="text-amber-600 hover:bg-amber-50"
+                className="text-muted-foreground hover:bg-muted"
               >
                 <Maximize2 className="h-4 w-4" />
               </Button>

@@ -106,7 +106,7 @@ export const ItemCompetencesChecker = () => {
           </CardTitle>
           <CardDescription>
             Régénère toutes les compétences OIC depuis la table backup_oic_competences et vérifie la qualité avec l'IA.
-            <span className="block mt-2 text-amber-600 font-medium">⚠️ Cette opération prend 5-10 minutes</span>
+            <span className="block mt-2 text-warning font-medium">⚠️ Cette opération prend 5-10 minutes</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -270,7 +270,7 @@ export const ItemCompetencesChecker = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium text-green-600 mb-2 flex items-center">
+                <h4 className="font-medium text-success mb-2 flex items-center">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Compétences présentes ({report.analysis.rang_a.presentes.length})
                 </h4>
@@ -283,7 +283,7 @@ export const ItemCompetencesChecker = () => {
 
               {report.analysis.rang_a.manquantes.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-red-600 mb-2 flex items-center">
+                  <h4 className="font-medium text-destructive mb-2 flex items-center">
                     <XCircle className="mr-2 h-4 w-4" />
                     Compétences manquantes ({report.analysis.rang_a.manquantes.length})
                   </h4>
@@ -304,7 +304,7 @@ export const ItemCompetencesChecker = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium text-green-600 mb-2 flex items-center">
+                <h4 className="font-medium text-success mb-2 flex items-center">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Compétences présentes ({report.analysis.rang_b.presentes.length})
                 </h4>
@@ -317,7 +317,7 @@ export const ItemCompetencesChecker = () => {
 
               {report.analysis.rang_b.manquantes.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-red-600 mb-2 flex items-center">
+                  <h4 className="font-medium text-destructive mb-2 flex items-center">
                     <XCircle className="mr-2 h-4 w-4" />
                     Compétences manquantes ({report.analysis.rang_b.manquantes.length})
                   </h4>
