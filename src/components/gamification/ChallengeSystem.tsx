@@ -120,9 +120,9 @@ export const ChallengeSystem: React.FC = () => {
 
   const getDifficultyColor = (difficulty: Challenge['difficulty']) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'hard': return 'bg-red-500';
+      case 'easy': return 'bg-success';
+      case 'medium': return 'bg-warning';
+      case 'hard': return 'bg-destructive';
     }
   };
 
@@ -172,8 +172,8 @@ export const ChallengeSystem: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Trophy className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="w-10 h-10 bg-success/10 dark:bg-success/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Trophy className="w-5 h-5 text-success" />
             </div>
             <p className="text-lg font-bold">12</p>
             <p className="text-xs text-muted-foreground">Complétés</p>
@@ -182,8 +182,8 @@ export const ChallengeSystem: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Target className="w-5 h-5 text-primary" />
             </div>
             <p className="text-lg font-bold">6</p>
             <p className="text-xs text-muted-foreground">En cours</p>
@@ -192,8 +192,8 @@ export const ChallengeSystem: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <div className="w-10 h-10 bg-warning/10 dark:bg-warning/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Flame className="w-5 h-5 text-warning" />
             </div>
             <p className="text-lg font-bold">5</p>
             <p className="text-xs text-muted-foreground">Série actuelle</p>
@@ -202,8 +202,8 @@ export const ChallengeSystem: React.FC = () => {
 
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Star className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 bg-accent/10 dark:bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Star className="w-5 h-5 text-accent" />
             </div>
             <p className="text-lg font-bold">1,847</p>
             <p className="text-xs text-muted-foreground">XP gagnés</p>
@@ -218,7 +218,7 @@ export const ChallengeSystem: React.FC = () => {
           const progressPercentage = Math.min((challenge.progress / challenge.target) * 100, 100);
           
           return (
-            <Card key={challenge.id} className={`${challenge.isCompleted ? 'border-green-500 bg-green-50 dark:bg-green-950' : ''}`}>
+            <Card key={challenge.id} className={`${challenge.isCompleted ? 'border-success bg-success/5 dark:bg-success/10' : ''}`}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ export const ChallengeSystem: React.FC = () => {
                       </Badge>
                     ))}
                     {challenge.reward.special && (
-                      <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0">
+                      <Badge variant="outline" className="text-xs bg-gradient-to-r from-accent to-accent/80 text-accent-foreground border-0">
                         ✨ {challenge.reward.special}
                       </Badge>
                     )}

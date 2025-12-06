@@ -70,12 +70,12 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
 
   if (!normalizedParoles || normalizedParoles.length === 0) {
     return (
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <div className="flex items-center gap-2 text-yellow-800">
+      <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
+        <div className="flex items-center gap-2 text-warning">
           <AlertTriangle className="h-5 w-5" />
           <span className="font-semibold">Aucune parole disponible</span>
         </div>
-        <p className="text-yellow-700 mt-2">
+        <p className="text-warning/80 mt-2">
           Cet item ne contient pas encore de paroles musicales pour Suno.
         </p>
       </div>
@@ -149,8 +149,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
       )}
 
       {normalizedParoles[0] && normalizedParoles[1] && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+        <div className="mt-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20 rounded-lg">
+          <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
             🎵 Section Combinée Rang A+B - Fusion des compétences
           </h4>
           <ParolesMusicalesRangSection
@@ -177,7 +177,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             generationProgress={generationProgress?.rangA}
             title="Musique Complète A+B"
           />
-          <p className="text-blue-600 text-sm mt-2">
+          <p className="text-primary/80 text-sm mt-2">
             ✨ Cette section combine les compétences Rang A et Rang B pour une expérience musicale complète de {itemCode}
           </p>
         </div>
