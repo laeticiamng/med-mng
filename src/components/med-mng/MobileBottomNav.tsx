@@ -28,7 +28,7 @@ const BottomNavItem: React.FC<BottomNavItemProps> = ({
       aria-label={`Navigation vers ${label}`}
       className={cn(
         "flex flex-col items-center justify-center p-2 transition-all duration-200 min-h-[64px] flex-1",
-        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
         "active:scale-95",
         isActive 
           ? "text-primary bg-primary/5" 
