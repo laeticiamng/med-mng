@@ -53,15 +53,15 @@ export const AuditIC4 = () => {
       case 'parfait':
       case 'optimise':
       case 'reference':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-success/10 text-success border-success/30';
       case 'bon':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'ameliorer':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-warning/10 text-warning border-warning/30';
       case 'insuffisant':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-destructive/10 text-destructive border-destructive/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -71,15 +71,15 @@ export const AuditIC4 = () => {
       case 'parfait':
       case 'optimise':
       case 'reference':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
+        return <CheckCircle className="h-5 w-5 text-success" />;
       case 'bon':
-        return <Info className="h-5 w-5 text-blue-600" />;
+        return <Info className="h-5 w-5 text-primary" />;
       case 'ameliorer':
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
+        return <AlertTriangle className="h-5 w-5 text-warning" />;
       case 'insuffisant':
-        return <AlertTriangle className="h-5 w-5 text-red-600" />;
+        return <AlertTriangle className="h-5 w-5 text-destructive" />;
       default:
-        return <Info className="h-5 w-5 text-gray-600" />;
+        return <Info className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -94,16 +94,16 @@ export const AuditIC4 = () => {
     <div className="space-y-6 p-4">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Target className="h-6 w-6 text-green-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-4 : Qualité, sécurité et EIAS</h2>
+          <Target className="h-6 w-6 text-success" />
+          <h2 className="text-2xl font-bold text-foreground">Audit IC-4 : Qualité, sécurité et EIAS</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600">{scoreGlobal}%</div>
-            <div className="text-sm text-gray-600">Score global</div>
+            <div className="text-3xl font-bold text-success">{scoreGlobal}%</div>
+            <div className="text-sm text-muted-foreground">Score global</div>
           </div>
-          <Badge className="bg-green-100 text-green-800 text-lg px-4 py-2">
+          <Badge className="bg-success/10 text-success text-lg px-4 py-2">
             ✅ 13 Rang A + 22 Rang B LiSA
           </Badge>
         </div>
@@ -115,12 +115,12 @@ export const AuditIC4 = () => {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
-                <h3 className="font-semibold text-gray-800 capitalize">
+                <h3 className="font-semibold text-foreground capitalize">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-gray-800">{result.score}%</div>
+                <div className="text-xl font-bold text-foreground">{result.score}%</div>
                 <Badge className={`text-xs ${getStatusColor(result.status)}`}>
                   {result.status}
                 </Badge>
@@ -130,8 +130,8 @@ export const AuditIC4 = () => {
             <div className="space-y-2">
               {result.details.map((detail, index) => (
                 <div key={index} className="flex items-start space-x-2 text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{detail}</span>
+                  <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">{detail}</span>
                 </div>
               ))}
             </div>
@@ -139,16 +139,16 @@ export const AuditIC4 = () => {
         ))}
       </div>
 
-      <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50">
+      <Card className="p-6 bg-gradient-to-r from-success/5 to-primary/5">
         <div className="flex items-center space-x-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-green-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-4 selon LiSA - RÉFÉRENCE PARFAITE</h3>
+          <TrendingUp className="h-5 w-5 text-success" />
+          <h3 className="text-lg font-semibold text-foreground">Synthèse IC-4 selon LiSA - RÉFÉRENCE PARFAITE</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Rang A LiSA intégral (13/13)</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-success mb-2">✅ Rang A LiSA intégral (13/13)</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• 1. Définir la Qualité (7 dimensions)</li>
               <li>• 2. Définir la Sécurité (OMS 2009)</li>
               <li>• 3. EIAS et gravité (5 niveaux)</li>
@@ -166,8 +166,8 @@ export const AuditIC4 = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-blue-700 mb-2">🎯 Rang B LiSA complet (22/22)</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-primary mb-2">🎯 Rang B LiSA complet (22/22)</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Impact économique EIAS (760M€)</li>
               <li>• Mécanismes transmissibilité BMR</li>
               <li>• Résistances transférables</li>
@@ -182,10 +182,10 @@ export const AuditIC4 = () => {
               <li>• Prévalence et répartition IAS</li>
               <li>• Critères diagnostiques infections</li>
             </ul>
-            <h4 className="font-medium text-green-700 mt-4 mb-2">🏆 Excellence LiSA</h4>
-            <div className="bg-green-100 p-3 rounded-lg">
-              <div className="text-center font-bold text-green-800">35 connaissances</div>
-              <div className="text-center text-sm text-green-600">Structure LiSA parfaite</div>
+            <h4 className="font-medium text-success mt-4 mb-2">🏆 Excellence LiSA</h4>
+            <div className="bg-success/10 p-3 rounded-lg">
+              <div className="text-center font-bold text-success">35 connaissances</div>
+              <div className="text-center text-sm text-success/80">Structure LiSA parfaite</div>
             </div>
           </div>
         </div>

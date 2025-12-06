@@ -133,11 +133,11 @@ export const MedMngPricing = () => {
 
   const getPlanColor = (planName: string) => {
     switch (planName.toLowerCase()) {
-      case 'free': return 'from-gray-500 to-gray-600';
-      case 'basic': return 'from-blue-500 to-blue-600';
-      case 'premium': return 'from-purple-500 to-purple-600';
-      case 'enterprise': return 'from-yellow-500 to-yellow-600';
-      default: return 'from-gray-500 to-gray-600';
+      case 'free': return 'from-muted to-muted/80';
+      case 'basic': return 'from-primary to-primary/80';
+      case 'premium': return 'from-accent to-accent/80';
+      case 'enterprise': return 'from-warning to-warning/80';
+      default: return 'from-muted to-muted/80';
     }
   };
 
@@ -202,13 +202,13 @@ export const MedMngPricing = () => {
           <TranslatedText 
             text="Choisissez votre abonnement MED-MNG"
             as="h1"
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4"
             showLoader
           />
           <TranslatedText 
             text="Générez de la musique pédagogique avec l'IA, gérez votre bibliothèque et accédez à des outils d'apprentissage avancés."
             as="p"
-            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
             showLoader
           />
           
@@ -225,7 +225,7 @@ export const MedMngPricing = () => {
           {/* Version Gratuite */}
           <PremiumCard variant="glass">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl text-green-600">
+              <CardTitle className="text-2xl text-success">
                 <TranslatedText text="Version Gratuite" />
               </CardTitle>
               <CardDescription className="text-lg">
@@ -237,13 +237,13 @@ export const MedMngPricing = () => {
                 {freeFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                      <Icon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+                    <div key={index} className="flex items-start gap-3 p-3 bg-success/10 rounded-lg">
+                      <Icon className="h-6 w-6 text-success flex-shrink-0 mt-1" />
                       <div>
-                        <h4 className="font-semibold text-gray-900">
+                        <h4 className="font-semibold text-foreground">
                           <TranslatedText text={feature.title} />
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           <TranslatedText text={feature.description} />
                         </p>
                       </div>
@@ -282,13 +282,13 @@ export const MedMngPricing = () => {
                 {premiumFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                      <Icon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                    <div key={index} className="flex items-start gap-3 p-3 bg-primary/10 rounded-lg">
+                      <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                       <div>
-                        <h4 className="font-semibold text-gray-900">
+                        <h4 className="font-semibold text-foreground">
                           <TranslatedText text={feature.title} />
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           <TranslatedText text={feature.description} />
                         </p>
                       </div>
@@ -305,14 +305,14 @@ export const MedMngPricing = () => {
           <PremiumCard variant="glass" className="mb-8 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-xl font-bold text-foreground">
                   <TranslatedText text="Votre abonnement actuel" />
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Plan {subscription.plan_name} - {subscription.monthly_quota} générations/mois
                 </p>
               </div>
-              <Badge variant="default" className="bg-green-500 text-white">
+              <Badge variant="default" className="bg-success text-success-foreground">
                 <TranslatedText text="Actif" />
               </Badge>
             </div>
@@ -327,7 +327,7 @@ export const MedMngPricing = () => {
           
           {loading || subscriptionLoading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -340,54 +340,54 @@ export const MedMngPricing = () => {
                   } ${plan.name.toLowerCase() === 'premium' ? 'ring-2 ring-accent' : ''}`}
                 >
                   {plan.name.toLowerCase() === 'premium' && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-white">
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground">
                       <TranslatedText text="Recommandé" />
                     </Badge>
                   )}
 
                   <CardHeader className="text-center pb-4">
-                    <div className={`w-12 h-12 bg-gradient-to-r ${getPlanColor(plan.name)} rounded-xl mx-auto mb-4 flex items-center justify-center text-white`}>
+                    <div className={`w-12 h-12 bg-gradient-to-r ${getPlanColor(plan.name)} rounded-xl mx-auto mb-4 flex items-center justify-center text-primary-foreground`}>
                       {getPlanIcon(plan.name)}
                     </div>
                     <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
                     <CardDescription className="text-sm">{plan.description}</CardDescription>
-                    <div className="text-3xl font-bold text-gray-900 mt-4">
+                    <div className="text-3xl font-bold text-foreground mt-4">
                       {plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
-                      {plan.price > 0 && <span className="text-sm font-normal text-gray-600">/mois</span>}
+                      {plan.price > 0 && <span className="text-sm font-normal text-muted-foreground">/mois</span>}
                     </div>
                   </CardHeader>
 
                   <CardContent className="space-y-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-500" />
+                        <Check className="h-4 w-4 text-success" />
                         <span className="text-sm">{plan.monthly_music_quota} générations/mois</span>
                       </div>
                       
                       {plan.features?.tableaux && (
                         <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-success" />
                           <span className="text-sm">Tableaux Rang A & B</span>
                         </div>
                       )}
                       
                       {plan.features?.quiz && (
                         <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-success" />
                           <span className="text-sm">Quiz complets</span>
                         </div>
                       )}
                       
                       {plan.features?.bande_dessinee && (
                         <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-success" />
                           <span className="text-sm">Bandes dessinées</span>
                         </div>
                       )}
                       
                       {plan.features?.save_music && (
                         <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-success" />
                           <span className="text-sm">Sauvegarde bibliothèque</span>
                         </div>
                       )}
@@ -424,7 +424,7 @@ export const MedMngPricing = () => {
                           >
                             {processingPlan === plan.id ? (
                               <div className="flex items-center gap-2">
-                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                                <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
                                 <TranslatedText text="Chargement..." />
                               </div>
                             ) : (
@@ -464,7 +464,7 @@ export const MedMngPricing = () => {
                 <h4 className="font-semibold text-lg mb-2">
                   <TranslatedText text="Comment fonctionne la version gratuite ?" />
                 </h4>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   <TranslatedText text="Vous pouvez générer jusqu'à 3 chansons gratuitement pour tester notre technologie d'IA musicale. Aucune carte bancaire requise." />
                 </p>
               </div>
@@ -473,7 +473,7 @@ export const MedMngPricing = () => {
                 <h4 className="font-semibold text-lg mb-2">
                   <TranslatedText text="Puis-je annuler mon abonnement ?" />
                 </h4>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   <TranslatedText text="Oui, vous pouvez annuler votre abonnement à tout moment. Vos crédits restants resteront valides jusqu'à la fin de votre période." />
                 </p>
               </div>
@@ -482,7 +482,7 @@ export const MedMngPricing = () => {
                 <h4 className="font-semibold text-lg mb-2">
                   <TranslatedText text="Les musiques sont-elles téléchargeables ?" />
                 </h4>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   <TranslatedText text="Non, pour des raisons de sécurité et de droits d'auteur, les musiques sont uniquement disponibles en streaming sécurisé dans votre bibliothèque." />
                 </p>
               </div>
@@ -491,7 +491,7 @@ export const MedMngPricing = () => {
                 <h4 className="font-semibold text-lg mb-2">
                   <TranslatedText text="Que comprend le support prioritaire ?" />
                 </h4>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   <TranslatedText text="Les abonnés premium bénéficient d'un support par email avec réponse sous 24h et d'un accès privilégié aux nouvelles fonctionnalités." />
                 </p>
               </div>

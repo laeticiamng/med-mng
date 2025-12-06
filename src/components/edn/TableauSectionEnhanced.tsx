@@ -33,18 +33,18 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
   index 
 }) => {
   const themeColors = rang === 'A' 
-    ? 'from-blue-500 to-blue-600'
-    : 'from-purple-500 to-purple-600';
+    ? 'from-primary to-primary/80'
+    : 'from-accent to-accent/80';
 
   const bgColor = rang === 'A'
-    ? 'bg-blue-50 dark:bg-blue-950/30'
-    : 'bg-purple-50 dark:bg-purple-950/30';
+    ? 'bg-primary/5 dark:bg-primary/10'
+    : 'bg-accent/5 dark:bg-accent/10';
 
   return (
     <Card className="overflow-hidden border-2 hover:shadow-lg transition-all duration-300">
       <CardHeader className={`${bgColor} border-b-2`}>
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors} text-white flex items-center justify-center text-lg font-bold shadow-lg`}>
+          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center text-lg font-bold shadow-lg`}>
             {index + 1}
           </div>
           <CardTitle className="text-xl font-bold text-foreground">
@@ -85,7 +85,7 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
                             </Badge>
                           )}
                           {comp.niveau && (
-                            <Badge className={`${rang === 'A' ? 'bg-blue-500' : 'bg-purple-500'}`}>
+                            <Badge className={`${rang === 'A' ? 'bg-primary' : 'bg-accent'} text-primary-foreground`}>
                               {comp.niveau}
                             </Badge>
                           )}
@@ -99,7 +99,7 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
                           {comp.intitule || comp.concept}
                         </h4>
                       </div>
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${themeColors} text-white flex items-center justify-center flex-shrink-0`}>
+                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center flex-shrink-0`}>
                         <Book className="w-5 h-5" />
                       </div>
                     </div>
@@ -119,11 +119,11 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
 
                     {/* Exemple */}
                     {comp.exemple && (
-                      <div className="flex gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
-                        <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex gap-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
+                        <Lightbulb className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">Exemple clinique</p>
-                          <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                          <p className="text-sm font-semibold text-warning mb-1">Exemple clinique</p>
+                          <p className="text-sm text-warning/80 leading-relaxed">
                             {comp.exemple}
                           </p>
                         </div>
@@ -132,11 +132,11 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
 
                     {/* Application */}
                     {comp.application && (
-                      <div className="flex gap-3 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
-                        <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex gap-3 p-3 bg-success/10 rounded-lg border border-success/20">
+                        <AlertCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-1">Application pratique</p>
-                          <p className="text-sm text-green-700 dark:text-green-300 leading-relaxed">
+                          <p className="text-sm font-semibold text-success mb-1">Application pratique</p>
+                          <p className="text-sm text-success/80 leading-relaxed">
                             {comp.application}
                           </p>
                         </div>
