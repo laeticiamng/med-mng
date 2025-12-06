@@ -35,7 +35,7 @@ export const AuditComparatif = ({ itemCode = 'IC-4' }: AuditComparatifProps) => 
     {
       titre: "Leader conformité E-LiSA",
       description: "95% vs 87% moyenne - Respect intégral des référentiels",
-      icon: <Award className="h-5 w-5 text-gold-500" />
+      icon: <Award className="h-5 w-5 text-warning" />
     },
     {
       titre: "Complétude exceptionnelle", 
@@ -163,7 +163,7 @@ export const AuditComparatif = ({ itemCode = 'IC-4' }: AuditComparatifProps) => 
                     </Badge>
                   </td>
                   <td className="text-center p-2">
-                    {index === 0 && <Award className="h-4 w-4 text-gold-500 mx-auto" />}
+                    {index === 0 && <Award className="h-4 w-4 text-warning mx-auto" />}
                     {index > 0 && <span className="text-muted-foreground">#{index + 1}</span>}
                   </td>
                 </tr>
