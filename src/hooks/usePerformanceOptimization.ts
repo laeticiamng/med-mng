@@ -18,18 +18,19 @@ export const usePerformanceOptimization = () => {
       performance.timing.loadEventEnd - performance.timing.navigationStart : 0;
 
     // Mesure de la mémoire (si disponible)
-    const memoryUsage = performance.memory ? 
-      Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) : 0;
+    const memoryUsage = (performance as any).memory ? 
+      Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024) : 0;
 
     // Performance Observer pour mesurer les métriques
     if ('PerformanceObserver' in window) {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === 'navigation') {
+            const navEntry = entry as PerformanceNavigationTiming;
             setMetrics(prev => ({
               ...prev,
-              loadTime: entry.loadEventEnd - entry.loadEventStart,
-              networkLatency: entry.responseStart - entry.requestStart
+              loadTime: navEntry.loadEventEnd - navEntry.loadEventStart,
+              networkLatency: navEntry.responseStart - navEntry.requestStart
             }));
           }
         }

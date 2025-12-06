@@ -16,9 +16,6 @@ const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrie
   default: module.MngPresentationBrief
 })));
 const MainSections = lazy(() => import("@/components/MainSections"));
-const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
-  default: module.AppFooter
-})));
 
 // Composant de loading léger
 const LazyLoadSpinner = () => <div className="flex justify-center items-center py-8">
@@ -268,11 +265,6 @@ const Index = () => {
           <div className="pb-20">
             <MainSections />
           </div>
-        </Suspense>
-        
-        {/* Footer - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <AppFooter />
         </Suspense>
       </div>
 

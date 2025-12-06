@@ -6,7 +6,16 @@ import { Info, Lightbulb, Zap, Star } from 'lucide-react';
 /**
  * Système de Tooltips Intelligents avec Contexte
  */
-export const SmartTooltip = ({ 
+interface SmartTooltipProps {
+  children: React.ReactNode;
+  content: string;
+  type?: 'info' | 'tip' | 'shortcut' | 'advanced';
+  shortcut?: string | null;
+  advanced?: boolean;
+  side?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+export const SmartTooltip: React.FC<SmartTooltipProps> = ({ 
   children, 
   content, 
   type = 'info', 

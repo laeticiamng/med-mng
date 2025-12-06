@@ -1,9 +1,9 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
 /**
  * État Global de l'Application
  */
-const GlobalStateContext = createContext();
+const GlobalStateContext = createContext<any>(null);
 
 export const useGlobalState = () => {
   const context = useContext(GlobalStateContext);
@@ -13,8 +13,12 @@ export const useGlobalState = () => {
   return context;
 };
 
-export const GlobalStateProvider = ({ children }) => {
-  const [state, setState] = useState({
+interface GlobalStateProviderProps {
+  children: ReactNode;
+}
+
+export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ children }) => {
+  const [state, setState] = useState<any>({
     // Interface
     sidebarCollapsed: false,
     theme: 'system',

@@ -26,6 +26,9 @@ import { ROUTE_PATHS } from '@/config/routes';
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
   default: module.DynamicOnboarding
 })));
+const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
+  default: module.AppFooter
+})));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -252,6 +255,11 @@ const App = () => {
                                 <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
                               </Routes>
                             </main>
+                            
+                            {/* Footer Global */}
+                            <Suspense fallback={<div className="h-20 bg-card border-t border-border" />}>
+                              <AppFooter />
+                            </Suspense>
                             
                             {/* Global UI Components */}
                             <HelpButton />

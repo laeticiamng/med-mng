@@ -1,13 +1,19 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, HelpCircle, Settings, User } from 'lucide-react';
+import { Bell, HelpCircle, User } from 'lucide-react';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+
+interface GlobalControlsProps {
+  onOpenNotifications?: () => void;
+  onOpenHelp?: () => void;
+  notificationCount?: number;
+}
 
 /**
  * Contrôles Globaux Flottants - Accès rapide aux fonctionnalités
  */
-export const GlobalControls = ({ 
+export const GlobalControls: React.FC<GlobalControlsProps> = ({ 
   onOpenNotifications, 
   onOpenHelp, 
   notificationCount = 0 
