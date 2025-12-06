@@ -81,13 +81,13 @@ export const ChangelogDashboard: React.FC = () => {
 
   const getActionBadge = (action: string) => {
     const colors = {
-      update: 'bg-blue-500',
-      create: 'bg-green-500',
-      delete: 'bg-red-500',
-      correction: 'bg-orange-500'
+      update: 'bg-primary text-primary-foreground',
+      create: 'bg-success text-success-foreground',
+      delete: 'bg-destructive text-destructive-foreground',
+      correction: 'bg-warning text-warning-foreground'
     };
     return (
-      <Badge className={colors[action as keyof typeof colors] || 'bg-gray-500'}>
+      <Badge className={colors[action as keyof typeof colors] || 'bg-muted text-muted-foreground'}>
         {action}
       </Badge>
     );
@@ -246,13 +246,13 @@ export const ChangelogDashboard: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs text-muted-foreground">Ancienne valeur:</label>
-                        <pre className="text-xs bg-red-50 p-2 rounded max-h-32 overflow-auto">
+                        <pre className="text-xs bg-destructive/10 p-2 rounded max-h-32 overflow-auto">
                           {formatValue(entry.old_value)}
                         </pre>
                       </div>
                       <div>
                         <label className="text-xs text-muted-foreground">Nouvelle valeur:</label>
-                        <pre className="text-xs bg-green-50 p-2 rounded max-h-32 overflow-auto">
+                        <pre className="text-xs bg-success/10 p-2 rounded max-h-32 overflow-auto">
                           {formatValue(entry.new_value)}
                         </pre>
                       </div>
@@ -261,7 +261,7 @@ export const ChangelogDashboard: React.FC = () => {
                 )}
 
                 {entry.reason && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded">
+                  <div className="mt-3 p-3 bg-primary/10 rounded">
                     <p className="text-sm font-medium">Raison:</p>
                     <p className="text-sm">{entry.reason}</p>
                   </div>

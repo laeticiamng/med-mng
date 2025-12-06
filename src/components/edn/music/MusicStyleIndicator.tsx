@@ -41,7 +41,7 @@ export const MusicStyleIndicator = ({ selectedStyle }: MusicStyleIndicatorProps)
       </div>
       
       {isComposition && (
-        <div className="mt-2 text-sm text-gray-600">
+        <div className="mt-2 text-sm text-muted-foreground">
           <span className="italic">Fusion créative de {styles.length} styles musicaux</span>
         </div>
       )}

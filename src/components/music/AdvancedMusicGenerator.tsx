@@ -262,8 +262,8 @@ export const AdvancedMusicGenerator: React.FC = () => {
         <CardContent className="p-6">
           {currentTrack ? (
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Music className="w-8 h-8 text-white" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+                <Music className="w-8 h-8 text-primary-foreground" />
               </div>
               
               <div className="flex-1">
@@ -566,8 +566,8 @@ export const AdvancedMusicGenerator: React.FC = () => {
                     onClick={() => setCurrentTrack(track)}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                        <Music className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+                        <Music className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div>
                         <h4 className="font-medium">{track.title}</h4>
@@ -618,8 +618,8 @@ export const AdvancedMusicGenerator: React.FC = () => {
             {playlists.map((playlist) => (
               <Card key={playlist.id} className="cursor-pointer hover:shadow-sm">
                 <CardContent className="p-4">
-                  <div className="aspect-square bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg mb-4 flex items-center justify-center">
-                    <Headphones className="w-12 h-12 text-white" />
+                  <div className="aspect-square bg-gradient-to-br from-primary/80 to-primary rounded-lg mb-4 flex items-center justify-center">
+                    <Headphones className="w-12 h-12 text-primary-foreground" />
                   </div>
                   <h3 className="font-semibold mb-1">{playlist.name}</h3>
                   <p className="text-sm text-muted-foreground mb-2">{playlist.description}</p>
