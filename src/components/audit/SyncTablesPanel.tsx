@@ -105,7 +105,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
           </AlertDescription>
         </Alert>
 
-        <div className="flex items-center justify-center gap-4 p-4 bg-white rounded-lg border">
+        <div className="flex items-center justify-center gap-4 p-4 bg-background rounded-lg border">
           <div className="text-center">
             <Database className="h-8 w-8 text-green-600 mx-auto mb-2" />
             <p className="text-sm font-medium">edn_items_immersive</p>

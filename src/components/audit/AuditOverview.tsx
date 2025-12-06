@@ -20,10 +20,10 @@ export const AuditOverview = ({ report }: AuditOverviewProps) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Items</p>
+              <p className="text-sm font-medium text-muted-foreground">Total Items</p>
               <p className="text-2xl font-bold">{report.totalItems}</p>
             </div>
-            <BarChart3 className="h-8 w-8 text-blue-600" />
+            <BarChart3 className="h-8 w-8 text-primary" />
           </div>
         </CardContent>
       </Card>
@@ -32,10 +32,10 @@ export const AuditOverview = ({ report }: AuditOverviewProps) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Valides</p>
-              <p className="text-2xl font-bold text-green-600">{report.validItems}</p>
+              <p className="text-sm font-medium text-muted-foreground">Valides</p>
+              <p className="text-2xl font-bold text-success">{report.validItems}</p>
             </div>
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-success" />
           </div>
         </CardContent>
       </Card>
@@ -44,10 +44,10 @@ export const AuditOverview = ({ report }: AuditOverviewProps) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Invalides</p>
-              <p className="text-2xl font-bold text-yellow-600">{report.invalidItems}</p>
+              <p className="text-sm font-medium text-muted-foreground">Invalides</p>
+              <p className="text-2xl font-bold text-warning">{report.invalidItems}</p>
             </div>
-            <AlertTriangle className="h-8 w-8 text-yellow-600" />
+            <AlertTriangle className="h-8 w-8 text-warning" />
           </div>
         </CardContent>
       </Card>
@@ -56,10 +56,10 @@ export const AuditOverview = ({ report }: AuditOverviewProps) => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Erreurs</p>
-              <p className="text-2xl font-bold text-red-600">{report.errorItems}</p>
+              <p className="text-sm font-medium text-muted-foreground">Erreurs</p>
+              <p className="text-2xl font-bold text-destructive">{report.errorItems}</p>
             </div>
-            <XCircle className="h-8 w-8 text-red-600" />
+            <XCircle className="h-8 w-8 text-destructive" />
           </div>
         </CardContent>
       </Card>

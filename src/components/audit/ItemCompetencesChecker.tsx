@@ -81,19 +81,19 @@ export const ItemCompetencesChecker = () => {
 
   const getQualityColor = (qualite: string) => {
     switch (qualite) {
-      case 'excellent': return 'bg-green-500';
-      case 'bon': return 'bg-blue-500';
-      case 'moyen': return 'bg-yellow-500';
-      case 'faible': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'excellent': return 'bg-success';
+      case 'bon': return 'bg-primary';
+      case 'moyen': return 'bg-warning';
+      case 'faible': return 'bg-destructive';
+      default: return 'bg-muted';
     }
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-blue-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-primary';
+    if (score >= 50) return 'text-warning';
+    return 'text-destructive';
   };
 
   return (
@@ -161,10 +161,10 @@ export const ItemCompetencesChecker = () => {
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">{check.item_code}</span>
                       <Badge className={
-                        check.qualite === 'excellent' ? 'bg-green-500' :
-                        check.qualite === 'bon' ? 'bg-blue-500' :
-                        check.qualite === 'moyen' ? 'bg-yellow-500' :
-                        'bg-red-500'
+                        check.qualite === 'excellent' ? 'bg-success' :
+                        check.qualite === 'bon' ? 'bg-primary' :
+                        check.qualite === 'moyen' ? 'bg-warning' :
+                        'bg-destructive'
                       }>
                         {check.qualite} - {check.score}/100
                       </Badge>

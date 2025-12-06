@@ -79,10 +79,10 @@ export const AuditIC1Completeness = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Audit IC-1 : Relation médecin-malade
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Vérification de la complétude et conformité de l'item IC-1
         </p>
       </div>
@@ -94,7 +94,7 @@ export const AuditIC1Completeness = () => {
           className="flex items-center gap-2"
         >
           {loading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
           ) : (
             <PlayCircle className="h-4 w-4" />
           )}
@@ -103,13 +103,13 @@ export const AuditIC1Completeness = () => {
       </div>
 
       {error && (
-        <Card className="mb-8 border-red-200 bg-red-50">
+        <Card className="mb-8 border-destructive/20 bg-destructive/5">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-800">
+            <div className="flex items-center gap-2 text-destructive">
               <XCircle className="h-5 w-5" />
               <span className="font-medium">Erreur d'audit</span>
             </div>
-            <p className="text-red-700 mt-2">{error}</p>
+            <p className="text-destructive/80 mt-2">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -127,12 +127,12 @@ export const AuditIC1Completeness = () => {
             <CardContent>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-medium">Conformité globale</span>
-                <Badge className={report.isCompliant ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                <Badge className={report.isCompliant ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}>
                   {report.isCompliant ? 'CONFORME' : 'NON CONFORME'}
                 </Badge>
               </div>
               <Progress value={getComplianceScore()} className="h-2 mb-2" />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {getComplianceScore()}% des critères respectés
               </p>
             </CardContent>
