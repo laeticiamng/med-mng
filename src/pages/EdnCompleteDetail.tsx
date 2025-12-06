@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export default function EdnCompleteDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -62,7 +63,7 @@ export default function EdnCompleteDetail() {
   if (error || !item) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Link to="/edn-complete">
+        <Link to={ROUTE_PATHS.ednComplete}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour à la liste
@@ -81,7 +82,7 @@ export default function EdnCompleteDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header avec navigation */}
         <div className="mb-6">
-          <Link to="/edn-complete">
+          <Link to={ROUTE_PATHS.ednComplete}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour à la liste

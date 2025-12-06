@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, Shield, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface ConsentCheckboxesProps {
   cguAccepted: boolean;
@@ -50,11 +51,11 @@ export const ConsentCheckboxes = ({
         <div className="flex-1">
           <Label htmlFor="cgu-consent" className="cursor-pointer text-sm leading-relaxed">
             <span className="font-semibold">J'accepte les{' '}</span>
-            <Link to="/cgu" target="_blank" className="text-primary hover:underline font-semibold">
+            <Link to={ROUTE_PATHS.cgu} target="_blank" className="text-primary hover:underline font-semibold">
               Conditions Générales d'Utilisation
             </Link>
             {' '}et la{' '}
-            <Link to="/politique-confidentialite" target="_blank" className="text-primary hover:underline font-semibold">
+            <Link to={ROUTE_PATHS.politiqueConfidentialite} target="_blank" className="text-primary hover:underline font-semibold">
               Politique de Confidentialité
             </Link>
             <span className="text-destructive ml-1">*</span>

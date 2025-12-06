@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Eye, CheckCircle, XCircle, AlertTriangle, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const DeclarationAccessibilite = () => {
   return (
@@ -10,7 +11,7 @@ const DeclarationAccessibilite = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2 text-primary hover:underline">
+            <Link to={ROUTE_PATHS.home} className="flex items-center space-x-2 text-primary hover:underline">
               <ArrowLeft className="h-4 w-4" />
               <span>Retour à l'accueil</span>
             </Link>

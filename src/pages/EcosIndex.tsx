@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Stethoscope, Search, Users, Clock, Sparkles, Loader2 } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface EcosScenario {
   sd_id: number;
@@ -122,7 +122,7 @@ const EcosIndex = () => {
         <div className="bg-card/80 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
+              <Link to={ROUTE_PATHS.home} className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
                 <Stethoscope className="h-8 w-8" />
                 <span className="text-2xl font-bold">Situations ECOS</span>
               </Link>
@@ -238,7 +238,7 @@ const EcosIndex = () => {
                 <p className="text-muted-foreground mb-6">
                   Les situations ECOS doivent d'abord être extraites depuis la plateforme UNESS.
                 </p>
-                <Link to="/admin/extract-ecos">
+                <Link to={ROUTE_PATHS.adminExtractEcos}>
                   <Button>
                     <Sparkles className="h-4 w-4 mr-2" />
                     Extraire les situations ECOS

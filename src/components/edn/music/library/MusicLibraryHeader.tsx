@@ -1,7 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface MusicLibraryHeaderProps {
   musicCount: number;
@@ -11,7 +11,7 @@ export const MusicLibraryHeader = ({ musicCount }: MusicLibraryHeaderProps) => {
   return (
     <div className="mb-8">
       <Link 
-        to="/edn" 
+        to={ROUTE_PATHS.ednLegacy} 
         className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-4 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />

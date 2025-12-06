@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const COOKIE_CONSENT_KEY = 'medmng_cookie_consent';
 const COOKIE_PREFERENCES_KEY = 'medmng_cookie_preferences';
@@ -129,7 +130,7 @@ export const CookieBanner = () => {
 
             <p className="text-xs text-muted-foreground">
               En savoir plus sur notre{' '}
-              <Link to="/politique-confidentialite" className="text-primary hover:underline">
+              <Link to={ROUTE_PATHS.politiqueConfidentialite} className="text-primary hover:underline">
                 Politique de confidentialité
               </Link>
             </p>

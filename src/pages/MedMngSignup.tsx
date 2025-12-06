@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const MedMngSignup = () => {
   const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -27,7 +27,7 @@ export const MedMngSignup = () => {
   const [showConsentErrors, setShowConsentErrors] = useState(false);
 
   if (user) {
-    return <Navigate to="/med-mng/library" replace />;
+    return <Navigate to={ROUTE_PATHS.medMngLibrary} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,16 +84,16 @@ export const MedMngSignup = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-green-600">Compte créé !</CardTitle>
+            <CardTitle className="text-2xl font-bold text-success">Compte créé !</CardTitle>
             <CardDescription>
               Vérifiez votre email pour confirmer votre compte
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/med-mng/login">
+            <Link to={ROUTE_PATHS.medMngLogin}>
               <Button className="w-full">Retour à la connexion</Button>
             </Link>
           </CardContent>
@@ -103,10 +103,10 @@ export const MedMngSignup = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">MED-MNG</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">MED-MNG</CardTitle>
           <CardDescription>Créez votre compte</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -214,7 +214,7 @@ export const MedMngSignup = () => {
           
           <div className="text-center text-sm">
             Déjà un compte ?{' '}
-            <Link to="/med-mng/login" className="text-blue-600 hover:underline">
+            <Link to={ROUTE_PATHS.medMngLogin} className="text-primary hover:underline">
               Se connecter
             </Link>
           </div>

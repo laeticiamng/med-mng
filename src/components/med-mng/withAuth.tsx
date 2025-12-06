@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface WithAuthProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
 
     if (!user) {
       // Redirect to login with return path
-      return <Navigate to="/med-mng/login" state={{ from: location }} replace />;
+      return <Navigate to={ROUTE_PATHS.medMngLogin} state={{ from: location }} replace />;
     }
 
     return <Component {...props} />;
@@ -34,7 +35,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
 
 export const ProtectedRoute: React.FC<WithAuthProps> = ({ 
   children, 
-  fallback = "/med-mng/login" 
+  fallback = ROUTE_PATHS.medMngLogin
 }) => {
   const { user, loading } = useAuth();
   const location = useLocation();

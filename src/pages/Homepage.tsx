@@ -14,6 +14,7 @@ import { ActivityFeed } from '@/components/modern/ActivityFeed';
 import { SearchSystem } from '@/components/advanced/SearchSystem';
 import { BookmarkSystem } from '@/components/advanced/BookmarkSystem';
 import { SocialShare } from '@/components/advanced/SocialShare';
+import { ROUTE_PATHS } from '@/config/routes';
 
 /**
  * Page d'accueil moderne avec sections interactives et analytics
@@ -98,7 +99,7 @@ const Homepage: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="medical-btn-primary">
-                  <Link to="/generator">
+                  <Link to={ROUTE_PATHS.generator}>
                     <Music className="w-5 h-5 mr-2" />
                     Commencer Maintenant
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -106,7 +107,7 @@ const Homepage: React.FC = () => {
                 </Button>
                 
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/dashboard">
+                  <Link to={ROUTE_PATHS.dashboard}>
                     <BarChart3 className="w-5 h-5 mr-2" />
                     Voir le Dashboard
                   </Link>
@@ -371,7 +372,7 @@ const Homepage: React.FC = () => {
                   pour améliorer leur formation médicale.
                 </p>
                 <Button asChild className="w-full medical-btn-primary">
-                  <Link to="/med-mng/signup">
+                  <Link to={ROUTE_PATHS.medMngSignup}>
                     Créer un Compte Gratuit
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>

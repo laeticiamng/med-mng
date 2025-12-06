@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ImmersiveContent } from '@/components/edn/immersive/ImmersiveContent';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const EdnImmersive = () => {
   const {
@@ -32,7 +33,7 @@ const EdnImmersive = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-foreground mb-4">Item non trouvé</h2>
           <p className="text-muted-foreground">L'item EDN demandé n'existe pas ou n'est pas disponible.</p>
-          <Link to="/edn-complete" className="mt-4 inline-block">
+          <Link to={ROUTE_PATHS.ednComplete} className="mt-4 inline-block">
             <Button>Retour à la liste</Button>
           </Link>
         </div>
@@ -50,7 +51,7 @@ const EdnImmersive = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <Link to="/edn-complete" className="flex items-center gap-2 text-warning-foreground hover:text-foreground">
+              <Link to={ROUTE_PATHS.ednComplete} className="flex items-center gap-2 text-warning-foreground hover:text-foreground">
                 <ArrowLeft className="h-4 w-4" />
                 Retour
               </Link>

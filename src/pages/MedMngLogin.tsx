@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Music } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -17,7 +17,7 @@ export const MedMngLogin = () => {
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    return <Navigate to="/med-mng/library" replace />;
+    return <Navigate to={ROUTE_PATHS.medMngLibrary} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,19 +135,19 @@ export const MedMngLogin = () => {
           
           <div className="text-center text-sm">
             Pas encore de compte ?{' '}
-            <Link to="/med-mng/signup" className="text-primary hover:underline">
+            <Link to={ROUTE_PATHS.medMngSignup} className="text-primary hover:underline">
               Créer un compte
             </Link>
           </div>
           
           <div className="text-center text-sm">
-            <Link to="/med-mng/pricing" className="text-primary hover:underline">
+            <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline">
               Voir les offres d'abonnement
             </Link>
           </div>
 
           <div className="text-center text-sm">
-            <Link to="/med-mng/library" className="text-primary hover:underline">
+            <Link to={ROUTE_PATHS.medMngLibrary} className="text-primary hover:underline">
               Accéder à l'application
             </Link>
           </div>

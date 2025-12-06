@@ -1,9 +1,9 @@
-
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Music, Brain, Target, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "@/config/routes";
 
 export const MngPresentationBrief = () => {
   return (
@@ -95,7 +95,7 @@ export const MngPresentationBrief = () => {
 
       {/* Bouton pour voir plus */}
       <div className="text-center">
-        <Link to="/mng-method">
+        <Link to={ROUTE_PATHS.mngMethod}>
           <Button size="lg" className="flex items-center gap-2 mx-auto">
             En savoir plus sur la méthode MNG
             <ArrowRight className="h-4 w-4" />

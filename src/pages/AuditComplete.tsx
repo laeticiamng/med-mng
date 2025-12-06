@@ -31,6 +31,7 @@ import {
   Stethoscope
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const AuditComplete = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -124,12 +125,12 @@ const AuditComplete = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-success/5">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Link to="/edn" className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
+            <Link to={ROUTE_PATHS.ednLegacy} className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
               <ArrowLeft className="h-4 w-4" />
               <span className="font-medium">
                 <TranslatedText text="Retour aux items EDN" />
