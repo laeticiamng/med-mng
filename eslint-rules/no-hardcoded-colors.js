@@ -6,9 +6,9 @@
 const HARDCODED_COLOR_PATTERNS = [
   // Direct color classes like text-white, bg-blue-500, etc.
   /\b(text|bg|border|from|to|via|ring|outline|divide|decoration|accent|caret|fill|stroke|shadow)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(-[0-9]{2,3})?\b/,
-
+  
   // Dark mode variants like dark:bg-blue-500
-  /dark:(text|bg|border|from|to|via|ring|outline)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(-[0-9]{2,3})?\b/,
+  /dark:(text|bg|border|from|to|via|ring|outline)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(-[0-9]{2,3})?\b/
 ];
 
 const SEMANTIC_SUGGESTIONS = {
@@ -28,7 +28,7 @@ const SEMANTIC_SUGGESTIONS = {
   'bg-amber-50': 'bg-warning/10',
   'bg-orange-50': 'bg-warning/10',
   'bg-purple-50': 'bg-accent/10',
-
+  
   // Text colors
   'text-white': 'text-foreground or text-primary-foreground',
   'text-black': 'text-foreground',
@@ -41,7 +41,7 @@ const SEMANTIC_SUGGESTIONS = {
   'text-yellow-600': 'text-warning',
   'text-amber-600': 'text-warning',
   'text-orange-600': 'text-warning',
-
+  
   // Border colors
   'border-gray-200': 'border-border',
   'border-blue-200': 'border-primary/20',
@@ -50,22 +50,19 @@ const SEMANTIC_SUGGESTIONS = {
   'border-yellow-200': 'border-warning/20',
 };
 
-export default {
+module.exports = {
   meta: {
     type: 'suggestion',
     docs: {
-      description:
-        'Disallow hardcoded Tailwind color classes, enforce semantic design tokens',
+      description: 'Disallow hardcoded Tailwind color classes, enforce semantic design tokens',
       category: 'Best Practices',
       recommended: true,
     },
     fixable: null,
     schema: [],
     messages: {
-      hardcodedColor:
-        'Avoid hardcoded color "{{color}}". Use semantic token: {{suggestion}}',
-      hardcodedColorGeneric:
-        'Avoid hardcoded color "{{color}}". Use semantic tokens from design system (--primary, --success, --destructive, --warning, --accent, --muted, etc.)',
+      hardcodedColor: 'Avoid hardcoded color "{{color}}". Use semantic token: {{suggestion}}',
+      hardcodedColorGeneric: 'Avoid hardcoded color "{{color}}". Use semantic tokens from design system (--primary, --success, --destructive, --warning, --accent, --muted, etc.)',
     },
   },
 
@@ -86,7 +83,7 @@ export default {
           // Handle template literals and string concatenations
           const expr = node.value.expression;
           if (expr.type === 'TemplateLiteral') {
-            classValue = expr.quasis.map((q) => q.value.raw).join('');
+            classValue = expr.quasis.map(q => q.value.raw).join('');
           } else if (expr.type === 'Literal') {
             classValue = expr.value;
           }
@@ -98,17 +95,15 @@ export default {
 
         // Check each class in the className string
         const classes = classValue.split(/\s+/);
-
-        classes.forEach((cls) => {
-          HARDCODED_COLOR_PATTERNS.forEach((pattern) => {
+        
+        classes.forEach(cls => {
+          HARDCODED_COLOR_PATTERNS.forEach(pattern => {
             if (pattern.test(cls)) {
               const suggestion = SEMANTIC_SUGGESTIONS[cls];
-
+              
               context.report({
                 node,
-                messageId: suggestion
-                  ? 'hardcodedColor'
-                  : 'hardcodedColorGeneric',
+                messageId: suggestion ? 'hardcodedColor' : 'hardcodedColorGeneric',
                 data: {
                   color: cls,
                   suggestion: suggestion || 'semantic design tokens',

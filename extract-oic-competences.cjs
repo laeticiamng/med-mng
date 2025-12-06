@@ -5,31 +5,15 @@ const puppeteer = require('puppeteer');
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 
-// ✅ SÉCURISÉ: Validation des variables d'environnement obligatoires
-const CAS_USERNAME = process.env.CAS_USERNAME;
-const CAS_PASSWORD = process.env.CAS_PASSWORD;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!CAS_USERNAME || !CAS_PASSWORD) {
-  console.error('❌ ERREUR SÉCURITÉ: CAS_USERNAME et CAS_PASSWORD requis dans les variables d\'environnement');
-  console.error('💡 Configurez ces secrets dans GitHub Actions ou variables d\'environnement locales');
-  process.exit(1);
-}
-
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ ERREUR SÉCURITÉ: SUPABASE_SERVICE_ROLE_KEY manquant');
-  process.exit(1);
-}
-
 // Configuration depuis les variables d'environnement GitHub Actions
 const config = {
   cas: {
-    username: CAS_USERNAME,
-    password: CAS_PASSWORD
+    username: process.env.CAS_USERNAME || 'laeticia.moto-ngane@etud.u-picardie.fr',
+    password: process.env.CAS_PASSWORD || 'Aiciteal1!'
   },
   supabase: {
     url: 'https://yaincoxihiqdksxgrsrk.supabase.co',
-    serviceKey: SUPABASE_SERVICE_ROLE_KEY
+    serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY
   },
   urls: {
     base: 'https://livret.uness.fr/lisa/2025',

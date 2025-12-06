@@ -61,7 +61,7 @@ Action: Sécurisation complète des credentials et clés sensibles
 ### ❌ AVANT (Vulnérable)
 ```typescript
 // DANGEREUX - Ne jamais faire ça
-const CAS_USERNAME = Deno.env.get('CAS_USERNAME') || 'votre-email@etud.institution.fr'
+const CAS_USERNAME = Deno.env.get('CAS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
 const SUPABASE_KEY = 'eyJhbGc...' // hardcodé
 ```
 

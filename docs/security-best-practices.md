@@ -14,7 +14,6 @@ Ce guide définit les meilleures pratiques de sécurité pour la plateforme MED-
 4. [Onboarding/Offboarding Développeurs](#4-onboardingoffboarding-développeurs)
 5. [Monitoring et Alertes](#5-monitoring-et-alertes)
 6. [Checklist Sécurité](#6-checklist-sécurité)
-7. [Configuration GitHub Secrets (CI/CD)](#7-configuration-github-secrets-cicd)
 
 ---
 
@@ -305,77 +304,6 @@ Management: admin@med-mng.fr
 
 ---
 
-## 7. Configuration GitHub Secrets (CI/CD)
-
-### 🔐 GitHub Actions Secrets
-
-Pour protéger les clés sensibles dans les workflows CI/CD, **TOUS les secrets doivent être configurés dans GitHub Secrets**.
-
-**⚠️ CRITIQUE**: Ne JAMAIS écrire de secrets en clair dans les fichiers `.github/workflows/*.yml`
-
-### 📝 Secrets Requis pour CI/CD
-
-Configurer les secrets suivants dans **Settings > Secrets and variables > Actions** :
-
-```bash
-# Supabase Configuration (OBLIGATOIRE pour E2E tests)
-E2E_BASE_URL=https://[your-project].supabase.co
-SUPABASE_ANON_KEY=eyJhbG...  # Clé anonyme Supabase
-
-# Autres secrets CI/CD selon besoins
-SUPABASE_SERVICE_ROLE_KEY=eyJhbG...  # Pour fonctions edge (si nécessaire)
-```
-
-### 🛠️ Comment Configurer les Secrets GitHub
-
-1. **Accéder aux Paramètres du Dépôt**:
-   - Aller sur GitHub.com > Votre dépôt `med-mng`
-   - Cliquer sur **Settings** (Paramètres)
-
-2. **Ajouter un Secret**:
-   - Dans le menu latéral, aller à **Secrets and variables** > **Actions**
-   - Cliquer sur **New repository secret**
-   - Entrer le **nom** du secret (ex: `SUPABASE_ANON_KEY`)
-   - Coller la **valeur** du secret
-   - Cliquer sur **Add secret**
-
-3. **Utilisation dans les Workflows**:
-   ```yaml
-   # ✅ CORRECT - Utilisation de secrets GitHub
-   - name: Run tests
-     run: pnpm test:e2e
-     env:
-       E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
-       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-
-   # ❌ INTERDIT - Secrets en clair
-   - name: Run tests
-     run: pnpm test:e2e
-     env:
-       E2E_BASE_URL: https://yaincoxihiqdksxgrsrk.supabase.co
-       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
-
-### 🔄 Rotation des Secrets GitHub
-
-**Fréquence**: Tous les 90 jours ou immédiatement après un incident
-
-**Procédure**:
-1. Générer un nouveau secret depuis Supabase Dashboard
-2. Mettre à jour le secret dans GitHub Settings
-3. Déclencher un nouveau workflow pour tester
-4. Invalider l'ancien secret
-
-### ✅ Checklist Configuration Secrets
-
-- [ ] Tous les secrets sont dans GitHub Settings (pas dans le code)
-- [ ] Les fichiers `.env.example` ne contiennent QUE des placeholders
-- [ ] Le workflow CI/CD utilise `${{ secrets.NOM_SECRET }}`
-- [ ] Les secrets de production ≠ secrets de staging
-- [ ] Un processus de rotation des secrets est documenté
-
----
-
 ## 📚 Ressources Complémentaires
 
 - [OWASP Security Guidelines](https://owasp.org/)
@@ -384,6 +312,6 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbG...  # Pour fonctions edge (si nécessaire)
 
 ---
 
-**📅 Dernière mise à jour**: 2025-11-16
+**📅 Dernière mise à jour**: 2025-01-26  
 **🔄 Prochaine révision**: 2025-04-26  
 **📝 Responsable**: Équipe DevOps MED-MNG

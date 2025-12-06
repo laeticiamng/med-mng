@@ -4,25 +4,18 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Root vite config - used when building from root directory
-// Delegates to apps/frontend but adjusts paths accordingly
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // Set root to frontend directory
-  root: path.resolve(__dirname, 'apps/frontend'),
-  
-  // Public directory relative to root
-  publicDir: 'public',
-  
   server: {
     host: "::",
     port: 8080,
   },
-  
   plugins: [
     react({
       tsDecorators: true,
     }),
-    mode === 'development' && componentTagger(),
+    mode === 'development' &&
+    componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -71,12 +64,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff,ttf,webp,jpg,jpeg}'],
-        globIgnores: ['**/node_modules/**/*', '**/dev-dist/**/*'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -85,7 +73,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -99,7 +87,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -114,7 +102,7 @@ export default defineConfig(({ mode }) => ({
               networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5
+                maxAgeSeconds: 60 * 5 // 5 minutes
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -122,27 +110,13 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 90
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:js|css)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-              expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 jours
               }
             }
           },
@@ -153,7 +127,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'fonts-cache',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 an
               }
             }
           }
@@ -165,63 +139,26 @@ export default defineConfig(({ mode }) => ({
       }
     })
   ].filter(Boolean),
-  
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./apps/frontend/src"),
-      "@shared": path.resolve(__dirname, "./packages/shared/src"),
+      "@": path.resolve(__dirname, "./src"),
     },
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
   },
-  
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
-  
   esbuild: {
     target: 'esnext',
     logOverride: { 
       'this-is-undefined-in-esm': 'silent'
     }
   },
-  
   build: {
     target: 'esnext',
-    outDir: path.resolve(__dirname, 'dist'),
-    chunkSizeWarningLimit: 1000,
-    minify: 'terser',
-    sourcemap: mode === 'development',
-    
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;
         warn(warning);
-      },
-      
-      output: {
-        manualChunks: {
-          'react-core': ['react', 'react-dom', 'react-router-dom'],
-          'react-query': ['@tanstack/react-query', '@tanstack/react-query-persist-client'],
-          'state': ['zustand'],
-          'ui-core': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-scroll-area'
-          ],
-          'ui-form': ['react-hook-form', 'zod'],
-          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority'],
-          'charts': ['recharts', 'chart.js'],
-          'icons': ['lucide-react'],
-          'animations': ['framer-motion'],
-          'xlsx': ['xlsx'],
-          'pdf': ['jspdf', 'html2canvas'],
-        },
-        
-        chunkFileNames: 'js/[name]-[hash].js',
-        entryFileNames: 'js/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
       }
     }
   }

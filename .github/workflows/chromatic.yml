@@ -1,0 +1,97 @@
+name: 🎨 Chromatic Visual Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Permissions nécessaires pour commenter sur les PRs
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  chromatic:
+    name: Run Visual Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nécessaire pour Chromatic
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Storybook
+        run: npm run build-storybook
+        env:
+          NODE_ENV: production
+
+      - name: 📸 Run Chromatic
+        id: chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: build-storybook
+          onlyChanged: true # Teste uniquement les stories modifiées
+          exitZeroOnChanges: false # Fail si des changements visuels détectés
+          exitOnceUploaded: false # Attendre les résultats
+          autoAcceptChanges: main # Auto-accept sur main branch
+        env:
+          NODE_ENV: production
+
+      - name: 📊 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const chromaticUrl = '${{ steps.chromatic.outputs.url }}' || 'https://chromatic.com';
+            const buildUrl = '${{ steps.chromatic.outputs.buildUrl }}' || chromaticUrl;
+            const storybookUrl = '${{ steps.chromatic.outputs.storybookUrl }}' || '';
+            const changesCount = '${{ steps.chromatic.outputs.changeCount }}' || '0';
+            
+            let body = `## 🎨 Chromatic Visual Tests Results\n\n`;
+            
+            if (changesCount === '0') {
+              body += `✅ **No visual changes detected** - All components look good!\n\n`;
+            } else {
+              body += `⚠️ **${changesCount} visual change(s) detected**\n\n`;
+              body += `Please review the changes on Chromatic before merging.\n\n`;
+            }
+            
+            body += `### 📊 Reports\n\n`;
+            body += `- [View Chromatic Build](${buildUrl})\n`;
+            if (storybookUrl) {
+              body += `- [View Storybook Preview](${storybookUrl})\n`;
+            }
+            body += `\n---\n`;
+            body += `💡 **Tip**: Use the DevTools (\`Ctrl+Shift+D\`) to inspect component tokens while reviewing.\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: ❌ Fail on visual regressions
+        if: steps.chromatic.outputs.changeCount != '0' && github.event_name == 'pull_request'
+        run: |
+          echo "::error::Visual regressions detected! Review changes on Chromatic: ${{ steps.chromatic.outputs.buildUrl }}"
+          exit 1
+
+      - name: ✅ Success summary
+        if: success()
+        run: |
+          echo "✅ Visual tests passed successfully!"
+          echo "📊 View build: ${{ steps.chromatic.outputs.buildUrl }}"
