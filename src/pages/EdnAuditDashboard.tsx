@@ -270,8 +270,8 @@ export const EdnAuditDashboard: React.FC = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Audit de Complétude EDN</h1>
-              <p className="text-gray-600">Analyse IA des 367 items</p>
+              <h1 className="text-3xl font-bold text-foreground">Audit de Complétude EDN</h1>
+              <p className="text-muted-foreground">Analyse IA des 367 items</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -328,10 +328,10 @@ export const EdnAuditDashboard: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Score moyen</p>
-                  <p className="text-3xl font-bold text-blue-600">{avgScore}%</p>
+                  <p className="text-sm text-muted-foreground">Score moyen</p>
+                  <p className="text-3xl font-bold text-primary">{avgScore}%</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-blue-600" />
+                <TrendingUp className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -340,12 +340,12 @@ export const EdnAuditDashboard: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Items complets</p>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-sm text-muted-foreground">Items complets</p>
+                  <p className="text-3xl font-bold text-success">
                     {auditResults.filter(r => r.completeness_score >= 80).length}
                   </p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-8 w-8 text-success" />
               </div>
             </CardContent>
           </Card>
@@ -354,10 +354,10 @@ export const EdnAuditDashboard: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">À améliorer</p>
-                  <p className="text-3xl font-bold text-orange-600">{incompleteItems}</p>
+                  <p className="text-sm text-muted-foreground">À améliorer</p>
+                  <p className="text-3xl font-bold text-warning">{incompleteItems}</p>
                 </div>
-                <AlertCircle className="h-8 w-8 text-orange-600" />
+                <AlertCircle className="h-8 w-8 text-warning" />
               </div>
             </CardContent>
           </Card>
@@ -366,10 +366,10 @@ export const EdnAuditDashboard: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total analysé</p>
-                  <p className="text-3xl font-bold text-gray-900">{auditResults.length}</p>
+                  <p className="text-sm text-muted-foreground">Total analysé</p>
+                  <p className="text-3xl font-bold text-foreground">{auditResults.length}</p>
                 </div>
-                <TrendingDown className="h-8 w-8 text-gray-600" />
+                <TrendingDown className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -381,7 +381,7 @@ export const EdnAuditDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <CardTitle>Résultats de l'audit</CardTitle>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Rechercher un item..."
@@ -408,12 +408,12 @@ export const EdnAuditDashboard: React.FC = () => {
                             {result.completeness_score}%
                           </Badge>
                           {result.rang_a_complete && (
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
+                            <Badge variant="outline" className="bg-success/10 text-success">
                               Rang A ✓
                             </Badge>
                           )}
                           {result.rang_b_complete && (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                            <Badge variant="outline" className="bg-primary/10 text-primary">
                               Rang B ✓
                             </Badge>
                           )}
@@ -443,26 +443,26 @@ export const EdnAuditDashboard: React.FC = () => {
                     </div>
 
                     {(result.missing_rang_a?.length > 0 || result.missing_rang_b?.length > 0) && (
-                      <div className="mt-3 p-3 bg-orange-50 rounded-lg">
-                        <p className="text-sm font-medium text-orange-900 mb-2">Compétences manquantes:</p>
+                      <div className="mt-3 p-3 bg-warning/10 rounded-lg">
+                        <p className="text-sm font-medium text-warning mb-2">Compétences manquantes:</p>
                         {result.missing_rang_a?.length > 0 && (
                           <div className="mb-2">
-                            <span className="text-xs font-bold text-orange-700">Rang A: </span>
-                            <span className="text-xs text-orange-600">{result.missing_rang_a.join(', ')}</span>
+                            <span className="text-xs font-bold text-warning">Rang A: </span>
+                            <span className="text-xs text-warning/80">{result.missing_rang_a.join(', ')}</span>
                           </div>
                         )}
                         {result.missing_rang_b?.length > 0 && (
                           <div>
-                            <span className="text-xs font-bold text-orange-700">Rang B: </span>
-                            <span className="text-xs text-orange-600">{result.missing_rang_b.join(', ')}</span>
+                            <span className="text-xs font-bold text-warning">Rang B: </span>
+                            <span className="text-xs text-warning/80">{result.missing_rang_b.join(', ')}</span>
                           </div>
                         )}
                       </div>
                     )}
 
                     {result.suggestions && (
-                      <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                        <p className="text-xs text-blue-900">{result.suggestions}</p>
+                      <div className="mt-3 p-3 bg-primary/10 rounded-lg">
+                        <p className="text-xs text-primary">{result.suggestions}</p>
                       </div>
                     )}
                   </div>
