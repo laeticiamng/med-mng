@@ -280,7 +280,7 @@ export const ComprehensiveAuditDashboard = () => {
                       return priority[b.category] - priority[a.category];
                     })
                     .map((issue, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                       {getCategoryIcon(issue.category)}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -291,7 +291,7 @@ export const ComprehensiveAuditDashboard = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600">{issue.description}</p>
+                        <p className="text-sm text-muted-foreground">{issue.description}</p>
                       </div>
                     </div>
                   ))}

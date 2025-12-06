@@ -76,30 +76,30 @@ const InstallPWA: React.FC = () => {
         keywords="installer app, PWA, application mobile, offline, médecine mobile"
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-primary/10 to-secondary/20 p-6">
         <div className="container mx-auto max-w-4xl">
           {/* Header */}
           <div className="text-center mb-12 mt-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-xl">
-              <Smartphone className="w-10 h-10 text-white" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl">
+              <Smartphone className="w-10 h-10 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Installez MED-MNG
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Transformez votre apprentissage médical avec notre application installable
             </p>
           </div>
 
           {/* Status Card */}
           {isInstalled ? (
-            <Card className="mb-8 border-green-200 bg-green-50">
+            <Card className="mb-8 border-success/20 bg-success/5">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-success" />
                   <div>
-                    <CardTitle className="text-green-900">Application installée !</CardTitle>
-                    <CardDescription className="text-green-700">
+                    <CardTitle className="text-success">Application installée !</CardTitle>
+                    <CardDescription className="text-success/80">
                       MED-MNG est prêt à l'emploi sur votre appareil
                     </CardDescription>
                   </div>
@@ -108,7 +108,7 @@ const InstallPWA: React.FC = () => {
               <CardContent>
                 <Button 
                   onClick={() => navigate('/')} 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-success hover:bg-success/90"
                 >
                   Ouvrir l'application
                 </Button>
@@ -164,11 +164,11 @@ const InstallPWA: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardHeader>
-                <Wifi className="w-10 h-10 text-blue-600 mb-3" />
+                <Wifi className="w-10 h-10 text-primary mb-3" />
                 <CardTitle>Mode Offline</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Accédez aux items EDN et contenus même sans connexion internet. Parfait pour réviser n'importe où.
                 </p>
               </CardContent>
@@ -176,11 +176,11 @@ const InstallPWA: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <Zap className="w-10 h-10 text-yellow-600 mb-3" />
+                <Zap className="w-10 h-10 text-warning mb-3" />
                 <CardTitle>Chargement Rapide</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Lancement instantané grâce au cache intelligent. Plus besoin d'attendre le chargement.
                 </p>
               </CardContent>
@@ -188,11 +188,11 @@ const InstallPWA: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <Heart className="w-10 h-10 text-red-600 mb-3" />
+                <Heart className="w-10 h-10 text-destructive mb-3" />
                 <CardTitle>Notifications</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Recevez des rappels pour vos sessions de révision et alertes importantes.
                 </p>
               </CardContent>
@@ -200,11 +200,11 @@ const InstallPWA: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <Smartphone className="w-10 h-10 text-purple-600 mb-3" />
+                <Smartphone className="w-10 h-10 text-primary mb-3" />
                 <CardTitle>Expérience Native</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Interface optimisée pour mobile avec gestes intuitifs et navigation fluide.
                 </p>
               </CardContent>
@@ -219,26 +219,26 @@ const InstallPWA: React.FC = () => {
             <CardContent>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">
+                  <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">
                     <strong>Accès instantané :</strong> Lancez l'app depuis votre écran d'accueil comme une vraie application
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">
+                  <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">
                     <strong>Performance optimale :</strong> Cache intelligent pour un chargement ultra-rapide
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">
+                  <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">
                     <strong>Mode plein écran :</strong> Profitez d'un affichage immersif sans barre de navigation
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">
+                  <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">
                     <strong>Mises à jour automatiques :</strong> Bénéficiez toujours de la dernière version
                   </span>
                 </li>

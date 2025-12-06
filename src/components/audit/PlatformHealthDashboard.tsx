@@ -63,19 +63,19 @@ export const PlatformHealthDashboard = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'good': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case 'error': return <XCircle className="h-5 w-5 text-red-600" />;
+      case 'good': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'error': return <XCircle className="h-5 w-5 text-destructive" />;
       default: return null;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'good': return 'bg-green-100 text-green-800';
-      case 'warning': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'good': return 'bg-success/10 text-success';
+      case 'warning': return 'bg-warning/10 text-warning';
+      case 'error': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -95,16 +95,16 @@ export const PlatformHealthDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{goodCount}</div>
-              <div className="text-sm text-gray-600">Fonctionnel</div>
+              <div className="text-2xl font-bold text-success">{goodCount}</div>
+              <div className="text-sm text-muted-foreground">Fonctionnel</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{warningCount}</div>
-              <div className="text-sm text-gray-600">Attention</div>
+              <div className="text-2xl font-bold text-warning">{warningCount}</div>
+              <div className="text-sm text-muted-foreground">Attention</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{errorCount}</div>
-              <div className="text-sm text-gray-600">Erreur</div>
+              <div className="text-2xl font-bold text-destructive">{errorCount}</div>
+              <div className="text-sm text-muted-foreground">Erreur</div>
             </div>
           </div>
 
@@ -115,7 +115,7 @@ export const PlatformHealthDashboard = () => {
                   {getStatusIcon(metric.status)}
                   <div>
                     <div className="font-semibold">{metric.name}</div>
-                    <div className="text-sm text-gray-600">{metric.description}</div>
+                    <div className="text-sm text-muted-foreground">{metric.description}</div>
                   </div>
                 </div>
                 <Badge className={getStatusColor(metric.status)}>

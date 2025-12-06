@@ -25,10 +25,10 @@ export default function EdnCompleteDetail() {
   };
 
   const getCompletenessColor = (score?: number) => {
-    if (!score) return 'text-gray-500';
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (!score) return 'text-muted-foreground';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getCompletenessText = (score?: number) => {
