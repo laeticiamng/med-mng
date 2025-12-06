@@ -88,11 +88,11 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
 
   return (
     <div className="space-y-4 sm:space-y-6 pb-20">
-      <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-4 sm:p-6 rounded-lg mx-2 sm:mx-0">
+      <div className="bg-gradient-to-r from-muted to-muted/80 text-foreground p-4 sm:p-6 rounded-lg mx-2 sm:mx-0">
         <h2 className="text-xl sm:text-2xl font-bold mb-2">
           📚 Rang B - Connaissances Expertes LiSA
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base">
+        <p className="text-muted-foreground text-sm sm:text-base">
           {theme} - {lignesEnrichies.length} compétence{lignesEnrichies.length > 1 ? 's' : ''} de niveau expert
         </p>
         <div className="text-xs text-slate-300 mt-2">

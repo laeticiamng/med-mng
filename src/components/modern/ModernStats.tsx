@@ -277,7 +277,7 @@ export const useModernStatsData = (): StatItem[] => {
       change: { value: 12.5, type: 'increase', period: 'ce mois' },
       target: { current: 15420, goal: 20000, unit: 'utilisateurs' },
       icon: Users,
-      color: 'bg-blue-500',
+      color: 'bg-primary',
       description: 'Utilisateurs connectés dans les 30 derniers jours',
       actionable: true
     },

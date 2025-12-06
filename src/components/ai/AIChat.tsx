@@ -368,7 +368,7 @@ Comment puis-je vous aider plus spécifiquement ?`;
                   
                   {isTyping && (
                     <div className="flex gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground">
                         <Bot className="h-4 w-4" />
                       </div>
                       <div className="bg-muted rounded-lg p-4 max-w-[80%]">

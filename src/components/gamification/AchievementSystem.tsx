@@ -247,7 +247,7 @@ export const AchievementSystem = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-                <Crown className="h-8 w-8 text-white" />
+                <Crown className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{userLevel.title}</h2>

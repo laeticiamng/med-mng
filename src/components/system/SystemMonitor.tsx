@@ -463,28 +463,28 @@ export const SystemMonitor: React.FC = () => {
                   <p className="text-xs text-yellow-600 mt-1">Il y a 2 minutes</p>
                 </div>
 
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="font-medium text-green-900">Sauvegarde complétée</span>
-                    <Badge variant="outline" className="text-green-600">Info</Badge>
+                    <CheckCircle className="w-4 h-4 text-success" />
+                    <span className="font-medium text-success">Sauvegarde complétée</span>
+                    <Badge variant="outline" className="text-success">Info</Badge>
                   </div>
-                  <p className="text-sm text-green-800">
+                  <p className="text-sm text-success/80">
                     Sauvegarde automatique de la base de données terminée avec succès.
                   </p>
-                  <p className="text-xs text-green-600 mt-1">Il y a 1 heure</p>
+                  <p className="text-xs text-success/60 mt-1">Il y a 1 heure</p>
                 </div>
 
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium text-blue-900">Pic d'utilisateurs</span>
-                    <Badge variant="outline" className="text-blue-600">Info</Badge>
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-medium text-primary">Pic d'utilisateurs</span>
+                    <Badge variant="outline" className="text-primary">Info</Badge>
                   </div>
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-primary/80">
                     1,247 utilisateurs connectés simultanément - nouveau record atteint.
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">Il y a 3 heures</p>
+                  <p className="text-xs text-primary/60 mt-1">Il y a 3 heures</p>
                 </div>
               </div>
             </CardContent>

@@ -58,17 +58,17 @@ const SecurityMonitoring = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "critical":
-        return "bg-red-500";
+        return "bg-destructive";
       case "high":
-        return "bg-orange-500";
+        return "bg-warning";
       case "medium":
-        return "bg-yellow-500";
+        return "bg-warning/70";
       case "low":
-        return "bg-blue-500";
+        return "bg-primary";
       case "info":
-        return "bg-gray-500";
+        return "bg-muted-foreground";
       default:
-        return "bg-gray-500";
+        return "bg-muted-foreground";
     }
   };
 
