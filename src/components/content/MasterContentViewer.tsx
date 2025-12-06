@@ -135,21 +135,21 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header avec stats */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+      <Card className="bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-3 text-purple-800">
+              <CardTitle className="flex items-center gap-3 text-accent-foreground">
                 <Star className="h-6 w-6" />
                 Contenu Éducatif Premium - {itemData.title}
               </CardTitle>
               <CardDescription className="flex items-center gap-2 mt-2">
-                <Shield className="h-4 w-4 text-green-600" />
+                <Shield className="h-4 w-4 text-success" />
                 Version Officielle Plateforme • Qualité Garantie
               </CardDescription>
             </div>
             <div className="flex items-center gap-4">
-              <Badge className="bg-purple-100 text-purple-800 border-purple-300">
+              <Badge className="bg-accent/10 text-accent-foreground border-accent/30">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Vérifié
               </Badge>
@@ -161,33 +161,33 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-white/50 rounded-lg">
+            <div className="text-center p-3 bg-background/50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <Eye className="h-5 w-5 text-blue-600" />
+                <Eye className="h-5 w-5 text-primary" />
               </div>
-              <div className="text-2xl font-bold text-blue-700">{masterContent.views_count}</div>
-              <div className="text-sm text-blue-600">Vues Totales</div>
+              <div className="text-2xl font-bold text-primary">{masterContent.views_count}</div>
+              <div className="text-sm text-primary/80">Vues Totales</div>
             </div>
-            <div className="text-center p-3 bg-white/50 rounded-lg">
+            <div className="text-center p-3 bg-background/50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <Users className="h-5 w-5 text-green-600" />
+                <Users className="h-5 w-5 text-success" />
               </div>
-              <div className="text-2xl font-bold text-green-700">{masterContent.unique_viewers_count}</div>
-              <div className="text-sm text-green-600">Utilisateurs</div>
+              <div className="text-2xl font-bold text-success">{masterContent.unique_viewers_count}</div>
+              <div className="text-sm text-success/80">Utilisateurs</div>
             </div>
-            <div className="text-center p-3 bg-white/50 rounded-lg">
+            <div className="text-center p-3 bg-background/50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <Clock className="h-5 w-5 text-amber-600" />
+                <Clock className="h-5 w-5 text-warning" />
               </div>
-              <div className="text-2xl font-bold text-amber-700">{Math.floor(masterContent.avg_reading_time / 60)}m</div>
-              <div className="text-sm text-amber-600">Temps Moyen</div>
+              <div className="text-2xl font-bold text-warning">{Math.floor(masterContent.avg_reading_time / 60)}m</div>
+              <div className="text-sm text-warning/80">Temps Moyen</div>
             </div>
-            <div className="text-center p-3 bg-white/50 rounded-lg">
+            <div className="text-center p-3 bg-background/50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <TrendingUp className="h-5 w-5 text-accent" />
               </div>
-              <div className="text-2xl font-bold text-purple-700">{availableContent.length}</div>
-              <div className="text-sm text-purple-600">Formats Dispo</div>
+              <div className="text-2xl font-bold text-accent">{availableContent.length}</div>
+              <div className="text-sm text-accent/80">Formats Dispo</div>
             </div>
           </div>
         </CardContent>
@@ -216,7 +216,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
               >
                 <BookOpen className="h-4 w-4" />
                 Bande Dessinée
-                {hasContent.comic && <CheckCircle className="h-3 w-3 text-green-500" />}
+                {hasContent.comic && <CheckCircle className="h-3 w-3 text-success" />}
               </TabsTrigger>
               <TabsTrigger 
                 value="novel" 
@@ -225,7 +225,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
               >
                 <FileText className="h-4 w-4" />
                 Roman
-                {hasContent.novel && <CheckCircle className="h-3 w-3 text-green-500" />}
+                {hasContent.novel && <CheckCircle className="h-3 w-3 text-success" />}
               </TabsTrigger>
               <TabsTrigger 
                 value="poem" 
@@ -234,7 +234,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
               >
                 <Wand2 className="h-4 w-4" />
                 Poème
-                {hasContent.poem && <CheckCircle className="h-3 w-3 text-green-500" />}
+                {hasContent.poem && <CheckCircle className="h-3 w-3 text-success" />}
               </TabsTrigger>
               <TabsTrigger 
                 value="images" 
@@ -243,7 +243,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
               >
                 <Eye className="h-4 w-4" />
                 Images
-                {hasContent.images && <CheckCircle className="h-3 w-3 text-green-500" />}
+                {hasContent.images && <CheckCircle className="h-3 w-3 text-success" />}
               </TabsTrigger>
             </TabsList>
 
@@ -315,9 +315,9 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
       </Card>
 
       {/* Footer avec informations */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+      <Card className="bg-gradient-to-r from-success/5 to-primary/5 border-success/20">
         <CardContent className="p-4">
-          <div className="flex items-center justify-center gap-2 text-sm text-green-800">
+          <div className="flex items-center justify-center gap-2 text-sm text-success">
             <Shield className="h-4 w-4" />
             <span className="font-medium">Contenu Premium Vérifié</span>
             <span>•</span>

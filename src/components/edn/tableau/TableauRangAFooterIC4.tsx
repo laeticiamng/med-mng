@@ -15,46 +15,46 @@ export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
   isRangB = false
 }) => {
   const gradientClass = isRangB 
-    ? "bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200"
-    : "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200";
+    ? "bg-gradient-to-r from-accent/5 to-accent/10 border border-accent/20"
+    : "bg-gradient-to-r from-warning/5 to-warning/10 border border-warning/20";
   
-  const titleColor = isRangB ? "text-purple-800" : "text-amber-800";
-  const textColor = isRangB ? "text-purple-700" : "text-amber-700";
+  const titleColor = isRangB ? "text-accent" : "text-warning";
+  const textColor = isRangB ? "text-accent" : "text-warning";
 
   return (
     <div className="mt-8 space-y-6">
       {/* Statistiques */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
           <div className="flex items-center justify-center mb-2">
-            <Target className="h-5 w-5 text-blue-600" />
+            <Target className="h-5 w-5 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-blue-700">{isRangB ? '22' : '13'}</div>
-          <div className="text-sm text-blue-600">Concepts {isRangB ? 'experts' : 'fondamentaux'}</div>
+          <div className="text-2xl font-bold text-primary">{isRangB ? '22' : '13'}</div>
+          <div className="text-sm text-primary/80">Concepts {isRangB ? 'experts' : 'fondamentaux'}</div>
         </div>
         
-        <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="text-center p-4 bg-success/5 rounded-lg border border-success/20">
           <div className="flex items-center justify-center mb-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <CheckCircle className="h-5 w-5 text-success" />
           </div>
-          <div className="text-2xl font-bold text-green-700">7</div>
-          <div className="text-sm text-green-600">Dimensions qualité</div>
+          <div className="text-2xl font-bold text-success">7</div>
+          <div className="text-sm text-success/80">Dimensions qualité</div>
         </div>
         
-        <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+        <div className="text-center p-4 bg-warning/5 rounded-lg border border-warning/20">
           <div className="flex items-center justify-center mb-2">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
+            <AlertTriangle className="h-5 w-5 text-warning" />
           </div>
-          <div className="text-2xl font-bold text-orange-700">5</div>
-          <div className="text-sm text-orange-600">Niveaux gravité EIAS</div>
+          <div className="text-2xl font-bold text-warning">5</div>
+          <div className="text-sm text-warning/80">Niveaux gravité EIAS</div>
         </div>
         
-        <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <div className="text-center p-4 bg-accent/5 rounded-lg border border-accent/20">
           <div className="flex items-center justify-center mb-2">
-            <Lightbulb className="h-5 w-5 text-purple-600" />
+            <Lightbulb className="h-5 w-5 text-accent" />
           </div>
-          <div className="text-2xl font-bold text-purple-700">30</div>
-          <div className="text-sm text-purple-600">Secondes SHA</div>
+          <div className="text-2xl font-bold text-accent">30</div>
+          <div className="text-sm text-accent/80">Secondes SHA</div>
         </div>
       </div>
 
@@ -118,30 +118,30 @@ export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
 
       {/* Badges de compétences */}
       <div className="flex flex-wrap gap-2 justify-center">
-        <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">
+        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">
           Démarche qualité
         </Badge>
-        <Badge variant="secondary" className="bg-red-100 text-red-700 border-red-300">
+        <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/30">
           Sécurité des soins
         </Badge>
-        <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
+        <Badge variant="secondary" className="bg-success/10 text-success border-success/30">
           Prévention EIAS
         </Badge>
-        <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-300">
+        <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/30">
           Hygiène des mains
         </Badge>
-        <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-300">
+        <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/30">
           Antisepsie-Asepsie
         </Badge>
         {isRangB && (
-          <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-300">
+          <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/30">
             Expertise économique
           </Badge>
         )}
       </div>
 
       {/* Note de progression */}
-      <div className="text-center text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+      <div className="text-center text-sm text-muted-foreground bg-muted p-3 rounded-lg">
         📊 Tableau IC-4 : {lignesCount} concepts {isRangB ? 'experts' : 'fondamentaux'} sur {colonnesCount} dimensions d'analyse
         <br />
         🎯 {isRangB 
