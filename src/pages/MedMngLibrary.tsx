@@ -153,9 +153,9 @@ const MedMngLibraryComponent = () => {
             />
           </div>
           <div className="text-right">
-            <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
-              <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-gray-600" />
-              <div className="text-lg sm:text-2xl font-bold text-blue-600">
+            <div className="bg-card rounded-lg px-3 py-2 shadow-sm">
+              <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-muted-foreground" />
+              <div className="text-lg sm:text-2xl font-bold text-primary">
                 {quota?.remaining_credits || 0}
               </div>
             </div>

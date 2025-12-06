@@ -359,7 +359,7 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
 
       {/* Modal pour afficher une situation (implémentation simplifiée) */}
       {selectedSituation && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <Card className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <CardHeader>
               <CardTitle>

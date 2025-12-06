@@ -76,15 +76,15 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
                            (Array.isArray(itemData.tableau_rang_a) ? itemData.tableau_rang_a.length : 0));
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 rounded-xl">
+    <div className="space-y-8 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-8 rounded-xl">
       <ComicHeader title={`${itemData.title} - Bande Dessinée Complète`} />
       
       {/* Informations sur la completude */}
-      <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-lg">
+      <div className="bg-card p-6 rounded-xl border-2 border-primary/20 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-bold text-indigo-900">🎯 Bande Dessinée Éducative</h3>
+          <h3 className="text-2xl font-bold text-foreground">🎯 Bande Dessinée Éducative</h3>
           {isLoaded && (
-            <div className="flex items-center text-green-600">
+            <div className="flex items-center text-success">
               <CheckCircle className="h-6 w-6 mr-2" />
               <span className="font-semibold">Disponible Immédiatement !</span>
             </div>
@@ -92,26 +92,26 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
         </div>
         
         <div className="grid md:grid-cols-4 gap-6">
-          <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-            <div className="text-3xl font-bold text-green-700">{panels.length}</div>
-            <div className="text-sm text-green-600">Vignettes Narratives</div>
+          <div className="text-center p-4 bg-success/10 rounded-lg border border-success/20">
+            <div className="text-3xl font-bold text-success">{panels.length}</div>
+            <div className="text-sm text-success/80">Vignettes Narratives</div>
           </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-3xl font-bold text-blue-700">{Math.max(totalCompetences, panels.length * 2)}</div>
-            <div className="text-sm text-blue-600">Compétences Couvertes</div>
+          <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+            <div className="text-3xl font-bold text-primary">{Math.max(totalCompetences, panels.length * 2)}</div>
+            <div className="text-sm text-primary/80">Compétences Couvertes</div>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-            <div className="text-3xl font-bold text-purple-700">{Math.min(panels.length, 8)}</div>
-            <div className="text-sm text-purple-600">Chapitres Illustrés</div>
+          <div className="text-center p-4 bg-accent/10 rounded-lg border border-accent/20">
+            <div className="text-3xl font-bold text-accent">{Math.min(panels.length, 8)}</div>
+            <div className="text-sm text-accent/80">Chapitres Illustrés</div>
           </div>
-          <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
-            <div className="text-3xl font-bold text-amber-700">20/20</div>
-            <div className="text-sm text-amber-600">Score Garanti</div>
+          <div className="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
+            <div className="text-3xl font-bold text-warning">20/20</div>
+            <div className="text-sm text-warning/80">Score Garanti</div>
           </div>
         </div>
         
-        <div className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
-          <p className="text-emerald-800 font-medium text-center flex items-center justify-center gap-2">
+        <div className="mt-4 p-4 bg-gradient-to-r from-success/10 to-success/5 rounded-lg border border-success/20">
+          <p className="text-success font-medium text-center flex items-center justify-center gap-2">
             <span className="text-2xl">⚡</span>
             Cette bande dessinée est générée automatiquement à partir des compétences de l'item ! 
             Chaque vignette illustre des situations cliniques concrètes pour une maîtrise complète.
@@ -133,13 +133,13 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
                 competences: panel.competences
               }} />
               {panel.competences.length > 0 && (
-                <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                  <p className="text-xs text-blue-700 font-medium mb-1">
+                <div className="mt-3 p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg border border-primary/20">
+                  <p className="text-xs text-primary font-medium mb-1">
                     🎓 Compétences maîtrisées :
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {panel.competences.map((comp, idx) => (
-                      <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                      <span key={idx} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
                         {comp}
                       </span>
                     ))}
@@ -153,12 +153,12 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
 
       {/* Message si aucune bande dessinée n'est disponible */}
       {isLoaded && panels.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-xl border-2 border-gray-200">
+        <div className="text-center py-12 bg-card rounded-xl border-2 border-border">
           <div className="text-6xl mb-4">🚧</div>
-          <h3 className="text-xl font-bold text-gray-700 mb-2">
+          <h3 className="text-xl font-bold text-foreground mb-2">
             Bande Dessinée en Préparation
           </h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             La bande dessinée pour cet item est en cours de création.
             Elle sera bientôt disponible avec toutes les compétences intégrées !
           </p>

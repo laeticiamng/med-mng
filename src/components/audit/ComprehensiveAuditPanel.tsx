@@ -37,9 +37,9 @@ export const ComprehensiveAuditPanel = ({
   
   const getScoreColor = (score: number, max: number) => {
     const percentage = (score / max) * 100;
-    if (percentage >= 90) return 'text-green-600';
-    if (percentage >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 90) return 'text-success';
+    if (percentage >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getSeverityBadge = (severity: string) => {
@@ -248,7 +248,7 @@ export const ComprehensiveAuditPanel = ({
                                     </div>
                                   )}
                                   {issue.fix && (
-                                    <div className="text-xs text-green-600 mt-1">
+                                    <div className="text-xs text-success mt-1">
                                       💡 {issue.fix}
                                     </div>
                                   )}
@@ -279,7 +279,7 @@ export const ComprehensiveAuditPanel = ({
           {/* Succès */}
           {report.issues.length === 0 && (
             <Alert>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-success" />
               <AlertTitle>✅ Parfait !</AlertTitle>
               <AlertDescription>
                 Aucun problème détecté. La plateforme est en excellent état !

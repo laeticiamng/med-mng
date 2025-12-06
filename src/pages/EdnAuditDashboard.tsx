@@ -398,7 +398,7 @@ export const EdnAuditDashboard: React.FC = () => {
                 {filteredResults.map((result) => (
                   <div
                     key={result.id}
-                    className="p-4 border rounded-lg bg-white hover:shadow-md transition-shadow"
+                    className="p-4 border rounded-lg bg-card hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">

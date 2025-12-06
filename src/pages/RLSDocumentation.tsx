@@ -134,7 +134,7 @@ const RLSDocumentation = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Database className="h-8 w-8 text-blue-500" />
+              <Database className="h-8 w-8 text-primary" />
               <div>
                 <div className="text-2xl font-bold">{tableSummaries?.length || 0}</div>
                 <div className="text-sm text-muted-foreground">Tables totales</div>
@@ -143,7 +143,7 @@ const RLSDocumentation = () => {
           </Card>
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-green-500" />
+              <Shield className="h-8 w-8 text-success" />
               <div>
                 <div className="text-2xl font-bold">
                   {tableSummaries?.filter(t => t.policy_count > 0).length || 0}
@@ -154,7 +154,7 @@ const RLSDocumentation = () => {
           </Card>
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Lock className="h-8 w-8 text-purple-500" />
+              <Lock className="h-8 w-8 text-accent" />
               <div>
                 <div className="text-2xl font-bold">{policies?.length || 0}</div>
                 <div className="text-sm text-muted-foreground">Policies actives</div>
@@ -163,7 +163,7 @@ const RLSDocumentation = () => {
           </Card>
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <AlertCircle className="h-8 w-8 text-orange-500" />
+              <AlertCircle className="h-8 w-8 text-warning" />
               <div>
                 <div className="text-2xl font-bold">
                   {tableSummaries?.filter(t => t.policy_count === 0).length || 0}
@@ -217,9 +217,9 @@ const RLSDocumentation = () => {
                           <div className="flex items-center justify-between w-full pr-4">
                             <div className="flex items-center gap-3">
                               {hasNoPolicies ? (
-                                <AlertCircle className="h-5 w-5 text-orange-500" />
+                                <AlertCircle className="h-5 w-5 text-warning" />
                               ) : (
-                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <CheckCircle className="h-5 w-5 text-success" />
                               )}
                               <span className="font-mono font-semibold">{table.tablename}</span>
                               <Badge variant="outline">{table.policy_count} policies</Badge>
@@ -292,9 +292,9 @@ const RLSDocumentation = () => {
                                 ))}
                               </div>
                             ) : (
-                              <Card className="p-4 border-orange-500/50 bg-orange-500/10">
+                              <Card className="p-4 border-warning/50 bg-warning/10">
                                 <div className="flex items-center gap-3">
-                                  <AlertCircle className="h-5 w-5 text-orange-500" />
+                                  <AlertCircle className="h-5 w-5 text-warning" />
                                   <p className="text-sm text-muted-foreground">
                                     Aucune policy définie pour cette table. 
                                     RLS peut être activé mais sans restriction.
