@@ -73,19 +73,19 @@ export const UnifiedAlertsPanel = () => {
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-orange-500">{stats.high}</div>
+                <div className="text-2xl font-bold text-warning">{stats.high}</div>
                 <p className="text-xs text-muted-foreground">Élevées</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-yellow-500">{stats.medium}</div>
+                <div className="text-2xl font-bold text-amber-500">{stats.medium}</div>
                 <p className="text-xs text-muted-foreground">Moyennes</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-500">{stats.low}</div>
+                <div className="text-2xl font-bold text-primary">{stats.low}</div>
                 <p className="text-xs text-muted-foreground">Faibles</p>
               </CardContent>
             </Card>

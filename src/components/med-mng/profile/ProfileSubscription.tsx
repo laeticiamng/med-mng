@@ -35,8 +35,8 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
       default:
         return {
           name: 'Gratuit',
-          icon: <Zap className="h-5 w-5 text-gray-600" />,
-          color: 'bg-gray-100 text-gray-800',
+          icon: <Zap className="h-5 w-5 text-muted-foreground" />,
+          color: 'bg-muted text-muted-foreground',
           features: ['2 crédits/mois', 'Qualité audio standard'],
           price: 'Gratuit'
         };
@@ -70,10 +70,10 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
                   {subscriptionDetails.name}
                 </Badge>
               </div>
-              <p className="text-gray-600">{subscriptionDetails.price}</p>
+              <p className="text-muted-foreground">{subscriptionDetails.price}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600 mb-1">Prochain renouvellement</p>
+              <p className="text-sm text-muted-foreground mb-1">Prochain renouvellement</p>
               <p className="font-semibold">
                 {profile?.subscription_plan !== 'free' 
                   ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
@@ -90,7 +90,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
             <ul className="space-y-2">
               {subscriptionDetails.features.map((feature, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <div className="h-2 w-2 bg-green-500 rounded-full" />
+                  <div className="h-2 w-2 bg-success rounded-full" />
                   <span className="text-sm">{feature}</span>
                 </li>
               ))}
@@ -114,13 +114,13 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           </div>
           <Progress value={creditsProgress} className="h-3" />
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-2xl font-bold text-blue-600">{profile?.credits_left || 0}</p>
-              <p className="text-sm text-gray-600">Crédits restants</p>
+            <div className="text-center p-4 bg-primary/10 rounded-lg">
+              <p className="text-2xl font-bold text-primary">{profile?.credits_left || 0}</p>
+              <p className="text-sm text-muted-foreground">Crédits restants</p>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-600">{creditsUsed}</p>
-              <p className="text-sm text-gray-600">Crédits utilisés</p>
+            <div className="text-center p-4 bg-success/10 rounded-lg">
+              <p className="text-2xl font-bold text-success">{creditsUsed}</p>
+              <p className="text-sm text-muted-foreground">Crédits utilisés</p>
             </div>
           </div>
         </CardContent>
@@ -140,18 +140,18 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white rounded-lg border">
-                <h4 className="font-semibold text-yellow-800 mb-2">Premium</h4>
-                <p className="text-sm text-gray-600 mb-3">50 crédits/mois + qualité premium</p>
+              <div className="p-4 bg-card rounded-lg border">
+                <h4 className="font-semibold text-warning mb-2">Premium</h4>
+                <p className="text-sm text-muted-foreground mb-3">50 crédits/mois + qualité premium</p>
                 <p className="text-xl font-bold mb-3">9,99€/mois</p>
                 <Button className="w-full" onClick={() => navigate('/med-mng/pricing')}>
                   Choisir Premium
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
-              <div className="p-4 bg-white rounded-lg border">
-                <h4 className="font-semibold text-purple-800 mb-2">Pro</h4>
-                <p className="text-sm text-gray-600 mb-3">100 crédits/mois + API access</p>
+              <div className="p-4 bg-card rounded-lg border">
+                <h4 className="font-semibold text-accent-foreground mb-2">Pro</h4>
+                <p className="text-sm text-muted-foreground mb-3">100 crédits/mois + API access</p>
                 <p className="text-xl font-bold mb-3">19,99€/mois</p>
                 <Button variant="outline" className="w-full" onClick={() => navigate('/med-mng/pricing')}>
                   Choisir Pro
@@ -175,7 +175,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>Aucune facture disponible</p>
             <p className="text-sm">Vos factures apparaîtront ici après votre premier paiement</p>
