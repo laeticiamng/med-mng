@@ -74,10 +74,14 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
+  // Clé de rechargement pour forcer le re-fetch
+  const [reloadKey, setReloadKey] = useState(0);
+  
   // Réinitialiser la page quand on change de filtre/recherche
   useEffect(() => {
     setPage(0);
     setImmersiveItems([]);
+    setReloadKey(prev => prev + 1); // Force re-fetch même si page reste 0
   }, [searchTerm, selectedCategory, sortBy]);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,7 +113,7 @@ export default function EdnComplete() {
       });
     
     return () => clearTimeout(timeoutId);
-  }, [page]);
+  }, [page, reloadKey]); // Ajout de reloadKey pour forcer le re-fetch
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
@@ -129,21 +133,28 @@ export default function EdnComplete() {
     setLoading(true);
     setLoadingError(null);
     
+    console.log('🔄 Début chargement EDN items, page:', page);
+    
     try {
       // PAGINATION: Charger seulement 50 items à la fois
       const from = page * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
       
+      // OPTIMISATION: Ne charger que les métadonnées légères pour la liste
       const { data: immersiveData, error: immersiveError, count } = await supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, slug, updated_at,
-          competences_count_rang_a, competences_count_rang_b, competences_count_total,
-          tableau_rang_a, tableau_rang_b,
-          paroles_musicales, scene_immersive, quiz_questions, audio_ambiance
+          competences_count_rang_a, competences_count_rang_b, competences_count_total
         `, { count: 'exact' })
         .range(from, to)
         .order('item_code');
+      
+      console.log('📊 Résultat requête:', { 
+        count: immersiveData?.length, 
+        error: immersiveError?.message,
+        total: count 
+      });
       
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
@@ -197,11 +208,7 @@ export default function EdnComplete() {
         ...immersive,
         ...complete,
         slug: immersive.slug,
-        tableau_rang_a: immersive.tableau_rang_a,
-        tableau_rang_b: immersive.tableau_rang_b,
-        scene_immersive: immersive.scene_immersive,
-        quiz_questions: immersive.quiz_questions,
-        paroles_musicales: immersive.paroles_musicales
+        // Ces champs lourds seront chargés à la demande dans la modal
       };
     });
     return mergedItems;
