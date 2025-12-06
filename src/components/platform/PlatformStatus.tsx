@@ -8,6 +8,7 @@ import {
   BookOpen, Music, Brain, Target, Award, Sparkles 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface PlatformStatusProps {
   className?: string;
@@ -124,7 +125,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Button 
-              onClick={() => navigate('/edn-complete')}
+              onClick={() => navigate(ROUTE_PATHS.ednComplete)}
               className="flex items-center gap-2 justify-start h-auto p-4"
               variant="outline"
             >
@@ -136,7 +137,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
             </Button>
             
             <Button 
-              onClick={() => navigate('/learning-dashboard')}
+              onClick={() => navigate(ROUTE_PATHS.learningDashboard)}
               className="flex items-center gap-2 justify-start h-auto p-4"
               variant="outline"
             >
@@ -148,7 +149,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
             </Button>
             
             <Button 
-              onClick={() => navigate('/generator')}
+              onClick={() => navigate(ROUTE_PATHS.generator)}
               className="flex items-center gap-2 justify-start h-auto p-4"
               variant="outline"
             >

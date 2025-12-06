@@ -30,85 +30,86 @@ import {
 } from 'lucide-react';
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { ROUTE_PATHS } from '@/config/routes';
 
 const navigationItems = [
   {
     title: "Accueil",
-    url: "/",
+    url: ROUTE_PATHS.home,
     icon: Home,
     category: "Principal"
   },
   {
     title: "Analytics Avancées", 
-    url: "/analytics",
+    url: ROUTE_PATHS.learningDashboard,
     icon: BarChart3,
     category: "Analytics",
     badge: "Nouveau"
   },
   {
     title: "Analytics Temps Réel",
-    url: "/analytics-realtime", 
+    url: ROUTE_PATHS.statistics,
     icon: Database,
     category: "Analytics"
   },
   {
     title: "Générateur Musical",
-    url: "/music",
+    url: ROUTE_PATHS.generator,
     icon: Music,
     category: "Création"
   },
   {
     title: "Assistant IA",
-    url: "/assistant",
+    url: ROUTE_PATHS.chat,
     icon: MessageSquare,
     category: "IA",
     badge: "IA"
   },
   {
     title: "Plans d'Étude",
-    url: "/study-plans",
+    url: ROUTE_PATHS.studyPlanner,
     icon: Target,
     category: "Étude"
   },
   {
     title: "Calendrier",
-    url: "/calendar", 
+    url: ROUTE_PATHS.studyPlanner,
     icon: Calendar,
     category: "Étude"
   },
   {
     title: "Communauté",
-    url: "/community",
+    url: ROUTE_PATHS.community,
     icon: Users,
     category: "Social"
   },
   {
     title: "Récompenses",
-    url: "/achievements",
+    url: ROUTE_PATHS.achievements,
     icon: Trophy,
     category: "Gamification"
   },
   {
     title: "Interface EDN",
-    url: "/edn-complete",
+    url: ROUTE_PATHS.ednComplete,
     icon: BookOpen,
     category: "Contenu"
   },
   {
     title: "Profil",
-    url: "/profile", 
+    url: ROUTE_PATHS.medMngProfile,
     icon: HeartHandshake,
     category: "Personnel"
   },
   {
     title: "Notifications",
-    url: "/notifications",
+    url: ROUTE_PATHS.settings,
     icon: Bell,
     category: "Personnel"
   },
   {
     title: "Système",
-    url: "/system",
+    url: ROUTE_PATHS.systemManagement,
     icon: Settings,
     category: "Admin"
   }
@@ -246,7 +247,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                                       {item.badge}
                                     </Badge>
                                   )}
-                                  {item.url === "/notifications" && unreadNotifications > 0 && (
+                                  {item.title === "Notifications" && unreadNotifications > 0 && (
                                     <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
                                       {unreadNotifications}
                                     </Badge>

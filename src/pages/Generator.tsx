@@ -59,14 +59,14 @@ const Generator = () => {
     if (!user) {
       if (remainingFree <= 0) {
         toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.', {
-          action: { label: 'Se connecter', onClick: () => navigate('/med-mng/login') }
+          action: { label: 'Se connecter', onClick: () => navigate(ROUTE_PATHS.medMngLogin) }
         });
         return;
       }
     } else {
       if (!canGenerateMusic()) {
         toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.', {
-          action: { label: 'Voir les offres', onClick: () => navigate('/med-mng/pricing') }
+          action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
         });
         return;
       }

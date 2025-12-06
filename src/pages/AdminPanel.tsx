@@ -70,7 +70,7 @@ export const AdminPanel: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/med-mng/profile')}
+                onClick={() => navigate(ROUTE_PATHS.medMngProfile)}
               >
                 Profil
               </Button>

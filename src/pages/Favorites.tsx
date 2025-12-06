@@ -11,6 +11,7 @@ import {
   Download, Share2, Plus, FolderPlus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface FavoriteItem {
   id: string;
@@ -354,7 +355,7 @@ const Favorites: React.FC = () => {
                   <p className="text-muted-foreground mb-6">
                     {searchQuery ? 'Aucun résultat pour votre recherche.' : 'Commencez à ajouter des contenus à vos favoris !'}
                   </p>
-                  <Button onClick={() => navigate('/edn-complete')}>
+                  <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
                     Découvrir du contenu
                   </Button>
                 </CardContent>

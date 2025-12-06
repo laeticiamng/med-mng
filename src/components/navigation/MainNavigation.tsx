@@ -4,6 +4,7 @@ import {
   Home, BookOpen, Music, BarChart3, MessageSquare, Settings, 
   User, LogOut, Sparkles, Menu
 } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -27,19 +28,19 @@ export const MainNavigation: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/');
+      navigate(ROUTE_PATHS.home);
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     }
   };
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Accueil', exact: true },
-    { path: '/edn-complete', icon: BookOpen, label: 'EDN', badge: '367' },
-    { path: '/generator', icon: Music, label: 'Générateur' },
-    { path: '/learning-dashboard', icon: BarChart3, label: 'Analytics', isNew: true },
-    { path: '/chat', icon: MessageSquare, label: 'Chat IA' },
-    { path: '/med-mng/library', icon: Music, label: 'Bibliothèque', authRequired: true },
+    { path: ROUTE_PATHS.home, icon: Home, label: 'Accueil', exact: true },
+    { path: ROUTE_PATHS.ednComplete, icon: BookOpen, label: 'EDN', badge: '367' },
+    { path: ROUTE_PATHS.generator, icon: Music, label: 'Générateur' },
+    { path: ROUTE_PATHS.learningDashboard, icon: BarChart3, label: 'Analytics', isNew: true },
+    { path: ROUTE_PATHS.chat, icon: MessageSquare, label: 'Chat IA' },
+    { path: ROUTE_PATHS.medMngLibrary, icon: Music, label: 'Bibliothèque', authRequired: true },
   ];
 
   return (
@@ -47,7 +48,7 @@ export const MainNavigation: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to={ROUTE_PATHS.home} className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-primary via-primary/80 to-accent rounded-lg shadow-md flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
@@ -115,24 +116,24 @@ export const MainNavigation: React.FC = () => {
                     <p className="text-xs text-muted-foreground">Utilisateur connecté</p>
                   </div>
                   
-                  <DropdownMenuItem onClick={() => navigate('/med-mng/profile')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
                     <User className="w-4 h-4 mr-2" />
                     Mon Profil
                   </DropdownMenuItem>
                   
-                  <DropdownMenuItem onClick={() => navigate('/learning-dashboard')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.learningDashboard)}>
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Analytics
                   </DropdownMenuItem>
                   
-                  <DropdownMenuItem onClick={() => navigate('/med-mng/library')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
                     <Music className="w-4 h-4 mr-2" />
                     Ma Bibliothèque
                   </DropdownMenuItem>
                   
                   <DropdownMenuSeparator />
                   
-                  <DropdownMenuItem onClick={() => navigate('/platform-settings')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.platformSettings)}>
                     <Settings className="w-4 h-4 mr-2" />
                     Paramètres
                   </DropdownMenuItem>
@@ -150,13 +151,13 @@ export const MainNavigation: React.FC = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate('/med-mng/login')}
+                  onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
                 >
                   Connexion
                 </Button>
                 <Button 
                   size="sm"
-                  onClick={() => navigate('/med-mng/signup')}
+                  onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
                   className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
                 >
                   S'inscrire
@@ -200,10 +201,10 @@ export const MainNavigation: React.FC = () => {
                   {!user && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate('/med-mng/login')}>
+                      <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLogin)}>
                         Connexion
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/med-mng/signup')}>
+                      <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngSignup)}>
                         S'inscrire
                       </DropdownMenuItem>
                     </>
