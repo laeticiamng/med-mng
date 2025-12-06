@@ -189,7 +189,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher dans les paroles..."
-            className="bg-white/10 border-white/20 text-white placeholder-white/60"
+            className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder-primary-foreground/60"
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <Button variant="secondary" size="sm" onClick={handleSearch}>
@@ -200,7 +200,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
         {/* Export */}
         <div className="flex items-center space-x-2">
           <Select value={exportFormat} onValueChange={(value: 'lrc' | 'srt' | 'txt') => setExportFormat(value)}>
-            <SelectTrigger className="w-24 bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="w-24 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -232,10 +232,10 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
               className={`
                 transition-all duration-300 cursor-pointer py-2 px-3 rounded
                 ${isActive 
-                  ? 'bg-white/20 text-white text-xl font-bold transform scale-105' 
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-primary-foreground/20 text-primary-foreground text-xl font-bold transform scale-105' 
+                  : 'text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10'
                 }
-                ${isInSearchResults ? 'bg-yellow-500/20 border border-yellow-400/50' : ''}
+                ${isInSearchResults ? 'bg-warning/20 border border-warning/50' : ''}
               `}
               onClick={() => onSeek(line.time)}
             >
@@ -243,7 +243,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
                 <span className={`${isActive ? 'text-shadow-lg' : ''}`}>
                   {line.text}
                 </span>
-                <span className="text-xs text-white/50 ml-4">
+                <span className="text-xs text-primary-foreground/50 ml-4">
                   {formatTime(line.time)}
                 </span>
               </div>
@@ -253,11 +253,11 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
       </div>
 
       {/* Footer avec infos */}
-      <div className="p-4 bg-black/20 backdrop-blur-sm text-center">
-        <p className="text-sm text-white/60">
+      <div className="p-4 bg-foreground/20 backdrop-blur-sm text-center">
+        <p className="text-sm text-primary-foreground/60">
           <TranslatedText text={`${lyricsData.lyrics_data.length} lignes • Source: ${lyricsData.source}`} />
           {searchResults.length > 0 && (
-            <span className="ml-4 text-yellow-400">
+            <span className="ml-4 text-warning">
               • {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} de recherche
             </span>
           )}
