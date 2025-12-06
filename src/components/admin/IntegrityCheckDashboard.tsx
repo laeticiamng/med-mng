@@ -104,25 +104,25 @@ export const IntegrityCheckDashboard: React.FC = () => {
 
   const getStatusIcon = (status: string, shouldBlock?: boolean) => {
     if (status === 'running') return <RefreshCw className="h-4 w-4 animate-spin" />;
-    if (status === 'blocked' || shouldBlock) return <XCircle className="h-4 w-4 text-red-500" />;
-    if (status === 'completed') return <CheckCircle className="h-4 w-4 text-green-500" />;
-    return <Clock className="h-4 w-4 text-gray-500" />;
+    if (status === 'blocked' || shouldBlock) return <XCircle className="h-4 w-4 text-destructive" />;
+    if (status === 'completed') return <CheckCircle className="h-4 w-4 text-success" />;
+    return <Clock className="h-4 w-4 text-muted-foreground" />;
   };
 
   const getStatusBadge = (status: string, shouldBlock?: boolean) => {
-    if (status === 'running') return <Badge className="bg-blue-500">En cours</Badge>;
-    if (status === 'blocked' || shouldBlock) return <Badge className="bg-red-500">BLOQUÉ</Badge>;
-    if (status === 'completed') return <Badge className="bg-green-500">Terminé</Badge>;
+    if (status === 'running') return <Badge className="bg-primary">En cours</Badge>;
+    if (status === 'blocked' || shouldBlock) return <Badge className="bg-destructive">BLOQUÉ</Badge>;
+    if (status === 'completed') return <Badge className="bg-success">Terminé</Badge>;
     return <Badge variant="outline">{status}</Badge>;
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-50';
-      case 'high': return 'text-orange-600 bg-orange-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'low': return 'text-blue-600 bg-blue-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'critical': return 'text-destructive bg-destructive/10';
+      case 'high': return 'text-warning bg-warning/10';
+      case 'medium': return 'text-warning bg-warning/10';
+      case 'low': return 'text-primary bg-primary/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -142,7 +142,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
           <Button 
             onClick={runIntegrityCheck} 
             disabled={runningCheck}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {runningCheck ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -167,7 +167,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Checks totaux</p>
                 <p className="text-2xl font-bold">{checks.length}</p>
               </div>
-              <Database className="h-8 w-8 text-blue-500" />
+              <Database className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -177,11 +177,11 @@ export const IntegrityCheckDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Problèmes critiques</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-2xl font-bold text-destructive">
                   {checks.reduce((sum, check) => sum + (check.critical_issues || 0), 0)}
                 </p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+              <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
           </CardContent>
         </Card>
@@ -191,11 +191,11 @@ export const IntegrityCheckDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Checks bloqués</p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-warning">
                   {checks.filter(check => check.should_block).length}
                 </p>
               </div>
-              <XCircle className="h-8 w-8 text-orange-500" />
+              <XCircle className="h-8 w-8 text-warning" />
             </div>
           </CardContent>
         </Card>
@@ -205,11 +205,11 @@ export const IntegrityCheckDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Taux de réussite</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-success">
                   {checks.length > 0 ? Math.round((checks.filter(c => !c.should_block).length / checks.length) * 100) : 0}%
                 </p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-8 w-8 text-success" />
             </div>
           </CardContent>
         </Card>
@@ -254,9 +254,9 @@ export const IntegrityCheckDashboard: React.FC = () => {
 
               <CardContent className="space-y-4">
                 {check.should_block && (
-                  <Alert className="border-red-200 bg-red-50">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <AlertDescription className="text-red-800">
+                  <Alert className="border-destructive/20 bg-destructive/5">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <AlertDescription className="text-destructive">
                       <strong>BLOCAGE CRITIQUE:</strong> Ce check a détecté {check.critical_issues} problèmes critiques 
                       qui nécessitent une intervention immédiate avant toute mise en production.
                     </AlertDescription>
@@ -274,15 +274,14 @@ export const IntegrityCheckDashboard: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Problèmes critiques</p>
-                    <p className="text-lg text-red-600">{check.critical_issues || 0}</p>
+                    <p className="text-lg text-destructive">{check.critical_issues || 0}</p>
                   </div>
                 </div>
-
                 {check.results?.checks && (
                   <div className="space-y-3">
                     <h4 className="font-medium">Détails par table:</h4>
                     {check.results.checks.map((tableResult: CheckResult, index: number) => (
-                      <Card key={index} className="border-l-4 border-l-blue-500">
+                      <Card key={index} className="border-l-4 border-l-primary">
                         <CardContent className="pt-4">
                           <div className="flex justify-between items-center mb-2">
                             <h5 className="font-medium">{tableResult.table}</h5>
@@ -303,7 +302,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-sm text-green-600">✅ Aucun problème détecté</p>
+                            <p className="text-sm text-success">✅ Aucun problème détecté</p>
                           )}
                         </CardContent>
                       </Card>
