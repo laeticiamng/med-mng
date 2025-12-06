@@ -139,34 +139,34 @@ export const AuditComprehensif = () => {
       {/* En-tête avec métriques LiSA */}
       <div className="text-center space-y-6">
         <div className="flex items-center justify-center space-x-2">
-          <BarChart3 className="h-8 w-8 text-blue-600" />
-          <h1 className="text-4xl font-bold text-gray-800">Audit Compréhensif - Items IC selon référentiel LiSA</h1>
+          <BarChart3 className="h-8 w-8 text-primary" />
+          <h1 className="text-4xl font-bold text-foreground">Audit Compréhensif - Items IC selon référentiel LiSA</h1>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-3xl font-bold text-blue-600">{metriquesGlobales.scoreGlobalMoyen}%</div>
-            <div className="text-sm text-gray-600">Score Global</div>
+          <div className="text-center p-4 bg-primary/10 rounded-lg">
+            <div className="text-3xl font-bold text-primary">{metriquesGlobales.scoreGlobalMoyen}%</div>
+            <div className="text-sm text-muted-foreground">Score Global</div>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-3xl font-bold text-green-600">{metriquesGlobales.totalConceptsLiSA}</div>
-            <div className="text-sm text-gray-600">Total LiSA</div>
+          <div className="text-center p-4 bg-success/10 rounded-lg">
+            <div className="text-3xl font-bold text-success">{metriquesGlobales.totalConceptsLiSA}</div>
+            <div className="text-sm text-muted-foreground">Total LiSA</div>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-3xl font-bold text-purple-600">{metriquesGlobales.totalConceptsRangA}</div>
-            <div className="text-sm text-gray-600">Rang A</div>
+          <div className="text-center p-4 bg-accent/10 rounded-lg">
+            <div className="text-3xl font-bold text-accent">{metriquesGlobales.totalConceptsRangA}</div>
+            <div className="text-sm text-muted-foreground">Rang A</div>
           </div>
-          <div className="text-center p-4 bg-amber-50 rounded-lg">
-            <div className="text-3xl font-bold text-amber-600">{metriquesGlobales.totalConceptsRangB}</div>
-            <div className="text-sm text-gray-600">Rang B</div>
+          <div className="text-center p-4 bg-warning/10 rounded-lg">
+            <div className="text-3xl font-bold text-warning">{metriquesGlobales.totalConceptsRangB}</div>
+            <div className="text-sm text-muted-foreground">Rang B</div>
           </div>
-          <div className="text-center p-4 bg-teal-50 rounded-lg">
-            <div className="text-3xl font-bold text-teal-600">{metriquesGlobales.conformiteElisaMoyenne}%</div>
-            <div className="text-sm text-gray-600">Conformité</div>
+          <div className="text-center p-4 bg-accent/10 rounded-lg">
+            <div className="text-3xl font-bold text-accent">{metriquesGlobales.conformiteElisaMoyenne}%</div>
+            <div className="text-sm text-muted-foreground">Conformité</div>
           </div>
-          <div className="text-center p-4 bg-indigo-50 rounded-lg">
-            <div className="text-3xl font-bold text-indigo-600">5</div>
-            <div className="text-sm text-gray-600">Items IC</div>
+          <div className="text-center p-4 bg-primary/10 rounded-lg">
+            <div className="text-3xl font-bold text-primary">5</div>
+            <div className="text-sm text-muted-foreground">Items IC</div>
           </div>
         </div>
       </div>

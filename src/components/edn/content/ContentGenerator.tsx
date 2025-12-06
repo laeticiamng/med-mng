@@ -451,9 +451,9 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
       />
 
       {selectedFormat && (
-        <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/10 border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-indigo-800">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <selectedFormat.icon className="h-6 w-6" />
               Génération de contenu - {selectedFormat.name}
             </CardTitle>
@@ -465,7 +465,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
             <Button
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
             >
               {isGenerating ? (
                 <>

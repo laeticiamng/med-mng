@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Library, Plus, CreditCard, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface BottomNavItem {
   to: string;
@@ -12,27 +13,27 @@ interface BottomNavItem {
 
 const navItems: BottomNavItem[] = [
   {
-    to: '/',
+    to: ROUTE_PATHS.home,
     icon: <Home className="h-5 w-5" />,
     label: 'Accueil'
   },
   {
-    to: '/med-mng/library',
+    to: ROUTE_PATHS.medMngLibrary,
     icon: <Library className="h-5 w-5" />,
     label: 'Bibliothèque'
   },
   {
-    to: '/med-mng/create',
+    to: ROUTE_PATHS.medMngCreate,
     icon: <Plus className="h-5 w-5" />,
     label: 'Créer'
   },
   {
-    to: '/med-mng/subscription',
+    to: ROUTE_PATHS.medMngPricing,
     icon: <CreditCard className="h-5 w-5" />,
     label: 'Abonnement'
   },
   {
-    to: '/med-mng/profile',
+    to: ROUTE_PATHS.medMngProfile,
     icon: <User className="h-5 w-5" />,
     label: 'Profil'
   }
@@ -84,7 +85,7 @@ export const MobileBottomNav = () => {
                   {item.icon}
                   {item.badge && (
                     <span 
-                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center"
                       aria-label={`${item.badge} notifications`}
                     >
                       {item.badge > 99 ? '99+' : item.badge}
