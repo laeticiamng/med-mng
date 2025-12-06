@@ -339,7 +339,7 @@ const DeclarationAccessibilite = () => {
                 <ul className="text-sm space-y-1">
                   <li>• Email dédié : <strong>accessibilite@emotionscare.com</strong></li>
                   <li>• Email général : medmng@emotionscare.com (objet : "Accessibilité")</li>
-                  <li>• Formulaire de contact : <Link to="/contact" className="text-primary hover:underline">Page de contact</Link></li>
+                  <li>• Formulaire de contact : <a href="mailto:accessibilite@emotionscare.com" className="text-primary hover:underline">accessibilite@emotionscare.com</a></li>
                 </ul>
                 <p className="text-sm mt-3 italic">
                   Nous nous engageons à vous répondre sous <strong>5 jours ouvrés</strong> et à apporter une solution 

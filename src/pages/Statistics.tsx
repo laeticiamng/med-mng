@@ -17,16 +17,32 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { 
-  Users, 
-  BookOpen, 
-  Music, 
-  TrendingUp, 
-  Clock, 
+import {
+  Users,
+  BookOpen,
+  Music,
+  TrendingUp,
+  Clock,
   Target,
   Award,
   Activity
 } from 'lucide-react';
+
+// Couleurs sémantiques pour les graphiques (compatibles avec le design system)
+const CHART_COLORS = {
+  primary: 'hsl(var(--primary))',
+  secondary: 'hsl(var(--secondary))',
+  accent: 'hsl(var(--accent))',
+  success: 'hsl(var(--success))',
+  warning: 'hsl(var(--warning))',
+  destructive: 'hsl(var(--destructive))',
+  muted: 'hsl(var(--muted-foreground))',
+  chart1: 'hsl(var(--chart-1))',
+  chart2: 'hsl(var(--chart-2))',
+  chart3: 'hsl(var(--chart-3))',
+  chart4: 'hsl(var(--chart-4))',
+  chart5: 'hsl(var(--chart-5))',
+};
 
 const Statistics = () => {
   // Données simulées pour les statistiques
@@ -49,12 +65,12 @@ const Statistics = () => {
   ];
 
   const specialtyData = [
-    { name: 'Cardiologie', value: 25, color: '#8b5cf6' },
-    { name: 'Neurologie', value: 20, color: '#06b6d4' },
-    { name: 'Pédiatrie', value: 18, color: '#10b981' },
-    { name: 'Gynécologie', value: 15, color: '#f59e0b' },
-    { name: 'Psychiatrie', value: 12, color: '#ef4444' },
-    { name: 'Autres', value: 10, color: '#6b7280' }
+    { name: 'Cardiologie', value: 25, color: CHART_COLORS.chart1 },
+    { name: 'Neurologie', value: 20, color: CHART_COLORS.chart2 },
+    { name: 'Pédiatrie', value: 18, color: CHART_COLORS.chart3 },
+    { name: 'Gynécologie', value: 15, color: CHART_COLORS.chart4 },
+    { name: 'Psychiatrie', value: 12, color: CHART_COLORS.chart5 },
+    { name: 'Autres', value: 10, color: CHART_COLORS.muted }
   ];
 
   const performanceData = [
@@ -148,9 +164,9 @@ const Statistics = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="edn" fill="#8b5cf6" name="EDN" />
-                  <Bar dataKey="music" fill="#06b6d4" name="Musique" />
-                  <Bar dataKey="quiz" fill="#10b981" name="Quiz" />
+                  <Bar dataKey="edn" fill={CHART_COLORS.chart1} name="EDN" />
+                  <Bar dataKey="music" fill={CHART_COLORS.chart2} name="Musique" />
+                  <Bar dataKey="quiz" fill={CHART_COLORS.chart3} name="Quiz" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -175,7 +191,7 @@ const Statistics = () => {
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
-                    fill="#8884d8"
+                    fill={CHART_COLORS.chart1}
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
@@ -207,12 +223,12 @@ const Statistics = () => {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#8b5cf6" 
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke={CHART_COLORS.chart1}
                     strokeWidth={3}
-                    dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 6 }}
+                    dot={{ fill: CHART_COLORS.chart1, strokeWidth: 2, r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

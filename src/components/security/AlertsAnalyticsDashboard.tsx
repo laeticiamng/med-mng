@@ -10,7 +10,12 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useState, useRef } from 'react';
 
-const COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6'];
+const COLORS = [
+  'hsl(var(--destructive))',
+  'hsl(var(--warning))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--primary))'
+];
 
 type PeriodFilter = '7d' | '30d' | '90d';
 
@@ -94,10 +99,10 @@ export const AlertsAnalyticsDashboard = () => {
 
   // Données par sévérité
   const severityData = [
-    { name: 'Critique', value: alerts?.filter(a => a.severity === 'critical').length || 0, color: '#ef4444' },
-    { name: 'Élevée', value: alerts?.filter(a => a.severity === 'high').length || 0, color: '#f97316' },
-    { name: 'Moyenne', value: alerts?.filter(a => a.severity === 'medium').length || 0, color: '#eab308' },
-    { name: 'Faible', value: alerts?.filter(a => a.severity === 'low').length || 0, color: '#3b82f6' },
+    { name: 'Critique', value: alerts?.filter(a => a.severity === 'critical').length || 0, color: COLORS[0] },
+    { name: 'Élevée', value: alerts?.filter(a => a.severity === 'high').length || 0, color: COLORS[1] },
+    { name: 'Moyenne', value: alerts?.filter(a => a.severity === 'medium').length || 0, color: COLORS[2] },
+    { name: 'Faible', value: alerts?.filter(a => a.severity === 'low').length || 0, color: COLORS[3] },
   ];
 
   // Évolution des scores
@@ -344,8 +349,8 @@ export const AlertsAnalyticsDashboard = () => {
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="count" stroke="#8b5cf6" name="Nombre" />
-                <Line yAxisId="right" type="monotone" dataKey="avgScore" stroke="#f59e0b" name="Score Moyen" />
+                <Line yAxisId="left" type="monotone" dataKey="count" stroke="hsl(var(--chart-5))" name="Nombre" />
+                <Line yAxisId="right" type="monotone" dataKey="avgScore" stroke="hsl(var(--warning))" name="Score Moyen" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -366,7 +371,7 @@ export const AlertsAnalyticsDashboard = () => {
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-1))"
                   dataKey="value"
                 >
                   {severityData.map((entry, index) => (
@@ -392,9 +397,9 @@ export const AlertsAnalyticsDashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="score" stroke="#8b5cf6" name="Score Unifié" strokeWidth={2} />
-                <Line type="monotone" dataKey="pagerduty" stroke="#ef4444" name="PagerDuty" />
-                <Line type="monotone" dataKey="cvss" stroke="#3b82f6" name="CVSS" />
+                <Line type="monotone" dataKey="score" stroke="hsl(var(--chart-5))" name="Score Unifié" strokeWidth={2} />
+                <Line type="monotone" dataKey="pagerduty" stroke="hsl(var(--destructive))" name="PagerDuty" />
+                <Line type="monotone" dataKey="cvss" stroke="hsl(var(--primary))" name="CVSS" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

@@ -349,7 +349,7 @@ export function NotificationPredictions() {
                 <Legend />
                 <ReferenceLine
                   x={format(new Date(), 'dd MMM', { locale: fr })}
-                  stroke="#666"
+                  stroke="hsl(var(--muted-foreground))"
                   strokeDasharray="3 3"
                   label="Aujourd'hui"
                 />
@@ -357,18 +357,18 @@ export function NotificationPredictions() {
                   type="monotone"
                   dataKey="actual"
                   name="Historique"
-                  stroke="#3b82f6"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
-                  dot={{ fill: '#3b82f6' }}
+                  dot={{ fill: 'hsl(var(--primary))' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="predicted"
                   name="Prédictions"
-                  stroke="#a855f7"
+                  stroke="hsl(var(--chart-5))"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  dot={{ fill: '#a855f7' }}
+                  dot={{ fill: 'hsl(var(--chart-5))' }}
                 />
               </LineChart>
             </ResponsiveContainer>

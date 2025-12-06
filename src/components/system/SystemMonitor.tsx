@@ -326,27 +326,27 @@ export const SystemMonitor: React.FC = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="cpu" 
-                    stroke="#3B82F6" 
-                    fill="#3B82F6" 
+                  <Area
+                    type="monotone"
+                    dataKey="cpu"
+                    stroke="hsl(var(--primary))"
+                    fill="hsl(var(--primary))"
                     fillOpacity={0.1}
                     name="CPU (%)"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="memory" 
-                    stroke="#10B981" 
-                    fill="#10B981" 
+                  <Area
+                    type="monotone"
+                    dataKey="memory"
+                    stroke="hsl(var(--success))"
+                    fill="hsl(var(--success))"
                     fillOpacity={0.1}
                     name="Mémoire (%)"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="network" 
-                    stroke="#F59E0B" 
-                    fill="#F59E0B" 
+                  <Area
+                    type="monotone"
+                    dataKey="network"
+                    stroke="hsl(var(--warning))"
+                    fill="hsl(var(--warning))"
                     fillOpacity={0.1}
                     name="Réseau (MB/s)"
                   />
@@ -367,10 +367,10 @@ export const SystemMonitor: React.FC = () => {
                   <XAxis dataKey="timestamp" />
                   <YAxis />
                   <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="responseTime" 
-                    stroke="#8B5CF6" 
+                  <Line
+                    type="monotone"
+                    dataKey="responseTime"
+                    stroke="hsl(var(--chart-5))"
                     strokeWidth={2}
                     name="Temps de réponse (ms)"
                   />

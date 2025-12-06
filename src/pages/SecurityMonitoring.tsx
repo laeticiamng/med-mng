@@ -37,6 +37,14 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+// Couleurs sémantiques pour les graphiques
+const CHART_COLORS = {
+  critical: 'hsl(var(--destructive))',
+  high: 'hsl(var(--warning))',
+  medium: 'hsl(var(--chart-4))',
+  low: 'hsl(var(--primary))',
+};
+
 const SecurityMonitoring = () => {
   const {
     corrections,
@@ -273,10 +281,10 @@ const SecurityMonitoring = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="critical" stroke="#ef4444" name="Critiques" />
-                <Line type="monotone" dataKey="high" stroke="#f97316" name="Hautes" />
-                <Line type="monotone" dataKey="medium" stroke="#eab308" name="Moyennes" />
-                <Line type="monotone" dataKey="low" stroke="#3b82f6" name="Basses" />
+                <Line type="monotone" dataKey="critical" stroke={CHART_COLORS.critical} name="Critiques" />
+                <Line type="monotone" dataKey="high" stroke={CHART_COLORS.high} name="Hautes" />
+                <Line type="monotone" dataKey="medium" stroke={CHART_COLORS.medium} name="Moyennes" />
+                <Line type="monotone" dataKey="low" stroke={CHART_COLORS.low} name="Basses" />
               </LineChart>
             </ResponsiveContainer>
           </Card>
