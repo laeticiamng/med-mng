@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export const MedMngNavigation: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/med-mng/login');
+    navigate(ROUTE_PATHS.medMngLogin);
   };
 
   return (
@@ -33,7 +33,7 @@ export const MedMngNavigation: React.FC = () => {
           <div className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
-              onClick={() => navigate('/')}
+              onClick={() => navigate(ROUTE_PATHS.home)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Home className="h-4 w-4" />
@@ -41,8 +41,8 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive('/med-mng/library') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/library')}
+              variant={isActive(ROUTE_PATHS.medMngLibrary) ? 'default' : 'ghost'}
+              onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Library className="h-4 w-4" />
@@ -50,8 +50,8 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive('/med-mng/create') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/create')}
+              variant={isActive(ROUTE_PATHS.medMngCreate) ? 'default' : 'ghost'}
+              onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Plus className="h-4 w-4" />
@@ -59,8 +59,8 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive('/med-mng/pricing') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/pricing')}
+              variant={isActive(ROUTE_PATHS.medMngPricing) ? 'default' : 'ghost'}
+              onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <CreditCard className="h-4 w-4" />
@@ -68,8 +68,8 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/profile')}
+              variant={isActive(ROUTE_PATHS.medMngProfile) ? 'default' : 'ghost'}
+              onClick={() => navigate(ROUTE_PATHS.medMngProfile)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <User className="h-4 w-4" />
@@ -91,7 +91,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate(ROUTE_PATHS.home)}
               className="p-2"
             >
               <Home className="h-4 w-4" />
