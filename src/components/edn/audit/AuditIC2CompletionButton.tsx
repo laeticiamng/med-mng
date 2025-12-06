@@ -42,11 +42,11 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
 
   if (completed) {
     return (
-      <Card className="p-4 border-green-200 bg-green-50">
+      <Card className="p-4 border-success/20 bg-success/5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-green-800 font-medium">IC-2 complété à 100% selon E-LiSA !</span>
+            <CheckCircle className="h-5 w-5 text-success" />
+            <span className="text-success font-medium">IC-2 complété à 100% selon E-LiSA !</span>
           </div>
           <Button 
             onClick={() => setCompleted(false)} 
@@ -62,11 +62,11 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
 
   if (error) {
     return (
-      <Card className="p-4 border-red-200 bg-red-50">
+      <Card className="p-4 border-destructive/20 bg-destructive/5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
-            <span className="text-red-800">{error}</span>
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <span className="text-destructive">{error}</span>
           </div>
           <Button 
             onClick={handleComplete} 
@@ -82,11 +82,11 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
   }
 
   return (
-    <Card className="p-4 border-blue-200 bg-blue-50">
+    <Card className="p-4 border-primary/20 bg-primary/5">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Zap className="h-5 w-5 text-blue-600" />
-          <span className="text-blue-800 font-medium">
+          <Zap className="h-5 w-5 text-primary" />
+          <span className="text-primary font-medium">
             Compléter automatiquement depuis Supabase les éléments IC-2 manquants
           </span>
         </div>
