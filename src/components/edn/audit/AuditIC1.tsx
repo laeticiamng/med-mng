@@ -49,19 +49,19 @@ export const AuditIC1 = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'excellent': return 'bg-success/10 text-success border-success/30';
+      case 'bon': return 'bg-primary/10 text-primary border-primary/30';
+      case 'ameliorer': return 'bg-warning/10 text-warning border-warning/30';
+      default: return 'bg-muted text-muted-foreground border-muted';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'excellent': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'bon': return <Info className="h-5 w-5 text-blue-600" />;
-      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      default: return <Info className="h-5 w-5 text-gray-600" />;
+      case 'excellent': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'bon': return <Info className="h-5 w-5 text-primary" />;
+      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      default: return <Info className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -76,16 +76,16 @@ export const AuditIC1 = () => {
     <div className="space-y-6 p-4">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Target className="h-6 w-6 text-blue-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-1 : Relation médecin-malade et communication</h2>
+          <Target className="h-6 w-6 text-primary" />
+          <h2 className="text-2xl font-bold text-foreground">Audit IC-1 : Relation médecin-malade et communication</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600">{scoreGlobal}%</div>
-            <div className="text-sm text-gray-600">Score global</div>
+            <div className="text-3xl font-bold text-primary">{scoreGlobal}%</div>
+            <div className="text-sm text-muted-foreground">Score global</div>
           </div>
-          <Badge className="bg-blue-100 text-blue-800 text-lg px-4 py-2">
+          <Badge className="bg-primary/10 text-primary text-lg px-4 py-2">
             ✅ 14 concepts Rang A LiSA
           </Badge>
         </div>
@@ -97,12 +97,12 @@ export const AuditIC1 = () => {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
-                <h3 className="font-semibold text-gray-800 capitalize">
+                <h3 className="font-semibold text-foreground capitalize">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-gray-800">{result.score}%</div>
+                <div className="text-xl font-bold text-foreground">{result.score}%</div>
                 <Badge className={`text-xs ${getStatusColor(result.status)}`}>
                   {result.status}
                 </Badge>
@@ -112,8 +112,8 @@ export const AuditIC1 = () => {
             <div className="space-y-2">
               {result.details.map((detail, index) => (
                 <div key={index} className="flex items-start space-x-2 text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{detail}</span>
+                  <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">{detail}</span>
                 </div>
               ))}
             </div>
@@ -121,16 +121,16 @@ export const AuditIC1 = () => {
         ))}
       </div>
 
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-green-50">
+      <Card className="p-6 bg-gradient-to-r from-primary/10 to-success/10">
         <div className="flex items-center space-x-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-1 selon LiSA</h3>
+          <TrendingUp className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">Synthèse IC-1 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA maîtrisés (14/14)</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-success mb-2">✅ Concepts LiSA maîtrisés (14/14)</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Définition relation médecin-malade</li>
               <li>• Approche centrée patient</li>
               <li>• Alliance thérapeutique et empathie</li>
@@ -140,8 +140,8 @@ export const AuditIC1 = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-yellow-700 mb-2">📈 Modernisation nécessaire</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-warning mb-2">📈 Modernisation nécessaire</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Télémédecine et communication</li>
               <li>• Outils numériques relationnels</li>
               <li>• IA conversationnelle médicale</li>

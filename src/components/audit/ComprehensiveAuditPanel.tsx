@@ -188,7 +188,7 @@ export const ComprehensiveAuditPanel = ({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  <AlertTriangle className="h-5 w-5 text-warning" />
                   Recommandations
                 </CardTitle>
               </CardHeader>

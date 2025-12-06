@@ -29,16 +29,16 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
 
   const colors = {
     A: {
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
-      text: 'text-amber-800',
-      progress: 'bg-amber-600'
+      bg: 'bg-warning/10',
+      border: 'border-warning/30',
+      text: 'text-warning',
+      progress: 'bg-warning'
     },
     B: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      text: 'text-blue-800',
-      progress: 'bg-blue-600'
+      bg: 'bg-primary/10',
+      border: 'border-primary/30',
+      text: 'text-primary',
+      progress: 'bg-primary'
     }
   };
 

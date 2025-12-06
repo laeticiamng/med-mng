@@ -363,7 +363,7 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
                       )}
                       
                       {droppedFile.status === 'completed' && (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge variant="secondary" className="bg-success/10 text-success">
                           <Check className="h-3 w-3 mr-1" />
                           Terminé
                         </Badge>
@@ -378,7 +378,7 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
                     </div>
                     
                     {droppedFile.errorMessage && (
-                      <p className="text-xs text-red-600 mt-1">{droppedFile.errorMessage}</p>
+                      <p className="text-xs text-destructive mt-1">{droppedFile.errorMessage}</p>
                     )}
                   </div>
 
