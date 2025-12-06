@@ -118,11 +118,11 @@ class PedagogicalContentService {
 
   getContentTypeColor(type: string) {
     const colors = {
-      comic: 'bg-blue-500',
-      novel: 'bg-green-500', 
-      poem: 'bg-purple-500'
+      comic: 'bg-primary',
+      novel: 'bg-success', 
+      poem: 'bg-accent'
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-500';
+    return colors[type as keyof typeof colors] || 'bg-muted';
   }
 
   getContentTypeIcon(type: string) {
