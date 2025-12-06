@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Users, BarChart3, Sparkles } from "lucide-react";
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const HeroSection = () => {
   return (
@@ -18,19 +18,19 @@ export const HeroSection = () => {
       
       {/* Navigation rapide */}
       <div className="flex flex-wrap justify-center gap-4 mt-8">
-        <Link to="/edn-complete">
-          <Button size="lg" className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+        <Link to={ROUTE_PATHS.ednComplete}>
+          <Button size="lg" className="flex items-center space-x-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
             <BookOpen className="h-5 w-5" />
             <span>Items EDN (Interface unifiée)</span>
           </Button>
         </Link>
-        <Link to="/ecos">
+        <Link to={ROUTE_PATHS.ecosIndex}>
           <Button variant="outline" size="lg" className="flex items-center space-x-2">
             <Users className="h-5 w-5" />
             <span>Simulations ECOS</span>
           </Button>
         </Link>
-        <Link to="/audit-general">
+        <Link to={ROUTE_PATHS.auditGeneral}>
           <Button variant="outline" size="lg" className="flex items-center space-x-2">
             <BarChart3 className="h-5 w-5" />
             <span>Audit EDN</span>

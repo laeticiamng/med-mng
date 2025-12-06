@@ -1,7 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface QuizQuestion {
   question: string;
@@ -49,7 +49,7 @@ export const QuizSection = ({ questions, answers, onAnswerChange }: QuizSectionP
         </div>
         
         <div className="flex gap-4 justify-center mt-8">
-          <Link to="/ecos">
+          <Link to={ROUTE_PATHS.ecosIndex}>
             <Button className="bg-success hover:bg-success/90 text-success-foreground">
               🏥 Autres stations ECOS
             </Button>

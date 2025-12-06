@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { Crown, CreditCard, Calendar, Zap, Star, ArrowRight } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface ProfileSubscriptionProps {
   profile: any;
@@ -144,7 +145,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
                 <h4 className="font-semibold text-warning mb-2">Premium</h4>
                 <p className="text-sm text-muted-foreground mb-3">50 crédits/mois + qualité premium</p>
                 <p className="text-xl font-bold mb-3">9,99€/mois</p>
-                <Button className="w-full" onClick={() => navigate('/med-mng/pricing')}>
+                <Button className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
                   Choisir Premium
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
@@ -153,7 +154,7 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
                 <h4 className="font-semibold text-accent-foreground mb-2">Pro</h4>
                 <p className="text-sm text-muted-foreground mb-3">100 crédits/mois + API access</p>
                 <p className="text-xl font-bold mb-3">19,99€/mois</p>
-                <Button variant="outline" className="w-full" onClick={() => navigate('/med-mng/pricing')}>
+                <Button variant="outline" className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
                   Choisir Pro
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>

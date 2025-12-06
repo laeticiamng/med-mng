@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, TrendingUp, Lightbulb, RotateCcw, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface Recommendation {
   id: string;
@@ -234,7 +235,7 @@ export const SmartRecommendations: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate('/edn-complete')}>
+            <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
               Explorer les items EDN
             </Button>
           </CardContent>

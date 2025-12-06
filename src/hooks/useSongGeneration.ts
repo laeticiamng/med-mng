@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const useSongGeneration = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export const useSongGeneration = () => {
   ) => {
     if (!quota || quota.remaining_credits <= 0) {
       toast.error('Crédits insuffisants. Veuillez améliorer votre abonnement.');
-      navigate('/med-mng/pricing');
+      navigate(ROUTE_PATHS.medMngPricing);
       return;
     }
 
@@ -144,7 +144,7 @@ export const useSongGeneration = () => {
       try {
         await medMngApi.addToLibrary(generatedSong.id);
         toast.success('Ajouté à votre bibliothèque !');
-        navigate('/med-mng/library');
+        navigate(ROUTE_PATHS.medMngLibrary);
       } catch (error) {
         toast.error('Erreur lors de l\'ajout');
       }
