@@ -258,11 +258,11 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Alertes système si nécessaire */}
       {systemStats.recentAlerts > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-warning/20 bg-warning/10">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <span className="font-medium text-orange-800">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              <span className="font-medium text-warning">
                 {systemStats.recentAlerts} alerte(s) non résolue(s) nécessitent votre attention
               </span>
             </div>

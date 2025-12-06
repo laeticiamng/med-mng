@@ -188,11 +188,11 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-background animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   <TranslatedText text="Chat Intelligent" />
                 </h1>
                 <p className="text-sm md:text-base text-muted-foreground flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-yellow-500" />
+                  <Sparkles className="h-4 w-4 text-warning" />
                   <TranslatedText text="Assistant IA médical avancé" />
                 </p>
               </div>
@@ -248,14 +248,14 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="h-[calc(100vh-180px)] flex flex-col shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader className="flex-shrink-0 border-b bg-gradient-to-r from-orange-50 to-red-50">
+          <Card className="h-[calc(100vh-180px)] flex flex-col shadow-xl border-0 bg-background/80 backdrop-blur-sm">
+            <CardHeader className="flex-shrink-0 border-b bg-gradient-to-r from-primary/10 to-accent/10">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Search className="h-5 w-5 text-orange-600" />
+                  <Search className="h-5 w-5 text-primary" />
                   <TranslatedText text="Conversation avec l'IA" />
                 </div>
-                <Badge variant="outline" className="text-green-600 border-green-200">
+                <Badge variant="outline" className="text-success border-success/20">
                   En ligne
                 </Badge>
               </CardTitle>
@@ -277,7 +277,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                         }`}
                       >
                         {message.role === 'assistant' && (
-                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shrink-0 shadow-lg">
+                          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shrink-0 shadow-lg">
                             <Bot className="h-5 w-5 text-primary-foreground" />
                           </div>
                         )}
@@ -301,8 +301,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                               
                               {/* Citations Enhanced - TOUJOURS AFFICHÉES */}
                               {message.courseCitations && message.courseCitations.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-gray-200">
-                                  <p className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
+                                <div className="mt-4 pt-4 border-t border-border">
+                                  <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
                                     <BookOpen className="h-3 w-3" />
                                     Sources :
                                   </p>
@@ -398,7 +398,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               </ScrollArea>
 
               {/* Input Enhanced */}
-              <div className="border-t bg-gradient-to-r from-gray-50 to-gray-100 p-4">
+              <div className="border-t bg-gradient-to-r from-muted/50 to-muted/80 p-4">
                 <div className="flex gap-3 items-end">
                   <div className="flex-1 relative">
                     <Input
@@ -406,13 +406,13 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                       onChange={(e) => setCurrentMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Tapez votre question médicale ici..."
-                      className="min-h-[50px] pr-12 bg-white border-2 border-gray-200 focus:border-orange-400 rounded-xl shadow-sm"
+                      className="min-h-[50px] pr-12 bg-background border-2 border-border focus:border-primary rounded-xl shadow-sm"
                       disabled={isLoading}
                     />
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-400 hover:text-orange-600"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-muted-foreground hover:text-primary"
                     >
                       <Mic className="h-4 w-4" />
                     </Button>
@@ -420,7 +420,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                   <Button
                     onClick={() => handleSendMessage()}
                     disabled={!currentMessage.trim() || isLoading}
-                    className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 h-[50px] px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 h-[50px] px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
                   >
                     {isLoading ? (
                       <motion.div
@@ -434,7 +434,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-2">
                   <Sparkles className="h-3 w-3" />
                   <TranslatedText text="Appuyez sur Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne" />
                 </p>

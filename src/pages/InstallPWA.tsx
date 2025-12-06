@@ -127,18 +127,18 @@ const InstallPWA: React.FC = () => {
                   <Button 
                     onClick={handleInstallClick} 
                     size="lg" 
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
                   >
                     <Download className="w-5 h-5 mr-2" />
                     Installer maintenant
                   </Button>
                 ) : (
                   <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-blue-900 font-medium mb-2">
+                    <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
+                      <p className="text-sm text-primary font-medium mb-2">
                         📱 Installation manuelle
                       </p>
-                      <div className="text-sm text-blue-800 space-y-2">
+                      <div className="text-sm text-primary/80 space-y-2">
                         <p><strong>Sur iPhone/iPad :</strong></p>
                         <ol className="list-decimal list-inside ml-2 space-y-1">
                           <li>Appuyez sur le bouton Partager (icône carré avec flèche)</li>

@@ -143,25 +143,25 @@ const MedMngProfileComponent = () => {
   const getSubscriptionBadge = (plan: string) => {
     switch (plan) {
       case 'premium':
-        return <Badge className="bg-yellow-100 text-yellow-800"><Crown className="h-3 w-3 mr-1" />Premium</Badge>;
+        return <Badge className="bg-warning/10 text-warning"><Crown className="h-3 w-3 mr-1" />Premium</Badge>;
       case 'pro':
-        return <Badge className="bg-purple-100 text-purple-800"><Crown className="h-3 w-3 mr-1" />Pro</Badge>;
+        return <Badge className="bg-accent/10 text-accent"><Crown className="h-3 w-3 mr-1" />Pro</Badge>;
       default:
         return <Badge variant="outline">Gratuit</Badge>;
     }
   };
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-slate-50 to-blue-50">
+    <MedMngLayout className="bg-gradient-to-br from-background to-muted">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Profile Header */}
-        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-primary to-accent text-primary-foreground">
           <CardContent className="p-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="relative">
-                <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white/20">
+                <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary-foreground/20">
                   <AvatarImage src="" alt={profile?.name} />
-                  <AvatarFallback className="bg-white/20 text-white text-2xl font-bold">
+                  <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-2xl font-bold">
                     {profile?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -182,7 +182,7 @@ const MedMngProfileComponent = () => {
                   {getSubscriptionBadge(profile?.subscription_plan)}
                 </div>
                 
-                <div className="flex flex-col md:flex-row gap-4 text-white/80">
+                <div className="flex flex-col md:flex-row gap-4 text-primary-foreground/80">
                   <div className="flex items-center gap-2 justify-center md:justify-start">
                     <Mail className="h-4 w-4" />
                     <span>{profile?.email}</span>
@@ -202,12 +202,12 @@ const MedMngProfileComponent = () => {
           <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <Music className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <Music className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.totalSongs || 0}</p>
-                  <p className="text-sm text-gray-600">Chansons créées</p>
+                  <p className="text-2xl font-bold text-foreground">{stats?.totalSongs || 0}</p>
+                  <p className="text-sm text-muted-foreground">Chansons créées</p>
                 </div>
               </div>
             </CardContent>
@@ -216,12 +216,12 @@ const MedMngProfileComponent = () => {
           <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-success/10 rounded-full">
+                  <TrendingUp className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.creditsRemaining || 0}</p>
-                  <p className="text-sm text-gray-600">Crédits restants</p>
+                  <p className="text-2xl font-bold text-foreground">{stats?.creditsRemaining || 0}</p>
+                  <p className="text-sm text-muted-foreground">Crédits restants</p>
                 </div>
               </div>
             </CardContent>
@@ -230,12 +230,12 @@ const MedMngProfileComponent = () => {
           <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-100 rounded-full">
-                  <Activity className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-accent/10 rounded-full">
+                  <Activity className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.creditsUsed || 0}</p>
-                  <p className="text-sm text-gray-600">Crédits utilisés</p>
+                  <p className="text-2xl font-bold text-foreground">{stats?.creditsUsed || 0}</p>
+                  <p className="text-sm text-muted-foreground">Crédits utilisés</p>
                 </div>
               </div>
             </CardContent>
@@ -244,12 +244,12 @@ const MedMngProfileComponent = () => {
           <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-red-100 rounded-full">
-                  <Heart className="h-6 w-6 text-red-600" />
+                <div className="p-3 bg-destructive/10 rounded-full">
+                  <Heart className="h-6 w-6 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
-                  <p className="text-sm text-gray-600">Favoris</p>
+                  <p className="text-2xl font-bold text-foreground">-</p>
+                  <p className="text-sm text-muted-foreground">Favoris</p>
                 </div>
               </div>
             </CardContent>
@@ -330,17 +330,17 @@ const MedMngProfileComponent = () => {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Nom complet</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Nom complet</Label>
                       <p className="text-lg font-medium">{profile?.name || 'Non renseigné'}</p>
                     </div>
                     <Separator />
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Adresse email</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Adresse email</Label>
                       <p className="text-lg font-medium">{profile?.email}</p>
                     </div>
                     <Separator />
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Type de compte</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Type de compte</Label>
                       <div className="flex items-center gap-2 mt-1">
                         {profile?.is_test_account ? (
                           <Badge variant="outline">Compte test</Badge>

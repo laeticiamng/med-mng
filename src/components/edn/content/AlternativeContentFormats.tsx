@@ -136,9 +136,9 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+      <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-indigo-800">
+          <CardTitle className="flex items-center gap-3 text-accent">
             <FileText className="h-6 w-6" />
             Formats Alternatifs - {itemData.title}
           </CardTitle>

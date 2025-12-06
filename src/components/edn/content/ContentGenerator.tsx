@@ -484,9 +484,9 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
       )}
 
       {generatedContent && (
-        <Card className="bg-white border-green-200">
+        <Card className="bg-background border-success/20">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-green-800">
+            <CardTitle className="flex items-center justify-between text-success">
               <span className="flex items-center gap-2">
                 <Eye className="h-5 w-5" />
                 Contenu généré - {selectedFormat?.name}
@@ -497,7 +497,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
                   size="sm"
                   onClick={handleAddToLibrary}
                   disabled={isInLibrary}
-                  className="border-green-200 text-green-700 hover:bg-green-50"
+                  className="border-success/20 text-success hover:bg-success/10"
                 >
                   {isInLibrary ? (
                     <>
@@ -515,7 +515,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
                   variant="outline"
                   size="sm"
                   onClick={handleDownload}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-primary/20 text-primary hover:bg-primary/10"
                 >
                   <Download className="h-4 w-4 mr-1" />
                   Télécharger
@@ -524,19 +524,19 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-50 p-6 rounded-lg border max-h-96 overflow-y-auto">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+            <div className="bg-muted p-6 rounded-lg border max-h-96 overflow-y-auto">
+              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans leading-relaxed">
                 {generatedContent}
               </pre>
             </div>
             <div className="mt-4 flex gap-2 flex-wrap">
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <Badge variant="secondary" className="bg-success/10 text-success">
                 ✓ Rang A inclus
               </Badge>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
                 ✓ Rang B inclus
               </Badge>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+              <Badge variant="secondary" className="bg-accent/10 text-accent">
                 ✓ Synthèse A+B
               </Badge>
             </div>
