@@ -25,6 +25,7 @@ import {
 import { musicService } from "@/services/musicService"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { ROUTE_PATHS } from '@/config/routes'
 
 interface Song {
   id: string
@@ -265,7 +266,7 @@ export function SpotifyLibrary() {
             </p>
             {!searchQuery && (
               <Button asChild>
-                <Link to="/edn">
+                <Link to={ROUTE_PATHS.ednLegacy}>
                   <Plus className="h-4 w-4 mr-2" />
                   Générer ma première chanson
                 </Link>
@@ -310,7 +311,7 @@ export function SpotifyLibrary() {
                         }}
                         className={cn(
                           "h-8 w-8 p-0",
-                          isSongFavorited(song.id) && "text-red-500"
+                          isSongFavorited(song.id) && "text-destructive"
                         )}
                       >
                         <Heart className={cn(
@@ -420,21 +421,21 @@ export function SpotifyLibrary() {
         
         <Card>
           <CardContent className="pt-6 text-center">
-            <div className="text-2xl font-bold text-red-500">{favorites.length}</div>
+            <div className="text-2xl font-bold text-destructive">{favorites.length}</div>
             <div className="text-sm text-muted-foreground">Favoris</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="pt-6 text-center">
-            <div className="text-2xl font-bold text-green-500">{playlists.length}</div>
+            <div className="text-2xl font-bold text-success">{playlists.length}</div>
             <div className="text-sm text-muted-foreground">Playlists</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6 text-center">
-            <div className="text-2xl font-bold text-blue-500">
+            <div className="text-2xl font-bold text-primary">
               {library.filter(s => {
                 const addedDate = new Date(s.added_at)
                 const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)

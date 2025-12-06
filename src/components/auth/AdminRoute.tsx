@@ -73,7 +73,7 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
   // Non authentifié → Redirection vers login
   if (!user) {
-    return <Navigate to="/med-mng/login" replace />;
+    return <Navigate to={ROUTE_PATHS.medMngLogin} replace />;
   }
 
   // Authentifié mais pas admin → Page d'accès refusé

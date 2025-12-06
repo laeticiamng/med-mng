@@ -164,13 +164,13 @@ const SecurityMonitoring = () => {
                   <div className="flex items-center gap-1 text-xs">
                     {scoreChange > 0 ? (
                       <>
-                        <TrendingUp className="h-3 w-3 text-green-500" />
-                        <span className="text-green-500">+{scoreChange}%</span>
+                        <TrendingUp className="h-3 w-3 text-success" />
+                        <span className="text-success">+{scoreChange}%</span>
                       </>
                     ) : (
                       <>
-                        <TrendingDown className="h-3 w-3 text-red-500" />
-                        <span className="text-red-500">{scoreChange}%</span>
+                        <TrendingDown className="h-3 w-3 text-destructive" />
+                        <span className="text-destructive">{scoreChange}%</span>
                       </>
                     )}
                   </div>
@@ -191,7 +191,7 @@ const SecurityMonitoring = () => {
               </div>
               <AlertTriangle
                 className={`h-8 w-8 ${
-                  criticalAlerts.length > 0 ? "text-red-500" : "text-orange-500"
+                  criticalAlerts.length > 0 ? "text-destructive" : "text-warning"
                 } opacity-20`}
               />
             </div>
@@ -208,7 +208,7 @@ const SecurityMonitoring = () => {
                   sur {latestMetrics?.total_tables || 0} tables
                 </div>
               </div>
-              <Database className="h-8 w-8 text-green-500 opacity-20" />
+              <Database className="h-8 w-8 text-success opacity-20" />
             </div>
           </Card>
 
@@ -221,7 +221,7 @@ const SecurityMonitoring = () => {
                 </div>
                 <div className="text-xs text-muted-foreground">RLS policies</div>
               </div>
-              <Lock className="h-8 w-8 text-purple-500 opacity-20" />
+              <Lock className="h-8 w-8 text-accent opacity-20" />
             </div>
           </Card>
 
@@ -232,7 +232,7 @@ const SecurityMonitoring = () => {
                 <div className="text-3xl font-bold">{corrections?.length || 0}</div>
                 <div className="text-xs text-muted-foreground">appliquées</div>
               </div>
-              <CheckCircle className="h-8 w-8 text-blue-500 opacity-20" />
+              <CheckCircle className="h-8 w-8 text-primary opacity-20" />
             </div>
           </Card>
         </div>
@@ -301,25 +301,25 @@ const SecurityMonitoring = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Issues Critiques</div>
-                    <div className="text-2xl font-bold text-red-500">
+                    <div className="text-2xl font-bold text-destructive">
                       {latestMetrics.critical_issues}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Issues Hautes</div>
-                    <div className="text-2xl font-bold text-orange-500">
+                    <div className="text-2xl font-bold text-warning">
                       {latestMetrics.high_issues}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Issues Moyennes</div>
-                    <div className="text-2xl font-bold text-yellow-500">
+                    <div className="text-2xl font-bold text-warning/80">
                       {latestMetrics.medium_issues}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Issues Basses</div>
-                    <div className="text-2xl font-bold text-blue-500">
+                    <div className="text-2xl font-bold text-primary">
                       {latestMetrics.low_issues}
                     </div>
                   </div>
@@ -356,7 +356,7 @@ const SecurityMonitoring = () => {
                               {alert.description}
                             </p>
                             {alert.recommendation && (
-                              <p className="text-sm text-blue-600">
+                              <p className="text-sm text-primary">
                                 💡 {alert.recommendation}
                               </p>
                             )}
@@ -403,7 +403,7 @@ const SecurityMonitoring = () => {
                 </ScrollArea>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                  <CheckCircle className="h-12 w-12 mx-auto mb-2 text-success" />
                   Aucune alerte active
                 </div>
               )}
@@ -438,7 +438,7 @@ const SecurityMonitoring = () => {
                             <p className="text-sm text-muted-foreground">
                               {correction.issue_description}
                             </p>
-                            <p className="text-sm text-green-600">
+                            <p className="text-sm text-success">
                               ✓ {correction.correction_applied}
                             </p>
                             {correction.notes && (
