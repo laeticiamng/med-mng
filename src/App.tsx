@@ -1,4 +1,3 @@
-// Application MED MNG - v1.0
 import React, { Suspense, lazy, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
