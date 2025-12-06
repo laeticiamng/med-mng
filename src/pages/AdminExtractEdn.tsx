@@ -151,7 +151,7 @@ const AdminExtractEdn = () => {
             <CardContent>
               <div className="space-y-2">
                 <Progress value={progress} className="w-full" />
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Extraction en cours... Cela peut prendre plusieurs minutes.
                 </p>
               </div>
@@ -177,23 +177,23 @@ const AdminExtractEdn = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="text-center p-4 bg-success/10 rounded-lg">
+                  <div className="text-2xl font-bold text-success">
                     {stats.totalProcessed}
                   </div>
-                  <div className="text-sm text-green-700">Items traités</div>
+                  <div className="text-sm text-success">Items traités</div>
                 </div>
-                <div className="text-center p-4 bg-red-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                  <div className="text-2xl font-bold text-destructive">
                     {stats.totalErrors}
                   </div>
-                  <div className="text-sm text-red-700">Erreurs</div>
+                  <div className="text-sm text-destructive">Erreurs</div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="text-center p-4 bg-primary/10 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
                     {stats.lastProcessedItem}
                   </div>
-                  <div className="text-sm text-blue-700">Dernier item</div>
+                  <div className="text-sm text-primary">Dernier item</div>
                 </div>
               </div>
             </CardContent>

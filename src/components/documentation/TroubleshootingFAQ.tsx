@@ -459,14 +459,14 @@ export const TroubleshootingFAQ = () => {
           </div>
 
           {/* Liens utiles */}
-          <Card className="p-4 border-green-200 bg-green-50">
-            <CardTitle className="text-sm text-green-800 mb-3">
+          <Card className="p-4 border-success/30 bg-success/5">
+            <CardTitle className="text-sm text-success mb-3">
               Liens utiles
             </CardTitle>
             <div className="space-y-2 text-sm">
               <a 
                 href="https://github.com/med-mng/med-mng/issues" 
-                className="flex items-center gap-2 text-green-700 hover:text-green-900"
+                className="flex items-center gap-2 text-success hover:text-success/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -475,7 +475,7 @@ export const TroubleshootingFAQ = () => {
               </a>
               <a 
                 href="https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk" 
-                className="flex items-center gap-2 text-green-700 hover:text-green-900"
+                className="flex items-center gap-2 text-success hover:text-success/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -484,7 +484,7 @@ export const TroubleshootingFAQ = () => {
               </a>
               <a 
                 href="https://docs.lovable.dev/tips-tricks/troubleshooting" 
-                className="flex items-center gap-2 text-green-700 hover:text-green-900"
+                className="flex items-center gap-2 text-success hover:text-success/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >

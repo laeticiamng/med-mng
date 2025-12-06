@@ -52,27 +52,27 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, reset }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-destructive/5 to-warning/5 flex items-center justify-center p-4">
       <Card className="max-w-lg w-full">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
+          <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle className="text-xl text-red-800">
+          <CardTitle className="text-xl text-destructive">
             Oups ! Une erreur s'est produite
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-gray-600 text-center">
+          <p className="text-muted-foreground text-center">
             Nous sommes désolés, quelque chose s'est mal passé. Vous pouvez essayer de recharger la page ou retourner à l'accueil.
           </p>
           
           {error && import.meta.env.DEV && (
-            <details className="bg-gray-100 p-3 rounded-lg text-sm">
-              <summary className="cursor-pointer font-semibold text-red-700 mb-2">
+            <details className="bg-muted p-3 rounded-lg text-sm">
+              <summary className="cursor-pointer font-semibold text-destructive mb-2">
                 Détails de l'erreur (développement)
               </summary>
-              <pre className="whitespace-pre-wrap text-xs text-gray-700">
+              <pre className="whitespace-pre-wrap text-xs text-muted-foreground">
                 {error.message}
                 {error.stack && `\n\n${error.stack}`}
               </pre>
