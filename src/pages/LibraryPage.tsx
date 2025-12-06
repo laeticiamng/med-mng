@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Music, Library, Heart, Clock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
+import { FavoritesTab } from '@/components/library/FavoritesTab';
+import { RecentTab } from '@/components/library/RecentTab';
+import { PlaylistsTab } from '@/components/library/PlaylistsTab';
 import { MiniPlayer } from '@/components/player/MiniPlayer';
 import { PlayerProvider } from '@/contexts/PlayerContext';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
@@ -40,51 +42,15 @@ export default function LibraryPage() {
             </TabsContent>
 
             <TabsContent value="favorites">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
-                    Mes Favoris
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Vos pistes musicales favorites apparaîtront ici.
-                  </p>
-                </CardContent>
-              </Card>
+              <FavoritesTab />
             </TabsContent>
 
             <TabsContent value="recent">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Écoutes Récentes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Votre historique d'écoute apparaîtra ici.
-                  </p>
-                </CardContent>
-              </Card>
+              <RecentTab />
             </TabsContent>
 
             <TabsContent value="playlists">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Music className="h-5 w-5" />
-                    Mes Playlists
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Créez et gérez vos playlists personnalisées.
-                  </p>
-                </CardContent>
-              </Card>
+              <PlaylistsTab />
             </TabsContent>
           </Tabs>
         </div>
