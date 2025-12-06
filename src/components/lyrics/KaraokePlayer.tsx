@@ -254,7 +254,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
 
       {/* Footer avec infos */}
       <div className="p-4 bg-black/20 backdrop-blur-sm text-center">
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-primary-foreground/60">
           <TranslatedText text={`${lyricsData.lyrics_data.length} lignes • Source: ${lyricsData.source}`} />
           {searchResults.length > 0 && (
             <span className="ml-4 text-warning">

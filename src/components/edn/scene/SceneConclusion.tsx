@@ -8,7 +8,7 @@ interface SceneConclusionProps {
 export const SceneConclusion = ({ theme }: SceneConclusionProps) => {
   return (
     <div className="text-center relative z-10 pb-20">
-      <div className={`max-w-4xl mx-auto bg-white/95 backdrop-blur-lg p-8 rounded-3xl ${theme.glowColor} shadow-2xl border-4 border-white/50`}>
+      <div className={`max-w-4xl mx-auto bg-card/95 backdrop-blur-lg p-8 rounded-3xl ${theme.glowColor} shadow-2xl border-4 border-border/50`}>
         <div className="text-6xl mb-6">🚀</div>
         <p className={`text-2xl ${theme.accent} italic leading-relaxed font-medium`}>
           Voyage Immersif Terminé - Compétences Maîtrisées !

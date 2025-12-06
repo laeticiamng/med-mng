@@ -176,7 +176,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
                   </div>
                   <div className="text-xs text-destructive">Erreurs détectées</div>
                 </div>
-                <div className="text-center p-3 bg-card rounded-lg border border-amber-200">
+                <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
                   <div className="text-lg font-bold text-success">
                     {currentSession ? ((currentSession.totalQuestions - currentErrors.length) / currentSession.totalQuestions * 100).toFixed(0) : 0}%
                   </div>

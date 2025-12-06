@@ -65,7 +65,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
             </CardHeader>
             <CardContent>
               {section.content && (
-                <p className="text-gray-700 mb-4">{section.content}</p>
+                <p className="text-muted-foreground mb-4">{section.content}</p>
               )}
               
               {/* Affichage des compétences détaillées avec accessibilité */}
@@ -105,7 +105,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                             </div>
                             
                             {competence.definition && (
-                              <p className="text-sm text-gray-700" role="definition">
+                              <p className="text-sm text-muted-foreground" role="definition">
                                 {competence.definition}
                               </p>
                             )}

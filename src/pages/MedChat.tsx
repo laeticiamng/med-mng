@@ -182,7 +182,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
             </Button>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-warning to-destructive rounded-xl flex items-center justify-center shadow-lg">
                   <MessageSquare className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-background animate-pulse"></div>
