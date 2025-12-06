@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { CheckCircle, CreditCard } from 'lucide-react';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const plans = {
   standard: { name: 'Standard', price: 9.99, songs: 30 },
@@ -27,12 +27,12 @@ export const MedMngSubscribe = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/med-mng/login');
+      navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
     if (!plan) {
-      navigate('/med-mng/pricing');
+      navigate(ROUTE_PATHS.medMngPricing);
       return;
     }
   }, [user, plan, navigate]);
@@ -59,7 +59,7 @@ export const MedMngSubscribe = () => {
         );
 
         toast.success(`🎉 Abonnement ${plan.name} activé ! Vérifiez vos emails.`);
-        navigate('/med-mng/library');
+        navigate(ROUTE_PATHS.medMngLibrary);
       } else {
         // Pour Stripe/PayPal, rediriger vers l'implémentation réelle
         toast.info(`Redirection vers ${gateway}...`);

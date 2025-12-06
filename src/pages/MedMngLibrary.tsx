@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
@@ -14,6 +13,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { usePlaylists, type Playlist, type PlaylistSong } from '@/hooks/usePlaylists';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { ROUTE_PATHS } from '@/config/routes';
 import {
   DndContext,
   closestCenter,
@@ -142,7 +143,7 @@ export const PlaylistDetail = () => {
       setPlaylist(details);
       setSongs(details.songs || []);
     } else {
-      navigate('/med-mng/playlists');
+      navigate(ROUTE_PATHS.medMngPlaylists);
     }
     setLoading(false);
   };
@@ -236,7 +237,7 @@ export const PlaylistDetail = () => {
         <h2 className="text-xl font-semibold text-foreground mb-2">
           <TranslatedText text="Playlist introuvable" />
         </h2>
-        <Button onClick={() => navigate('/med-mng/playlists')} variant="outline">
+        <Button onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)} variant="outline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           <TranslatedText text="Retour aux playlists" />
         </Button>
@@ -250,7 +251,7 @@ export const PlaylistDetail = () => {
       <div className="mb-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/med-mng/playlists')}
+          onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -259,13 +260,13 @@ export const PlaylistDetail = () => {
 
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               {playlist.name}
             </h1>
             {playlist.description && (
-              <p className="text-gray-600 mb-4">{playlist.description}</p>
+              <p className="text-muted-foreground mb-4">{playlist.description}</p>
             )}
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <span>{playlist.song_count} chanson{playlist.song_count > 1 ? 's' : ''}</span>
               <span>{getTotalDuration()}</span>
               <span>{playlist.is_public ? 'Publique' : 'Privée'}</span>
@@ -284,7 +285,7 @@ export const PlaylistDetail = () => {
           <p className="text-muted-foreground mb-6">
             <TranslatedText text="Ajoutez des chansons à cette playlist depuis votre bibliothèque" />
           </p>
-          <Button onClick={() => navigate('/med-mng/library')}>
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
             <TranslatedText text="Parcourir ma bibliothèque" />
           </Button>
         </Card>

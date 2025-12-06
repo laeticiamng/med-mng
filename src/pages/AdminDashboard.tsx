@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
+import { ROUTE_PATHS } from '@/config/routes';
 
 // Components
 import { AdminUsersManager } from '@/components/admin/AdminUsersManager';
@@ -57,7 +58,7 @@ export default function AdminDashboard() {
 
   const checkAdminAccess = async () => {
     if (!user) {
-      navigate('/med-mng/login');
+      navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
@@ -70,14 +71,14 @@ export default function AdminDashboard() {
 
       if (error || !profile || profile.role !== 'admin') {
         toast.error('Accès refusé: Privilèges administrateur requis');
-        navigate('/');
+        navigate(ROUTE_PATHS.home);
         return;
       }
 
       setIsAdmin(true);
     } catch (error) {
       console.error('Erreur vérification admin:', error);
-      navigate('/');
+      navigate(ROUTE_PATHS.home);
     }
   };
 

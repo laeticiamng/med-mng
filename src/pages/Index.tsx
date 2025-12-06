@@ -9,6 +9,7 @@ import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 import MusicGenerationSection from "@/components/MusicGenerationSection";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ROUTE_PATHS } from "@/config/routes";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
@@ -58,11 +59,11 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <PremiumButton variant="primary" size="xl" onClick={() => navigate('/edn-complete')}>
+              <PremiumButton variant="primary" size="xl" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
                 <BookOpen className="h-6 w-6 mr-3" />
                 <TranslatedText text="Commencer mes Révisions" />
               </PremiumButton>
-              <PremiumButton variant="glass" size="lg" onClick={() => navigate('/generator')}>
+              <PremiumButton variant="glass" size="lg" onClick={() => navigate(ROUTE_PATHS.generator)}>
                 <Music className="h-5 w-5 mr-2" />
                 <TranslatedText text="Générer une Musique" />
               </PremiumButton>
@@ -83,7 +84,7 @@ const Index = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Items EDN Unifié */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn-complete')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
               <div className="mx-auto w-20 h-20 bg-gradient-medical rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary/25">
                 <BookOpen className="h-10 w-10 text-primary-foreground" />
               </div>
@@ -113,7 +114,7 @@ const Index = () => {
             </PremiumCard>
 
             {/* Générateur Musical */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/generator')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate(ROUTE_PATHS.generator)}>
               <div className="mx-auto w-20 h-20 bg-warning rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-warning/25">
                 <Music className="h-10 w-10 text-warning-foreground" />
               </div>
@@ -143,7 +144,7 @@ const Index = () => {
             </PremiumCard>
 
             {/* ECOS */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/ecos')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate(ROUTE_PATHS.ecosIndex)}>
               <div className="mx-auto w-20 h-20 bg-success rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-success/25">
                 <Users className="h-10 w-10 text-success-foreground" />
               </div>
@@ -173,7 +174,7 @@ const Index = () => {
             </PremiumCard>
 
             {/* MedChat */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/chat')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate(ROUTE_PATHS.chat)}>
               <div className="mx-auto w-20 h-20 bg-destructive rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-destructive/25">
                 <MessageSquare className="h-10 w-10 text-destructive-foreground" />
               </div>
@@ -277,7 +278,7 @@ const Index = () => {
 
       {/* Admin Audit Button premium */}
       {isAdmin && <div className="fixed bottom-6 right-6 z-50">
-          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit')} className="shadow-2xl">
+          <PremiumButton variant="glass" size="md" onClick={() => navigate(ROUTE_PATHS.audit)} className="shadow-2xl">
             <BarChart3 className="h-5 w-5 mr-2" />
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>

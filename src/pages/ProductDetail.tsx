@@ -9,6 +9,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { toast } from 'sonner';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export default function ProductDetail() {
   const { handle } = useParams<{ handle: string }>();
@@ -84,7 +85,7 @@ export default function ProductDetail() {
               <Package className="h-10 w-10 text-muted-foreground" />
             </div>
             <h2 className="text-3xl font-bold text-foreground mb-4">Produit non trouvé</h2>
-            <Button variant="default" size="lg" onClick={() => navigate('/store')}>
+            <Button variant="default" size="lg" onClick={() => navigate(ROUTE_PATHS.store)}>
               Retour au store
             </Button>
           </PremiumCard>
@@ -98,7 +99,7 @@ export default function ProductDetail() {
       {/* Back button and cart in header area */}
       <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between mb-6">
-          <Button variant="outline" size="default" onClick={() => navigate('/store')}>
+          <Button variant="outline" size="default" onClick={() => navigate(ROUTE_PATHS.store)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour au store
           </Button>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import { toast } from 'sonner';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface SubscriptionPlan {
   id: string;
@@ -64,7 +64,7 @@ export const MedMngPricing = () => {
   const handleSubscribe = async (planId: string) => {
     if (!user) {
       toast.error('Veuillez vous connecter pour vous abonner');
-      navigate('/med-mng/login');
+      navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
@@ -92,7 +92,7 @@ export const MedMngPricing = () => {
   const handleSimulation = async (planId: string) => {
     if (!user) {
       toast.error('Veuillez vous connecter');
-      navigate('/med-mng/login');
+      navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
@@ -187,7 +187,7 @@ export const MedMngPricing = () => {
         <PremiumButton
           variant="glass"
           size="sm"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(ROUTE_PATHS.home)}
           className="flex items-center gap-2 mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -254,7 +254,7 @@ export const MedMngPricing = () => {
               
               <div className="mt-6 text-center">
                 <PremiumButton
-                  onClick={() => navigate('/edn')}
+                  onClick={() => navigate(ROUTE_PATHS.ednComplete)}
                   className="w-full"
                   variant="primary"
                 >
@@ -402,7 +402,7 @@ export const MedMngPricing = () => {
                         <PremiumButton 
                           variant="glass" 
                           className="w-full"
-                          onClick={() => navigate('/med-mng/signup')}
+                          onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
                         >
                           <TranslatedText text="Commencer gratuitement" />
                         </PremiumButton>
@@ -411,7 +411,7 @@ export const MedMngPricing = () => {
                           <div className="mb-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
                             <p className="text-xs text-foreground">
                               <strong>✓ J'accepte les</strong>{' '}
-                              <Link to="/cgu" target="_blank" className="text-primary hover:underline font-semibold">CGU</Link>
+                              <Link to={ROUTE_PATHS.cgu} target="_blank" className="text-primary hover:underline font-semibold">CGU</Link>
                               {' '}et le{' '}
                               <strong>droit de rétractation (14 jours)</strong> sauf utilisation crédits.
                             </p>
@@ -511,14 +511,14 @@ export const MedMngPricing = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <PremiumButton
-                onClick={() => navigate('/edn')}
+                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
                 variant="primary"
                 size="lg"
               >
                 <TranslatedText text="Essayer gratuitement" />
               </PremiumButton>
               <PremiumButton
-                onClick={() => navigate('/med-mng/login')}
+                onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
                 variant="glass"
                 size="lg"
               >
