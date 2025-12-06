@@ -202,7 +202,7 @@ export const AdvancedSearch: React.FC = () => {
                           />
                           <div className="flex">
                             {[...Array(rating)].map((_, i) => (
-                              <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              <Star key={i} className="h-3 w-3 fill-warning text-warning" />
                             ))}
                           </div>
                         </label>
@@ -406,7 +406,7 @@ export const AdvancedSearch: React.FC = () => {
                               {result.rating && (
                                 <div className="flex">
                                   {[...Array(Math.floor(result.rating))].map((_, i) => (
-                                    <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                    <Star key={i} className="h-3 w-3 fill-warning text-warning" />
                                   ))}
                                 </div>
                               )}

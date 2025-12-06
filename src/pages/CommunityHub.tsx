@@ -471,7 +471,7 @@ const CommunityHub = () => {
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Musique</Badge>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-yellow-500" />
+                      <Star className="h-4 w-4 fill-current text-warning" />
                       4.8
                     </div>
                   </div>
@@ -493,7 +493,7 @@ const CommunityHub = () => {
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Documents</Badge>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-yellow-500" />
+                      <Star className="h-4 w-4 fill-current text-warning" />
                       4.9
                     </div>
                   </div>
@@ -515,7 +515,7 @@ const CommunityHub = () => {
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Quiz</Badge>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-yellow-500" />
+                      <Star className="h-4 w-4 fill-current text-warning" />
                       4.7
                     </div>
                   </div>
@@ -531,7 +531,7 @@ const CommunityHub = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-600" />
+                    <Trophy className="h-5 w-5 text-warning" />
                     Top Contributeurs
                   </CardTitle>
                   <CardDescription>Les membres les plus actifs cette semaine</CardDescription>
@@ -548,9 +548,9 @@ const CommunityHub = () => {
                       <div key={user.rank} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
                         <div className="flex items-center gap-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            user.rank === 1 ? 'bg-yellow-100 text-yellow-800' :
-                            user.rank === 2 ? 'bg-gray-100 text-gray-800' :
-                            user.rank === 3 ? 'bg-orange-100 text-orange-800' :
+                            user.rank === 1 ? 'bg-warning/20 text-warning' :
+                            user.rank === 2 ? 'bg-muted text-muted-foreground' :
+                            user.rank === 3 ? 'bg-accent/20 text-accent' :
                             'bg-muted text-muted-foreground'
                           }`}>
                             {user.rank}
@@ -573,7 +573,7 @@ const CommunityHub = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-purple-600" />
+                    <Star className="h-5 w-5 text-accent" />
                     Ressources Populaires
                   </CardTitle>
                   <CardDescription>Les contenus les mieux notés</CardDescription>
@@ -593,7 +593,7 @@ const CommunityHub = () => {
                         </div>
                         <div className="text-right">
                           <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-current text-yellow-500" />
+                            <Star className="h-3 w-3 fill-current text-warning" />
                             <span className="text-sm font-medium">{resource.rating}</span>
                           </div>
                           <p className="text-xs text-muted-foreground">{resource.downloads} téléchargements</p>

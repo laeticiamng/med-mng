@@ -257,7 +257,7 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
         <p className="text-sm text-white/60">
           <TranslatedText text={`${lyricsData.lyrics_data.length} lignes • Source: ${lyricsData.source}`} />
           {searchResults.length > 0 && (
-            <span className="ml-4 text-yellow-400">
+            <span className="ml-4 text-warning">
               • {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} de recherche
             </span>
           )}

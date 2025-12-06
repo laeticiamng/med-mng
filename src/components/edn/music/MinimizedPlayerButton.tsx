@@ -16,7 +16,7 @@ export const MinimizedPlayerButton = ({ rang, isVisible, onMinimize }: Minimized
       <Button
         onClick={onMinimize}
         variant="outline"
-        className={`${rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
+        className={`${rang === 'A' ? 'border-warning/50 text-warning hover:bg-warning/10' : 'border-primary/50 text-primary hover:bg-primary/10'}`}
       >
         <Minimize2 className="h-4 w-4 mr-2" />
         Lecteur minimisé - Continuer l'écoute

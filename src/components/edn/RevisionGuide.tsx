@@ -16,7 +16,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       title: '📖 Lire le contenu',
       description: 'Commencez par lire le Rang A et le Rang B',
       duration: '15-30 min',
-      color: 'text-blue-600 dark:text-blue-400'
+      color: 'text-primary'
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       title: '🎵 Écouter la musique',
       description: 'Mémorisez avec les musiques mnémotechniques',
       duration: '5-10 min',
-      color: 'text-purple-600 dark:text-purple-400'
+      color: 'text-accent'
     },
     {
       id: 3,
@@ -32,7 +32,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       title: '🎬 Voir la scène 3D',
       description: 'Visualisez le contenu en immersif (si disponible)',
       duration: '10-15 min',
-      color: 'text-green-600 dark:text-green-400'
+      color: 'text-success'
     },
     {
       id: 4,
@@ -40,7 +40,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       title: '✅ Tester vos connaissances',
       description: 'Faites le quiz pour valider votre apprentissage',
       duration: '10-15 min',
-      color: 'text-orange-600 dark:text-orange-400'
+      color: 'text-warning'
     }
   ];
 

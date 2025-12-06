@@ -41,9 +41,9 @@ export function TableauxNavigator({
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a')
 
   const getCompletenessColor = (score: number) => {
-    if (score >= 80) return 'text-green-600'
-    if (score >= 50) return 'text-orange-500'
-    return 'text-red-500'
+    if (score >= 80) return 'text-success'
+    if (score >= 50) return 'text-warning'
+    return 'text-destructive'
   }
 
   const getCompletenessText = (score: number) => {
@@ -58,13 +58,13 @@ export function TableauxNavigator({
   return (
     <div className="space-y-6">
       {/* Header avec score de complétude */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-blue-900">
+            <h2 className="text-xl font-semibold text-primary">
               {itemCode} - Tableaux de connaissances
             </h2>
-            <p className="text-blue-700 text-sm mt-1">{itemTitle}</p>
+            <p className="text-primary/70 text-sm mt-1">{itemTitle}</p>
           </div>
           <div className="text-right">
             <div className={cn(
@@ -103,9 +103,9 @@ export function TableauxNavigator({
               <Book className="h-4 w-4" />
               Rang A
               {completeness.rang_a_complete ? (
-                <CheckCircle className="h-3 w-3 text-green-600" />
+                <CheckCircle className="h-3 w-3 text-success" />
               ) : (
-                <AlertTriangle className="h-3 w-3 text-orange-500" />
+                <AlertTriangle className="h-3 w-3 text-warning" />
               )}
             </TabsTrigger>
             <TabsTrigger 
@@ -115,9 +115,9 @@ export function TableauxNavigator({
               <FileText className="h-4 w-4" />
               Rang B
               {completeness.rang_b_complete ? (
-                <CheckCircle className="h-3 w-3 text-green-600" />
+                <CheckCircle className="h-3 w-3 text-success" />
               ) : (
-                <AlertTriangle className="h-3 w-3 text-orange-500" />
+                <AlertTriangle className="h-3 w-3 text-warning" />
               )}
             </TabsTrigger>
           </TabsList>

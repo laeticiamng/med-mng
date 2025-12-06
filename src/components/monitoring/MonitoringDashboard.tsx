@@ -47,9 +47,9 @@ export const MonitoringDashboard = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'healthy': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'unhealthy': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'degraded': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'healthy': return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'unhealthy': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'degraded': return <AlertTriangle className="h-4 w-4 text-warning" />;
       default: return <Activity className="h-4 w-4" />;
     }
   };
@@ -203,7 +203,7 @@ export const MonitoringDashboard = () => {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-destructive">
               {activeIncidents.length}
             </div>
           </CardContent>
@@ -215,7 +215,7 @@ export const MonitoringDashboard = () => {
             <XCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-800">
+            <div className="text-2xl font-bold text-destructive">
               {criticalIncidents.length}
             </div>
           </CardContent>
@@ -270,7 +270,7 @@ export const MonitoringDashboard = () => {
                         {result.status}
                       </Badge>
                       {result.errorMessage && (
-                        <div className="text-xs text-red-500 mt-1">
+                        <div className="text-xs text-destructive mt-1">
                           {result.errorMessage}
                         </div>
                       )}
@@ -358,7 +358,7 @@ export const MonitoringDashboard = () => {
                     </div>
                     <p className="text-sm mt-2">{incident.message}</p>
                     {incident.resolution_notes && (
-                      <p className="text-xs text-green-600 mt-1">
+                      <p className="text-xs text-success mt-1">
                         Résolution: {incident.resolution_notes}
                       </p>
                     )}

@@ -224,20 +224,20 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
                 itemTitle={item.title}
               />
             ) : (
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+              <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-3 text-green-800">
+                  <CardTitle className="flex items-center gap-3 text-success">
                     <Trophy className="h-6 w-6" />
                     Quiz parfait !
                   </CardTitle>
-                  <CardDescription className="text-green-700">
+                  <CardDescription className="text-success/80">
                     Aucune erreur détectée - pas besoin de chanson d'aide-mémoire
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-4">
-                    <Brain className="h-12 w-12 mx-auto text-green-500 mb-2" />
-                    <p className="text-green-700">
+                    <Brain className="h-12 w-12 mx-auto text-success mb-2" />
+                    <p className="text-success/80">
                       Excellent travail ! Vous maîtrisez parfaitement {item.title}
                     </p>
                   </div>

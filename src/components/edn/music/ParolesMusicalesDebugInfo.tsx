@@ -42,7 +42,7 @@ export const ParolesMusicalesDebugInfo: React.FC<ParolesMusicalesDebugInfoProps>
           variant="outline" 
           size="sm"
           onClick={() => setShowDebug(true)}
-          className="text-gray-600"
+          className="text-muted-foreground"
         >
           <Bug className="h-4 w-4 mr-2" />
           Infos techniques
@@ -54,7 +54,7 @@ export const ParolesMusicalesDebugInfo: React.FC<ParolesMusicalesDebugInfoProps>
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-green-800 flex items-center gap-2">
+        <h3 className="font-semibold text-success flex items-center gap-2">
           <Bug className="h-4 w-4" />
           Informations Suno AI
         </h3>
@@ -62,15 +62,15 @@ export const ParolesMusicalesDebugInfo: React.FC<ParolesMusicalesDebugInfoProps>
           variant="ghost" 
           size="sm"
           onClick={() => setShowDebug(!showDebug)}
-          className="text-gray-600"
+          className="text-muted-foreground"
         >
           {showDebug ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
       </div>
       
       {showDebug && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className={`text-sm text-green-700 space-y-1 ${isMobile ? 'text-xs' : ''}`}>
+        <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
+          <div className={`text-sm text-success/80 space-y-1 ${isMobile ? 'text-xs' : ''}`}>
             <p>📱 Item Code: {itemCode}</p>
             <p>🎵 Paroles disponibles: {paroles?.length || 0}</p>
             <p>🌍 Langue: {currentLanguage}</p>
