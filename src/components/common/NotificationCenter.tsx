@@ -56,30 +56,30 @@ export function NotificationCenter({
   const getIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'warning':
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+        return <AlertTriangle className="h-4 w-4 text-warning" />;
       case 'error':
       case 'critical':
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case 'info':
       default:
-        return <Info className="h-4 w-4 text-blue-500" />;
+        return <Info className="h-4 w-4 text-primary" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return 'border-red-500 bg-red-50';
+        return 'border-destructive bg-destructive/10';
       case 'high':
-        return 'border-orange-500 bg-orange-50';
+        return 'border-warning bg-warning/10';
       case 'medium':
-        return 'border-yellow-500 bg-yellow-50';
+        return 'border-warning/70 bg-warning/5';
       case 'low':
-        return 'border-blue-500 bg-blue-50';
+        return 'border-primary bg-primary/10';
       default:
-        return 'border-gray-500 bg-gray-50';
+        return 'border-muted bg-muted/50';
     }
   };
 
@@ -258,7 +258,7 @@ export function NotificationCenter({
                       className={`cursor-pointer transition-all hover:shadow-md border-l-4 ${
                         getPriorityColor(notification.priority)
                       } ${
-                        !notification.read ? 'bg-blue-50 border-blue-500' : ''
+                        !notification.read ? 'bg-primary/10 border-primary' : ''
                       }`}
                       onClick={() => handleMarkAsRead(notification)}
                     >
@@ -276,10 +276,10 @@ export function NotificationCenter({
                                 </Badge>
                                 <Badge 
                                   className={`text-xs ${
-                                    notification.priority === 'urgent' ? 'bg-red-600' :
-                                    notification.priority === 'high' ? 'bg-orange-500' :
-                                    notification.priority === 'medium' ? 'bg-yellow-500' :
-                                    'bg-blue-500'
+                                    notification.priority === 'urgent' ? 'bg-destructive' :
+                                    notification.priority === 'high' ? 'bg-warning' :
+                                    notification.priority === 'medium' ? 'bg-warning/70' :
+                                    'bg-primary'
                                   }`}
                                 >
                                   {notification.priority}
@@ -303,7 +303,7 @@ export function NotificationCenter({
                           
                           <div className="flex items-center space-x-2">
                             {!notification.read && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                             )}
                             <Button
                               variant="ghost"

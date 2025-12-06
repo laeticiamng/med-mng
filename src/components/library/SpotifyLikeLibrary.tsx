@@ -116,7 +116,7 @@ export const SpotifyLikeLibrary = () => {
           className="h-8 w-8 p-0"
         >
           <Heart 
-            className={`h-4 w-4 ${isFavorite(song.song_id) ? 'fill-red-500 text-red-500' : ''}`} 
+            className={`h-4 w-4 ${isFavorite(song.song_id) ? 'fill-destructive text-destructive' : ''}`} 
           />
         </Button>
 
@@ -193,7 +193,7 @@ export const SpotifyLikeLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-red-500" />
+              <Heart className="h-5 w-5 text-destructive" />
               <div>
                 <p className="text-2xl font-bold">{favorites.length}</p>
                 <p className="text-sm text-muted-foreground">Favoris</p>
@@ -205,7 +205,7 @@ export const SpotifyLikeLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Music className="h-5 w-5 text-blue-500" />
+              <Music className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-2xl font-bold">{playlists.length}</p>
                 <p className="text-sm text-muted-foreground">Playlists</p>
@@ -217,7 +217,7 @@ export const SpotifyLikeLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <History className="h-5 w-5 text-green-500" />
+              <History className="h-5 w-5 text-success" />
               <div>
                 <p className="text-2xl font-bold">{history.length}</p>
                 <p className="text-sm text-muted-foreground">Écoutes</p>
@@ -229,7 +229,7 @@ export const SpotifyLikeLibrary = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-purple-500" />
+              <Clock className="h-5 w-5 text-accent" />
               <div>
                 <p className="text-2xl font-bold">
                   {Math.round(history.reduce((acc, h) => acc + h.listen_duration_seconds, 0) / 60)}m
@@ -296,7 +296,7 @@ export const SpotifyLikeLibrary = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-red-500" />
+                <Heart className="h-5 w-5 text-destructive" />
                 Mes favoris ({filteredFavorites.length})
               </CardTitle>
             </CardHeader>
@@ -379,13 +379,13 @@ export const SpotifyLikeLibrary = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-2xl font-bold text-blue-500">
+                    <p className="text-2xl font-bold text-primary">
                       {Math.round(history.reduce((acc, h) => acc + h.completion_percentage, 0) / history.length || 0)}%
                     </p>
                     <p className="text-sm text-muted-foreground">Taux de completion moyen</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-green-500">
+                    <p className="text-2xl font-bold text-success">
                       {Math.round(history.reduce((acc, h) => acc + h.listen_duration_seconds, 0) / 3600)}h
                     </p>
                     <p className="text-sm text-muted-foreground">Temps d'écoute total</p>

@@ -47,7 +47,7 @@ export const MusicGenerationFeatures = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 <TranslatedText text={feature.description} />
               </p>
             </CardContent>
