@@ -274,7 +274,7 @@ export function ExtractionFeedback({
 
           {/* Quality Score */}
           {extraction.data_quality_score && (
-            <div className="flex items-center justify-between p-2 bg-background/50 rounded border">
+            <div className="flex items-center justify-between p-2 bg-white/50 rounded border">
               <span className="text-sm font-medium flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Qualité des données

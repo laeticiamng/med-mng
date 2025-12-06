@@ -472,7 +472,7 @@ export function SystemAlertManager() {
                 <p className="text-sm mb-3">{alert.message}</p>
                 
                 {alert.context && (
-                  <div className="text-xs bg-background/50 p-2 rounded border">
+                  <div className="text-xs bg-white/50 p-2 rounded border">
                     <span className="font-medium">Contexte: </span>
                     {JSON.stringify(alert.context, null, 2)}
                   </div>

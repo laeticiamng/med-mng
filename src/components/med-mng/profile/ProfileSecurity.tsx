@@ -150,7 +150,7 @@ export const ProfileSecurity: React.FC = () => {
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-gray-600">
                 Minimum 8 caractères avec au moins une majuscule, une minuscule et un chiffre
               </p>
             </div>
@@ -196,12 +196,12 @@ export const ProfileSecurity: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-warning/10 rounded-lg border border-warning/20">
+          <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-200">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
               <div>
-                <p className="font-medium text-warning">2FA désactivée</p>
-                <p className="text-sm text-warning/80">
+                <p className="font-medium text-orange-800">2FA désactivée</p>
+                <p className="text-sm text-orange-600">
                   Votre compte n'est pas protégé par l'authentification à deux facteurs
                 </p>
               </div>
@@ -216,14 +216,14 @@ export const ProfileSecurity: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  <Smartphone className="h-4 w-4 text-gray-600" />
                   <span className="text-sm">Application d'authentification</span>
                 </div>
                 <Badge variant="outline">Recommandé</Badge>
               </div>
               <div className="flex items-center justify-between p-3 border rounded-lg opacity-50">
                 <div className="flex items-center gap-3">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <Shield className="h-4 w-4 text-gray-600" />
                   <span className="text-sm">SMS</span>
                 </div>
                 <Badge variant="outline">Bientôt</Badge>
@@ -251,7 +251,7 @@ export const ProfileSecurity: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <Monitor className="h-5 w-5 text-muted-foreground" />
+                <Monitor className="h-5 w-5 text-gray-600" />
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{session.device}</p>
@@ -262,7 +262,7 @@ export const ProfileSecurity: React.FC = () => {
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {session.location}
@@ -296,19 +296,19 @@ export const ProfileSecurity: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center gap-3 p-3 bg-success/10 rounded-lg">
-            <CheckCircle className="h-5 w-5 text-success" />
-            <span className="text-sm text-success">Mot de passe fort configuré</span>
+          <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-sm text-green-800">Mot de passe fort configuré</span>
           </div>
           
-          <div className="flex items-center gap-3 p-3 bg-warning/10 rounded-lg">
-            <AlertTriangle className="h-5 w-5 text-warning" />
-            <span className="text-sm text-warning">Activez l'authentification à deux facteurs</span>
+          <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-orange-600" />
+            <span className="text-sm text-orange-800">Activez l'authentification à deux facteurs</span>
           </div>
           
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
-            <Shield className="h-5 w-5 text-primary" />
-            <span className="text-sm text-primary">Vérifiez régulièrement vos sessions actives</span>
+          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+            <Shield className="h-5 w-5 text-blue-600" />
+            <span className="text-sm text-blue-800">Vérifiez régulièrement vos sessions actives</span>
           </div>
         </CardContent>
       </Card>

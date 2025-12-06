@@ -398,7 +398,7 @@ export const EdnAuditDashboard: React.FC = () => {
                 {filteredResults.map((result) => (
                   <div
                     key={result.id}
-                    className="p-4 border rounded-lg bg-card hover:shadow-md transition-shadow"
+                    className="p-4 border rounded-lg bg-white hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -408,12 +408,12 @@ export const EdnAuditDashboard: React.FC = () => {
                             {result.completeness_score}%
                           </Badge>
                           {result.rang_a_complete && (
-                            <Badge variant="outline" className="bg-success/10 text-success">
+                            <Badge variant="outline" className="bg-green-50 text-green-700">
                               Rang A ✓
                             </Badge>
                           )}
                           {result.rang_b_complete && (
-                            <Badge variant="outline" className="bg-primary/10 text-primary">
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
                               Rang B ✓
                             </Badge>
                           )}
