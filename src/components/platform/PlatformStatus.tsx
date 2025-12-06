@@ -39,10 +39,10 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Statut global */}
-      <Card className="border-green-200 bg-green-50/50">
+      <Card className="border-success/20 bg-success/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <CheckCircle className="h-5 w-5 text-success" />
             Plateforme MED-MNG - Statut Global
           </CardTitle>
           <CardDescription>
@@ -53,26 +53,26 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Complétion de la plateforme</span>
-              <span className="text-2xl font-bold text-green-600">100%</span>
+              <span className="text-2xl font-bold text-success">100%</span>
             </div>
             <Progress value={completionPercentage} className="h-2" />
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{platformStats.contentItems}</div>
-                <div className="text-xs text-gray-600">Items EDN</div>
+                <div className="text-2xl font-bold text-primary">{platformStats.contentItems}</div>
+                <div className="text-xs text-muted-foreground">Items EDN</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{platformStats.users}+</div>
-                <div className="text-xs text-gray-600">Utilisateurs</div>
+                <div className="text-2xl font-bold text-accent">{platformStats.users}+</div>
+                <div className="text-xs text-muted-foreground">Utilisateurs</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{platformStats.securityScore}%</div>
-                <div className="text-xs text-gray-600">Sécurité</div>
+                <div className="text-2xl font-bold text-success">{platformStats.securityScore}%</div>
+                <div className="text-xs text-muted-foreground">Sécurité</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{platformStats.uptime}%</div>
-                <div className="text-xs text-gray-600">Uptime</div>
+                <div className="text-2xl font-bold text-warning">{platformStats.uptime}%</div>
+                <div className="text-xs text-muted-foreground">Uptime</div>
               </div>
             </div>
           </div>
@@ -95,17 +95,17 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="flex items-center justify-between p-3 border rounded-lg bg-gray-50/50"
+                className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
               >
                 <div className="flex items-center gap-3">
-                  <feature.icon className="h-4 w-4 text-gray-600" />
+                  <feature.icon className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{feature.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
                     {feature.count}
                   </Badge>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                 </div>
               </div>
             ))}
@@ -131,7 +131,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
               <BookOpen className="h-4 w-4" />
               <div className="text-left">
                 <div className="font-medium">Explorer EDN</div>
-                <div className="text-xs text-gray-500">367 items disponibles</div>
+                <div className="text-xs text-muted-foreground">367 items disponibles</div>
               </div>
             </Button>
             
@@ -143,7 +143,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
               <TrendingUp className="h-4 w-4" />
               <div className="text-left">
                 <div className="font-medium">Analytics</div>
-                <div className="text-xs text-gray-500">Suivi personnalisé</div>
+                <div className="text-xs text-muted-foreground">Suivi personnalisé</div>
               </div>
             </Button>
             
@@ -155,7 +155,7 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
               <Music className="h-4 w-4" />
               <div className="text-left">
                 <div className="font-medium">Générateur</div>
-                <div className="text-xs text-gray-500">Création musicale</div>
+                <div className="text-xs text-muted-foreground">Création musicale</div>
               </div>
             </Button>
           </div>
@@ -163,16 +163,16 @@ export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => 
       </Card>
 
       {/* Message de succès */}
-      <Card className="border-blue-200 bg-blue-50/50">
+      <Card className="border-primary/20 bg-primary/5">
         <CardContent className="pt-6">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-              <Award className="h-6 w-6 text-blue-600" />
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+              <Award className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="font-semibold text-blue-900">
+            <h3 className="font-semibold text-foreground">
               🎉 Plateforme 100% Complète !
             </h3>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-muted-foreground">
               Toutes les fonctionnalités sont opérationnelles et la plateforme est prête pour une utilisation complète.
               Analytics avancés, recommandations intelligentes, et toutes les fonctionnalités Med-MNG sont disponibles.
             </p>

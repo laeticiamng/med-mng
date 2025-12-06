@@ -241,7 +241,7 @@ const OicDataQualityManager = () => {
             {fixResult && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-4 w-4 text-success" />
                   <span className="font-medium">Corrections Terminées</span>
                 </div>
                 
