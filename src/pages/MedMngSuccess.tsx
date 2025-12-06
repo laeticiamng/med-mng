@@ -149,7 +149,7 @@ export const MedMngSuccess = () => {
               </Button>
             </div>
 
-            <div className="text-center text-sm text-gray-500 mt-6">
+            <div className="text-center text-sm text-muted-foreground mt-6">
               <p>📧 Vous recevrez un email de confirmation sous peu</p>
               <p>❓ Questions ? Contactez notre support</p>
             </div>

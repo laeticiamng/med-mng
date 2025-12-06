@@ -304,7 +304,7 @@ const MedMngPlayerComponent = () => {
                       onValueChange={handleVolumeChange}
                       className="flex-1"
                     />
-                    <span className="text-sm text-gray-500 w-12">
+                    <span className="text-sm text-muted-foreground w-12">
                       {Math.round(volume * 100)}%
                     </span>
                   </div>

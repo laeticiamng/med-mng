@@ -108,18 +108,18 @@ export const UptimeMonitor = () => {
 
   const getStatusIcon = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'up': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'down': return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'degraded': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'checking': return <Clock className="h-5 w-5 text-gray-500 animate-pulse" />;
+      case 'up': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'down': return <XCircle className="h-5 w-5 text-destructive" />;
+      case 'degraded': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'checking': return <Clock className="h-5 w-5 text-muted-foreground animate-pulse" />;
     }
   };
 
   const getStatusBadge = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'up': return <Badge variant="default" className="bg-green-500">Opérationnel</Badge>;
+      case 'up': return <Badge variant="default" className="bg-success">Opérationnel</Badge>;
       case 'down': return <Badge variant="destructive">Hors service</Badge>;
-      case 'degraded': return <Badge variant="secondary" className="bg-yellow-500 text-white">Dégradé</Badge>;
+      case 'degraded': return <Badge variant="secondary" className="bg-warning text-warning-foreground">Dégradé</Badge>;
       case 'checking': return <Badge variant="outline">Vérification...</Badge>;
     }
   };
@@ -164,7 +164,7 @@ export const UptimeMonitor = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-success">
                   {averageUptime.toFixed(1)}%
                 </div>
                 <div className="text-sm text-muted-foreground">Disponibilité moyenne</div>
@@ -242,7 +242,7 @@ export const UptimeMonitor = () => {
                 <span>• Maintenance programmée Supabase (15min)</span>
                 <span>Il y a 5 jours</span>
               </div>
-              <div className="text-green-700 font-medium mt-2">
+              <div className="text-success font-medium mt-2">
                 ✅ Aucun incident majeur ce mois-ci
               </div>
             </div>

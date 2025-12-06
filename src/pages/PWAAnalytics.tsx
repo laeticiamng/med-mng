@@ -404,7 +404,7 @@ const PWAAnalytics: React.FC = () => {
                           {isSubscribed ? (
                             <Bell className="w-6 h-6 text-success" />
                           ) : (
-                            <BellOff className="w-6 h-6 text-gray-400" />
+                            <BellOff className="w-6 h-6 text-muted-foreground" />
                           )}
                           <div>
                             <div className="font-semibold">
@@ -433,7 +433,7 @@ const PWAAnalytics: React.FC = () => {
                           >
                             🧪 Envoyer une notification de test
                           </Button>
-                          <p className="text-sm text-gray-600 text-center">
+                          <p className="text-sm text-muted-foreground text-center">
                             Vous recevrez des notifications pour les nouvelles fonctionnalités,
                             mises à jour importantes et alertes système
                           </p>
