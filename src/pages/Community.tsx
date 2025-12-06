@@ -196,7 +196,7 @@ export default function Community() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-yellow-500" />
+                  <Trophy className="w-5 h-5 text-warning" />
                   Top Membres
                 </CardTitle>
               </CardHeader>
