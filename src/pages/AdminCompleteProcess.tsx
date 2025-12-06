@@ -181,18 +181,18 @@ const AdminCompleteProcess = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-green-100 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-2">✅ Améliorations incluses :</h4>
-                <ul className="text-sm text-green-700 space-y-1">
+              <div className="p-4 bg-success/10 rounded-lg">
+                <h4 className="font-semibold text-success mb-2">✅ Améliorations incluses :</h4>
+                <ul className="text-sm text-success/80 space-y-1">
                   <li>• Compétences Rang A/B spécifiques par domaine</li>
                   <li>• Paroles musicales personnalisées</li>
                   <li>• Scènes immersives contextualisées</li>
                   <li>• Quiz adaptés au contenu</li>
                 </ul>
               </div>
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <h4 className="font-semibold text-amber-800 mb-2">⚡ Contenu par spécialité :</h4>
-                <ul className="text-xs text-amber-700 space-y-1">
+              <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
+                <h4 className="font-semibold text-warning mb-2">⚡ Contenu par spécialité :</h4>
+                <ul className="text-xs text-warning/80 space-y-1">
                   <li>• IC-1 à IC-10 : Fondamentaux médicaux</li>
                   <li>• IC-23 à IC-42 : Gynéco-obstétrique</li>
                   <li>• IC-60 à IC-80 : Psychiatrie</li>
@@ -241,23 +241,23 @@ const AdminCompleteProcess = () => {
                       key={phase.id}
                       className={`p-3 rounded-lg text-center text-sm ${
                         currentPhase === phase.id 
-                          ? 'bg-blue-100 border-2 border-blue-500' 
+                          ? 'bg-primary/10 border-2 border-primary' 
                           : progress > (index * 20) 
-                            ? 'bg-green-100 border border-green-300'
-                            : 'bg-gray-100 border border-gray-300'
+                            ? 'bg-success/10 border border-success/30'
+                            : 'bg-muted border border-border'
                       }`}
                     >
                       <div className="flex items-center justify-center mb-1">
                         {React.createElement(phase.icon, { 
                           className: `h-4 w-4 ${
-                            currentPhase === phase.id ? 'text-blue-600' : 
-                            progress > (index * 20) ? 'text-green-600' : 'text-gray-400'
+                            currentPhase === phase.id ? 'text-primary' : 
+                            progress > (index * 20) ? 'text-success' : 'text-muted-foreground'
                           }` 
                         })}
                       </div>
                       <div className={`font-medium ${
-                        currentPhase === phase.id ? 'text-blue-900' : 
-                        progress > (index * 20) ? 'text-green-900' : 'text-gray-600'
+                        currentPhase === phase.id ? 'text-primary' : 
+                        progress > (index * 20) ? 'text-success' : 'text-muted-foreground'
                       }`}>
                         {phase.name}
                       </div>
@@ -277,23 +277,23 @@ const AdminCompleteProcess = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="text-center p-4 bg-success/10 rounded-lg">
+                  <div className="text-2xl font-bold text-success">
                     {extractionStats.totalProcessed}
                   </div>
-                  <div className="text-sm text-green-700">Items extraits</div>
+                  <div className="text-sm text-success/80">Items extraits</div>
                 </div>
-                <div className="text-center p-4 bg-red-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                  <div className="text-2xl font-bold text-destructive">
                     {extractionStats.totalErrors}
                   </div>
-                  <div className="text-sm text-red-700">Erreurs</div>
+                  <div className="text-sm text-destructive/80">Erreurs</div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="text-center p-4 bg-primary/10 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
                     367
                   </div>
-                  <div className="text-sm text-blue-700">Items total</div>
+                  <div className="text-sm text-primary/80">Items total</div>
                 </div>
               </div>
             </CardContent>
@@ -309,29 +309,29 @@ const AdminCompleteProcess = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-center p-4 bg-primary/10 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
                       {reimportResults.stats?.processed || 0}
                     </div>
-                    <div className="text-sm text-blue-700">Items traités</div>
+                    <div className="text-sm text-primary/80">Items traités</div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="text-center p-4 bg-success/10 rounded-lg">
+                    <div className="text-2xl font-bold text-success">
                       {reimportResults.stats?.success || 0}
                     </div>
-                    <div className="text-sm text-green-700">Mis à jour</div>
+                    <div className="text-sm text-success/80">Mis à jour</div>
                   </div>
-                  <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">
+                  <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                    <div className="text-2xl font-bold text-destructive">
                       {reimportResults.stats?.errors || 0}
                     </div>
-                    <div className="text-sm text-red-700">Erreurs</div>
+                    <div className="text-sm text-destructive/80">Erreurs</div>
                   </div>
                 </div>
                 
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-2">🎉 Contenu mis à jour avec succès :</h4>
-                  <div className="grid md:grid-cols-2 gap-2 text-sm text-green-700">
+                <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
+                  <h4 className="font-semibold text-success mb-2">🎉 Contenu mis à jour avec succès :</h4>
+                  <div className="grid md:grid-cols-2 gap-2 text-sm text-success/80">
                     <div>✅ Compétences Rang A spécifiques</div>
                     <div>✅ Compétences Rang B approfondies</div>
                     <div>✅ Paroles musicales personnalisées</div>
@@ -342,9 +342,9 @@ const AdminCompleteProcess = () => {
                 </div>
 
                 {reimportResults.errors && reimportResults.errors.length > 0 && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <h4 className="font-semibold text-red-800 mb-2">Erreurs rencontrées :</h4>
-                    <div className="text-sm text-red-700 max-h-32 overflow-y-auto">
+                  <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <h4 className="font-semibold text-destructive mb-2">Erreurs rencontrées :</h4>
+                    <div className="text-sm text-destructive/80 max-h-32 overflow-y-auto">
                       {reimportResults.errors.map((error: any, index: number) => (
                         <div key={index} className="mb-1">
                           • Item {error.item_code}: {error.error}
@@ -369,26 +369,26 @@ const AdminCompleteProcess = () => {
                 {auditResults.map((audit, index) => (
                   <div 
                     key={index}
-                    className={`p-4 rounded-lg border ${
-                      audit.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                  className={`p-4 rounded-lg border ${
+                      audit.success ? 'bg-success/10 border-success/20' : 'bg-destructive/10 border-destructive/20'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className={`h-5 w-5 ${audit.success ? 'text-green-600' : 'text-red-600'}`} />
+                        <CheckCircle className={`h-5 w-5 ${audit.success ? 'text-success' : 'text-destructive'}`} />
                         <span className="font-medium capitalize">Audit {audit.type}</span>
                       </div>
-                      <span className={`text-sm ${audit.success ? 'text-green-700' : 'text-red-700'}`}>
+                      <span className={`text-sm ${audit.success ? 'text-success' : 'text-destructive'}`}>
                         {audit.success ? 'Succès' : 'Échec'}
                       </span>
                     </div>
                     {audit.results && (
-                      <div className="mt-2 text-sm text-gray-600">
+                      <div className="mt-2 text-sm text-muted-foreground">
                         Rapport ID: {audit.reportId}
                       </div>
                     )}
                     {audit.error && (
-                      <div className="mt-2 text-sm text-red-600">
+                      <div className="mt-2 text-sm text-destructive">
                         Erreur: {audit.error}
                       </div>
                     )}

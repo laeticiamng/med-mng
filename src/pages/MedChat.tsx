@@ -163,7 +163,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-muted/50">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Header Enhanced */}
         <motion.div 
@@ -183,15 +183,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <MessageSquare className="h-6 w-6 text-white" />
+                  <MessageSquare className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-background animate-pulse"></div>
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
                   <TranslatedText text="Chat Intelligent" />
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 flex items-center gap-2">
+                <p className="text-sm md:text-base text-muted-foreground flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-yellow-500" />
                   <TranslatedText text="Assistant IA médical avancé" />
                 </p>
@@ -217,15 +217,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                   {searchHistory.map((question, index) => (
                     <div 
                       key={index}
-                      className="p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="p-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
                       onClick={() => handleSuggestionClick(question)}
                     >
                       <p className="text-sm">{question}</p>
-                      <p className="text-xs text-gray-500">Cliquez pour réutiliser</p>
+                      <p className="text-xs text-muted-foreground">Cliquez pour réutiliser</p>
                     </div>
                   ))}
                   {searchHistory.length === 0 && (
-                    <p className="text-gray-500 text-center py-4">Aucun historique disponible</p>
+                    <p className="text-muted-foreground text-center py-4">Aucun historique disponible</p>
                   )}
                 </div>
               </DialogContent>
@@ -235,7 +235,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               variant="outline" 
               size="icon"
               onClick={clearChat}
-              className="hover:bg-red-50"
+              className="hover:bg-destructive/10"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -278,15 +278,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                       >
                         {message.role === 'assistant' && (
                           <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shrink-0 shadow-lg">
-                            <Bot className="h-5 w-5 text-white" />
+                            <Bot className="h-5 w-5 text-primary-foreground" />
                           </div>
                         )}
                         
                         <div
                           className={`max-w-[85%] md:max-w-[75%] group relative ${
                             message.role === 'user'
-                              ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl rounded-br-md p-4 shadow-lg'
-                              : 'bg-white border border-gray-200 shadow-sm rounded-2xl rounded-bl-md p-4'
+                              ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-2xl rounded-br-md p-4 shadow-lg'
+                              : 'bg-card border border-border shadow-sm rounded-2xl rounded-bl-md p-4'
                           }`}
                         >
                           {message.isTyping ? (
@@ -308,8 +308,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                                   </p>
                                   <div className="space-y-2">
                                     {message.courseCitations.map((citation, index) => (
-                                      <div key={index} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                      <div key={index} className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                                         {citation}
                                       </div>
                                     ))}
@@ -319,10 +319,10 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                               
                               {/* Message Actions */}
                               <div className={`flex items-center justify-between mt-3 pt-2 border-t ${
-                                message.role === 'user' ? 'border-white/20' : 'border-gray-200'
+                                message.role === 'user' ? 'border-primary-foreground/20' : 'border-border'
                               }`}>
                                 <p className={`text-xs ${
-                                  message.role === 'user' ? 'text-white/70' : 'text-gray-400'
+                                  message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
                                 } flex items-center gap-1`}>
                                   <Clock className="h-3 w-3" />
                                   {message.timestamp.toLocaleTimeString()}
@@ -333,15 +333,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      className="h-6 w-6 p-0 hover:bg-gray-100"
+                                      className="h-6 w-6 p-0 hover:bg-muted"
                                       onClick={() => copyToClipboard(message.content)}
                                     >
                                       <Copy className="h-3 w-3" />
                                     </Button>
-                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-green-100">
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-success/10">
                                       <ThumbsUp className="h-3 w-3" />
                                     </Button>
-                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-red-100">
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-destructive/10">
                                       <ThumbsDown className="h-3 w-3" />
                                     </Button>
                                   </div>
@@ -352,8 +352,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                         </div>
                         
                         {message.role === 'user' && (
-                          <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center shrink-0 shadow-lg">
-                            <User className="h-5 w-5 text-gray-600" />
+                          <div className="w-10 h-10 bg-gradient-to-br from-muted to-muted/60 rounded-full flex items-center justify-center shrink-0 shadow-lg">
+                            <User className="h-5 w-5 text-muted-foreground" />
                           </div>
                         )}
                       </motion.div>
@@ -367,7 +367,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-3"
                     >
-                      <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                      <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                         <HelpCircle className="h-4 w-4" />
                         Questions suggérées :
                       </p>
@@ -379,14 +379,14 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
                             onClick={() => handleSuggestionClick(suggestion.text)}
-                            className="flex items-start gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-orange-50 hover:to-red-50 transition-all duration-200 text-left border border-gray-200 hover:border-orange-200 group"
+                            className="flex items-start gap-3 p-3 bg-gradient-to-r from-muted to-muted/50 rounded-xl hover:from-primary/5 hover:to-accent/5 transition-all duration-200 text-left border border-border hover:border-primary/30 group"
                           >
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                              <suggestion.icon className="h-4 w-4 text-orange-600" />
+                            <div className="w-8 h-8 bg-card rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                              <suggestion.icon className="h-4 w-4 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">{suggestion.text}</p>
-                              <p className="text-xs text-gray-500">{suggestion.category}</p>
+                              <p className="text-sm font-medium text-foreground">{suggestion.text}</p>
+                              <p className="text-xs text-muted-foreground">{suggestion.category}</p>
                             </div>
                           </motion.button>
                         ))}

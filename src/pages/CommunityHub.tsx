@@ -169,11 +169,11 @@ const CommunityHub = () => {
 
   const getPostTypeColor = (type: string) => {
     switch (type) {
-      case 'discussion': return 'bg-blue-100 text-blue-800';
-      case 'question': return 'bg-yellow-100 text-yellow-800';
-      case 'resource': return 'bg-green-100 text-green-800';
-      case 'success': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'discussion': return 'bg-primary/10 text-primary';
+      case 'question': return 'bg-warning/10 text-warning';
+      case 'resource': return 'bg-success/10 text-success';
+      case 'success': return 'bg-accent/10 text-accent';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -189,11 +189,11 @@ const CommunityHub = () => {
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case 'webinar': return 'bg-blue-100 text-blue-800';
-      case 'workshop': return 'bg-green-100 text-green-800';
-      case 'meetup': return 'bg-purple-100 text-purple-800';
-      case 'competition': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'webinar': return 'bg-primary/10 text-primary';
+      case 'workshop': return 'bg-success/10 text-success';
+      case 'meetup': return 'bg-accent/10 text-accent';
+      case 'competition': return 'bg-warning/10 text-warning';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -230,7 +230,7 @@ const CommunityHub = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
-              <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
               <div className="text-2xl font-bold">2,847</div>
               <p className="text-sm text-muted-foreground">Membres actifs</p>
             </CardContent>
@@ -238,7 +238,7 @@ const CommunityHub = () => {
           
           <Card>
             <CardContent className="p-4 text-center">
-              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
+              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-success" />
               <div className="text-2xl font-bold">1,523</div>
               <p className="text-sm text-muted-foreground">Discussions</p>
             </CardContent>
@@ -246,7 +246,7 @@ const CommunityHub = () => {
           
           <Card>
             <CardContent className="p-4 text-center">
-              <BookOpen className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+              <BookOpen className="h-8 w-8 mx-auto mb-2 text-accent" />
               <div className="text-2xl font-bold">456</div>
               <p className="text-sm text-muted-foreground">Ressources partagées</p>
             </CardContent>
@@ -254,7 +254,7 @@ const CommunityHub = () => {
           
           <Card>
             <CardContent className="p-4 text-center">
-              <Calendar className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+              <Calendar className="h-8 w-8 mx-auto mb-2 text-warning" />
               <div className="text-2xl font-bold">23</div>
               <p className="text-sm text-muted-foreground">Événements ce mois</p>
             </CardContent>
@@ -346,7 +346,7 @@ const CommunityHub = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleLike(post.id)}
-                          className={`flex items-center gap-1 ${post.isLiked ? 'text-red-600' : ''}`}
+                          className={`flex items-center gap-1 ${post.isLiked ? 'text-destructive' : ''}`}
                         >
                           <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
                           {post.likes}
@@ -393,7 +393,7 @@ const CommunityHub = () => {
                         </Badge>
                       </div>
                       {event.isRegistered && (
-                        <Badge className="bg-green-100 text-green-800">Inscrit</Badge>
+                        <Badge className="bg-success/10 text-success">Inscrit</Badge>
                       )}
                     </div>
                     <CardDescription>{event.description}</CardDescription>

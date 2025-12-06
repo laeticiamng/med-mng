@@ -18,7 +18,7 @@ export const SceneHeader = ({ theme, description, setting }: SceneHeaderProps) =
 
   return (
     <div className="text-center relative z-10 pt-20">
-      <div className={`inline-block bg-gradient-to-r ${theme.primary} text-white px-12 py-6 rounded-full ${theme.glowColor} shadow-2xl mb-12 transform hover:scale-105 transition-all duration-500`}>
+      <div className={`inline-block bg-gradient-to-r ${theme.primary} text-primary-foreground px-12 py-6 rounded-full ${theme.glowColor} shadow-2xl mb-12 transform hover:scale-105 transition-all duration-500`}>
         <h2 className="text-5xl font-bold flex items-center gap-4">
           <span className="text-6xl">{theme.uniqueElement}</span>
           {theme.name}

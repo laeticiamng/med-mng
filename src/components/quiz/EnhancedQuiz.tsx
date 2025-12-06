@@ -212,15 +212,15 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 dark:text-green-400';
-    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+    if (score >= 80) return 'text-success';
+    if (score >= 60) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getScoreIcon = (score: number) => {
-    if (score >= 80) return <Trophy className="h-6 w-6 text-green-600" />;
-    if (score >= 60) return <Target className="h-6 w-6 text-yellow-600" />;
-    return <AlertCircle className="h-6 w-6 text-red-600" />;
+    if (score >= 80) return <Trophy className="h-6 w-6 text-success" />;
+    if (score >= 60) return <Target className="h-6 w-6 text-warning" />;
+    return <AlertCircle className="h-6 w-6 text-destructive" />;
   };
 
   if (isCompleted) {
@@ -242,13 +242,13 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
               <p className="text-sm text-muted-foreground">Score Final</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-3xl font-bold text-success">
                 {score}/{answers.length}
               </div>
               <p className="text-sm text-muted-foreground">Bonnes Réponses</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-3xl font-bold text-primary">
                 {Math.round(answers.reduce((sum, a) => sum + a.timeSpent, 0) / 1000)}s
               </div>
               <p className="text-sm text-muted-foreground">Temps Total</p>
@@ -292,9 +292,9 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
                       <div key={question.id} className="border rounded-lg p-4">
                         <div className="flex items-start gap-3">
                           {userAnswer.isCorrect ? (
-                            <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
+                            <CheckCircle className="h-5 w-5 text-success mt-1" />
                           ) : (
-                            <XCircle className="h-5 w-5 text-red-600 mt-1" />
+                            <XCircle className="h-5 w-5 text-destructive mt-1" />
                           )}
                           
                           <div className="flex-1 space-y-2">
@@ -304,14 +304,14 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
                               <div className={cn(
                                 "text-sm p-2 rounded",
                                 userAnswer.isCorrect 
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                  ? "bg-success/10 text-success"
+                                  : "bg-destructive/10 text-destructive"
                               )}>
                                 Votre réponse: {question.options[userAnswer.selectedOption]}
                               </div>
                               
                               {!userAnswer.isCorrect && (
-                                <div className="text-sm p-2 rounded bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                <div className="text-sm p-2 rounded bg-success/10 text-success">
                                   Bonne réponse: {question.options[question.correct]}
                                 </div>
                               )}
@@ -408,11 +408,11 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
                     "justify-start text-left h-auto p-4 transition-all duration-200",
                     selectedOption === index && (
                       index === currentQuestionData.correct
-                        ? "bg-green-100 border-green-500 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-red-100 border-red-500 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                        ? "bg-success/10 border-success text-success"
+                        : "bg-destructive/10 border-destructive text-destructive"
                     ),
                     selectedOption !== null && index === currentQuestionData.correct && selectedOption !== index &&
-                      "bg-green-50 border-green-300 dark:bg-green-900/20",
+                      "bg-success/5 border-success/30",
                     selectedOption === null && "hover:bg-muted/50"
                   )}
                   onClick={() => handleAnswer(index)}
@@ -423,22 +423,22 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
                       "w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium",
                       selectedOption === index && (
                         index === currentQuestionData.correct
-                          ? "bg-green-500 border-green-500 text-white"
-                          : "bg-red-500 border-red-500 text-white"
+                          ? "bg-success border-success text-success-foreground"
+                          : "bg-destructive border-destructive text-destructive-foreground"
                       ),
                       selectedOption !== null && index === currentQuestionData.correct && selectedOption !== index &&
-                        "bg-green-500 border-green-500 text-white"
+                        "bg-success border-success text-success-foreground"
                     )}>
                       {String.fromCharCode(65 + index)}
                     </div>
                     <span className="flex-1">{option}</span>
                     {selectedOption === index && (
                       index === currentQuestionData.correct 
-                        ? <CheckCircle className="h-5 w-5 text-green-600" />
-                        : <XCircle className="h-5 w-5 text-red-600" />
+                        ? <CheckCircle className="h-5 w-5 text-success" />
+                        : <XCircle className="h-5 w-5 text-destructive" />
                     )}
                     {selectedOption !== null && index === currentQuestionData.correct && selectedOption !== index && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     )}
                   </div>
                 </Button>
