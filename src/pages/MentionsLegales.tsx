@@ -1,8 +1,8 @@
-
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Building, Globe, Shield, Scale, Mail, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const MentionsLegales = () => {
   return (
@@ -10,7 +10,7 @@ const MentionsLegales = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2 text-primary hover:text-primary/80">
+            <Link to={ROUTE_PATHS.home} className="flex items-center space-x-2 text-primary hover:text-primary/80">
               <ArrowLeft className="h-4 w-4" />
               <span>Retour à l'accueil</span>
             </Link>
@@ -203,7 +203,7 @@ const MentionsLegales = () => {
 
           {/* Retour */}
           <div className="text-center pt-6">
-            <Link to="/">
+            <Link to={ROUTE_PATHS.home}>
               <Button className="flex items-center space-x-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Retour à l'accueil</span>

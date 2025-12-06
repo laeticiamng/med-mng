@@ -175,14 +175,14 @@ export default function AdminDashboard() {
                 className="flex items-center gap-1"
               >
                 <div className={`w-2 h-2 rounded-full ${
-                  stats.systemHealth === 'good' ? 'bg-green-500' : 'bg-red-500'
+                  stats.systemHealth === 'good' ? 'bg-success' : 'bg-destructive'
                 } animate-pulse`} />
                 Système {stats.systemHealth === 'good' ? 'Opérationnel' : 'Alerte'}
               </Badge>
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(ROUTE_PATHS.home)}
               >
                 Retour à l'accueil
               </Button>
@@ -285,7 +285,7 @@ export default function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Music className="h-4 w-4 text-blue-500" />
+                        <Music className="h-4 w-4 text-primary" />
                         <span className="text-sm">Génération musicale</span>
                       </div>
                       <span className="font-medium">
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Brain className="h-4 w-4 text-green-500" />
+                        <Brain className="h-4 w-4 text-success" />
                         <span className="text-sm">QCM intelligents</span>
                       </div>
                       <span className="font-medium">
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-purple-500" />
+                        <Eye className="h-4 w-4 text-accent" />
                         <span className="text-sm">Bandes dessinées</span>
                       </div>
                       <span className="font-medium">

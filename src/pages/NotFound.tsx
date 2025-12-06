@@ -4,6 +4,7 @@ import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumBackground } from "@/components/ui/premium-background";
+import { ROUTE_PATHS } from '@/config/routes';
 
 const NotFound = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ const NotFound = () => {
               Retour
             </Button>
             <Button asChild>
-              <Link to="/">
+              <Link to={ROUTE_PATHS.home}>
                 <Home className="w-4 h-4 mr-2" />
                 Accueil
               </Link>
