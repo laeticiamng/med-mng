@@ -14,7 +14,7 @@ export const MusicGenerationActions = ({ remainingFree }: MusicGenerationActions
   return (
     <div className="flex flex-col sm:flex-row gap-4 justify-center">
       <Button 
-        onClick={() => navigate(ROUTE_PATHS.ednLegacy)}
+        onClick={() => navigate(ROUTE_PATHS.ednComplete)}
         size="lg"
         className="bg-warning text-warning-foreground hover:bg-warning/90 px-8 py-3 text-lg"
       >

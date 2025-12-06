@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Music, Wand2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface MusicGenerationCTAProps {
   remainingFree: number;
@@ -22,7 +23,7 @@ export const MusicGenerationCTA = ({ remainingFree }: MusicGenerationCTAProps) =
           <TranslatedText text={remainingFree > 0 ? `${remainingFree} générations gratuites disponibles` : "Créez votre première chanson médicale"} />
         </p>
         <Button 
-          onClick={() => navigate(remainingFree > 0 ? '/edn' : '/med-mng/pricing')}
+          onClick={() => navigate(remainingFree > 0 ? ROUTE_PATHS.ednComplete : ROUTE_PATHS.medMngPricing)}
           className="bg-warning text-warning-foreground hover:bg-warning/90 w-full"
         >
           <Wand2 className="h-5 w-5 mr-2" />
