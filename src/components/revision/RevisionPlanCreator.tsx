@@ -133,15 +133,15 @@ export const RevisionPlanCreator: React.FC = () => {
               step={1}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>1/jour</span>
               <span>15/jour</span>
             </div>
           </div>
 
           {selectedItems.length > 0 && (
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-800 text-sm">
+            <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
+              <div className="flex items-center gap-2 text-primary text-sm">
                 <Calendar className="h-4 w-4" />
                 <span>Durée estimée: {estimatedDays} jour(s)</span>
                 <Target className="h-4 w-4 ml-4" />
@@ -164,7 +164,7 @@ export const RevisionPlanCreator: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge variant="destructive" className="text-xs">Priorité haute</Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     {highPriorityItems.length} concept(s) • Erreurs fréquentes
                   </span>
                 </div>
@@ -193,7 +193,7 @@ export const RevisionPlanCreator: React.FC = () => {
                         <Badge variant="outline" className="text-xs">
                           {item.item_code}
                         </Badge>
-                        <span className="text-xs text-red-600">
+                        <span className="text-xs text-destructive">
                           {item.error_frequency} erreur(s)
                         </span>
                       </div>
@@ -210,7 +210,7 @@ export const RevisionPlanCreator: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge variant="default" className="text-xs">Priorité moyenne</Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     {mediumPriorityItems.length} concept(s) • À consolider
                   </span>
                 </div>
@@ -239,7 +239,7 @@ export const RevisionPlanCreator: React.FC = () => {
                         <Badge variant="outline" className="text-xs">
                           {item.item_code}
                         </Badge>
-                        <span className="text-xs text-orange-600">
+                        <span className="text-xs text-warning">
                           {item.error_frequency} erreur(s)
                         </span>
                       </div>
@@ -256,7 +256,7 @@ export const RevisionPlanCreator: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="text-xs">Priorité basse</Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     {lowPriorityItems.length} concept(s) • Entretien
                   </span>
                 </div>
@@ -285,7 +285,7 @@ export const RevisionPlanCreator: React.FC = () => {
                         <Badge variant="outline" className="text-xs">
                           {item.item_code}
                         </Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {item.error_frequency} erreur(s)
                         </span>
                       </div>
@@ -293,7 +293,7 @@ export const RevisionPlanCreator: React.FC = () => {
                   </div>
                 ))}
                 {lowPriorityItems.length > 5 && (
-                  <p className="text-xs text-gray-500 pl-6">
+                  <p className="text-xs text-muted-foreground pl-6">
                     +{lowPriorityItems.length - 5} autres concepts
                   </p>
                 )}

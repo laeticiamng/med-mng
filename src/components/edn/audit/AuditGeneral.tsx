@@ -83,21 +83,21 @@ export const AuditGeneral = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'insuffisant': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'excellent': return 'bg-success/10 text-success border-success/30';
+      case 'bon': return 'bg-primary/10 text-primary border-primary/30';
+      case 'ameliorer': return 'bg-warning/10 text-warning border-warning/30';
+      case 'insuffisant': return 'bg-destructive/10 text-destructive border-destructive/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'excellent': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'bon': return <Info className="h-5 w-5 text-blue-600" />;
-      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case 'insuffisant': return <AlertTriangle className="h-5 w-5 text-red-600" />;
-      default: return <Info className="h-5 w-5 text-gray-600" />;
+      case 'excellent': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'bon': return <Info className="h-5 w-5 text-primary" />;
+      case 'ameliorer': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'insuffisant': return <AlertTriangle className="h-5 w-5 text-destructive" />;
+      default: return <Info className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -123,26 +123,26 @@ export const AuditGeneral = () => {
       {/* En-tête général selon LiSA */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Award className="h-6 w-6 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-800">Audit Général Items IC selon référentiel LiSA</h1>
+          <Award className="h-6 w-6 text-primary" />
+          <h1 className="text-3xl font-bold text-foreground">Audit Général Items IC selon référentiel LiSA</h1>
         </div>
         
         <div className="flex items-center justify-center space-x-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600">{moyenneGenerale}%</div>
-            <div className="text-sm text-gray-600">Score Moyen</div>
+            <div className="text-3xl font-bold text-primary">{moyenneGenerale}%</div>
+            <div className="text-sm text-muted-foreground">Score Moyen</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600">{totalConceptsLiSA}</div>
-            <div className="text-sm text-gray-600">Concepts LiSA Total</div>
+            <div className="text-3xl font-bold text-success">{totalConceptsLiSA}</div>
+            <div className="text-sm text-muted-foreground">Concepts LiSA Total</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600">5</div>
-            <div className="text-sm text-gray-600">Items IC</div>
+            <div className="text-3xl font-bold text-accent">5</div>
+            <div className="text-sm text-muted-foreground">Items IC</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-amber-600">{totalRangA}/{totalRangB}</div>
-            <div className="text-sm text-gray-600">Rang A/B</div>
+            <div className="text-3xl font-bold text-warning">{totalRangA}/{totalRangB}</div>
+            <div className="text-sm text-muted-foreground">Rang A/B</div>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ export const AuditGeneral = () => {
             <XAxis dataKey="item" />
             <YAxis domain={[60, 100]} />
             <Tooltip />
-            <Bar dataKey="score" fill="#3B82F6" name="Score Global" />
+            <Bar dataKey="score" fill="hsl(var(--primary))" name="Score Global" />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -172,12 +172,12 @@ export const AuditGeneral = () => {
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(item.status)}
                   <div>
-                    <h3 className="font-semibold text-gray-800">{item.itemCode}</h3>
-                    <p className="text-sm text-gray-600">{item.title}</p>
+                    <h3 className="font-semibold text-foreground">{item.itemCode}</h3>
+                    <p className="text-sm text-muted-foreground">{item.title}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-gray-800">{scoreGlobal}%</div>
+                  <div className="text-xl font-bold text-foreground">{scoreGlobal}%</div>
                   <Badge className={`text-xs ${getStatusColor(item.status)}`}>
                     {item.status}
                   </Badge>
@@ -203,7 +203,7 @@ export const AuditGeneral = () => {
                 </div>
               </div>
               
-              <div className="flex justify-between items-center text-xs text-gray-600 bg-gray-50 p-2 rounded">
+              <div className="flex justify-between items-center text-xs text-muted-foreground bg-muted p-2 rounded">
                 <span>Rang A: {item.conceptsRangA}</span>
                 <span>Rang B: {item.conceptsRangB}</span>
                 <span>Total LiSA: {item.conceptsLiSATotal}</span>
@@ -214,16 +214,16 @@ export const AuditGeneral = () => {
       </div>
 
       {/* Analyse stratégique selon LiSA */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-green-50">
+      <Card className="p-6 bg-gradient-to-r from-primary/5 to-success/5">
         <div className="flex items-center space-x-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Analyse Stratégique selon référentiel LiSA</h3>
+          <TrendingUp className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">Analyse Stratégique selon référentiel LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Excellence LiSA</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-success mb-2">✅ Excellence LiSA</h4>
+            <ul className="space-y-1 text-sm text-foreground/80">
               <li>• IC-4: Modèle parfait (95% - 24 concepts)</li>
               <li>• IC-2: Très bon niveau (89% - 9 concepts)</li>
               <li>• IC-1: Base solide (86% - 14 concepts)</li>
@@ -232,8 +232,8 @@ export const AuditGeneral = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-red-700 mb-2">🚨 Défaillances LiSA</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-destructive mb-2">🚨 Défaillances LiSA</h4>
+            <ul className="space-y-1 text-sm text-foreground/80">
               <li>• IC-5: Critique (68% - 10/15 concepts)</li>
               <li>• IC-3: Insuffisant (74% - 18/22 concepts)</li>
               <li>• 37/84 concepts LiSA manquants (44%)</li>
@@ -242,8 +242,8 @@ export const AuditGeneral = () => {
           </div>
           
           <div>
-            <h4 className="font-medium text-blue-700 mb-2">🎯 Plan LiSA</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
+            <h4 className="font-medium text-primary mb-2">🎯 Plan LiSA</h4>
+            <ul className="space-y-1 text-sm text-foreground/80">
               <li>• Compléter IC-5: 5 concepts Rang A</li>
               <li>• Rattraper IC-3: 4 concepts manquants</li>
               <li>• Atteindre 90% conformité LiSA</li>
@@ -255,31 +255,31 @@ export const AuditGeneral = () => {
 
       {/* Métriques LiSA officielles */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Métriques LiSA Officielles</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Métriques LiSA Officielles</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="text-center p-3 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{totalConceptsLiSA}</div>
-            <div className="text-sm text-gray-600">Total LiSA</div>
+          <div className="text-center p-3 bg-primary/5 rounded-lg">
+            <div className="text-2xl font-bold text-primary">{totalConceptsLiSA}</div>
+            <div className="text-sm text-muted-foreground">Total LiSA</div>
           </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-3 bg-success/5 rounded-lg">
+            <div className="text-2xl font-bold text-success">
               {auditItems.filter(i => i.status === 'excellent').length}
             </div>
-            <div className="text-sm text-gray-600">Excellents</div>
+            <div className="text-sm text-muted-foreground">Excellents</div>
           </div>
-          <div className="text-center p-3 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="text-center p-3 bg-destructive/5 rounded-lg">
+            <div className="text-2xl font-bold text-destructive">
               {auditItems.filter(i => i.status === 'insuffisant').length}
             </div>
-            <div className="text-sm text-gray-600">Insuffisants</div>
+            <div className="text-sm text-muted-foreground">Insuffisants</div>
           </div>
-          <div className="text-center p-3 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{totalRangA}</div>
-            <div className="text-sm text-gray-600">Concepts Rang A</div>
+          <div className="text-center p-3 bg-accent/5 rounded-lg">
+            <div className="text-2xl font-bold text-accent">{totalRangA}</div>
+            <div className="text-sm text-muted-foreground">Concepts Rang A</div>
           </div>
-          <div className="text-center p-3 bg-amber-50 rounded-lg">
-            <div className="text-2xl font-bold text-amber-600">{totalRangB}</div>
-            <div className="text-sm text-gray-600">Concepts Rang B</div>
+          <div className="text-center p-3 bg-warning/5 rounded-lg">
+            <div className="text-2xl font-bold text-warning">{totalRangB}</div>
+            <div className="text-sm text-muted-foreground">Concepts Rang B</div>
           </div>
         </div>
       </Card>

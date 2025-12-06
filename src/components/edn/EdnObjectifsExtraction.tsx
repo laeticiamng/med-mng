@@ -125,13 +125,13 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const getStatusIcon = (statut: string) => {
     switch (statut) {
       case 'en_cours':
-        return <Clock className="h-4 w-4 text-blue-500 animate-spin" />;
+        return <Clock className="h-4 w-4 text-primary animate-spin" />;
       case 'termine':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'erreur':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
       case 'pause':
-        return <Pause className="h-4 w-4 text-yellow-500" />;
+        return <Pause className="h-4 w-4 text-warning" />;
       default:
         return null;
     }
@@ -140,15 +140,15 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const getStatusColor = (statut: string) => {
     switch (statut) {
       case 'en_cours':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-primary/10 text-primary';
       case 'termine':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success/10 text-success';
       case 'erreur':
-        return 'bg-red-100 text-red-800';
+        return 'bg-destructive/10 text-destructive';
       case 'pause':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning/10 text-warning';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -170,9 +170,9 @@ export const EdnObjectifsExtraction: React.FC = () => {
       </div>
 
       {error && (
-        <Alert className="border-red-200 bg-red-50">
+        <Alert className="border-destructive/20 bg-destructive/5">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-red-800">
+          <AlertDescription className="text-destructive">
             {error}
           </AlertDescription>
         </Alert>
@@ -276,7 +276,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                     <div className="text-sm text-muted-foreground">Total</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-primary">
                       {status.page_number}
                     </div>
                     <div className="text-sm text-muted-foreground">Page actuelle</div>
@@ -316,7 +316,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 </div>
 
                 {status.failed_urls && status.failed_urls.length > 0 && (
-                  <Alert className="border-yellow-200 bg-yellow-50">
+                  <Alert className="border-warning/20 bg-warning/5">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       {status.failed_urls.length} erreur(s) détectée(s)
@@ -367,7 +367,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                     <CardTitle className="text-lg">Complétude Globale</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-green-600">
+                    <div className="text-3xl font-bold text-success">
                       {stats.completude_globale}%
                     </div>
                     <Progress value={stats.completude_globale} className="mt-2" />
@@ -379,7 +379,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                     <CardTitle className="text-lg">Items Couverts</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-primary">
                       {stats.repartition_par_item.length}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -404,7 +404,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                         .map((item) => (
                         <div 
                           key={item.item_parent}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                          className="flex items-center justify-between p-3 bg-muted rounded-lg"
                         >
                           <div className="flex items-center gap-3">
                             <Badge variant="outline">

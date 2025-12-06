@@ -66,15 +66,15 @@ export const ComparisonResults = () => {
   };
 
   const getSimilarityColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getSimilarityIcon = (score: number) => {
-    if (score >= 90) return <CheckCircle className="h-4 w-4 text-green-600" />;
-    if (score >= 70) return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-    return <XCircle className="h-4 w-4 text-red-600" />;
+    if (score >= 90) return <CheckCircle className="h-4 w-4 text-success" />;
+    if (score >= 70) return <AlertTriangle className="h-4 w-4 text-warning" />;
+    return <XCircle className="h-4 w-4 text-destructive" />;
   };
 
   return (
@@ -118,15 +118,15 @@ export const ComparisonResults = () => {
                   <div className="text-sm text-muted-foreground">Items Totaux</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{results.summary.items_with_official_content}</div>
+                  <div className="text-2xl font-bold text-success">{results.summary.items_with_official_content}</div>
                   <div className="text-sm text-muted-foreground">Avec Contenu Officiel</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">{results.summary.items_with_differences}</div>
+                  <div className="text-2xl font-bold text-warning">{results.summary.items_with_differences}</div>
                   <div className="text-sm text-muted-foreground">Avec Différences</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{results.summary.average_similarity}%</div>
+                  <div className="text-2xl font-bold text-primary">{results.summary.average_similarity}%</div>
                   <div className="text-sm text-muted-foreground">Similarité Moyenne</div>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export const ComparisonResults = () => {
 
                     {comparison.differences.length > 0 && (
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-red-600">Différences détectées:</p>
+                        <p className="text-sm font-medium text-destructive">Différences détectées:</p>
                         {comparison.differences.map((diff, index) => (
                           <p key={index} className="text-xs text-muted-foreground ml-2">
                             {diff}

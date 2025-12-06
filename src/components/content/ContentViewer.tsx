@@ -277,9 +277,9 @@ export const ContentLibrary: React.FC<{ itemCode: string }> = ({ itemCode }) => 
           >
             <CardHeader>
               <div className="flex items-center gap-2">
-                {content.type === 'bd' && <Palette className="h-5 w-5 text-purple-500" />}
-                {content.type === 'roman' && <Book className="h-5 w-5 text-blue-500" />}
-                {content.type === 'poeme' && <FileText className="h-5 w-5 text-green-500" />}
+                {content.type === 'bd' && <Palette className="h-5 w-5 text-accent" />}
+                {content.type === 'roman' && <Book className="h-5 w-5 text-primary" />}
+                {content.type === 'poeme' && <FileText className="h-5 w-5 text-success" />}
                 <CardTitle className="text-lg">{content.title}</CardTitle>
               </div>
               {content.metadata && (
