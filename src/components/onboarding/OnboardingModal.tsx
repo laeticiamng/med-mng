@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 export const OnboardingModal: React.FC = () => {
   const {
@@ -73,7 +74,7 @@ export const OnboardingModal: React.FC = () => {
               </h3>
               <div 
                 className="text-muted-foreground leading-relaxed text-sm"
-                dangerouslySetInnerHTML={{ __html: step.body }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(step.body || '') }}
               />
             </div>
           )}

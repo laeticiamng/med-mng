@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import { HelpCircle, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 interface HelpTip {
   id: string;
@@ -112,7 +113,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
             )}
             <div 
               className="text-sm text-medical-secondary leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: helpText }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(helpText || '') }}
             />
           </div>
         </TooltipContent>
