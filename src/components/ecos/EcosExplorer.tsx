@@ -18,6 +18,7 @@ import {
   List
 } from "lucide-react";
 import { ecosService, EcosSituation, EcosSearchResult } from '@/services/ecosService';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 interface EcosExplorerProps {
   className?: string;
@@ -370,7 +371,10 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
               <div 
                 className="prose max-w-none mb-4"
                 dangerouslySetInnerHTML={{ 
-                  __html: selectedSituation.contenu_complet_html 
+                  __html: sanitizeHtml(selectedSituation.contenu_complet_html || '', {
+                    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'ul', 'ol', 'li', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'img'],
+                    ALLOWED_ATTR: ['class', 'href', 'target', 'rel', 'src', 'alt', 'width', 'height']
+                  })
                 }}
               />
               

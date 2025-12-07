@@ -40,10 +40,10 @@ double_confirm_changes = true
 enable_confirmations = false
 
 [functions.suno-music-optimized]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-music]
-verify_jwt = false
+verify_jwt = true
 
 [functions.music-status]
 verify_jwt = false
