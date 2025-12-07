@@ -74,16 +74,6 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
-  // Flag pour éviter les re-fetch inutiles au premier rendu
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  // Réinitialiser la page quand on change de filtre/recherche
-  // Seulement APRÈS le premier rendu
-  useEffect(() => {
-    if (!isInitialized) return;
-    setPage(0);
-    setImmersiveItems([]);
-  }, [searchTerm, selectedCategory, sortBy, isInitialized]);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -97,6 +87,9 @@ export default function EdnComplete() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
+  // Chargement des données au montage et lors de la pagination
+  // Note: searchTerm, selectedCategory, sortBy sont filtrés côté CLIENT (dans filteredItems)
+  // Donc on ne re-fetch PAS quand ces valeurs changent - seulement quand page change
   useEffect(() => {
     // Timeout de sécurité: 10 secondes max
     const timeoutId = setTimeout(() => {
@@ -107,7 +100,6 @@ export default function EdnComplete() {
     fetchAllData()
       .then(() => {
         clearTimeout(timeoutId);
-        setIsInitialized(true); // Marquer comme initialisé après le premier chargement
       })
       .catch(err => {
         clearTimeout(timeoutId);
@@ -117,7 +109,7 @@ export default function EdnComplete() {
       });
     
     return () => clearTimeout(timeoutId);
-  }, [page, searchTerm, selectedCategory, sortBy]); // Dépendances directes au lieu de reloadKey
+  }, [page]); // UNIQUEMENT page - les filtres sont côté client
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
