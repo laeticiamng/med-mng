@@ -79,28 +79,28 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.medical-chat-ai]
-verify_jwt = false
+verify_jwt = true
 
 [functions.audit-edn-completeness]
-verify_jwt = false
+verify_jwt = true
 
 [functions.complete-missing-competences]
-verify_jwt = false
+verify_jwt = true
 
 [functions.cancel-ia-task]
 verify_jwt = true
 
 [functions.edn-fix]
-verify_jwt = false
+verify_jwt = true
 
 [functions.extraction-monitoring]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ia-quota]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ecos-enrich-ai]
-verify_jwt = false
+verify_jwt = true
 
 [functions.extract-ecos-uness]
 verify_jwt = false
@@ -145,42 +145,42 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.regenerate-all-oic-content]
-verify_jwt = false
+verify_jwt = true
 
 [functions.sync-edn-tables]
-verify_jwt = false
+verify_jwt = true
 
 [functions.check-item-competences]
-verify_jwt = false
+verify_jwt = true
 
 [functions.regenerate-oic-with-ai-check]
-verify_jwt = false
+verify_jwt = true
 
 [functions.check-recommendation-alerts]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-recommendations]
 verify_jwt = true
 
 [functions.check-performance-degradation]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-rls-policies]
-verify_jwt = false
+verify_jwt = true
 
 [functions.security-metrics]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-security-alert]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-security-report]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-scheduled-reports]
-verify_jwt = false
+verify_jwt = true
 
 [functions.unified-alerts]
-verify_jwt = false
+verify_jwt = true
 
 
