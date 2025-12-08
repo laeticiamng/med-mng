@@ -445,7 +445,7 @@ export default function EdnComplete() {
           </div>
         </div>
 
-        {/* Contenu des onglets */}
+          {/* Contenu des onglets */}
         <TabsContent value="revision">
             <div className="space-y-6">
               <RevisionGuide />
@@ -453,8 +453,13 @@ export default function EdnComplete() {
             </div>
           </TabsContent>
 
-          <TabsContent value="immersive">
+          <TabsContent value="immersive" className="mt-6">
             <div className="space-y-6">
+              {filteredItems.length === 0 && !loading && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Aucun item trouvé. Essayez de modifier vos filtres.
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredItems.map(item => (
                   <EdnItemCard
