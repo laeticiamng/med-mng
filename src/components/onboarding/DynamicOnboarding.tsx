@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { OnboardingModal } from './OnboardingModal';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useLocation } from 'react-router-dom';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingStep {
   key: string;
@@ -17,6 +19,8 @@ export const DynamicOnboarding: React.FC = () => {
   const [onboardingData, setOnboardingData] = useState<OnboardingStep[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showTour, setShowTour] = useState(false);
+  const { logActivity } = useActivityTracking();
+  const [user, setUser] = useState<any>(null);
   
   // ✅ Only show onboarding on homepage
   const shouldShowOnboarding = location.pathname === '/';
@@ -28,6 +32,15 @@ export const DynamicOnboarding: React.FC = () => {
     currentStep,
     steps
   } = useOnboarding();
+
+  // Check user on mount
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
 
   useEffect(() => {
     loadDynamicOnboarding();
@@ -113,7 +126,16 @@ export const DynamicOnboarding: React.FC = () => {
     setOnboardingData(staticSteps);
   };
 
-  const handleModalComplete = () => {
+  const handleModalComplete = async () => {
+    // Log onboarding completion activity
+    if (user) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'onboarding_modal_complete' }
+      });
+    }
+    
     // Check if there are tour steps
     const tourSteps = onboardingData.filter(step => step.type === 'tour');
     if (tourSteps.length > 0) {
@@ -123,7 +145,16 @@ export const DynamicOnboarding: React.FC = () => {
     }
   };
 
-  const handleTourComplete = () => {
+  const handleTourComplete = async () => {
+    // Log tour completion activity
+    if (user) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'onboarding_tour_complete' }
+      });
+    }
+    
     setShowTour(false);
     completeOnboarding();
   };

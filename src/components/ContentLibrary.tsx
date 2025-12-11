@@ -15,10 +15,15 @@ import {
   Calendar,
   Volume2,
   Eye,
-  Pause
+  Pause,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 import { useContentGeneration } from '@/hooks/useContentGeneration';
 import { useToast } from '@/hooks/use-toast';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GeneratedItem {
   id: string;
@@ -36,11 +41,25 @@ interface GeneratedItem {
 export const ContentLibrary = () => {
   const { getUserGeneratedContent } = useContentGeneration();
   const { toast } = useToast();
+  const { stats: gamificationStats, loadStats } = useGamification();
+  const [user, setUser] = useState<any>(null);
   
   const [content, setContent] = useState<GeneratedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [playingItem, setPlayingItem] = useState<string | null>(null);
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
 
   useEffect(() => {
     loadContent();
@@ -227,11 +246,34 @@ export const ContentLibrary = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold gradient-text">Bibliothèque de Contenu</h1>
         <p className="text-muted-foreground">
           Vos créations IA : musiques, voix et images générées
         </p>
+        
+        {/* Gamification Stats */}
+        {user && gamificationStats && (
+          <div className="flex justify-center">
+            <div className="flex items-center gap-4 px-6 py-3 bg-card rounded-full border border-border">
+              <div className="flex items-center gap-2 text-warning">
+                <Flame className="h-5 w-5" />
+                <span className="font-bold">{gamificationStats.currentStreak}</span>
+                <span className="text-sm text-muted-foreground">jours</span>
+              </div>
+              <div className="w-px h-6 bg-border" />
+              <div className="flex items-center gap-2 text-primary">
+                <Star className="h-5 w-5" />
+                <span className="font-bold">Niv. {gamificationStats.level}</span>
+              </div>
+              <div className="w-px h-6 bg-border" />
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-warning" />
+                <Badge variant="secondary">{gamificationStats.badges.length} badges</Badge>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
