@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { withAuth } from '@/components/med-mng/withAuth';
@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { 
   User, 
@@ -31,9 +32,13 @@ import {
   Activity,
   TrendingUp,
   Heart,
-  Loader2
+  Loader2,
+  Flame,
+  Trophy,
+  Award
 } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
+import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
 
 const MedMngProfileComponent = () => {
   const { user } = useAuth();
@@ -44,6 +49,18 @@ const MedMngProfileComponent = () => {
     name: '',
     email: '',
   });
+
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  // Load gamification stats
+  useEffect(() => {
+    if (user?.id) {
+      loadStats(user.id);
+    }
+  }, [user?.id, loadStats]);
+
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
+  const xpProgress = gamificationStats ? ((gamificationStats.currentXP || 0) % XP_PER_LEVEL) / XP_PER_LEVEL * 100 : 0;
 
   // Fetch user profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -196,6 +213,65 @@ const MedMngProfileComponent = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Gamification Stats Card */}
+        {gamificationStats && (
+          <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-primary/5 via-accent/5 to-warning/5">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between flex-wrap gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Award className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">Niveau {level}</h3>
+                    <p className="text-sm text-muted-foreground">{gamificationStats.currentXP || 0} XP total</p>
+                    <div className="w-32 mt-2">
+                      <Progress value={xpProgress} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-8">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Flame className="h-5 w-5 text-warning" />
+                      <span className="text-3xl font-bold">{gamificationStats.currentStreak || 0}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Jours de suite</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Trophy className="h-5 w-5 text-primary" />
+                      <span className="text-3xl font-bold">{gamificationStats.badges?.length || 0}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Badges</p>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-success">{gamificationStats.longestStreak || 0}</span>
+                    <p className="text-sm text-muted-foreground">Record streak</p>
+                  </div>
+                </div>
+              </div>
+              {/* Badges display */}
+              {gamificationStats.badges && gamificationStats.badges.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-sm font-medium mb-2">Badges obtenus</p>
+                  <div className="flex flex-wrap gap-2">
+                    {gamificationStats.badges.slice(0, 8).map((badge) => (
+                      <Badge key={badge.id} variant="secondary" className="gap-1 py-1">
+                        <span>{badge.icon}</span>
+                        <span>{badge.name}</span>
+                      </Badge>
+                    ))}
+                    {gamificationStats.badges.length > 8 && (
+                      <Badge variant="outline">+{gamificationStats.badges.length - 8}</Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

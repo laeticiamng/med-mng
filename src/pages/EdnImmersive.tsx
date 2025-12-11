@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useImmersiveLogic } from '@/components/edn/immersive/useImmersiveLogic';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { ArrowLeft, Play, Pause, Volume2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Volume2, Flame, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ImmersiveContent } from '@/components/edn/immersive/ImmersiveContent';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 const EdnImmersive = () => {
   const {
@@ -22,6 +25,55 @@ const EdnImmersive = () => {
     prevSection,
     setSection
   } = useImmersiveLogic();
+
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const loadUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+      }
+    };
+    loadUserStats();
+  }, [loadStats]);
+
+  // Track section changes
+  useEffect(() => {
+    if (item && currentSection > 0) {
+      logActivity({
+        activity_type: 'study',
+        metadata: { 
+          action: 'immersive_section', 
+          item_code: item.item_code, 
+          section: currentSection,
+          section_name: sections[currentSection]
+        }
+      });
+    }
+  }, [currentSection, item, sections, logActivity]);
+
+  // Track completion when progress reaches 100%
+  useEffect(() => {
+    const trackCompletion = async () => {
+      if (progress === 100 && item) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await logActivity({
+            activity_type: 'study',
+            score: 100,
+            metadata: { action: 'immersive_complete', item_code: item.item_code }
+          });
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
+    };
+    trackCompletion();
+  }, [progress, item, logActivity, addPoints]);
+
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
   if (loading) {
     return <LoadingSpinner />;
@@ -62,6 +114,18 @@ const EdnImmersive = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              {gamificationStats && (
+                <div className="hidden md:flex items-center gap-2">
+                  <Badge variant="outline" className="gap-1 py-1">
+                    <Flame className="h-3 w-3 text-warning" />
+                    {gamificationStats.currentStreak || 0}
+                  </Badge>
+                  <Badge variant="outline" className="gap-1 py-1">
+                    <Trophy className="h-3 w-3 text-primary" />
+                    Niv.{level}
+                  </Badge>
+                </div>
+              )}
               <Button
                 onClick={toggleAudio}
                 variant="outline"

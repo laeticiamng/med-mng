@@ -5,7 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic } from 'lucide-react';
+import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -14,18 +14,44 @@ import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
+import { Badge } from '@/components/ui/badge';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
   const { text: errorMessage } = useTranslation('Impossible de charger votre bibliothèque');
   const { text: retryText } = useTranslation('Réessayer');
+
+  // Load gamification stats
+  React.useEffect(() => {
+    if (user?.id) {
+      loadStats(user.id);
+    }
+  }, [user?.id, loadStats]);
+
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
+
+  const handleSongPlay = async (song: any) => {
+    // Log activity for playing music
+    await logActivity({
+      activity_type: 'study',
+      metadata: { action: 'music_play', song_id: song.id, song_title: song.title }
+    });
+    navigate(`/med-mng/player/${song.id}`);
+  };
 
   const { data: library, isLoading, error, refetch } = useQuery({
     queryKey: ['med-mng-library', currentPage],
@@ -152,11 +178,25 @@ const MedMngLibraryComponent = () => {
               className="text-muted-foreground"
             />
           </div>
-          <div className="text-right">
-            <div className="bg-card rounded-lg px-3 py-2 shadow-sm">
-              <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-muted-foreground" />
-              <div className="text-lg sm:text-2xl font-bold text-primary">
-                {quota?.remaining_credits || 0}
+          <div className="flex items-center gap-4">
+            {gamificationStats && (
+              <div className="hidden sm:flex items-center gap-2">
+                <Badge variant="outline" className="gap-1 py-1.5">
+                  <Flame className="h-3 w-3 text-warning" />
+                  {gamificationStats.currentStreak || 0}j
+                </Badge>
+                <Badge variant="outline" className="gap-1 py-1.5">
+                  <Trophy className="h-3 w-3 text-primary" />
+                  Niv.{level}
+                </Badge>
+              </div>
+            )}
+            <div className="text-right">
+              <div className="bg-card rounded-lg px-3 py-2 shadow-sm">
+                <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-muted-foreground" />
+                <div className="text-lg sm:text-2xl font-bold text-primary">
+                  {quota?.remaining_credits || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -281,7 +321,7 @@ const MedMngLibraryComponent = () => {
           <SongCard 
             key={song.id} 
             song={song}
-            onPlay={() => navigate(`/med-mng/player/${song.id}`)}
+            onPlay={() => handleSongPlay(song)}
             onRemove={() => refetch()}
             onToggleLike={() => refetch()}
           />

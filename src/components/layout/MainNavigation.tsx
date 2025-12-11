@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -14,15 +14,24 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useState } from 'react';
 import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    if (user?.id) {
+      loadStats(user.id);
+    }
+  }, [user?.id, loadStats]);
+
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
   const mainNavItems = MAIN_NAV_ITEMS;
 
@@ -79,6 +88,20 @@ export const MainNavigation: React.FC = () => {
 
           {/* Actions utilisateur */}
           <div className="flex items-center space-x-3">
+            {/* Gamification stats for logged in users */}
+            {user && gamificationStats && (
+              <div className="hidden sm:flex items-center gap-2">
+                <Badge variant="outline" className="gap-1 py-1">
+                  <Flame className="h-3 w-3 text-warning" />
+                  {gamificationStats.currentStreak || 0}
+                </Badge>
+                <Badge variant="outline" className="gap-1 py-1">
+                  <Trophy className="h-3 w-3 text-primary" />
+                  Niv.{level}
+                </Badge>
+              </div>
+            )}
+            
             {/* Toggle thème */}
             <ThemeToggle />
             

@@ -11,10 +11,15 @@ import {
   Clock,
   Brain,
   Target,
-  Zap
+  Zap,
+  Trophy,
+  Flame
 } from 'lucide-react';
 import { usePersonalizedRevision, RevisionItem } from '@/hooks/usePersonalizedRevision';
 import { useToast } from '@/hooks/use-toast';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TodayRevisionSessionProps {
   items: RevisionItem[];
@@ -26,14 +31,26 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
   const [sessionResults, setSessionResults] = useState<Array<{item: RevisionItem, success: boolean}>>([]);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionStartTime] = useState(new Date());
+  const [userId, setUserId] = useState<string | null>(null);
   
   const { markItemAsReviewed } = usePersonalizedRevision();
   const { toast } = useToast();
+  const { addPoints, unlockBadge, stats: gamificationStats } = useGamification();
+  const { logActivity } = useActivityTracking();
+
+  // Get user on mount
+  React.useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    };
+    getUser();
+  }, []);
 
   const currentItem = items[currentIndex];
   const progress = items.length > 0 ? ((currentIndex + (showAnswer ? 0.5 : 0)) / items.length) * 100 : 0;
 
-  const handleAnswer = (success: boolean) => {
+  const handleAnswer = async (success: boolean) => {
     if (!currentItem) return;
 
     // Marquer l'item comme révisé
@@ -41,6 +58,16 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
     
     // Enregistrer le résultat de la session
     setSessionResults(prev => [...prev, { item: currentItem, success }]);
+
+    // Award points for review
+    if (userId) {
+      await addPoints(userId, 'itemReviewed');
+      await logActivity({ 
+        activity_type: 'srs_review', 
+        score: success ? 100 : 50,
+        metadata: { item_code: currentItem.item_code, success }
+      });
+    }
 
     // Passer à l'item suivant ou terminer
     if (currentIndex < items.length - 1) {
@@ -51,11 +78,29 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
       setSessionComplete(true);
       
       const sessionDuration = Math.round((new Date().getTime() - sessionStartTime.getTime()) / 1000 / 60);
-      const successRate = sessionResults.filter(r => r.success).length / items.length * 100;
+      const successCount = [...sessionResults, { item: currentItem, success }].filter(r => r.success).length;
+      const successRate = successCount / items.length * 100;
+      
+      // Award bonus points for completion
+      if (userId) {
+        await addPoints(userId, 'dailyStreak');
+        await logActivity({
+          activity_type: 'srs_review',
+          count: items.length,
+          duration_seconds: sessionDuration * 60,
+          score: successRate,
+          metadata: { session_complete: true }
+        });
+        
+        // Check for perfect session badge
+        if (successRate === 100 && items.length >= 5) {
+          await unlockBadge(userId, 'perfect_exam');
+        }
+      }
       
       toast({
-        title: "Session terminée !",
-        description: `${sessionDuration} min • ${Math.round(successRate)}% de réussite`,
+        title: "🎉 Session terminée !",
+        description: `${sessionDuration} min • ${Math.round(successRate)}% de réussite • +${POINTS_CONFIG.itemReviewed * items.length + POINTS_CONFIG.dailyStreak} XP`,
         variant: "default"
       });
     }
