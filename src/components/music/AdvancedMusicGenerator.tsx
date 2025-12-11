@@ -7,6 +7,9 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Music, 
   Play, 
@@ -27,7 +30,10 @@ import {
   Brain,
   Clock,
   Headphones,
-  Activity
+  Activity,
+  Flame,
+  Star,
+  Zap
 } from 'lucide-react';
 
 interface MusicTrack {

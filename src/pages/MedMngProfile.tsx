@@ -5,6 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ProfileHeader } from '@/components/med-mng/profile/ProfileHeader';
 import { ProfileStats } from '@/components/med-mng/profile/ProfileStats';
 import { ProfileSettings } from '@/components/med-mng/profile/ProfileSettings';
@@ -44,6 +45,7 @@ const MedMngProfileComponent = () => {
   const { user } = useAuth();
   const medMngApi = useMedMngApi();
   const queryClient = useQueryClient();
+  const { logActivity } = useActivityTracking();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -52,12 +54,13 @@ const MedMngProfileComponent = () => {
 
   const { stats: gamificationStats, loadStats } = useGamification();
 
-  // Load gamification stats
+  // Load gamification stats and log activity
   useEffect(() => {
     if (user?.id) {
       loadStats(user.id);
+      logActivity({ activity_type: 'study', metadata: { action: 'view_profile' } });
     }
-  }, [user?.id, loadStats]);
+  }, [user?.id, loadStats, logActivity]);
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
   const xpProgress = gamificationStats ? ((gamificationStats.currentXP || 0) % XP_PER_LEVEL) / XP_PER_LEVEL * 100 : 0;

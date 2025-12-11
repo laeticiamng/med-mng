@@ -6,6 +6,7 @@ import { ArrowLeft, Music, Library, Heart, Shield, Headphones, Download, Crown, 
 import { TranslatedText } from '@/components/TranslatedText';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PremiumBackground } from '@/components/ui/premium-background';
@@ -26,12 +27,14 @@ export const MedMngPricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { subscription, loading: subscriptionLoading } = useSubscription();
+  const { logActivity } = useActivityTracking();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPlans();
+    logActivity({ activity_type: 'study', metadata: { action: 'view_pricing' } });
   }, []);
 
   const fetchPlans = async () => {

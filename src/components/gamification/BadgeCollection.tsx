@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
 
 interface BadgeCollectionProps {
@@ -28,11 +29,14 @@ const RARITY_LABELS = {
 
 export function BadgeCollection({ unlockedBadges, allBadges }: BadgeCollectionProps) {
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
   const [copiedBadge, setCopiedBadge] = useState<string | null>(null);
   const unlockedIds = new Set(unlockedBadges.map(b => b.id));
 
   const shareBadge = async (badge: BadgeType) => {
     const shareText = `🏆 J'ai débloqué le badge "${badge.name}" sur MED-MNG ! ${badge.icon}\n${badge.description}`;
+    
+    logActivity({ activity_type: 'study', metadata: { action: 'share_badge', badgeId: badge.id } });
     
     if (navigator.share) {
       try {

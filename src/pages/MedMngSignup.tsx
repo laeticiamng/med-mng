@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ROUTE_PATHS } from '@/config/routes';
 
 export const MedMngSignup = () => {
   const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
+  const { logActivity } = useActivityTracking();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,6 +58,7 @@ export const MedMngSignup = () => {
       setError(error.message);
     } else {
       setSuccess(true);
+      logActivity({ activity_type: 'study', metadata: { action: 'signup_success' } });
     }
     
     setLoading(false);
