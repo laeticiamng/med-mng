@@ -364,6 +364,15 @@ export default function EdnComplete() {
               </div>
               
               <div className="flex items-center gap-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.srsReview)}
+                  className="gap-2 border-primary/30 hover:bg-primary/10"
+                >
+                  <Brain className="h-4 w-4" />
+                  <span className="hidden sm:inline">Révision SRS</span>
+                </Button>
                 <QuotaIndicator compact />
                 <TabsList className="bg-muted">
                   <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>

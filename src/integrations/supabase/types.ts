@@ -8012,6 +8012,59 @@ export type Database = {
         }
         Relationships: []
       }
+      item_reviews: {
+        Row: {
+          created_at: string
+          ease_factor_after: number | null
+          ease_factor_before: number | null
+          id: string
+          interval_after: number | null
+          interval_before: number | null
+          item_code: string
+          next_review_date: string | null
+          quality: number
+          response_time_ms: number | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ease_factor_after?: number | null
+          ease_factor_before?: number | null
+          id?: string
+          interval_after?: number | null
+          interval_before?: number | null
+          item_code: string
+          next_review_date?: string | null
+          quality: number
+          response_time_ms?: number | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ease_factor_after?: number | null
+          ease_factor_before?: number | null
+          id?: string
+          interval_after?: number | null
+          interval_before?: number | null
+          item_code?: string
+          next_review_date?: string | null
+          quality?: number
+          response_time_ms?: number | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_reviews_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "review_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_situation_relations: {
         Row: {
           created_at: string | null
@@ -14272,6 +14325,45 @@ export type Database = {
         }
         Relationships: []
       }
+      review_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          items_again: number
+          items_correct: number
+          items_reviewed: number
+          session_type: string
+          started_at: string
+          total_time_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          items_again?: number
+          items_correct?: number
+          items_reviewed?: number
+          session_type?: string
+          started_at?: string
+          total_time_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          items_again?: number
+          items_correct?: number
+          items_reviewed?: number
+          session_type?: string
+          started_at?: string
+          total_time_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       rituals: {
         Row: {
           description: string
@@ -17995,6 +18087,54 @@ export type Database = {
           is_read?: boolean | null
           priority?: string
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_item_progress: {
+        Row: {
+          correct_reviews: number
+          created_at: string
+          ease_factor: number
+          id: string
+          interval_days: number
+          item_code: string
+          last_review_date: string | null
+          learning_state: string
+          next_review_date: string
+          repetitions: number
+          total_reviews: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          correct_reviews?: number
+          created_at?: string
+          ease_factor?: number
+          id?: string
+          interval_days?: number
+          item_code: string
+          last_review_date?: string | null
+          learning_state?: string
+          next_review_date?: string
+          repetitions?: number
+          total_reviews?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          correct_reviews?: number
+          created_at?: string
+          ease_factor?: number
+          id?: string
+          interval_days?: number
+          item_code?: string
+          last_review_date?: string | null
+          learning_state?: string
+          next_review_date?: string
+          repetitions?: number
+          total_reviews?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

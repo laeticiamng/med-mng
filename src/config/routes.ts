@@ -73,6 +73,7 @@ export const ROUTE_PATHS = {
   auditIc2: '/audit-ic2',
   auditIc4: '/audit-ic4',
   auditCompleteLegacy: '/audit-complete',
+  srsReview: '/srs-review',
   notFound: '*',
 } as const;
 
