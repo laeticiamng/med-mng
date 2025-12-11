@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   Stethoscope, Clock, CheckCircle, XCircle, ChevronLeft,
   Play, ArrowRight, Award, Brain, Heart, Baby, Bone,
-  AlertTriangle, TrendingUp, BarChart3
+  AlertTriangle, TrendingUp, BarChart3, Sparkles, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,9 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useClinicalCases, ClinicalCase } from '@/hooks/useClinicalCases';
+import { useAIClinicalCases } from '@/hooks/useAIClinicalCases';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 
@@ -30,6 +33,9 @@ export default function ClinicalCases() {
     loading, cases, currentProgress, 
     getCases, startCase, submitDecision, completeCase, getStats, getCurrentCase 
   } = useClinicalCases();
+  const { generateCase, loading: aiLoading } = useAIClinicalCases();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('cases');
@@ -37,6 +43,7 @@ export default function ClinicalCases() {
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; feedback: string } | null>(null);
   const [stepStartTime, setStepStartTime] = useState<number>(Date.now());
   const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
+  const [generatingAI, setGeneratingAI] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -54,9 +61,10 @@ export default function ClinicalCases() {
       setUser(user);
       getCases();
       setStats(getStats(user.id));
+      loadGamificationStats(user.id);
     };
     checkAuth();
-  }, [navigate, toast, getCases, getStats]);
+  }, [navigate, toast, getCases, getStats, loadGamificationStats]);
 
   const currentCase = getCurrentCase();
   const currentStep = currentCase?.steps[currentProgress?.currentStepIndex || 0];
@@ -102,7 +110,26 @@ export default function ClinicalCases() {
   const handleCompleteCase = async () => {
     if (!user) return;
     await completeCase(user.id);
-    setStats(getStats(user.id));
+    
+    // Log activity
+    await logActivity({
+      activity_type: 'clinical_case',
+      count: 1,
+      score: currentProgress ? Math.round((currentProgress.correctAnswers / currentProgress.totalAnswers) * 100) : 0,
+      metadata: { case_id: currentProgress?.caseId }
+    });
+    
+    // Award gamification points
+    await addPoints(user.id, 'clinicalCase');
+    
+    // Check for clinical master badge
+    const newStats = getStats(user.id);
+    if ((newStats?.totalCasesCompleted || 0) >= 10) {
+      await unlockBadge(user.id, 'clinical_master');
+    }
+    
+    setStats(newStats);
+    loadGamificationStats(user.id);
     setSelectedOption(null);
     setFeedback(null);
     setActiveTab('cases');
@@ -166,6 +193,48 @@ export default function ClinicalCases() {
 
           {/* Cases list */}
           <TabsContent value="cases">
+            {/* AI Generation Card */}
+            <Card className="mb-6 border-dashed border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+              <CardContent className="p-6 text-center">
+                <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-lg font-semibold mb-2">Générer un cas clinique IA</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  L'IA créera un cas clinique unique basé sur les items EDN
+                </p>
+                <Button 
+                  onClick={async () => {
+                    if (!user) return;
+                    setGeneratingAI(true);
+                    try {
+                      const newCase = await generateCase(user.id, 'intermediate');
+                      if (newCase) {
+                        toast({ title: "Cas généré !", description: newCase.title });
+                        getCases();
+                      }
+                    } catch (error) {
+                      toast({ title: "Erreur", description: "Impossible de générer le cas", variant: "destructive" });
+                    } finally {
+                      setGeneratingAI(false);
+                    }
+                  }}
+                  disabled={generatingAI || aiLoading}
+                  className="gap-2"
+                >
+                  {generatingAI ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Génération en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Générer avec l'IA
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
             <div className="grid gap-4">
               {cases.map((clinicalCase) => (
                 <Card key={clinicalCase.id} className="hover:shadow-lg transition-shadow">
