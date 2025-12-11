@@ -428,6 +428,57 @@ export type Database = {
           },
         ]
       }
+      ai_clinical_cases: {
+        Row: {
+          average_score: number | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          estimated_time: number | null
+          generated_by: string | null
+          id: string
+          learning_objectives: string[] | null
+          patient_presentation: string
+          related_items: string[] | null
+          specialty: string
+          steps: Json
+          title: string
+          use_count: number | null
+        }
+        Insert: {
+          average_score?: number | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          estimated_time?: number | null
+          generated_by?: string | null
+          id?: string
+          learning_objectives?: string[] | null
+          patient_presentation: string
+          related_items?: string[] | null
+          specialty: string
+          steps?: Json
+          title: string
+          use_count?: number | null
+        }
+        Update: {
+          average_score?: number | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          estimated_time?: number | null
+          generated_by?: string | null
+          id?: string
+          learning_objectives?: string[] | null
+          patient_presentation?: string
+          related_items?: string[] | null
+          specialty?: string
+          steps?: Json
+          title?: string
+          use_count?: number | null
+        }
+        Relationships: []
+      }
       ai_coach_sessions: {
         Row: {
           coach_personality: string | null
@@ -6917,6 +6968,7 @@ export type Database = {
           description: string | null
           id: string
           is_ai_generated: boolean | null
+          is_public: boolean | null
           item_codes: string[] | null
           name: string
           updated_at: string
@@ -6928,6 +6980,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_ai_generated?: boolean | null
+          is_public?: boolean | null
           item_codes?: string[] | null
           name: string
           updated_at?: string
@@ -6939,6 +6992,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_ai_generated?: boolean | null
+          is_public?: boolean | null
           item_codes?: string[] | null
           name?: string
           updated_at?: string
@@ -6990,32 +7044,50 @@ export type Database = {
       flashcards: {
         Row: {
           back_content: string
+          correct_count: number | null
           created_at: string
           deck_id: string
           difficulty: string | null
+          ease_factor: number | null
           front_content: string
           id: string
+          interval_days: number | null
           item_code: string | null
+          last_reviewed: string | null
+          next_review: string | null
+          review_count: number | null
           tags: string[] | null
         }
         Insert: {
           back_content: string
+          correct_count?: number | null
           created_at?: string
           deck_id: string
           difficulty?: string | null
+          ease_factor?: number | null
           front_content: string
           id?: string
+          interval_days?: number | null
           item_code?: string | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          review_count?: number | null
           tags?: string[] | null
         }
         Update: {
           back_content?: string
+          correct_count?: number | null
           created_at?: string
           deck_id?: string
           difficulty?: string | null
+          ease_factor?: number | null
           front_content?: string
           id?: string
+          interval_days?: number | null
           item_code?: string | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          review_count?: number | null
           tags?: string[] | null
         }
         Relationships: [
@@ -9048,6 +9120,54 @@ export type Database = {
           user_hash?: string | null
           user_id?: string
           valence?: number | null
+        }
+        Relationships: []
+      }
+      learning_analytics: {
+        Row: {
+          average_score: number | null
+          created_at: string
+          exams_completed: number | null
+          id: string
+          items_mastered: number | null
+          items_reviewed: number | null
+          predictions: Json | null
+          streak_days: number | null
+          strong_items: string[] | null
+          total_study_time: number | null
+          user_id: string
+          weak_items: string[] | null
+          week_start: string
+        }
+        Insert: {
+          average_score?: number | null
+          created_at?: string
+          exams_completed?: number | null
+          id?: string
+          items_mastered?: number | null
+          items_reviewed?: number | null
+          predictions?: Json | null
+          streak_days?: number | null
+          strong_items?: string[] | null
+          total_study_time?: number | null
+          user_id: string
+          weak_items?: string[] | null
+          week_start: string
+        }
+        Update: {
+          average_score?: number | null
+          created_at?: string
+          exams_completed?: number | null
+          id?: string
+          items_mastered?: number | null
+          items_reviewed?: number | null
+          predictions?: Json | null
+          streak_days?: number | null
+          strong_items?: string[] | null
+          total_study_time?: number | null
+          user_id?: string
+          weak_items?: string[] | null
+          week_start?: string
         }
         Relationships: []
       }
@@ -17721,6 +17841,42 @@ export type Database = {
           created_at?: string | null
           duration_seconds?: number | null
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_activity_log: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          count: number
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          metadata: Json | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: string
+          count?: number
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          count?: number
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
           user_id?: string
         }
         Relationships: []

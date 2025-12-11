@@ -17,6 +17,8 @@ import { useClinicalCases } from '@/hooks/useClinicalCases';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
+import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
+import { LearningInsights } from '@/components/learning/LearningInsights';
 
 export default function ProgressDashboard() {
   const navigate = useNavigate();
@@ -117,42 +119,15 @@ export default function ProgressDashboard() {
           </Card>
         </div>
 
-        {/* Activity Heatmap */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Activité des 30 derniers jours
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-1 flex-wrap">
-              {activityData.map((count, i) => (
-                <div
-                  key={i}
-                  className={`w-4 h-4 rounded-sm ${
-                    count === 0 ? 'bg-muted' :
-                    count < 10 ? 'bg-primary/20' :
-                    count < 25 ? 'bg-primary/50' :
-                    count < 40 ? 'bg-primary/75' : 'bg-primary'
-                  }`}
-                  title={`${count} activités`}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
-              <span>Moins</span>
-              <div className="flex gap-1">
-                <div className="w-3 h-3 rounded-sm bg-muted" />
-                <div className="w-3 h-3 rounded-sm bg-primary/20" />
-                <div className="w-3 h-3 rounded-sm bg-primary/50" />
-                <div className="w-3 h-3 rounded-sm bg-primary/75" />
-                <div className="w-3 h-3 rounded-sm bg-primary" />
-              </div>
-              <span>Plus</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Activity Heatmap - Real data */}
+        <div className="mb-8">
+          <ActivityHeatmap days={90} />
+        </div>
+
+        {/* Learning Insights */}
+        <div className="mb-8">
+          <LearningInsights />
+        </div>
 
         {/* Module Stats Grid */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
