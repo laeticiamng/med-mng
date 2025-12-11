@@ -363,15 +363,42 @@ export default function EdnComplete() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={() => navigate(ROUTE_PATHS.srsReview)}
-                  className="gap-2 border-primary/30 hover:bg-primary/10"
+                  className="gap-1.5 border-primary/30 hover:bg-primary/10"
                 >
                   <Brain className="h-4 w-4" />
-                  <span className="hidden sm:inline">Révision SRS</span>
+                  <span className="hidden lg:inline">SRS</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.examMode)}
+                  className="gap-1.5 border-accent/30 hover:bg-accent/10"
+                >
+                  <Target className="h-4 w-4" />
+                  <span className="hidden lg:inline">Examen</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.clinicalCases)}
+                  className="gap-1.5 border-success/30 hover:bg-success/10"
+                >
+                  <Gamepad2 className="h-4 w-4" />
+                  <span className="hidden lg:inline">Cas</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.flashcards)}
+                  className="gap-1.5 border-warning/30 hover:bg-warning/10"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span className="hidden lg:inline">Flash</span>
                 </Button>
                 <QuotaIndicator compact />
                 <TabsList className="bg-muted">
