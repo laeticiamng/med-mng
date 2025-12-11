@@ -11,6 +11,7 @@ import {
   Info
 } from 'lucide-react';
 import { useItemCompletenessChecker } from '@/hooks/useItemCompletenessChecker';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ItemCompletenessIndicatorProps {
   itemId: string;
@@ -33,6 +34,7 @@ export const ItemCompletenessIndicator: React.FC<ItemCompletenessIndicatorProps>
     getItemCompleteness,
     isItemIncomplete
   } = useItemCompletenessChecker();
+  const { logActivity } = useActivityTracking();
 
   const completenessResult = getItemCompleteness(itemId);
   const isIncomplete = isItemIncomplete(itemId);
@@ -52,6 +54,11 @@ export const ItemCompletenessIndicator: React.FC<ItemCompletenessIndicatorProps>
   }, [completenessResult, onCompletenessChange]);
 
   const handleRefresh = () => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'check_item_completeness', itemId, itemCode }
+    });
     checkItemCompleteness(itemId);
   };
 

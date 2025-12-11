@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, Shield, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ConsentCheckboxesProps {
   cguAccepted: boolean;
@@ -28,6 +29,17 @@ export const ConsentCheckboxes = ({
   onAgeChange,
   showErrors = false
 }: ConsentCheckboxesProps) => {
+  const { logActivity } = useActivityTracking();
+
+  const handleConsentChange = (type: string, checked: boolean, handler: (checked: boolean) => void) => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'consent_change', consentType: type, accepted: checked }
+    });
+    handler(checked);
+  };
+
   return (
     <div className="space-y-4 border border-border rounded-lg p-4 bg-card">
       <div className="flex items-start gap-2 mb-4">
@@ -45,7 +57,7 @@ export const ConsentCheckboxes = ({
         <Checkbox
           id="cgu-consent"
           checked={cguAccepted}
-          onCheckedChange={onCguChange}
+          onCheckedChange={(checked) => handleConsentChange('cgu', !!checked, onCguChange)}
           className="mt-1"
         />
         <div className="flex-1">
