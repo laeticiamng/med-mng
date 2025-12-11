@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface Achievement {
   id: string;
@@ -53,10 +54,18 @@ export const AchievementSystem = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     initializeAchievements();
     fetchUserProgress();
+    
+    // Track achievements view
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'achievements_view' }
+    });
   }, []);
 
   const initializeAchievements = () => {

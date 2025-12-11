@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Flame, Trophy, Star, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import type { GamificationStats } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface StreakDisplayProps {
   stats: GamificationStats;
@@ -21,7 +22,17 @@ const MOTIVATIONS = [
 ];
 
 export function StreakDisplay({ stats, compact = false }: StreakDisplayProps) {
+  const { logActivity } = useActivityTracking();
   const levelProgress = ((stats.currentXP % 1000) / 1000) * 100;
+  
+  // Track streak display view
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'streak_display_view', streak: stats.currentStreak, level: stats.level }
+    });
+  }, [logActivity, stats.currentStreak, stats.level]);
   
   const getMotivation = () => {
     const motivation = MOTIVATIONS.find(m => stats.currentStreak >= m.min && stats.currentStreak <= m.max);

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Volume2, VolumeX, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { useSecureStreaming } from '@/hooks/useSecureStreaming';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface SecureAudioPlayerProps {
   songId: string;
@@ -34,9 +35,26 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
     seek,
     cleanup
   } = useSecureStreaming();
+  const { logActivity } = useActivityTracking();
+  const hasTrackedRef = useRef(false);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState<number | null>(null);
+
+  // Track playback
+  useEffect(() => {
+    if (isPlaying && !hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'secure_audio_play', songId, title }
+      });
+    }
+    if (!isPlaying) {
+      hasTrackedRef.current = false;
+    }
+  }, [isPlaying, logActivity, songId, title]);
 
   // Initialiser le stream sécurisé
   const handleInitializeStream = async () => {

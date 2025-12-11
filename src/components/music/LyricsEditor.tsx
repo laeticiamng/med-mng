@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,6 +7,7 @@ import { Download, Upload, RotateCcw, FileText, Music } from 'lucide-react';
 import { SynchronizedLyricsPlayer } from './SynchronizedLyricsPlayer';
 import { useSynchronizedLyrics } from '@/hooks/music/useSynchronizedLyrics';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface LyricsEditorProps {
   audioUrl: string;
@@ -28,6 +29,16 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
   const [rawLyrics, setRawLyrics] = useState(initialLyrics);
   const [editMode, setEditMode] = useState(false);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+
+  // Track editor view
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'lyrics_editor_view', title }
+    });
+  }, [logActivity, title]);
 
   const {
     lyrics,

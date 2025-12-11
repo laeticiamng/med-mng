@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Music } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface QuotaDisplayProps {
   user: any;
@@ -18,6 +19,18 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   musicQuota,
   getUsageDisplay
 }) => {
+  const { logActivity } = useActivityTracking();
+
+  // Track quota view
+  useEffect(() => {
+    if (user || remainingFree > 0) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'quota_view', remainingFree, hasUser: !!user }
+      });
+    }
+  }, [logActivity, user, remainingFree]);
   if (!user && remainingFree > 0) {
     return (
       <div className="text-center mb-12">
