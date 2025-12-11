@@ -11,6 +11,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface EdnItemLyrics {
   id: string;
@@ -39,9 +40,11 @@ export const LyricsCompletionStatus: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'missing'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     fetchLyricsStatus();
+    logActivity({ activity_type: 'study', metadata: { action: 'view_lyrics_status' } });
   }, []);
 
   const fetchLyricsStatus = async () => {

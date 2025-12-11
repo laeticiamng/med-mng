@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Music } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -15,6 +16,7 @@ export const MedMngLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { logActivity } = useActivityTracking();
 
   if (user) {
     return <Navigate to={ROUTE_PATHS.medMngLibrary} replace />;
@@ -29,6 +31,8 @@ export const MedMngLogin = () => {
     
     if (error) {
       setError(error.message);
+    } else {
+      logActivity({ activity_type: 'study', metadata: { action: 'login_success', method: 'email' } });
     }
     
     setLoading(false);
@@ -52,6 +56,8 @@ export const MedMngLogin = () => {
     
     if (result.error) {
       setError(result.error.message);
+    } else {
+      logActivity({ activity_type: 'study', metadata: { action: 'login_success', method: provider } });
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,14 +7,21 @@ import { useTheme } from '@/components/ui/theme-provider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import ColorPicker from '@/components/devtools/ColorPicker';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const DesignSystem: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_design_system' } });
+  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedToken(text);
+    logActivity({ activity_type: 'study', metadata: { action: 'copy_design_token', token: text } });
     setTimeout(() => setCopiedToken(null), 2000);
   };
 
