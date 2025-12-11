@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Database, Zap } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface FallbackUIProps {
   context: 'library' | 'generation' | 'edn' | 'oic' | 'playlist' | 'quiz';
@@ -13,6 +14,24 @@ interface FallbackUIProps {
 
 export function FallbackUI({ context, children }: FallbackUIProps) {
   const { status, dataCompleteness, isLoading, refresh, needsUpgrade, isOperational, completenessScore } = useSystemStatus();
+  const { logActivity } = useActivityTracking();
+
+  // Track system status view when there are issues
+  useEffect(() => {
+    if (!isOperational || needsUpgrade || completenessScore < 90) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { 
+          type: 'view_system_fallback', 
+          context, 
+          isOperational, 
+          needsUpgrade, 
+          completenessScore 
+        }
+      });
+    }
+  }, [isOperational, needsUpgrade, completenessScore, context, logActivity]);
 
   if (isLoading) {
     return (

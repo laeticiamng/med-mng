@@ -1,10 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square } from 'lucide-react';
 import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
 import { useAudioBuffering } from '@/hooks/useAudioBuffering';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -37,9 +39,26 @@ export const AudioPlayer = ({
 }: AudioPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(volume);
+  const hasTrackedRef = useRef(false);
+  const { logActivity } = useActivityTracking();
   
   // Hook de buffering pour optimiser l'affichage
   const bufferingState = useAudioBuffering(audioElement || null);
+
+  // Track audio playback
+  useEffect(() => {
+    if (isPlaying && !hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'audio_playback', title }
+      });
+    }
+    if (!isPlaying) {
+      hasTrackedRef.current = false;
+    }
+  }, [isPlaying, logActivity, title]);
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return '0:00';

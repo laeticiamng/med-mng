@@ -6,6 +6,7 @@ import { Loader2, ShieldAlert } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 interface AdminRouteProps {
   children: React.ReactNode;
 }
@@ -24,6 +25,7 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -47,6 +49,13 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           setIsAdmin(false);
         } else {
           setIsAdmin(!!data);
+          if (data) {
+            logActivity({
+              activity_type: 'study',
+              count: 1,
+              metadata: { type: 'admin_access_granted' }
+            });
+          }
         }
       } catch (error) {
         console.error('Erreur lors de la vérification admin:', error);

@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
-import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock, Flame, Trophy } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ExtractionStatus {
   session_id: string;
@@ -43,6 +45,17 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats } = useGamification();
+
+  // Track page view
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'view_edn_extraction' }
+    });
+  }, [logActivity]);
 
   const handleStartExtraction = async () => {
     console.log('🔍 DEBUG: handleStartExtraction called');
@@ -167,6 +180,18 @@ export const EdnObjectifsExtraction: React.FC = () => {
         <p className="text-muted-foreground">
           Automatisation de l'extraction des 4,872 compétences EDN depuis la plateforme LISA UNESS
         </p>
+        {gamificationStats && (
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Badge variant="outline" className="gap-1">
+              <Flame className="h-3 w-3 text-warning" />
+              Série: {gamificationStats.currentStreak}
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <Trophy className="h-3 w-3 text-primary" />
+              Niveau {gamificationStats.level}
+            </Badge>
+          </div>
+        )}
       </div>
 
       {error && (

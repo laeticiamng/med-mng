@@ -1,8 +1,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, HelpCircle, User } from 'lucide-react';
+import { Bell, HelpCircle, User, Flame, Trophy } from 'lucide-react';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface GlobalControlsProps {
   onOpenNotifications?: () => void;
@@ -19,15 +21,37 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
   notificationCount = 0 
 }) => {
   const { user } = useAuth();
+  const { logActivity } = useActivityTracking();
+  const { stats } = useGamification();
+
+  const handleNotifications = () => {
+    logActivity({ activity_type: 'study', count: 1, metadata: { type: 'open_notifications' } });
+    onOpenNotifications?.();
+  };
+
+  const handleHelp = () => {
+    logActivity({ activity_type: 'study', count: 1, metadata: { type: 'open_help' } });
+    onOpenHelp?.();
+  };
 
   return (
     <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+      {/* Stats gamification */}
+      {user && stats && (
+        <div className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border/50">
+          <Flame className="w-4 h-4 text-warning" />
+          <span className="text-sm font-medium">{stats.currentStreak}</span>
+          <Trophy className="w-4 h-4 text-primary ml-2" />
+          <span className="text-sm font-medium">Nv.{stats.level}</span>
+        </div>
+      )}
+
       {/* Notifications */}
       <div className="relative">
         <Button
           variant="outline"
           size="sm"
-          onClick={onOpenNotifications}
+          onClick={handleNotifications}
           className="bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg border-border/50"
         >
           <Bell className="w-4 h-4" />
@@ -46,7 +70,7 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
       <Button
         variant="outline"
         size="sm"
-        onClick={onOpenHelp}
+        onClick={handleHelp}
         className="bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg border-border/50"
       >
         <HelpCircle className="w-4 h-4" />
