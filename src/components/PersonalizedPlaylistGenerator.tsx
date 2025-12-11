@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, Sparkles, Music } from 'lucide-react';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { toast } from 'sonner';
 
 export const PersonalizedPlaylistGenerator = () => {
   const [specialty, setSpecialty] = useState<string>('');
@@ -14,6 +16,7 @@ export const PersonalizedPlaylistGenerator = () => {
   const [generatedPlaylist, setGeneratedPlaylist] = useState<any>(null);
   
   const { isLoading, getPersonalizedPlaylist } = useAIRecommendations();
+  const { logActivity } = useActivityTracking();
 
   const handleGenerate = async () => {
     if (!studyContext.trim()) return;
@@ -26,6 +29,10 @@ export const PersonalizedPlaylistGenerator = () => {
       });
       
       setGeneratedPlaylist(result);
+      
+      // Track activity
+      await logActivity({ activity_type: 'music_generation', metadata: { action: 'playlist_generated' } });
+      toast.success('Playlist générée avec succès !');
     } catch (error) {
       console.error('Erreur génération playlist:', error);
     }

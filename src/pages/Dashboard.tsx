@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 /**
  * Page Dashboard Principale - Vue d'ensemble complète de la plateforme
  */
 const Dashboard: React.FC = () => {
+  const { stats } = useGamification();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
+
   return (
     <LanguageProvider>
       <Helmet>
@@ -17,6 +27,12 @@ const Dashboard: React.FC = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
+        {/* Gamification header for logged-in users */}
+        {user && stats && (
+          <div className="container mx-auto px-4 pt-6">
+            <StreakDisplay stats={stats} compact />
+          </div>
+        )}
         <DashboardOverview />
       </div>
     </LanguageProvider>

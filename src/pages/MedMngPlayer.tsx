@@ -21,12 +21,15 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const MedMngPlayerComponent = () => {
   const { songId } = useParams<{ songId: string }>();
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { logActivity } = useActivityTracking();
+  const playStartTimeRef = useRef<number | null>(null);
 
   // Audio states
   const [isPlaying, setIsPlaying] = useState(false);
@@ -95,10 +98,20 @@ const MedMngPlayerComponent = () => {
 
     try {
       if (isPlaying) {
+        // Track listening duration on pause
+        if (playStartTimeRef.current) {
+          const listenDuration = Math.floor((Date.now() - playStartTimeRef.current) / 1000);
+          if (listenDuration > 5) {
+            logActivity({ activity_type: 'music_generation', duration_seconds: listenDuration });
+          }
+          playStartTimeRef.current = null;
+        }
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
         setIsLoading(true);
+        playStartTimeRef.current = Date.now();
+        logActivity({ activity_type: 'music_generation', metadata: { action: 'music_play' } });
         await audioRef.current.play();
         setIsPlaying(true);
       }
