@@ -43,41 +43,61 @@ export const ItemMasteryGrid: React.FC = () => {
         return;
       }
 
-      // Get user's review history from local storage
-      const examHistory = JSON.parse(localStorage.getItem('exam_history') || '[]');
-      const flashcardData = JSON.parse(localStorage.getItem('srs_card_data') || '{}');
-      const clinicalHistory = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]');
+      // Get user's progress from Supabase (real data)
+      const { data: progressData } = await supabase
+        .from('user_item_progress')
+        .select('item_code, ease_factor, interval_days, review_count, last_reviewed, next_review')
+        .eq('user_id', user.id);
 
-      // Calculate mastery per item
-      const masteryMap: Record<string, { correct: number; total: number; lastReviewed: string | null }> = {};
+      // Get review sessions for more detailed stats
+      const { data: reviewSessions } = await supabase
+        .from('review_sessions')
+        .select('item_codes, correct_count, total_count, completed_at')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false })
+        .limit(100);
 
-      // From exams
-      examHistory.forEach((exam: any) => {
-        exam.questions?.forEach((q: any) => {
-          const answer = exam.answers?.[q.id];
-          if (!masteryMap[q.item_code]) {
-            masteryMap[q.item_code] = { correct: 0, total: 0, lastReviewed: null };
-          }
-          masteryMap[q.item_code].total++;
-          if (answer?.correct) masteryMap[q.item_code].correct++;
-          masteryMap[q.item_code].lastReviewed = exam.completed_at || exam.started_at;
-        });
+      // Calculate mastery per item from real progress data
+      const masteryMap: Record<string, { masteryLevel: number; reviewCount: number; lastReviewed: string | null }> = {};
+
+      // From user_item_progress
+      progressData?.forEach((progress: any) => {
+        // ease_factor starts at 2.5, increases with good reviews
+        // Convert to 0-100 scale: (ease_factor - 1.3) / 2.2 * 100
+        const easeFactor = progress.ease_factor || 2.5;
+        const intervalDays = progress.interval_days || 0;
+        
+        // Mastery based on ease factor and interval
+        let masteryLevel = 0;
+        if (intervalDays > 30) masteryLevel = 90;
+        else if (intervalDays > 14) masteryLevel = 75;
+        else if (intervalDays > 7) masteryLevel = 60;
+        else if (intervalDays > 3) masteryLevel = 45;
+        else if (intervalDays > 1) masteryLevel = 30;
+        else if (progress.review_count > 0) masteryLevel = 15;
+        
+        // Adjust with ease factor
+        if (easeFactor > 2.5) masteryLevel = Math.min(100, masteryLevel + 10);
+        if (easeFactor < 2.0) masteryLevel = Math.max(0, masteryLevel - 10);
+        
+        masteryMap[progress.item_code] = {
+          masteryLevel,
+          reviewCount: progress.review_count || 0,
+          lastReviewed: progress.last_reviewed
+        };
       });
 
       // Build mastery items
       const masteryItems: ItemMastery[] = ednItems.map(item => {
         const data = masteryMap[item.item_code];
-        const masteryLevel = data && data.total > 0 
-          ? Math.round((data.correct / data.total) * 100)
-          : 0;
-
+        
         return {
           itemCode: item.item_code,
           title: item.title,
-          masteryLevel,
-          reviewCount: data?.total || 0,
+          masteryLevel: data?.masteryLevel || 0,
+          reviewCount: data?.reviewCount || 0,
           lastReviewed: data?.lastReviewed || null,
-          weakAreas: masteryLevel < 50 && data?.total > 0 ? ['Révision recommandée'] : []
+          weakAreas: (data?.masteryLevel || 0) < 50 && (data?.reviewCount || 0) > 0 ? ['Révision recommandée'] : []
         };
       });
 

@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   BookOpen, Music, Users, TrendingUp, Clock, Target, 
-  Trophy, Star, Play, HeadphonesIcon, Calendar, BarChart3
+  Trophy, Star, Play, HeadphonesIcon, Calendar, BarChart3, Flame, Award
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuickStat {
   label: string;
@@ -28,6 +31,26 @@ interface Activity {
 
 export const DashboardOverview: React.FC = () => {
   const navigate = useNavigate();
+  const { stats: gamificationStats, loadStats } = useGamification();
+  const { getTodayStats } = useActivityTracking();
+  const [todayStats, setTodayStats] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+        const stats = await getTodayStats();
+        setTodayStats(stats);
+      }
+    };
+    init();
+  }, [loadStats, getTodayStats]);
+
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
+  const xpProgress = gamificationStats ? ((gamificationStats.currentXP || 0) % XP_PER_LEVEL) / XP_PER_LEVEL * 100 : 0;
 
   const quickStats: QuickStat[] = [
     {
@@ -103,7 +126,7 @@ export const DashboardOverview: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tête avec gamification */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
@@ -113,11 +136,68 @@ export const DashboardOverview: React.FC = () => {
             Suivez votre progression et découvrez de nouveaux contenus
           </p>
         </div>
-        <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-          <BookOpen className="w-4 h-4 mr-2" />
-          Continuer l'étude
-        </Button>
+        <div className="flex items-center gap-3">
+          {gamificationStats && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                <Flame className="h-4 w-4 text-warning" />
+                <span className="font-semibold">{gamificationStats.currentStreak || 0}j</span>
+              </Badge>
+              <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                <Award className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{gamificationStats.badges?.length || 0}</span>
+              </Badge>
+            </div>
+          )}
+          <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+            <BookOpen className="w-4 h-4 mr-2" />
+            Continuer l'étude
+          </Button>
+        </div>
       </div>
+
+      {/* Gamification Card */}
+      {gamificationStats && user && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Trophy className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Niveau {level}</h3>
+                  <p className="text-sm text-muted-foreground">{gamificationStats.currentXP || 0} XP total</p>
+                </div>
+              </div>
+              <div className="flex-1 max-w-xs">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Progression niveau</span>
+                  <span>{Math.round(xpProgress)}%</span>
+                </div>
+                <Progress value={xpProgress} className="h-2" />
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-warning">{gamificationStats.currentStreak || 0}</p>
+                  <p className="text-xs text-muted-foreground">Jours de suite</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-primary">{gamificationStats.badges?.length || 0}</p>
+                  <p className="text-xs text-muted-foreground">Badges</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-success">{todayStats?.totalActivities || 0}</p>
+                  <p className="text-xs text-muted-foreground">Aujourd'hui</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
+                Voir détails
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
