@@ -20,6 +20,7 @@ import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
+import { AITutor } from '@/components/ai/AITutor';
 import { ROUTE_PATHS } from '@/config/routes';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
@@ -50,6 +51,8 @@ const SRSReview = lazy(() => import("./pages/SRSReview"));
 const ExamMode = lazy(() => import("./pages/ExamMode"));
 const ClinicalCases = lazy(() => import("./pages/ClinicalCases"));
 const Flashcards = lazy(() => import("./pages/Flashcards"));
+const ProgressDashboard = lazy(() => import("./pages/ProgressDashboard"));
+const SmartStudyPlanner = lazy(() => import("./pages/SmartStudyPlanner"));
 
 // 🎯 ECOS PAGES - Lazy loaded
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -193,6 +196,8 @@ const App = () => {
           <Route path={ROUTE_PATHS.examMode} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ExamMode /></Suspense>} />
           <Route path={ROUTE_PATHS.clinicalCases} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ClinicalCases /></Suspense>} />
           <Route path={ROUTE_PATHS.flashcards} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Flashcards /></Suspense>} />
+          <Route path={ROUTE_PATHS.progressDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProgressDashboard /></Suspense>} />
+          <Route path={ROUTE_PATHS.smartStudyPlanner} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SmartStudyPlanner /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
@@ -298,6 +303,9 @@ const App = () => {
                             
                             {/* DevTools pour inspection du design system */}
                             <DesignSystemDevTools />
+                            
+                            {/* Tuteur IA */}
+                            <AITutor />
                           </div>
                           <Toaster />
                           <Sonner />

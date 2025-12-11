@@ -400,6 +400,24 @@ export default function EdnComplete() {
                   <BookOpen className="h-4 w-4" />
                   <span className="hidden lg:inline">Flash</span>
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
+                  className="gap-1.5"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden xl:inline">Stats</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
+                  className="gap-1.5"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="hidden xl:inline">Planning IA</span>
+                </Button>
                 <QuotaIndicator compact />
                 <TabsList className="bg-muted">
                   <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>
