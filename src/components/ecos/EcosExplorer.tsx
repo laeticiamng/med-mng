@@ -19,12 +19,14 @@ import {
 } from "lucide-react";
 import { ecosService, EcosSituation, EcosSearchResult } from '@/services/ecosService';
 import { sanitizeHtml } from '@/utils/sanitize';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface EcosExplorerProps {
   className?: string;
 }
 
 export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
+  const { logActivity } = useActivityTracking();
   const [situations, setSituations] = useState<EcosSituation[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -42,6 +44,11 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
   useEffect(() => {
     loadCompetences();
     loadSituations();
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'ecos_explorer', action: 'view' }
+    });
   }, []);
 
   useEffect(() => {
@@ -93,6 +100,11 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
 
   const handleSituationClick = (situation: EcosSituation) => {
     setSelectedSituation(situation);
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'ecos_explorer', action: 'view_situation', situationId: situation.sd_id }
+    });
   };
 
   const SituationCard = ({ situation }: { situation: EcosSituation }) => {
