@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Bell, X, Check, CheckCheck, Trash2, Info, 
   AlertTriangle, CheckCircle, AlertCircle 
@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import {
   Sheet,
   SheetContent,
@@ -72,6 +73,17 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     removeNotification,
     clearAll
   } = useNotifications();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    if (isOpen) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'notification_center', action: 'open' }
+      });
+    }
+  }, [isOpen]);
 
   // Notifications incluant gamification
   const demoNotifications: Notification[] = [
