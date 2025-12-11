@@ -23,6 +23,7 @@ import {
 import { useContentGeneration } from '@/hooks/useContentGeneration';
 import { useToast } from '@/hooks/use-toast';
 import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GeneratedItem {
@@ -42,6 +43,7 @@ export const ContentLibrary = () => {
   const { getUserGeneratedContent } = useContentGeneration();
   const { toast } = useToast();
   const { stats: gamificationStats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   
   const [content, setContent] = useState<GeneratedItem[]>([]);
@@ -56,10 +58,12 @@ export const ContentLibrary = () => {
       if (user) {
         setUser(user);
         loadStats(user.id);
+        // Log library view
+        await logActivity({ activity_type: 'study', metadata: { action: 'content_library_viewed' } });
       }
     };
     checkUser();
-  }, [loadStats]);
+  }, [loadStats, logActivity]);
 
   useEffect(() => {
     loadContent();
@@ -91,6 +95,11 @@ export const ContentLibrary = () => {
     if (playingItem === item.id) {
       setPlayingItem(null);
       return;
+    }
+
+    // Log audio play activity
+    if (user) {
+      await logActivity({ activity_type: 'music_generation', metadata: { action: 'audio_played', itemType: item.type } });
     }
 
     try {

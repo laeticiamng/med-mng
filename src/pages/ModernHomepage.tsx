@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,13 +17,33 @@ import {
   Calendar,
   Award,
   Lightbulb,
-  Heart
+  Heart,
+  Flame,
+  Trophy
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 const ModernHomepage = () => {
   const navigate = useNavigate();
+  const { stats: gamificationStats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        await loadStats(user.id);
+        await logActivity({ activity_type: 'study', metadata: { action: 'homepage_viewed' } });
+      }
+    };
+    init();
+  }, [loadStats, logActivity]);
 
   const featuredModules = [
     {
@@ -126,6 +146,29 @@ const ModernHomepage = () => {
         <section className="relative bg-gradient-to-br from-primary/5 via-accent/5 to-secondary py-24">
           <div className="container mx-auto px-6">
             <div className="text-center space-y-8 max-w-4xl mx-auto">
+              {/* Gamification Stats Banner */}
+              {user && gamificationStats && (
+                <div className="flex justify-center mb-4">
+                  <div className="flex items-center gap-4 px-6 py-3 bg-card/80 backdrop-blur-sm rounded-full border border-border shadow-lg">
+                    <div className="flex items-center gap-2 text-warning">
+                      <Flame className="h-5 w-5" />
+                      <span className="font-bold">{gamificationStats.currentStreak}</span>
+                      <span className="text-sm text-muted-foreground">jours</span>
+                    </div>
+                    <div className="w-px h-6 bg-border" />
+                    <div className="flex items-center gap-2 text-primary">
+                      <Star className="h-5 w-5" />
+                      <span className="font-bold">Niv. {gamificationStats.level}</span>
+                    </div>
+                    <div className="w-px h-6 bg-border" />
+                    <div className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-warning" />
+                      <Badge variant="secondary">{gamificationStats.badges.length} badges</Badge>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <Badge className="bg-accent/10 text-accent text-sm px-4 py-2">
                 🚀 Plateforme révolutionnaire d'apprentissage médical
               </Badge>
