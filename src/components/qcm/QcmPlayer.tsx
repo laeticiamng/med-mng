@@ -21,6 +21,9 @@ import {
   BookOpen
 } from "lucide-react";
 import { qcmService, QcmQuestion, QcmSession } from '@/services/qcmService';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QcmPlayerProps {
   itemCode: string;
@@ -37,6 +40,8 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
   onComplete,
   className
 }) => {
+  const { logActivity } = useActivityTracking();
+  const { addPoints, unlockBadge } = useGamification();
   const [phase, setPhase] = useState<'setup' | 'loading' | 'playing' | 'results'>('setup');
   const [questions, setQuestions] = useState<QcmQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -55,6 +60,13 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
     try {
       setPhase('loading');
       toast.info('Génération des questions en cours...');
+
+      // Track QCM start
+      await logActivity({
+        activity_type: 'exam',
+        count: 1,
+        metadata: { itemCode, sessionType, questionCount, action: 'qcm_start' }
+      });
 
       // Generate questions
       const qcmData = await qcmService.generateQcm(itemCode, sessionType, questionCount);
@@ -102,8 +114,19 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
 
       setShowExplanation(true);
       
-      // Show immediate feedback
+      // Track answer and award points
+      await logActivity({
+        activity_type: 'exam',
+        count: 1,
+        score: response.is_correct ? 100 : 0,
+        metadata: { itemCode, questionIndex: currentQuestionIndex, isCorrect: response.is_correct }
+      });
+      
       if (response.is_correct) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
         toast.success('Bonne réponse ! 🎉');
       } else {
         toast.error('Réponse incorrecte');
@@ -134,6 +157,22 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       setPhase('results');
       
       onComplete?.(results.session);
+      
+      // Track completion and award badges
+      await logActivity({
+        activity_type: 'exam',
+        count: 1,
+        score: results.score,
+        metadata: { itemCode, type: 'qcm_complete', correctAnswers: results.correct_answers, totalQuestions: results.total_questions }
+      });
+      
+      // Award badge for perfect score
+      if (results.score >= 100) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await unlockBadge(user.id, 'perfect_exam');
+        }
+      }
       
       const message = qcmService.getPerformanceMessage(results.score);
       toast.success(`QCM terminé ! Score: ${Math.round(results.score)}% - ${message}`);
