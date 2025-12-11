@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface SecureCredentialsFormProps {
   onSubmit: (credentials: { username: string; password: string }) => void;
@@ -31,6 +32,7 @@ export function SecureCredentialsForm({
     import.meta.env.VITE_CAS_PASSWORD || ''
   );
   const [showPassword, setShowPassword] = useState(false);
+  const { logActivity } = useActivityTracking();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,13 @@ export function SecureCredentialsForm({
       alert('⚠️ L\'username doit être un email valide');
       return;
     }
+
+    // Track auth attempt
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'cas_auth_attempt' }
+    });
 
     onSubmit({ username: username.trim(), password });
   };

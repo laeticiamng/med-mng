@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ResponsiveGridLayout } from '@/components/responsive/ResponsiveGridLayout';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { cn } from '@/lib/utils';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface EnhancedLibraryGridProps {
   children: React.ReactNode;
@@ -20,6 +21,18 @@ export const EnhancedLibraryGrid: React.FC<EnhancedLibraryGridProps> = ({
   emptyMessage = "Aucun élément trouvé",
   emptyIcon
 }) => {
+  const { logActivity } = useActivityTracking();
+
+  // Track grid view
+  useEffect(() => {
+    if (!isLoading) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'library_grid_view' }
+      });
+    }
+  }, [isLoading, logActivity]);
   if (isLoading) {
     return (
       <div data-testid="library-loading">
