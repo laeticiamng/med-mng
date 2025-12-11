@@ -1,5 +1,6 @@
-
 import { Card } from '@/components/ui/card';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useEffect } from 'react';
 
 interface Patient {
   name: string;
@@ -14,6 +15,15 @@ interface PatientCardProps {
 }
 
 export const PatientCard = ({ patient }: PatientCardProps) => {
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'patient_card', action: 'view', patientName: patient.name }
+    });
+  }, [patient.name]);
   return (
     <Card className="bg-card/10 backdrop-blur-sm border-border/20 mb-8">
       <div className="p-6">

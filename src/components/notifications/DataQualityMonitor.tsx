@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { RobustErrorDisplay } from '@/components/common/RobustErrorDisplay';
 import { useSystemAlerts } from '@/hooks/useSystemAlerts';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { toast } from 'sonner';
 
 interface DataQualityIssue {
@@ -66,6 +67,15 @@ export function DataQualityMonitor() {
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const { alertDataCorruption, alertPerformanceDegradation } = useSystemAlerts();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'data_quality_monitor', action: 'view' }
+    });
+  }, []);
 
   useEffect(() => {
     fetchDataQuality();

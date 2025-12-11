@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface NotificationPreferences {
   enabled: boolean;
@@ -40,6 +41,15 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
   const [pushSupported, setPushSupported] = useState(false);
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'srs_notification_settings', action: 'view' }
+    });
+  }, []);
 
   useEffect(() => {
     // Check push notification support

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface SystemAlert {
   id: string;
@@ -64,6 +65,15 @@ export function SystemAlertManager() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [criticalOnly, setCriticalOnly] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'system_alert_manager', action: 'view' }
+    });
+  }, []);
 
   // Fetch alerts and system health
   const fetchData = useCallback(async () => {

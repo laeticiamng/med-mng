@@ -1,7 +1,9 @@
-
 import { Link } from 'react-router-dom';
-import { Stethoscope, ArrowLeft, Clock } from 'lucide-react';
+import { Stethoscope, ArrowLeft, Clock, Flame, Star } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EcosHeaderProps {
   timeLeft: number;
@@ -11,6 +13,15 @@ interface EcosHeaderProps {
 }
 
 export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: EcosHeaderProps) => {
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
   return (
     <div className="bg-muted/20 backdrop-blur-sm border-b border-border/10">
       <div className="container mx-auto px-4 py-4">
@@ -21,6 +32,19 @@ export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: Ecos
             <span className="font-semibold">Retour aux ECOS</span>
           </Link>
           <div className="flex items-center gap-4 text-foreground">
+            {gamificationStats && (
+              <div className="flex items-center gap-3 px-3 py-1 bg-muted/30 rounded-full">
+                <div className="flex items-center gap-1 text-warning">
+                  <Flame className="h-4 w-4" />
+                  <span className="font-bold text-sm">{gamificationStats.currentStreak}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1 text-primary">
+                  <Star className="h-4 w-4" />
+                  <span className="font-bold text-sm">Nv.{gamificationStats.level}</span>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               <span className="font-mono">{formatTime(timeLeft)}</span>
