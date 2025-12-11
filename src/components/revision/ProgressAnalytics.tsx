@@ -10,9 +10,13 @@ import {
   Target,
   BarChart3,
   Calendar,
-  Zap
+  Zap,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 import { RevisionItem } from '@/hooks/usePersonalizedRevision';
+import { GamificationStats } from '@/hooks/useGamification';
 
 interface ProgressAnalyticsProps {
   revisionItems: RevisionItem[];
@@ -26,11 +30,13 @@ interface ProgressAnalyticsProps {
     todayCompleted: number;
     todayRemaining: number;
   };
+  gamificationStats?: GamificationStats | null;
 }
 
 export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({ 
   revisionItems, 
-  stats 
+  stats,
+  gamificationStats
 }) => {
   // Analyser les tendances de progression
   const getMasteryTrend = () => {
@@ -84,6 +90,49 @@ export const ProgressAnalytics: React.FC<ProgressAnalyticsProps> = ({
 
   return (
     <div className="space-y-6">
+      
+      {/* Gamification Stats Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/5 via-background to-accent/5">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 text-warning">
+                  <Flame className="h-5 w-5" />
+                  <div>
+                    <span className="text-2xl font-bold">{gamificationStats.currentStreak}</span>
+                    <span className="text-sm text-muted-foreground ml-1">jours</span>
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-border" />
+                <div className="flex items-center gap-2 text-primary">
+                  <Star className="h-5 w-5" />
+                  <div>
+                    <span className="text-2xl font-bold">Niv. {gamificationStats.level}</span>
+                    <Progress value={(gamificationStats.totalPoints % 1000) / 10} className="h-1.5 w-24 mt-1" />
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-border" />
+                <div className="flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  <div>
+                    <span className="text-2xl font-bold">{gamificationStats.totalPoints}</span>
+                    <span className="text-sm text-muted-foreground ml-1">XP</span>
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-border" />
+                <div className="flex items-center gap-2 text-warning">
+                  <Trophy className="h-5 w-5" />
+                  <div>
+                    <span className="text-2xl font-bold">{gamificationStats.badges.length}</span>
+                    <span className="text-sm text-muted-foreground ml-1">badges</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       {/* Vue d'ensemble */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
