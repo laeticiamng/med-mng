@@ -1,0 +1,241 @@
+import React, { useEffect, useState } from 'react';
+import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface DayData {
+  date: Date;
+  predicted: number;
+  completed: number;
+  isToday: boolean;
+  isPast: boolean;
+}
+
+export const StudyCalendar: React.FC = () => {
+  const { getSRSStats } = useAdaptiveSRS();
+  const { getHeatmapData } = useActivityTracking();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [calendarData, setCalendarData] = useState<DayData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // Get SRS stats for predictions
+      const srsStats = await getSRSStats(user.id);
+      setStats(srsStats);
+
+      // Get past activity
+      const heatmapData = await getHeatmapData(60);
+
+      // Build calendar data
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const days: DayData[] = [];
+      
+      // Pad with days from previous month
+      const startPadding = firstDay.getDay();
+      for (let i = startPadding - 1; i >= 0; i--) {
+        const date = new Date(year, month, -i);
+        days.push({
+          date,
+          predicted: 0,
+          completed: 0,
+          isToday: false,
+          isPast: true
+        });
+      }
+
+      // Days of current month
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const date = new Date(year, month, d);
+        const dateStr = date.toISOString().split('T')[0];
+        const heatmapEntry = heatmapData.find(h => h.date === dateStr);
+        
+        // Calculate predicted workload for future days
+        let predicted = 0;
+        if (date >= today && srsStats?.predictedWorkload) {
+          const daysFromToday = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysFromToday < 7) {
+            predicted = srsStats.predictedWorkload[daysFromToday] || 0;
+          }
+        }
+
+        days.push({
+          date,
+          predicted,
+          completed: heatmapEntry?.count || 0,
+          isToday: date.getTime() === today.getTime(),
+          isPast: date < today
+        });
+      }
+
+      // Pad with days from next month
+      const endPadding = 42 - days.length; // 6 rows of 7 days
+      for (let i = 1; i <= endPadding; i++) {
+        const date = new Date(year, month + 1, i);
+        days.push({
+          date,
+          predicted: 0,
+          completed: 0,
+          isToday: false,
+          isPast: false
+        });
+      }
+
+      setCalendarData(days);
+      setLoading(false);
+    };
+
+    loadData();
+  }, [currentMonth, getSRSStats, getHeatmapData]);
+
+  const navigateMonth = (delta: number) => {
+    setCurrentMonth(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() + delta);
+      return newDate;
+    });
+  };
+
+  const monthName = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+  const getIntensityClass = (day: DayData): string => {
+    if (day.isPast) {
+      if (day.completed === 0) return 'bg-muted/30';
+      if (day.completed < 5) return 'bg-success/20';
+      if (day.completed < 15) return 'bg-success/40';
+      if (day.completed < 30) return 'bg-success/60';
+      return 'bg-success/80';
+    } else if (day.isToday) {
+      return 'bg-primary/20 ring-2 ring-primary';
+    } else {
+      if (day.predicted === 0) return 'bg-muted/20';
+      if (day.predicted < 5) return 'bg-warning/20';
+      if (day.predicted < 15) return 'bg-warning/40';
+      return 'bg-warning/60';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-muted rounded w-1/3" />
+            <div className="h-48 bg-muted rounded" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Calendar className="h-5 w-5 text-primary" />
+            Planning de révision
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigateMonth(-1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium capitalize w-32 text-center">
+              {monthName}
+            </span>
+            <Button variant="ghost" size="icon" onClick={() => navigateMonth(1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* Week days header */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {weekDays.map(day => (
+            <div key={day} className="text-center text-xs text-muted-foreground py-1">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {calendarData.map((day, index) => {
+            const isCurrentMonth = day.date.getMonth() === currentMonth.getMonth();
+            
+            return (
+              <div
+                key={index}
+                className={`aspect-square p-1 rounded-md transition-colors ${
+                  getIntensityClass(day)
+                } ${!isCurrentMonth ? 'opacity-30' : ''}`}
+              >
+                <div className="h-full flex flex-col items-center justify-center">
+                  <span className={`text-xs ${day.isToday ? 'font-bold text-primary' : ''}`}>
+                    {day.date.getDate()}
+                  </span>
+                  {isCurrentMonth && (day.completed > 0 || day.predicted > 0) && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {day.isPast ? day.completed : day.predicted}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-success/40" />
+              <span>Passé</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-warning/40" />
+              <span>Prévu</span>
+            </div>
+          </div>
+          
+          {stats && (
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Brain className="h-3 w-3" />
+                {stats.dueToday} aujourd'hui
+              </Badge>
+              {stats.overdue > 0 && (
+                <Badge variant="destructive" className="gap-1 text-xs">
+                  {stats.overdue} en retard
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default StudyCalendar;
