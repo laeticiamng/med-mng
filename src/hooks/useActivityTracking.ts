@@ -211,10 +211,93 @@ export const useActivityTracking = () => {
     }
   }, []);
 
+  // Get weekly summary stats
+  const getWeeklySummary = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+      // Current week
+      const { data: currentWeek } = await supabase
+        .from('user_activity_log')
+        .select('activity_type, count, duration_seconds, score')
+        .eq('user_id', user.id)
+        .gte('activity_date', weekAgo.toISOString().split('T')[0]);
+
+      // Previous week
+      const { data: previousWeek } = await supabase
+        .from('user_activity_log')
+        .select('activity_type, count')
+        .eq('user_id', user.id)
+        .gte('activity_date', twoWeeksAgo.toISOString().split('T')[0])
+        .lt('activity_date', weekAgo.toISOString().split('T')[0]);
+
+      const currentTotal = currentWeek?.reduce((sum, d) => sum + d.count, 0) || 0;
+      const previousTotal = previousWeek?.reduce((sum, d) => sum + d.count, 0) || 0;
+      const trend = previousTotal > 0 ? Math.round(((currentTotal - previousTotal) / previousTotal) * 100) : 100;
+
+      const byType: Record<ActivityType, number> = {
+        srs_review: 0,
+        exam: 0,
+        flashcard: 0,
+        clinical_case: 0,
+        study: 0
+      };
+
+      currentWeek?.forEach(d => {
+        byType[d.activity_type as ActivityType] += d.count;
+      });
+
+      return {
+        totalActivities: currentTotal,
+        totalTime: currentWeek?.reduce((sum, d) => sum + (d.duration_seconds || 0), 0) || 0,
+        averageScore: currentWeek?.filter(d => d.score).length 
+          ? Math.round(currentWeek.filter(d => d.score).reduce((sum, d) => sum + (d.score || 0), 0) / currentWeek.filter(d => d.score).length)
+          : null,
+        byType,
+        trend,
+        previousTotal
+      };
+    } catch (error) {
+      console.error('Error getting weekly summary:', error);
+      return null;
+    }
+  }, []);
+
+  // Get activity days count
+  const getActiveDaysCount = useCallback(async (days: number = 30): Promise<number> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const { data } = await supabase
+        .from('user_activity_log')
+        .select('activity_date')
+        .eq('user_id', user.id)
+        .gte('activity_date', startDate.toISOString().split('T')[0]);
+
+      const uniqueDays = new Set(data?.map(d => d.activity_date) || []);
+      return uniqueDays.size;
+    } catch (error) {
+      console.error('Error getting active days:', error);
+      return 0;
+    }
+  }, []);
+
   return {
     logActivity,
     getHeatmapData,
     getStreak,
-    getTodayStats
+    getTodayStats,
+    getWeeklySummary,
+    getActiveDaysCount
   };
 };

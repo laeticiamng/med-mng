@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame, Star, Trophy } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,11 +19,14 @@ interface DayData {
 
 export const StudyCalendar: React.FC = () => {
   const { getSRSStats } = useAdaptiveSRS();
-  const { getHeatmapData } = useActivityTracking();
+  const { getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
+  const { stats: gamificationStats } = useGamification();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarData, setCalendarData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
+  const [streakInfo, setStreakInfo] = useState({ current: 0, longest: 0 });
+  const [activeDays, setActiveDays] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,6 +41,15 @@ export const StudyCalendar: React.FC = () => {
       // Get SRS stats for predictions
       const srsStats = await getSRSStats(user.id);
       setStats(srsStats);
+
+      // Get streak info
+      const streak = await getStreak();
+      setStreakInfo(streak);
+
+      // Get active days this month
+      const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+      const activeDaysCount = await getActiveDaysCount(daysInMonth);
+      setActiveDays(activeDaysCount);
 
       // Get past activity
       const heatmapData = await getHeatmapData(60);
@@ -168,6 +181,27 @@ export const StudyCalendar: React.FC = () => {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+        
+        {/* Streak & Activity Summary */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          <Badge variant="outline" className="gap-1 text-xs">
+            <Flame className="h-3 w-3 text-orange-500" />
+            Série: {streakInfo.current} jours
+          </Badge>
+          <Badge variant="outline" className="gap-1 text-xs">
+            <Trophy className="h-3 w-3 text-amber-500" />
+            Record: {streakInfo.longest} jours
+          </Badge>
+          <Badge variant="outline" className="gap-1 text-xs">
+            <Star className="h-3 w-3 text-yellow-500" />
+            {activeDays} jours actifs ce mois
+          </Badge>
+          {gamificationStats && (
+            <Badge variant="outline" className="gap-1 text-xs">
+              Niveau {gamificationStats.level}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent>
