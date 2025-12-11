@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, BellOff, Clock, Calendar, Mail, Smartphone, Check } from 'lucide-react';
+import { Bell, BellOff, Clock, Calendar, Mail, Smartphone, Check, Flame, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface NotificationPreferences {
   enabled: boolean;
@@ -42,6 +43,11 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    loadStats(userId);
+  }, [userId, loadStats]);
 
   useEffect(() => {
     logActivity({
@@ -101,10 +107,24 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
-          Notifications & Rappels
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Notifications & Rappels
+          </CardTitle>
+          {gamificationStats && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <Star className="h-3 w-3 text-primary" />
+                Nv.{gamificationStats.level}
+              </Badge>
+            </div>
+          )}
+        </div>
         <CardDescription>
           Configurez vos rappels de révision SRS
         </CardDescription>
