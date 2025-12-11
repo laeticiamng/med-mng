@@ -16,10 +16,14 @@ import {
   Lightbulb,
   Zap,
   Clock,
-  Activity
+  Activity,
+  Flame,
+  Star
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ChatMessage {
   id: string;
@@ -40,6 +44,10 @@ interface ChatSession {
 }
 
 export const AIChat = () => {
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const [user, setUser] = useState<any>(null);
+  const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -78,6 +86,18 @@ export const AIChat = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load user and gamification
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    loadUser();
+  }, [loadStats]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -102,6 +122,26 @@ export const AIChat = () => {
       const aiResponse = await generateAIResponse(currentInput);
       setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
+      
+      // Track activity and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'ai_question',
+          count: 1,
+          metadata: { question: currentInput.slice(0, 100), type: aiResponse.type }
+        });
+        
+        await addPoints(user.id, 'itemReviewed');
+        const newCount = questionCount + 1;
+        setQuestionCount(newCount);
+        
+        // Unlock AI chat badge after 10 questions
+        if (newCount >= 10) {
+          await unlockBadge(user.id, 'ai_chat');
+        }
+        
+        loadStats(user.id);
+      }
     }, 1500 + Math.random() * 2000);
   };
 
@@ -224,6 +264,20 @@ Comment puis-je vous aider plus spécifiquement ?`;
           </p>
         </div>
         <div className="flex items-center gap-4">
+          {/* Gamification stats */}
+          {user && gamificationStats && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
+              <div className="flex items-center gap-1 text-warning">
+                <Flame className="h-4 w-4" />
+                <span className="text-sm font-bold">{gamificationStats.currentStreak}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1 text-primary">
+                <Star className="h-4 w-4" />
+                <span className="text-sm font-bold">Nv.{gamificationStats.level}</span>
+              </div>
+            </div>
+          )}
           <Badge variant="outline" className="flex items-center gap-2">
             <Activity className="h-3 w-3" />
             IA Active

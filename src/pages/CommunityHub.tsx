@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Progress } from '@/components/ui/progress';
 
 interface Post {
@@ -58,7 +59,8 @@ interface Event {
 
 const CommunityHub = () => {
   const { toast } = useToast();
-  const { stats } = useGamification();
+  const { stats, addPoints } = useGamification();
+  const { logActivity } = useActivityTracking();
   const [activeTab, setActiveTab] = useState('feed');
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
@@ -286,14 +288,34 @@ const CommunityHub = () => {
     }
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
+    // Track like activity
+    if (currentUser) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'community_like', postId }
+      });
+      await addPoints(currentUser.id, 'itemReviewed');
+    }
+    
     toast({
       title: "👍 Post liké",
       description: "Votre réaction a été enregistrée",
     });
   };
 
-  const handleRegister = (eventId: string) => {
+  const handleRegister = async (eventId: string) => {
+    // Track event registration
+    if (currentUser) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'event_registration', eventId }
+      });
+      await addPoints(currentUser.id, 'dailyStreak');
+    }
+    
     toast({
       title: "✅ Inscription confirmée",
       description: "Vous êtes maintenant inscrit à cet événement",

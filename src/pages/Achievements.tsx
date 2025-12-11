@@ -7,11 +7,13 @@ import { ArrowLeft, Trophy, Star, Target, Flame } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 
 const Achievements: React.FC = () => {
   const navigate = useNavigate();
   const { stats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
   const [challengesCompleted, setChallengesCompleted] = useState(0);
 
   useEffect(() => {
@@ -19,6 +21,13 @@ const Achievements: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await loadStats(user.id);
+        
+        // Track achievements page view
+        await logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { action: 'achievements_view' }
+        });
         
         // Count completed challenges based on achievements
         let completed = 0;
@@ -29,7 +38,7 @@ const Achievements: React.FC = () => {
       }
     };
     init();
-  }, [loadStats, stats?.currentStreak, stats?.weeklyGoalProgress, stats?.badges?.length]);
+  }, [loadStats, logActivity, stats?.currentStreak, stats?.weeklyGoalProgress, stats?.badges?.length]);
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
