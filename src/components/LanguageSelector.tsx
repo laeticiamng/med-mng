@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,14 +8,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLanguage, Language, LANGUAGES } from '@/contexts/LanguageContext';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const LanguageSelector: React.FC = () => {
   const { currentLanguage, setCurrentLanguage, languages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  const { logActivity } = useActivityTracking();
 
   const handleLanguageChange = (lang: Language) => {
     setCurrentLanguage(lang);
     setIsOpen(false);
+    logActivity({ activity_type: 'study', metadata: { action: 'change_language', language: lang } });
   };
 
   return (

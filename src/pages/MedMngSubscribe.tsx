@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { CheckCircle, CreditCard } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const plans = {
   standard: { name: 'Standard', price: 9.99, songs: 30 },
@@ -22,6 +23,7 @@ export const MedMngSubscribe = () => {
   const { sendSubscriptionEmail } = useEmailNotifications();
   const medMngApi = useMedMngApi();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { logActivity } = useActivityTracking();
 
   const plan = planId && plans[planId as keyof typeof plans];
 
@@ -58,6 +60,7 @@ export const MedMngSubscribe = () => {
           plan.price
         );
 
+        logActivity({ activity_type: 'study', metadata: { action: 'subscription_success', plan: plan.name } });
         toast.success(`🎉 Abonnement ${plan.name} activé ! Vérifiez vos emails.`);
         navigate(ROUTE_PATHS.medMngLibrary);
       } else {

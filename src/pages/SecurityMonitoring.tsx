@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,7 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 // Couleurs sémantiques pour les graphiques
 const CHART_COLORS = {
@@ -60,8 +61,13 @@ const SecurityMonitoring = () => {
     refreshing,
     updateAlertStatus,
   } = useSecurityMonitoring();
+  const { logActivity } = useActivityTracking();
 
   const [selectedTab, setSelectedTab] = useState("overview");
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_security_monitoring' } });
+  }, []);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {

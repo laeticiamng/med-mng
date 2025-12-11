@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DataExportManager } from '@/components/backup/DataExportManager';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Helmet } from 'react-helmet-async';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 /**
  * Page de Configuration Avancée de la Plateforme
  */
 const PlatformSettings: React.FC = () => {
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_platform_settings' } });
+  }, []);
+
   return (
     <LanguageProvider>
       <Helmet>

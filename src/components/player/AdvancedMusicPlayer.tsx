@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
 import { KaraokePlayer } from '@/components/lyrics/KaraokePlayer';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface AdvancedMusicPlayerProps {
   songId: string;
@@ -73,6 +74,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
 
   // Initialisation audio
   useEffect(() => {
@@ -208,6 +210,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
       });
       // Analytics: nouvelle lecture
       setPlayCount(prev => prev + 1);
+      logActivity({ activity_type: 'study', metadata: { action: 'play_music', songId, title } });
     }
     setIsPlaying(!isPlaying);
   };
@@ -275,6 +278,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
   // Analytics
   const trackListeningSession = () => {
     setTotalListenTime(prev => prev + duration);
+    logActivity({ activity_type: 'study', metadata: { action: 'complete_song', songId, title, duration_seconds: Math.round(duration) } });
   };
 
   // Formatage du temps
