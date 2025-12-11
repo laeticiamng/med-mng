@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Music, Library, CreditCard, User, Plus, LogOut, Home, Flame, Star } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    if (user?.id) {
+      loadStats(user.id);
+    }
+  }, [user?.id, loadStats]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -39,6 +48,20 @@ export const MedMngNavigation: React.FC = () => {
               <TranslatedText text="MED-MNG" />
             </span>
           </div>
+
+          {/* Gamification stats */}
+          {gamificationStats && (
+            <div className="hidden sm:flex items-center gap-2">
+              <Badge variant="outline" className="gap-1 py-1">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak}
+              </Badge>
+              <Badge variant="outline" className="gap-1 py-1">
+                <Star className="h-3 w-3 text-primary" />
+                Nv.{gamificationStats.level}
+              </Badge>
+            </div>
+          )}
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">

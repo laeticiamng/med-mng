@@ -17,6 +17,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -24,12 +25,22 @@ export const MainNavigation: React.FC = () => {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { stats: gamificationStats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     if (user?.id) {
       loadStats(user.id);
     }
   }, [user?.id, loadStats]);
+
+  const handleNavClick = (path: string, label: string) => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'main_navigation', action: 'click', destination: label }
+    });
+    navigate(path);
+  };
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, Flame, Star, Trophy } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompletionProgressProps {
   totalItems: number;
@@ -17,16 +20,54 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
   inProgressItems,
   pendingItems
 }) => {
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (totalItems > 0) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'completion_progress', totalItems, completedItems }
+      });
+    }
+  }, [logActivity, totalItems, completedItems]);
   const completionPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
   const progressPercentage = totalItems > 0 ? ((completedItems + inProgressItems) / totalItems) * 100 : 0;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CheckCircle className="h-5 w-5 text-success" />
-          Progression Globale
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-success" />
+            Progression Globale
+          </CardTitle>
+          {gamificationStats && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <Star className="h-3 w-3 text-primary" />
+                Nv.{gamificationStats.level}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <Trophy className="h-3 w-3 text-accent" />
+                {gamificationStats.totalPoints} pts
+              </Badge>
+            </div>
+          )}
+        </div>
         <CardDescription>
           État d'avancement de votre apprentissage sur la plateforme EDN
         </CardDescription>

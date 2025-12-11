@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Stethoscope, ArrowLeft, Clock, Flame, Star } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -14,6 +15,7 @@ interface EcosHeaderProps {
 
 export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: EcosHeaderProps) => {
   const { stats: gamificationStats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     const load = async () => {
@@ -22,6 +24,14 @@ export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: Ecos
     };
     load();
   }, [loadStats]);
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'ecos_header', scenarioId, specialty }
+    });
+  }, [logActivity, scenarioId, specialty]);
   return (
     <div className="bg-muted/20 backdrop-blur-sm border-b border-border/10">
       <div className="container mx-auto px-4 py-4">

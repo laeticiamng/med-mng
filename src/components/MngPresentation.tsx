@@ -1,9 +1,31 @@
-
+import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Music, Brain, Target, Zap, Lightbulb, Shield, Microscope, Headphones } from "lucide-react";
+import { Music, Brain, Target, Zap, Lightbulb, Shield, Microscope, Headphones, Flame, Star } from "lucide-react";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { useGamification } from "@/hooks/useGamification";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MngPresentation = () => {
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'mng_presentation', action: 'view' }
+    });
+  }, [logActivity]);
+
   return (
     <div className="mb-16">
       <Card className="bg-gradient-medical text-primary-foreground mb-8">
@@ -18,6 +40,18 @@ export const MngPresentation = () => {
           <p className="text-sm text-primary-foreground/70 mt-2">
             Méthode pédagogique innovante développée par Laëticia Motongane
           </p>
+          {gamificationStats && (
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <Badge variant="secondary" className="gap-1 bg-primary-foreground/20">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak} jours
+              </Badge>
+              <Badge variant="secondary" className="gap-1 bg-primary-foreground/20">
+                <Star className="h-3 w-3 text-accent" />
+                Niveau {gamificationStats.level}
+              </Badge>
+            </div>
+          )}
         </CardHeader>
       </Card>
 

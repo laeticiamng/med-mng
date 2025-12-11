@@ -3,9 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, TrendingUp, Lightbulb, RotateCcw, ChevronRight } from 'lucide-react';
+import { BookOpen, TrendingUp, Lightbulb, RotateCcw, ChevronRight, Flame, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface Recommendation {
   id: string;
@@ -21,6 +23,16 @@ export const SmartRecommendations: React.FC = () => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
 
   useEffect(() => {
     loadRecommendations();
@@ -154,8 +166,16 @@ export const SmartRecommendations: React.FC = () => {
     return 'bg-warning/10 text-warning';
   };
 
-  const handleItemClick = (itemCode: string) => {
-    // Naviguer vers le détail de l'item
+  const handleItemClick = async (itemCode: string, recType: string) => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'smart_recommendations', action: 'click_recommendation', itemCode, type: recType }
+    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      addPoints(user.id, 'itemReviewed');
+    }
     const slug = itemCode.toLowerCase().replace('ic-', 'ic-');
     navigate(`/edn-complete/item/${slug}`);
   };
@@ -166,11 +186,25 @@ export const SmartRecommendations: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Recommandations Intelligentes</h2>
-        <p className="text-muted-foreground">
-          Suggestions personnalisées basées sur votre profil d'apprentissage
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Recommandations Intelligentes</h2>
+          <p className="text-muted-foreground">
+            Suggestions personnalisées basées sur votre profil d'apprentissage
+          </p>
+        </div>
+        {gamificationStats && (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="gap-1">
+              <Flame className="h-3 w-3 text-warning" />
+              {gamificationStats.currentStreak}
+            </Badge>
+            <Badge variant="outline" className="gap-1">
+              <Star className="h-3 w-3 text-primary" />
+              Nv.{gamificationStats.level}
+            </Badge>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -215,7 +249,7 @@ export const SmartRecommendations: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleItemClick(rec.recommended_item_code)}
+                  onClick={() => handleItemClick(rec.recommended_item_code, rec.recommendation_type)}
                   className="p-1 h-auto"
                 >
                   <ChevronRight className="h-4 w-4" />
