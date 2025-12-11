@@ -23,7 +23,7 @@ export interface GamificationStats {
   weeklyGoal: number;
 }
 
-const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
+export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
   { id: 'first_item', name: 'Premier Pas', description: 'Réviser votre premier item', icon: '🎯', rarity: 'common' },
   { id: 'streak_3', name: 'Régulier', description: '3 jours consécutifs', icon: '🔥', rarity: 'common' },
   { id: 'streak_7', name: 'Déterminé', description: '7 jours consécutifs', icon: '💪', rarity: 'rare' },
@@ -39,8 +39,8 @@ const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
   { id: 'clinical_master', name: 'Clinicien', description: 'Compléter 10 cas cliniques', icon: '🏥', rarity: 'rare' },
 ];
 
-const XP_PER_LEVEL = 1000;
-const POINTS_CONFIG = {
+export const XP_PER_LEVEL = 1000;
+export const POINTS_CONFIG = {
   itemReviewed: 10,
   itemMastered: 50,
   examCompleted: 100,

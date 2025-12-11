@@ -1,13 +1,17 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music } from 'lucide-react';
+import { Music, Award } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { ENABLE_DEBUG } from '@/config/env';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
 import { ParolesMusicalesMainContent } from './music/ParolesMusicalesMainContent';
+import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 
 interface ParolesMusicalesProps {
   paroles?: string[];
@@ -28,6 +32,10 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangA,
   tableauRangB
 }) => {
+  const [musicCount, setMusicCount] = useState(0);
+  const { addPoints, unlockBadge } = useGamification();
+  const { logActivity } = useActivityTracking();
+
   if (ENABLE_DEBUG) {
     console.log('🎵 ParolesMusicales - Rendu avec props:', { 
       paroles: paroles?.length,
@@ -56,8 +64,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     currentTime,
     duration,
     volume,
-    handleGenerate,
-    handleGenerateMix,
+    handleGenerate: originalHandleGenerate,
+    handleGenerateMix: originalHandleGenerateMix,
     handlePlayAudio,
     seek,
     changeVolume,
@@ -68,6 +76,43 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     paroles_rang_ab, 
     item_code: itemCode 
   });
+
+  // Wrap generate handlers to add gamification
+  const handleGenerate = async (...args: Parameters<typeof originalHandleGenerate>) => {
+    await originalHandleGenerate(...args);
+    
+    // Award points for music generation
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await addPoints(user.id, 'itemReviewed');
+      await logActivity({ 
+        activity_type: 'study', 
+        count: 1, 
+        metadata: { itemCode, type: 'music_generation' } 
+      });
+      
+      const newCount = musicCount + 1;
+      setMusicCount(newCount);
+      
+      if (newCount >= 10) {
+        await unlockBadge(user.id, 'items_10');
+      }
+    }
+  };
+
+  const handleGenerateMix = async (...args: Parameters<typeof originalHandleGenerateMix>) => {
+    await originalHandleGenerateMix(...args);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await addPoints(user.id, 'itemReviewed');
+      await logActivity({ 
+        activity_type: 'study', 
+        count: 1, 
+        metadata: { itemCode, type: 'music_mix_generation' } 
+      });
+    }
+  };
 
   if (ENABLE_DEBUG) {
     console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
