@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock } from 'lucide-react';
@@ -9,6 +9,7 @@ import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { Progress } from '@/components/ui/progress';
 import { ENABLE_DEBUG } from '@/config/env';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -23,6 +24,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const [showDebug, setShowDebug] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const playStartTimeRef = useRef<number | null>(null);
 
   // Détecter si c'est une génération en cours (trackId sans audioUrl)
   const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
@@ -113,13 +116,22 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     if (isCurrentTrack) {
       if (isPlaying) {
         console.log('⏸️ Pause audio en cours');
+        // Track listening duration on pause
+        if (playStartTimeRef.current) {
+          const listenDuration = Math.floor((Date.now() - playStartTimeRef.current) / 1000);
+          logActivity({ activity_type: 'music_generation', duration_seconds: listenDuration });
+          playStartTimeRef.current = null;
+        }
         pause();
       } else {
         console.log('▶️ Reprise audio');
+        playStartTimeRef.current = Date.now();
         resume();
       }
     } else {
       console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
+      playStartTimeRef.current = Date.now();
+      logActivity({ activity_type: 'music_generation', metadata: { action: 'music_play' } });
       play({
         url: finalAudioUrl,
         title: generatedSong.title || 'Musique générée',

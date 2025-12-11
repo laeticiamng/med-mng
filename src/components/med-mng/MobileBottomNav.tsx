@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Library, Plus, CreditCard, User } from 'lucide-react';
+import { Home, Library, Plus, CreditCard, User, Flame } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { cn } from '@/lib/utils';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface BottomNavItemProps {
   icon: React.ReactNode;
@@ -57,6 +60,12 @@ const BottomNavItem: React.FC<BottomNavItemProps> = ({
 export const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { stats } = useGamification();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -99,6 +108,25 @@ export const MobileBottomNav: React.FC = () => {
       role="tablist"
       aria-label="Navigation principale mobile"
     >
+      {/* Mini gamification stats bar */}
+      {user && stats && (
+        <div className="flex items-center justify-center gap-4 py-1 bg-muted/50 border-b border-border text-xs">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="flex items-center gap-1">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-medium">{stats.currentStreak}</span>
+              </TooltipTrigger>
+              <TooltipContent>Streak actuelle</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="text-muted-foreground">•</span>
+          <span className="font-medium">Niv. {stats.level}</span>
+          <span className="text-muted-foreground">•</span>
+          <span className="text-primary font-medium">{stats.totalPoints} XP</span>
+        </div>
+      )}
+      
       <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
         {navItems.map((item) => (
           <BottomNavItem

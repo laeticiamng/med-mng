@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Package, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export default function ProductDetail() {
   const { handle } = useParams<{ handle: string }>();
@@ -18,12 +19,22 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const addItem = useCartStore(state => state.addItem);
+  const { logActivity } = useActivityTracking();
+  const viewTrackedRef = useRef(false);
 
   useEffect(() => {
     if (handle) {
       loadProduct();
     }
   }, [handle]);
+
+  // Track product view activity (once per page load)
+  useEffect(() => {
+    if (product && !viewTrackedRef.current) {
+      viewTrackedRef.current = true;
+      logActivity({ activity_type: 'study', metadata: { action: 'product_view' } });
+    }
+  }, [product, logActivity]);
 
   const loadProduct = async () => {
     try {

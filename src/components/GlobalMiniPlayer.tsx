@@ -1,9 +1,9 @@
-
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square, Maximize2 } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { useState } from 'react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const GlobalMiniPlayer = () => {
   const {
@@ -23,6 +23,20 @@ export const GlobalMiniPlayer = () => {
 
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(volume);
+  const { logActivity } = useActivityTracking();
+  const playStartTimeRef = useRef<number | null>(null);
+
+  // Track listening duration when component unmounts
+  useEffect(() => {
+    return () => {
+      if (playStartTimeRef.current && isPlaying) {
+        const listenDuration = Math.floor((Date.now() - playStartTimeRef.current) / 1000);
+        if (listenDuration > 5) {
+          logActivity({ activity_type: 'music_generation', duration_seconds: listenDuration });
+        }
+      }
+    };
+  }, [isPlaying]);
 
   if (!currentTrack) return null;
 
@@ -35,8 +49,17 @@ export const GlobalMiniPlayer = () => {
 
   const handlePlayPause = () => {
     if (isPlaying) {
+      // Track listening duration on pause
+      if (playStartTimeRef.current) {
+        const listenDuration = Math.floor((Date.now() - playStartTimeRef.current) / 1000);
+        if (listenDuration > 5) {
+          logActivity({ activity_type: 'music_generation', duration_seconds: listenDuration });
+        }
+        playStartTimeRef.current = null;
+      }
       pause();
     } else {
+      playStartTimeRef.current = Date.now();
       resume();
     }
   };
