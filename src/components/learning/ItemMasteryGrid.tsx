@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Target, Search, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ItemMastery {
   itemCode: string;
@@ -17,6 +18,7 @@ interface ItemMastery {
 }
 
 export const ItemMasteryGrid: React.FC = () => {
+  const { logActivity } = useActivityTracking();
   const [items, setItems] = useState<ItemMastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -31,6 +33,13 @@ export const ItemMasteryGrid: React.FC = () => {
         setLoading(false);
         return;
       }
+
+      // Tracker la consultation de la grille de maîtrise
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'item_mastery_grid', action: 'view' }
+      });
 
       // Get all EDN items
       const { data: ednItems } = await supabase
