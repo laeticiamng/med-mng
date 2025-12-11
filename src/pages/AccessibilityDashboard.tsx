@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGitHubAccessibilityMetrics } from '@/hooks/useGitHubAccessibilityMetrics';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { AccessibilityDashboardMetrics } from '@/components/accessibility/AccessibilityDashboardMetrics';
 import { ViolationsChart } from '@/components/accessibility/ViolationsChart';
 import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
@@ -42,6 +43,7 @@ const AccessibilityDashboard = () => {
   const [isConfigured, setIsConfigured] = useState(false);
   const { toast } = useToast();
   const { metrics, isLoading, error, refetch } = useGitHubAccessibilityMetrics(githubToken);
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('github_token');
@@ -49,6 +51,7 @@ const AccessibilityDashboard = () => {
       setGithubToken(savedToken);
       setIsConfigured(true);
     }
+    logActivity({ activity_type: 'study', metadata: { action: 'view_accessibility_dashboard' } });
   }, []);
 
   const handleSaveToken = () => {

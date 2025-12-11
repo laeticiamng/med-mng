@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { 
   Settings, 
   Volume2, 
@@ -59,6 +59,11 @@ interface UserSettings {
 export const AdvancedSettings = () => {
   const { toast } = useToast();
   const { saveUserPreferences } = useAIRecommendations();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_settings' } });
+  }, []);
   
   const [settings, setSettings] = useState<UserSettings>({
     general: {
