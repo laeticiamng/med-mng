@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, AlertCircle, XCircle, Clock, 
-  BookOpen, Brain, Music, Users, Gamepad2 
+  BookOpen, Brain, Music, Users, Gamepad2, Flame, Star, Trophy 
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompetencesBadgesProps {
   item: {
@@ -18,6 +21,28 @@ interface CompetencesBadgesProps {
 
 export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) => {
   const isMobile = useIsMobile();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'competences_badges', action: 'view' }
+      });
+    }
+  }, []);
   
   const getCompetencesCount = (rang: 'A' | 'B') => {
     const tableau = rang === 'A' ? item.tableau_rang_a : item.tableau_rang_b;
@@ -117,8 +142,8 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
 
   return (
     <div className="space-y-4">
-      {/* Badge de statut global */}
-      <div className="flex items-center justify-center">
+      {/* Badge de statut global avec gamification */}
+      <div className="flex items-center justify-center gap-3">
         {isComplete ? (
           <Badge className="bg-success/10 text-success border-success/30 px-3 py-1">
             <CheckCircle className="h-4 w-4 mr-1" />
@@ -129,6 +154,16 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
             <AlertCircle className="h-4 w-4 mr-1" />
             {globalCompletion}% Complété
           </Badge>
+        )}
+        {stats && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
+            <Flame className="h-4 w-4 text-warning" />
+            <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
+            <Star className="h-4 w-4 text-primary ml-1" />
+            <span className="text-sm font-bold text-primary">Nv.{stats.level}</span>
+            <Trophy className="h-4 w-4 text-accent ml-1" />
+            <span className="text-sm font-bold text-accent">{stats.badges?.length || 0}</span>
+          </div>
         )}
       </div>
 

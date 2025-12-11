@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TableauDisplay } from './TableauDisplay'
-import { CheckCircle, AlertTriangle, Book, FileText, ArrowLeft, ArrowRight } from "lucide-react"
+import { CheckCircle, AlertTriangle, Book, FileText, ArrowLeft, ArrowRight, Flame, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useActivityTracking } from '@/hooks/useActivityTracking'
+import { useGamification } from '@/hooks/useGamification'
+import { supabase } from '@/integrations/supabase/client'
 
 interface TableauSection {
   title: string
@@ -38,7 +41,29 @@ export function TableauxNavigator({
   tableauRangB, 
   completeness 
 }: TableauxNavigatorProps) {
+  const { logActivity } = useActivityTracking()
+  const { stats, loadStats, addPoints } = useGamification()
+  const hasTrackedRef = useRef(false)
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a')
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) loadStats(user.id)
+    }
+    load()
+  }, [loadStats])
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'tableaux_navigator', action: 'view', itemCode }
+      })
+    }
+  }, [itemCode])
 
   const getCompletenessColor = (score: number) => {
     if (score >= 80) return 'text-success'
@@ -52,12 +77,32 @@ export function TableauxNavigator({
     return 'Critique'
   }
 
-  const switchToRangB = () => setActiveTab('rang-b')
-  const switchToRangA = () => setActiveTab('rang-a')
+  const switchToRangB = async () => {
+    setActiveTab('rang-b')
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'tableaux_navigator', action: 'switch_to_rang_b', itemCode }
+    })
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await addPoints(user.id, 'itemReviewed')
+    }
+  }
+  
+  const switchToRangA = () => {
+    setActiveTab('rang-a')
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'tableaux_navigator', action: 'switch_to_rang_a', itemCode }
+    })
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header avec score de complétude */}
+      {/* Header avec score de complétude et gamification */}
       <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -66,15 +111,25 @@ export function TableauxNavigator({
             </h2>
             <p className="text-primary/70 text-sm mt-1">{itemTitle}</p>
           </div>
-          <div className="text-right">
-            <div className={cn(
-              "text-2xl font-bold",
-              getCompletenessColor(completeness.completeness_score)
-            )}>
-              {completeness.completeness_score}%
-            </div>
-            <div className="text-sm text-foreground/60">
-              {getCompletenessText(completeness.completeness_score)}
+          <div className="flex items-center gap-4">
+            {stats && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-background/50 rounded-full">
+                <Flame className="h-4 w-4 text-warning" />
+                <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
+                <Star className="h-4 w-4 text-primary ml-1" />
+                <span className="text-sm font-bold text-primary">Nv.{stats.level}</span>
+              </div>
+            )}
+            <div className="text-right">
+              <div className={cn(
+                "text-2xl font-bold",
+                getCompletenessColor(completeness.completeness_score)
+              )}>
+                {completeness.completeness_score}%
+              </div>
+              <div className="text-sm text-foreground/60">
+                {getCompletenessText(completeness.completeness_score)}
+              </div>
             </div>
           </div>
         </div>

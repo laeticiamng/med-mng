@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Book, CheckCircle2, Lightbulb, AlertCircle } from 'lucide-react';
+import { Book, CheckCircle2, Lightbulb, AlertCircle, Flame, Star } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompetenceDetail {
   competence_id: string;
@@ -32,6 +35,43 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
   rang, 
   index 
 }) => {
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    const trackView = async () => {
+      if (!hasTrackedRef.current && section.title) {
+        hasTrackedRef.current = true;
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { 
+            component: 'tableau_section_enhanced', 
+            action: 'view',
+            rang,
+            sectionTitle: section.title,
+            competencesCount: section.competences?.length || 0
+          }
+        });
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
+    };
+    trackView();
+  }, [section.title, rang]);
+
   const themeColors = rang === 'A' 
     ? 'from-primary to-primary/80'
     : 'from-accent to-accent/80';
@@ -47,14 +87,24 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center text-lg font-bold shadow-lg`}>
             {index + 1}
           </div>
-          <CardTitle className="text-xl font-bold text-foreground">
+          <CardTitle className="text-xl font-bold text-foreground flex-1">
             {section.title}
           </CardTitle>
-          {section.competences && section.competences.length > 0 && (
-            <Badge variant="secondary" className="ml-auto text-sm">
-              {section.competences.length} compétence{section.competences.length > 1 ? 's' : ''}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {stats && (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-background/50 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <Star className="h-3 w-3 text-primary ml-1" />
+                <span className="font-bold text-primary">Nv.{stats.level}</span>
+              </div>
+            )}
+            {section.competences && section.competences.length > 0 && (
+              <Badge variant="secondary" className="text-sm">
+                {section.competences.length} compétence{section.competences.length > 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
       

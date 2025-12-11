@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   BookOpen, ChevronLeft, ChevronRight, Volume2, 
-  VolumeX, Download, Share2, Bookmark, Eye
+  VolumeX, Download, Share2, Bookmark, Eye, Flame, Star
 } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RomanNarratifProps {
   itemCode: string;
@@ -21,9 +24,32 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   tableauRangA, 
   tableauRangB 
 }) => {
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+  
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'roman_narratif', action: 'view', itemCode }
+      });
+    }
+  }, [itemCode]);
 
   // Générer les chapitres basés sur les compétences
   const generateChapters = () => {
@@ -82,10 +108,24 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
   const chapters = generateChapters();
 
-  const nextChapter = () => {
+  const nextChapter = async () => {
     if (currentChapter < chapters.length - 1) {
       setCurrentChapter(currentChapter + 1);
       setReadingProgress(((currentChapter + 1) / chapters.length) * 100);
+      
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'roman_narratif', action: 'next_chapter', chapter: currentChapter + 1, itemCode }
+      });
+      
+      // Award points when completing chapters
+      if (currentChapter + 1 === chapters.length - 1) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemMastered');
+        }
+      }
     }
   };
 
@@ -135,6 +175,14 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
               Roman Narratif - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
+              {stats && (
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-background/20 rounded-full text-xs text-background">
+                  <Flame className="h-3 w-3" />
+                  <span className="font-bold">{stats.currentStreak}j</span>
+                  <Star className="h-3 w-3 ml-1" />
+                  <span className="font-bold">Nv.{stats.level}</span>
+                </div>
+              )}
               <Badge className="bg-background/20 text-background">
                 Chapitre {currentChapter + 1} / {chapters.length}
               </Badge>
@@ -254,6 +302,11 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
                 onClick={() => {
                   setCurrentChapter(index);
                   setReadingProgress((index / chapters.length) * 100);
+                  logActivity({
+                    activity_type: 'study',
+                    count: 1,
+                    metadata: { component: 'roman_narratif', action: 'jump_to_chapter', chapter: index, itemCode }
+                  });
                 }}
                 className={`w-full text-left p-3 rounded-lg border transition-all
                   ${index === currentChapter 
