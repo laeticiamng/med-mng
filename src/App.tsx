@@ -47,6 +47,9 @@ const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
 const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
 const SRSReview = lazy(() => import("./pages/SRSReview"));
+const ExamMode = lazy(() => import("./pages/ExamMode"));
+const ClinicalCases = lazy(() => import("./pages/ClinicalCases"));
+const Flashcards = lazy(() => import("./pages/Flashcards"));
 
 // 🎯 ECOS PAGES - Lazy loaded
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -187,6 +190,9 @@ const App = () => {
           <Route path={ROUTE_PATHS.ednImmersive} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnImmersive /></Suspense>} />
           <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
           <Route path={ROUTE_PATHS.srsReview} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SRSReview /></Suspense>} />
+          <Route path={ROUTE_PATHS.examMode} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ExamMode /></Suspense>} />
+          <Route path={ROUTE_PATHS.clinicalCases} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ClinicalCases /></Suspense>} />
+          <Route path={ROUTE_PATHS.flashcards} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Flashcards /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
