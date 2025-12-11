@@ -17,11 +17,15 @@ import {
   CheckCircle,
   Clock,
   User,
-  Bot
+  Bot,
+  Flame,
+  Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ChatMessage {
   id: string;
@@ -54,8 +58,24 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  // Load user and stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   // Auto-scroll vers le bas
   useEffect(() => {
@@ -149,6 +169,17 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
 
       setMessages(prev => [...prev, assistantMessage]);
       setConversationId(data.conversationId);
+
+      // Track AI question and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'ai_question',
+          count: 1,
+          metadata: { currentItem, source: data.source }
+        });
+        await addPoints(user.id, 'aiQuestion');
+        loadStats(user.id);
+      }
 
       // Sauvegarder la conversation
       await saveConversation(userMessage, assistantMessage);
@@ -245,14 +276,26 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
   return (
     <Card className={cn("flex flex-col h-[600px]", className)}>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          Assistant IA Médical
-          {currentItem && (
-            <Badge variant="secondary" className="ml-auto">
-              {currentItem}
-            </Badge>
-          )}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Assistant IA Médical
+          </div>
+          <div className="flex items-center gap-2">
+            {gamificationStats && (
+              <div className="flex items-center gap-2 px-2 py-1 bg-muted/50 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-bold text-warning">{gamificationStats.currentStreak}</span>
+                <Star className="h-3 w-3 text-primary ml-1" />
+                <span className="font-bold text-primary">Nv.{gamificationStats.level}</span>
+              </div>
+            )}
+            {currentItem && (
+              <Badge variant="secondary">
+                {currentItem}
+              </Badge>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
 

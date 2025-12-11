@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, CheckCircle2, Clock, TrendingUp, GitPullRequest, XCircle } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface MetricsOverviewProps {
   totalPRs: number;
@@ -19,6 +20,24 @@ export const AccessibilityDashboardMetrics: React.FC<MetricsOverviewProps> = ({
   avgFixTime,
   blockedPRsCount
 }) => {
+  const { logActivity } = useActivityTracking();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current && totalPRs > 0) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { 
+          component: 'accessibility_metrics', 
+          totalPRs, 
+          conformityRate,
+          blockedPRsCount 
+        }
+      });
+    }
+  }, [totalPRs, conformityRate, blockedPRsCount]);
   const metrics = [
     {
       title: 'PRs Totales',
