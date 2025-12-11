@@ -1,7 +1,8 @@
-
+import { useEffect } from 'react';
 import { ComicHeader } from './comic/ComicHeader';
 import { ComicPanel } from './comic/ComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ValeursProfessionnellesBDProps {
   itemData: {
@@ -13,6 +14,16 @@ interface ValeursProfessionnellesBDProps {
 }
 
 export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesBDProps) => {
+  const { logActivity } = useActivityTracking();
+  
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'valeurs_professionnelles_bd', title: itemData.title }
+    });
+  }, [itemData.title]);
+
   // Données des vignettes spécifiques aux valeurs professionnelles
   const panelsData = [
     {
