@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   TrendingUp, Target, Brain, BookOpen, Trophy, Clock,
   Calendar, Flame, CheckCircle, AlertTriangle, ChevronLeft,
-  BarChart3, PieChart, Activity, Zap, Settings, Award
+  BarChart3, PieChart, Activity, Zap, Settings, Award, Star
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { useExamMode } from '@/hooks/useExamMode';
 import { useClinicalCases } from '@/hooks/useClinicalCases';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
@@ -35,13 +36,15 @@ export default function ProgressDashboard() {
   const { getStats: getExamStats } = useExamMode();
   const { getStats: getClinicalStats } = useClinicalCases();
   const { getStats: getFlashcardStats } = useFlashcards();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
+  const { getHeatmapData } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
   const [examStats, setExamStats] = useState<any>(null);
   const [clinicalStats, setClinicalStats] = useState<any>(null);
   const [flashcardStats, setFlashcardStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [weeklyData, setWeeklyData] = useState<{ total: number; byType: Record<string, number>; trend: number }>({ total: 0, byType: {}, trend: 0 });
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,9 +61,25 @@ export default function ProgressDashboard() {
       setClinicalStats(getClinicalStats(user.id));
       setFlashcardStats(getFlashcardStats(user.id));
       loadGamificationStats(user.id);
+      checkAndUnlockBadges(user.id);
+      
+      // Load weekly data
+      const heatmapData = await getHeatmapData(14);
+      const thisWeek = heatmapData.slice(0, 7);
+      const lastWeek = heatmapData.slice(7, 14);
+      const thisWeekTotal = thisWeek.reduce((sum, d) => sum + d.count, 0);
+      const lastWeekTotal = lastWeek.reduce((sum, d) => sum + d.count, 0);
+      const byType: Record<string, number> = {};
+      thisWeek.forEach(d => {
+        Object.entries(d.activities).forEach(([type, count]) => {
+          byType[type] = (byType[type] || 0) + count;
+        });
+      });
+      const trend = lastWeekTotal > 0 ? Math.round(((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100) : 0;
+      setWeeklyData({ total: thisWeekTotal, byType, trend });
     };
     loadData();
-  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats]);
+  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, getHeatmapData]);
 
   const totalProgress = srsStats ? 
     Math.round((srsStats.masteredItems / srsStats.totalItems) * 100) : 0;
@@ -116,6 +135,41 @@ export default function ProgressDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
+            {/* Weekly Summary */}
+            <Card className="bg-gradient-to-r from-primary/5 via-background to-success/5 border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Star className="h-5 w-5 text-primary" />
+                  Résumé de la semaine
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <p className="text-4xl font-bold text-primary">{weeklyData.total}</p>
+                      <p className="text-sm text-muted-foreground">activités</p>
+                    </div>
+                    <div className="h-12 w-px bg-border" />
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(weeklyData.byType).slice(0, 4).map(([type, count]) => (
+                        <Badge key={type} variant="secondary" className="text-xs">
+                          {type}: {count}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${
+                    weeklyData.trend >= 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+                  }`}>
+                    {weeklyData.trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                    <span className="font-bold">{weeklyData.trend >= 0 ? '+' : ''}{weeklyData.trend}%</span>
+                    <span className="text-xs">vs semaine dernière</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Main Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="bg-gradient-to-br from-primary/10 to-primary/5">

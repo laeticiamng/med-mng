@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DayData {
@@ -170,6 +171,7 @@ export const StudyCalendar: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent>
+        <TooltipProvider>
         {/* Week days header */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {weekDays.map(day => (
@@ -185,26 +187,50 @@ export const StudyCalendar: React.FC = () => {
             const isCurrentMonth = day.date.getMonth() === currentMonth.getMonth();
             
             return (
-              <div
-                key={index}
-                className={`aspect-square p-1 rounded-md transition-colors ${
-                  getIntensityClass(day)
-                } ${!isCurrentMonth ? 'opacity-30' : ''}`}
-              >
-                <div className="h-full flex flex-col items-center justify-center">
-                  <span className={`text-xs ${day.isToday ? 'font-bold text-primary' : ''}`}>
-                    {day.date.getDate()}
-                  </span>
-                  {isCurrentMonth && (day.completed > 0 || day.predicted > 0) && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {day.isPast ? day.completed : day.predicted}
-                    </span>
-                  )}
-                </div>
-              </div>
+              <Tooltip key={index}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`aspect-square p-1 rounded-md transition-colors cursor-pointer hover:ring-2 hover:ring-primary/30 ${
+                      getIntensityClass(day)
+                    } ${!isCurrentMonth ? 'opacity-30' : ''}`}
+                  >
+                    <div className="h-full flex flex-col items-center justify-center">
+                      <span className={`text-xs ${day.isToday ? 'font-bold text-primary' : ''}`}>
+                        {day.date.getDate()}
+                      </span>
+                      {isCurrentMonth && (day.completed > 0 || day.predicted > 0) && (
+                        <span className="text-[10px] text-muted-foreground">
+                          {day.isPast ? day.completed : day.predicted}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                {isCurrentMonth && (
+                  <TooltipContent side="top" className="text-xs">
+                    <p className="font-medium">
+                      {day.date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </p>
+                    {day.isPast ? (
+                      <p className={day.completed > 0 ? 'text-success' : 'text-muted-foreground'}>
+                        {day.completed > 0 ? `✓ ${day.completed} activités complétées` : 'Aucune activité'}
+                      </p>
+                    ) : day.isToday ? (
+                      <p className="text-primary">
+                        {day.predicted > 0 ? `${day.predicted} révisions prévues` : 'Continuez votre série !'}
+                      </p>
+                    ) : (
+                      <p className="text-warning">
+                        {day.predicted > 0 ? `${day.predicted} révisions prévues` : 'Repos prévu'}
+                      </p>
+                    )}
+                  </TooltipContent>
+                )}
+              </Tooltip>
             );
           })}
         </div>
+        </TooltipProvider>
 
         {/* Legend */}
         <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">

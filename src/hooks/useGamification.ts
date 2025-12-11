@@ -193,6 +193,37 @@ export function useGamification() {
     const hour = new Date().getHours();
     if (hour >= 23 || hour < 5) await unlockBadge(userId, 'night_owl');
     if (hour >= 5 && hour < 7) await unlockBadge(userId, 'early_bird');
+    
+    // Items mastery badges - check from activity count
+    const { count: totalReviews } = await supabase
+      .from('user_activity_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_type', 'review');
+    
+    if (totalReviews && totalReviews >= 1) await unlockBadge(userId, 'first_item');
+    if (totalReviews && totalReviews >= 10) await unlockBadge(userId, 'items_10');
+    if (totalReviews && totalReviews >= 50) await unlockBadge(userId, 'items_50');
+    if (totalReviews && totalReviews >= 100) await unlockBadge(userId, 'items_100');
+    if (totalReviews && totalReviews >= 200) await unlockBadge(userId, 'items_200');
+    
+    // Clinical cases badge
+    const { count: clinicalCount } = await supabase
+      .from('user_activity_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_type', 'clinical');
+    
+    if (clinicalCount && clinicalCount >= 10) await unlockBadge(userId, 'clinical_master');
+    
+    // AI questions badge
+    const { count: aiCount } = await supabase
+      .from('user_activity_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_type', 'ai_question');
+    
+    if (aiCount && aiCount >= 10) await unlockBadge(userId, 'ai_chat');
   }, [stats, unlockBadge]);
 
   return {
