@@ -11,8 +11,24 @@ interface StreakDisplayProps {
   compact?: boolean;
 }
 
+const MOTIVATIONS = [
+  { min: 0, max: 2, message: "Commencez votre série !", icon: "🌱" },
+  { min: 3, max: 6, message: "Belle régularité !", icon: "🔥" },
+  { min: 7, max: 13, message: "Une semaine complète !", icon: "⭐" },
+  { min: 14, max: 29, message: "Impressionnant !", icon: "🚀" },
+  { min: 30, max: 59, message: "Un mois de suite !", icon: "🏆" },
+  { min: 60, max: Infinity, message: "Légendaire !", icon: "👑" },
+];
+
 export function StreakDisplay({ stats, compact = false }: StreakDisplayProps) {
   const levelProgress = ((stats.currentXP % 1000) / 1000) * 100;
+  
+  const getMotivation = () => {
+    const motivation = MOTIVATIONS.find(m => stats.currentStreak >= m.min && stats.currentStreak <= m.max);
+    return motivation || MOTIVATIONS[0];
+  };
+  
+  const motivation = getMotivation();
 
   if (compact) {
     return (
@@ -67,11 +83,15 @@ export function StreakDisplay({ stats, compact = false }: StreakDisplayProps) {
           {/* Streak */}
           <div className="text-center p-3 rounded-lg bg-gradient-to-br from-warning/20 to-warning/5 border border-warning/20">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Flame className="h-6 w-6 text-warning animate-pulse" />
+              <Flame className={`h-6 w-6 text-warning ${stats.currentStreak > 0 ? 'animate-pulse' : ''}`} />
               <span className="text-3xl font-bold text-warning">{stats.currentStreak}</span>
             </div>
             <p className="text-xs text-muted-foreground">jours consécutifs</p>
-            <p className="text-[10px] text-warning/70">Record: {stats.longestStreak}</p>
+            <div className="flex items-center justify-center gap-1 mt-1">
+              <span className="text-sm">{motivation.icon}</span>
+              <p className="text-[10px] text-warning font-medium">{motivation.message}</p>
+            </div>
+            <p className="text-[10px] text-muted-foreground/60">Record: {stats.longestStreak}</p>
           </div>
 
           {/* Level */}

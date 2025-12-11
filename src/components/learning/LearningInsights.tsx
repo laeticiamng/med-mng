@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLearningAnalytics } from '@/hooks/useLearningAnalytics';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Lightbulb, AlertTriangle, TrendingUp, TrendingDown, 
-  Target, ArrowRight, Sparkles, RefreshCw
+  Target, ArrowRight, Sparkles, RefreshCw, Clock, Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,15 +22,21 @@ interface LearningInsight {
 export const LearningInsights: React.FC = () => {
   const navigate = useNavigate();
   const { insights, generateInsights, loading } = useLearningAnalytics();
+  const { getTodayStats } = useActivityTracking();
   const [localInsights, setLocalInsights] = useState<LearningInsight[]>([]);
+  const [todayStats, setTodayStats] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
-      const result = await generateInsights();
+      const [result, today] = await Promise.all([
+        generateInsights(),
+        getTodayStats()
+      ]);
       setLocalInsights(result);
+      setTodayStats(today);
     };
     load();
-  }, [generateInsights]);
+  }, [generateInsights, getTodayStats]);
 
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -120,6 +127,32 @@ export const LearningInsights: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {/* Today's activity summary */}
+        {todayStats && (
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                Activité d'aujourd'hui
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-primary">{todayStats.total}</p>
+                <p className="text-xs text-muted-foreground">activités</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-success">{todayStats.totalTime || 0}</p>
+                <p className="text-xs text-muted-foreground">min</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-warning">{todayStats.avgScore || 0}%</p>
+                <p className="text-xs text-muted-foreground">score moy.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {localInsights.map((insight, index) => (
           <div 
             key={index}

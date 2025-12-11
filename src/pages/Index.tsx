@@ -1,15 +1,19 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings, Flame, Trophy } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 import MusicGenerationSection from "@/components/MusicGenerationSection";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ROUTE_PATHS } from "@/config/routes";
+import { supabase } from "@/integrations/supabase/client";
+import { useGamification } from "@/hooks/useGamification";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
@@ -24,6 +28,20 @@ const LazyLoadSpinner = () => <div className="flex justify-center items-center p
 const Index = () => {
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const [user, setUser] = useState<any>(null);
+  const { stats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
+
   return <>
       <SEOHead
         title="MED MNG - Plateforme d'apprentissage médical avec IA"
@@ -65,6 +83,37 @@ const Index = () => {
                 <TranslatedText text="Générer une Musique" />
               </PremiumButton>
             </div>
+
+            {/* Widget Gamification pour utilisateurs connectés */}
+            {user && stats && (
+              <div className="mt-12 max-w-2xl mx-auto">
+                <PremiumCard variant="glass" className="p-6 cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-warning/20 border border-warning/30">
+                        <Flame className="h-5 w-5 text-warning" />
+                        <span className="font-bold text-warning">{stats.currentStreak}</span>
+                        <span className="text-sm text-warning/80">jours</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30">
+                        <Star className="h-5 w-5 text-primary" />
+                        <span className="font-bold text-primary">Nv.{stats.level}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-success/20 border border-success/30">
+                        <Trophy className="h-5 w-5 text-success" />
+                        <span className="font-bold text-success">{stats.badges.length}</span>
+                        <span className="text-sm text-success/80">badges</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground mb-1">Objectif hebdo</div>
+                      <Progress value={(stats.weeklyGoalProgress / stats.weeklyGoal) * 100} className="w-24 h-2" />
+                      <span className="text-xs text-muted-foreground">{stats.weeklyGoalProgress}/{stats.weeklyGoal}</span>
+                    </div>
+                  </div>
+                </PremiumCard>
+              </div>
+            )}
           </div>
         </div>
 

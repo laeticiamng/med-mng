@@ -50,6 +50,23 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
 
   const totalActivities = data.reduce((sum, d) => sum + d.count, 0);
   const activeDays = data.filter(d => d.count > 0).length;
+  
+  // Calcul des statistiques par type d'activité
+  const activityStats = data.reduce((acc, d) => {
+    Object.entries(d.activities).forEach(([type, count]) => {
+      acc[type] = (acc[type] || 0) + count;
+    });
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const activityLabels: Record<string, string> = {
+    study: '📚 Étude',
+    review: '🔄 Révision',
+    exam: '📝 Examen',
+    clinical: '🏥 Cas clinique',
+    flashcard: '🃏 Flashcard',
+    ai_question: '🤖 Question IA',
+  };
 
   // Group by weeks for display
   const weeks: HeatmapData[][] = [];
@@ -167,6 +184,25 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
             <span>{activeDays} jours actifs</span>
           </div>
         </div>
+
+        {/* Statistiques par type d'activité */}
+        {Object.keys(activityStats).length > 0 && (
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Répartition par activité</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(activityStats)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 6)
+                .map(([type, count]) => (
+                  <Badge key={type} variant="secondary" className="text-xs gap-1">
+                    {activityLabels[type] || type}
+                    <span className="font-bold">{count}</span>
+                  </Badge>
+                ))
+              }
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

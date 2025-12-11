@@ -1,8 +1,10 @@
-import React from 'react';
-import { Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Lock, Share2, Check, Copy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
 
 interface BadgeCollectionProps {
@@ -25,7 +27,26 @@ const RARITY_LABELS = {
 };
 
 export function BadgeCollection({ unlockedBadges, allBadges }: BadgeCollectionProps) {
+  const { toast } = useToast();
+  const [copiedBadge, setCopiedBadge] = useState<string | null>(null);
   const unlockedIds = new Set(unlockedBadges.map(b => b.id));
+
+  const shareBadge = async (badge: BadgeType) => {
+    const shareText = `🏆 J'ai débloqué le badge "${badge.name}" sur MED-MNG ! ${badge.icon}\n${badge.description}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Badge MED-MNG', text: shareText });
+      } catch (e) {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      setCopiedBadge(badge.id);
+      toast({ title: 'Copié !', description: 'Le badge a été copié dans le presse-papier' });
+      setTimeout(() => setCopiedBadge(null), 2000);
+    }
+  };
 
   const groupedBadges = {
     legendary: allBadges.filter(b => b.rarity === 'legendary'),
@@ -60,13 +81,34 @@ export function BadgeCollection({ unlockedBadges, allBadges }: BadgeCollectionPr
                     <Tooltip key={badge.id}>
                       <TooltipTrigger asChild>
                         <div
-                          className={`aspect-square rounded-xl border-2 flex items-center justify-center text-2xl transition-all ${
+                          className={`aspect-square rounded-xl border-2 flex items-center justify-center text-2xl transition-all relative group ${
                             isUnlocked 
-                              ? `${RARITY_STYLES[rarity]} cursor-pointer hover:scale-110` 
+                              ? `${RARITY_STYLES[rarity]} cursor-pointer hover:scale-110 animate-in fade-in duration-300` 
                               : 'border-border/30 bg-muted/10 opacity-40 grayscale'
                           }`}
                         >
-                          {isUnlocked ? badge.icon : <Lock className="h-5 w-5 text-muted-foreground/50" />}
+                          {isUnlocked ? (
+                            <>
+                              <span className="group-hover:scale-110 transition-transform">{badge.icon}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute -top-1 -right-1 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  shareBadge(unlockedData!);
+                                }}
+                              >
+                                {copiedBadge === badge.id ? (
+                                  <Check className="h-3 w-3 text-success" />
+                                ) : (
+                                  <Share2 className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </>
+                          ) : (
+                            <Lock className="h-5 w-5 text-muted-foreground/50" />
+                          )}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[200px]">
