@@ -3,7 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Target, Clock, Brain, Award } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Clock, Brain, Award, Flame, Star, Trophy } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface LearningStats {
   overall_progress: number;
@@ -17,10 +19,20 @@ interface LearningStats {
 export const LearningAnalytics: React.FC = () => {
   const [stats, setStats] = useState<LearningStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadLearningStats();
-  }, []);
+    const initGamification = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_learning_analytics' } });
+      }
+    };
+    initGamification();
+  }, [loadStats, logActivity]);
 
   const loadLearningStats = async () => {
     try {
@@ -84,6 +96,35 @@ export const LearningAnalytics: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-lg font-bold text-warning">{gamificationStats.currentStreak}</span>
+                  <span className="text-sm text-muted-foreground">jours</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-primary">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                  <span className="text-lg font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+                  <span className="text-sm text-muted-foreground">badges</span>
+                </div>
+              </div>
+              <Badge variant="outline">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-2">Analytics d'Apprentissage</h2>
         <p className="text-muted-foreground">Suivez votre progression et optimisez votre apprentissage</p>

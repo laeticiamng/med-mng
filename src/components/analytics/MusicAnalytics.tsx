@@ -15,11 +15,15 @@ import {
   PieChart,
   Activity,
   Star,
-  Download
+  Download,
+  Flame,
+  Trophy
 } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ListeningStats {
   totalListenTime: number;
@@ -52,12 +56,16 @@ export const MusicAnalytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const { user } = useAuth();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     if (user) {
       loadAnalytics();
+      loadStats(user.id);
+      logActivity({ activity_type: 'music_generation', metadata: { action: 'view_music_analytics' } });
     }
-  }, [user, timeRange]);
+  }, [user, timeRange, loadStats, logActivity]);
 
   const loadAnalytics = async () => {
     if (!user) return;
@@ -240,6 +248,35 @@ export const MusicAnalytics: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Gamification Stats Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-lg font-bold text-warning">{gamificationStats.currentStreak}</span>
+                  <span className="text-sm text-muted-foreground">jours</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-primary">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                  <span className="text-lg font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+                  <span className="text-sm text-muted-foreground">badges</span>
+                </div>
+              </div>
+              <Badge variant="outline">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

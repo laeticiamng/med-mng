@@ -16,10 +16,15 @@ import {
   AlertTriangle,
   CheckCircle,
   HardDrive,
-  Activity
+  Activity,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface SystemStatus {
   database: 'connected' | 'disconnected' | 'error';
@@ -68,17 +73,27 @@ export const SystemSettings = () => {
   });
 
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     fetchSystemStatus();
     fetchMetrics();
+    const initGamification = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_system_settings' } });
+      }
+    };
+    initGamification();
     const interval = setInterval(() => {
       fetchSystemStatus();
       fetchMetrics();
     }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [loadStats, logActivity]);
 
   const fetchSystemStatus = async () => {
     try {
@@ -219,6 +234,35 @@ export const SystemSettings = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-lg font-bold text-warning">{gamificationStats.currentStreak}</span>
+                  <span className="text-sm text-muted-foreground">jours</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-primary">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                  <span className="text-lg font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+                  <span className="text-sm text-muted-foreground">badges</span>
+                </div>
+              </div>
+              <Badge variant="outline">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Paramètres système</h2>
