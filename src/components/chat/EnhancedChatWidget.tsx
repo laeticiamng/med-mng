@@ -16,9 +16,14 @@ import {
   Play,
   BookOpen,
   Brain,
-  Sparkles
+  Sparkles,
+  Flame,
+  Star
 } from 'lucide-react';
 import { useEnhancedChat } from '@/hooks/useEnhancedChat';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedChatWidgetProps {
   contextItems?: string[];
@@ -33,6 +38,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -47,6 +53,21 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
     getSourceColor
   } = useEnhancedChat();
 
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  // Load user and stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
+
   // Auto-scroll vers le bas
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -58,6 +79,17 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
     const message = inputValue.trim();
     setInputValue('');
     await sendMessage(message, contextItems);
+    
+    // Track activity and award points
+    if (user) {
+      await logActivity({
+        activity_type: 'ai_question',
+        count: 1,
+        metadata: { contextItems }
+      });
+      await addPoints(user.id, 'aiQuestion');
+      loadStats(user.id);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -103,6 +135,14 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
           </div>
           
           <div className="flex items-center gap-2">
+            {gamificationStats && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-muted/50 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-bold text-warning">{gamificationStats.currentStreak}</span>
+                <Star className="h-3 w-3 text-primary ml-1" />
+                <span className="font-bold text-primary">Nv.{gamificationStats.level}</span>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="sm"

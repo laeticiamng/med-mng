@@ -6,10 +6,12 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   TrendingUp, Users, BookOpen, Music, Clock, 
-  Activity, Target, Award, Zap, Brain
+  Activity, Target, Award, Zap, Brain, Flame, Star, Trophy
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useRef } from 'react';
 
 interface UserActivity {
   id: string;
@@ -30,10 +32,23 @@ interface PerformanceMetric {
 
 export const RealTimeAnalytics = () => {
   const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [activities, setActivities] = useState<UserActivity[]>([]);
+  const hasTrackedRef = useRef(false);
 
   useEffect(() => {
-    logActivity({ activity_type: 'study', metadata: { action: 'view_realtime_analytics' } });
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    init();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({ activity_type: 'study', metadata: { action: 'view_realtime_analytics' } });
+    }
   }, []);
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([
     {
@@ -149,6 +164,34 @@ export const RealTimeAnalytics = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-lg font-bold text-warning">{gamificationStats.currentStreak}</span>
+                  <span className="text-sm text-muted-foreground">jours</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-primary">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                  <span className="text-lg font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+                  <span className="text-sm text-muted-foreground">badges</span>
+                </div>
+              </div>
+              <Badge variant="outline">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Métriques en temps réel */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => (
