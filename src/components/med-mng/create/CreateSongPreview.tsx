@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GeneratedSongDisplay } from './GeneratedSongDisplay';
 import { PreviewPlaceholder } from './PreviewPlaceholder';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface CreateSongPreviewProps {
   generatedSong: any;
@@ -19,6 +19,18 @@ export const CreateSongPreview: React.FC<CreateSongPreviewProps> = ({
   onPlay,
   onAddToLibrary
 }) => {
+  const { logActivity } = useActivityTracking();
+  
+  useEffect(() => {
+    if (generatedSong) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'song_preview', style, title: selectedTitle }
+      });
+    }
+  }, [generatedSong]);
+
   return (
     <Card>
       <CardHeader>

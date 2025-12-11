@@ -1,7 +1,7 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface TableauSectionProps {
   data: any;
@@ -10,6 +10,18 @@ interface TableauSectionProps {
 }
 
 export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, type }) => {
+  const { logActivity } = useActivityTracking();
+  
+  useEffect(() => {
+    if (data) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'tableau_section', type, title }
+      });
+    }
+  }, [data, type, title]);
+
   if (!data) {
     return (
       <Card className="w-full">

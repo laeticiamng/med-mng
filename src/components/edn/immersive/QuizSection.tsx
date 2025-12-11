@@ -1,9 +1,11 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuizQuestion {
   question: string;
@@ -19,6 +21,8 @@ interface QuizSectionProps {
 }
 
 export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) => {
+  const { logActivity } = useActivityTracking();
+  const { addPoints, unlockBadge } = useGamification();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -61,16 +65,34 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   
-  const handleAnswer = (answerIndex: number) => {
+  const handleAnswer = async (answerIndex: number) => {
     setSelectedAnswer(answerIndex);
     setShowExplanation(true);
+    
+    const isCorrect = answerIndex === currentQuestion.correct;
     
     if (!answeredQuestions.has(currentQuestionIndex)) {
       setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
       setScore(prev => ({
-        correct: prev.correct + (answerIndex === currentQuestion.correct ? 1 : 0),
+        correct: prev.correct + (isCorrect ? 1 : 0),
         total: prev.total + 1
       }));
+      
+      // Track quiz answer
+      await logActivity({
+        activity_type: 'exam',
+        count: 1,
+        score: isCorrect ? 100 : 0,
+        metadata: { itemCode, questionIndex: currentQuestionIndex, isCorrect, type: 'edn_quiz' }
+      });
+      
+      // Award points for correct answer
+      if (isCorrect) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
     }
   };
 

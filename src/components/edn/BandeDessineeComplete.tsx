@@ -1,10 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { ComicHeader } from './comic/ComicHeader';
 import { InteractiveComicPanel } from './comic/InteractiveComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
 import { CheckCircle } from 'lucide-react';
 import { getBandeDessineePregenere, type VignettePregenere } from '@/data/bandesDessineesPregenerees';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BandeDessineeCompleteProps {
   itemData: {
@@ -18,28 +20,46 @@ interface BandeDessineeCompleteProps {
 }
 
 export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) => {
+  const { logActivity } = useActivityTracking();
+  const { addPoints } = useGamification();
   const [panels, setPanels] = useState<VignettePregenere[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    console.log('🎨 Chargement bande dessinée pour:', itemData.item_code);
-    console.log('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
+    const loadBandeDessinee = async () => {
+      console.log('🎨 Chargement bande dessinée pour:', itemData.item_code);
+      console.log('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
+      
+      // Track BD view
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'bande_dessinee', itemCode: itemData.item_code }
+      });
+      
+      // Charger immédiatement les données pré-générées
+      const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
+      
+      if (bandeDessinee) {
+        console.log('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
+        setPanels(bandeDessinee.vignettes);
+        setIsLoaded(true);
+        
+        // Award points for viewing complete BD
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      } else {
+        console.log('🔧 Création de vignettes par défaut...');
+        const defaultPanels = createDefaultPanels(itemData);
+        console.log('📝 Vignettes créées:', defaultPanels.length);
+        setPanels(defaultPanels);
+        setIsLoaded(true);
+      }
+    };
     
-    // Charger immédiatement les données pré-générées
-    const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
-    
-    if (bandeDessinee) {
-      console.log('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
-      setPanels(bandeDessinee.vignettes);
-      setIsLoaded(true);
-    } else {
-      console.log('🔧 Création de vignettes par défaut...');
-      // Créer des vignettes par défaut basées sur les compétences du tableau rang A
-      const defaultPanels = createDefaultPanels(itemData);
-      console.log('📝 Vignettes créées:', defaultPanels.length);
-      setPanels(defaultPanels);
-      setIsLoaded(true);
-    }
+    loadBandeDessinee();
   }, [itemData.item_code]);
 
   const createDefaultPanels = (data: any): VignettePregenere[] => {

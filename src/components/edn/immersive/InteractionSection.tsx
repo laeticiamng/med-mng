@@ -1,9 +1,11 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InteractionSectionProps {
   interactionConfig: any;
@@ -14,6 +16,8 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
   interactionConfig, 
   itemCode 
 }) => {
+  const { logActivity } = useActivityTracking();
+  const { addPoints, unlockBadge } = useGamification();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<string>('');
@@ -53,7 +57,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     }
   };
 
-  const checkAnswers = () => {
+  const checkAnswers = async () => {
     if (!interactionConfig.pairs) return;
     
     let correct = 0;
@@ -68,6 +72,22 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     const percentage = Math.round((correct / total) * 100);
     setFeedback(`${correct}/${total} bonnes réponses (${percentage}%)`);
     setCompleted(true);
+    
+    // Track interaction completion
+    await logActivity({
+      activity_type: 'study',
+      count: 1,
+      score: percentage,
+      metadata: { itemCode, type: 'interaction_drag_drop', correct, total }
+    });
+    
+    // Award points for good performance
+    if (percentage >= 80) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await addPoints(user.id, 'itemReviewed');
+      }
+    }
   };
 
   const resetInteraction = () => {

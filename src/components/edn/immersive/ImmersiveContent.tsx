@@ -1,11 +1,11 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
 import { BandeDessinee } from '../BandeDessinee';
 import { InteractionSection } from './InteractionSection';
 import { Badge } from '@/components/ui/badge';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ImmersiveContentProps {
   item: any;
@@ -18,6 +18,21 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   currentSection,
   sections
 }) => {
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { 
+        component: 'immersive_content', 
+        itemCode: item.item_code, 
+        section: currentSection,
+        sectionName: sections[currentSection]
+      }
+    });
+  }, [currentSection, item.item_code]);
+
   const renderSection = () => {
     const sectionName = sections[currentSection];
     

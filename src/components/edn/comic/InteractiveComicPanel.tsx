@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Wand2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface InteractiveComicPanelProps {
   panel: {
@@ -21,6 +23,8 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
   const [imageUrl, setImageUrl] = useState(panel.imageUrl);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { addPoints } = useGamification();
 
   const isPlaceholder = imageUrl.startsWith('placeholder-') || imageUrl.startsWith('data:image/svg+xml') || !imageUrl;
   
@@ -38,6 +42,19 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
       if (error) throw error;
       
       setImageUrl(data.imageUrl);
+      
+      // Track image generation
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'comic_panel', action: 'generate_image', panelId: panel.id }
+      });
+      
+      // Award points for generating image
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await addPoints(user.id, 'itemReviewed');
+      }
       
       toast({
         title: "Image générée !",
