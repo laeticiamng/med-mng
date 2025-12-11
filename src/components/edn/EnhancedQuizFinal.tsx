@@ -3,10 +3,13 @@ import { QuizFinal } from './QuizFinal';
 import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
 import { QuizSelector, QuizConfig } from './quiz/QuizSelector';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings } from 'lucide-react';
+import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings, Star } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedQuizFinalProps {
   questions: {
@@ -40,6 +43,9 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   
+  const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { logActivity } = useActivityTracking();
+  
   const {
     startQuizSession,
     addQuizError,
@@ -55,12 +61,15 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     loadSavedSessions();
   }, [loadSavedSessions]);
 
-  const handleStartQuiz = (config: QuizConfig) => {
+  const handleStartQuiz = async (config: QuizConfig) => {
     setQuizConfig(config);
     setQuizStarted(true);
     
     // Démarrer une nouvelle session avec la configuration
     startQuizSession(itemCode, itemTitle, config.numberOfQuestions);
+    
+    // Log activity
+    await logActivity({ activity_type: 'exam', count: 1, metadata: { itemCode, action: 'start' } });
   };
 
   const handleResetQuiz = () => {
@@ -68,8 +77,26 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     setQuizConfig(null);
   };
 
-  const handleQuizFinished = (finalScore: number) => {
+  const handleQuizFinished = async (finalScore: number) => {
     const completedSession = endQuizSession(finalScore);
+    
+    // Get user for gamification
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // Gamification rewards
+    if (user) {
+      await addPoints(user.id, 'examCompleted');
+      await logActivity({ activity_type: 'exam', count: 1, score: finalScore, metadata: { itemCode, action: 'complete' } });
+      
+      // Perfect score bonus
+      if (finalScore === 100) {
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
+      }
+      
+      await checkAndUnlockBadges(user.id);
+    }
+    
     return completedSession;
   };
 

@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   Trophy, Star, Target, Zap, Award, TrendingUp, 
-  Crown, Flame, Shield, Sparkles, Calendar, Clock
+  Crown, Flame, Shield, Sparkles, Calendar, Clock, RefreshCw
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGamification, BADGE_DEFINITIONS, POINTS_CONFIG } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
-interface Badge {
+interface BadgeUI {
   id: string;
   name: string;
   description: string;
@@ -50,98 +52,158 @@ interface Challenge {
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
+interface LeaderboardUser {
+  rank: number;
+  name: string;
+  xp: number;
+  avatar: string;
+  isCurrentUser?: boolean;
+}
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Star, Crown, Flame, Sparkles, Award, Trophy, Shield, Target, Zap
+};
+
+const getLevelTitle = (level: number): string => {
+  if (level < 5) return 'Débutant';
+  if (level < 10) return 'Apprenti';
+  if (level < 20) return 'Étudiant';
+  if (level < 30) return 'Avancé';
+  if (level < 50) return 'Expert';
+  return 'Maître';
+};
+
 export const GamificationPanel: React.FC = () => {
-  // Données de démo
-  const userLevel: Level = {
-    current: 12,
-    xp: 2450,
-    xpToNext: 550,
-    title: "Étudiant Avancé"
+  const { stats, loading, loadStats, BADGE_DEFINITIONS: badges } = useGamification();
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        await loadStats(user.id);
+        await loadLeaderboard(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
+
+  const loadLeaderboard = async (currentUserId: string) => {
+    try {
+      // Charger les top utilisateurs par XP depuis user_activity_log
+      const { data: activities } = await supabase
+        .from('user_activity_log')
+        .select('user_id, score, count')
+        .order('score', { ascending: false });
+
+      if (activities) {
+        // Agréger les scores par utilisateur
+        const userScores: Record<string, number> = {};
+        activities.forEach(a => {
+          userScores[a.user_id] = (userScores[a.user_id] || 0) + (a.score || 0) + (a.count || 0) * 10;
+        });
+
+        const sortedUsers = Object.entries(userScores)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 10)
+          .map(([id, xp], index) => ({
+            rank: index + 1,
+            name: id === currentUserId ? 'Vous' : `Étudiant ${index + 1}`,
+            xp: Math.round(xp),
+            avatar: id === currentUserId ? '🎓' : ['👩‍⚕️', '👨‍⚕️', '👩‍🔬', '👨‍🔬'][index % 4],
+            isCurrentUser: id === currentUserId
+          }));
+
+        setLeaderboard(sortedUsers.length > 0 ? sortedUsers : getDefaultLeaderboard(stats?.totalPoints || 0));
+      }
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+      setLeaderboard(getDefaultLeaderboard(stats?.totalPoints || 0));
+    }
   };
 
-  const badges: Badge[] = [
-    {
-      id: '1',
-      name: 'Premier Pas',
-      description: 'Complétez votre premier item EDN',
-      icon: Star,
-      rarity: 'common',
-      earned: true,
-      earnedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    },
-    {
-      id: '2',
-      name: 'Mélomane',
-      description: 'Générez 10 musiques',
-      icon: Sparkles,
-      rarity: 'rare',
-      earned: true,
-      earnedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-    },
-    {
-      id: '3',
-      name: 'Expert Cardiologie',
-      description: 'Maîtrisez tous les items de cardiologie',
-      icon: Award,
-      rarity: 'epic',
-      earned: false,
-      progress: 8,
-      maxProgress: 15
-    },
-    {
-      id: '4',
-      name: 'Légende Médicale',
-      description: 'Atteignez le niveau 50',
-      icon: Crown,
-      rarity: 'legendary',
-      earned: false,
-      progress: 12,
-      maxProgress: 50
-    }
+  const getDefaultLeaderboard = (userPoints: number): LeaderboardUser[] => [
+    { rank: 1, name: 'Marie D.', xp: 3240, avatar: '👩‍⚕️' },
+    { rank: 2, name: 'Jean M.', xp: 2950, avatar: '👨‍⚕️' },
+    { rank: 3, name: 'Sophie B.', xp: 2780, avatar: '👩‍⚕️' },
+    { rank: 4, name: 'Vous', xp: userPoints, avatar: '🎓', isCurrentUser: true },
+    { rank: 5, name: 'Paul D.', xp: 2210, avatar: '👨‍⚕️' }
   ];
 
+  // Calcul du niveau et XP
+  const XP_PER_LEVEL = 500;
+  const userLevel: Level = {
+    current: stats?.level || 1,
+    xp: stats?.totalPoints || 0,
+    xpToNext: XP_PER_LEVEL - ((stats?.totalPoints || 0) % XP_PER_LEVEL),
+    title: getLevelTitle(stats?.level || 1)
+  };
+
+  // Convertir les badges du hook en format UI
+  const badgesUI: BadgeUI[] = BADGE_DEFINITIONS.map(badge => {
+    const IconComponent = ICON_MAP[badge.icon] || Star;
+    const isEarned = stats?.badges.some(b => b.id === badge.id);
+    const earnedBadge = stats?.badges.find(b => b.id === badge.id);
+    
+    return {
+      id: badge.id,
+      name: badge.name,
+      description: badge.description,
+      icon: IconComponent,
+      rarity: badge.rarity,
+      earned: !!isEarned,
+      earnedAt: earnedBadge?.unlockedAt ? new Date(earnedBadge.unlockedAt) : undefined
+    };
+  });
+
+  // Achievements basés sur les vraies données
   const achievements: Achievement[] = [
     {
       id: '1',
       title: 'Série d\'Or',
       description: 'Étudiez 7 jours consécutifs',
       reward: '+500 XP',
-      progress: 5,
+      progress: Math.min(stats?.currentStreak || 0, 7),
       maxProgress: 7,
       category: 'streak',
-      unlocked: false
+      unlocked: (stats?.currentStreak || 0) >= 7
     },
     {
       id: '2',
-      title: 'Compositeur',
-      description: 'Créez 25 musiques personnalisées',
+      title: 'Objectif Hebdomadaire',
+      description: 'Atteignez 100% de votre objectif',
       reward: 'Badge Rare + 200 XP',
-      progress: 18,
-      maxProgress: 25,
-      category: 'music',
-      unlocked: false
+      progress: stats?.weeklyGoalProgress || 0,
+      maxProgress: 100,
+      category: 'study',
+      unlocked: (stats?.weeklyGoalProgress || 0) >= 100
     },
     {
       id: '3',
-      title: 'Mentor',
-      description: 'Aidez 5 autres étudiants',
+      title: 'Collectionneur',
+      description: 'Débloquez 10 badges',
       reward: 'Titre Spécial',
-      progress: 2,
-      maxProgress: 5,
+      progress: stats?.badges.length || 0,
+      maxProgress: 10,
       category: 'social',
-      unlocked: false
+      unlocked: (stats?.badges.length || 0) >= 10
     }
   ];
 
+  // Défis quotidiens dynamiques
+  const now = new Date();
+  const hoursLeft = 24 - now.getHours();
   const dailyChallenges: Challenge[] = [
     {
       id: '1',
-      title: 'Sprint Matinal',
-      description: 'Complétez 3 items avant 12h',
+      title: 'Sprint du Jour',
+      description: 'Complétez 5 révisions SRS',
       reward: '+100 XP',
-      progress: 1,
-      maxProgress: 3,
-      timeLeft: '8h 23m',
+      progress: Math.min((stats?.weeklyGoalProgress || 0) / 20, 5),
+      maxProgress: 5,
+      timeLeft: `${hoursLeft}h`,
       difficulty: 'easy'
     },
     {
@@ -151,22 +213,22 @@ export const GamificationPanel: React.FC = () => {
       reward: '+200 XP + Badge',
       progress: 0,
       maxProgress: 1,
-      timeLeft: '23h 45m',
+      timeLeft: `${hoursLeft}h`,
       difficulty: 'medium'
     },
     {
       id: '3',
-      title: 'Maestro Musical',
-      description: 'Générez une musique pour chaque spécialité (5)',
-      reward: '+300 XP + Titre',
-      progress: 2,
-      maxProgress: 5,
-      timeLeft: '23h 45m',
+      title: 'Régularité',
+      description: `Maintenez votre streak de ${stats?.currentStreak || 0} jour(s)`,
+      reward: '+300 XP',
+      progress: stats?.currentStreak || 0,
+      maxProgress: (stats?.currentStreak || 0) + 1,
+      timeLeft: `${hoursLeft}h`,
       difficulty: 'hard'
     }
   ];
 
-  const getBadgeColor = (rarity: Badge['rarity']) => {
+  const getBadgeColor = (rarity: BadgeUI['rarity']) => {
     switch (rarity) {
       case 'common': return 'text-muted-foreground bg-muted';
       case 'rare': return 'text-primary bg-primary/10';
@@ -195,19 +257,36 @@ export const GamificationPanel: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="mt-2 text-muted-foreground">Chargement...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Niveau et XP */}
       <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">Niveau {userLevel.current}</h2>
-              <p className="text-primary font-medium">{userLevel.title}</p>
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Flame className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Niveau {userLevel.current}</h2>
+                <p className="text-primary font-medium">{userLevel.title}</p>
+              </div>
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">XP Total</p>
               <p className="text-xl font-bold text-foreground">{userLevel.xp.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Streak: {stats?.currentStreak || 0} jours 🔥</p>
             </div>
           </div>
           
@@ -328,12 +407,12 @@ export const GamificationPanel: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="w-5 h-5" />
-                Collection de Badges
+                Collection de Badges ({badgesUI.filter(b => b.earned).length}/{badgesUI.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {badges.map((badge) => {
+                {badgesUI.map((badge) => {
                   const BadgeIcon = badge.icon;
                   return (
                     <div 
@@ -352,16 +431,6 @@ export const GamificationPanel: React.FC = () => {
                         <Badge variant="secondary" className="text-xs">
                           ✅ Obtenu
                         </Badge>
-                      ) : badge.progress !== undefined ? (
-                        <div className="space-y-1">
-                          <div className="text-xs text-muted-foreground">
-                            {badge.progress}/{badge.maxProgress}
-                          </div>
-                          <Progress 
-                            value={(badge.progress / (badge.maxProgress || 1)) * 100} 
-                            className="h-1"
-                          />
-                        </div>
                       ) : (
                         <Badge variant="outline" className="text-xs">
                           Verrouillé
@@ -389,13 +458,7 @@ export const GamificationPanel: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  { rank: 1, name: 'Marie Dupont', xp: 3240, avatar: '👩‍⚕️' },
-                  { rank: 2, name: 'Jean Martin', xp: 2950, avatar: '👨‍⚕️' },
-                  { rank: 3, name: 'Sophie Bernard', xp: 2780, avatar: '👩‍⚕️' },
-                  { rank: 4, name: 'Vous', xp: 2450, avatar: '🎓', isCurrentUser: true },
-                  { rank: 5, name: 'Paul Durand', xp: 2210, avatar: '👨‍⚕️' }
-                ].map((user) => (
+                {leaderboard.map((user) => (
                   <div 
                     key={user.rank} 
                     className={`flex items-center p-3 rounded-lg ${
