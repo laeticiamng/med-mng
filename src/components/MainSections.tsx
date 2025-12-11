@@ -1,11 +1,27 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink, BarChart3 } from "lucide-react";
+import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink, BarChart3, Flame, Star, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTE_PATHS } from "@/config/routes";
+import { useGamification } from "@/hooks/useGamification";
+import { supabase } from "@/integrations/supabase/client";
 
 const MainSections = () => {
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
   const sections = [
     {
       id: "edn",
@@ -119,6 +135,45 @@ const MainSections = () => {
           </span>
         </div>
       </div>
+
+      {/* Gamification Stats Banner */}
+      {user && gamificationStats && (
+        <Card className="mb-8 bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center gap-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-warning/20 rounded-full">
+                  <Flame className="h-6 w-6 text-warning" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-warning">{gamificationStats.currentStreak}</p>
+                  <p className="text-xs text-muted-foreground">Jours de suite</p>
+                </div>
+              </div>
+              <div className="w-px h-12 bg-border" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/20 rounded-full">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-primary">Niveau {gamificationStats.level}</p>
+                  <p className="text-xs text-muted-foreground">{gamificationStats.totalPoints} XP</p>
+                </div>
+              </div>
+              <div className="w-px h-12 bg-border" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-success/20 rounded-full">
+                  <Trophy className="h-6 w-6 text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-success">{gamificationStats.badges?.length || 0}</p>
+                  <p className="text-xs text-muted-foreground">Badges débloqués</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
         {sections.map((section) => {

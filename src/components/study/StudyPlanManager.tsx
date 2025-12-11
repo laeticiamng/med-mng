@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Target, Book, Plus, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Target, Book, Plus, Edit, Trash2, Flame, Star, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 interface StudyPlan {
   id: string;
@@ -36,6 +39,7 @@ export const StudyPlanManager = () => {
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [editingPlan, setEditingPlan] = useState<StudyPlan | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [newPlan, setNewPlan] = useState({
     title: '',
     description: '',
@@ -44,6 +48,20 @@ export const StudyPlanManager = () => {
     total_sessions: 10
   });
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   useEffect(() => {
     fetchStudyPlans();
@@ -181,6 +199,11 @@ export const StudyPlanManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats */}
+      {gamificationStats && (
+        <StreakDisplay stats={gamificationStats} />
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Plans d'étude</h2>

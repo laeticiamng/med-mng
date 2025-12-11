@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,8 +15,12 @@ import {
   Star,
   TrendingUp,
   Clock,
-  Award
+  Award,
+  Flame
 } from 'lucide-react';
+import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserStats {
   totalSessions: number;
@@ -40,19 +44,48 @@ interface Achievement {
 
 export const UserProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+  const { getWeeklySummary } = useActivityTracking();
+  const [weeklySummary, setWeeklySummary] = useState<any>(null);
 
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+        const summary = await getWeeklySummary();
+        setWeeklySummary(summary);
+      }
+    };
+    init();
+  }, [loadStats, getWeeklySummary]);
+
+  // Use real gamification data or fallback to mock
   const userStats: UserStats = {
-    totalSessions: 147,
-    studyHours: 89.5,
+    totalSessions: weeklySummary?.totalActivities || 147,
+    studyHours: weeklySummary?.totalTime ? Math.round(weeklySummary.totalTime / 60 * 10) / 10 : 89.5,
     completedItems: 234,
-    currentStreak: 12,
-    averageScore: 87.3,
-    level: 15,
-    xp: 8750,
-    nextLevelXp: 10000
+    currentStreak: gamificationStats?.currentStreak || 12,
+    averageScore: weeklySummary?.averageScore || 87.3,
+    level: gamificationStats?.level || 15,
+    xp: gamificationStats?.totalPoints || 8750,
+    nextLevelXp: XP_PER_LEVEL
   };
 
-  const recentAchievements: Achievement[] = [
+  // Use real badges from gamification or fallback to mock
+  const recentAchievements: Achievement[] = gamificationStats?.badges?.slice(0, 3).map((badge: any) => {
+    const badgeDef = BADGE_DEFINITIONS.find(b => b.id === badge.id);
+    return {
+      id: badge.id,
+      name: badgeDef?.name || badge.id,
+      description: badgeDef?.description || 'Badge débloqué',
+      icon: Trophy,
+      rarity: badgeDef?.rarity as Achievement['rarity'] || 'common',
+      unlockedAt: badge.unlockedAt || new Date().toISOString()
+    };
+  }) || [
     {
       id: '1',
       name: 'Maître de la Cardiologie',

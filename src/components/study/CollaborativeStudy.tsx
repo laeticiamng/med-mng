@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { 
   Users, 
   Calendar, 
@@ -20,7 +22,10 @@ import {
   MessageCircle,
   BookOpen,
   UserPlus,
-  Settings
+  Settings,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 
 interface StudySession {
@@ -53,7 +58,22 @@ export const CollaborativeStudy: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filter, setFilter] = useState<'all' | 'active' | 'scheduled'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   const [newSession, setNewSession] = useState({
     session_name: '',
@@ -237,6 +257,35 @@ export const CollaborativeStudy: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats Banner */}
+      {user && gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-lg font-bold text-warning">{gamificationStats.currentStreak}</span>
+                  <span className="text-sm text-muted-foreground">jours</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-primary">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-6 bg-border" />
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-success" />
+                  <span className="text-lg font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+                  <span className="text-sm text-muted-foreground">badges</span>
+                </div>
+              </div>
+              <Badge variant="outline">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
