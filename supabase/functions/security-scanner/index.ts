@@ -76,11 +76,167 @@ async function scanBuildFiles(buildContent: string[]): Promise<SecurityIncident[
   return allIncidents
 }
 
+// Send webhook notification to Slack or Teams
+async function sendWebhookNotification(incident: SecurityIncident): Promise<void> {
+  const slackWebhookUrl = Deno.env.get('SLACK_WEBHOOK_URL');
+  const teamsWebhookUrl = Deno.env.get('TEAMS_WEBHOOK_URL');
+
+  const severityEmoji = {
+    critical: '🔴',
+    high: '🟠',
+    medium: '🟡',
+    low: '🟢'
+  };
+
+  // Slack notification
+  if (slackWebhookUrl) {
+    try {
+      const slackPayload = {
+        text: `${severityEmoji[incident.severity]} Security Alert: ${incident.pattern_matched}`,
+        attachments: [
+          {
+            color: incident.severity === 'critical' ? '#FF0000' :
+                   incident.severity === 'high' ? '#FF8C00' :
+                   incident.severity === 'medium' ? '#FFD700' : '#00FF00',
+            fields: [
+              {
+                title: 'Severity',
+                value: incident.severity.toUpperCase(),
+                short: true
+              },
+              {
+                title: 'Type',
+                value: incident.type,
+                short: true
+              },
+              {
+                title: 'File',
+                value: `${incident.file_path}:${incident.line_number || 'N/A'}`,
+                short: false
+              },
+              {
+                title: 'Pattern Detected',
+                value: incident.pattern_matched,
+                short: false
+              },
+              {
+                title: 'Preview',
+                value: `\`\`\`${incident.content_preview.substring(0, 200)}\`\`\``,
+                short: false
+              }
+            ],
+            footer: 'MED-MNG Security Scanner',
+            ts: Math.floor(new Date(incident.timestamp).getTime() / 1000)
+          }
+        ]
+      };
+
+      await fetch(slackWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slackPayload)
+      });
+
+      console.log('✅ Slack notification sent');
+    } catch (error) {
+      console.error('❌ Failed to send Slack notification:', error);
+    }
+  }
+
+  // Microsoft Teams notification
+  if (teamsWebhookUrl) {
+    try {
+      const teamsPayload = {
+        '@type': 'MessageCard',
+        '@context': 'http://schema.org/extensions',
+        themeColor: incident.severity === 'critical' ? 'FF0000' :
+                    incident.severity === 'high' ? 'FF8C00' :
+                    incident.severity === 'medium' ? 'FFD700' : '00FF00',
+        summary: `Security Alert: ${incident.pattern_matched}`,
+        sections: [
+          {
+            activityTitle: `${severityEmoji[incident.severity]} Security Incident Detected`,
+            activitySubtitle: incident.timestamp,
+            facts: [
+              { name: 'Severity', value: incident.severity.toUpperCase() },
+              { name: 'Type', value: incident.type },
+              { name: 'Pattern', value: incident.pattern_matched },
+              { name: 'File', value: `${incident.file_path}:${incident.line_number || 'N/A'}` }
+            ],
+            text: `\`\`\`${incident.content_preview.substring(0, 200)}\`\`\``,
+            markdown: true
+          }
+        ],
+        potentialAction: [
+          {
+            '@type': 'ActionCard',
+            name: 'View Details',
+            inputs: [],
+            actions: [
+              {
+                '@type': 'HttpPOST',
+                name: 'Acknowledge',
+                target: 'https://your-app.com/api/security/acknowledge'
+              }
+            ]
+          }
+        ]
+      };
+
+      await fetch(teamsWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(teamsPayload)
+      });
+
+      console.log('✅ Teams notification sent');
+    } catch (error) {
+      console.error('❌ Failed to send Teams notification:', error);
+    }
+  }
+
+  // Discord notification (bonus)
+  const discordWebhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL');
+  if (discordWebhookUrl) {
+    try {
+      const discordPayload = {
+        embeds: [
+          {
+            title: `${severityEmoji[incident.severity]} Security Alert`,
+            description: incident.pattern_matched,
+            color: incident.severity === 'critical' ? 0xFF0000 :
+                   incident.severity === 'high' ? 0xFF8C00 :
+                   incident.severity === 'medium' ? 0xFFD700 : 0x00FF00,
+            fields: [
+              { name: 'Severity', value: incident.severity.toUpperCase(), inline: true },
+              { name: 'Type', value: incident.type, inline: true },
+              { name: 'File', value: `\`${incident.file_path}:${incident.line_number || 'N/A'}\``, inline: false },
+              { name: 'Preview', value: `\`\`\`\n${incident.content_preview.substring(0, 200)}\n\`\`\``, inline: false }
+            ],
+            timestamp: incident.timestamp,
+            footer: { text: 'MED-MNG Security Scanner' }
+          }
+        ]
+      };
+
+      await fetch(discordWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(discordPayload)
+      });
+
+      console.log('✅ Discord notification sent');
+    } catch (error) {
+      console.error('❌ Failed to send Discord notification:', error);
+    }
+  }
+}
+
 async function sendAlert(incident: SecurityIncident, supabase: any) {
   console.log(`🚨 SECURITY ALERT [${incident.severity.toUpperCase()}]: ${incident.pattern_matched}`)
   console.log(`📁 File: ${incident.file_path}:${incident.line_number}`)
   console.log(`🔍 Preview: ${incident.content_preview}`)
-  
+
   // Enregistrer dans la base
   const { error } = await supabase
     .from('security_incidents')
@@ -94,12 +250,16 @@ async function sendAlert(incident: SecurityIncident, supabase: any) {
       status: 'detected',
       created_at: incident.timestamp
     })
-  
+
   if (error) {
     console.error('❌ Failed to log security incident:', error)
   }
-  
-  // TODO: Intégrer webhook Slack/Teams ici
+
+  // Send webhook notifications for high/critical incidents
+  if (incident.severity === 'critical' || incident.severity === 'high') {
+    await sendWebhookNotification(incident);
+  }
+
   if (incident.severity === 'critical') {
     console.log('🔴 CRITICAL SECURITY INCIDENT - BUILD SHOULD BE BLOCKED!')
   }

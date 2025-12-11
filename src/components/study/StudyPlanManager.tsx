@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Target, Book, Plus, Edit, Trash2, Flame, Star, Trophy } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Clock, Target, Book, Plus, Edit, Trash2, Flame, Star, Trophy, Loader2, RefreshCw, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -13,6 +14,7 @@ import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 interface StudyPlan {
   id: string;
+  user_id: string;
   title: string;
   description: string;
   target_date: string;
@@ -22,22 +24,28 @@ interface StudyPlan {
   sessions_completed: number;
   total_sessions: number;
   created_at: string;
+  updated_at: string;
 }
 
 interface StudySession {
   id: string;
   plan_id: string;
+  user_id: string;
   title: string;
   duration_minutes: number;
   completed: boolean;
   scheduled_date: string;
+  completed_date?: string;
   notes?: string;
+  item_code?: string;
 }
 
 export const StudyPlanManager = () => {
   const [studyPlans, setStudyPlans] = useState<StudyPlan[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingPlan, setEditingPlan] = useState<StudyPlan | null>(null);
   const [user, setUser] = useState<any>(null);
   const [newPlan, setNewPlan] = useState({
@@ -49,9 +57,9 @@ export const StudyPlanManager = () => {
   });
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addXP, incrementProgress } = useGamification();
 
-  // Load user and gamification stats
+  // Load user
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -59,69 +67,92 @@ export const StudyPlanManager = () => {
         setUser(user);
         loadStats(user.id);
       }
+      setIsLoading(false);
     };
     init();
   }, [loadStats]);
 
+  // Fetch study plans from Supabase
+  const fetchStudyPlans = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      // Try to fetch from user_study_plans table
+      const { data, error } = await supabase
+        .from('user_study_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        // If table doesn't exist, try profiles or create local storage fallback
+        console.log('Study plans table not found, using local storage fallback');
+        const saved = localStorage.getItem(`study_plans_${user.id}`);
+        if (saved) {
+          setStudyPlans(JSON.parse(saved));
+        }
+        return;
+      }
+
+      if (data) {
+        setStudyPlans(data);
+      }
+    } catch (err) {
+      console.error('Error fetching study plans:', err);
+      // Fallback to localStorage
+      const saved = localStorage.getItem(`study_plans_${user.id}`);
+      if (saved) {
+        setStudyPlans(JSON.parse(saved));
+      }
+    }
+  }, [user?.id]);
+
+  // Fetch sessions from Supabase
+  const fetchSessions = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('scheduled_date', { ascending: true });
+
+      if (error) {
+        console.log('Sessions table not found, using local storage fallback');
+        const saved = localStorage.getItem(`study_sessions_${user.id}`);
+        if (saved) {
+          setSessions(JSON.parse(saved));
+        }
+        return;
+      }
+
+      if (data) {
+        setSessions(data);
+      }
+    } catch (err) {
+      console.error('Error fetching sessions:', err);
+      const saved = localStorage.getItem(`study_sessions_${user.id}`);
+      if (saved) {
+        setSessions(JSON.parse(saved));
+      }
+    }
+  }, [user?.id]);
+
   useEffect(() => {
-    fetchStudyPlans();
-    fetchSessions();
-  }, []);
+    if (user?.id) {
+      fetchStudyPlans();
+      fetchSessions();
+    }
+  }, [user?.id, fetchStudyPlans, fetchSessions]);
 
-  const fetchStudyPlans = async () => {
-    // Mock data - Replace with real Supabase query when tables are created
-    const mockPlans: StudyPlan[] = [
-      {
-        id: '1',
-        title: 'EDN 2025 - Cardiologie',
-        description: 'Plan d\'étude complet pour les items de cardiologie',
-        target_date: '2025-06-15',
-        status: 'active',
-        priority: 'high',
-        progress: 65,
-        sessions_completed: 13,
-        total_sessions: 20,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        title: 'Neurologie - Items essentiels',
-        description: 'Révision des items clés en neurologie',
-        target_date: '2025-05-20',
-        status: 'active',
-        priority: 'medium',
-        progress: 40,
-        sessions_completed: 8,
-        total_sessions: 15,
-        created_at: new Date().toISOString()
-      }
-    ];
-    setStudyPlans(mockPlans);
-  };
-
-  const fetchSessions = async () => {
-    // Mock data - Replace with real Supabase query
-    const mockSessions: StudySession[] = [
-      {
-        id: '1',
-        plan_id: '1',
-        title: 'Insuffisance cardiaque',
-        duration_minutes: 45,
-        completed: true,
-        scheduled_date: '2025-01-15',
-        notes: 'Révision des classifications NYHA'
-      },
-      {
-        id: '2',
-        plan_id: '1',
-        title: 'Arythmies cardiaques',
-        duration_minutes: 60,
-        completed: false,
-        scheduled_date: '2025-01-16'
-      }
-    ];
-    setSessions(mockSessions);
-  };
+  // Save to localStorage as backup
+  const saveToLocalStorage = useCallback((plans: StudyPlan[], userSessions: StudySession[]) => {
+    if (user?.id) {
+      localStorage.setItem(`study_plans_${user.id}`, JSON.stringify(plans));
+      localStorage.setItem(`study_sessions_${user.id}`, JSON.stringify(userSessions));
+    }
+  }, [user?.id]);
 
   const createStudyPlan = async () => {
     if (!newPlan.title || !newPlan.target_date) {
@@ -133,18 +164,55 @@ export const StudyPlanManager = () => {
       return;
     }
 
+    if (!user?.id) {
+      toast({
+        title: 'Erreur',
+        description: 'Vous devez être connecté pour créer un plan',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
     try {
-      // TODO: Replace with real Supabase insert
       const plan: StudyPlan = {
-        id: Date.now().toString(),
-        ...newPlan,
+        id: `plan_${Date.now()}`,
+        user_id: user.id,
+        title: newPlan.title,
+        description: newPlan.description,
+        target_date: newPlan.target_date,
+        priority: newPlan.priority,
+        total_sessions: newPlan.total_sessions,
         status: 'active',
         progress: 0,
         sessions_completed: 0,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
-      setStudyPlans(prev => [...prev, plan]);
+      // Try to insert into Supabase
+      const { error } = await supabase
+        .from('user_study_plans')
+        .insert(plan);
+
+      if (error) {
+        console.log('Supabase insert failed, saving locally:', error);
+      }
+
+      // Update local state
+      const updatedPlans = [...studyPlans, plan];
+      setStudyPlans(updatedPlans);
+      saveToLocalStorage(updatedPlans, sessions);
+
+      // Log activity and add XP
+      logActivity({
+        activity_type: 'study',
+        metadata: { action: 'create_study_plan', plan_id: plan.id }
+      });
+      addXP(25, 'Plan d\'étude créé');
+      incrementProgress('plans_created');
+
       setNewPlan({
         title: '',
         description: '',
@@ -159,24 +227,123 @@ export const StudyPlanManager = () => {
         description: 'Votre plan d\'étude a été créé avec succès'
       });
     } catch (error) {
+      console.error('Error creating plan:', error);
       toast({
         title: 'Erreur',
         description: 'Impossible de créer le plan d\'étude',
         variant: 'destructive'
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const updatePlanProgress = async (planId: string) => {
-    const planSessions = sessions.filter(s => s.plan_id === planId);
-    const completedSessions = planSessions.filter(s => s.completed).length;
-    const progress = Math.round((completedSessions / planSessions.length) * 100);
+  const updatePlan = async (planId: string, updates: Partial<StudyPlan>) => {
+    try {
+      const { error } = await supabase
+        .from('user_study_plans')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', planId);
 
-    setStudyPlans(prev => prev.map(plan => 
-      plan.id === planId 
-        ? { ...plan, sessions_completed: completedSessions, progress }
-        : plan
-    ));
+      if (error) {
+        console.log('Supabase update failed, updating locally');
+      }
+
+      const updatedPlans = studyPlans.map(plan =>
+        plan.id === planId ? { ...plan, ...updates, updated_at: new Date().toISOString() } : plan
+      );
+      setStudyPlans(updatedPlans);
+      saveToLocalStorage(updatedPlans, sessions);
+
+      toast({
+        title: 'Plan mis à jour',
+        description: 'Les modifications ont été enregistrées'
+      });
+    } catch (error) {
+      console.error('Error updating plan:', error);
+    }
+  };
+
+  const deletePlan = async (planId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_study_plans')
+        .delete()
+        .eq('id', planId);
+
+      if (error) {
+        console.log('Supabase delete failed, deleting locally');
+      }
+
+      const updatedPlans = studyPlans.filter(plan => plan.id !== planId);
+      const updatedSessions = sessions.filter(session => session.plan_id !== planId);
+      setStudyPlans(updatedPlans);
+      setSessions(updatedSessions);
+      saveToLocalStorage(updatedPlans, updatedSessions);
+
+      toast({
+        title: 'Plan supprimé',
+        description: 'Le plan d\'étude a été supprimé'
+      });
+    } catch (error) {
+      console.error('Error deleting plan:', error);
+    }
+  };
+
+  const completeSession = async (sessionId: string) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    try {
+      const { error } = await supabase
+        .from('study_sessions')
+        .update({
+          completed: true,
+          completed_date: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.log('Supabase update failed, updating locally');
+      }
+
+      const updatedSessions = sessions.map(s =>
+        s.id === sessionId ? { ...s, completed: true, completed_date: new Date().toISOString() } : s
+      );
+      setSessions(updatedSessions);
+
+      // Update plan progress
+      const planSessions = updatedSessions.filter(s => s.plan_id === session.plan_id);
+      const completedCount = planSessions.filter(s => s.completed).length;
+      const plan = studyPlans.find(p => p.id === session.plan_id);
+
+      if (plan) {
+        const progress = Math.round((completedCount / plan.total_sessions) * 100);
+        await updatePlan(session.plan_id, {
+          sessions_completed: completedCount,
+          progress,
+          status: progress >= 100 ? 'completed' : 'active'
+        });
+      }
+
+      saveToLocalStorage(studyPlans, updatedSessions);
+
+      // Gamification
+      addXP(15, 'Session d\'étude terminée');
+      incrementProgress('sessions_completed');
+
+      logActivity({
+        activity_type: 'study',
+        metadata: { action: 'complete_session', session_id: sessionId, duration: session.duration_minutes }
+      });
+
+      toast({
+        title: 'Session terminée',
+        description: 'Félicitations ! Session d\'étude complétée.'
+      });
+    } catch (error) {
+      console.error('Error completing session:', error);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -197,6 +364,21 @@ export const StudyPlanManager = () => {
     }
   };
 
+  const getDaysRemaining = (targetDate: string) => {
+    const target = new Date(targetDate);
+    const today = new Date();
+    const diff = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Gamification Stats */}
@@ -211,10 +393,15 @@ export const StudyPlanManager = () => {
             Organisez et suivez vos sessions d'apprentissage
           </p>
         </div>
-        <Button onClick={() => setIsCreating(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nouveau plan
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" onClick={() => { fetchStudyPlans(); fetchSessions(); }}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+          <Button onClick={() => setIsCreating(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau plan
+          </Button>
+        </div>
       </div>
 
       {isCreating && (
@@ -224,7 +411,7 @@ export const StudyPlanManager = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Titre</label>
+              <label className="text-sm font-medium">Titre *</label>
               <Input
                 value={newPlan.title}
                 onChange={(e) => setNewPlan(prev => ({ ...prev, title: e.target.value }))}
@@ -241,24 +428,48 @@ export const StudyPlanManager = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Date cible</label>
+                <label className="text-sm font-medium">Date cible *</label>
                 <Input
                   type="date"
                   value={newPlan.target_date}
                   onChange={(e) => setNewPlan(prev => ({ ...prev, target_date: e.target.value }))}
+                  min={new Date().toISOString().split('T')[0]}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Nombre de sessions</label>
-                <Input
-                  type="number"
-                  value={newPlan.total_sessions}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, total_sessions: parseInt(e.target.value) }))}
-                />
+                <label className="text-sm font-medium">Priorité</label>
+                <Select
+                  value={newPlan.priority}
+                  onValueChange={(value: 'low' | 'medium' | 'high') =>
+                    setNewPlan(prev => ({ ...prev, priority: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Basse</SelectItem>
+                    <SelectItem value="medium">Moyenne</SelectItem>
+                    <SelectItem value="high">Haute</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+            <div>
+              <label className="text-sm font-medium">Nombre de sessions prévues</label>
+              <Input
+                type="number"
+                min={1}
+                max={100}
+                value={newPlan.total_sessions}
+                onChange={(e) => setNewPlan(prev => ({ ...prev, total_sessions: parseInt(e.target.value) || 10 }))}
+              />
+            </div>
             <div className="flex gap-2">
-              <Button onClick={createStudyPlan}>Créer</Button>
+              <Button onClick={createStudyPlan} disabled={isSaving}>
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Créer
+              </Button>
               <Button variant="outline" onClick={() => setIsCreating(false)}>
                 Annuler
               </Button>
@@ -268,62 +479,111 @@ export const StudyPlanManager = () => {
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {studyPlans.map((plan) => (
-          <Card key={plan.id} className="relative">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-xl">{plan.title}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Badge variant={getPriorityColor(plan.priority)}>
-                    {plan.priority}
-                  </Badge>
-                  <Badge variant={getStatusColor(plan.status)}>
-                    {plan.status}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {new Date(plan.target_date).toLocaleDateString()}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Book className="h-4 w-4" />
-                  {plan.sessions_completed}/{plan.total_sessions} sessions
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progression</span>
-                  <span>{plan.progress}%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${plan.progress}%` }}
-                  />
-                </div>
-              </div>
+        {studyPlans.map((plan) => {
+          const daysRemaining = getDaysRemaining(plan.target_date);
+          const planSessions = sessions.filter(s => s.plan_id === plan.id);
 
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline">
-                  <Edit className="mr-2 h-3 w-3" />
-                  Modifier
-                </Button>
-                <Button size="sm" variant="outline">
-                  <Target className="mr-2 h-3 w-3" />
-                  Sessions
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+          return (
+            <Card key={plan.id} className="relative">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-xl">{plan.title}</CardTitle>
+                    <CardDescription>{plan.description}</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant={getPriorityColor(plan.priority)}>
+                      {plan.priority === 'high' ? 'Haute' : plan.priority === 'medium' ? 'Moyenne' : 'Basse'}
+                    </Badge>
+                    <Badge variant={getStatusColor(plan.status)}>
+                      {plan.status === 'active' ? 'Actif' : plan.status === 'completed' ? 'Terminé' : 'Pause'}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(plan.target_date).toLocaleDateString('fr-FR')}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {daysRemaining > 0 ? `${daysRemaining} jours restants` : 'Échéance dépassée'}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Book className="h-4 w-4" />
+                    {plan.sessions_completed}/{plan.total_sessions} sessions
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progression</span>
+                    <span className="font-medium">{plan.progress}%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2.5">
+                    <div
+                      className={`h-2.5 rounded-full transition-all duration-500 ${
+                        plan.progress >= 100 ? 'bg-green-500' :
+                        plan.progress >= 50 ? 'bg-primary' : 'bg-yellow-500'
+                      }`}
+                      style={{ width: `${Math.min(plan.progress, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {plan.status === 'completed' && (
+                  <div className="flex items-center gap-2 text-green-600 bg-green-50 p-2 rounded">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Plan terminé avec succès !</span>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingPlan(plan)}
+                  >
+                    <Edit className="mr-2 h-3 w-3" />
+                    Modifier
+                  </Button>
+                  {plan.status === 'active' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updatePlan(plan.id, { status: 'paused' })}
+                    >
+                      Pause
+                    </Button>
+                  )}
+                  {plan.status === 'paused' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updatePlan(plan.id, { status: 'active' })}
+                    >
+                      Reprendre
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    onClick={() => {
+                      if (confirm('Êtes-vous sûr de vouloir supprimer ce plan ?')) {
+                        deletePlan(plan.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {studyPlans.length === 0 && !isCreating && (

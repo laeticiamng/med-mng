@@ -1,14 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, TrendingUp, Users, Activity, 
-  Calendar, Download, Music, Brain, Eye
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  BarChart3, TrendingUp, Users, Activity,
+  Calendar, Download, Music, Brain, Eye, RefreshCw, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// Storage keys pour les données persistantes
+const STORAGE_KEYS = {
+  analyticsCache: 'admin_analytics_cache',
+  lastFetch: 'admin_analytics_last_fetch'
+};
+
+// Durée de validité du cache (15 minutes)
+const CACHE_DURATION = 15 * 60 * 1000;
 
 interface AnalyticsData {
   userGrowth: {
@@ -41,8 +51,42 @@ interface AnalyticsData {
     averageLoadTime: number;
     errorRate: number;
     uptime: number;
+    activeUsers: number;
+    peakHour: string;
   };
+  dailyActivity: Array<{
+    date: string;
+    sessions: number;
+    uniqueUsers: number;
+    studyMinutes: number;
+  }>;
 }
+
+// Helper pour charger depuis le cache
+const loadFromCache = (): { data: AnalyticsData | null; isValid: boolean } => {
+  try {
+    const cached = localStorage.getItem(STORAGE_KEYS.analyticsCache);
+    const lastFetch = localStorage.getItem(STORAGE_KEYS.lastFetch);
+
+    if (cached && lastFetch) {
+      const isValid = Date.now() - parseInt(lastFetch) < CACHE_DURATION;
+      return { data: JSON.parse(cached), isValid };
+    }
+  } catch (e) {
+    console.warn('Erreur lecture cache analytics:', e);
+  }
+  return { data: null, isValid: false };
+};
+
+// Helper pour sauvegarder dans le cache
+const saveToCache = (data: AnalyticsData) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.analyticsCache, JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEYS.lastFetch, Date.now().toString());
+  } catch (e) {
+    console.warn('Erreur sauvegarde cache analytics:', e);
+  }
+};
 
 export const AdminAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
@@ -67,24 +111,45 @@ export const AdminAnalytics = () => {
     performance: {
       averageLoadTime: 0,
       errorRate: 0,
-      uptime: 0
-    }
+      uptime: 0,
+      activeUsers: 0,
+      peakHour: ''
+    },
+    dailyActivity: []
   });
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('30d');
+  const [refreshing, setRefreshing] = useState(false);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    fetchAnalytics();
+  // Calculer la date de début selon la période
+  const getStartDate = useCallback(() => {
+    const now = new Date();
+    const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+    return new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   }, [timeRange]);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async (forceRefresh = false) => {
     try {
-      setLoading(true);
+      // Vérifier le cache seulement si pas de forceRefresh
+      if (!forceRefresh) {
+        const { data: cached, isValid } = loadFromCache();
+        if (cached && isValid) {
+          setAnalyticsData(cached);
+          setLoading(false);
+          return;
+        }
+      }
 
-      // Récupération des données utilisateurs
+      setRefreshing(forceRefresh);
+      if (!forceRefresh) setLoading(true);
+
+      const startDate = getStartDate();
+
+      // 1. Récupération des données utilisateurs
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('created_at')
+        .select('id, created_at, last_active_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -94,37 +159,127 @@ export const AdminAnalytics = () => {
       const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-      const thisMonthUsers = profiles?.filter(p => 
+      const thisMonthUsers = profiles?.filter(p =>
         new Date(p.created_at) >= thisMonth
       ).length || 0;
 
-      const lastMonthUsers = profiles?.filter(p => 
+      const lastMonthUsers = profiles?.filter(p =>
         new Date(p.created_at) >= lastMonth && new Date(p.created_at) < thisMonth
       ).length || 0;
 
-      const growthRate = lastMonthUsers > 0 
+      const growthRate = lastMonthUsers > 0
         ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100)
-        : 0;
+        : thisMonthUsers > 0 ? 100 : 0;
 
-      // Simulation des données IA (RPC non disponible)
-      const mockIaStats = { total_credits_used: 15000 };
+      // Utilisateurs actifs (dernière activité dans les 24h)
+      const activeUsers = profiles?.filter(p =>
+        p.last_active_at && new Date(p.last_active_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+      ).length || 0;
 
-      // Simulation de données de performance et d'usage
-      const mockFeatureUsage = [
-        { feature: 'Génération musicale', usage: 1250, percentage: 35 },
-        { feature: 'QCM interactifs', usage: 980, percentage: 28 },
-        { feature: 'Tableaux EDN', usage: 860, percentage: 24 },
-        { feature: 'Scènes 3D', usage: 450, percentage: 13 }
+      // 2. Récupération des logs d'activité pour les sessions
+      let totalSessions = 0;
+      let totalStudyMinutes = 0;
+      const featureUsageMap: Record<string, number> = {};
+
+      const { data: activityLogs } = await supabase
+        .from('activity_logs')
+        .select('activity_type, count, metadata, created_at')
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (activityLogs) {
+        activityLogs.forEach(log => {
+          totalSessions += log.count || 1;
+
+          // Compter par type d'activité
+          const activityType = log.activity_type || 'other';
+          featureUsageMap[activityType] = (featureUsageMap[activityType] || 0) + (log.count || 1);
+
+          // Estimer le temps d'étude (environ 5 min par activité)
+          totalStudyMinutes += (log.count || 1) * 5;
+        });
+      }
+
+      // Transformer en tableau trié
+      const totalFeatureUsage = Object.values(featureUsageMap).reduce((a, b) => a + b, 0) || 1;
+      const mostUsedFeatures = Object.entries(featureUsageMap)
+        .map(([feature, usage]) => ({
+          feature: formatFeatureName(feature),
+          usage,
+          percentage: Math.round((usage / totalFeatureUsage) * 100)
+        }))
+        .sort((a, b) => b.usage - a.usage)
+        .slice(0, 5);
+
+      // 3. Récupération des statistiques de génération IA
+      let musicGenerated = 0;
+      let qcmGenerated = 0;
+      let bdGenerated = 0;
+
+      // Musiques générées
+      const { count: musicCount } = await supabase
+        .from('music_generations')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', startDate.toISOString());
+      musicGenerated = musicCount || 0;
+
+      // BD générées
+      const { count: bdCount } = await supabase
+        .from('pedagogical_content')
+        .select('*', { count: 'exact', head: true })
+        .eq('content_type', 'comic')
+        .gte('created_at', startDate.toISOString());
+      bdGenerated = bdCount || 0;
+
+      // QCM générés (depuis quiz_generation_history si existe)
+      const { count: qcmCount } = await supabase
+        .from('quiz_generation_history')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', startDate.toISOString());
+      qcmGenerated = qcmCount || 0;
+
+      // Calculer les crédits utilisés (estimation basée sur les générations)
+      const totalCreditsUsed = (musicGenerated * 10) + (bdGenerated * 5) + (qcmGenerated * 2);
+
+      // Cost breakdown basé sur les vraies données
+      const costBreakdown = [
+        { service: 'Suno Music API', credits: musicGenerated * 10, cost: musicGenerated * 0.5 },
+        { service: 'OpenAI GPT-4', credits: qcmGenerated * 2 + bdGenerated * 3, cost: (qcmGenerated * 0.02) + (bdGenerated * 0.05) },
+        { service: 'DALL-E Images', credits: bdGenerated * 2, cost: bdGenerated * 0.04 },
+        { service: 'Autres services', credits: Math.round(totalCreditsUsed * 0.1), cost: totalCreditsUsed * 0.002 }
       ];
 
-      const mockCostBreakdown = [
-        { service: 'Suno Music API', credits: 6250, cost: 125 },
-        { service: 'OpenAI GPT-4', credits: 2940, cost: 58.8 },
-        { service: 'DALL-E Images', credits: 1350, cost: 27 },
-        { service: 'Autres services', credits: 460, cost: 9.2 }
-      ];
+      // 4. Données de performance (depuis platform_health si disponible)
+      let performanceData = {
+        averageLoadTime: 1.2,
+        errorRate: 0.5,
+        uptime: 99.9,
+        peakHour: '14:00'
+      };
 
-      setAnalyticsData({
+      const { data: healthData } = await supabase
+        .from('platform_health_history')
+        .select('*')
+        .order('checked_at', { ascending: false })
+        .limit(100);
+
+      if (healthData && healthData.length > 0) {
+        const avgLoadTime = healthData.reduce((sum, h) => sum + (h.response_time_ms || 1200), 0) / healthData.length;
+        const errorCount = healthData.filter(h => h.status === 'error').length;
+
+        performanceData = {
+          averageLoadTime: avgLoadTime / 1000,
+          errorRate: (errorCount / healthData.length) * 100,
+          uptime: ((healthData.length - errorCount) / healthData.length) * 100,
+          peakHour: calculatePeakHour(activityLogs || [])
+        };
+      }
+
+      // 5. Activité quotidienne pour le graphique
+      const dailyActivity = calculateDailyActivity(activityLogs || [], profiles || []);
+
+      // Construire l'objet final
+      const analyticsResult: AnalyticsData = {
         userGrowth: {
           total: profiles?.length || 0,
           thisMonth: thisMonthUsers,
@@ -132,83 +287,235 @@ export const AdminAnalytics = () => {
           growthRate
         },
         contentUsage: {
-          totalSessions: 3750, // Valeur simulée
-          averageSessionTime: 18, // minutes
-          mostUsedFeatures: mockFeatureUsage
+          totalSessions,
+          averageSessionTime: totalSessions > 0 ? Math.round(totalStudyMinutes / totalSessions) : 0,
+          mostUsedFeatures
         },
         aiUsage: {
-          totalCreditsUsed: mockIaStats.total_credits_used,
-          musicGenerated: 425,
-          qcmGenerated: 1230,
-          bdGenerated: 89,
-          costBreakdown: mockCostBreakdown
+          totalCreditsUsed,
+          musicGenerated,
+          qcmGenerated,
+          bdGenerated,
+          costBreakdown
         },
         performance: {
-          averageLoadTime: 1.2, // secondes
-          errorRate: 0.8, // pourcentage
-          uptime: 99.9 // pourcentage
-        }
-      });
+          ...performanceData,
+          activeUsers
+        },
+        dailyActivity
+      };
+
+      setAnalyticsData(analyticsResult);
+      saveToCache(analyticsResult);
 
     } catch (error) {
       console.error('Erreur chargement analytics:', error);
-      toast.error('Erreur lors du chargement des analytics');
+
+      // Fallback au cache même expiré
+      const { data: cached } = loadFromCache();
+      if (cached) {
+        setAnalyticsData(cached);
+        toast.info('Données du cache utilisées (connexion limitée)');
+      } else {
+        toast.error('Erreur lors du chargement des analytics');
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  }, [getStartDate]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
+
+  const handleRefresh = () => {
+    fetchAnalytics(true);
   };
 
   const exportAnalytics = async () => {
     try {
-      // Créer un rapport CSV simple
+      // Créer un rapport CSV complet
       const csvData = [
-        ['Métrique', 'Valeur'],
+        ['=== RAPPORT ANALYTICS ===', ''],
+        ['Date de génération', new Date().toLocaleString('fr-FR')],
+        ['Période', `${timeRange === '7d' ? '7 jours' : timeRange === '30d' ? '30 jours' : '90 jours'}`],
+        ['', ''],
+        ['=== UTILISATEURS ===', ''],
         ['Utilisateurs totaux', analyticsData.userGrowth.total.toString()],
-        ['Nouveaux utilisateurs ce mois', analyticsData.userGrowth.thisMonth.toString()],
-        ['Crédits IA utilisés', analyticsData.aiUsage.totalCreditsUsed.toString()],
-        ['Temps de session moyen', `${analyticsData.contentUsage.averageSessionTime} min`],
-        ['Uptime', `${analyticsData.performance.uptime}%`]
+        ['Nouveaux ce mois', analyticsData.userGrowth.thisMonth.toString()],
+        ['Mois précédent', analyticsData.userGrowth.lastMonth.toString()],
+        ['Taux de croissance', `${analyticsData.userGrowth.growthRate}%`],
+        ['Utilisateurs actifs (24h)', analyticsData.performance.activeUsers.toString()],
+        ['', ''],
+        ['=== CONTENU & USAGE ===', ''],
+        ['Sessions totales', analyticsData.contentUsage.totalSessions.toString()],
+        ['Durée moyenne session', `${analyticsData.contentUsage.averageSessionTime} min`],
+        ['', ''],
+        ['=== GÉNÉRATION IA ===', ''],
+        ['Crédits utilisés', analyticsData.aiUsage.totalCreditsUsed.toString()],
+        ['Musiques générées', analyticsData.aiUsage.musicGenerated.toString()],
+        ['QCM générés', analyticsData.aiUsage.qcmGenerated.toString()],
+        ['BD générées', analyticsData.aiUsage.bdGenerated.toString()],
+        ['', ''],
+        ['=== COÛTS PAR SERVICE ===', ''],
+        ...analyticsData.aiUsage.costBreakdown.map(s => [s.service, `${s.cost.toFixed(2)}€`]),
+        ['Total estimé', `${analyticsData.aiUsage.costBreakdown.reduce((sum, s) => sum + s.cost, 0).toFixed(2)}€`],
+        ['', ''],
+        ['=== PERFORMANCE ===', ''],
+        ['Temps chargement moyen', `${analyticsData.performance.averageLoadTime.toFixed(2)}s`],
+        ['Taux d\'erreur', `${analyticsData.performance.errorRate.toFixed(2)}%`],
+        ['Disponibilité', `${analyticsData.performance.uptime.toFixed(2)}%`],
+        ['Heure de pointe', analyticsData.performance.peakHour],
+        ['', ''],
+        ['=== FONCTIONNALITÉS LES PLUS UTILISÉES ===', ''],
+        ...analyticsData.contentUsage.mostUsedFeatures.map(f => [f.feature, `${f.usage} (${f.percentage}%)`])
       ];
 
       const csvContent = csvData.map(row => row.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
-      
+
       const a = document.createElement('a');
       a.href = url;
-      a.download = `analytics-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `analytics-medmng-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
-      
+
       window.URL.revokeObjectURL(url);
       toast.success('Rapport exporté avec succès');
     } catch (error) {
       console.error('Erreur export:', error);
-      toast.error('Erreur lors de l\'export');
+      toast.error("Erreur lors de l'export");
     }
+  };
+
+  // Helper pour formater les noms de fonctionnalités
+  const formatFeatureName = (name: string): string => {
+    const mapping: Record<string, string> = {
+      'study': 'Étude EDN',
+      'quiz': 'Quiz interactifs',
+      'music': 'Génération musicale',
+      'ecos': 'Scénarios ECOS',
+      'search': 'Recherche',
+      'tableau': 'Tableaux compétences',
+      'login': 'Connexions',
+      'profile': 'Profil utilisateur',
+      'other': 'Autres'
+    };
+    return mapping[name] || name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, ' ');
+  };
+
+  // Calculer l'heure de pointe
+  const calculatePeakHour = (logs: any[]): string => {
+    if (!logs.length) return '14:00';
+
+    const hourCounts: Record<number, number> = {};
+    logs.forEach(log => {
+      const hour = new Date(log.created_at).getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+    });
+
+    const peakHour = Object.entries(hourCounts).reduce((a, b) =>
+      hourCounts[parseInt(a[0])] > hourCounts[parseInt(b[0])] ? a : b
+    )[0];
+
+    return `${peakHour.padStart(2, '0')}:00`;
+  };
+
+  // Calculer l'activité quotidienne
+  const calculateDailyActivity = (logs: any[], profiles: any[]): AnalyticsData['dailyActivity'] => {
+    const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+    const result: AnalyticsData['dailyActivity'] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const displayDate = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+
+      const dayLogs = logs.filter(log => log.created_at.startsWith(dateStr));
+      const sessions = dayLogs.reduce((sum, log) => sum + (log.count || 1), 0);
+      const uniqueUsers = new Set(dayLogs.map(log => log.user_id)).size;
+
+      result.push({
+        date: displayDate,
+        sessions,
+        uniqueUsers,
+        studyMinutes: sessions * 5
+      });
+    }
+
+    return result;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Chargement des analytics...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header avec exports */}
-      <div className="flex justify-between items-center">
+      {/* Header avec contrôles */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Analytics et métriques</h2>
           <p className="text-muted-foreground">
             Analysez les performances et l'utilisation de la plateforme
           </p>
         </div>
-        <Button onClick={exportAnalytics} className="flex items-center gap-2">
-          <Download className="h-4 w-4" />
-          Exporter le rapport
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Sélecteur de période */}
+          <div className="flex gap-1 border rounded-lg p-1 bg-muted/30">
+            <Button
+              variant={timeRange === '7d' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setTimeRange('7d')}
+            >
+              <Calendar className="h-4 w-4 mr-1" />
+              7j
+            </Button>
+            <Button
+              variant={timeRange === '30d' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setTimeRange('30d')}
+            >
+              30j
+            </Button>
+            <Button
+              variant={timeRange === '90d' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setTimeRange('90d')}
+            >
+              90j
+            </Button>
+          </div>
+
+          {/* Bouton refresh */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Export */}
+          <Button onClick={exportAnalytics} size="sm" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Métriques principales */}
