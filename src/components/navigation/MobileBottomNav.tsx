@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Library, Plus, CreditCard, User } from 'lucide-react';
+import { Home, Library, Plus, CreditCard, User, Flame, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BottomNavItem {
   to: string;
@@ -41,6 +43,19 @@ const navItems: BottomNavItem[] = [
 
 export const MobileBottomNav = () => {
   const location = useLocation();
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   return (
     <>
@@ -55,6 +70,23 @@ export const MobileBottomNav = () => {
         role="navigation"
         aria-label="Navigation mobile principale"
       >
+        {/* Gamification Mini Stats */}
+        {user && gamificationStats && (
+          <div className="flex items-center justify-center gap-4 py-1.5 bg-gradient-to-r from-primary/5 via-background to-warning/5 border-b border-border/50">
+            <div className="flex items-center gap-1 text-warning">
+              <Flame className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">{gamificationStats.currentStreak}j</span>
+            </div>
+            <div className="w-px h-3 bg-border" />
+            <div className="flex items-center gap-1 text-primary">
+              <Star className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">Nv.{gamificationStats.level}</span>
+            </div>
+            <div className="w-px h-3 bg-border" />
+            <span className="text-xs text-muted-foreground">{gamificationStats.totalPoints} XP</span>
+          </div>
+        )}
+
         <div className="flex items-center justify-around px-2 py-1 max-w-md mx-auto">
           {navItems.map((item) => {
             const isActive = location.pathname === item.to || 

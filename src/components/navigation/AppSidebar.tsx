@@ -11,6 +11,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   Home,
   BarChart3, 
@@ -26,11 +27,15 @@ import {
   Trophy,
   HeartHandshake,
   Sparkles,
-  Database
+  Database,
+  Flame,
+  Star
 } from 'lucide-react';
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 const navigationItems = [
   {
@@ -125,6 +130,19 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const currentPath = location.pathname;
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   const [onlineUsers, setOnlineUsers] = useState(127);
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   useEffect(() => {
     // Simulate real-time updates
@@ -266,10 +284,45 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           ))}
         </div>
 
+        {/* Gamification Stats */}
+        {user && gamificationStats && !isCollapsed && (
+          <div className="px-4 py-3 border-t bg-gradient-to-r from-primary/5 to-warning/5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-warning" />
+                <span className="text-sm font-bold text-warning">{gamificationStats.currentStreak}j</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-primary">Nv.{gamificationStats.level}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-success" />
+                <span className="text-sm font-bold text-success">{gamificationStats.badges?.length || 0}</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>XP</span>
+                <span>{gamificationStats.totalPoints % XP_PER_LEVEL}/{XP_PER_LEVEL}</span>
+              </div>
+              <Progress value={(gamificationStats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} className="h-1.5" />
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         <div className={`p-4 border-t bg-muted/20 ${isCollapsed ? 'px-2' : 'px-4'}`}>
           {isCollapsed ? (
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-2">
+              {gamificationStats && (
+                <>
+                  <div className="flex items-center gap-1 text-warning">
+                    <Flame className="h-4 w-4" />
+                    <span className="text-xs font-bold">{gamificationStats.currentStreak}</span>
+                  </div>
+                </>
+              )}
               <Sparkles className="h-5 w-5 text-warning" />
             </div>
           ) : (
