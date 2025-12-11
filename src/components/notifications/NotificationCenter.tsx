@@ -73,10 +73,20 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     clearAll
   } = useNotifications();
 
-  // Simuler des données pour la démo
+  // Notifications incluant gamification
   const demoNotifications: Notification[] = [
     {
       id: '1',
+      type: 'success',
+      title: '🏆 Badge débloqué !',
+      message: 'Félicitations ! Vous avez débloqué le badge "Série de 7 jours".',
+      timestamp: new Date(Date.now() - 2 * 60 * 1000),
+      read: false,
+      actionable: true,
+      action: { label: 'Voir mes badges', handler: () => {} }
+    },
+    {
+      id: '2',
       type: 'success',
       title: 'Musique générée',
       message: 'Votre musique pour IC-157 a été générée avec succès !',
@@ -86,17 +96,25 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       action: { label: 'Écouter', handler: () => {} }
     },
     {
-      id: '2',
+      id: '3',
       type: 'warning',
-      title: 'Quota Musical',
-      message: 'Vous avez utilisé 80% de votre quota mensuel.',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
+      title: '🔥 Streak en danger !',
+      message: 'N\'oubliez pas de réviser aujourd\'hui pour maintenir votre série de 5 jours.',
+      timestamp: new Date(Date.now() - 20 * 60 * 1000),
       read: false,
       actionable: true,
-      action: { label: 'Voir les tarifs', handler: () => {} }
+      action: { label: 'Réviser maintenant', handler: () => {} }
     },
     {
-      id: '3',
+      id: '4',
+      type: 'info',
+      title: '⬆️ Niveau supérieur !',
+      message: 'Vous êtes passé au niveau 8 ! +500 XP bonus.',
+      timestamp: new Date(Date.now() - 45 * 60 * 1000),
+      read: true
+    },
+    {
+      id: '5',
       type: 'info',
       title: 'Nouveau contenu',
       message: 'De nouveaux items EDN sont disponibles.',

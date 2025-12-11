@@ -1,9 +1,27 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { BookOpen, Users, BarChart3, Sparkles } from "lucide-react";
+import { BookOpen, Users, BarChart3, Sparkles, Flame, Star, Trophy } from "lucide-react";
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 export const HeroSection = () => {
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
+
   return (
     <div className="text-center space-y-6 mb-12">
       <div className="flex items-center justify-center space-x-2">
@@ -15,6 +33,29 @@ export const HeroSection = () => {
       <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
         Plateforme d'apprentissage immersive pour les étudiants en médecine avec contenus EDN et simulations ECOS
       </p>
+      
+      {/* Gamification Stats for logged in users */}
+      {user && gamificationStats && (
+        <div className="flex justify-center">
+          <div className="flex items-center gap-4 px-6 py-3 bg-card/80 backdrop-blur-sm rounded-full border border-border shadow-lg">
+            <div className="flex items-center gap-2 text-warning">
+              <Flame className="h-5 w-5" />
+              <span className="font-bold">{gamificationStats.currentStreak}</span>
+              <span className="text-sm text-muted-foreground">jours</span>
+            </div>
+            <div className="w-px h-6 bg-border" />
+            <div className="flex items-center gap-2 text-primary">
+              <Star className="h-5 w-5" />
+              <span className="font-bold">Niv. {gamificationStats.level}</span>
+            </div>
+            <div className="w-px h-6 bg-border" />
+            <div className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-warning" />
+              <Badge variant="secondary">{gamificationStats.badges.length} badges</Badge>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Navigation rapide */}
       <div className="flex flex-wrap justify-center gap-4 mt-8">

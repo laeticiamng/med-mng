@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,10 +16,14 @@ import {
   Award,
   Zap,
   Heart,
-  Star
+  Star,
+  Flame
 } from 'lucide-react';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
 import { useListeningModes } from '@/hooks/useListeningModes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
   totalListeningTime: number;
@@ -59,24 +62,30 @@ export const PersonalizedDashboard = () => {
 
   const { recommendations, isLoading } = useAIRecommendations();
   const { predefinedModes, activeMode } = useListeningModes();
+  const { stats: gamificationStats, loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
+  const { getWeeklySummary, getHeatmapData } = useActivityTracking();
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    // Simuler le chargement des statistiques
-    const loadStats = async () => {
-      // Ici, vous récupéreriez les vraies données depuis Supabase
-      const mockStats = {
-        totalListeningTime: 1280, // en minutes
-        completedSessions: 47,
-        favoriteMode: 'Focus Intense',
-        weeklyProgress: 85,
-        longestSession: 120,
-        averageRating: 4.2
-      };
-      setStats(mockStats);
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadGamification(user.id);
+        
+        // Load real activity data
+        const summary = await getWeeklySummary();
+        if (summary) {
+          setStats(prev => ({
+            ...prev,
+            completedSessions: summary.totalActivities,
+            weeklyProgress: Math.min(100, (summary.totalActivities / 20) * 100)
+          }));
+        }
+      }
     };
-
-    loadStats();
-  }, []);
+    init();
+  }, [loadGamification, getWeeklySummary]);
 
   const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -94,16 +103,33 @@ export const PersonalizedDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* En-tête du tableau de bord */}
+      {/* En-tête du tableau de bord avec gamification */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Mon Tableau de Bord</h1>
           <p className="text-muted-foreground">Suivez votre progression et vos habitudes d'écoute</p>
         </div>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Paramètres
-        </Button>
+        <div className="flex items-center gap-4">
+          {gamificationStats && (
+            <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-full">
+              <div className="flex items-center gap-1 text-warning">
+                <Flame className="h-4 w-4" />
+                <span className="font-bold">{gamificationStats.currentStreak}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1 text-primary">
+                <Star className="h-4 w-4" />
+                <span className="font-bold">Nv.{gamificationStats.level}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <Badge variant="secondary">{gamificationStats.totalPoints} XP</Badge>
+            </div>
+          )}
+          <Button variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Paramètres
+          </Button>
+        </div>
       </div>
 
       {/* Statistiques principales */}
@@ -363,30 +389,26 @@ export const PersonalizedDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { icon: '🔥', name: 'Série de 7 jours', desc: 'Écoute quotidienne', unlocked: true },
-                  { icon: '⚡', name: 'Speed learner', desc: '50 sessions rapides', unlocked: true },
-                  { icon: '🧠', name: 'Maître Focus', desc: '100h en mode focus', unlocked: true },
-                  { icon: '🎯', name: 'Précision', desc: 'Tous les modes testés', unlocked: false },
-                  { icon: '🌟', name: 'Explorateur', desc: 'Mode personnalisé créé', unlocked: false },
-                  { icon: '🏆', name: 'Champion', desc: '500 sessions complétées', unlocked: false }
-                ].map((badge, index) => (
-                  <div 
-                    key={index}
-                    className={`p-4 border rounded-lg text-center ${
-                      badge.unlocked ? 'bg-secondary/50' : 'opacity-50'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">{badge.icon}</div>
-                    <h4 className="font-medium text-sm">{badge.name}</h4>
-                    <p className="text-xs text-muted-foreground">{badge.desc}</p>
-                    {badge.unlocked && (
-                      <Badge variant="secondary" className="mt-2 text-xs">
-                        Débloqué
-                      </Badge>
-                    )}
-                  </div>
-                ))}
+                {BADGE_DEFINITIONS.map((badgeDef) => {
+                  const isUnlocked = gamificationStats?.badges.some(b => b.id === badgeDef.id);
+                  return (
+                    <div 
+                      key={badgeDef.id}
+                      className={`p-4 border rounded-lg text-center ${
+                        isUnlocked ? 'bg-secondary/50 border-success/50' : 'opacity-50'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">{badgeDef.icon}</div>
+                      <h4 className="font-medium text-sm">{badgeDef.name}</h4>
+                      <p className="text-xs text-muted-foreground">{badgeDef.description}</p>
+                      {isUnlocked && (
+                        <Badge variant="secondary" className="mt-2 text-xs bg-success/10 text-success">
+                          Débloqué
+                        </Badge>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
