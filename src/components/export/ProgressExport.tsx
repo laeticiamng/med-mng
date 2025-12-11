@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, FileText, Share2, Loader2, Check, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ExportOptions {
   includeStats: boolean;
@@ -40,6 +42,13 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
     period: '30days',
   });
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    if (userId) {
+      logActivity({ activity_type: 'study', metadata: { action: 'view_progress_export' } });
+    }
+  }, [userId, logActivity]);
 
   const generatePDF = async () => {
     setExporting(true);
@@ -165,6 +174,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
 
       // Save
       doc.save(`progression-edn-${new Date().toISOString().split('T')[0]}.pdf`);
+      logActivity({ activity_type: 'study', metadata: { action: 'export_progress_pdf' } });
       toast({ title: 'Export réussi', description: 'Votre rapport PDF a été téléchargé.' });
     } catch (error) {
       console.error('Export error:', error);
