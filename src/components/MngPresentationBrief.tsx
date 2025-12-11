@@ -1,11 +1,34 @@
+import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Music, Brain, Target, ArrowRight } from "lucide-react";
+import { Music, Brain, Target, ArrowRight, Flame, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTE_PATHS } from "@/config/routes";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { useGamification } from "@/hooks/useGamification";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MngPresentationBrief = () => {
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'mng_presentation_brief', action: 'view' }
+    });
+  }, [logActivity]);
+
   return (
     <div className="mb-16">
       <Card className="bg-gradient-medical text-primary-foreground mb-8">
@@ -17,6 +40,18 @@ export const MngPresentationBrief = () => {
           <CardDescription className="text-primary-foreground/80 text-lg">
             Music Neuro Learning Generator - Révolutionnez votre apprentissage
           </CardDescription>
+          {gamificationStats && (
+            <div className="flex items-center justify-center gap-3 mt-3">
+              <Badge variant="secondary" className="gap-1 bg-primary-foreground/20">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak}
+              </Badge>
+              <Badge variant="secondary" className="gap-1 bg-primary-foreground/20">
+                <Star className="h-3 w-3 text-accent" />
+                Nv.{gamificationStats.level}
+              </Badge>
+            </div>
+          )}
         </CardHeader>
       </Card>
 
