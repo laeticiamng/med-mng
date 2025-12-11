@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const NotFound = () => {
   const location = useLocation();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
+    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    logActivity({ activity_type: 'study', metadata: { action: '404_error', path: location.pathname } });
   }, [location.pathname]);
 
   return (

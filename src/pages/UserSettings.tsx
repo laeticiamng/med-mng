@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
 import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 
 const UserSettings: React.FC = () => {
@@ -24,6 +25,7 @@ const UserSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const { stats: gamificationStats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   // Load user and gamification stats
   useEffect(() => {
@@ -32,6 +34,7 @@ const UserSettings: React.FC = () => {
       if (user) {
         setUser(user);
         loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_user_settings' } });
       }
     };
     checkUser();
