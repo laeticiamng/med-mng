@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,17 +8,38 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import { 
   User, Bell, Shield, Eye, Palette, Database, 
   Download, Upload, Trash2, Save, AlertTriangle,
-  Mail, Phone, MapPin, Calendar, Globe, Lock
+  Mail, Phone, MapPin, Calendar, Globe, Lock, Flame, Star, Trophy, Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
+
+  const levelProgress = gamificationStats 
+    ? ((gamificationStats.totalPoints % 1000) / 1000) * 100 
+    : 0;
 
   // État des paramètres
   const [profileData, setProfileData] = useState({
@@ -111,7 +132,45 @@ const UserSettings: React.FC = () => {
         <div className="medical-container py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Navigation */}
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="lg:w-64 flex-shrink-0 space-y-4">
+              {/* Gamification Stats Card */}
+              {user && gamificationStats && (
+                <Card className="medical-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center p-2 bg-warning/10 rounded-lg">
+                        <div className="flex items-center justify-center gap-1 text-warning">
+                          <Flame className="h-4 w-4" />
+                          <span className="text-xl font-bold">{gamificationStats.currentStreak}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Streak</p>
+                      </div>
+                      <div className="text-center p-2 bg-primary/10 rounded-lg">
+                        <div className="flex items-center justify-center gap-1 text-primary">
+                          <Star className="h-4 w-4" />
+                          <span className="text-xl font-bold">Nv.{gamificationStats.level}</span>
+                        </div>
+                        <Progress value={levelProgress} className="h-1 mt-1" />
+                      </div>
+                      <div className="text-center p-2 bg-accent/10 rounded-lg">
+                        <div className="flex items-center justify-center gap-1">
+                          <Zap className="h-4 w-4" />
+                          <span className="text-xl font-bold">{gamificationStats.totalPoints}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">XP</p>
+                      </div>
+                      <div className="text-center p-2 bg-success/10 rounded-lg">
+                        <div className="flex items-center justify-center gap-1 text-success">
+                          <Trophy className="h-4 w-4" />
+                          <span className="text-xl font-bold">{gamificationStats.badges.length}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Badges</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card className="medical-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg">Paramètres</CardTitle>

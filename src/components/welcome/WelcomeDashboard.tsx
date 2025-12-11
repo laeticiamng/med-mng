@@ -1,16 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   CheckCircle, Sparkles, BookOpen, Music, Brain, BarChart3, 
-  Users, Target, Award, ArrowRight, Star, Trophy 
+  Users, Target, Award, ArrowRight, Star, Trophy, Flame, Zap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 export const WelcomeDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
+
+  const levelProgress = gamificationStats 
+    ? ((gamificationStats.totalPoints % 1000) / 1000) * 100 
+    : 0;
 
   const keyFeatures = [
     {
@@ -72,12 +93,57 @@ export const WelcomeDashboard: React.FC = () => {
           </p>
         </div>
         
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-2 flex-wrap">
           <Badge className="bg-success/10 text-success border-success/30 px-4 py-1">
             <Trophy className="w-4 h-4 mr-1" />
             Plateforme 100% Complète
           </Badge>
         </div>
+
+        {/* Gamification Stats for logged in users */}
+        {user && gamificationStats && (
+          <div className="flex justify-center mt-4">
+            <Card className="max-w-lg w-full border-0 shadow-lg bg-gradient-to-r from-primary/5 via-background to-accent/5">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <div className="flex items-center gap-1 text-warning">
+                        <Flame className="h-5 w-5" />
+                        <span className="text-2xl font-bold">{gamificationStats.currentStreak}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">jours</p>
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div className="text-center">
+                      <div className="flex items-center gap-1 text-primary">
+                        <Star className="h-5 w-5" />
+                        <span className="text-2xl font-bold">Nv. {gamificationStats.level}</span>
+                      </div>
+                      <Progress value={levelProgress} className="h-1.5 w-20 mt-1" />
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div className="text-center">
+                      <div className="flex items-center gap-1 text-accent-foreground">
+                        <Zap className="h-5 w-5" />
+                        <span className="text-2xl font-bold">{gamificationStats.totalPoints}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">XP</p>
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div className="text-center">
+                      <div className="flex items-center gap-1 text-warning">
+                        <Trophy className="h-5 w-5" />
+                        <span className="text-2xl font-bold">{gamificationStats.badges.length}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">badges</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* Statistiques principales améliorées */}

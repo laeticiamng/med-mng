@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,19 +12,39 @@ import {
   Clock, 
   Plus,
   Brain,
-  Zap
+  Zap,
+  Flame,
+  Star
 } from 'lucide-react';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 export const RevisionPlanCreator: React.FC = () => {
   const [planName, setPlanName] = useState('');
   const [dailyTarget, setDailyTarget] = useState([5]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
+  const [user, setUser] = useState<any>(null);
   
   const { revisionItems, createRevisionPlan } = usePersonalizedRevision();
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, addPoints, loadStats } = useGamification();
+
+  // Check user on mount
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
 
   // Grouper les items par priorité
   const highPriorityItems = revisionItems.filter(item => item.priority_score >= 30);
@@ -74,6 +94,22 @@ export const RevisionPlanCreator: React.FC = () => {
     try {
       await createRevisionPlan(planName, selectedItems, dailyTarget[0]);
       
+      // Track activity and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { 
+            action: 'revision_plan_created',
+            planName,
+            itemsCount: selectedItems.length,
+            dailyTarget: dailyTarget[0]
+          }
+        });
+        await addPoints(user.id, 'dailyStreak');
+        loadStats(user.id);
+      }
+      
       toast({
         title: "Plan créé !",
         description: `Votre plan "${planName}" a été créé avec ${selectedItems.length} concepts`,
@@ -101,13 +137,32 @@ export const RevisionPlanCreator: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
-          Créer un plan de révision personnalisé
-        </CardTitle>
-        <CardDescription>
-          Basé sur vos erreurs récentes et vos besoins d'apprentissage
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Créer un plan de révision personnalisé
+            </CardTitle>
+            <CardDescription>
+              Basé sur vos erreurs récentes et vos besoins d'apprentissage
+            </CardDescription>
+          </div>
+          
+          {/* Gamification Stats */}
+          {user && gamificationStats && (
+            <div className="flex items-center gap-3 px-3 py-1.5 bg-muted/50 rounded-full">
+              <div className="flex items-center gap-1 text-warning">
+                <Flame className="h-4 w-4" />
+                <span className="font-bold text-sm">{gamificationStats.currentStreak}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1 text-primary">
+                <Star className="h-4 w-4" />
+                <span className="font-bold text-sm">Nv.{gamificationStats.level}</span>
+              </div>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         

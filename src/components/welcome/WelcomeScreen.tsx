@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Écran de Bienvenue Interactif pour Nouveaux Utilisateurs
@@ -28,7 +31,19 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const { logActivity } = useActivityTracking();
+  const { addPoints, loadStats } = useGamification();
+
+  // Check user on mount
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
 
   const welcomeSteps = [
     {
@@ -77,19 +92,45 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
     return () => clearInterval(timer);
   }, [currentStep]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < welcomeSteps.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
+      // Track welcome completion and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { action: 'welcome_complete' }
+        });
+        await addPoints(user.id, 'dailyStreak');
+        loadStats(user.id);
+      }
       onComplete?.();
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Track welcome skipped
+    if (user) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'welcome_skipped' }
+      });
+    }
     onComplete?.();
   };
 
-  const handleActionClick = (path) => {
+  const handleActionClick = async (path) => {
+    // Track feature exploration
+    if (user) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { action: 'welcome_feature_click', path }
+      });
+    }
     navigate(path);
     onComplete?.();
   };

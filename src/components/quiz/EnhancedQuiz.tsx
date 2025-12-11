@@ -14,11 +14,15 @@ import {
   Trophy,
   Target,
   BookOpen,
-  Clock
+  Clock,
+  Flame,
+  Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface QuizQuestion {
   id: number;
@@ -74,6 +78,22 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [timeSpent, setTimeSpent] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isGeneratingErrorSong, setIsGeneratingErrorSong] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, addPoints, unlockBadge, loadStats } = useGamification();
+
+  // Check user on mount
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
 
   // Timer pour chaque question
   useEffect(() => {
@@ -119,7 +139,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
     }
   };
 
-  const completeQuiz = () => {
+  const completeQuiz = async () => {
     const session: QuizSession = {
       sessionId: crypto.randomUUID(),
       itemCode,
@@ -134,6 +154,31 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
 
     setIsCompleted(true);
     onComplete?.(session);
+    
+    // Track activity and award points
+    if (user) {
+      await logActivity({
+        activity_type: 'exam',
+        count: 1,
+        metadata: { 
+          itemCode,
+          rang,
+          score: totalScore,
+          questionsCount: questions.length 
+        }
+      });
+      
+      // Award points based on score
+      if (totalScore === 100) {
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
+        toast.success('🏆 Badge "Sans Faute" débloqué !');
+      } else {
+        await addPoints(user.id, 'examCompleted');
+      }
+      
+      loadStats(user.id);
+    }
     
     // Sauvegarder la session
     saveQuizSession(session);
@@ -233,6 +278,25 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
             {getScoreIcon(totalScore)}
             <CardTitle className="text-2xl">Quiz Terminé !</CardTitle>
           </div>
+          
+          {/* Gamification Stats */}
+          {user && gamificationStats && (
+            <div className="flex justify-center">
+              <div className="flex items-center gap-4 px-4 py-2 bg-muted/50 rounded-full">
+                <div className="flex items-center gap-1 text-warning">
+                  <Flame className="h-4 w-4" />
+                  <span className="font-bold">{gamificationStats.currentStreak}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1 text-primary">
+                  <Star className="h-4 w-4" />
+                  <span className="font-bold">Nv.{gamificationStats.level}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <Badge variant="secondary">{gamificationStats.totalPoints} XP</Badge>
+              </div>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
