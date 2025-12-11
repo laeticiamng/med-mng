@@ -2668,6 +2668,98 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_case_progress: {
+        Row: {
+          answers: Json | null
+          case_id: string
+          completed_at: string | null
+          created_at: string
+          current_step: number | null
+          feedback: Json | null
+          id: string
+          score: number | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          case_id: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          feedback?: Json | null
+          id?: string
+          score?: number | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          case_id?: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          feedback?: Json | null
+          id?: string
+          score?: number | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_case_progress_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_cases: {
+        Row: {
+          created_at: string
+          difficulty: string
+          estimated_duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          learning_objectives: string[] | null
+          patient_presentation: Json
+          related_items: string[] | null
+          specialty: string
+          steps: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          learning_objectives?: string[] | null
+          patient_presentation: Json
+          related_items?: string[] | null
+          specialty: string
+          steps: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          learning_objectives?: string[] | null
+          patient_presentation?: Json
+          related_items?: string[] | null
+          specialty?: string
+          steps?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       clinical_consents: {
         Row: {
           granted_at: string | null
@@ -3796,6 +3888,42 @@ export type Database = {
         }
         Relationships: []
       }
+      crisis_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          crisis_score: number | null
+          detected_at: string
+          id: string
+          indicators: Json | null
+          message_snippet: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          crisis_score?: number | null
+          detected_at?: string
+          id?: string
+          indicators?: Json | null
+          message_snippet?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          crisis_score?: number | null
+          detected_at?: string
+          id?: string
+          indicators?: Json | null
+          message_snippet?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       custom_challenges: {
         Row: {
           created_at: string | null
@@ -4017,6 +4145,30 @@ export type Database = {
           id?: string
           original_data?: Json
           reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_export_logs: {
+        Row: {
+          export_type: string | null
+          exported_at: string
+          id: string
+          sections_exported: string[] | null
+          user_id: string
+        }
+        Insert: {
+          export_type?: string | null
+          exported_at?: string
+          id?: string
+          sections_exported?: string[] | null
+          user_id: string
+        }
+        Update: {
+          export_type?: string | null
+          exported_at?: string
+          id?: string
+          sections_exported?: string[] | null
           user_id?: string
         }
         Relationships: []
@@ -6257,6 +6409,95 @@ export type Database = {
           },
         ]
       }
+      exam_questions: {
+        Row: {
+          answered_at: string | null
+          created_at: string
+          id: string
+          is_correct: boolean | null
+          item_id: string
+          question_order: number
+          session_id: string
+          time_spent_seconds: number | null
+          user_answer: string | null
+        }
+        Insert: {
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          item_id: string
+          question_order: number
+          session_id: string
+          time_spent_seconds?: number | null
+          user_answer?: string | null
+        }
+        Update: {
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          item_id?: string
+          question_order?: number
+          session_id?: string
+          time_spent_seconds?: number | null
+          user_answer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_sessions: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number | null
+          created_at: string
+          exam_type: string
+          id: string
+          score_percentage: number | null
+          settings: Json | null
+          started_at: string
+          status: string | null
+          time_limit_minutes: number | null
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string
+          exam_type?: string
+          id?: string
+          score_percentage?: number | null
+          settings?: Json | null
+          started_at?: string
+          status?: string | null
+          time_limit_minutes?: number | null
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string
+          exam_type?: string
+          id?: string
+          score_percentage?: number | null
+          settings?: Json | null
+          started_at?: string
+          status?: string | null
+          time_limit_minutes?: number | null
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       exchange_leaderboards: {
         Row: {
           id: string
@@ -6668,6 +6909,124 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      flashcard_decks: {
+        Row: {
+          card_count: number | null
+          created_at: string
+          description: string | null
+          id: string
+          is_ai_generated: boolean | null
+          item_codes: string[] | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_ai_generated?: boolean | null
+          item_codes?: string[] | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_ai_generated?: boolean | null
+          item_codes?: string[] | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_reviews: {
+        Row: {
+          ease_factor: number | null
+          flashcard_id: string
+          id: string
+          interval_days: number | null
+          next_review_date: string | null
+          quality: number
+          reviewed_at: string
+          user_id: string
+        }
+        Insert: {
+          ease_factor?: number | null
+          flashcard_id: string
+          id?: string
+          interval_days?: number | null
+          next_review_date?: string | null
+          quality: number
+          reviewed_at?: string
+          user_id: string
+        }
+        Update: {
+          ease_factor?: number | null
+          flashcard_id?: string
+          id?: string
+          interval_days?: number | null
+          next_review_date?: string | null
+          quality?: number
+          reviewed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_flashcard_id_fkey"
+            columns: ["flashcard_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back_content: string
+          created_at: string
+          deck_id: string
+          difficulty: string | null
+          front_content: string
+          id: string
+          item_code: string | null
+          tags: string[] | null
+        }
+        Insert: {
+          back_content: string
+          created_at?: string
+          deck_id: string
+          difficulty?: string | null
+          front_content: string
+          id?: string
+          item_code?: string | null
+          tags?: string[] | null
+        }
+        Update: {
+          back_content?: string
+          created_at?: string
+          deck_id?: string
+          difficulty?: string | null
+          front_content?: string
+          id?: string
+          item_code?: string | null
+          tags?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       focus_leaderboard: {
         Row: {
@@ -7496,6 +7855,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      health_data: {
+        Row: {
+          heart_rate: number | null
+          hrv: number | null
+          id: string
+          provider: string | null
+          recorded_at: string
+          sleep_minutes: number | null
+          steps: number | null
+          stress_level: number | null
+          synced_at: string | null
+          user_id: string
+        }
+        Insert: {
+          heart_rate?: number | null
+          hrv?: number | null
+          id?: string
+          provider?: string | null
+          recorded_at: string
+          sleep_minutes?: number | null
+          steps?: number | null
+          stress_level?: number | null
+          synced_at?: string | null
+          user_id: string
+        }
+        Update: {
+          heart_rate?: number | null
+          hrv?: number | null
+          id?: string
+          provider?: string | null
+          recorded_at?: string
+          sleep_minutes?: number | null
+          steps?: number | null
+          stress_level?: number | null
+          synced_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       honorary_titles: {
         Row: {
@@ -19307,6 +19705,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_study_stats: {
+        Row: {
+          clinical_cases_completed: number | null
+          created_at: string
+          date: string
+          exams_taken: number | null
+          flashcards_reviewed: number | null
+          id: string
+          items_studied: number | null
+          reviews_completed: number | null
+          time_spent_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clinical_cases_completed?: number | null
+          created_at?: string
+          date?: string
+          exams_taken?: number | null
+          flashcards_reviewed?: number | null
+          id?: string
+          items_studied?: number | null
+          reviews_completed?: number | null
+          time_spent_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clinical_cases_completed?: number | null
+          created_at?: string
+          date?: string
+          exams_taken?: number | null
+          flashcards_reviewed?: number | null
+          id?: string
+          items_studied?: number | null
+          reviews_completed?: number | null
+          time_spent_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           created_at: string
@@ -19766,6 +20206,36 @@ export type Database = {
           experience_title?: string
           id?: string
           rating?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wearable_connections: {
+        Row: {
+          connected_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          metadata: Json | null
+          provider: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          metadata?: Json | null
+          provider: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          metadata?: Json | null
+          provider?: string
           user_id?: string
         }
         Relationships: []
