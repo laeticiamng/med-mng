@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Flame, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
 import { usePlayer } from '@/hooks/usePlayer';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MiniPlayerProps {
   className?: string;
@@ -26,7 +29,29 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
     formatTime
   } = usePlayer();
 
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats } = useGamification();
   const [isDragging, setIsDragging] = useState(false);
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const loadUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    loadUserStats();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (currentTrack && !hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'mini_player', action: 'track_loaded', trackId: currentTrack.item_code }
+      });
+    }
+  }, [currentTrack]);
 
   if (!currentTrack) {
     return null;
@@ -145,6 +170,21 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
             />
           </div>
         </div>
+
+        {/* Gamification Stats */}
+        {stats && (
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
+            <div className="flex items-center gap-1 text-warning">
+              <Flame className="h-3 w-3" />
+              <span className="text-xs font-bold">{stats.currentStreak}</span>
+            </div>
+            <div className="w-px h-3 bg-border" />
+            <div className="flex items-center gap-1 text-primary">
+              <Star className="h-3 w-3" />
+              <span className="text-xs font-bold">Nv.{stats.level}</span>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );

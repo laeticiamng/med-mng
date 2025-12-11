@@ -1,6 +1,9 @@
 import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useEffect } from 'react';
+import { useGamification } from '@/hooks/useGamification';
+import { useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Flame, Star, Trophy } from 'lucide-react';
 
 interface StepProgressProps {
   currentStep: number;
@@ -9,22 +12,52 @@ interface StepProgressProps {
 
 export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => {
   const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasCompletedRef = useRef(false);
 
   useEffect(() => {
-    if (currentStep === totalSteps - 1) {
-      logActivity({
-        activity_type: 'study',
-        count: 1,
-        score: 100,
-        metadata: { component: 'step_progress', action: 'complete_all_steps', totalSteps }
-      });
-    }
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    const handleCompletion = async () => {
+      if (currentStep === totalSteps - 1 && !hasCompletedRef.current) {
+        hasCompletedRef.current = true;
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          score: 100,
+          metadata: { component: 'step_progress', action: 'complete_all_steps', totalSteps }
+        });
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemMastered');
+        }
+      }
+    };
+    handleCompletion();
   }, [currentStep, totalSteps]);
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-foreground font-medium">Progression</span>
-        <span className="text-success">{currentStep + 1}/{totalSteps}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-foreground font-medium">Progression</span>
+          {stats && (
+            <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
+              <Flame className="h-3 w-3 text-warning" />
+              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <Star className="h-3 w-3 text-primary ml-1" />
+              <span className="font-bold text-primary">Nv.{stats.level}</span>
+            </div>
+          )}
+        </div>
+        <span className="text-success font-bold">{currentStep + 1}/{totalSteps}</span>
       </div>
       <Progress value={((currentStep + 1) / totalSteps) * 100} className="h-2" />
     </div>
