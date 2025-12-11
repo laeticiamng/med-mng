@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { 
   Brain, 
   Calendar, 
@@ -13,12 +14,16 @@ import {
   AlertCircle, 
   BookOpen,
   Zap,
-  Trophy
+  Trophy,
+  Flame,
+  Award
 } from 'lucide-react';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { RevisionPlanCreator } from './RevisionPlanCreator';
 import { TodayRevisionSession } from './TodayRevisionSession';
 import { ProgressAnalytics } from './ProgressAnalytics';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 export const RevisionDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('today');
@@ -31,9 +36,23 @@ export const RevisionDashboard: React.FC = () => {
     getProgressStats,
     analyzeUserWeaknesses
   } = usePersonalizedRevision();
+  
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  // Load gamification stats
+  useEffect(() => {
+    const loadUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+      }
+    };
+    loadUserStats();
+  }, [loadStats]);
 
   const todayItems = getTodayRevisionItems();
   const stats = getProgressStats();
+  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
   if (loading) {
     return (
@@ -66,6 +85,41 @@ export const RevisionDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Award className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Niveau {level}</p>
+                  <p className="text-lg font-bold">{gamificationStats.currentXP || 0} XP</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="flex items-center gap-1">
+                    <Flame className="h-4 w-4 text-warning" />
+                    <span className="text-xl font-bold">{gamificationStats.currentStreak || 0}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Jours</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center gap-1">
+                    <Trophy className="h-4 w-4 text-primary" />
+                    <span className="text-xl font-bold">{gamificationStats.badges?.length || 0}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Badges</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* En-tête avec statistiques rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
