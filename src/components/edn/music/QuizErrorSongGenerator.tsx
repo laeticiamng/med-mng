@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, AlertTriangle, Brain, Target } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Music, AlertTriangle, Brain, Target, Flame, Star } from 'lucide-react';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuizErrorSongGeneratorProps {
   itemCode: string;
@@ -20,6 +24,16 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
   const { currentErrors, hasCurrentSession } = useQuizErrorTracker();
   const { generateMusic, loading: isGenerating } = useSpotifyAI();
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
 
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lofi Piano' },
@@ -97,6 +111,13 @@ Grâce à mes erreurs... quelle surprise !`;
         paroles: [lyrics],
         style: selectedStyle
       });
+
+      // Activity tracking & gamification
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await logActivity({ activity_type: 'study', count: 1, metadata: { itemCode, action: 'error_song_generated', errorsCount: currentErrors.length } });
+        await addPoints(user.id, 'itemReviewed');
+      }
       
       toast({
         title: "Chanson générée !",
@@ -133,10 +154,24 @@ Grâce à mes erreurs... quelle surprise !`;
   return (
     <Card className="border-warning/20 bg-warning/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-warning">
-          <Brain className="h-5 w-5" />
-          Transformer vos erreurs en chanson
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-warning">
+            <Brain className="h-5 w-5" />
+            Transformer vos erreurs en chanson
+          </CardTitle>
+          {stats && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Flame className="h-3 w-3 text-orange-500" />
+                {stats.currentStreak}j
+              </Badge>
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Star className="h-3 w-3 text-yellow-500" />
+                Niv. {stats.level}
+              </Badge>
+            </div>
+          )}
+        </div>
         <CardDescription className="text-warning/80">
           {currentErrors.length} erreur(s) détectée(s) - Créez une chanson pour mieux les retenir !
         </CardDescription>

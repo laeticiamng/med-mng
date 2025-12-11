@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Image, ChevronLeft, ChevronRight, Maximize2, 
-  Download, Share2, Eye, BookOpen
+  Download, Share2, Eye, BookOpen, Flame, Star
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BdGalleryProps {
   itemCode: string;
@@ -24,6 +27,20 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const [currentVignette, setCurrentVignette] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_bd_gallery', itemCode } });
+        addPoints(user.id, 'itemReviewed');
+      }
+    };
+    load();
+  }, [loadStats, logActivity, addPoints, itemCode]);
 
   // Générer des vignettes basées sur les compétences
   const generateVignettes = () => {
@@ -129,14 +146,28 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       {/* Header avec navigation */}
       <Card className="border-2 border-accent/20">
         <CardHeader className="bg-gradient-to-r from-accent to-primary text-primary-foreground">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="flex items-center gap-2">
               <Image className="h-6 w-6" />
               BD Interactive - {itemCode}
             </CardTitle>
-            <Badge className="bg-primary-foreground/20 text-primary-foreground">
-              {currentVignette + 1} / {vignettes.length}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {stats && (
+                <>
+                  <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
+                    <Flame className="h-3 w-3" />
+                    {stats.currentStreak}j
+                  </Badge>
+                  <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
+                    <Star className="h-3 w-3" />
+                    Niv. {stats.level}
+                  </Badge>
+                </>
+              )}
+              <Badge className="bg-primary-foreground/20 text-primary-foreground">
+                {currentVignette + 1} / {vignettes.length}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-4">

@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BandeDessineeComplete } from './BandeDessineeComplete';
 import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
 import { AlternativeContentFormats } from './content/AlternativeContentFormats';
 import { MasterContentViewer } from '@/components/content/MasterContentViewer';
 import { SpotifyAIPlayer } from '@/components/music/SpotifyAIPlayer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, FileText, Wand2, Star, Music } from 'lucide-react';
+import { BookOpen, FileText, Wand2, Star, Music, Flame } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedBandeDessineeProps {
   itemData: {
@@ -22,6 +26,25 @@ interface EnhancedBandeDessineeProps {
 
 export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ itemData }) => {
   const [activeTab, setActiveTab] = useState('bande-dessinee');
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_enhanced_bd', itemCode: itemData.item_code } });
+        addPoints(user.id, 'itemReviewed');
+      }
+    };
+    load();
+  }, [loadStats, logActivity, addPoints, itemData.item_code]);
+
+  const handleTabChange = async (tab: string) => {
+    setActiveTab(tab);
+    await logActivity({ activity_type: 'study', metadata: { action: 'switch_content_tab', tab, itemCode: itemData.item_code } });
+  };
 
   const renderBandeDessinee = () => {
     // Si c'est l'item sur les valeurs professionnelles, utiliser le composant spécialisé
@@ -38,17 +61,31 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-warning-foreground">
-            <BookOpen className="h-6 w-6" />
-            Contenu Éducatif Interactif - {itemData.title}
-          </CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="flex items-center gap-3 text-warning-foreground">
+              <BookOpen className="h-6 w-6" />
+              Contenu Éducatif Interactif - {itemData.title}
+            </CardTitle>
+            {stats && (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="gap-1 text-xs bg-background/50">
+                  <Flame className="h-3 w-3 text-orange-500" />
+                  {stats.currentStreak}j
+                </Badge>
+                <Badge variant="outline" className="gap-1 text-xs bg-background/50">
+                  <Star className="h-3 w-3 text-yellow-500" />
+                  Niv. {stats.level}
+                </Badge>
+              </div>
+            )}
+          </div>
           <CardDescription>
             Choisissez votre format d'apprentissage préféré : bande dessinée classique ou formats alternatifs
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="contenu-master" className="flex items-center gap-2">
             <Star className="h-4 w-4" />

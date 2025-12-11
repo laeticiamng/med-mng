@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle, Info, XCircle } from "lucide-react";
+import { CheckCircle, AlertTriangle, Info, XCircle, Flame, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompetenceValidationProps {
   item: any;
@@ -11,6 +14,20 @@ interface CompetenceValidationProps {
 
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
   const isMobile = useIsMobile();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_competence_validation', itemCode: item?.item_code } });
+      }
+    };
+    load();
+  }, [loadStats, logActivity, item?.item_code]);
+
   const validateCompetences = () => {
     const validation = {
       rangA: {
@@ -111,10 +128,24 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
   return (
     <Card className={`border-2 ${getStatusColor()}`}>
       <CardHeader className={isMobile ? "pb-2" : "pb-3"}>
-        <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
-          {getStatusIcon()}
-          Validation des Compétences - {item.item_code}
-        </CardTitle>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
+            {getStatusIcon()}
+            Validation des Compétences - {item.item_code}
+          </CardTitle>
+          {stats && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Flame className="h-3 w-3 text-orange-500" />
+                {stats.currentStreak}j
+              </Badge>
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Star className="h-3 w-3 text-yellow-500" />
+                Niv. {stats.level}
+              </Badge>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className={`space-y-4 ${isMobile ? 'p-4' : ''}`}>
         {/* Résumé */}

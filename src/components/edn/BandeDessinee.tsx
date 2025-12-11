@@ -1,6 +1,7 @@
-
+import { useEffect } from 'react';
 import { BandeDessineeComplete } from './BandeDessineeComplete';
 import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface BandeDessineeProps {
   itemData: {
@@ -14,6 +15,12 @@ interface BandeDessineeProps {
 }
 
 export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_bande_dessinee', itemCode: itemData.item_code, slug: itemData.slug } });
+  }, [logActivity, itemData.item_code, itemData.slug]);
+
   // Si c'est l'item sur les valeurs professionnelles, utiliser le composant spécialisé
   if (itemData.slug === 'valeurs-professionnelles-medecin') {
     return <ValeursProfessionnellesBD itemData={itemData} />;
