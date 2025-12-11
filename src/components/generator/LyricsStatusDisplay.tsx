@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertTriangle, Music } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface LyricsStatusDisplayProps {
   selectedItem: string;
@@ -15,6 +16,19 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   lyricsError,
   ednLyrics
 }) => {
+  const { logActivity } = useActivityTracking();
+
+  // Track lyrics found
+  useEffect(() => {
+    if (ednLyrics && selectedItem) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'lyrics_found', itemCode: selectedItem }
+      });
+    }
+  }, [ednLyrics, selectedItem, logActivity]);
+
   if (!selectedItem) return null;
 
   return (

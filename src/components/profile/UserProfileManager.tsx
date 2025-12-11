@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface UserProfile {
   id: string;
@@ -72,10 +73,18 @@ export const UserProfileManager = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     fetchUserProfile();
     loadUserPreferences();
+    
+    // Track profile view
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'profile_manager_view' }
+    });
   }, []);
 
   const fetchUserProfile = async () => {
