@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, AlertTriangle, XCircle, Book, FileText } from "lucide-react"
+import { CheckCircle, AlertTriangle, XCircle, Book, FileText, Flame, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useActivityTracking } from '@/hooks/useActivityTracking'
+import { useGamification } from '@/hooks/useGamification'
+import { supabase } from '@/integrations/supabase/client'
 
 interface TableauSection {
   title: string
@@ -24,6 +27,20 @@ interface TableauDisplayProps {
 }
 
 export function TableauDisplay({ tableau, rang, isComplete, className }: TableauDisplayProps) {
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_tableau', rang } });
+        addPoints(user.id, 'itemReviewed');
+      }
+    };
+    load();
+  }, [loadStats, logActivity, addPoints, rang]);
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
       <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>
@@ -96,7 +113,7 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       } opacity-80`}></div>
       
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${
               isComplete 
@@ -115,7 +132,21 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
               </CardDescription>
             </div>
           </div>
-          {statusBadge}
+          <div className="flex items-center gap-2">
+            {stats && (
+              <>
+                <Badge variant="outline" className="gap-1 text-xs">
+                  <Flame className="h-3 w-3 text-orange-500" />
+                  {stats.currentStreak}j
+                </Badge>
+                <Badge variant="outline" className="gap-1 text-xs">
+                  <Star className="h-3 w-3 text-yellow-500" />
+                  Niv. {stats.level}
+                </Badge>
+              </>
+            )}
+            {statusBadge}
+          </div>
         </div>
       </CardHeader>
       

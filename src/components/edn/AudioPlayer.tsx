@@ -1,12 +1,13 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square, Flame, Star } from 'lucide-react';
 import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
 import { useAudioBuffering } from '@/hooks/useAudioBuffering';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -41,9 +42,19 @@ export const AudioPlayer = ({
   const [previousVolume, setPreviousVolume] = useState(volume);
   const hasTrackedRef = useRef(false);
   const { logActivity } = useActivityTracking();
+  const { stats, loadStats } = useGamification();
   
   // Hook de buffering pour optimiser l'affichage
   const bufferingState = useAudioBuffering(audioElement || null);
+
+  // Load gamification stats
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
 
   // Track audio playback
   useEffect(() => {
@@ -101,19 +112,33 @@ export const AudioPlayer = ({
   return (
     <div className="bg-card rounded-lg shadow-lg p-6 border border-warning/20">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-warning truncate">
+        <h3 className="text-lg font-semibold text-warning truncate flex-1">
           {title}
         </h3>
-        {onClose && (
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="sm"
-            className="text-warning hover:text-warning/80"
-          >
-            ✕
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {stats && (
+            <>
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Flame className="h-3 w-3 text-orange-500" />
+                {stats.currentStreak}j
+              </Badge>
+              <Badge variant="outline" className="gap-1 text-xs">
+                <Star className="h-3 w-3 text-yellow-500" />
+                Niv. {stats.level}
+              </Badge>
+            </>
+          )}
+          {onClose && (
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="text-warning hover:text-warning/80"
+            >
+              ✕
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Indicateur de chargement optimisé */}
