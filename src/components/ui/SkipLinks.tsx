@@ -1,4 +1,5 @@
 import React from 'react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface SkipLinkProps {
   href: string;
@@ -6,18 +7,27 @@ interface SkipLinkProps {
 }
 
 export const SkipLink: React.FC<SkipLinkProps> = ({ href, children }) => {
+  const { logActivity } = useActivityTracking();
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'skip_link', action: 'accessibility_navigate', target: href }
+    });
+    const target = document.querySelector(href) as HTMLElement;
+    if (target) {
+      target.focus();
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <a 
       href={href} 
       className="skip-link"
-      onClick={(e) => {
-        e.preventDefault();
-        const target = document.querySelector(href) as HTMLElement;
-        if (target) {
-          target.focus();
-          target.scrollIntoView({ behavior: 'smooth' });
-        }
-      }}
+      onClick={handleClick}
     >
       {children}
     </a>

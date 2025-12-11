@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Flame, Star } from 'lucide-react';
 
 interface TableauSectionProps {
   data: any;
@@ -11,15 +14,34 @@ interface TableauSectionProps {
 
 export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, type }) => {
   const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
   
   useEffect(() => {
-    if (data) {
-      logActivity({
-        activity_type: 'study',
-        count: 1,
-        metadata: { component: 'tableau_section', type, title }
-      });
-    }
+    const track = async () => {
+      if (data && !hasTrackedRef.current) {
+        hasTrackedRef.current = true;
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'tableau_section', type, title }
+        });
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
+    };
+    track();
   }, [data, type, title]);
 
   if (!data) {
@@ -41,11 +63,21 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Badge variant={type === 'rang_a' ? 'default' : 'secondary'}>
-            {type === 'rang_a' ? 'Rang A' : 'Rang B'}
-          </Badge>
-          {theme}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Badge variant={type === 'rang_a' ? 'default' : 'secondary'}>
+              {type === 'rang_a' ? 'Rang A' : 'Rang B'}
+            </Badge>
+            {theme}
+          </div>
+          {stats && (
+            <div className="flex items-center gap-2 px-2 py-1 bg-muted/30 rounded-full text-xs">
+              <Flame className="h-3 w-3 text-warning" />
+              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <Star className="h-3 w-3 text-primary ml-1" />
+              <span className="font-bold text-primary">Nv.{stats.level}</span>
+            </div>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">

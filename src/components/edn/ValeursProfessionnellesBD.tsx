@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ComicHeader } from './comic/ComicHeader';
 import { ComicPanel } from './comic/ComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Flame, Star, BookOpen } from 'lucide-react';
 
 interface ValeursProfessionnellesBDProps {
   itemData: {
@@ -15,13 +18,34 @@ interface ValeursProfessionnellesBDProps {
 
 export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesBDProps) => {
   const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
   
   useEffect(() => {
-    logActivity({
-      activity_type: 'study',
-      count: 1,
-      metadata: { component: 'valeurs_professionnelles_bd', title: itemData.title }
-    });
+    const track = async () => {
+      if (!hasTrackedRef.current) {
+        hasTrackedRef.current = true;
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'valeurs_professionnelles_bd', title: itemData.title }
+        });
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
+    };
+    track();
   }, [itemData.title]);
 
   // Données des vignettes spécifiques aux valeurs professionnelles
@@ -66,7 +90,23 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-primary/5 via-success/5 to-warning/10 p-6 rounded-xl">
-      <ComicHeader title={itemData.title} />
+      <div className="flex items-center justify-between">
+        <ComicHeader title={itemData.title} />
+        {stats && (
+          <div className="flex items-center gap-3 px-4 py-2 bg-background/50 rounded-full">
+            <BookOpen className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-1 text-warning">
+              <Flame className="h-4 w-4" />
+              <span className="font-bold">{stats.currentStreak}j</span>
+            </div>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-1 text-primary">
+              <Star className="h-4 w-4" />
+              <span className="font-bold">Nv.{stats.level}</span>
+            </div>
+          </div>
+        )}
+      </div>
       
       {/* Layout en grille comme une vraie bande dessinée */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
