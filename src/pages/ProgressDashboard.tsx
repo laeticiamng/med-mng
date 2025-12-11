@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   TrendingUp, Target, Brain, BookOpen, Trophy, Clock,
   Calendar, Flame, CheckCircle, AlertTriangle, ChevronLeft,
-  BarChart3, PieChart, Activity, Zap
+  BarChart3, PieChart, Activity, Zap, Settings, Award
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,12 +16,17 @@ import { useSRS } from '@/hooks/useSRS';
 import { useExamMode } from '@/hooks/useExamMode';
 import { useClinicalCases } from '@/hooks/useClinicalCases';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useGamification } from '@/hooks/useGamification';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
 import { LearningInsights } from '@/components/learning/LearningInsights';
 import { StudyCalendar } from '@/components/learning/StudyCalendar';
 import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { BadgeCollection } from '@/components/gamification/BadgeCollection';
+import { ProgressExport } from '@/components/export/ProgressExport';
+import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
 
 export default function ProgressDashboard() {
   const navigate = useNavigate();
@@ -30,12 +35,13 @@ export default function ProgressDashboard() {
   const { getStats: getExamStats } = useExamMode();
   const { getStats: getClinicalStats } = useClinicalCases();
   const { getStats: getFlashcardStats } = useFlashcards();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [examStats, setExamStats] = useState<any>(null);
   const [clinicalStats, setClinicalStats] = useState<any>(null);
   const [flashcardStats, setFlashcardStats] = useState<any>(null);
-  const [activityData, setActivityData] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,13 +57,10 @@ export default function ProgressDashboard() {
       setExamStats(getExamStats(user.id));
       setClinicalStats(getClinicalStats(user.id));
       setFlashcardStats(getFlashcardStats(user.id));
-      
-      // Generate mock activity data for heatmap
-      const activity = Array(30).fill(0).map(() => Math.floor(Math.random() * 50));
-      setActivityData(activity);
+      loadGamificationStats(user.id);
     };
     loadData();
-  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats]);
+  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats]);
 
   const totalProgress = srsStats ? 
     Math.round((srsStats.masteredItems / srsStats.totalItems) * 100) : 0;
@@ -90,57 +93,91 @@ export default function ProgressDashboard() {
           </div>
         </div>
 
-        {/* Main Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-            <CardContent className="p-4 text-center">
-              <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <p className="text-3xl font-bold text-primary">{totalProgress}%</p>
-              <p className="text-sm text-muted-foreground">Items maîtrisés</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-success/10 to-success/5">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-              <p className="text-3xl font-bold text-success">{overallScore}%</p>
-              <p className="text-sm text-muted-foreground">Score global</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-warning/10 to-warning/5">
-            <CardContent className="p-4 text-center">
-              <Flame className="h-8 w-8 mx-auto mb-2 text-warning" />
-              <p className="text-3xl font-bold text-warning">{flashcardStats?.streakDays || 0}</p>
-              <p className="text-sm text-muted-foreground">Jours de suite</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-accent/10 to-accent/5">
-            <CardContent className="p-4 text-center">
-              <Clock className="h-8 w-8 mx-auto mb-2 text-accent" />
-              <p className="text-3xl font-bold text-accent">{srsStats?.dueToday || 0}</p>
-              <p className="text-sm text-muted-foreground">À réviser aujourd'hui</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Gamification Stats */}
+        {gamificationStats && (
+          <div className="mb-8">
+            <StreakDisplay stats={gamificationStats} />
+          </div>
+        )}
 
-        {/* Activity Heatmap - Real data */}
-        <div className="mb-8">
-          <ActivityHeatmap days={90} />
-        </div>
+        {/* Tabs for different views */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="badges">
+              <Award className="h-4 w-4 mr-1" />
+              Badges
+            </TabsTrigger>
+            <TabsTrigger value="analytics">Analyses</TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="h-4 w-4 mr-1" />
+              Options
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Learning Insights */}
-        <div className="mb-8">
-          <LearningInsights />
-        </div>
+          <TabsContent value="overview" className="space-y-6 mt-6">
+            {/* Main Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
+                <CardContent className="p-4 text-center">
+                  <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <p className="text-3xl font-bold text-primary">{totalProgress}%</p>
+                  <p className="text-sm text-muted-foreground">Items maîtrisés</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-success/10 to-success/5">
+                <CardContent className="p-4 text-center">
+                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
+                  <p className="text-3xl font-bold text-success">{overallScore}%</p>
+                  <p className="text-sm text-muted-foreground">Score global</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-warning/10 to-warning/5">
+                <CardContent className="p-4 text-center">
+                  <Flame className="h-8 w-8 mx-auto mb-2 text-warning" />
+                  <p className="text-3xl font-bold text-warning">{gamificationStats?.currentStreak || 0}</p>
+                  <p className="text-sm text-muted-foreground">Jours de suite</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-accent/10 to-accent/5">
+                <CardContent className="p-4 text-center">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-accent" />
+                  <p className="text-3xl font-bold text-accent">{srsStats?.dueToday || 0}</p>
+                  <p className="text-sm text-muted-foreground">À réviser aujourd'hui</p>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Study Calendar */}
-        <div className="mb-8">
-          <StudyCalendar />
-        </div>
+            {/* Activity Heatmap */}
+            <ActivityHeatmap days={90} />
 
-        {/* Item Mastery Grid */}
-        <div className="mb-8">
-          <ItemMasteryGrid />
-        </div>
+            {/* Study Calendar */}
+            <StudyCalendar />
+          </TabsContent>
+
+          <TabsContent value="badges" className="mt-6">
+            {gamificationStats && (
+              <BadgeCollection 
+                unlockedBadges={gamificationStats.badges} 
+                allBadges={BADGE_DEFINITIONS} 
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6 mt-6">
+            <LearningInsights />
+            <ItemMasteryGrid />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6 mt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {user && <SRSNotificationSettings userId={user.id} />}
+              {user && gamificationStats && (
+                <ProgressExport userId={user.id} stats={gamificationStats} />
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Module Stats Grid */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">

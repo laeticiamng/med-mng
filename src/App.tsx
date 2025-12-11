@@ -20,7 +20,7 @@ import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
-import { AITutor } from '@/components/ai/AITutor';
+import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
 import { ROUTE_PATHS } from '@/config/routes';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
@@ -305,7 +305,7 @@ const App = () => {
                             <DesignSystemDevTools />
                             
                             {/* Tuteur IA */}
-                            <AITutor />
+                            <EnhancedAITutor />
                           </div>
                           <Toaster />
                           <Sonner />
