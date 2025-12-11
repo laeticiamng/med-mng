@@ -9,7 +9,7 @@ import {
   MessageSquare, Send, User, Bot, ArrowLeft, Search, 
   Sparkles, Clock, BookOpen, Brain, Heart, Activity,
   History, HelpCircle, Settings, Mic, Copy, ThumbsUp,
-  ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2
+  ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2, Flame, Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -17,6 +17,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { TranslatedText } from '@/components/TranslatedText';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -37,6 +40,10 @@ const quickSuggestions = [
 export const MedChat: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const [user, setUser] = useState<any>(null);
+  const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -59,6 +66,18 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
 
   const {
     conversations,
@@ -123,6 +142,26 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Track activity and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'ai_question',
+          count: 1,
+          metadata: { question: textToSend.slice(0, 100) }
+        });
+        
+        await addPoints(user.id, 'itemReviewed');
+        const newCount = questionCount + 1;
+        setQuestionCount(newCount);
+        
+        // Unlock AI chat badge after 10 questions
+        if (newCount >= 10) {
+          await unlockBadge(user.id, 'ai_chat');
+        }
+        
+        loadStats(user.id);
+      }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
@@ -200,7 +239,22 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
+            {/* Gamification Quick Stats */}
+            {user && gamificationStats && (
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
+                <div className="flex items-center gap-1 text-warning">
+                  <Flame className="h-4 w-4" />
+                  <span className="text-sm font-bold">{gamificationStats.currentStreak}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1 text-primary">
+                  <Star className="h-4 w-4" />
+                  <span className="text-sm font-bold">Nv.{gamificationStats.level}</span>
+                </div>
+              </div>
+            )}
+            
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="icon" className="hidden md:flex">
