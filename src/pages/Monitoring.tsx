@@ -1,11 +1,14 @@
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, TrendingUp, TrendingDown, Music, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useMusicMetrics } from '@/hooks/useMusicMetrics';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export default function Monitoring() {
+  const { logActivity } = useActivityTracking();
   const {
     globalStats,
     contentTypeStats,
@@ -14,6 +17,14 @@ export default function Monitoring() {
     loading,
     error
   } = useMusicMetrics();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'monitoring', action: 'view' }
+    });
+  }, []);
 
   if (loading) {
     return (

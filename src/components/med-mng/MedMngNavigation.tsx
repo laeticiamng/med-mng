@@ -5,13 +5,24 @@ import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-rea
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut } = useAuth();
+  const { logActivity } = useActivityTracking();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleNavigation = (path: string, label: string) => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'navigation', action: 'click', destination: label }
+    });
+    navigate(path);
+  };
 
   const handleSignOut = async () => {
     await signOut();

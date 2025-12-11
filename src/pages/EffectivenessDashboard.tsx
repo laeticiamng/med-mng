@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
 import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
 import { EffectivenessStats } from '@/components/effectiveness/EffectivenessStats';
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, RefreshCw, BarChart3, GitCompare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface RecommendationWithMeasurement {
   id: string;
@@ -27,8 +28,17 @@ interface RecommendationWithMeasurement {
 export default function EffectivenessDashboard() {
   const navigate = useNavigate();
   const chartRef = useRef<HTMLDivElement>(null);
+  const { logActivity } = useActivityTracking();
   const { scores, loading: loadingScores, refresh: refreshScores } = useEffectivenessScores();
   const { appliedRecommendations, loading: loadingRecs, refresh: refreshRecs } = useAppliedRecommendations();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'effectiveness_dashboard', action: 'view' }
+    });
+  }, []);
 
   // État pour la comparaison de périodes
   const now = new Date();

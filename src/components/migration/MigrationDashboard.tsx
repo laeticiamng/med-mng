@@ -27,6 +27,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { 
   BarChart, 
   Bar, 
@@ -81,7 +82,16 @@ const COLORS = {
 
 export const MigrationDashboard: React.FC = () => {
   const { toast } = useToast();
+  const { logActivity } = useActivityTracking();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'migration_dashboard', action: 'view' }
+    });
+  }, []);
   const [stats, setStats] = useState<MigrationStats>({
     totalFiles: 146,
     completedFiles: 25,

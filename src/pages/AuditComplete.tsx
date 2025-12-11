@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,16 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 
 const AuditComplete = () => {
+  const { logActivity } = useActivityTracking();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'audit_complete', action: 'view' }
+    });
+  }, []);
 
   const handleExportReport = () => {
     console.log('Export du rapport complet d\'audit');

@@ -5,6 +5,7 @@ import { Keyboard, Zap, Search, Music, BarChart3, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 /**
  * Système de Raccourcis Clavier Avancé
@@ -12,6 +13,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 export const KeyboardShortcuts = () => {
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
+  const { logActivity } = useActivityTracking();
 
   const shortcuts = [
     // Navigation principale
@@ -38,7 +40,15 @@ export const KeyboardShortcuts = () => {
       // Afficher/masquer l'aide des raccourcis
       if (key === '/' && isCmd) {
         event.preventDefault();
-        setIsVisible(prev => !prev);
+        const newVisible = !isVisible;
+        setIsVisible(newVisible);
+        if (newVisible) {
+          logActivity({
+            activity_type: 'study',
+            count: 1,
+            metadata: { component: 'keyboard_shortcuts', action: 'open' }
+          });
+        }
         return;
       }
 

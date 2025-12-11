@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface PlatformStatusProps {
   className?: string;
@@ -16,6 +17,15 @@ interface PlatformStatusProps {
 
 export const PlatformStatus: React.FC<PlatformStatusProps> = ({ className }) => {
   const navigate = useNavigate();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'platform_status', action: 'view' }
+    });
+  }, []);
 
   const platformStats = {
     totalFeatures: 12,
