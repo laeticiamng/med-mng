@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   Brain, Clock, CheckCircle, XCircle, ArrowRight, 
   RotateCcw, Zap, Star, TrendingUp, Calendar, Target,
-  Play, Pause, ChevronLeft
+  Play, Pause, ChevronLeft, Flame
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useSRS, ReviewQuality, UserItemProgress } from '@/hooks/useSRS';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 interface ReviewItem {
   item_code: string;
@@ -35,6 +38,8 @@ export default function SRSReview() {
     completeSession,
     loading 
   } = useSRS();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -62,9 +67,10 @@ export default function SRSReview() {
       }
       setUser(user);
       getStats(user.id);
+      loadGamificationStats(user.id);
     };
     checkAuth();
-  }, [navigate, toast, getStats]);
+  }, [navigate, toast, getStats, loadGamificationStats]);
 
   // Load review queue
   const loadReviewQueue = useCallback(async () => {
@@ -169,6 +175,24 @@ export default function SRSReview() {
       sessionId || undefined
     );
 
+    // Log activity
+    await logActivity({
+      activity_type: 'srs_review',
+      count: 1,
+      duration_seconds: responseTime ? Math.round(responseTime / 1000) : undefined,
+      score: quality >= 3 ? 100 : 0,
+      metadata: { item_code: currentItem.item_code, quality, isNew: currentItem.isNew }
+    });
+
+    // Award gamification points
+    if (quality >= 3) {
+      await addPoints(user.id, 'itemReviewed');
+      // Check for first item badge
+      if (sessionStats.reviewed === 0) {
+        await unlockBadge(user.id, 'first_item');
+      }
+    }
+
     // Update session stats
     setSessionStats(prev => ({
       reviewed: prev.reviewed + 1,
@@ -196,6 +220,13 @@ export default function SRSReview() {
         sessionStats.again,
         totalTime
       );
+    }
+
+    // Award streak points
+    if (user && sessionStats.reviewed > 0) {
+      await addPoints(user.id, 'dailyStreak');
+      await checkAndUnlockBadges(user.id);
+      loadGamificationStats(user.id);
     }
 
     setIsSessionActive(false);
@@ -258,6 +289,13 @@ export default function SRSReview() {
             <p className="text-muted-foreground">Algorithme SM-2 pour une mémorisation optimale</p>
           </div>
         </div>
+
+        {/* Gamification Stats */}
+        {!isSessionActive && gamificationStats && (
+          <div className="mb-6">
+            <StreakDisplay stats={gamificationStats} compact />
+          </div>
+        )}
 
         {/* Stats Dashboard */}
         {!isSessionActive && (

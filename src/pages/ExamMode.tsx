@@ -4,17 +4,22 @@ import { Helmet } from 'react-helmet-async';
 import { 
   Clock, CheckCircle, XCircle, Play, Pause, RotateCcw,
   Trophy, Target, TrendingUp, AlertTriangle, ChevronLeft,
-  Timer, Award, BarChart3, Brain
+  Timer, Award, BarChart3, Brain, Sparkles, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useExamMode, ExamQuestion, ExamSession } from '@/hooks/useExamMode';
+import { useAIExam, AIQuestion, AIExamSession } from '@/hooks/useAIExam';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 export default function ExamMode() {
   const navigate = useNavigate();
@@ -23,6 +28,12 @@ export default function ExamMode() {
     loading, currentSession, questions, 
     startExam, submitAnswer, completeExam, getStats, resetExam 
   } = useExamMode();
+  const { 
+    loading: aiLoading, generating, session: aiSession, 
+    startAIExam, submitAnswer: submitAIAnswer, completeExam: completeAIExam, resetExam: resetAIExam 
+  } = useAIExam();
+  const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -32,6 +43,8 @@ export default function ExamMode() {
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
   const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
   const [activeTab, setActiveTab] = useState('exam');
+  const [examMode, setExamMode] = useState<'standard' | 'ai'>('ai');
+  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
 
   // Auth check
   useEffect(() => {
@@ -48,16 +61,21 @@ export default function ExamMode() {
       }
       setUser(user);
       setStats(getStats(user.id));
+      loadGamificationStats(user.id);
     };
     checkAuth();
-  }, [navigate, toast, getStats]);
+  }, [navigate, toast, getStats, loadGamificationStats]);
 
-  // Timer
+  // Timer for standard exam
   useEffect(() => {
-    if (!currentSession || !currentSession.time_limit_minutes) return;
+    const activeSession = examMode === 'ai' ? aiSession : currentSession;
+    if (!activeSession) return;
     
-    const startTime = new Date(currentSession.started_at).getTime();
-    const endTime = startTime + (currentSession.time_limit_minutes * 60 * 1000);
+    const timeLimit = examMode === 'ai' ? aiSession?.timeLimitMinutes : currentSession?.time_limit_minutes;
+    if (!timeLimit) return;
+    
+    const startTime = new Date(examMode === 'ai' ? aiSession!.startedAt : currentSession!.started_at).getTime();
+    const endTime = startTime + (timeLimit * 60 * 1000);
     
     const interval = setInterval(() => {
       const remaining = Math.max(0, endTime - Date.now());
@@ -69,7 +87,7 @@ export default function ExamMode() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentSession]);
+  }, [currentSession, aiSession, examMode]);
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -80,7 +98,12 @@ export default function ExamMode() {
 
   const handleStartExam = async () => {
     if (!user) return;
-    await startExam(user.id, 'standard', 20, 30);
+    
+    if (examMode === 'ai') {
+      await startAIExam(user.id, 'ai_generated', 10, 20, aiDifficulty);
+    } else {
+      await startExam(user.id, 'standard', 20, 30);
+    }
     setCurrentQuestionIndex(0);
     setQuestionStartTime(Date.now());
   };
@@ -94,17 +117,25 @@ export default function ExamMode() {
     if (selectedAnswer === null) return;
     
     const timeSpent = Date.now() - questionStartTime;
-    const isCorrect = submitAnswer(
-      questions[currentQuestionIndex].id,
-      selectedAnswer,
-      timeSpent
-    );
+    
+    if (examMode === 'ai' && aiSession) {
+      const currentQ = aiSession.questions[currentQuestionIndex];
+      submitAIAnswer(currentQ.id, [selectedAnswer], timeSpent);
+    } else {
+      submitAnswer(
+        questions[currentQuestionIndex].id,
+        selectedAnswer,
+        timeSpent
+      );
+    }
     
     setShowResult(true);
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    const totalQuestions = examMode === 'ai' ? aiSession?.questions.length || 0 : questions.length;
+    
+    if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
@@ -115,28 +146,87 @@ export default function ExamMode() {
   };
 
   const handleCompleteExam = async () => {
-    await completeExam();
-    if (user) {
-      setStats(getStats(user.id));
+    if (examMode === 'ai') {
+      const result = await completeAIExam();
+      if (result && user) {
+        // Award points
+        await addPoints(user.id, 'examCompleted');
+        if (result.score === 100) {
+          await addPoints(user.id, 'perfectExam');
+          await unlockBadge(user.id, 'perfect_exam');
+        }
+        loadGamificationStats(user.id);
+      }
+    } else {
+      await completeExam();
+      if (user) {
+        const session = currentSession;
+        await logActivity({
+          activity_type: 'exam',
+          count: 1,
+          score: session?.score || 0,
+          metadata: { exam_type: 'standard' }
+        });
+        await addPoints(user.id, 'examCompleted');
+        if (session?.score === 100) {
+          await addPoints(user.id, 'perfectExam');
+          await unlockBadge(user.id, 'perfect_exam');
+        }
+        setStats(getStats(user.id));
+        loadGamificationStats(user.id);
+      }
     }
   };
 
   const handleNewExam = () => {
-    resetExam();
+    if (examMode === 'ai') {
+      resetAIExam();
+    } else {
+      resetExam();
+    }
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progressPercent = questions.length > 0 
-    ? ((currentQuestionIndex + (showResult ? 1 : 0)) / questions.length) * 100 
+  // Get current question based on mode
+  const currentQuestion = examMode === 'ai' 
+    ? aiSession?.questions[currentQuestionIndex]
+    : questions[currentQuestionIndex];
+  
+  const totalQuestions = examMode === 'ai' 
+    ? aiSession?.questions.length || 0 
+    : questions.length;
+  
+  const progressPercent = totalQuestions > 0 
+    ? ((currentQuestionIndex + (showResult ? 1 : 0)) / totalQuestions) * 100 
     : 0;
+
+  const isExamActive = examMode === 'ai' 
+    ? aiSession && !aiSession.completedAt 
+    : currentSession && !currentSession.completed_at;
+
+  const isExamCompleted = examMode === 'ai'
+    ? aiSession?.completedAt
+    : currentSession?.completed_at;
+
+  const examScore = examMode === 'ai'
+    ? aiSession?.score
+    : currentSession?.score;
 
   const getAnswerStatus = (session: ExamSession) => {
     const correct = Object.values(session.answers).filter(a => a.correct).length;
     const total = Object.keys(session.answers).length;
     return { correct, total };
+  };
+
+  // Helper to check if answer is correct
+  const isCorrectAnswer = (index: number) => {
+    if (!currentQuestion) return false;
+    if (examMode === 'ai') {
+      return (currentQuestion as AIQuestion).correct_answers.includes(index);
+    }
+    return (currentQuestion as ExamQuestion).correct_answer === index;
   };
 
   return (
@@ -249,7 +339,7 @@ export default function ExamMode() {
                         disabled={showResult}
                         className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
                           showResult
-                            ? index === currentQuestion.correct_answer
+                            ? isCorrectAnswer(index)
                               ? 'border-success bg-success/10'
                               : selectedAnswer === index
                                 ? 'border-destructive bg-destructive/10'
@@ -264,10 +354,10 @@ export default function ExamMode() {
                             {String.fromCharCode(65 + index)}
                           </span>
                           <span className="flex-1">{option}</span>
-                          {showResult && index === currentQuestion.correct_answer && (
+                          {showResult && isCorrectAnswer(index) && (
                             <CheckCircle className="h-5 w-5 text-success" />
                           )}
-                          {showResult && selectedAnswer === index && index !== currentQuestion.correct_answer && (
+                          {showResult && selectedAnswer === index && !isCorrectAnswer(index) && (
                             <XCircle className="h-5 w-5 text-destructive" />
                           )}
                         </div>
