@@ -1,23 +1,171 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { LearningAnalytics } from '@/components/analytics/LearningAnalytics';
 import { SmartRecommendations } from '@/components/recommendations/SmartRecommendations';
-import { BarChart3, Target, Lightbulb, Settings } from 'lucide-react';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  BarChart3, Target, Lightbulb, Settings, Trophy, Flame, 
+  CheckCircle, Plus, Trash2, Calendar, BookOpen
+} from 'lucide-react';
+
+interface LearningGoal {
+  id: string;
+  title: string;
+  target: number;
+  current: number;
+  unit: string;
+  deadline?: string;
+  completed: boolean;
+}
 
 export default function LearningDashboard() {
   const [activeTab, setActiveTab] = useState('analytics');
+  const [userId, setUserId] = useState<string | null>(null);
+  const { stats, loading: gamificationLoading, loadStats } = useGamification();
+  const { getStreak, getTodayStats } = useActivityTracking();
+  const [streak, setStreak] = useState<{ current: number; longest: number }>({ current: 0, longest: 0 });
+  const [todayStats, setTodayStats] = useState<any>(null);
+  
+  // Goals state
+  const [goals, setGoals] = useState<LearningGoal[]>([]);
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [newGoalTarget, setNewGoalTarget] = useState('');
+  const [newGoalUnit, setNewGoalUnit] = useState('items');
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        await loadStats(user.id);
+        const streakData = await getStreak();
+        setStreak(streakData);
+        const today = await getTodayStats();
+        setTodayStats(today);
+        
+        // Load goals from localStorage
+        const stored = localStorage.getItem(`learning_goals_${user.id}`);
+        if (stored) setGoals(JSON.parse(stored));
+      }
+    };
+    init();
+  }, [loadStats, getStreak, getTodayStats]);
+
+  const saveGoals = (newGoals: LearningGoal[]) => {
+    setGoals(newGoals);
+    if (userId) {
+      localStorage.setItem(`learning_goals_${userId}`, JSON.stringify(newGoals));
+    }
+  };
+
+  const addGoal = () => {
+    if (!newGoalTitle || !newGoalTarget) return;
+    
+    const newGoal: LearningGoal = {
+      id: Date.now().toString(),
+      title: newGoalTitle,
+      target: parseInt(newGoalTarget),
+      current: 0,
+      unit: newGoalUnit,
+      completed: false
+    };
+    
+    saveGoals([...goals, newGoal]);
+    setNewGoalTitle('');
+    setNewGoalTarget('');
+  };
+
+  const updateGoalProgress = (goalId: string, progress: number) => {
+    const updated = goals.map(g => 
+      g.id === goalId 
+        ? { ...g, current: progress, completed: progress >= g.target }
+        : g
+    );
+    saveGoals(updated);
+  };
+
+  const deleteGoal = (goalId: string) => {
+    saveGoals(goals.filter(g => g.id !== goalId));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Tableau de Bord d'Apprentissage
-          </h1>
-          <p className="text-muted-foreground">
-            Suivez votre progression, analysez vos performances et découvrez des recommandations personnalisées
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Tableau de Bord d'Apprentissage
+            </h1>
+            <p className="text-muted-foreground">
+              Suivez votre progression, analysez vos performances et découvrez des recommandations personnalisées
+            </p>
+          </div>
+          
+          {/* Quick stats */}
+          {stats && (
+            <div className="hidden md:block">
+              <StreakDisplay stats={stats} compact />
+            </div>
+          )}
+        </div>
+
+        {/* Today's Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-primary/20">
+                <Flame className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{streak.current}</p>
+                <p className="text-xs text-muted-foreground">Jours de suite</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-success/10 to-success/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-success/20">
+                <CheckCircle className="h-5 w-5 text-success" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{todayStats?.totalActivities || 0}</p>
+                <p className="text-xs text-muted-foreground">Activités aujourd'hui</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-warning/10 to-warning/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-warning/20">
+                <Trophy className="h-5 w-5 text-warning" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats?.badges.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Badges obtenus</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-accent/10 to-accent/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-accent/20">
+                <BookOpen className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">Niv. {stats?.level || 1}</p>
+                <p className="text-xs text-muted-foreground">{stats?.totalPoints || 0} XP</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -52,19 +200,117 @@ export default function LearningDashboard() {
             <TabsContent value="goals" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Objectifs d'Apprentissage</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Objectifs d'Apprentissage
+                  </CardTitle>
                   <CardDescription>
                     Définissez et suivez vos objectifs d'étude personnalisés
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Fonctionnalité en cours de développement</h3>
-                    <p className="text-muted-foreground">
-                      La gestion des objectifs sera bientôt disponible pour vous aider à structurer votre apprentissage.
-                    </p>
+                <CardContent className="space-y-6">
+                  {/* Add new goal */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Input 
+                      placeholder="Titre de l'objectif..."
+                      value={newGoalTitle}
+                      onChange={(e) => setNewGoalTitle(e.target.value)}
+                      className="flex-1 min-w-[200px]"
+                    />
+                    <Input 
+                      type="number"
+                      placeholder="Cible"
+                      value={newGoalTarget}
+                      onChange={(e) => setNewGoalTarget(e.target.value)}
+                      className="w-24"
+                    />
+                    <select 
+                      value={newGoalUnit}
+                      onChange={(e) => setNewGoalUnit(e.target.value)}
+                      className="px-3 py-2 border rounded-md bg-background"
+                    >
+                      <option value="items">Items</option>
+                      <option value="heures">Heures</option>
+                      <option value="quiz">Quiz</option>
+                      <option value="flashcards">Flashcards</option>
+                    </select>
+                    <Button onClick={addGoal} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Ajouter
+                    </Button>
                   </div>
+
+                  {/* Goals list */}
+                  {goals.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Aucun objectif défini</h3>
+                      <p className="text-muted-foreground">
+                        Créez votre premier objectif pour structurer votre apprentissage
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {goals.map((goal) => (
+                        <div 
+                          key={goal.id} 
+                          className={`p-4 border rounded-lg ${goal.completed ? 'bg-success/5 border-success/30' : ''}`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              {goal.completed && <CheckCircle className="h-4 w-4 text-success" />}
+                              <h4 className="font-medium">{goal.title}</h4>
+                              {goal.completed && <Badge variant="outline" className="text-success">Complété</Badge>}
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => deleteGoal(goal.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>{goal.current} / {goal.target} {goal.unit}</span>
+                              <span>{Math.round((goal.current / goal.target) * 100)}%</span>
+                            </div>
+                            <Progress value={(goal.current / goal.target) * 100} className="h-2" />
+                          </div>
+                          
+                          {!goal.completed && (
+                            <div className="flex gap-2 mt-3">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => updateGoalProgress(goal.id, goal.current + 1)}
+                              >
+                                +1
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => updateGoalProgress(goal.id, goal.current + 5)}
+                              >
+                                +5
+                              </Button>
+                              <Input 
+                                type="number"
+                                placeholder="Définir..."
+                                className="w-24 h-8"
+                                onBlur={(e) => {
+                                  if (e.target.value) {
+                                    updateGoalProgress(goal.id, parseInt(e.target.value));
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

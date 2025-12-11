@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Music } from 'lucide-react';
@@ -10,6 +11,7 @@ import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -34,6 +36,24 @@ interface EdnItemContentProps {
 }
 
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
+  const { logActivity } = useActivityTracking();
+
+  // Log activity when viewing content
+  useEffect(() => {
+    const trackView = async () => {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { 
+          itemCode: item.item_code, 
+          section: activeSection,
+          action: 'view'
+        }
+      });
+    };
+    trackView();
+  }, [activeSection, item.item_code, logActivity]);
+
   console.log('🔍 EdnItemContent - Active section:', activeSection);
   console.log('📊 EdnItemContent - Item data:', item);
   

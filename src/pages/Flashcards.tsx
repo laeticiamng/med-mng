@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   BookOpen, Plus, Trash2, ChevronLeft, Play, RotateCcw,
   CheckCircle, XCircle, Sparkles, TrendingUp, Flame, BarChart3,
-  Layers, Edit, Eye, EyeOff
+  Layers, Edit, Eye, EyeOff, Award
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useFlashcards, FlashcardDeck, Flashcard } from '@/hooks/useFlashcards';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 
@@ -28,10 +30,13 @@ export default function Flashcards() {
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
     generateFromItem, recordReview, getStats
   } = useFlashcards();
+  const { addPoints, unlockBadge, checkAndUnlockBadges, stats: gamificationStats } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('decks');
   const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
+  const [totalReviews, setTotalReviews] = useState(0);
   
   // New deck form
   const [newDeckName, setNewDeckName] = useState('');
@@ -131,6 +136,27 @@ export default function Flashcards() {
     const currentCard = cards[currentCardIndex];
     await recordReview(currentCard.id, wasCorrect);
     
+    // Gamification: Award points for flashcard review
+    if (user) {
+      await addPoints(user.id, 'itemReviewed');
+      await logActivity({ 
+        activity_type: 'flashcard', 
+        count: 1, 
+        score: wasCorrect ? 100 : 0,
+        metadata: { deckId: currentDeck?.id }
+      });
+      
+      // Track total reviews for badge
+      const newTotal = totalReviews + 1;
+      setTotalReviews(newTotal);
+      
+      // Unlock badges based on reviews
+      if (newTotal >= 10) await unlockBadge(user.id, 'items_10');
+      if (newTotal >= 50) await unlockBadge(user.id, 'items_50');
+      
+      await checkAndUnlockBadges(user.id);
+    }
+    
     setReviewStats(prev => ({
       correct: prev.correct + (wasCorrect ? 1 : 0),
       incorrect: prev.incorrect + (wasCorrect ? 0 : 1)
@@ -142,10 +168,21 @@ export default function Flashcards() {
     } else {
       // Review complete
       setReviewMode(false);
+      
+      const finalCorrect = reviewStats.correct + (wasCorrect ? 1 : 0);
+      const score = Math.round((finalCorrect / cards.length) * 100);
+      
       toast({
         title: "Révision terminée !",
-        description: `${reviewStats.correct + (wasCorrect ? 1 : 0)} / ${cards.length} cartes correctes`,
+        description: `${finalCorrect} / ${cards.length} cartes correctes (${score}%)`,
       });
+      
+      // Bonus for perfect score
+      if (user && score === 100) {
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
+      }
+      
       if (user) setStats(getStats(user.id));
     }
   };
