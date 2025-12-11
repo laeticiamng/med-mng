@@ -5,7 +5,7 @@ import {
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
   Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle,
-  BarChart3, HelpCircle
+  BarChart3, HelpCircle, Flame
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
+import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
 
 interface EdnItem {
   id: string;
@@ -61,6 +62,7 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
+  const { stats: gamificationStats } = useGamification();
   
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
   const [completeItems, setCompleteItems] = useState<any[]>([]);
@@ -361,6 +363,18 @@ export default function EdnComplete() {
                     {stats.total} items {stats.complete > 0 ? `• ${stats.complete} complets` : 'disponibles'}
                   </p>
                 </div>
+                {gamificationStats && (
+                  <div className="hidden md:flex items-center gap-2 ml-4">
+                    <Badge variant="outline" className="gap-1 text-xs">
+                      <Flame className="h-3 w-3 text-orange-500" />
+                      {gamificationStats.currentStreak}j
+                    </Badge>
+                    <Badge variant="outline" className="gap-1 text-xs">
+                      <Star className="h-3 w-3 text-yellow-500" />
+                      Niv. {gamificationStats.level}
+                    </Badge>
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center gap-2 flex-wrap">

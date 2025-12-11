@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, XCircle, Trophy, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, Trophy, RotateCcw, Flame, Star, Share2 } from 'lucide-react';
 import { useQuizWithErrorTracking } from '@/hooks/useQuizWithErrorTracking';
-
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 interface QuizQuestion {
   question: string;
   options?: string[];
@@ -42,9 +45,21 @@ interface QuizFinalProps {
 }
 
 export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN' }: QuizFinalProps) => {
-  console.log('QuizFinal - questions received:', questions);
-  console.log('QuizFinal - rewards received:', rewards);
+  const { addPoints, unlockBadge, stats } = useGamification();
+  const { logActivity } = useActivityTracking();
+  const { toast } = useToast();
+  const [pointsAwarded, setPointsAwarded] = useState(false);
+  const [startTime] = useState(Date.now());
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Get user ID on mount
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    };
+    getUser();
+  }, []);
   const {
     answers,
     currentQuestion,
@@ -243,16 +258,77 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     }
   };
 
+  // Award points when results are shown
+  useEffect(() => {
+    if (showResults && !pointsAwarded && allQuestions.length > 0 && userId) {
+      const percentage = (score / allQuestions.length) * 100;
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      
+      // Award points based on score
+      const isPerfect = percentage === 100;
+      addPoints(userId, isPerfect ? 'perfectExam' : 'examCompleted');
+      
+      // Log activity
+      logActivity({
+        activity_type: 'exam',
+        count: 1,
+        duration_seconds: duration,
+        score: percentage,
+        metadata: { 
+          itemCode, 
+          itemTitle, 
+          questionsCount: allQuestions.length,
+          correctAnswers: score
+        }
+      });
+      
+      // Check for perfect score badge
+      if (isPerfect) {
+        unlockBadge(userId, 'perfect_exam');
+        toast({
+          title: "🏆 Score parfait !",
+          description: `Badge débloqué !`,
+        });
+      } else {
+        toast({
+          title: "✅ Quiz terminé !",
+          description: `XP gagnés !`,
+        });
+      }
+      
+      setPointsAwarded(true);
+    }
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId]);
+
   if (showResults) {
+    const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
+    
     return (
       <div className="space-y-8">
         <div className="text-center">
-          <Trophy className="h-16 w-16 text-warning mx-auto mb-4" />
+          <Trophy className="h-16 w-16 text-warning mx-auto mb-4 animate-bounce" />
           <h2 className="text-3xl font-serif text-foreground mb-4">Quiz Terminé !</h2>
           <div className="text-6xl font-bold text-foreground mb-4">
             {score}/{allQuestions.length}
           </div>
+          <Badge variant="outline" className="text-lg px-4 py-1">
+            {percentage >= 80 ? '🌟 Excellent !' : percentage >= 60 ? '👍 Bien !' : '📚 À réviser'}
+          </Badge>
         </div>
+
+        {/* Gamification Stats */}
+        {stats && (
+          <div className="flex justify-center gap-4">
+            <Badge variant="outline" className="gap-1 text-sm">
+              <Flame className="h-4 w-4 text-orange-500" />
+              Série: {stats.currentStreak} jours
+            </Badge>
+            <Badge variant="outline" className="gap-1 text-sm">
+              <Star className="h-4 w-4 text-yellow-500" />
+              Niveau {stats.level}
+            </Badge>
+          </div>
+        )}
 
         <Card className="p-8 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
           <div className="text-center">
@@ -263,21 +339,37 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
               {[...Array(10)].map((_, i) => (
                 <div
                   key={i}
-                  className={`w-4 h-4 rounded-full ${
+                  className={`w-4 h-4 rounded-full transition-all ${
                     i < (score / allQuestions.length) * 10
-                      ? 'bg-warning'
+                      ? 'bg-warning scale-110'
                       : 'bg-muted'
                   }`}
                 />
               ))}
             </div>
-            <Button
-              onClick={resetQuiz}
-              className="bg-warning hover:bg-warning/90 text-warning-foreground"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Recommencer le quiz
-            </Button>
+            <div className="flex justify-center gap-3">
+              <Button
+                onClick={resetQuiz}
+                className="bg-warning hover:bg-warning/90 text-warning-foreground"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Recommencer
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `Quiz ${itemCode}`,
+                      text: `J'ai obtenu ${score}/${allQuestions.length} au quiz ${itemTitle} !`,
+                    });
+                  }
+                }}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Partager
+              </Button>
+            </div>
           </div>
         </Card>
       </div>

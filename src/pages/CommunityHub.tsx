@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { Progress } from '@/components/ui/progress';
 
 interface Post {
   id: string;
@@ -56,9 +58,33 @@ interface Event {
 
 const CommunityHub = () => {
   const { toast } = useToast();
+  const { stats } = useGamification();
   const [activeTab, setActiveTab] = useState('feed');
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userBadgesCount, setUserBadgesCount] = useState(0);
+
+  // Load current user
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name, email')
+          .eq('id', user.id)
+          .single();
+        setCurrentUser({ ...user, profile });
+        
+        // Get badges count from stats
+        if (stats?.badges) {
+          setUserBadgesCount(stats.badges.length);
+        }
+      }
+    };
+    loadUser();
+  }, [stats]);
 
   // Load real leaderboard data from user_activity_log
   useEffect(() => {
@@ -288,6 +314,52 @@ const CommunityHub = () => {
             Connectez-vous avec d'autres étudiants et professionnels de santé, partagez vos expériences et apprenez ensemble
           </p>
         </div>
+
+        {/* User Profile Card */}
+        {currentUser && stats && (
+          <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <Avatar className="h-20 w-20 border-4 border-primary/20">
+                  <AvatarFallback className="text-2xl bg-primary/10">
+                    {(currentUser.profile?.name || currentUser.email)?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 text-center md:text-left space-y-2">
+                  <h3 className="text-xl font-bold text-foreground">
+                    {currentUser.profile?.name || currentUser.email?.split('@')[0]}
+                  </h3>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                    <Badge variant="outline" className="gap-1">
+                      <Flame className="h-3 w-3 text-orange-500" />
+                      {stats.currentStreak} jours
+                    </Badge>
+                    <Badge variant="outline" className="gap-1">
+                      <Star className="h-3 w-3 text-yellow-500" />
+                      Niveau {stats.level}
+                    </Badge>
+                    <Badge variant="outline" className="gap-1">
+                      <Trophy className="h-3 w-3 text-amber-500" />
+                      {userBadgesCount} badges
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="w-full md:w-48 space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>XP</span>
+                    <span>{stats.totalPoints % XP_PER_LEVEL} / {XP_PER_LEVEL}</span>
+                  </div>
+                  <Progress 
+                    value={(stats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} 
+                    className="h-2"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Statistiques de la communauté */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
