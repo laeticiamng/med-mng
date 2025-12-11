@@ -291,8 +291,26 @@ export default function EdnComplete() {
     return { total, complete, validated, withMusic, avgScore };
   };
 
-  const openItemModal = useCallback((item: EdnItem, tab?: string) => {
-    setSelectedItem(item);
+  const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
+    // Fetch données complètes (tableaux, quiz, scène, etc.) pour l'item
+    try {
+      const { data: fullItem, error } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', item.item_code)
+        .single();
+      
+      if (error) {
+        console.error('Erreur fetch item complet:', error);
+        setSelectedItem(item); // Fallback sur les données partielles
+      } else {
+        setSelectedItem({ ...item, ...fullItem });
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      setSelectedItem(item);
+    }
+    
     setIsModalOpen(true);
     setSelectedItemTab(tab || 'overview');
   }, []);
