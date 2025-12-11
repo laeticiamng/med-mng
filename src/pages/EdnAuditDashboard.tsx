@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface AuditResult {
   id: string;
@@ -28,6 +29,7 @@ interface AuditResult {
 }
 
 export const EdnAuditDashboard: React.FC = () => {
+  const { logActivity } = useActivityTracking();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuditing, setIsAuditing] = useState(false);
@@ -60,6 +62,13 @@ export const EdnAuditDashboard: React.FC = () => {
   const startAudit = async () => {
     setIsAuditing(true);
     try {
+      // Tracker le lancement de l'audit
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { page: 'edn_audit_dashboard', action: 'start_audit' }
+      });
+      
       // Lancer l'audit global
       const { data, error } = await supabase.functions.invoke('audit-edn-completeness', {
         body: { action: 'start-audit' }
@@ -236,6 +245,11 @@ export const EdnAuditDashboard: React.FC = () => {
 
   useEffect(() => {
     loadAuditResults();
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'edn_audit_dashboard', action: 'view' }
+    });
     const interval = setInterval(loadAuditResults, 5000); // Refresh every 5s
     return () => clearInterval(interval);
   }, []);

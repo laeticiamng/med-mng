@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface AnalyticsStats {
   total_users: number;
@@ -28,6 +29,7 @@ interface AnalyticsStats {
 }
 
 const PWAAnalytics: React.FC = () => {
+  const { logActivity } = useActivityTracking();
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { metrics } = usePWAMetrics();
@@ -43,6 +45,11 @@ const PWAAnalytics: React.FC = () => {
 
   useEffect(() => {
     loadAnalytics();
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'pwa_analytics', action: 'view' }
+    });
   }, []);
 
   const loadAnalytics = async () => {

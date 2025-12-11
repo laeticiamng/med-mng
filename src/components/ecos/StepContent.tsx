@@ -1,7 +1,7 @@
-
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LucideIcon } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface Step {
   title: string;
@@ -29,7 +29,27 @@ export const StepContent = ({
   onResponseChange, 
   onNext 
 }: StepContentProps) => {
+  const { logActivity } = useActivityTracking();
   const IconComponent = step.icon;
+
+  const handleResponseWithTracking = (field: string, value: string) => {
+    onResponseChange(field, value);
+  };
+
+  const handleNextWithTracking = () => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { 
+        component: 'ecos_step', 
+        action: 'step_completed', 
+        currentStep, 
+        totalSteps,
+        stepTitle: step.title
+      }
+    });
+    onNext();
+  };
 
   return (
     <Card className="bg-card/5 backdrop-blur-sm border-border/10 mb-8">
@@ -87,7 +107,7 @@ export const StepContent = ({
 
         <div className="text-center mt-8">
           <Button
-            onClick={onNext}
+            onClick={handleNextWithTracking}
             size="lg"
             className="bg-gradient-to-r from-success to-success/80 hover:from-success/90 hover:to-success/70 text-success-foreground px-8 py-4 text-lg"
           >

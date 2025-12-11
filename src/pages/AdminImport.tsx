@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Upload, FileSpreadsheet, Link2, AlertCircle, CheckCircle, Clock, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ImportBatch {
   [key: string]: any;
@@ -21,6 +22,7 @@ interface GoogleSheetsIntegration {
 }
 
 export default function AdminImport() {
+  const { logActivity } = useActivityTracking();
   const [importBatches, setImportBatches] = useState<ImportBatch[]>([]);
   const [googleIntegrations, setGoogleIntegrations] = useState<GoogleSheetsIntegration[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -54,6 +56,12 @@ export default function AdminImport() {
   useEffect(() => {
     fetchImportBatches();
     fetchGoogleIntegrations();
+    
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { page: 'admin_import', action: 'view' }
+    });
     
     // Rafraîchir les données toutes les 5 secondes
     const interval = setInterval(() => {
@@ -200,6 +208,13 @@ export default function AdminImport() {
       toast({
         title: "Import lancé",
         description: "L'import a été lancé avec succès. Vous pouvez suivre le progrès ci-dessous.",
+      });
+
+      // Tracker l'import réussi
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { page: 'admin_import', action: 'import_success', batchId: batch.id }
       });
 
       // Réinitialiser le formulaire
