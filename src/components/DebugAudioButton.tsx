@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Play } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface DebugAudioButtonProps {
   audioUrl: string;
@@ -13,10 +14,13 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
 }) => {
   const [status, setStatus] = React.useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [errorDetails, setErrorDetails] = React.useState<string>('');
+  const { logActivity } = useActivityTracking();
 
   const testAudio = async () => {
     setStatus('testing');
     setErrorDetails('');
+    
+    logActivity({ activity_type: 'study', metadata: { action: 'debug_audio_test', url: audioUrl.substring(0, 50) } });
     
     console.log('🔍 Debug Audio Test:', {
       url: audioUrl,

@@ -6,22 +6,23 @@ import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     // Vérification des droits d'administration
-    // Note: Dans un vrai système, vous devriez vérifier les rôles utilisateur
     if (!user) {
       toast.error('Accès non autorisé - Connexion requise');
       navigate(ROUTE_PATHS.medMngLogin);
       return;
     }
 
-    // Pour la démo, on peut accéder si on est connecté
-    // Dans la production, ajouter une vérification de rôle admin
+    // Log admin access
+    logActivity({ activity_type: 'study', metadata: { action: 'admin_panel_access' } });
     console.log('🔐 Accès panel admin autorisé pour:', user.email);
   }, [user, navigate]);
 

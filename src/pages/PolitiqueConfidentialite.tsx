@@ -1,11 +1,19 @@
+import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Shield, Eye, Lock, UserCheck, Database, Globe, Clock, Mail, Info, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const PolitiqueConfidentialite = () => {
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_politique_confidentialite' } });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-success/5 via-background to-primary/5">
       <div className="container mx-auto px-4 py-8">
