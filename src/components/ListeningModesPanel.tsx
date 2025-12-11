@@ -15,9 +15,16 @@ import {
   Leaf,
   Rocket,
   Palette,
-  Target
+  Target,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 import { useListeningModes, type ListeningMode } from '@/hooks/useListeningModes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+
 
 const getModeIcon = (iconName: string) => {
   const iconMap: Record<string, any> = {
@@ -58,7 +65,44 @@ export const ListeningModesPanel = () => {
     getRecommendedPlaylist
   } = useListeningModes();
 
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity } = useActivityTracking();
+  const [user, setUser] = useState<any>(null);
   const [selectedMode, setSelectedMode] = useState<ListeningMode | null>(null);
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        await loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
+
+  const handleStartMode = async (mode: ListeningMode) => {
+    startMode(mode);
+    if (user) {
+      await logActivity({ 
+        activity_type: 'music_generation', 
+        metadata: { action: 'listening_mode_started', mode: mode.name } 
+      });
+    }
+  };
+
+  const handleEndSession = async () => {
+    endSession();
+    if (user) {
+      await logActivity({ 
+        activity_type: 'music_generation', 
+        metadata: { action: 'listening_session_completed', duration_minutes: activeMode?.duration_minutes || 0 }
+      });
+      await addPoints(user.id, 'itemReviewed');
+      await loadStats(user.id);
+    }
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -72,6 +116,32 @@ export const ListeningModesPanel = () => {
 
   return (
     <div className="space-y-6">
+      {/* Gamification Stats */}
+      {user && gamificationStats && (
+        <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm">Statistiques de Session</h3>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1 text-warning">
+                  <Flame className="h-4 w-4" />
+                  <span className="font-bold">{gamificationStats.currentStreak}</span>
+                  <span className="text-xs text-muted-foreground">jours</span>
+                </div>
+                <div className="flex items-center gap-1 text-primary">
+                  <Star className="h-4 w-4" />
+                  <span className="font-bold">Niv. {gamificationStats.level}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Trophy className="h-4 w-4 text-warning" />
+                  <Badge variant="secondary">{gamificationStats.badges.length}</Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Session active */}
       {activeMode && (
         <Card className="border-primary/20 bg-primary/5">
@@ -107,7 +177,7 @@ export const ListeningModesPanel = () => {
                 </Button>
               )}
               
-              <Button variant="destructive" size="sm" onClick={endSession}>
+              <Button variant="destructive" size="sm" onClick={handleEndSession}>
                 <Square className="h-4 w-4 mr-1" />
                 Terminer
               </Button>
@@ -194,7 +264,7 @@ export const ListeningModesPanel = () => {
                             className="w-full mt-3"
                             onClick={(e) => {
                               e.stopPropagation();
-                              startMode(mode);
+                              handleStartMode(mode);
                             }}
                             disabled={!!activeMode}
                           >

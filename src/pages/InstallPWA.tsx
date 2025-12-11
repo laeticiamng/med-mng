@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, Smartphone, CheckCircle, Zap, Wifi, Heart } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Download, Smartphone, CheckCircle, Zap, Wifi, Heart, Flame, Star, Trophy } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -16,6 +20,23 @@ const InstallPWA: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity } = useActivityTracking();
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        await loadStats(user.id);
+        await logActivity({ activity_type: 'study', metadata: { action: 'install_pwa_viewed' } });
+      }
+    };
+    init();
+  }, [loadStats, logActivity]);
 
   useEffect(() => {
     // Vérifier si l'app est déjà installée

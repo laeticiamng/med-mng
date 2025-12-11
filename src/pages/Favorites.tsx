@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 
@@ -43,16 +44,21 @@ const Favorites: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { stats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setUser(user);
         await loadStats(user.id);
+        // Log page view activity
+        await logActivity({ activity_type: 'study', metadata: { action: 'favorites_viewed' } });
       }
     };
     init();
-  }, [loadStats]);
+  }, [loadStats, logActivity]);
 
   // Données de démo
   const favoriteItems: FavoriteItem[] = [
