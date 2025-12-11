@@ -14,6 +14,7 @@ import { AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 // Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
 const ednitems = [
@@ -33,6 +34,7 @@ const situations = [
 const MedMngCreateComponent = () => {
   const navigate = useNavigate();
   const medMngApi = useMedMngApi();
+  const { logActivity } = useActivityTracking();
   
   const [contentType, setContentType] = useState(''); // 'item' ou 'situation'
   const [selectedItem, setSelectedItem] = useState('');
@@ -88,6 +90,9 @@ const MedMngCreateComponent = () => {
       navigate(ROUTE_PATHS.medMngPricing);
       return;
     }
+
+    // Track activity
+    logActivity({ activity_type: 'music_generation', metadata: { action: 'create_song_start', contentType, style } });
 
     const title = getSelectedTitle();
     await generateSong(

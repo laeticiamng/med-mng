@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,9 +20,16 @@ import {
   Sparkles,
   Clock,
   Music2,
-  AudioLines
+  AudioLines,
+  Flame,
+  Trophy,
+  Star
 } from 'lucide-react';
 import { useContentGeneration, type ContentGenerationRequest } from '@/hooks/useContentGeneration';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const MUSIC_STYLES = [
   { id: 'ambient', label: 'Ambient', description: 'Sons apaisants et atmosphériques' },
@@ -52,6 +59,9 @@ const IMAGE_MOODS = [
 
 export const CreativeStudio = () => {
   const { generateContent, isGenerating, progress } = useContentGeneration();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats } = useGamification();
+  const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('music');
   const [formData, setFormData] = useState({
     prompt: '',
@@ -61,6 +71,18 @@ export const CreativeStudio = () => {
     duration: 120,
     size: '1024x1024'
   });
+
+  // Load user and gamification stats
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+      }
+    };
+    checkUser();
+  }, [loadStats]);
 
   const handleGenerate = async () => {
     if (!formData.prompt.trim()) return;
@@ -81,7 +103,12 @@ export const CreativeStudio = () => {
     const result = await generateContent(request);
     if (result) {
       console.log('Contenu généré:', result);
-      // Ici vous pourriez ajouter le contenu à une liste ou l'afficher
+      // Track activity
+      logActivity({ 
+        activity_type: 'music_generation', 
+        metadata: { action: 'creative_studio_generate', type: activeTab } 
+      });
+      toast.success('Contenu généré avec succès !');
     }
   };
 
