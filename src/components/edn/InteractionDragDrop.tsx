@@ -1,9 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Flame, Star } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InteractionDragDropProps {
   config: {
@@ -18,9 +21,32 @@ interface InteractionDragDropProps {
 }
 
 export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+  
   const [matches, setMatches] = useState<{ [key: string]: string }>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'interaction_drag_drop', action: 'view', type: config.type }
+      });
+    }
+  }, [config.type]);
 
   const phrases = config.exemples.map(ex => ex.phrase);
   const concepts = config.exemples.map(ex => ex.concept).sort(() => Math.random() - 0.5);
@@ -32,7 +58,7 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
     }));
   };
 
-  const checkAnswers = () => {
+  const checkAnswers = async () => {
     let correctCount = 0;
     config.exemples.forEach(ex => {
       if (matches[ex.phrase] === ex.concept) {
@@ -41,12 +67,38 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
     });
     setScore(correctCount);
     setShowResults(true);
+    
+    // Log activity and award points
+    const scorePercentage = Math.round((correctCount / config.exemples.length) * 100);
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      score: scorePercentage,
+      metadata: { 
+        component: 'interaction_drag_drop', 
+        action: 'check_answers',
+        correct: correctCount,
+        total: config.exemples.length
+      }
+    });
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && correctCount === config.exemples.length) {
+      await addPoints(user.id, 'perfectExam');
+    } else if (user && correctCount > 0) {
+      await addPoints(user.id, 'itemReviewed');
+    }
   };
 
   const resetGame = () => {
     setMatches({});
     setShowResults(false);
     setScore(0);
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'interaction_drag_drop', action: 'reset' }
+    });
   };
 
   const getMatchResult = (phrase: string) => {
@@ -61,7 +113,17 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-serif text-warning-foreground mb-4">Interaction Pratique</h2>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <h2 className="text-3xl font-serif text-warning-foreground">Interaction Pratique</h2>
+          {stats && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
+              <Flame className="h-4 w-4 text-warning" />
+              <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
+              <Star className="h-4 w-4 text-primary ml-1" />
+              <span className="text-sm font-bold text-primary">Nv.{stats.level}</span>
+            </div>
+          )}
+        </div>
         <p className="text-warning-foreground/80 text-lg">{config.description}</p>
       </div>
 

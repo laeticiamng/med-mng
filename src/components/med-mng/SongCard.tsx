@@ -1,13 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Heart, Trash2, Music, MoreVertical, ListPlus } from 'lucide-react';
+import { Play, Heart, Trash2, Music, MoreVertical, ListPlus, Flame, Star } from 'lucide-react';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
 import { usePlaylists } from '@/hooks/usePlaylists';
 import { useItemTitle } from '@/hooks/useItemTitle';
 import { AIGeneratedBadge } from '@/components/common/AIGeneratedBadge';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +47,9 @@ export const SongCard: React.FC<SongCardProps> = ({
 }) => {
   const medMngApi = useMedMngApi();
   const { playlists, addSongToPlaylist } = usePlaylists();
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   
@@ -56,11 +62,50 @@ export const SongCard: React.FC<SongCardProps> = ({
   const fallbackItemCode = titleParts.length >= 2 ? titleParts[1].trim() : null;
   const { title: fallbackTitle } = useItemTitle(fallbackItemCode || undefined);
 
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'music_generation',
+        count: 1,
+        metadata: { component: 'song_card', action: 'view', songId: song.id }
+      });
+    }
+  }, [song.id]);
+
+  const handlePlay = async () => {
+    logActivity({
+      activity_type: 'music_generation',
+      count: 1,
+      metadata: { component: 'song_card', action: 'play', songId: song.id }
+    });
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await addPoints(user.id, 'itemReviewed');
+    }
+    
+    onPlay();
+  };
+
   const handleRemove = async () => {
     setIsLoading(true);
     try {
       await medMngApi.removeFromLibrary(song.id);
       toast.success('Chanson retirée de la bibliothèque');
+      logActivity({
+        activity_type: 'music_generation',
+        count: 1,
+        metadata: { component: 'song_card', action: 'remove', songId: song.id }
+      });
       onRemove();
     } catch (error) {
       toast.error('Erreur lors de la suppression');
@@ -75,6 +120,11 @@ export const SongCard: React.FC<SongCardProps> = ({
     try {
       const result = await medMngApi.toggleLike(song.id);
       toast.success(result.liked ? 'Chanson aimée ❤️' : 'Like retiré');
+      logActivity({
+        activity_type: 'music_generation',
+        count: 1,
+        metadata: { component: 'song_card', action: result.liked ? 'like' : 'unlike', songId: song.id }
+      });
       onToggleLike();
     } catch (error) {
       toast.error('Erreur lors du like');
@@ -89,6 +139,11 @@ export const SongCard: React.FC<SongCardProps> = ({
       const success = await addSongToPlaylist(playlistId, song.id);
       if (success) {
         toast.success('Chanson ajoutée à la playlist');
+        logActivity({
+          activity_type: 'music_generation',
+          count: 1,
+          metadata: { component: 'song_card', action: 'add_to_playlist', songId: song.id, playlistId }
+        });
       }
     } catch (error) {
       toast.error('Erreur lors de l\'ajout à la playlist');
@@ -141,10 +196,20 @@ export const SongCard: React.FC<SongCardProps> = ({
             <AIGeneratedBadge type="music" provider="Suno AI" model="v4.5 Plus" variant="compact" />
           </div>
           
+          {/* Gamification Stats */}
+          {stats && (
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded-full text-xs">
+              <Flame className="h-3 w-3 text-warning" />
+              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <Star className="h-3 w-3 text-primary ml-1" />
+              <span className="font-bold text-primary">Nv.{stats.level}</span>
+            </div>
+          )}
+          
           {/* Play Button Overlay */}
           <div className="absolute inset-0 bg-black/20 rounded-t-lg opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-200 flex items-center justify-center">
             <Button
-              onClick={onPlay}
+              onClick={handlePlay}
               size="lg"
               className="rounded-full bg-card text-primary hover:bg-card/90 shadow-lg min-h-[48px] min-w-[48px]"
             >
@@ -165,7 +230,7 @@ export const SongCard: React.FC<SongCardProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onPlay}>
+                <DropdownMenuItem onClick={handlePlay}>
                   <Play className="h-4 w-4 mr-2" />
                   Écouter
                 </DropdownMenuItem>
@@ -255,7 +320,7 @@ export const SongCard: React.FC<SongCardProps> = ({
             </Button>
             
             <Button
-              onClick={onPlay}
+              onClick={handlePlay}
               size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex-1 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
             >

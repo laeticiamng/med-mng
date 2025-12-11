@@ -1,14 +1,55 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Music, Brain, Play, CheckCircle, Clock } from 'lucide-react';
+import { BookOpen, Music, Brain, Play, CheckCircle, Clock, Flame, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RevisionGuideProps {
   onStartRevision?: () => void;
 }
 
 export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision }) => {
+  const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'revision_guide', action: 'view' }
+      });
+    }
+  }, []);
+
+  const handleStartRevision = async () => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'revision_guide', action: 'start_revision' }
+    });
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await addPoints(user.id, 'itemReviewed');
+    }
+    
+    onStartRevision?.();
+  };
+
   const revisionSteps = [
     {
       id: 1,
@@ -63,9 +104,19 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
 
   return (
     <div className="space-y-6">
-      {/* Titre */}
+      {/* Titre avec stats gamification */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">🎓 Guide de Révision EDN</h2>
+        <div className="flex items-center justify-center gap-4">
+          <h2 className="text-2xl font-bold text-foreground">🎓 Guide de Révision EDN</h2>
+          {stats && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
+              <Flame className="h-4 w-4 text-warning" />
+              <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
+              <Star className="h-4 w-4 text-primary ml-1" />
+              <span className="text-sm font-bold text-primary">Nv.{stats.level}</span>
+            </div>
+          )}
+        </div>
         <p className="text-muted-foreground">
           Méthode recommandée pour réviser efficacement chaque item
         </p>
@@ -99,7 +150,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
               </ul>
               {onStartRevision && (
                 <Button 
-                  onClick={onStartRevision}
+                  onClick={handleStartRevision}
                   variant={mode.badge === 'Recommandé' ? 'default' : 'outline'}
                   className="w-full mt-2"
                 >
