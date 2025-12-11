@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,9 +18,12 @@ import {
   MapPin,
   Plus,
   TrendingUp,
-  Lightbulb
+  Lightbulb,
+  Flame,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Post {
   id: string;
@@ -54,6 +57,66 @@ interface Event {
 const CommunityHub = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('feed');
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+
+  // Load real leaderboard data from user_activity_log
+  useEffect(() => {
+    const loadLeaderboard = async () => {
+      setLoadingLeaderboard(true);
+      try {
+        // Get aggregated activity data for the past week
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        
+        const { data: activities, error } = await supabase
+          .from('user_activity_log')
+          .select('user_id, count')
+          .gte('activity_date', weekAgo.toISOString().split('T')[0]);
+        
+        if (error) throw error;
+
+        // Aggregate by user
+        const userScores: Record<string, number> = {};
+        activities?.forEach((a: any) => {
+          userScores[a.user_id] = (userScores[a.user_id] || 0) + (a.count || 1) * 10;
+        });
+
+        // Get user profiles for names
+        const userIds = Object.keys(userScores);
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name, email')
+            .in('id', userIds);
+
+          const leaderboardData = Object.entries(userScores)
+            .map(([userId, points]) => {
+              const profile = profiles?.find((p: any) => p.id === userId);
+              return {
+                userId,
+                name: profile?.name || profile?.email?.split('@')[0] || 'Utilisateur',
+                specialty: 'Médecine',
+                points,
+              };
+            })
+            .sort((a, b) => b.points - a.points)
+            .slice(0, 10)
+            .map((user, idx) => ({ ...user, rank: idx + 1 }));
+
+          setLeaderboard(leaderboardData);
+        }
+      } catch (error) {
+        console.error('Error loading leaderboard:', error);
+      } finally {
+        setLoadingLeaderboard(false);
+      }
+    };
+
+    if (activeTab === 'leaderboard') {
+      loadLeaderboard();
+    }
+  }, [activeTab]);
 
   const [posts] = useState<Post[]>([
     {
@@ -537,36 +600,42 @@ const CommunityHub = () => {
                   <CardDescription>Les membres les plus actifs cette semaine</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { name: 'Dr. Sarah Martin', specialty: 'Cardiologie', points: 2847, rank: 1 },
-                      { name: 'Prof. Laurent Chen', specialty: 'Neurologie', points: 2156, rank: 2 },
-                      { name: 'Marie Dubois', specialty: 'Pédiatrie', points: 1893, rank: 3 },
-                      { name: 'Thomas Leroux', specialty: 'Médecine générale', points: 1654, rank: 4 },
-                      { name: 'Dr. Emma Wilson', specialty: 'Psychiatrie', points: 1432, rank: 5 }
-                    ].map((user) => (
-                      <div key={user.rank} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            user.rank === 1 ? 'bg-warning/20 text-warning' :
-                            user.rank === 2 ? 'bg-muted text-muted-foreground' :
-                            user.rank === 3 ? 'bg-accent/20 text-accent' :
-                            'bg-muted text-muted-foreground'
-                          }`}>
-                            {user.rank}
+                  {loadingLeaderboard ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  ) : leaderboard.length > 0 ? (
+                    <div className="space-y-3">
+                      {leaderboard.map((user) => (
+                        <div key={user.userId} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                              user.rank === 1 ? 'bg-warning/20 text-warning' :
+                              user.rank === 2 ? 'bg-muted text-muted-foreground' :
+                              user.rank === 3 ? 'bg-accent/20 text-accent' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {user.rank}
+                            </div>
+                            <div>
+                              <p className="font-medium">{user.name}</p>
+                              <p className="text-xs text-muted-foreground">{user.specialty}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">{user.name}</p>
-                            <p className="text-xs text-muted-foreground">{user.specialty}</p>
+                          <div className="text-right">
+                            <p className="font-semibold">{user.points}</p>
+                            <p className="text-xs text-muted-foreground">points</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{user.points}</p>
-                          <p className="text-xs text-muted-foreground">points</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Aucune activité cette semaine</p>
+                      <p className="text-sm">Commencez à réviser pour apparaître ici !</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

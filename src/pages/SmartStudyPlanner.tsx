@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { 
   Calendar, Clock, Brain, Target, Sparkles, ChevronLeft,
-  Play, CheckCircle, AlertCircle, Loader2, RefreshCw
+  Play, CheckCircle, AlertCircle, Loader2, RefreshCw, Flame, Trophy
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSRS } from '@/hooks/useSRS';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface StudySession {
   startTime: string;
@@ -59,6 +61,8 @@ export default function SmartStudyPlanner() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { stats: srsStats, getStats: getSrsStats } = useSRS();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -77,9 +81,10 @@ export default function SmartStudyPlanner() {
       }
       setUser(user);
       getSrsStats(user.id);
+      loadStats(user.id);
     };
     checkAuth();
-  }, [navigate, toast, getSrsStats]);
+  }, [navigate, toast, getSrsStats, loadStats]);
 
   const generatePlan = async () => {
     if (!user) return;
@@ -107,10 +112,17 @@ export default function SmartStudyPlanner() {
       }
 
       setPlan(data);
-      toast({ title: "Planning généré", description: "Votre planning personnalisé est prêt !" });
+      
+      // Log activity and award points
+      if (user) {
+        await logActivity({ activity_type: 'study', metadata: { action: 'plan_generated' }, score: 100 });
+        await addPoints(user.id, 'itemReviewed');
+      }
+      
+      toast({ title: "Planning généré", description: "Votre planning personnalisé est prêt ! (+10 XP)" });
     } catch (error) {
       console.error('Error generating plan:', error);
-      toast({ 
+      toast({
         title: "Erreur", 
         description: "Impossible de générer le planning. Réessayez plus tard.",
         variant: "destructive" 
@@ -130,7 +142,7 @@ export default function SmartStudyPlanner() {
       </Helmet>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header */}
+        {/* Header with gamification stats */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -142,6 +154,18 @@ export default function SmartStudyPlanner() {
             </h1>
             <p className="text-muted-foreground">Optimisez vos révisions avec l'IA</p>
           </div>
+          {gamificationStats && (
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="gap-1 py-1">
+                <Flame className="h-3 w-3 text-warning" />
+                {gamificationStats.currentStreak || 0}j
+              </Badge>
+              <Badge variant="outline" className="gap-1 py-1">
+                <Trophy className="h-3 w-3 text-primary" />
+                Niv. {Math.floor((gamificationStats.totalPoints || 0) / 100) + 1}
+              </Badge>
+            </div>
+          )}
         </div>
 
         {/* Configuration */}
