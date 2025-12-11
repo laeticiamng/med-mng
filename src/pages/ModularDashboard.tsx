@@ -1,9 +1,10 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { AdvancedAnalyticsDashboard } from '@/components/analytics/AdvancedAnalyticsDashboard';
 import { AdvancedMusicGenerator } from '@/components/music/AdvancedMusicGenerator';
 import { AIAssistantHub } from '@/components/ai/AIAssistantHub';
@@ -39,6 +40,16 @@ import {
 export default function ModularDashboard() {
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState('analytics');
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_modular_dashboard' } });
+  }, []);
+
+  const handleModuleChange = (moduleId: string) => {
+    setActiveModule(moduleId);
+    logActivity({ activity_type: 'study', metadata: { action: 'switch_module', module: moduleId } });
+  };
 
   const modules = [
     {

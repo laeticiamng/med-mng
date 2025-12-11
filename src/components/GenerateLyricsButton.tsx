@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { generateAllAdvancedLyrics } from '@/utils/generateAllAdvancedLyrics'
 import { useToast } from '@/hooks/use-toast'
+import { useActivityTracking } from '@/hooks/useActivityTracking'
 
 export const GenerateLyricsButton = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
   const [currentItem, setCurrentItem] = useState('')
   const { toast } = useToast()
+  const { logActivity } = useActivityTracking()
 
   const handleGenerate = async () => {
     setIsGenerating(true)
@@ -32,6 +34,15 @@ export const GenerateLyricsButton = () => {
       toast({
         title: "✅ Génération terminée",
         description: `Paroles générées pour ${result.successful || 0} items sur ${result.processed || 0} traités (${result.failed || 0} échecs)`,
+      })
+      
+      logActivity({ 
+        activity_type: 'music_generation', 
+        metadata: { 
+          action: 'generate_lyrics',
+          successful: result.successful, 
+          processed: result.processed 
+        } 
       })
       
       if (result.errors && result.errors.length > 0) {

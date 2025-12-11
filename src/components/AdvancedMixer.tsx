@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { 
   Play, 
   Pause, 
@@ -50,8 +51,14 @@ export const AdvancedMixer = () => {
   const [masterVolume, setMasterVolume] = useState(80);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    logActivity({ activity_type: 'music_generation', metadata: { action: 'view_mixer' } });
+  }, []);
 
   const addTrack = (type: 'music' | 'voice' | 'ambient') => {
+    logActivity({ activity_type: 'music_generation', metadata: { action: 'add_track', trackType: type } });
     const newTrack: AudioTrack = {
       id: crypto.randomUUID(),
       name: `${type.charAt(0).toUpperCase() + type.slice(1)} Track ${tracks.length + 1}`,
