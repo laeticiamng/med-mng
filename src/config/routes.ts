@@ -77,6 +77,8 @@ export const ROUTE_PATHS = {
   examMode: '/exam-mode',
   clinicalCases: '/clinical-cases',
   flashcards: '/flashcards',
+  progressDashboard: '/progress-dashboard',
+  smartStudyPlanner: '/smart-study-planner',
   notFound: '*',
 } as const;
 
