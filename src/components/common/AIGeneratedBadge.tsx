@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Sparkles, Info } from 'lucide-react';
 import {
   Tooltip,
@@ -5,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface AIGeneratedBadgeProps {
   type: 'music' | 'image' | 'text';
@@ -21,6 +23,20 @@ export const AIGeneratedBadge = ({
   className = '',
   variant = 'default'
 }: AIGeneratedBadgeProps) => {
+  const hasTrackedRef = useRef(false);
+  const { logActivity } = useActivityTracking();
+
+  // Track AI badge view once
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'ai_content_viewed', contentType: type, provider }
+      });
+    }
+  }, [type, provider, logActivity]);
   
   const getProviderInfo = () => {
     switch (type) {

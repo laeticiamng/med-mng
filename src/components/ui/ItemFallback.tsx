@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +9,7 @@ import {
   Clock
 } from 'lucide-react';
 import { ItemCompletenessIndicator } from './ItemCompletenessIndicator';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface ItemFallbackProps {
   itemId: string;
@@ -27,6 +28,17 @@ export const ItemFallback: React.FC<ItemFallbackProps> = ({
   estimatedCompletionDays,
   showCompletenessDetails = true
 }) => {
+  const { logActivity } = useActivityTracking();
+
+  // Track fallback display
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'item_fallback_shown', fallbackType: type, itemId, itemCode }
+    });
+  }, [type, itemId, itemCode, logActivity]);
+
   const renderContent = () => {
     switch (type) {
       case 'loading':

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
@@ -35,6 +35,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Log auth events to activity log
+        if (event === 'SIGNED_IN' && session?.user) {
+          try {
+            await supabase.from('user_activity_log').insert({
+              user_id: session.user.id,
+              activity_type: 'study',
+              action: 'user_signed_in',
+              duration: 0,
+              count: 1,
+              metadata: { event: 'signed_in' }
+            });
+          } catch (e) {
+            console.warn('Could not log sign in activity:', e);
+          }
+        }
+
+        if (event === 'SIGNED_OUT') {
+          try {
+            // User already signed out, can't log
+            console.log('User signed out');
+          } catch (e) {
+            console.warn('Could not log sign out activity:', e);
+          }
+        }
 
         // Send welcome email for new users - check if user was just created
         if (event === 'SIGNED_IN' && session?.user) {

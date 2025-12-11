@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ import {
   Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface RobustErrorDisplayProps {
   error: string | Error;
@@ -44,9 +45,19 @@ export function RobustErrorDisplay({
   const [reportDetails, setReportDetails] = useState('');
   const [showReportForm, setShowReportForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { logActivity } = useActivityTracking();
 
   const errorMessage = error instanceof Error ? error.message : error;
   const errorStack = error instanceof Error ? error.stack : undefined;
+
+  // Track error display
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { type: 'error_displayed', errorType: type, severity }
+    });
+  }, [type, severity, logActivity]);
 
   const getErrorIcon = () => {
     switch (type) {
