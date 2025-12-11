@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, 
   Loader2, Trash2, Lightbulb, BookOpen, Sparkles, History,
-  ChevronDown
+  ChevronDown, Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -64,8 +66,11 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showQuickPrompts, setShowQuickPrompts] = useState(true);
+  const [questionCount, setQuestionCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { logActivity } = useActivityTracking();
 
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
 
@@ -199,6 +204,28 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
 
     try {
       const assistantContent = await streamChat(newMessages);
+      
+      // Gamification: Award points for AI questions
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await addPoints(user.id, 'aiQuestion');
+        await logActivity({ 
+          activity_type: 'study', 
+          count: 1, 
+          metadata: { type: 'ai_question', itemContext: itemContext?.itemCode } 
+        });
+        
+        // Track question count for badge
+        const newCount = questionCount + 1;
+        setQuestionCount(newCount);
+        
+        // Unlock "Curieux" badge after 10 AI questions
+        if (newCount >= 10) {
+          await unlockBadge(user.id, 'ai_chat');
+        }
+        
+        await checkAndUnlockBadges(user.id);
+      }
       
       // Update conversation in storage
       if (currentConversationId) {
