@@ -1,11 +1,47 @@
 import { Link } from "react-router-dom";
-import { Music, ExternalLink } from "lucide-react";
+import { Music, ExternalLink, Flame, Star, Trophy } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
+import { useGamification } from "@/hooks/useGamification";
+import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const AppFooter = () => {
+  const { stats, loadStats } = useGamification();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsLoggedIn(true);
+        await loadStats(user.id);
+      }
+    };
+    checkAuth();
+  }, [loadStats]);
+
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-8">
+        {/* Quick Stats for logged-in users */}
+        {isLoggedIn && stats && (
+          <div className="flex justify-center gap-4 mb-6 pb-6 border-b border-border">
+            <Badge variant="outline" className="gap-1 px-3 py-1">
+              <Flame className="h-3 w-3 text-orange-500" />
+              {stats.currentStreak} jours
+            </Badge>
+            <Badge variant="outline" className="gap-1 px-3 py-1">
+              <Star className="h-3 w-3 text-yellow-500" />
+              Niveau {stats.level}
+            </Badge>
+            <Badge variant="outline" className="gap-1 px-3 py-1">
+              <Trophy className="h-3 w-3 text-amber-500" />
+              {stats.badges?.length || 0} badges
+            </Badge>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo & Description */}
           <div className="space-y-4">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Heart, Search, Filter, Play, BookOpen, Music, 
   ArrowLeft, Star, Clock, Calendar, Tag, Trash2,
-  Download, Share2, Plus, FolderPlus
+  Download, Share2, Plus, FolderPlus, Flame, Trophy
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Progress } from '@/components/ui/progress';
 
 interface FavoriteItem {
   id: string;
@@ -39,6 +42,17 @@ const Favorites: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const { stats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await loadStats(user.id);
+      }
+    };
+    init();
+  }, [loadStats]);
 
   // Données de démo
   const favoriteItems: FavoriteItem[] = [
@@ -182,8 +196,8 @@ const Favorites: React.FC = () => {
           </Button>
         </div>
 
-        {/* Statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {/* Statistiques avec gamification */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-foreground">{favoriteItems.length}</div>
@@ -196,20 +210,25 @@ const Favorites: React.FC = () => {
               <div className="text-sm text-muted-foreground">Collections</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">
-                {favoriteItems.filter(item => item.lastAccessed && item.lastAccessed > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}
-              </div>
-              <div className="text-sm text-muted-foreground">Consultés Aujourd'hui</div>
+              <Flame className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+              <div className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</div>
+              <div className="text-sm text-muted-foreground">Jours Streak</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">
-                {Math.round(favoriteItems.filter(item => item.progress).reduce((acc, item) => acc + (item.progress || 0), 0) / favoriteItems.filter(item => item.progress).length)}%
-              </div>
-              <div className="text-sm text-muted-foreground">Progression Moyenne</div>
+              <Star className="h-5 w-5 text-warning mx-auto mb-1" />
+              <div className="text-2xl font-bold text-foreground">Niv. {stats?.level || 1}</div>
+              <div className="text-sm text-muted-foreground">Niveau</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30">
+            <CardContent className="p-4 text-center">
+              <Trophy className="h-5 w-5 text-primary mx-auto mb-1" />
+              <div className="text-2xl font-bold text-foreground">{stats?.badges?.length || 0}</div>
+              <div className="text-sm text-muted-foreground">Badges</div>
             </CardContent>
           </Card>
         </div>
