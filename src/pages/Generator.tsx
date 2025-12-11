@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +16,8 @@ import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ const Generator = () => {
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
+  const { logActivity } = useActivityTracking();
+  const { addPoints, unlockBadge, loadStats } = useGamification();
   
   const [contentType, setContentType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
@@ -117,12 +120,28 @@ const Generator = () => {
 
       setGeneratedSong(song);
       toast.success('🎵 Musique générée avec succès !');
+
+      // Track activity and award points
+      if (user) {
+        await logActivity({
+          activity_type: 'music_generation',
+          count: 1,
+          metadata: { 
+            itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
+            style: selectedStyle,
+            rang
+          }
+        });
+        
+        await addPoints(user.id, 'itemReviewed');
+        loadStats(user.id);
+      }
       
     } catch (error) {
       console.error('Erreur génération:', error);
       toast.error('Échec de la génération musicale');
     }
-  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate]);
+  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(() => {
     if (!generatedSong) return;

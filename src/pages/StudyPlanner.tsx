@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,16 @@ import {
   Plus,
   Edit,
   Trash2,
-  Play
+  Play,
+  Flame,
+  Star,
+  Trophy
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 
 interface StudySession {
   id: string;
@@ -45,6 +52,24 @@ interface StudyGoal {
 const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
+  const [user, setUser] = useState<any>(null);
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity, getWeeklySummary } = useActivityTracking();
+  const [weeklySummary, setWeeklySummary] = useState<any>(null);
+
+  // Load user and stats
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+        const summary = await getWeeklySummary();
+        setWeeklySummary(summary);
+      }
+    };
+    init();
+  }, [loadStats, getWeeklySummary]);
   
   // Sessions d'étude plannifiées
   const [studySessions] = useState<StudySession[]>([
@@ -147,7 +172,17 @@ const StudyPlanner = () => {
     }
   };
 
-  const startSession = (sessionId: string) => {
+  const startSession = async (sessionId: string) => {
+    if (user) {
+      await logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { sessionId, action: 'start' }
+      });
+      await addPoints(user.id, 'dailyStreak');
+      loadStats(user.id);
+    }
+    
     toast({
       title: "Session démarrée",
       description: "Votre session d'étude a commencé. Bon travail !",
@@ -168,6 +203,42 @@ const StudyPlanner = () => {
             Organisez votre apprentissage avec des sessions planifiées et des objectifs personnalisés
           </p>
         </div>
+
+        {/* Gamification Stats Banner */}
+        {gamificationStats && (
+          <div className="max-w-3xl mx-auto">
+            <StreakDisplay stats={gamificationStats} />
+          </div>
+        )}
+
+        {/* Weekly Summary */}
+        {weeklySummary && (
+          <Card className="max-w-3xl mx-auto bg-gradient-to-r from-primary/5 via-background to-success/5">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-primary">{weeklySummary.totalActivities}</p>
+                    <p className="text-xs text-muted-foreground">activités</p>
+                  </div>
+                  <div className="h-10 w-px bg-border" />
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-success">{weeklySummary.totalTime || 0}</p>
+                    <p className="text-xs text-muted-foreground">minutes</p>
+                  </div>
+                  <div className="h-10 w-px bg-border" />
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-warning">{weeklySummary.averageScore || 0}%</p>
+                    <p className="text-xs text-muted-foreground">score moy.</p>
+                  </div>
+                </div>
+                <Badge variant={weeklySummary.trend >= 0 ? 'default' : 'destructive'} className="text-sm">
+                  {weeklySummary.trend >= 0 ? '+' : ''}{weeklySummary.trend}% vs sem. dernière
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
