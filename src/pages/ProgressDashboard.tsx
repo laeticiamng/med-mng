@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useSRS } from '@/hooks/useSRS';
 import { useExamMode } from '@/hooks/useExamMode';
@@ -19,6 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
 import { LearningInsights } from '@/components/learning/LearningInsights';
+import { StudyCalendar } from '@/components/learning/StudyCalendar';
+import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
 
 export default function ProgressDashboard() {
   const navigate = useNavigate();
@@ -127,6 +130,16 @@ export default function ProgressDashboard() {
         {/* Learning Insights */}
         <div className="mb-8">
           <LearningInsights />
+        </div>
+
+        {/* Study Calendar */}
+        <div className="mb-8">
+          <StudyCalendar />
+        </div>
+
+        {/* Item Mastery Grid */}
+        <div className="mb-8">
+          <ItemMasteryGrid />
         </div>
 
         {/* Module Stats Grid */}
