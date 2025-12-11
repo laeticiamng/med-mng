@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Target, Search, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Target, Search, TrendingUp, AlertTriangle, CheckCircle, Flame, Star } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 
 interface ItemMastery {
   itemCode: string;
@@ -19,6 +20,7 @@ interface ItemMastery {
 
 export const ItemMasteryGrid: React.FC = () => {
   const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [items, setItems] = useState<ItemMastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -33,6 +35,9 @@ export const ItemMasteryGrid: React.FC = () => {
         setLoading(false);
         return;
       }
+
+      // Load gamification stats
+      loadStats(user.id);
 
       // Tracker la consultation de la grille de maîtrise
       logActivity({
@@ -170,6 +175,18 @@ export const ItemMasteryGrid: React.FC = () => {
             Maîtrise des Items
           </CardTitle>
           <div className="flex items-center gap-2">
+            {gamificationStats && (
+              <>
+                <Badge variant="outline" className="gap-1">
+                  <Flame className="h-3 w-3 text-warning" />
+                  {gamificationStats.currentStreak}
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <Star className="h-3 w-3 text-primary" />
+                  Nv.{gamificationStats.level}
+                </Badge>
+              </>
+            )}
             <Badge variant="outline" className="gap-1">
               <CheckCircle className="h-3 w-3 text-success" />
               {stats.mastered} maîtrisés

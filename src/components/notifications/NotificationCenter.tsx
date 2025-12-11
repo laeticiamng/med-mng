@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { 
   Bell, X, Check, CheckCheck, Trash2, Info, 
-  AlertTriangle, CheckCircle, AlertCircle 
+  AlertTriangle, CheckCircle, AlertCircle, Flame, Star 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Sheet,
   SheetContent,
@@ -74,6 +76,15 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     clearAll
   } = useNotifications();
   const { logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    init();
+  }, [loadStats]);
 
   useEffect(() => {
     if (isOpen) {
@@ -219,11 +230,25 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {unreadCount > 0 ? `${unreadCount} notification(s) non lue(s)` : 'Aucune nouvelle notification'}
             </SheetDescription>
           </div>
-          {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {gamificationStats && (
+              <>
+                <Badge variant="outline" className="gap-1">
+                  <Flame className="h-3 w-3 text-warning" />
+                  {gamificationStats.currentStreak}
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <Star className="h-3 w-3 text-primary" />
+                  Nv.{gamificationStats.level}
+                </Badge>
+              </>
+            )}
+            {onClose && (
+              <Button variant="ghost" size="sm" onClick={onClose}>
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
         
         {demoNotifications.length > 0 && (

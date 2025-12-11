@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { sanitizeHtml } from '@/utils/sanitize';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const OnboardingModal: React.FC = () => {
   const {
@@ -18,6 +19,17 @@ export const OnboardingModal: React.FC = () => {
     skipOnboarding,
     isCompleted
   } = useOnboarding();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    if (isActive && steps.length > 0) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'onboarding_modal', action: 'view', step: currentStep }
+      });
+    }
+  }, [isActive, currentStep, logActivity, steps.length]);
 
   if (!isActive || steps.length === 0) return null;
 
@@ -28,9 +40,19 @@ export const OnboardingModal: React.FC = () => {
   const handleNext = () => {
     if (step) {
       completeStep(step.key);
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'onboarding_modal', action: 'complete_step', stepKey: step.key }
+      });
     }
     
     if (isLastStep) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'onboarding_modal', action: 'complete_onboarding' }
+      });
       completeOnboarding();
     } else {
       nextStep();

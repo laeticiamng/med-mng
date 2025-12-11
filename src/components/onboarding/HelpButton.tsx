@@ -3,10 +3,23 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { HelpCircle, Book, MessageCircle, Video } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 export const HelpButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { startOnboarding } = useOnboarding();
+  const { logActivity } = useActivityTracking();
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      logActivity({
+        activity_type: 'study',
+        count: 1,
+        metadata: { component: 'help_button', action: 'open' }
+      });
+    }
+  };
 
   const helpItems = [
     {
@@ -14,6 +27,11 @@ export const HelpButton: React.FC = () => {
       title: 'Recommencer le tutoriel',
       description: 'Revoir les étapes de découverte',
       action: () => {
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'help_button', action: 'start_tutorial' }
+        });
         startOnboarding();
         setIsOpen(false);
       }
@@ -23,6 +41,11 @@ export const HelpButton: React.FC = () => {
       title: 'Centre d\'aide',
       description: 'Documentation et FAQ',
       action: () => {
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'help_button', action: 'open_help_center' }
+        });
         window.open('/help', '_blank');
       }
     },
@@ -31,13 +54,18 @@ export const HelpButton: React.FC = () => {
       title: 'Vidéos tutorielles',
       description: 'Guides visuels pas à pas',
       action: () => {
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'help_button', action: 'open_tutorials' }
+        });
         window.open('/tutorials', '_blank');
       }
     }
   ];
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
