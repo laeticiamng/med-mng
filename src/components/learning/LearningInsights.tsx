@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useLearningAnalytics } from '@/hooks/useLearningAnalytics';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Lightbulb, AlertTriangle, TrendingUp, TrendingDown, 
-  Target, ArrowRight, Sparkles, RefreshCw, Clock, Activity
+  Target, ArrowRight, Sparkles, RefreshCw, Clock, Activity, Flame, Star, Zap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,12 +24,20 @@ interface LearningInsight {
 export const LearningInsights: React.FC = () => {
   const navigate = useNavigate();
   const { insights, generateInsights, loading } = useLearningAnalytics();
-  const { getTodayStats } = useActivityTracking();
+  const { getTodayStats, logActivity } = useActivityTracking();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [localInsights, setLocalInsights] = useState<LearningInsight[]>([]);
   const [todayStats, setTodayStats] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        setUser(authUser);
+        loadStats(authUser.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_learning_insights' } });
+      }
       const [result, today] = await Promise.all([
         generateInsights(),
         getTodayStats()
@@ -36,7 +46,7 @@ export const LearningInsights: React.FC = () => {
       setTodayStats(today);
     };
     load();
-  }, [generateInsights, getTodayStats]);
+  }, [generateInsights, getTodayStats, loadStats, logActivity]);
 
   const getInsightIcon = (type: string) => {
     switch (type) {

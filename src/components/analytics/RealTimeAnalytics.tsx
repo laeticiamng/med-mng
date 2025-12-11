@@ -9,6 +9,7 @@ import {
   Activity, Target, Award, Zap, Brain
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface UserActivity {
   id: string;
@@ -28,7 +29,12 @@ interface PerformanceMetric {
 }
 
 export const RealTimeAnalytics = () => {
+  const { logActivity } = useActivityTracking();
   const [activities, setActivities] = useState<UserActivity[]>([]);
+
+  useEffect(() => {
+    logActivity({ activity_type: 'study', metadata: { action: 'view_realtime_analytics' } });
+  }, []);
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([
     {
       metric_name: 'Utilisateurs actifs',
