@@ -192,6 +192,88 @@ export const usePlayer = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Avancer/reculer de N secondes
+  const skipForward = (seconds: number = 10) => {
+    if (audioRef.current) {
+      const newTime = Math.min(audioRef.current.currentTime + seconds, state.duration);
+      audioRef.current.currentTime = newTime;
+      setState(prev => ({ ...prev, currentTime: newTime }));
+    }
+  };
+
+  const skipBackward = (seconds: number = 10) => {
+    if (audioRef.current) {
+      const newTime = Math.max(audioRef.current.currentTime - seconds, 0);
+      audioRef.current.currentTime = newTime;
+      setState(prev => ({ ...prev, currentTime: newTime }));
+    }
+  };
+
+  // Vitesse de lecture
+  const setPlaybackRate = (rate: number) => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = Math.max(0.5, Math.min(2, rate));
+    }
+  };
+
+  // Obtenir la progression en pourcentage
+  const getProgress = (): number => {
+    if (state.duration === 0) return 0;
+    return (state.currentTime / state.duration) * 100;
+  };
+
+  // Aller à un pourcentage
+  const seekToPercent = (percent: number) => {
+    const time = (percent / 100) * state.duration;
+    seek(time);
+  };
+
+  // Temps restant
+  const getRemainingTime = (): number => {
+    return Math.max(0, state.duration - state.currentTime);
+  };
+
+  // Stop complet
+  const stop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setState(prev => ({
+        ...prev,
+        isPlaying: false,
+        currentTime: 0
+      }));
+    }
+  };
+
+  // Replay depuis le début
+  const replay = async () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      setState(prev => ({ ...prev, currentTime: 0 }));
+      try {
+        await audioRef.current.play();
+        setState(prev => ({ ...prev, isPlaying: true }));
+      } catch (error) {
+        console.error('Erreur replay:', error);
+      }
+    }
+  };
+
+  // Vérifier si une piste est en cours de lecture
+  const isTrackPlaying = (trackId: string): boolean => {
+    return state.currentTrack?.id === trackId && state.isPlaying;
+  };
+
+  // Précharger une piste
+  const preloadTrack = (track: Track) => {
+    if (track.stream_url) {
+      const audio = new Audio();
+      audio.preload = 'metadata';
+      audio.src = track.stream_url;
+    }
+  };
+
   return {
     ...state,
     playTrack,
@@ -200,6 +282,16 @@ export const usePlayer = () => {
     seek,
     setVolume,
     toggleMute,
-    formatTime
+    formatTime,
+    skipForward,
+    skipBackward,
+    setPlaybackRate,
+    getProgress,
+    seekToPercent,
+    getRemainingTime,
+    stop,
+    replay,
+    isTrackPlaying,
+    preloadTrack
   };
 };

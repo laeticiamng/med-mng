@@ -294,11 +294,179 @@ class QcmService {
   }
 
   getPerformanceMessage(score: number): string {
-    if (score >= 90) return 'Excellent ! Performance remarquable 🏆';
-    if (score >= 80) return 'Très bien ! Bonnes connaissances 👍';
-    if (score >= 70) return 'Bien ! Quelques points à améliorer 📚';
-    if (score >= 60) return 'Moyen, continuez à réviser 💪';
-    return 'À revoir, recommandé de réviser le cours 📖';
+    if (score >= 90) return 'Excellent ! Performance remarquable';
+    if (score >= 80) return 'Tres bien ! Bonnes connaissances';
+    if (score >= 70) return 'Bien ! Quelques points a ameliorer';
+    if (score >= 60) return 'Moyen, continuez a reviser';
+    return 'A revoir, recommande de reviser le cours';
+  }
+
+  // Analyser les erreurs récurrentes
+  analyzeRecurringErrors(sessions: QcmSession[], responses: QcmResponse[]): {
+    concept: string;
+    errorCount: number;
+    percentage: number;
+  }[] {
+    const errorByConcept = new Map<string, number>();
+    const totalByConcept = new Map<string, number>();
+
+    responses.forEach(r => {
+      const concept = r.medical_concept || 'Non classifié';
+      totalByConcept.set(concept, (totalByConcept.get(concept) || 0) + 1);
+      if (!r.is_correct) {
+        errorByConcept.set(concept, (errorByConcept.get(concept) || 0) + 1);
+      }
+    });
+
+    const results: { concept: string; errorCount: number; percentage: number }[] = [];
+    errorByConcept.forEach((count, concept) => {
+      const total = totalByConcept.get(concept) || 1;
+      results.push({
+        concept,
+        errorCount: count,
+        percentage: Math.round((count / total) * 100)
+      });
+    });
+
+    return results.sort((a, b) => b.errorCount - a.errorCount);
+  }
+
+  // Recommandations de révision basées sur les erreurs
+  getRevisionRecommendations(errors: { concept: string; errorCount: number; percentage: number }[]): string[] {
+    const recommendations: string[] = [];
+
+    errors.slice(0, 5).forEach(error => {
+      if (error.percentage >= 70) {
+        recommendations.push(`Priorite haute: Revoir en profondeur "${error.concept}"`);
+      } else if (error.percentage >= 50) {
+        recommendations.push(`Priorite moyenne: Consolider "${error.concept}"`);
+      } else if (error.percentage >= 30) {
+        recommendations.push(`Priorite basse: Reviser "${error.concept}"`);
+      }
+    });
+
+    if (recommendations.length === 0) {
+      recommendations.push('Excellent travail ! Continuez sur cette lancee.');
+    }
+
+    return recommendations;
+  }
+
+  // Calculer la progression sur une période
+  calculateProgressOverTime(sessions: QcmSession[]): {
+    date: string;
+    averageScore: number;
+    sessionsCount: number;
+  }[] {
+    const byDate = new Map<string, { scores: number[]; count: number }>();
+
+    sessions.forEach(s => {
+      if (!s.completed_at) return;
+      const date = s.completed_at.split('T')[0];
+      const entry = byDate.get(date) || { scores: [], count: 0 };
+      entry.scores.push(s.score);
+      entry.count++;
+      byDate.set(date, entry);
+    });
+
+    const results: { date: string; averageScore: number; sessionsCount: number }[] = [];
+    byDate.forEach((data, date) => {
+      const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
+      results.push({
+        date,
+        averageScore: Math.round(avg * 100) / 100,
+        sessionsCount: data.count
+      });
+    });
+
+    return results.sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  // Prédire le score probable basé sur l'historique
+  predictScore(sessions: QcmSession[]): number {
+    const completedSessions = sessions.filter(s => s.completed_at);
+    if (completedSessions.length < 3) return 70; // Pas assez de données
+
+    // Moyenne pondérée des 5 dernières sessions
+    const recentSessions = completedSessions.slice(-5);
+    let weightedSum = 0;
+    let weightTotal = 0;
+
+    recentSessions.forEach((session, index) => {
+      const weight = index + 1; // Sessions récentes ont plus de poids
+      weightedSum += session.score * weight;
+      weightTotal += weight;
+    });
+
+    return Math.round(weightedSum / weightTotal);
+  }
+
+  // Générer un plan de révision
+  generateRevisionPlan(
+    sessions: QcmSession[],
+    errors: { concept: string; errorCount: number; percentage: number }[]
+  ): {
+    day: number;
+    focus: string;
+    duration: number;
+    activities: string[];
+  }[] {
+    const plan: { day: number; focus: string; duration: number; activities: string[] }[] = [];
+    const topErrors = errors.slice(0, 7);
+
+    topErrors.forEach((error, index) => {
+      plan.push({
+        day: index + 1,
+        focus: error.concept,
+        duration: error.percentage >= 50 ? 60 : 30,
+        activities: [
+          `Relire le cours sur "${error.concept}"`,
+          `Faire 10 QCM cibles sur ce theme`,
+          `Revoir les explications des erreurs`
+        ]
+      });
+    });
+
+    return plan;
+  }
+
+  // Exporter les statistiques
+  exportStats(sessions: QcmSession[]): string {
+    const stats = this.calculateSessionStats(sessions);
+    if (!stats) return '{}';
+
+    return JSON.stringify({
+      ...stats,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }, null, 2);
+  }
+
+  // Calculer le streak de jours consécutifs
+  calculateStreak(sessions: QcmSession[]): number {
+    const completedSessions = sessions.filter(s => s.completed_at);
+    if (completedSessions.length === 0) return 0;
+
+    const dates = [...new Set(
+      completedSessions.map(s => s.completed_at!.split('T')[0])
+    )].sort().reverse();
+
+    let streak = 0;
+    const today = new Date().toISOString().split('T')[0];
+
+    for (let i = 0; i < dates.length; i++) {
+      const checkDate = new Date();
+      checkDate.setDate(checkDate.getDate() - i);
+      const checkStr = checkDate.toISOString().split('T')[0];
+
+      if (dates.includes(checkStr) || (i === 0 && dates[0] === today)) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+
+    return streak;
   }
 }
 

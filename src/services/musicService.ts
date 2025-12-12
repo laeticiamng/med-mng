@@ -430,8 +430,8 @@ class MusicService {
   private calculateSessionStats(events: any[]) {
     const totalEvents = events.length
     const successfulEvents = events.filter(e => e.success).length
-    const avgDuration = events.length > 0 
-      ? events.reduce((sum, e) => sum + e.duration_seconds, 0) / events.length 
+    const avgDuration = events.length > 0
+      ? events.reduce((sum, e) => sum + e.duration_seconds, 0) / events.length
       : 0
 
     return {
@@ -441,6 +441,186 @@ class MusicService {
       session_start: events[0]?.timestamp,
       last_generation: events[events.length - 1]?.timestamp
     }
+  }
+
+  // Rechercher dans la bibliotheque
+  async searchLibrary(query: string): Promise<any[]> {
+    try {
+      const library = await this.getUserLibrary()
+      if (!query.trim()) return library
+
+      const queryLower = query.toLowerCase()
+      return library.filter(item =>
+        item.title?.toLowerCase().includes(queryLower) ||
+        item.emotionscare_songs?.title?.toLowerCase().includes(queryLower) ||
+        item.item_code?.toLowerCase().includes(queryLower)
+      )
+    } catch (error) {
+      console.error('Error searching library:', error)
+      return []
+    }
+  }
+
+  // Obtenir les statistiques de la bibliotheque
+  async getLibraryStats(): Promise<{
+    totalSongs: number
+    totalPlaylists: number
+    totalFavorites: number
+    recentlyAdded: number
+    byRang: { A: number; B: number; mix: number }
+  }> {
+    try {
+      const [library, playlists, favorites] = await Promise.all([
+        this.getUserLibrary(),
+        this.getUserPlaylists(),
+        this.getFavorites()
+      ])
+
+      const weekAgo = new Date()
+      weekAgo.setDate(weekAgo.getDate() - 7)
+
+      const recentlyAdded = library.filter(item =>
+        new Date(item.created_at) > weekAgo
+      ).length
+
+      const byRang = library.reduce((acc, item) => {
+        const rang = item.rang_type || 'mix'
+        acc[rang] = (acc[rang] || 0) + 1
+        return acc
+      }, { A: 0, B: 0, mix: 0 })
+
+      return {
+        totalSongs: library.length,
+        totalPlaylists: playlists.length,
+        totalFavorites: favorites.length,
+        recentlyAdded,
+        byRang
+      }
+    } catch (error) {
+      console.error('Error getting library stats:', error)
+      return {
+        totalSongs: 0,
+        totalPlaylists: 0,
+        totalFavorites: 0,
+        recentlyAdded: 0,
+        byRang: { A: 0, B: 0, mix: 0 }
+      }
+    }
+  }
+
+  // Obtenir les chansons recentes
+  async getRecentSongs(limit: number = 10): Promise<any[]> {
+    try {
+      const library = await this.getUserLibrary()
+      return library
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, limit)
+    } catch (error) {
+      console.error('Error getting recent songs:', error)
+      return []
+    }
+  }
+
+  // Dupliquer une playlist
+  async duplicatePlaylist(playlistId: string, newName?: string): Promise<Playlist | null> {
+    try {
+      const playlists = await this.getUserPlaylists()
+      const original = playlists.find(p => p.id === playlistId)
+      if (!original) return null
+
+      const duplicateName = newName || `${original.name} (copie)`
+      const newPlaylist = await this.createPlaylist(
+        duplicateName,
+        original.description,
+        original.is_public
+      )
+
+      // Copier les chansons
+      for (const song of original.songs) {
+        await this.addSongToPlaylist(newPlaylist.id, song.song_id)
+      }
+
+      console.log('Playlist duplicated successfully')
+      return newPlaylist
+    } catch (error) {
+      console.error('Error duplicating playlist:', error)
+      return null
+    }
+  }
+
+  // Exporter une playlist en JSON
+  async exportPlaylist(playlistId: string): Promise<string | null> {
+    try {
+      const playlists = await this.getUserPlaylists()
+      const playlist = playlists.find(p => p.id === playlistId)
+      if (!playlist) return null
+
+      const exportData = {
+        name: playlist.name,
+        description: playlist.description,
+        songs: playlist.songs.map(s => ({
+          song_id: s.song_id,
+          position: s.position
+        })),
+        exportedAt: new Date().toISOString()
+      }
+
+      return JSON.stringify(exportData, null, 2)
+    } catch (error) {
+      console.error('Error exporting playlist:', error)
+      return null
+    }
+  }
+
+  // Obtenir le temps total d'ecoute
+  getEstimatedListeningTime(songCount: number): string {
+    const avgDuration = 180 // 3 minutes par chanson en moyenne
+    const totalSeconds = songCount * avgDuration
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}min`
+    }
+    return `${minutes} min`
+  }
+
+  // Verifier si une chanson est dans une playlist
+  async isSongInPlaylist(playlistId: string, songId: string): Promise<boolean> {
+    try {
+      const playlists = await this.getUserPlaylists()
+      const playlist = playlists.find(p => p.id === playlistId)
+      return playlist?.songs.some(s => s.song_id === songId) || false
+    } catch (error) {
+      return false
+    }
+  }
+
+  // Obtenir les playlists contenant une chanson
+  async getPlaylistsContainingSong(songId: string): Promise<Playlist[]> {
+    try {
+      const playlists = await this.getUserPlaylists()
+      return playlists.filter(p => p.songs.some(s => s.song_id === songId))
+    } catch (error) {
+      console.error('Error getting playlists containing song:', error)
+      return []
+    }
+  }
+
+  // Melanger une playlist
+  shufflePlaylistSongs(songs: PlaylistSong[]): PlaylistSong[] {
+    const shuffled = [...songs]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Nettoyer les analytics locaux
+  clearLocalAnalytics(): void {
+    localStorage.removeItem('music_analytics')
+    console.log('Local analytics cleared')
   }
 }
 

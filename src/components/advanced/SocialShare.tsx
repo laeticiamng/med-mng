@@ -276,3 +276,133 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     </div>
   );
 };
+
+// Composant pour statistiques de partage
+export const ShareStats: React.FC<{
+  shares: Record<string, number>;
+  className?: string;
+}> = ({ shares, className = '' }) => {
+  const total = Object.values(shares).reduce((a, b) => a + b, 0);
+
+  return (
+    <div className={`text-sm ${className}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <Share2 className="w-4 h-4" />
+        <span className="font-medium">{total} partages</span>
+      </div>
+      <div className="grid grid-cols-2 gap-1 text-muted-foreground">
+        {Object.entries(shares).map(([platform, count]) => (
+          <div key={platform} className="flex justify-between">
+            <span className="capitalize">{platform}</span>
+            <span>{count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Hook pour tracker les partages
+export const useShareTracking = () => {
+  const [shares, setShares] = useState<Record<string, number>>({});
+
+  const trackShare = (platform: string) => {
+    setShares(prev => ({
+      ...prev,
+      [platform]: (prev[platform] || 0) + 1
+    }));
+
+    // Sauvegarder localement
+    const stored = JSON.parse(localStorage.getItem('share_stats') || '{}');
+    stored[platform] = (stored[platform] || 0) + 1;
+    localStorage.setItem('share_stats', JSON.stringify(stored));
+  };
+
+  const loadStats = () => {
+    const stored = JSON.parse(localStorage.getItem('share_stats') || '{}');
+    setShares(stored);
+  };
+
+  const resetStats = () => {
+    localStorage.removeItem('share_stats');
+    setShares({});
+  };
+
+  const getTotalShares = () => Object.values(shares).reduce((a, b) => a + b, 0);
+
+  const getMostSharedPlatform = (): string | null => {
+    if (Object.keys(shares).length === 0) return null;
+    return Object.entries(shares).sort((a, b) => b[1] - a[1])[0][0];
+  };
+
+  return {
+    shares,
+    trackShare,
+    loadStats,
+    resetStats,
+    getTotalShares,
+    getMostSharedPlatform
+  };
+};
+
+// Composant bouton de partage compact
+export const CompactShareButton: React.FC<{
+  url: string;
+  title: string;
+  platform: 'twitter' | 'facebook' | 'linkedin' | 'whatsapp';
+  onShare?: () => void;
+}> = ({ url, title, platform, onShare }) => {
+  const shareUrls = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`
+  };
+
+  const icons = {
+    twitter: Twitter,
+    facebook: Facebook,
+    linkedin: Linkedin,
+    whatsapp: MessageCircle
+  };
+
+  const Icon = icons[platform];
+
+  const handleClick = () => {
+    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+    onShare?.();
+  };
+
+  return (
+    <Button variant="ghost" size="icon" onClick={handleClick}>
+      <Icon className="w-4 h-4" />
+    </Button>
+  );
+};
+
+// Composant pour partage rapide en ligne
+export const InlineShare: React.FC<{
+  url: string;
+  title: string;
+  platforms?: Array<'twitter' | 'facebook' | 'linkedin' | 'whatsapp'>;
+}> = ({
+  url,
+  title,
+  platforms = ['twitter', 'facebook', 'linkedin', 'whatsapp']
+}) => {
+  const { trackShare } = useShareTracking();
+
+  return (
+    <div className="flex items-center gap-1">
+      {platforms.map(platform => (
+        <CompactShareButton
+          key={platform}
+          url={url}
+          title={title}
+          platform={platform}
+          onShare={() => trackShare(platform)}
+        />
+      ))}
+    </div>
+  );
+};

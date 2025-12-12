@@ -182,9 +182,141 @@ export const useContentGeneration = () => {
     }
   }, []);
 
+  // Générer du contenu en batch
+  const generateBatch = useCallback(async (
+    requests: ContentGenerationRequest[]
+  ): Promise<GeneratedContent[]> => {
+    const results: GeneratedContent[] = [];
+
+    for (const request of requests) {
+      const result = await generateContent(request);
+      if (result) results.push(result);
+    }
+
+    return results;
+  }, [generateContent]);
+
+  // Obtenir les statistiques de génération
+  const getGenerationStats = useCallback(async (): Promise<{
+    totalGenerated: number;
+    byType: Record<string, number>;
+    lastGeneration: string | null;
+  }> => {
+    try {
+      const content = await getUserGeneratedContent();
+
+      const byType = content.reduce((acc, item) => {
+        acc[item.type] = (acc[item.type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const sortedContent = [...content].sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      return {
+        totalGenerated: content.length,
+        byType,
+        lastGeneration: sortedContent[0]?.created_at || null
+      };
+    } catch (error) {
+      return {
+        totalGenerated: 0,
+        byType: {},
+        lastGeneration: null
+      };
+    }
+  }, [getUserGeneratedContent]);
+
+  // Supprimer un contenu généré
+  const deleteGeneratedContent = useCallback(async (
+    contentId: string,
+    type: 'music' | 'voice' | 'image'
+  ): Promise<boolean> => {
+    try {
+      const tables = {
+        music: 'generated_music_tracks',
+        voice: 'generated_voice_tracks',
+        image: 'generated_ambient_images'
+      };
+
+      const { error } = await supabase
+        .from(tables[type])
+        .delete()
+        .eq('id', contentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Contenu supprimé",
+        description: "Le contenu a été supprimé avec succès"
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le contenu",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [toast]);
+
+  // Rechercher dans le contenu généré
+  const searchGeneratedContent = useCallback(async (
+    query: string,
+    type?: 'music' | 'voice' | 'image'
+  ): Promise<any[]> => {
+    const allContent = await getUserGeneratedContent(type);
+
+    if (!query.trim()) return allContent;
+
+    const queryLower = query.toLowerCase();
+    return allContent.filter(item =>
+      item.title?.toLowerCase().includes(queryLower) ||
+      item.prompt?.toLowerCase().includes(queryLower) ||
+      item.description?.toLowerCase().includes(queryLower)
+    );
+  }, [getUserGeneratedContent]);
+
+  // Estimer le coût de génération
+  const estimateCost = (type: 'music' | 'voice' | 'image', options?: any): number => {
+    const baseCosts = {
+      music: 5,
+      voice: 2,
+      image: 3
+    };
+
+    let cost = baseCosts[type];
+
+    if (type === 'music' && options?.duration) {
+      cost += Math.ceil(options.duration / 60);
+    }
+
+    if (type === 'image' && options?.quality === 'hd') {
+      cost += 1;
+    }
+
+    return cost;
+  };
+
+  // Vérifier si un type de génération est disponible
+  const isGenerationAvailable = useCallback(async (type: 'music' | 'voice' | 'image'): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return !!user;
+  }, []);
+
   return {
     generateContent,
+    generateBatch,
     getUserGeneratedContent,
+    getGenerationStats,
+    deleteGeneratedContent,
+    searchGeneratedContent,
+    estimateCost,
+    isGenerationAvailable,
     isGenerating,
     progress
   };
