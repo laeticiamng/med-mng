@@ -60,46 +60,59 @@ export function useGamification() {
 
   const loadStats = useCallback(async (userId: string) => {
     try {
-      // Load from localStorage as fallback (could be moved to Supabase)
-      const stored = localStorage.getItem(`gamification_${userId}`);
-      const baseStats: GamificationStats = stored ? JSON.parse(stored) : {
-        totalPoints: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-        level: 1,
-        xpToNextLevel: XP_PER_LEVEL,
-        currentXP: 0,
-        badges: [],
-        weeklyGoalProgress: 0,
-        weeklyGoal: 50,
-      };
+      setLoading(true);
+      
+      // Charger les badges depuis Supabase
+      const { data: userBadges } = await supabase
+        .from('user_badges')
+        .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
+        .eq('user_id', userId)
+        .eq('unlocked', true);
 
-      // Calculate streak from activity log
+      const badges: Badge[] = (userBadges || []).map(ub => {
+        const def = BADGE_DEFINITIONS.find(b => b.id === ub.badge_id);
+        return {
+          id: ub.badge_id,
+          name: ub.badge_name || def?.name || 'Badge',
+          description: ub.badge_description || def?.description || '',
+          icon: ub.badge_icon || def?.icon || '🏆',
+          rarity: def?.rarity || 'common',
+          unlockedAt: ub.earned_at,
+        };
+      });
+
+      // Charger les points totaux depuis gamification_activities
       const { data: activities } = await supabase
+        .from('gamification_activities')
+        .select('points_earned')
+        .eq('user_id', userId);
+      
+      const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
+
+      // Calculate streak from user_activity_log
+      const { data: activityLog } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', userId)
         .order('activity_date', { ascending: false })
         .limit(60);
 
-      if (activities && activities.length > 0) {
-        const uniqueDates = [...new Set(activities.map(a => a.activity_date))];
-        let streak = 0;
+      let currentStreak = 0;
+      if (activityLog && activityLog.length > 0) {
+        const uniqueDates = [...new Set(activityLog.map(a => a.activity_date))];
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
         
         if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
-          streak = 1;
+          currentStreak = 1;
           for (let i = 1; i < uniqueDates.length; i++) {
             const prev = new Date(uniqueDates[i - 1]);
             const curr = new Date(uniqueDates[i]);
             const diff = (prev.getTime() - curr.getTime()) / 86400000;
-            if (diff === 1) streak++;
+            if (diff === 1) currentStreak++;
             else break;
           }
         }
-        baseStats.currentStreak = streak;
-        baseStats.longestStreak = Math.max(baseStats.longestStreak, streak);
       }
 
       // Weekly progress from activity log
@@ -111,12 +124,26 @@ export function useGamification() {
         .eq('user_id', userId)
         .gte('activity_date', weekStart.toISOString().split('T')[0]);
 
-      baseStats.weeklyGoalProgress = weeklyCount || 0;
-      baseStats.level = calculateLevel(baseStats.currentXP);
-      baseStats.xpToNextLevel = calculateXPToNext(baseStats.currentXP);
+      // Récupérer le longest streak depuis localStorage (fallback temporaire)
+      const stored = localStorage.getItem(`gamification_${userId}`);
+      const storedStats = stored ? JSON.parse(stored) : {};
+      const longestStreak = Math.max(storedStats.longestStreak || 0, currentStreak);
+
+      const baseStats: GamificationStats = {
+        totalPoints,
+        currentStreak,
+        longestStreak,
+        level: calculateLevel(totalPoints),
+        xpToNextLevel: calculateXPToNext(totalPoints),
+        currentXP: totalPoints,
+        badges,
+        weeklyGoalProgress: weeklyCount || 0,
+        weeklyGoal: 50,
+      };
 
       setStats(baseStats);
-      localStorage.setItem(`gamification_${userId}`, JSON.stringify(baseStats));
+      // Sauvegarder longestStreak en localStorage (seule donnée locale)
+      localStorage.setItem(`gamification_${userId}`, JSON.stringify({ longestStreak }));
     } catch (error) {
       console.error('Error loading gamification stats:', error);
     } finally {
@@ -132,6 +159,15 @@ export function useGamification() {
     const newLevel = calculateLevel(newXP);
     const leveledUp = newLevel > stats.level;
 
+    // Persister dans Supabase
+    await supabase.from('gamification_activities').insert({
+      user_id: userId,
+      activity_type: action,
+      activity_name: action,
+      points_earned: points,
+      created_at: new Date().toISOString(),
+    } as any);
+
     const updatedStats: GamificationStats = {
       ...stats,
       totalPoints: stats.totalPoints + points,
@@ -141,7 +177,6 @@ export function useGamification() {
     };
 
     setStats(updatedStats);
-    localStorage.setItem(`gamification_${userId}`, JSON.stringify(updatedStats));
 
     if (leveledUp) {
       toast({
@@ -160,6 +195,23 @@ export function useGamification() {
     if (!badgeDef) return false;
     if (stats.badges.some(b => b.id === badgeId)) return false;
 
+    // Persister dans Supabase user_badges
+    const { error } = await supabase.from('user_badges').insert({
+      user_id: userId,
+      badge_id: badgeId,
+      badge_name: badgeDef.name,
+      badge_description: badgeDef.description,
+      badge_icon: badgeDef.icon,
+      badge_category: badgeDef.rarity,
+      earned_at: new Date().toISOString(),
+      unlocked: true,
+    } as any);
+
+    if (error) {
+      console.error('Error saving badge:', error);
+      return false;
+    }
+
     const newBadge: Badge = {
       ...badgeDef,
       unlockedAt: new Date().toISOString(),
@@ -171,7 +223,6 @@ export function useGamification() {
     };
 
     setStats(updatedStats);
-    localStorage.setItem(`gamification_${userId}`, JSON.stringify(updatedStats));
 
     toast({
       title: `${badgeDef.icon} Badge débloqué !`,
