@@ -171,32 +171,79 @@ class MusicService {
     }
   }
 
-  // ===== PLAYLISTS (Simulation - tables pas encore synchronisées) =====
+  // ===== PLAYLISTS =====
   async getUserPlaylists(): Promise<Playlist[]> {
     try {
-      // Retourner des données simulées pour l'instant
-      return []
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.warn('⚠️ User not authenticated for playlists')
+        return []
+      }
+
+      const { data, error } = await supabase
+        .from('med_mng_playlists')
+        .select(`
+          id,
+          user_id,
+          name,
+          description,
+          is_public,
+          created_at,
+          updated_at
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('❌ Error fetching playlists:', error)
+        return []
+      }
+
+      // Récupérer les chansons pour chaque playlist
+      const playlists: Playlist[] = await Promise.all((data || []).map(async (playlist) => {
+        const { data: songs } = await supabase
+          .from('med_mng_playlist_songs')
+          .select('id, playlist_id, song_id, position, added_at')
+          .eq('playlist_id', playlist.id)
+          .order('position', { ascending: true })
+
+        return {
+          ...playlist,
+          songs: songs || []
+        }
+      }))
+
+      return playlists
     } catch (error) {
       console.error('❌ Error fetching playlists:', error)
-      throw error
+      return []
     }
   }
 
   async createPlaylist(name: string, description?: string, isPublic = false): Promise<Playlist> {
     try {
-      // Simulation pour l'instant
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('User not authenticated')
+
+      const { data, error } = await supabase
+        .from('med_mng_playlists')
+        .insert({
+          user_id: user.id,
+          name,
+          description: description || null,
+          is_public: isPublic
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
       const newPlaylist: Playlist = {
-        id: crypto.randomUUID(),
-        user_id: 'current-user',
-        name,
-        description,
-        is_public: isPublic,
-        songs: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        ...data,
+        songs: []
       }
-      
-      console.log('✅ Playlist created (simulated):', name)
+
+      console.log('✅ Playlist created:', name)
       return newPlaylist
     } catch (error) {
       console.error('❌ Error creating playlist:', error)
@@ -206,8 +253,26 @@ class MusicService {
 
   async addSongToPlaylist(playlistId: string, songId: string): Promise<void> {
     try {
-      // Simulation pour l'instant
-      console.log('✅ Song added to playlist (simulated)')
+      // Obtenir la position maximale actuelle
+      const { data: existing } = await supabase
+        .from('med_mng_playlist_songs')
+        .select('position')
+        .eq('playlist_id', playlistId)
+        .order('position', { ascending: false })
+        .limit(1)
+
+      const nextPosition = (existing?.[0]?.position || 0) + 1
+
+      const { error } = await supabase
+        .from('med_mng_playlist_songs')
+        .insert({
+          playlist_id: playlistId,
+          song_id: songId,
+          position: nextPosition
+        })
+
+      if (error) throw error
+      console.log('✅ Song added to playlist')
     } catch (error) {
       console.error('❌ Error adding song to playlist:', error)
       throw error
@@ -216,8 +281,14 @@ class MusicService {
 
   async removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {
     try {
-      // Simulation pour l'instant
-      console.log('✅ Song removed from playlist (simulated)')
+      const { error } = await supabase
+        .from('med_mng_playlist_songs')
+        .delete()
+        .eq('playlist_id', playlistId)
+        .eq('song_id', songId)
+
+      if (error) throw error
+      console.log('✅ Song removed from playlist')
     } catch (error) {
       console.error('❌ Error removing song from playlist:', error)
       throw error
@@ -226,8 +297,20 @@ class MusicService {
 
   async deletePlaylist(playlistId: string): Promise<void> {
     try {
-      // Simulation pour l'instant
-      console.log('✅ Playlist deleted (simulated)')
+      // Supprimer d'abord les chansons de la playlist
+      await supabase
+        .from('med_mng_playlist_songs')
+        .delete()
+        .eq('playlist_id', playlistId)
+
+      // Puis supprimer la playlist
+      const { error } = await supabase
+        .from('med_mng_playlists')
+        .delete()
+        .eq('id', playlistId)
+
+      if (error) throw error
+      console.log('✅ Playlist deleted')
     } catch (error) {
       console.error('❌ Error deleting playlist:', error)
       throw error

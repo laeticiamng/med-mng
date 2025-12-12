@@ -85,11 +85,16 @@ export const useFlashcards = () => {
       return mappedDecks;
     } catch (error) {
       console.error('Error loading decks:', error);
+      toast({
+        title: "Erreur de chargement",
+        description: "Impossible de charger les decks de flashcards. Veuillez réessayer.",
+        variant: "destructive"
+      });
       return [];
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   // Create a new deck in Supabase
   const createDeck = useCallback(async (

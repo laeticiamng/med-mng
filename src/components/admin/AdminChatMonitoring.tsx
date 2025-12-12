@@ -53,57 +53,107 @@ export const AdminChatMonitoring: React.FC = () => {
   const loadChatData = async () => {
     setIsLoading(true);
     try {
-      // Simuler les données pour éviter les erreurs de types
-      // En production, cette requête utilisera la vraie table enhanced_chat_logs
-      const mockLogs: ChatLog[] = [
-        {
-          id: '1',
-          user_id: 'user-1',
-          question: 'Qu\'est-ce que l\'item IC-123 ?',
-          response: 'L\'item IC-123 concerne les pathologies cardiovasculaires...',
-          edn_context_items: ['IC-123'],
-          web_fallback_used: false,
-          response_source: 'edn_local',
-          response_quality_score: 4,
-          conversation_id: 'conv-1',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          user_id: 'user-2',
-          question: 'Comment traiter l\'hypertension ?',
-          response: 'Le traitement de l\'hypertension comprend...',
-          edn_context_items: [],
-          web_fallback_used: true,
-          response_source: 'web_fallback',
-          response_quality_score: 3,
-          conversation_id: 'conv-2',
-          created_at: new Date(Date.now() - 3600000).toISOString()
+      // Calculer la date de début selon le filtre
+      const startDate = new Date();
+      switch (timeFilter) {
+        case '1h':
+          startDate.setHours(startDate.getHours() - 1);
+          break;
+        case '24h':
+          startDate.setDate(startDate.getDate() - 1);
+          break;
+        case '7d':
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case '30d':
+          startDate.setDate(startDate.getDate() - 30);
+          break;
+      }
+
+      // Charger les vraies données depuis chat_conversations
+      let query = supabase
+        .from('chat_conversations')
+        .select('id, user_id, title, messages, created_at, updated_at')
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      const { data: conversations, error } = await query;
+
+      if (error) {
+        console.error('Error fetching chat data:', error);
+        throw error;
+      }
+
+      // Convertir les conversations en format ChatLog
+      const chatLogsData: ChatLog[] = [];
+
+      (conversations || []).forEach((conv: any) => {
+        const messages = conv.messages || [];
+        // Prendre les paires question/réponse des messages
+        for (let i = 0; i < messages.length - 1; i += 2) {
+          const userMsg = messages[i];
+          const assistantMsg = messages[i + 1];
+
+          if (userMsg?.role === 'user' && assistantMsg?.role === 'assistant') {
+            const isWebFallback = assistantMsg.source === 'web_fallback';
+            const ednItems = assistantMsg.context?.items?.map((item: any) => item.item_code) || [];
+
+            // Appliquer le filtre source
+            if (filterSource !== 'all') {
+              const source = isWebFallback ? 'web_fallback' : (ednItems.length > 0 ? 'edn_local' : 'edn_limited');
+              if (source !== filterSource) continue;
+            }
+
+            chatLogsData.push({
+              id: `${conv.id}-${i}`,
+              user_id: conv.user_id || 'anonymous',
+              question: userMsg.content || '',
+              response: assistantMsg.content || '',
+              edn_context_items: ednItems,
+              web_fallback_used: isWebFallback,
+              response_source: isWebFallback ? 'web_fallback' : (ednItems.length > 0 ? 'edn_local' : 'edn_limited'),
+              response_quality_score: assistantMsg.quality_score,
+              conversation_id: conv.id,
+              created_at: conv.created_at
+            });
+          }
         }
-      ];
+      });
 
-      setChatLogs(mockLogs);
+      setChatLogs(chatLogsData);
 
-      // Calculer les statistiques
+      // Calculer les statistiques réelles
       const calculatedStats: ChatStats = {
-        total_conversations: new Set(mockLogs.map(log => log.conversation_id)).size,
-        edn_responses: mockLogs.filter(log => log.response_source === 'edn_local').length,
-        web_fallback_responses: mockLogs.filter(log => log.web_fallback_used).length,
-        avg_response_quality: mockLogs
-          .filter(log => log.response_quality_score !== null)
-          .reduce((sum, log) => sum + (log.response_quality_score || 0), 0) / 
-          mockLogs.filter(log => log.response_quality_score !== null).length || 0,
-        most_asked_topics: extractTopicsFromLogs(mockLogs)
+        total_conversations: new Set(chatLogsData.map(log => log.conversation_id)).size,
+        edn_responses: chatLogsData.filter(log => log.response_source === 'edn_local').length,
+        web_fallback_responses: chatLogsData.filter(log => log.web_fallback_used).length,
+        avg_response_quality: chatLogsData.filter(log => log.response_quality_score != null).length > 0
+          ? chatLogsData
+              .filter(log => log.response_quality_score != null)
+              .reduce((sum, log) => sum + (log.response_quality_score || 0), 0) /
+            chatLogsData.filter(log => log.response_quality_score != null).length
+          : 0,
+        most_asked_topics: extractTopicsFromLogs(chatLogsData)
       };
-      
+
       setStats(calculatedStats);
 
     } catch (error) {
       console.error('Erreur loadChatData:', error);
       toast({
         title: "Erreur",
-        description: "Erreur lors du chargement des données",
+        description: "Erreur lors du chargement des données de chat",
         variant: "destructive",
+      });
+      // En cas d'erreur, afficher des stats vides
+      setChatLogs([]);
+      setStats({
+        total_conversations: 0,
+        edn_responses: 0,
+        web_fallback_responses: 0,
+        avg_response_quality: 0,
+        most_asked_topics: []
       });
     } finally {
       setIsLoading(false);

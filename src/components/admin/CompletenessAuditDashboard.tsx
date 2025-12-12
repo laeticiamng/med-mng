@@ -78,7 +78,24 @@ export function CompletenessAuditDashboard() {
     })
   }
 
-  if (!auditResult && !isLoading) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Audit de Complétude</CardTitle>
+          <CardDescription>
+            Vérification en cours...
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-8">
+          <RefreshCw className="h-8 w-8 animate-spin text-primary mr-3" />
+          <span className="text-muted-foreground">Analyse des items en cours...</span>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!auditResult) {
     return (
       <Card>
         <CardHeader>

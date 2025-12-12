@@ -155,10 +155,56 @@ class MedMngApi {
       // L'API retourne un objet paginé { items, pagination }
       // Extraire seulement le tableau items
       return result?.items || [];
-    } catch (error) {
-      // Retourner un tableau vide en cas d'erreur
-      console.error('Erreur getLibrary:', error);
+    } catch (error: any) {
+      // Retourner un tableau vide en cas d'erreur avec message contextuel
+      console.error('Erreur getLibrary:', error?.message || error);
+      // L'erreur est loggée, le composant appelant peut gérer l'état vide
       return [];
+    }
+  }
+
+  async getSongDetails(songId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+
+      const response = await fetch(`${API_BASE_URL}/songs/${songId}`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Impossible de récupérer les détails de la chanson');
+      }
+
+      return response.json();
+    } catch (error: any) {
+      console.error('Erreur getSongDetails:', error?.message || error);
+      return null;
+    }
+  }
+
+  async getUserStats() {
+    try {
+      const headers = await this.getAuthHeaders();
+
+      const response = await fetch(`${API_BASE_URL}/stats`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error('Impossible de récupérer les statistiques');
+      }
+
+      return response.json();
+    } catch (error: any) {
+      console.error('Erreur getUserStats:', error?.message || error);
+      return {
+        total_songs: 0,
+        total_likes: 0,
+        total_plays: 0
+      };
     }
   }
 

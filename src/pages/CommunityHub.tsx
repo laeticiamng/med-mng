@@ -146,7 +146,7 @@ const CommunityHub = () => {
     }
   }, [activeTab]);
 
-  const [posts] = useState<Post[]>([
+  const [posts, setPosts] = useState<Post[]>([
     {
       id: '1',
       author: {
@@ -213,7 +213,7 @@ const CommunityHub = () => {
     }
   ]);
 
-  const [events] = useState<Event[]>([
+  const [events, setEvents] = useState<Event[]>([
     {
       id: '1',
       title: 'Webinaire : Nouvelles Approches Pédagogiques',
