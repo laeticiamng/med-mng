@@ -105,18 +105,95 @@ export function useNotifications() {
     return mockNotifications;
   }, []);
 
-  // Load notifications
+  // Load notifications from database
   useEffect(() => {
     const loadNotifications = async () => {
       try {
         setLoading(true);
-        // In a real app, you'd fetch from the database
-        // For now, we'll use mock data
-        const mockData = generateMockNotifications();
-        setNotifications(mockData);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          // Utiliser les mock uniquement si pas connecté
+          setNotifications(generateMockNotifications());
+          return;
+        }
+
+        // Charger les notifications depuis les différentes sources
+        const [extractionLogs, operationLogs] = await Promise.all([
+          supabase
+            .from('extraction_logs')
+            .select('id, batch_id, batch_type, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10),
+          supabase
+            .from('operation_logs')
+            .select('id, type, message, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10)
+        ]);
+
+        const dbNotifications: Notification[] = [];
+
+        // Convertir les extraction_logs en notifications
+        extractionLogs.data?.forEach((log: any) => {
+          dbNotifications.push({
+            id: `extraction-${log.id}`,
+            type: log.status === 'failed' ? 'error' : log.status === 'completed' ? 'success' : 'info',
+            title: `Extraction ${log.batch_type || 'EDN'}`,
+            message: log.status === 'failed'
+              ? `L'extraction ${log.batch_id} a échoué`
+              : `Extraction ${log.batch_id}: ${log.status}`,
+            timestamp: new Date(log.created_at),
+            read: log.status === 'completed',
+            category: 'extraction',
+            priority: log.status === 'failed' ? 'urgent' : 'medium',
+            actionable: log.status === 'failed',
+            action: log.status === 'failed' ? {
+              label: 'Voir détails',
+              url: '/admin/extractions'
+            } : undefined
+          });
+        });
+
+        // Convertir les operation_logs en notifications
+        operationLogs.data?.forEach((log: any) => {
+          if (log.type === 'error' || log.type === 'warning') {
+            dbNotifications.push({
+              id: `operation-${log.id}`,
+              type: log.type === 'error' ? 'error' : 'warning',
+              title: log.type === 'error' ? 'Erreur système' : 'Avertissement',
+              message: log.message || 'Une opération a rencontré un problème',
+              timestamp: new Date(log.created_at),
+              read: false,
+              category: 'system',
+              priority: log.type === 'error' ? 'high' : 'medium'
+            });
+          }
+        });
+
+        // Trier par date et garder les plus récentes
+        dbNotifications.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+        // Si aucune notification, utiliser quelques exemples de base
+        if (dbNotifications.length === 0) {
+          setNotifications([{
+            id: 'welcome',
+            type: 'info',
+            title: 'Bienvenue !',
+            message: 'Aucune notification pour le moment.',
+            timestamp: new Date(),
+            read: true,
+            category: 'system',
+            priority: 'low'
+          }]);
+        } else {
+          setNotifications(dbNotifications.slice(0, 20));
+        }
       } catch (error) {
         console.error('Error loading notifications:', error);
         toast.error('Erreur lors du chargement des notifications');
+        // Fallback sur mock en cas d'erreur
+        setNotifications(generateMockNotifications());
       } finally {
         setLoading(false);
       }

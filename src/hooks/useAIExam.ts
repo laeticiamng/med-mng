@@ -50,6 +50,11 @@ export const useAIExam = () => {
 
       if (itemsError || !items || items.length === 0) {
         console.error('Error fetching items:', itemsError);
+        toast({
+          title: "Erreur",
+          description: "Aucun item EDN trouvé pour générer les questions.",
+          variant: "destructive"
+        });
         return [];
       }
 

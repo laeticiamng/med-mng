@@ -234,7 +234,16 @@ const MedMngPlayerComponent = () => {
                         <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-current' : ''}`} />
                         {song.is_liked ? 'Aimé' : 'Aimer'}
                       </Button>
-                      <Button variant="outline" disabled>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          toast({
+                            title: "Streaming uniquement",
+                            description: "Le téléchargement n'est pas disponible. Les chansons peuvent être écoutées en streaming depuis votre bibliothèque.",
+                            variant: "default"
+                          });
+                        }}
+                      >
                         <Download className="h-4 w-4 mr-2" />
                         Streaming uniquement
                       </Button>
