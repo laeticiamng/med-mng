@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Flame, Star } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-
 interface InteractionSectionProps {
   interactionConfig: any;
   itemCode: string;
@@ -98,12 +97,32 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
 
   const concepts = interactionConfig.items?.filter((item: any) => item.category === 'concept') || [];
   const definitions = interactionConfig.items?.filter((item: any) => item.category === 'definition') || [];
+  
+  const { stats, loadStats } = useGamification();
+  
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>{interactionConfig.title || `Interaction ${itemCode}`}</span>
+          <div className="flex items-center gap-3">
+            <span>{interactionConfig.title || `Interaction ${itemCode}`}</span>
+            {stats && (
+              <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <Star className="h-3 w-3 text-primary ml-1" />
+                <span className="font-bold text-primary">Nv.{stats.level}</span>
+              </div>
+            )}
+          </div>
           <Badge variant="outline">Glisser-Déposer</Badge>
         </CardTitle>
       </CardHeader>

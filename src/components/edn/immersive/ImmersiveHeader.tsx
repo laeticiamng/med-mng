@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, Flame, Star } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGamification } from '@/hooks/useGamification';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 interface ImmersiveHeaderProps {
   isAudioPlaying: boolean;
@@ -21,6 +25,25 @@ export const ImmersiveHeader = ({
   currentSectionName,
   onToggleAudio
 }: ImmersiveHeaderProps) => {
+  const { stats, loadStats } = useGamification();
+  const { logActivity } = useActivityTracking();
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
+
+  useEffect(() => {
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'immersive_header', section: currentSection }
+    });
+  }, [currentSection]);
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-warning/20 shadow-sm">
       <div className="container mx-auto px-4 py-2">
@@ -31,6 +54,14 @@ export const ImmersiveHeader = ({
           </Link>
           
           <div className="flex items-center gap-2 sm:gap-4">
+            {stats && (
+              <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-muted/30 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-warning" />
+                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <Star className="h-3 w-3 text-primary ml-1" />
+                <span className="font-bold text-primary">Nv.{stats.level}</span>
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"
