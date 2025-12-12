@@ -48,16 +48,22 @@ export const StudyPlanManager = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [editingPlan, setEditingPlan] = useState<StudyPlan | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [newPlan, setNewPlan] = useState({
+  const [newPlan, setNewPlan] = useState<{
+    title: string;
+    description: string;
+    target_date: string;
+    priority: 'low' | 'medium' | 'high';
+    total_sessions: number;
+  }>({
     title: '',
     description: '',
     target_date: '',
-    priority: 'medium' as const,
+    priority: 'medium',
     total_sessions: 10
   });
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addXP, incrementProgress } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user
   useEffect(() => {
@@ -72,70 +78,31 @@ export const StudyPlanManager = () => {
     init();
   }, [loadStats]);
 
-  // Fetch study plans from Supabase
+  // Fetch study plans from localStorage
   const fetchStudyPlans = useCallback(async () => {
     if (!user?.id) return;
 
     try {
-      // Try to fetch from user_study_plans table
-      const { data, error } = await supabase
-        .from('user_study_plans')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        // If table doesn't exist, try profiles or create local storage fallback
-        console.log('Study plans table not found, using local storage fallback');
-        const saved = localStorage.getItem(`study_plans_${user.id}`);
-        if (saved) {
-          setStudyPlans(JSON.parse(saved));
-        }
-        return;
-      }
-
-      if (data) {
-        setStudyPlans(data);
-      }
-    } catch (err) {
-      console.error('Error fetching study plans:', err);
-      // Fallback to localStorage
       const saved = localStorage.getItem(`study_plans_${user.id}`);
       if (saved) {
         setStudyPlans(JSON.parse(saved));
       }
+    } catch (err) {
+      console.error('Error fetching study plans:', err);
     }
   }, [user?.id]);
 
-  // Fetch sessions from Supabase
+  // Fetch sessions from localStorage
   const fetchSessions = useCallback(async () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
-        .from('study_sessions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('scheduled_date', { ascending: true });
-
-      if (error) {
-        console.log('Sessions table not found, using local storage fallback');
-        const saved = localStorage.getItem(`study_sessions_${user.id}`);
-        if (saved) {
-          setSessions(JSON.parse(saved));
-        }
-        return;
-      }
-
-      if (data) {
-        setSessions(data);
-      }
-    } catch (err) {
-      console.error('Error fetching sessions:', err);
       const saved = localStorage.getItem(`study_sessions_${user.id}`);
       if (saved) {
         setSessions(JSON.parse(saved));
       }
+    } catch (err) {
+      console.error('Error fetching sessions:', err);
     }
   }, [user?.id]);
 
@@ -191,27 +158,20 @@ export const StudyPlanManager = () => {
         updated_at: new Date().toISOString()
       };
 
-      // Try to insert into Supabase
-      const { error } = await supabase
-        .from('user_study_plans')
-        .insert(plan);
-
-      if (error) {
-        console.log('Supabase insert failed, saving locally:', error);
-      }
-
-      // Update local state
+      // Save locally only (table doesn't exist)
       const updatedPlans = [...studyPlans, plan];
       setStudyPlans(updatedPlans);
       saveToLocalStorage(updatedPlans, sessions);
 
-      // Log activity and add XP
+      // Log activity and add points
       logActivity({
         activity_type: 'study',
         metadata: { action: 'create_study_plan', plan_id: plan.id }
       });
-      addXP(25, 'Plan d\'étude créé');
-      incrementProgress('plans_created');
+      
+      if (user?.id) {
+        await addPoints(user.id, 'itemReviewed');
+      }
 
       setNewPlan({
         title: '',
@@ -240,15 +200,7 @@ export const StudyPlanManager = () => {
 
   const updatePlan = async (planId: string, updates: Partial<StudyPlan>) => {
     try {
-      const { error } = await supabase
-        .from('user_study_plans')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', planId);
-
-      if (error) {
-        console.log('Supabase update failed, updating locally');
-      }
-
+      // Update locally only
       const updatedPlans = studyPlans.map(plan =>
         plan.id === planId ? { ...plan, ...updates, updated_at: new Date().toISOString() } : plan
       );
@@ -266,15 +218,7 @@ export const StudyPlanManager = () => {
 
   const deletePlan = async (planId: string) => {
     try {
-      const { error } = await supabase
-        .from('user_study_plans')
-        .delete()
-        .eq('id', planId);
-
-      if (error) {
-        console.log('Supabase delete failed, deleting locally');
-      }
-
+      // Delete locally only
       const updatedPlans = studyPlans.filter(plan => plan.id !== planId);
       const updatedSessions = sessions.filter(session => session.plan_id !== planId);
       setStudyPlans(updatedPlans);
@@ -295,18 +239,7 @@ export const StudyPlanManager = () => {
     if (!session) return;
 
     try {
-      const { error } = await supabase
-        .from('study_sessions')
-        .update({
-          completed: true,
-          completed_date: new Date().toISOString()
-        })
-        .eq('id', sessionId);
-
-      if (error) {
-        console.log('Supabase update failed, updating locally');
-      }
-
+      // Update locally only
       const updatedSessions = sessions.map(s =>
         s.id === sessionId ? { ...s, completed: true, completed_date: new Date().toISOString() } : s
       );
@@ -329,8 +262,9 @@ export const StudyPlanManager = () => {
       saveToLocalStorage(studyPlans, updatedSessions);
 
       // Gamification
-      addXP(15, 'Session d\'étude terminée');
-      incrementProgress('sessions_completed');
+      if (user?.id) {
+        await addPoints(user.id, 'itemReviewed');
+      }
 
       logActivity({
         activity_type: 'study',

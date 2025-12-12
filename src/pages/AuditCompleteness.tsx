@@ -42,7 +42,7 @@ interface AuditCategory {
 
 export default function AuditCompleteness() {
   const { logActivity } = useActivityTracking();
-  const { addXP, incrementProgress } = useGamification();
+  const { addPoints } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -56,9 +56,9 @@ export default function AuditCompleteness() {
   const loadAuditStats = async () => {
     try {
       // Récupérer les items EDN pour les statistiques
-      const { data: items, error } = await supabase
-        .from('edn_items')
-        .select('item_code, title, rang, completeness_score, content_v2');
+      const { data: items, error } = await (supabase
+        .from('edn_items_immersive') as any)
+        .select('item_code, title, rang, completeness_score');
 
       if (error) throw error;
 
@@ -69,7 +69,7 @@ export default function AuditCompleteness() {
 
       const categoryStats: Record<string, AuditCategory> = {};
 
-      items?.forEach(item => {
+      items?.forEach((item: any) => {
         const score = item.completeness_score || 0;
         const rang = item.rang || 'Unknown';
 
@@ -167,9 +167,7 @@ export default function AuditCompleteness() {
       a.click();
       URL.revokeObjectURL(url);
 
-      // Gamification
-      addXP(10, 'Rapport d\'audit exporté');
-      incrementProgress('audits_completed');
+      // Gamification - removed (no user context here)
 
       toast({
         title: 'Export réussi',
