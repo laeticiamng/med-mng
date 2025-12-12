@@ -78,29 +78,37 @@ export const StudyPlanManager = () => {
     init();
   }, [loadStats]);
 
-  // Fetch study plans from localStorage
+  // Fetch study plans from Supabase
   const fetchStudyPlans = useCallback(async () => {
     if (!user?.id) return;
 
     try {
-      const saved = localStorage.getItem(`study_plans_${user.id}`);
-      if (saved) {
-        setStudyPlans(JSON.parse(saved));
-      }
+      const { data, error } = await supabase
+        .from('study_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setStudyPlans((data || []) as unknown as StudyPlan[]);
     } catch (err) {
       console.error('Error fetching study plans:', err);
     }
   }, [user?.id]);
 
-  // Fetch sessions from localStorage
+  // Fetch sessions from Supabase
   const fetchSessions = useCallback(async () => {
     if (!user?.id) return;
 
     try {
-      const saved = localStorage.getItem(`study_sessions_${user.id}`);
-      if (saved) {
-        setSessions(JSON.parse(saved));
-      }
+      const { data, error } = await supabase
+        .from('plan_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('scheduled_date', { ascending: true });
+
+      if (error) throw error;
+      setSessions((data || []) as unknown as StudySession[]);
     } catch (err) {
       console.error('Error fetching sessions:', err);
     }
@@ -113,13 +121,6 @@ export const StudyPlanManager = () => {
     }
   }, [user?.id, fetchStudyPlans, fetchSessions]);
 
-  // Save to localStorage as backup
-  const saveToLocalStorage = useCallback((plans: StudyPlan[], userSessions: StudySession[]) => {
-    if (user?.id) {
-      localStorage.setItem(`study_plans_${user.id}`, JSON.stringify(plans));
-      localStorage.setItem(`study_sessions_${user.id}`, JSON.stringify(userSessions));
-    }
-  }, [user?.id]);
 
   const createStudyPlan = async () => {
     if (!newPlan.title || !newPlan.target_date) {
@@ -143,30 +144,27 @@ export const StudyPlanManager = () => {
     setIsSaving(true);
 
     try {
-      const plan: StudyPlan = {
-        id: `plan_${Date.now()}`,
-        user_id: user.id,
-        title: newPlan.title,
-        description: newPlan.description,
-        target_date: newPlan.target_date,
-        priority: newPlan.priority,
-        total_sessions: newPlan.total_sessions,
-        status: 'active',
-        progress: 0,
-        sessions_completed: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      const { data, error } = await supabase
+        .from('study_plans')
+        .insert({
+          user_id: user.id,
+          title: newPlan.title,
+          description: newPlan.description,
+          target_date: newPlan.target_date,
+          priority: newPlan.priority,
+          total_sessions: newPlan.total_sessions
+        })
+        .select()
+        .single();
 
-      // Save locally only (table doesn't exist)
-      const updatedPlans = [...studyPlans, plan];
-      setStudyPlans(updatedPlans);
-      saveToLocalStorage(updatedPlans, sessions);
+      if (error) throw error;
+
+      setStudyPlans(prev => [data as unknown as StudyPlan, ...prev]);
 
       // Log activity and add points
       logActivity({
         activity_type: 'study',
-        metadata: { action: 'create_study_plan', plan_id: plan.id }
+        metadata: { action: 'create_study_plan', plan_id: data.id }
       });
       
       if (user?.id) {
@@ -200,12 +198,16 @@ export const StudyPlanManager = () => {
 
   const updatePlan = async (planId: string, updates: Partial<StudyPlan>) => {
     try {
-      // Update locally only
-      const updatedPlans = studyPlans.map(plan =>
+      const { error } = await supabase
+        .from('study_plans')
+        .update(updates)
+        .eq('id', planId);
+
+      if (error) throw error;
+
+      setStudyPlans(prev => prev.map(plan =>
         plan.id === planId ? { ...plan, ...updates, updated_at: new Date().toISOString() } : plan
-      );
-      setStudyPlans(updatedPlans);
-      saveToLocalStorage(updatedPlans, sessions);
+      ));
 
       toast({
         title: 'Plan mis à jour',
@@ -218,12 +220,15 @@ export const StudyPlanManager = () => {
 
   const deletePlan = async (planId: string) => {
     try {
-      // Delete locally only
-      const updatedPlans = studyPlans.filter(plan => plan.id !== planId);
-      const updatedSessions = sessions.filter(session => session.plan_id !== planId);
-      setStudyPlans(updatedPlans);
-      setSessions(updatedSessions);
-      saveToLocalStorage(updatedPlans, updatedSessions);
+      const { error } = await supabase
+        .from('study_plans')
+        .delete()
+        .eq('id', planId);
+
+      if (error) throw error;
+
+      setStudyPlans(prev => prev.filter(plan => plan.id !== planId));
+      setSessions(prev => prev.filter(session => session.plan_id !== planId));
 
       toast({
         title: 'Plan supprimé',
@@ -239,7 +244,13 @@ export const StudyPlanManager = () => {
     if (!session) return;
 
     try {
-      // Update locally only
+      const { error } = await supabase
+        .from('plan_sessions')
+        .update({ completed: true, completed_date: new Date().toISOString() })
+        .eq('id', sessionId);
+
+      if (error) throw error;
+
       const updatedSessions = sessions.map(s =>
         s.id === sessionId ? { ...s, completed: true, completed_date: new Date().toISOString() } : s
       );
@@ -258,8 +269,6 @@ export const StudyPlanManager = () => {
           status: progress >= 100 ? 'completed' : 'active'
         });
       }
-
-      saveToLocalStorage(studyPlans, updatedSessions);
 
       // Gamification
       if (user?.id) {
