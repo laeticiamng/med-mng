@@ -58,14 +58,14 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
 
         console.log(`✅ ${data?.length || 0} compétences OIC BACKUP récupérées pour ${itemCode} rang ${rang}`);
         
-        // Toutes les compétences de backup_oic_competences sont authentiques
-        const realCompetences = data?.filter(comp => {
-          // Garder toutes les compétences qui ont un contenu valide
-          return comp.objectif_id && 
-                 comp.intitule && 
-                 comp.description && 
-                 comp.description.trim().length > 5;
-        }) || [];
+        // Garder toutes les compétences avec objectif_id et intitule (description optionnelle)
+        const realCompetences = (data || [])
+          .filter(comp => comp.objectif_id && comp.intitule)
+          .map(comp => ({
+            ...comp,
+            // Utiliser intitule comme description si description absente
+            description: comp.description || comp.intitule
+          }));
 
         console.log(`🎯 ${realCompetences.length} compétences VALIDES après filtrage`);
         setCompetences(realCompetences);
