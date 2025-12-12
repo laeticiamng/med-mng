@@ -173,6 +173,163 @@ export function useCache<T = any>(namespace = 'app-cache') {
     return () => clearInterval(cleanupInterval);
   }, [namespace]);
 
+  // Get multiple items
+  const getMultiple = useCallback(<K extends T>(keyList: string[]): Record<string, K | null> => {
+    const result: Record<string, K | null> = {};
+    keyList.forEach(key => {
+      result[key] = get<K>(key);
+    });
+    return result;
+  }, [get]);
+
+  // Set multiple items
+  const setMultiple = useCallback(<K extends T>(
+    items: Record<string, K>,
+    options: CacheOptions = {}
+  ) => {
+    Object.entries(items).forEach(([key, value]) => {
+      set(key, value as any, options);
+    });
+  }, [set]);
+
+  // Get or set (fetch if not in cache)
+  const getOrSet = useCallback(async <K extends T>(
+    key: string,
+    fetcher: () => Promise<K>,
+    options: CacheOptions = {}
+  ): Promise<K> => {
+    const cached = get<K>(key);
+    if (cached !== null) return cached;
+
+    const data = await fetcher();
+    set(key, data as any, options);
+    return data;
+  }, [get, set]);
+
+  // Update existing item
+  const update = useCallback(<K extends T>(
+    key: string,
+    updater: (current: K | null) => K
+  ) => {
+    const current = get<K>(key);
+    const updated = updater(current);
+    set(key, updated as any);
+  }, [get, set]);
+
+  // Touch (refresh TTL)
+  const touch = useCallback((key: string, options: CacheOptions = {}) => {
+    const item = get(key);
+    if (item !== null) {
+      set(key, item, options);
+    }
+  }, [get, set]);
+
+  // Get all items
+  const getAll = useCallback((): Record<string, T> => {
+    const result: Record<string, T> = {};
+    cache.forEach((item, key) => {
+      if (item.expiresAt > Date.now()) {
+        result[key] = item.data;
+      }
+    });
+    return result;
+  }, [cache]);
+
+  // Find keys by pattern
+  const findKeys = useCallback((pattern: RegExp): string[] => {
+    return Array.from(cache.keys()).filter(key => pattern.test(key));
+  }, [cache]);
+
+  // Remove by pattern
+  const removeByPattern = useCallback((pattern: RegExp) => {
+    const keysToRemove = findKeys(pattern);
+    keysToRemove.forEach(key => remove(key));
+    return keysToRemove.length;
+  }, [findKeys, remove]);
+
+  // Get cache age for a key
+  const getAge = useCallback((key: string): number | null => {
+    const item = cache.get(key);
+    if (!item) return null;
+    return Date.now() - item.timestamp;
+  }, [cache]);
+
+  // Get remaining TTL
+  const getRemainingTTL = useCallback((key: string): number | null => {
+    const item = cache.get(key);
+    if (!item) return null;
+    const remaining = item.expiresAt - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }, [cache]);
+
+  // Export cache as JSON
+  const exportCache = useCallback((): string => {
+    const exportData: Record<string, any> = {};
+    cache.forEach((item, key) => {
+      if (item.expiresAt > Date.now()) {
+        exportData[key] = {
+          data: item.data,
+          timestamp: item.timestamp,
+          expiresAt: item.expiresAt
+        };
+      }
+    });
+    return JSON.stringify({
+      namespace,
+      exportedAt: new Date().toISOString(),
+      itemCount: Object.keys(exportData).length,
+      items: exportData
+    }, null, 2);
+  }, [cache, namespace]);
+
+  // Import cache from JSON
+  const importCache = useCallback((jsonData: string, options: CacheOptions = {}) => {
+    try {
+      const data = JSON.parse(jsonData);
+      if (data.items) {
+        Object.entries(data.items).forEach(([key, item]: [string, any]) => {
+          if (item.expiresAt > Date.now()) {
+            set(key, item.data, options);
+          }
+        });
+      }
+      return true;
+    } catch (error) {
+      console.error('Error importing cache:', error);
+      return false;
+    }
+  }, [set]);
+
+  // Get expired count
+  const getExpiredCount = useCallback((): number => {
+    const now = Date.now();
+    return Array.from(cache.values()).filter(item => item.expiresAt <= now).length;
+  }, [cache]);
+
+  // Prune expired items
+  const prune = useCallback((): number => {
+    const now = Date.now();
+    let pruned = 0;
+    cache.forEach((item, key) => {
+      if (item.expiresAt <= now) {
+        remove(key);
+        pruned++;
+      }
+    });
+    return pruned;
+  }, [cache, remove]);
+
+  // Get total memory estimate (rough)
+  const getMemoryEstimate = useCallback((): number => {
+    let bytes = 0;
+    cache.forEach((item, key) => {
+      bytes += key.length * 2; // UTF-16
+      bytes += JSON.stringify(item.data).length * 2;
+      bytes += 16; // timestamps
+    });
+    return bytes;
+  }, [cache]);
+
   return {
     set,
     get,
@@ -181,6 +338,21 @@ export function useCache<T = any>(namespace = 'app-cache') {
     has,
     keys,
     size,
-    getStats
+    getStats,
+    getMultiple,
+    setMultiple,
+    getOrSet,
+    update,
+    touch,
+    getAll,
+    findKeys,
+    removeByPattern,
+    getAge,
+    getRemainingTTL,
+    exportCache,
+    importCache,
+    getExpiredCount,
+    prune,
+    getMemoryEstimate
   };
 }
