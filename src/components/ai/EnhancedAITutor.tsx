@@ -80,42 +80,99 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
     }
   }, [messages]);
 
+  // Load conversations from Supabase
   useEffect(() => {
-    // Load conversations from localStorage
-    const stored = localStorage.getItem('ai_tutor_conversations');
-    if (stored) {
-      setConversations(JSON.parse(stored));
-    }
+    const loadConversations = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('chat_conversations')
+        .select('id, title, created_at, updated_at, last_message')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(20);
+
+      if (data) {
+        const mapped: Conversation[] = data.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          messages: [],
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+        }));
+        setConversations(mapped);
+      }
+    };
+    loadConversations();
   }, []);
 
-  const saveConversations = (convs: Conversation[]) => {
+  const saveConversations = async (convs: Conversation[]) => {
     setConversations(convs);
-    localStorage.setItem('ai_tutor_conversations', JSON.stringify(convs));
+    // Supabase is the source of truth now, no localStorage needed
   };
 
-  const startNewConversation = () => {
+  const startNewConversation = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const title = itemContext ? `Item ${itemContext.itemCode}` : 'Nouvelle conversation';
+    
+    const { data, error } = await supabase
+      .from('chat_conversations')
+      .insert({
+        user_id: user.id,
+        title,
+      } as any)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating conversation:', error);
+      return;
+    }
+
     const newConv: Conversation = {
-      id: Date.now().toString(),
-      title: itemContext ? `Item ${itemContext.itemCode}` : 'Nouvelle conversation',
+      id: data.id,
+      title: data.title,
       messages: [],
       itemContext,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
     setCurrentConversationId(newConv.id);
     setMessages([]);
-    saveConversations([newConv, ...conversations]);
+    setConversations([newConv, ...conversations]);
   };
 
-  const loadConversation = (conv: Conversation) => {
+  const loadConversation = async (conv: Conversation) => {
     setCurrentConversationId(conv.id);
-    setMessages(conv.messages);
-    setShowQuickPrompts(conv.messages.length === 0);
+    
+    // Load messages from Supabase
+    const { data: messagesData } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('conversation_id', conv.id)
+      .order('created_at', { ascending: true });
+
+    const loadedMessages: Message[] = (messagesData || []).map((m: any) => ({
+      role: m.sender as 'user' | 'assistant',
+      content: m.text,
+      timestamp: m.created_at,
+    }));
+
+    setMessages(loadedMessages);
+    setShowQuickPrompts(loadedMessages.length === 0);
   };
 
-  const deleteConversation = (convId: string) => {
+  const deleteConversation = async (convId: string) => {
+    // Delete messages first
+    await supabase.from('chat_messages').delete().eq('conversation_id', convId);
+    // Then delete conversation
+    await supabase.from('chat_conversations').delete().eq('id', convId);
+    
     const updated = conversations.filter(c => c.id !== convId);
-    saveConversations(updated);
+    setConversations(updated);
     if (currentConversationId === convId) {
       setMessages([]);
       setCurrentConversationId(null);
@@ -227,8 +284,33 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
         await checkAndUnlockBadges(user.id);
       }
       
-      // Update conversation in storage
+      // Save messages to Supabase
       if (currentConversationId) {
+        // Save user message
+        await supabase.from('chat_messages').insert({
+          conversation_id: currentConversationId,
+          sender: 'user',
+          text: messageText.trim(),
+        } as any);
+
+        // Save assistant message
+        await supabase.from('chat_messages').insert({
+          conversation_id: currentConversationId,
+          sender: 'assistant',
+          text: assistantContent,
+        } as any);
+
+        // Update conversation title if first message
+        const conv = conversations.find(c => c.id === currentConversationId);
+        if (conv && conv.messages.length === 0) {
+          await supabase.from('chat_conversations').update({
+            title: messageText.slice(0, 30) + '...',
+            last_message: assistantContent.slice(0, 100),
+            updated_at: new Date().toISOString(),
+          } as any).eq('id', currentConversationId);
+        }
+
+        // Update local state
         const updated = conversations.map(c => 
           c.id === currentConversationId 
             ? { 
@@ -239,7 +321,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
               }
             : c
         );
-        saveConversations(updated);
+        setConversations(updated);
       }
     } catch (error) {
       console.error('AI Tutor error:', error);
