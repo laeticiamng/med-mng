@@ -44,7 +44,7 @@ export const getHealthMessage = () => 'Med-MNG API running';
 async function checkSupabaseHealth(): Promise<ServiceHealth> {
   const start = performance.now();
   try {
-    const { error } = await supabase.from('edn_items').select('count').limit(1).single();
+    const { error } = await (supabase.from('edn_items_immersive') as any).select('id').limit(1);
     const responseTime = performance.now() - start;
 
     return {
@@ -226,7 +226,7 @@ export async function getSystemHealth(): Promise<HealthCheckResult> {
 // Vérification rapide (ping)
 export async function quickHealthCheck(): Promise<boolean> {
   try {
-    const { error } = await supabase.from('edn_items').select('count').limit(1);
+    const { error } = await (supabase.from('edn_items_immersive') as any).select('id').limit(1);
     return !error;
   } catch {
     return false;

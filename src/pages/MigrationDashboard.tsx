@@ -238,8 +238,7 @@ export default function MigrationDashboardPage() {
       a.click();
       URL.revokeObjectURL(url);
 
-      addXP(10, 'Rapport de migration exporté');
-      incrementProgress('exports_completed');
+      // Gamification - removed (no user context here)
 
       toast({
         title: 'Export réussi',
