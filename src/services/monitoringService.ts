@@ -85,7 +85,7 @@ class MonitoringService {
         await notifyIncident({
           type: 'BACKEND_ERROR',
           message: `System health check failed: ${health.status}`,
-          details: health
+          details: health as unknown as Record<string, unknown>
         });
       }
 

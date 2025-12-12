@@ -379,13 +379,10 @@ export async function acknowledgeAlert(
   try {
     const now = new Date().toISOString();
 
-    const { error } = await supabase
-      .from('alerts')
+    const { error } = await (supabase
+      .from('unified_alerts') as any)
       .update({
         status: 'acknowledged',
-        acknowledged_by: userId,
-        acknowledged_at: now,
-        notes: notes ? [notes] : [],
         updated_at: now
       })
       .eq('id', alertId);
@@ -421,11 +418,10 @@ export async function resolveAlert(
   try {
     const now = new Date().toISOString();
 
-    const { error } = await supabase
-      .from('alerts')
+    const { error } = await (supabase
+      .from('unified_alerts') as any)
       .update({
         status: 'resolved',
-        resolved_by: userId,
         resolved_at: now,
         updated_at: now
       })
@@ -465,8 +461,8 @@ export async function getAlerts(filter?: {
   limit?: number;
 }): Promise<Alert[]> {
   try {
-    let query = supabase
-      .from('alerts')
+    let query = (supabase
+      .from('unified_alerts') as any)
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -477,7 +473,7 @@ export async function getAlerts(filter?: {
       query = query.eq('severity', filter.severity);
     }
     if (filter?.type) {
-      query = query.eq('incident_type', filter.type);
+      query = query.eq('alert_type', filter.type);
     }
     if (filter?.startDate) {
       query = query.gte('created_at', filter.startDate);
@@ -496,11 +492,11 @@ export async function getAlerts(filter?: {
       return alertHistory;
     }
 
-    return (data || []).map(row => ({
+    return (data || []).map((row: any) => ({
       id: row.id,
       incident: {
-        type: row.incident_type as IncidentType,
-        message: row.message,
+        type: row.alert_type as IncidentType,
+        message: row.title || row.message,
         details: row.details,
         severity: row.severity as AlertSeverity,
         source: row.source,
@@ -530,7 +526,7 @@ export async function getAlertStats(
   endDate?: string
 ): Promise<AlertStats | null> {
   try {
-    let query = supabase.from('alerts').select('*');
+    let query = (supabase.from('unified_alerts') as any).select('*');
 
     if (startDate) {
       query = query.gte('created_at', startDate);
@@ -565,10 +561,10 @@ export async function getAlertStats(
     let totalResolutionTime = 0;
     let resolvedCount = 0;
 
-    for (const row of data) {
+    for (const row of data as any[]) {
       const status = row.status as AlertStatus;
       const severity = row.severity as AlertSeverity;
-      const type = row.incident_type;
+      const type = row.alert_type;
 
       if (status in byStatus) byStatus[status]++;
       if (severity in bySeverity) bySeverity[severity]++;
@@ -601,17 +597,17 @@ export async function getAlertStats(
 // Ajouter une note à une alerte
 export async function addAlertNote(alertId: string, note: string): Promise<boolean> {
   try {
-    const { data: existing } = await supabase
-      .from('alerts')
+    const { data: existing } = await (supabase
+      .from('unified_alerts') as any)
       .select('notes')
       .eq('id', alertId)
       .single();
 
-    const currentNotes = existing?.notes || [];
+    const currentNotes = (existing as any)?.notes || [];
     const updatedNotes = [...currentNotes, `[${new Date().toISOString()}] ${note}`];
 
-    const { error } = await supabase
-      .from('alerts')
+    const { error } = await (supabase
+      .from('unified_alerts') as any)
       .update({
         notes: updatedNotes,
         updated_at: new Date().toISOString()
@@ -633,16 +629,16 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
 // Escalader une alerte
 export async function escalateAlert(alertId: string): Promise<boolean> {
   try {
-    const { data: existing } = await supabase
-      .from('alerts')
+    const { data: existing } = await (supabase
+      .from('unified_alerts') as any)
       .select('escalation_level')
       .eq('id', alertId)
       .single();
 
-    const newLevel = (existing?.escalation_level || 0) + 1;
+    const newLevel = ((existing as any)?.escalation_level || 0) + 1;
 
-    const { error } = await supabase
-      .from('alerts')
+    const { error } = await (supabase
+      .from('unified_alerts') as any)
       .update({
         escalation_level: newLevel,
         status: 'investigating',
@@ -678,8 +674,8 @@ export async function cleanupOldAlerts(daysToKeep: number = 90): Promise<number>
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-    const { data, error } = await supabase
-      .from('alerts')
+    const { data, error } = await (supabase
+      .from('unified_alerts') as any)
       .delete()
       .lt('created_at', cutoffDate.toISOString())
       .eq('status', 'resolved')
