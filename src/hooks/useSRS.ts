@@ -340,6 +340,232 @@ export const useSRS = () => {
     }
   }, []);
 
+  // Get item progress by item code
+  const getItemProgress = useCallback(async (userId: string, itemCode: string): Promise<UserItemProgress | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_item_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('item_code', itemCode)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data as UserItemProgress | null;
+    } catch (error) {
+      console.error('Error fetching item progress:', error);
+      return null;
+    }
+  }, []);
+
+  // Get all user progress
+  const getAllProgress = useCallback(async (userId: string): Promise<UserItemProgress[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_item_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .order('next_review_date', { ascending: true });
+
+      if (error) throw error;
+      return data as UserItemProgress[];
+    } catch (error) {
+      console.error('Error fetching all progress:', error);
+      return [];
+    }
+  }, []);
+
+  // Reset item progress
+  const resetItemProgress = useCallback(async (userId: string, itemCode: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('user_item_progress')
+        .delete()
+        .eq('user_id', userId)
+        .eq('item_code', itemCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "Progression réinitialisée",
+        description: `L'item ${itemCode} a été réinitialisé`
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error resetting progress:', error);
+      return false;
+    }
+  }, [toast]);
+
+  // Get mastery level for an item
+  const getMasteryLevel = useCallback((progress: UserItemProgress | null): 'new' | 'learning' | 'familiar' | 'mastered' => {
+    if (!progress) return 'new';
+    if (progress.interval_days >= 21) return 'mastered';
+    if (progress.interval_days >= 7) return 'familiar';
+    if (progress.repetitions > 0) return 'learning';
+    return 'new';
+  }, []);
+
+  // Get accuracy for an item
+  const getItemAccuracy = useCallback((progress: UserItemProgress | null): number => {
+    if (!progress || progress.total_reviews === 0) return 0;
+    return Math.round((progress.correct_reviews / progress.total_reviews) * 100);
+  }, []);
+
+  // Predict next interval
+  const predictNextInterval = useCallback((quality: ReviewQuality, progress: Partial<UserItemProgress>): number => {
+    const result = calculateNextReview(quality, progress);
+    return result.newInterval;
+  }, []);
+
+  // Get review forecast
+  const getReviewForecast = useCallback(async (userId: string, days: number = 7): Promise<{ date: string; count: number }[]> => {
+    try {
+      const { data } = await supabase
+        .from('user_item_progress')
+        .select('next_review_date')
+        .eq('user_id', userId);
+
+      if (!data) return [];
+
+      const forecast: Record<string, number> = {};
+      const today = new Date();
+
+      for (let i = 0; i < days; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        forecast[dateStr] = 0;
+      }
+
+      data.forEach(item => {
+        const reviewDate = new Date(item.next_review_date).toISOString().split('T')[0];
+        if (forecast.hasOwnProperty(reviewDate)) {
+          forecast[reviewDate]++;
+        }
+      });
+
+      return Object.entries(forecast).map(([date, count]) => ({ date, count }));
+    } catch (error) {
+      console.error('Error getting forecast:', error);
+      return [];
+    }
+  }, []);
+
+  // Get review sessions history
+  const getSessionHistory = useCallback(async (userId: string, limit: number = 10): Promise<any[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('review_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .not('completed_at', 'is', null)
+        .order('completed_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching session history:', error);
+      return [];
+    }
+  }, []);
+
+  // Get optimal study time recommendation
+  const getOptimalStudyTime = useCallback(async (userId: string): Promise<string> => {
+    const sessions = await getSessionHistory(userId, 30);
+
+    if (sessions.length < 5) return 'Pas assez de données';
+
+    const byHour: Record<number, { count: number; avgScore: number }> = {};
+
+    sessions.forEach(s => {
+      if (s.completed_at && s.items_correct !== undefined) {
+        const hour = new Date(s.completed_at).getHours();
+        if (!byHour[hour]) {
+          byHour[hour] = { count: 0, avgScore: 0 };
+        }
+        byHour[hour].count++;
+        byHour[hour].avgScore += s.items_reviewed > 0 ? (s.items_correct / s.items_reviewed) * 100 : 0;
+      }
+    });
+
+    let bestHour = -1;
+    let bestScore = 0;
+
+    Object.entries(byHour).forEach(([hour, data]) => {
+      const avg = data.avgScore / data.count;
+      if (avg > bestScore) {
+        bestScore = avg;
+        bestHour = parseInt(hour);
+      }
+    });
+
+    if (bestHour === -1) return 'Non déterminé';
+    return `${bestHour}h00 - ${bestHour + 1}h00`;
+  }, [getSessionHistory]);
+
+  // Calculate retention rate
+  const getRetentionRate = useCallback(async (userId: string): Promise<number> => {
+    try {
+      const { data } = await supabase
+        .from('user_item_progress')
+        .select('total_reviews, correct_reviews')
+        .eq('user_id', userId);
+
+      if (!data || data.length === 0) return 0;
+
+      const totalReviews = data.reduce((sum, p) => sum + (p.total_reviews || 0), 0);
+      const correctReviews = data.reduce((sum, p) => sum + (p.correct_reviews || 0), 0);
+
+      if (totalReviews === 0) return 0;
+      return Math.round((correctReviews / totalReviews) * 100);
+    } catch (error) {
+      console.error('Error calculating retention:', error);
+      return 0;
+    }
+  }, []);
+
+  // Get items by mastery level
+  const getItemsByMastery = useCallback(async (userId: string): Promise<{
+    new: string[];
+    learning: string[];
+    familiar: string[];
+    mastered: string[];
+  }> => {
+    const progress = await getAllProgress(userId);
+
+    const result = {
+      new: [] as string[],
+      learning: [] as string[],
+      familiar: [] as string[],
+      mastered: [] as string[]
+    };
+
+    progress.forEach(p => {
+      const level = getMasteryLevel(p);
+      result[level].push(p.item_code);
+    });
+
+    return result;
+  }, [getAllProgress, getMasteryLevel]);
+
+  // Export progress data
+  const exportProgress = useCallback(async (userId: string): Promise<string> => {
+    const progress = await getAllProgress(userId);
+    const sessions = await getSessionHistory(userId, 100);
+    const stats = await getStats(userId);
+
+    return JSON.stringify({
+      exportDate: new Date().toISOString(),
+      userId,
+      stats,
+      progress,
+      sessions: sessions.slice(0, 50)
+    }, null, 2);
+  }, [getAllProgress, getSessionHistory, getStats]);
+
   return {
     loading,
     stats,
@@ -349,6 +575,18 @@ export const useSRS = () => {
     getStats,
     startSession,
     completeSession,
-    calculateNextReview
+    calculateNextReview,
+    getItemProgress,
+    getAllProgress,
+    resetItemProgress,
+    getMasteryLevel,
+    getItemAccuracy,
+    predictNextInterval,
+    getReviewForecast,
+    getSessionHistory,
+    getOptimalStudyTime,
+    getRetentionRate,
+    getItemsByMastery,
+    exportProgress
   };
 };

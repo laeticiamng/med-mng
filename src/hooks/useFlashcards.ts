@@ -501,6 +501,310 @@ export const useFlashcards = () => {
     }
   }, []);
 
+  // Update an existing card
+  const updateCard = useCallback(async (
+    cardId: string,
+    updates: Partial<Pick<Flashcard, 'front' | 'back' | 'tags' | 'difficulty'>>
+  ): Promise<boolean> => {
+    try {
+      const updateData: any = {};
+      if (updates.front) updateData.front_content = updates.front;
+      if (updates.back) updateData.back_content = updates.back;
+      if (updates.tags) updateData.tags = updates.tags;
+      if (updates.difficulty) updateData.difficulty = updates.difficulty;
+
+      const { error } = await supabase
+        .from('flashcards')
+        .update(updateData)
+        .eq('id', cardId);
+
+      if (error) throw error;
+
+      setCards(prev => prev.map(c =>
+        c.id === cardId ? { ...c, ...updates } : c
+      ));
+
+      toast({
+        title: "Carte mise à jour",
+        description: "Les modifications ont été enregistrées"
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error updating card:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la carte",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [toast]);
+
+  // Duplicate a deck with all its cards
+  const duplicateDeck = useCallback(async (
+    deckId: string,
+    userId: string,
+    newName?: string
+  ): Promise<FlashcardDeck | null> => {
+    try {
+      const originalDeck = decks.find(d => d.id === deckId);
+      if (!originalDeck) return null;
+
+      // Create new deck
+      const newDeck = await createDeck(
+        userId,
+        newName || `${originalDeck.name} (copie)`,
+        originalDeck.description,
+        originalDeck.category,
+        originalDeck.color,
+        originalDeck.icon
+      );
+
+      if (!newDeck) return null;
+
+      // Copy all cards
+      const originalCards = await loadCards(deckId);
+      for (const card of originalCards) {
+        await addCard(
+          newDeck.id,
+          card.front,
+          card.back,
+          card.tags,
+          card.itemCode,
+          card.difficulty
+        );
+      }
+
+      toast({
+        title: "Deck dupliqué",
+        description: `${originalCards.length} cartes copiées`
+      });
+
+      return newDeck;
+    } catch (error) {
+      console.error('Error duplicating deck:', error);
+      return null;
+    }
+  }, [decks, createDeck, loadCards, addCard, toast]);
+
+  // Export deck to JSON
+  const exportDeck = useCallback(async (deckId: string): Promise<string | null> => {
+    try {
+      const deck = decks.find(d => d.id === deckId);
+      if (!deck) return null;
+
+      const deckCards = await loadCards(deckId);
+
+      const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        deck: {
+          name: deck.name,
+          description: deck.description,
+          category: deck.category,
+          color: deck.color,
+          icon: deck.icon
+        },
+        cards: deckCards.map(c => ({
+          front: c.front,
+          back: c.back,
+          tags: c.tags,
+          difficulty: c.difficulty
+        }))
+      };
+
+      return JSON.stringify(exportData, null, 2);
+    } catch (error) {
+      console.error('Error exporting deck:', error);
+      return null;
+    }
+  }, [decks, loadCards]);
+
+  // Import deck from JSON
+  const importDeck = useCallback(async (
+    userId: string,
+    jsonData: string
+  ): Promise<FlashcardDeck | null> => {
+    try {
+      const data = JSON.parse(jsonData);
+
+      if (!data.deck || !data.cards) {
+        throw new Error('Format de fichier invalide');
+      }
+
+      const newDeck = await createDeck(
+        userId,
+        data.deck.name,
+        data.deck.description || '',
+        data.deck.category || 'general',
+        data.deck.color,
+        data.deck.icon
+      );
+
+      if (!newDeck) return null;
+
+      for (const card of data.cards) {
+        await addCard(
+          newDeck.id,
+          card.front,
+          card.back,
+          card.tags || [],
+          undefined,
+          card.difficulty || 'medium'
+        );
+      }
+
+      toast({
+        title: "Deck importé",
+        description: `${data.cards.length} cartes importées`
+      });
+
+      return newDeck;
+    } catch (error) {
+      console.error('Error importing deck:', error);
+      toast({
+        title: "Erreur d'import",
+        description: "Le fichier n'est pas valide",
+        variant: "destructive"
+      });
+      return null;
+    }
+  }, [createDeck, addCard, toast]);
+
+  // Search cards in current deck
+  const searchCards = useCallback((query: string): Flashcard[] => {
+    if (!query.trim()) return cards;
+
+    const queryLower = query.toLowerCase();
+    return cards.filter(c =>
+      c.front.toLowerCase().includes(queryLower) ||
+      c.back.toLowerCase().includes(queryLower) ||
+      c.tags.some(t => t.toLowerCase().includes(queryLower))
+    );
+  }, [cards]);
+
+  // Get cards due for review (SRS logic)
+  const getDueCards = useCallback((deckId?: string): Flashcard[] => {
+    const targetCards = deckId ? cards.filter(c => c.deckId === deckId) : cards;
+    const now = new Date();
+
+    return targetCards.filter(card => {
+      if (!card.lastReviewed) return true; // Never reviewed
+
+      const lastReview = new Date(card.lastReviewed);
+      const accuracy = card.reviewCount > 0
+        ? card.correctCount / card.reviewCount
+        : 0.5;
+
+      // Calculate interval based on accuracy and difficulty
+      let intervalDays = 1;
+      if (accuracy >= 0.9) intervalDays = card.difficulty === 'easy' ? 7 : card.difficulty === 'medium' ? 5 : 3;
+      else if (accuracy >= 0.7) intervalDays = card.difficulty === 'easy' ? 4 : card.difficulty === 'medium' ? 3 : 2;
+      else intervalDays = 1;
+
+      const dueDate = new Date(lastReview);
+      dueDate.setDate(dueDate.getDate() + intervalDays);
+
+      return now >= dueDate;
+    });
+  }, [cards]);
+
+  // Shuffle cards for review
+  const shuffleCards = useCallback((cardsToShuffle: Flashcard[]): Flashcard[] => {
+    const shuffled = [...cardsToShuffle];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, []);
+
+  // Get card accuracy
+  const getCardAccuracy = useCallback((cardId: string): number => {
+    const card = cards.find(c => c.id === cardId);
+    if (!card || card.reviewCount === 0) return 0;
+    return Math.round((card.correctCount / card.reviewCount) * 100);
+  }, [cards]);
+
+  // Get deck progress
+  const getDeckProgress = useCallback((deckId: string): {
+    totalCards: number;
+    masteredCards: number;
+    dueCards: number;
+    averageAccuracy: number;
+  } => {
+    const deckCards = cards.filter(c => c.deckId === deckId);
+    const dueCards = getDueCards(deckId);
+
+    const masteredCards = deckCards.filter(c =>
+      c.reviewCount >= 3 && (c.correctCount / c.reviewCount) >= 0.8
+    );
+
+    const totalReviews = deckCards.reduce((sum, c) => sum + c.reviewCount, 0);
+    const totalCorrect = deckCards.reduce((sum, c) => sum + c.correctCount, 0);
+    const avgAccuracy = totalReviews > 0 ? Math.round((totalCorrect / totalReviews) * 100) : 0;
+
+    return {
+      totalCards: deckCards.length,
+      masteredCards: masteredCards.length,
+      dueCards: dueCards.length,
+      averageAccuracy: avgAccuracy
+    };
+  }, [cards, getDueCards]);
+
+  // Bulk add cards
+  const bulkAddCards = useCallback(async (
+    deckId: string,
+    cardsData: Array<{ front: string; back: string; tags?: string[]; difficulty?: 'easy' | 'medium' | 'hard' }>
+  ): Promise<Flashcard[]> => {
+    const addedCards: Flashcard[] = [];
+
+    for (const cardData of cardsData) {
+      const card = await addCard(
+        deckId,
+        cardData.front,
+        cardData.back,
+        cardData.tags || [],
+        undefined,
+        cardData.difficulty || 'medium'
+      );
+      if (card) addedCards.push(card);
+    }
+
+    toast({
+      title: "Cartes ajoutées",
+      description: `${addedCards.length} cartes créées`
+    });
+
+    return addedCards;
+  }, [addCard, toast]);
+
+  // Get review history for a card
+  const getReviewHistory = useCallback(async (cardId: string): Promise<{
+    date: string;
+    wasCorrect: boolean;
+  }[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('flashcard_reviews')
+        .select('reviewed_at, was_correct')
+        .eq('flashcard_id', cardId)
+        .order('reviewed_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+
+      return (data || []).map(r => ({
+        date: r.reviewed_at,
+        wasCorrect: r.was_correct
+      }));
+    } catch (error) {
+      console.error('Error getting review history:', error);
+      return [];
+    }
+  }, []);
+
   return {
     loading,
     decks,
@@ -512,8 +816,19 @@ export const useFlashcards = () => {
     loadCards,
     addCard,
     deleteCard,
+    updateCard,
     generateFromItem,
     recordReview,
-    getStats
+    getStats,
+    duplicateDeck,
+    exportDeck,
+    importDeck,
+    searchCards,
+    getDueCards,
+    shuffleCards,
+    getCardAccuracy,
+    getDeckProgress,
+    bulkAddCards,
+    getReviewHistory
   };
 };

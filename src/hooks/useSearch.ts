@@ -208,6 +208,176 @@ export function useSearch() {
     localStorage.setItem('search-history', JSON.stringify(searchHistory));
   });
 
+  // Advanced filter search
+  const searchWithFilters = useCallback(async (
+    query: string,
+    filters: SearchFilters
+  ): Promise<SearchResult[]> => {
+    await search(query, filters, { limit: 50, sortBy: 'relevance' });
+    return results;
+  }, [search, results]);
+
+  // Search in specific category
+  const searchInCategory = useCallback(async (
+    query: string,
+    category: string
+  ): Promise<SearchResult[]> => {
+    await search(query, { category }, { limit: 20 });
+    return results;
+  }, [search, results]);
+
+  // Get search analytics
+  const getSearchAnalytics = useCallback((): {
+    totalSearches: number;
+    uniqueQueries: number;
+    averageResultsPerSearch: number;
+    topCategories: string[];
+  } => {
+    const uniqueQueries = new Set(searchHistory).size;
+
+    return {
+      totalSearches: searchHistory.length,
+      uniqueQueries,
+      averageResultsPerSearch: results.length,
+      topCategories: results.slice(0, 5).map(r => r.category)
+    };
+  }, [searchHistory, results]);
+
+  // Highlight search terms in text
+  const highlightSearchTerms = useCallback((text: string, query: string): string => {
+    if (!query.trim()) return text;
+
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+    let highlighted = text;
+
+    terms.forEach(term => {
+      const regex = new RegExp(`(${term})`, 'gi');
+      highlighted = highlighted.replace(regex, '<mark>$1</mark>');
+    });
+
+    return highlighted;
+  }, []);
+
+  // Filter results locally
+  const filterResults = useCallback((
+    filterFn: (result: SearchResult) => boolean
+  ): SearchResult[] => {
+    return results.filter(filterFn);
+  }, [results]);
+
+  // Sort results
+  const sortResults = useCallback((
+    sortBy: 'relevance' | 'date' | 'rating' | 'title',
+    order: 'asc' | 'desc' = 'desc'
+  ): SearchResult[] => {
+    const sorted = [...results];
+
+    switch (sortBy) {
+      case 'relevance':
+        sorted.sort((a, b) => order === 'desc'
+          ? b.relevanceScore - a.relevanceScore
+          : a.relevanceScore - b.relevanceScore);
+        break;
+      case 'date':
+        sorted.sort((a, b) => order === 'desc'
+          ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      case 'rating':
+        sorted.sort((a, b) => order === 'desc'
+          ? (b.rating || 0) - (a.rating || 0)
+          : (a.rating || 0) - (b.rating || 0));
+        break;
+      case 'title':
+        sorted.sort((a, b) => order === 'asc'
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title));
+        break;
+    }
+
+    return sorted;
+  }, [results]);
+
+  // Get results grouped by category
+  const getResultsByCategory = useCallback((): Record<string, SearchResult[]> => {
+    return results.reduce((acc, result) => {
+      if (!acc[result.category]) {
+        acc[result.category] = [];
+      }
+      acc[result.category].push(result);
+      return acc;
+    }, {} as Record<string, SearchResult[]>);
+  }, [results]);
+
+  // Save search for later
+  const saveSearch = useCallback((query: string, name?: string) => {
+    const savedSearches = JSON.parse(localStorage.getItem('saved-searches') || '[]');
+    savedSearches.push({
+      query,
+      name: name || query,
+      savedAt: new Date().toISOString()
+    });
+    localStorage.setItem('saved-searches', JSON.stringify(savedSearches));
+  }, []);
+
+  // Get saved searches
+  const getSavedSearches = useCallback((): { query: string; name: string; savedAt: string }[] => {
+    return JSON.parse(localStorage.getItem('saved-searches') || '[]');
+  }, []);
+
+  // Delete saved search
+  const deleteSavedSearch = useCallback((query: string) => {
+    const savedSearches = JSON.parse(localStorage.getItem('saved-searches') || '[]');
+    const filtered = savedSearches.filter((s: any) => s.query !== query);
+    localStorage.setItem('saved-searches', JSON.stringify(filtered));
+  }, []);
+
+  // Export search results
+  const exportResults = useCallback((format: 'json' | 'csv' = 'json'): string => {
+    if (format === 'csv') {
+      const headers = 'Title,Category,Description,URL,Rating\n';
+      const rows = results.map(r =>
+        `"${r.title}","${r.category}","${r.description}","${r.url}",${r.rating || ''}`
+      ).join('\n');
+      return headers + rows;
+    }
+
+    return JSON.stringify(results, null, 2);
+  }, [results]);
+
+  // Get search stats
+  const getSearchStats = useCallback(() => {
+    const categories = new Map<string, number>();
+    const ratings = { high: 0, medium: 0, low: 0 };
+
+    results.forEach(r => {
+      categories.set(r.category, (categories.get(r.category) || 0) + 1);
+      if (r.rating) {
+        if (r.rating >= 4) ratings.high++;
+        else if (r.rating >= 2.5) ratings.medium++;
+        else ratings.low++;
+      }
+    });
+
+    return {
+      totalResults: results.length,
+      categories: Object.fromEntries(categories),
+      ratingDistribution: ratings,
+      averageRating: results.filter(r => r.rating)
+        .reduce((sum, r) => sum + (r.rating || 0), 0) / results.filter(r => r.rating).length || 0
+    };
+  }, [results]);
+
+  // Check if query matches any result
+  const hasResults = useCallback((): boolean => {
+    return results.length > 0;
+  }, [results]);
+
+  // Get result by ID
+  const getResultById = useCallback((id: string): SearchResult | undefined => {
+    return results.find(r => r.id === id);
+  }, [results]);
+
   return {
     results,
     loading,
@@ -223,6 +393,20 @@ export function useSearch() {
     quickSearch,
     searchByTags,
     searchSimilar,
-    getPopularSearches
+    getPopularSearches,
+    searchWithFilters,
+    searchInCategory,
+    getSearchAnalytics,
+    highlightSearchTerms,
+    filterResults,
+    sortResults,
+    getResultsByCategory,
+    saveSearch,
+    getSavedSearches,
+    deleteSavedSearch,
+    exportResults,
+    getSearchStats,
+    hasResults,
+    getResultById
   };
 }
