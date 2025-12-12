@@ -35,7 +35,7 @@ export default function Flashcards() {
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('decks');
-  const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(null);
   const [totalReviews, setTotalReviews] = useState(0);
   
   // New deck form
@@ -74,7 +74,7 @@ export default function Flashcards() {
       }
       setUser(user);
       loadDecks(user.id);
-      setStats(getStats(user.id));
+      getStats(user.id).then(setStats);
     };
     checkAuth();
   }, [navigate, toast, loadDecks, getStats]);
@@ -88,14 +88,14 @@ export default function Flashcards() {
     setNewDeckCategory('');
     setShowNewDeckDialog(false);
     loadDecks(user.id);
-    setStats(getStats(user.id));
+    getStats(user.id).then(setStats);
   };
 
   const handleDeleteDeck = async (deckId: string) => {
     await deleteDeck(deckId);
     if (user) {
       loadDecks(user.id);
-      setStats(getStats(user.id));
+      getStats(user.id).then(setStats);
     }
   };
 
@@ -112,7 +112,7 @@ export default function Flashcards() {
     setNewCardBack('');
     setShowNewCardDialog(false);
     loadCards(currentDeck.id);
-    if (user) setStats(getStats(user.id));
+    if (user) getStats(user.id).then(setStats);
   };
 
   const handleGenerateFromItem = async () => {
@@ -122,7 +122,7 @@ export default function Flashcards() {
     setItemCodeToGenerate('');
     setShowAIDialog(false);
     loadCards(currentDeck.id);
-    if (user) setStats(getStats(user.id));
+    if (user) getStats(user.id).then(setStats);
   };
 
   const handleStartReview = () => {
@@ -183,7 +183,7 @@ export default function Flashcards() {
         await unlockBadge(user.id, 'perfect_exam');
       }
       
-      if (user) setStats(getStats(user.id));
+      if (user) getStats(user.id).then(setStats);
     }
   };
 
