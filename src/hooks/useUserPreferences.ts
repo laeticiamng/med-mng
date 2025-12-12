@@ -244,6 +244,155 @@ export function useUserPreferences() {
     loadPreferences();
   }, [loadPreferences]);
 
+  // Get a specific preference value
+  const getPreference = useCallback(<K extends keyof UserPreferences>(key: K): UserPreferences[K] => {
+    return preferences[key];
+  }, [preferences]);
+
+  // Update a single preference
+  const updatePreference = useCallback(async <K extends keyof UserPreferences>(
+    key: K,
+    value: UserPreferences[K]
+  ) => {
+    await savePreferences({ [key]: value } as Partial<UserPreferences>);
+  }, [savePreferences]);
+
+  // Toggle boolean preferences
+  const togglePreference = useCallback(async (key: keyof Pick<UserPreferences,
+    'animations' | 'highContrast' | 'autoPlay' | 'emailNotifications' |
+    'pushNotifications' | 'soundNotifications' | 'marketingEmails' |
+    'autoSave' | 'compactMode' | 'showTips' | 'autoRefresh' |
+    'keyboardShortcuts' | 'analytics' | 'crashReporting' | 'personalizedContent'
+  >) => {
+    await savePreferences({ [key]: !preferences[key] } as Partial<UserPreferences>);
+  }, [preferences, savePreferences]);
+
+  // Check if preference differs from default
+  const isCustomized = useCallback((key: keyof UserPreferences): boolean => {
+    return preferences[key] !== defaultPreferences[key];
+  }, [preferences]);
+
+  // Get all customized preferences
+  const getCustomizedPreferences = useCallback((): Partial<UserPreferences> => {
+    const customized: Partial<UserPreferences> = {};
+    (Object.keys(preferences) as Array<keyof UserPreferences>).forEach(key => {
+      if (isCustomized(key)) {
+        (customized as any)[key] = preferences[key];
+      }
+    });
+    return customized;
+  }, [preferences, isCustomized]);
+
+  // Get preferences by category
+  const getPreferencesByCategory = useCallback((category: 'appearance' | 'audio' | 'notifications' | 'music' | 'interface' | 'privacy'): Partial<UserPreferences> => {
+    const categoryKeys: Record<string, Array<keyof UserPreferences>> = {
+      appearance: ['theme', 'language', 'fontSize', 'animations', 'highContrast'],
+      audio: ['defaultVolume', 'autoPlay', 'audioQuality'],
+      notifications: ['emailNotifications', 'pushNotifications', 'soundNotifications', 'marketingEmails'],
+      music: ['defaultStyle', 'defaultDuration', 'autoSave', 'qualityPreference'],
+      interface: ['compactMode', 'showTips', 'autoRefresh', 'keyboardShortcuts'],
+      privacy: ['analytics', 'crashReporting', 'personalizedContent']
+    };
+
+    const result: Partial<UserPreferences> = {};
+    categoryKeys[category]?.forEach(key => {
+      (result as any)[key] = preferences[key];
+    });
+    return result;
+  }, [preferences]);
+
+  // Validate preference value
+  const validatePreference = useCallback(<K extends keyof UserPreferences>(
+    key: K,
+    value: UserPreferences[K]
+  ): boolean => {
+    const validators: Partial<Record<keyof UserPreferences, (v: any) => boolean>> = {
+      theme: (v) => ['light', 'dark', 'system'].includes(v),
+      language: (v) => ['fr', 'en', 'es', 'de'].includes(v),
+      fontSize: (v) => ['small', 'medium', 'large'].includes(v),
+      audioQuality: (v) => ['low', 'medium', 'high'].includes(v),
+      qualityPreference: (v) => ['speed', 'balanced', 'quality'].includes(v),
+      defaultVolume: (v) => typeof v === 'number' && v >= 0 && v <= 1,
+      defaultDuration: (v) => typeof v === 'number' && v >= 30 && v <= 600
+    };
+
+    const validator = validators[key];
+    if (!validator) return true;
+    return validator(value);
+  }, []);
+
+  // Get theme-aware class
+  const getThemeClass = useCallback((lightClass: string, darkClass: string): string => {
+    if (preferences.theme === 'dark') return darkClass;
+    if (preferences.theme === 'light') return lightClass;
+    // System theme detection
+    if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return darkClass;
+    return lightClass;
+  }, [preferences.theme]);
+
+  // Check if dark mode is active
+  const isDarkMode = useCallback((): boolean => {
+    if (preferences.theme === 'dark') return true;
+    if (preferences.theme === 'light') return false;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches || false;
+  }, [preferences.theme]);
+
+  // Get font size multiplier
+  const getFontSizeMultiplier = useCallback((): number => {
+    switch (preferences.fontSize) {
+      case 'small': return 0.875;
+      case 'large': return 1.125;
+      default: return 1;
+    }
+  }, [preferences.fontSize]);
+
+  // Sync preferences across tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user-preferences' && e.newValue) {
+        try {
+          const newPrefs = JSON.parse(e.newValue);
+          setPreferences({ ...defaultPreferences, ...newPrefs });
+        } catch {
+          // Ignore invalid JSON
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Get preference description for UI
+  const getPreferenceDescription = useCallback((key: keyof UserPreferences): string => {
+    const descriptions: Record<keyof UserPreferences, string> = {
+      theme: 'Apparence visuelle de l\'application',
+      language: 'Langue de l\'interface',
+      fontSize: 'Taille du texte dans l\'application',
+      animations: 'Activer les animations et transitions',
+      highContrast: 'Mode contraste élevé pour accessibilité',
+      defaultVolume: 'Volume par défaut pour les médias',
+      autoPlay: 'Lecture automatique des médias',
+      audioQuality: 'Qualité de lecture audio',
+      emailNotifications: 'Recevoir des notifications par email',
+      pushNotifications: 'Recevoir des notifications push',
+      soundNotifications: 'Sons pour les notifications',
+      marketingEmails: 'Recevoir les actualités et offres',
+      defaultStyle: 'Style musical par défaut',
+      defaultDuration: 'Durée par défaut des générations',
+      autoSave: 'Sauvegarder automatiquement les créations',
+      qualityPreference: 'Priorité vitesse ou qualité',
+      compactMode: 'Interface condensée',
+      showTips: 'Afficher les conseils et astuces',
+      autoRefresh: 'Actualiser automatiquement les données',
+      keyboardShortcuts: 'Activer les raccourcis clavier',
+      analytics: 'Partager les données d\'utilisation anonymes',
+      crashReporting: 'Envoyer les rapports d\'erreur',
+      personalizedContent: 'Contenu personnalisé basé sur l\'utilisation'
+    };
+    return descriptions[key];
+  }, []);
+
   return {
     preferences,
     loading,
@@ -252,6 +401,18 @@ export function useUserPreferences() {
     resetPreferences,
     exportPreferences,
     importPreferences,
-    loadPreferences
+    loadPreferences,
+    getPreference,
+    updatePreference,
+    togglePreference,
+    isCustomized,
+    getCustomizedPreferences,
+    getPreferencesByCategory,
+    validatePreference,
+    getThemeClass,
+    isDarkMode,
+    getFontSizeMultiplier,
+    getPreferenceDescription,
+    defaultPreferences
   };
 }

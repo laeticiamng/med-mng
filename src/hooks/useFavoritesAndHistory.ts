@@ -213,6 +213,152 @@ export const useFavoritesAndHistory = () => {
     loadData();
   }, []);
 
+  // Get favorites count
+  const getFavoritesCount = (): number => {
+    return favorites.length;
+  };
+
+  // Get history count
+  const getHistoryCount = (): number => {
+    return history.length;
+  };
+
+  // Search in favorites
+  const searchFavorites = (query: string): FavoriteSong[] => {
+    if (!query.trim()) return favorites;
+    const queryLower = query.toLowerCase();
+    return favorites.filter(f =>
+      f.title.toLowerCase().includes(queryLower)
+    );
+  };
+
+  // Get favorite by song ID
+  const getFavorite = (songId: string): FavoriteSong | undefined => {
+    return favorites.find(f => f.song_id === songId);
+  };
+
+  // Sort favorites
+  const sortFavorites = (by: 'date' | 'title', order: 'asc' | 'desc' = 'desc'): FavoriteSong[] => {
+    return [...favorites].sort((a, b) => {
+      if (by === 'date') {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return order === 'desc' ? dateB - dateA : dateA - dateB;
+      } else {
+        return order === 'asc'
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
+    });
+  };
+
+  // Get total listening time
+  const getTotalListeningTime = (): number => {
+    return history.reduce((sum, h) => sum + (h.listen_duration_seconds || 0), 0);
+  };
+
+  // Get average completion
+  const getAverageCompletion = (): number => {
+    if (history.length === 0) return 0;
+    const total = history.reduce((sum, h) => sum + (h.completion_percentage || 0), 0);
+    return Math.round(total / history.length);
+  };
+
+  // Get listening stats by device
+  const getStatsByDevice = (): Record<string, { count: number; time: number }> => {
+    const stats: Record<string, { count: number; time: number }> = {};
+
+    history.forEach(h => {
+      const device = h.device_type || 'web';
+      if (!stats[device]) {
+        stats[device] = { count: 0, time: 0 };
+      }
+      stats[device].count++;
+      stats[device].time += h.listen_duration_seconds || 0;
+    });
+
+    return stats;
+  };
+
+  // Get listening by date
+  const getListeningByDate = (days: number = 7): { date: string; count: number; time: number }[] => {
+    const result: Record<string, { count: number; time: number }> = {};
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    history.forEach(h => {
+      const date = new Date(h.listen_date);
+      if (date >= startDate) {
+        const dateStr = date.toISOString().split('T')[0];
+        if (!result[dateStr]) {
+          result[dateStr] = { count: 0, time: 0 };
+        }
+        result[dateStr].count++;
+        result[dateStr].time += h.listen_duration_seconds || 0;
+      }
+    });
+
+    return Object.entries(result).map(([date, data]) => ({
+      date,
+      count: data.count,
+      time: data.time
+    })).sort((a, b) => a.date.localeCompare(b.date));
+  };
+
+  // Export favorites
+  const exportFavorites = (): string => {
+    return JSON.stringify({
+      exportDate: new Date().toISOString(),
+      count: favorites.length,
+      favorites: favorites.map(f => ({
+        title: f.title,
+        suno_audio_id: f.suno_audio_id,
+        added_at: f.created_at
+      }))
+    }, null, 2);
+  };
+
+  // Get most listened songs
+  const getMostListened = (limit: number = 5): { song_id: string; title: string; count: number; totalTime: number }[] => {
+    const songMap = new Map<string, { title: string; count: number; totalTime: number }>();
+
+    history.forEach(h => {
+      const existing = songMap.get(h.song_id);
+      if (existing) {
+        existing.count++;
+        existing.totalTime += h.listen_duration_seconds || 0;
+      } else {
+        songMap.set(h.song_id, {
+          title: h.title,
+          count: 1,
+          totalTime: h.listen_duration_seconds || 0
+        });
+      }
+    });
+
+    return Array.from(songMap.entries())
+      .map(([song_id, data]) => ({ song_id, ...data }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  };
+
+  // Check if history is empty
+  const hasHistory = (): boolean => {
+    return history.length > 0;
+  };
+
+  // Check if user has favorites
+  const hasFavorites = (): boolean => {
+    return favorites.length > 0;
+  };
+
+  // Get favorites added today
+  const getFavoritesAddedToday = (): FavoriteSong[] => {
+    const today = new Date().toISOString().split('T')[0];
+    return favorites.filter(f => f.created_at.startsWith(today));
+  };
+
   return {
     favorites,
     history,
@@ -224,6 +370,20 @@ export const useFavoritesAndHistory = () => {
     getTopPlayed,
     clearHistory,
     loadFavorites,
-    loadHistory
+    loadHistory,
+    getFavoritesCount,
+    getHistoryCount,
+    searchFavorites,
+    getFavorite,
+    sortFavorites,
+    getTotalListeningTime,
+    getAverageCompletion,
+    getStatsByDevice,
+    getListeningByDate,
+    exportFavorites,
+    getMostListened,
+    hasHistory,
+    hasFavorites,
+    getFavoritesAddedToday
   };
 };

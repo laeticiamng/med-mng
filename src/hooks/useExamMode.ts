@@ -276,6 +276,161 @@ export const useExamMode = () => {
     setQuestions([]);
   }, []);
 
+  // Get current question
+  const getCurrentQuestion = useCallback((index: number): ExamQuestion | null => {
+    return questions[index] || null;
+  }, [questions]);
+
+  // Get answered questions count
+  const getAnsweredCount = useCallback((): number => {
+    return currentSession ? Object.keys(currentSession.answers).length : 0;
+  }, [currentSession]);
+
+  // Get remaining time
+  const getRemainingTime = useCallback((): number => {
+    if (!currentSession) return 0;
+    const startTime = new Date(currentSession.started_at).getTime();
+    const elapsed = Date.now() - startTime;
+    const limitMs = currentSession.time_limit_minutes * 60 * 1000;
+    return Math.max(0, limitMs - elapsed);
+  }, [currentSession]);
+
+  // Check if time is up
+  const isTimeUp = useCallback((): boolean => {
+    return getRemainingTime() === 0;
+  }, [getRemainingTime]);
+
+  // Get progress percentage
+  const getProgress = useCallback((): number => {
+    if (!currentSession || questions.length === 0) return 0;
+    return Math.round((getAnsweredCount() / questions.length) * 100);
+  }, [currentSession, questions, getAnsweredCount]);
+
+  // Get current score (during exam)
+  const getCurrentScore = useCallback((): number => {
+    if (!currentSession) return 0;
+    const correct = Object.values(currentSession.answers).filter(a => a.correct).length;
+    const total = Object.keys(currentSession.answers).length;
+    return total > 0 ? Math.round((correct / total) * 100) : 0;
+  }, [currentSession]);
+
+  // Get average time per question
+  const getAverageTimePerQuestion = useCallback((): number => {
+    if (!currentSession) return 0;
+    const answers = Object.values(currentSession.answers);
+    if (answers.length === 0) return 0;
+    const totalTime = answers.reduce((sum, a) => sum + a.timeSpent, 0);
+    return Math.round(totalTime / answers.length);
+  }, [currentSession]);
+
+  // Get questions by difficulty
+  const getQuestionsByDifficulty = useCallback((difficulty: ExamQuestion['difficulty']): ExamQuestion[] => {
+    return questions.filter(q => q.difficulty === difficulty);
+  }, [questions]);
+
+  // Check if question is answered
+  const isQuestionAnswered = useCallback((questionId: string): boolean => {
+    return currentSession ? !!currentSession.answers[questionId] : false;
+  }, [currentSession]);
+
+  // Get answer for a question
+  const getAnswer = useCallback((questionId: string) => {
+    return currentSession?.answers[questionId] || null;
+  }, [currentSession]);
+
+  // Get unanswered questions
+  const getUnansweredQuestions = useCallback((): ExamQuestion[] => {
+    return questions.filter(q => !isQuestionAnswered(q.id));
+  }, [questions, isQuestionAnswered]);
+
+  // Skip to next unanswered
+  const getNextUnansweredIndex = useCallback((currentIndex: number): number => {
+    for (let i = currentIndex + 1; i < questions.length; i++) {
+      if (!isQuestionAnswered(questions[i].id)) return i;
+    }
+    for (let i = 0; i < currentIndex; i++) {
+      if (!isQuestionAnswered(questions[i].id)) return i;
+    }
+    return currentIndex;
+  }, [questions, isQuestionAnswered]);
+
+  // Pause exam (save state)
+  const pauseExam = useCallback(() => {
+    if (currentSession) {
+      localStorage.setItem('exam_paused', JSON.stringify({
+        session: currentSession,
+        questions,
+        pausedAt: new Date().toISOString()
+      }));
+    }
+  }, [currentSession, questions]);
+
+  // Resume paused exam
+  const resumeExam = useCallback((): boolean => {
+    const paused = localStorage.getItem('exam_paused');
+    if (paused) {
+      const data = JSON.parse(paused);
+      setCurrentSession(data.session);
+      setQuestions(data.questions);
+      localStorage.removeItem('exam_paused');
+      return true;
+    }
+    return false;
+  }, []);
+
+  // Check if has paused exam
+  const hasPausedExam = useCallback((): boolean => {
+    return !!localStorage.getItem('exam_paused');
+  }, []);
+
+  // Export exam results
+  const exportResults = useCallback((): string => {
+    if (!currentSession) return '{}';
+
+    return JSON.stringify({
+      exportDate: new Date().toISOString(),
+      session: {
+        ...currentSession,
+        questions: questions.map(q => ({
+          ...q,
+          userAnswer: currentSession.answers[q.id]
+        }))
+      }
+    }, null, 2);
+  }, [currentSession, questions]);
+
+  // Get exam types available
+  const getExamTypes = useCallback((): { id: string; name: string; description: string }[] => {
+    return [
+      { id: 'standard', name: 'Examen Standard', description: '20 questions, 30 minutes' },
+      { id: 'quick', name: 'Quiz Rapide', description: '10 questions, 15 minutes' },
+      { id: 'intensive', name: 'Examen Intensif', description: '40 questions, 60 minutes' },
+      { id: 'difficulty_progressive', name: 'Progressif', description: 'Difficulté croissante' },
+      { id: 'rang_a_only', name: 'Rang A uniquement', description: 'Focus rang A' },
+      { id: 'rang_b_only', name: 'Rang B uniquement', description: 'Focus rang B' }
+    ];
+  }, []);
+
+  // Get difficulty distribution
+  const getDifficultyDistribution = useCallback((): { easy: number; medium: number; hard: number } => {
+    return {
+      easy: questions.filter(q => q.difficulty === 'easy').length,
+      medium: questions.filter(q => q.difficulty === 'medium').length,
+      hard: questions.filter(q => q.difficulty === 'hard').length
+    };
+  }, [questions]);
+
+  // Check if exam is in progress
+  const isExamInProgress = useCallback((): boolean => {
+    return !!currentSession && !currentSession.completed_at;
+  }, [currentSession]);
+
+  // Get total time spent
+  const getTotalTimeSpent = useCallback((): number => {
+    if (!currentSession) return 0;
+    return Object.values(currentSession.answers).reduce((sum, a) => sum + a.timeSpent, 0);
+  }, [currentSession]);
+
   return {
     loading,
     currentSession,
@@ -284,6 +439,26 @@ export const useExamMode = () => {
     submitAnswer,
     completeExam,
     getStats,
-    resetExam
+    resetExam,
+    getCurrentQuestion,
+    getAnsweredCount,
+    getRemainingTime,
+    isTimeUp,
+    getProgress,
+    getCurrentScore,
+    getAverageTimePerQuestion,
+    getQuestionsByDifficulty,
+    isQuestionAnswered,
+    getAnswer,
+    getUnansweredQuestions,
+    getNextUnansweredIndex,
+    pauseExam,
+    resumeExam,
+    hasPausedExam,
+    exportResults,
+    getExamTypes,
+    getDifficultyDistribution,
+    isExamInProgress,
+    getTotalTimeSpent
   };
 };

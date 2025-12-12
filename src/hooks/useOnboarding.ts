@@ -126,6 +126,86 @@ export const useOnboarding = () => {
     completeOnboarding();
   };
 
+  // Aller directement à une étape spécifique
+  const goToStep = (stepIndex: number) => {
+    setState(prev => ({
+      ...prev,
+      currentStep: Math.max(0, Math.min(stepIndex, prev.steps.length - 1))
+    }));
+  };
+
+  // Obtenir l'étape courante
+  const getCurrentStep = (): OnboardingStep | null => {
+    return state.steps[state.currentStep] || null;
+  };
+
+  // Progression totale
+  const getProgress = (): number => {
+    if (state.steps.length === 0) return 0;
+    return Math.round(((state.currentStep + 1) / state.steps.length) * 100);
+  };
+
+  // Nombre d'étapes restantes
+  const getRemainingSteps = (): number => {
+    return Math.max(0, state.steps.length - state.currentStep - 1);
+  };
+
+  // Vérifier si c'est la première étape
+  const isFirstStep = (): boolean => {
+    return state.currentStep === 0;
+  };
+
+  // Vérifier si c'est la dernière étape
+  const isLastStep = (): boolean => {
+    return state.currentStep === state.steps.length - 1;
+  };
+
+  // Réinitialiser l'onboarding
+  const resetOnboarding = () => {
+    localStorage.removeItem('onboarding_completed');
+    localStorage.removeItem('onboarding_active');
+    localStorage.removeItem('onboarding_seen');
+    setState({
+      steps: state.steps,
+      currentStep: 0,
+      isActive: false,
+      completedSteps: []
+    });
+  };
+
+  // Obtenir les tooltips pour une page donnée
+  const getTooltipsForPage = (pageKey: string): OnboardingStep[] => {
+    return state.steps.filter(s =>
+      s.type === 'tooltip' && s.key.startsWith(pageKey)
+    );
+  };
+
+  // Marquer un tooltip comme vu
+  const markTooltipAsSeen = (tooltipKey: string) => {
+    const seenTooltips = JSON.parse(localStorage.getItem('seen_tooltips') || '[]');
+    if (!seenTooltips.includes(tooltipKey)) {
+      seenTooltips.push(tooltipKey);
+      localStorage.setItem('seen_tooltips', JSON.stringify(seenTooltips));
+    }
+  };
+
+  // Vérifier si un tooltip a été vu
+  const isTooltipSeen = (tooltipKey: string): boolean => {
+    const seenTooltips = JSON.parse(localStorage.getItem('seen_tooltips') || '[]');
+    return seenTooltips.includes(tooltipKey);
+  };
+
+  // Statistiques d'onboarding
+  const getOnboardingStats = () => {
+    return {
+      totalSteps: state.steps.length,
+      completedSteps: state.completedSteps.length,
+      currentStep: state.currentStep + 1,
+      progress: getProgress(),
+      isComplete: state.completedSteps.length === state.steps.length
+    };
+  };
+
   return {
     ...state,
     loading,
@@ -135,6 +215,17 @@ export const useOnboarding = () => {
     completeStep,
     completeOnboarding,
     skipOnboarding,
+    goToStep,
+    getCurrentStep,
+    getProgress,
+    getRemainingSteps,
+    isFirstStep,
+    isLastStep,
+    resetOnboarding,
+    getTooltipsForPage,
+    markTooltipAsSeen,
+    isTooltipSeen,
+    getOnboardingStats,
     isCompleted: (stepKey: string) => state.completedSteps.includes(stepKey)
   };
 };

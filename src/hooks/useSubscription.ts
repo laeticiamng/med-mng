@@ -293,6 +293,172 @@ export const useSubscription = () => {
     fetchSubscription();
   }, [fetchSubscription]);
 
+  // Get quota usage percentage
+  const getQuotaPercentage = useCallback((): number => {
+    if (!musicQuota || musicQuota.quota_limit === 0) return 0;
+    return Math.round((musicQuota.current_usage / musicQuota.quota_limit) * 100);
+  }, [musicQuota]);
+
+  // Check if quota is critical (> 90%)
+  const isQuotaCritical = useCallback((): boolean => {
+    return getQuotaPercentage() >= 90;
+  }, [getQuotaPercentage]);
+
+  // Check if quota is low (> 75%)
+  const isQuotaLow = useCallback((): boolean => {
+    return getQuotaPercentage() >= 75;
+  }, [getQuotaPercentage]);
+
+  // Get remaining generations
+  const getRemainingGenerations = useCallback((): number => {
+    if (!musicQuota) return 0;
+    return Math.max(0, musicQuota.quota_limit - musicQuota.current_usage);
+  }, [musicQuota]);
+
+  // Get subscription status display
+  const getStatusDisplay = useCallback((): string => {
+    if (!subscription) return 'Non abonné';
+
+    switch (subscription.status) {
+      case 'active': return 'Actif';
+      case 'canceled': return 'Annulé';
+      case 'past_due': return 'Paiement en retard';
+      case 'unpaid': return 'Impayé';
+      default: return 'Inconnu';
+    }
+  }, [subscription]);
+
+  // Get status color class
+  const getStatusColor = useCallback((): string => {
+    if (!subscription) return 'text-gray-500';
+
+    switch (subscription.status) {
+      case 'active': return 'text-green-500';
+      case 'canceled': return 'text-yellow-500';
+      case 'past_due': return 'text-orange-500';
+      case 'unpaid': return 'text-red-500';
+      default: return 'text-gray-500';
+    }
+  }, [subscription]);
+
+  // Check if subscription is active
+  const isSubscriptionActive = useCallback((): boolean => {
+    return subscription?.status === 'active';
+  }, [subscription]);
+
+  // Get available upgrade options
+  const getUpgradeOptions = useCallback((): {
+    planId: string;
+    planName: string;
+    monthlyQuota: number;
+    price: number;
+  }[] => {
+    const allPlans = [
+      { planId: 'basic', planName: 'Plan Standard', monthlyQuota: 10, price: 19 },
+      { planId: 'pro', planName: 'Plan Pro', monthlyQuota: 30, price: 29 },
+      { planId: 'premium', planName: 'Plan Premium', monthlyQuota: 100, price: 39 }
+    ];
+
+    const currentQuota = subscription?.monthly_quota || 0;
+    return allPlans.filter(p => p.monthlyQuota > currentQuota);
+  }, [subscription]);
+
+  // Get plan features comparison
+  const getPlanFeatures = useCallback((planName: string): {
+    feature: string;
+    included: boolean;
+  }[] => {
+    const features = [
+      { feature: 'Tableaux de révision', basic: true, pro: true, premium: true },
+      { feature: 'Quiz interactifs', basic: true, pro: true, premium: true },
+      { feature: 'Bande dessinée EDN', basic: false, pro: true, premium: true },
+      { feature: 'Sauvegarde musique', basic: false, pro: true, premium: true },
+      { feature: 'Support prioritaire', basic: false, pro: false, premium: true },
+      { feature: 'Accès anticipé', basic: false, pro: false, premium: true }
+    ];
+
+    const planKey = planName.toLowerCase().includes('standard') ? 'basic'
+      : planName.toLowerCase().includes('pro') ? 'pro'
+      : 'premium';
+
+    return features.map(f => ({
+      feature: f.feature,
+      included: f[planKey as keyof typeof f] as boolean
+    }));
+  }, []);
+
+  // Estimate when quota will run out
+  const estimateQuotaExhaustion = useCallback((): string | null => {
+    if (!musicQuota || musicQuota.quota_limit === 0) return null;
+
+    const remaining = getRemainingGenerations();
+    if (remaining <= 0) return 'Quota épuisé';
+
+    // Estimate based on current usage rate (assume 1 month period)
+    const daysRemaining = Math.round((remaining / Math.max(1, musicQuota.current_usage)) * 30);
+
+    if (daysRemaining > 30) return 'Plus d\'un mois';
+    if (daysRemaining > 7) return `Environ ${Math.round(daysRemaining / 7)} semaines`;
+    if (daysRemaining > 1) return `Environ ${daysRemaining} jours`;
+    return 'Moins d\'un jour';
+  }, [musicQuota, getRemainingGenerations]);
+
+  // Get quota reset date
+  const getQuotaResetDate = useCallback((): Date => {
+    // Quota resets on 1st of each month
+    const now = new Date();
+    const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return resetDate;
+  }, []);
+
+  // Get days until quota reset
+  const getDaysUntilReset = useCallback((): number => {
+    const resetDate = getQuotaResetDate();
+    const now = new Date();
+    const diff = resetDate.getTime() - now.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }, [getQuotaResetDate]);
+
+  // Format quota for display
+  const formatQuotaDisplay = useCallback((): {
+    used: string;
+    total: string;
+    percentage: string;
+    status: 'ok' | 'warning' | 'critical';
+  } => {
+    if (!musicQuota) {
+      return { used: '0', total: '0', percentage: '0%', status: 'ok' };
+    }
+
+    const percentage = getQuotaPercentage();
+    let status: 'ok' | 'warning' | 'critical' = 'ok';
+    if (percentage >= 90) status = 'critical';
+    else if (percentage >= 75) status = 'warning';
+
+    return {
+      used: musicQuota.current_usage.toString(),
+      total: musicQuota.quota_limit.toString(),
+      percentage: `${percentage}%`,
+      status
+    };
+  }, [musicQuota, getQuotaPercentage]);
+
+  // Check if can upgrade
+  const canUpgrade = useCallback((): boolean => {
+    return getUpgradeOptions().length > 0;
+  }, [getUpgradeOptions]);
+
+  // Get current plan tier
+  const getPlanTier = useCallback((): 'free' | 'basic' | 'pro' | 'premium' => {
+    if (!subscription) return 'free';
+
+    const planName = subscription.plan_name.toLowerCase();
+    if (planName.includes('premium')) return 'premium';
+    if (planName.includes('pro')) return 'pro';
+    if (planName.includes('standard') || planName.includes('basic')) return 'basic';
+    return 'free';
+  }, [subscription]);
+
   return {
     subscription,
     musicQuota,
@@ -305,5 +471,20 @@ export const useSubscription = () => {
     canSaveMusic,
     getUsageDisplay,
     getSunoModel,
+    getQuotaPercentage,
+    isQuotaCritical,
+    isQuotaLow,
+    getRemainingGenerations,
+    getStatusDisplay,
+    getStatusColor,
+    isSubscriptionActive,
+    getUpgradeOptions,
+    getPlanFeatures,
+    estimateQuotaExhaustion,
+    getQuotaResetDate,
+    getDaysUntilReset,
+    formatQuotaDisplay,
+    canUpgrade,
+    getPlanTier
   };
 };

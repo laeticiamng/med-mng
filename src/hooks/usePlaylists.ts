@@ -281,6 +281,147 @@ export const usePlaylists = () => {
     loadPlaylists();
   }, []);
 
+  // Dupliquer une playlist
+  const duplicatePlaylist = async (playlistId: string, newName?: string): Promise<string | null> => {
+    try {
+      const original = await getPlaylistDetails(playlistId);
+      if (!original) {
+        toast({
+          title: "Erreur",
+          description: "Playlist originale non trouvée",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      const duplicateName = newName || `${original.name} (copie)`;
+      const newPlaylistId = await createPlaylist(duplicateName, original.description, original.is_public);
+
+      if (newPlaylistId && original.songs) {
+        for (const song of original.songs) {
+          await addSongToPlaylist(newPlaylistId, song.song_id);
+        }
+      }
+
+      toast({
+        title: "Playlist dupliquée",
+        description: `"${duplicateName}" a été créée`,
+      });
+
+      return newPlaylistId;
+    } catch (error) {
+      console.error('Erreur duplication playlist:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de dupliquer la playlist",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  // Fusionner deux playlists
+  const mergePlaylists = async (targetId: string, sourceId: string): Promise<boolean> => {
+    try {
+      const source = await getPlaylistDetails(sourceId);
+      if (!source?.songs) {
+        return false;
+      }
+
+      for (const song of source.songs) {
+        await addSongToPlaylist(targetId, song.song_id);
+      }
+
+      toast({
+        title: "Playlists fusionnées",
+        description: `${source.songs.length} chanson(s) ajoutée(s)`,
+      });
+
+      await loadPlaylists();
+      return true;
+    } catch (error) {
+      console.error('Erreur fusion playlists:', error);
+      return false;
+    }
+  };
+
+  // Obtenir les statistiques des playlists
+  const getPlaylistsStats = () => {
+    const totalPlaylists = playlists.length;
+    const totalSongs = playlists.reduce((sum, p) => sum + p.song_count, 0);
+    const publicPlaylists = playlists.filter(p => p.is_public).length;
+    const privatePlaylists = totalPlaylists - publicPlaylists;
+    const averageSongsPerPlaylist = totalPlaylists > 0 ? Math.round(totalSongs / totalPlaylists) : 0;
+
+    return {
+      totalPlaylists,
+      totalSongs,
+      publicPlaylists,
+      privatePlaylists,
+      averageSongsPerPlaylist
+    };
+  };
+
+  // Rechercher dans les playlists
+  const searchPlaylists = (query: string): Playlist[] => {
+    if (!query.trim()) return playlists;
+
+    const queryLower = query.toLowerCase();
+    return playlists.filter(p =>
+      p.name.toLowerCase().includes(queryLower) ||
+      (p.description?.toLowerCase().includes(queryLower) ?? false)
+    );
+  };
+
+  // Trier les playlists
+  const sortPlaylists = (sortBy: 'name' | 'date' | 'songs', order: 'asc' | 'desc' = 'asc'): Playlist[] => {
+    const sorted = [...playlists].sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'date':
+          comparison = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+          break;
+        case 'songs':
+          comparison = a.song_count - b.song_count;
+          break;
+      }
+      return order === 'desc' ? -comparison : comparison;
+    });
+    return sorted;
+  };
+
+  // Exporter une playlist en JSON
+  const exportPlaylist = async (playlistId: string): Promise<string | null> => {
+    try {
+      const playlist = await getPlaylistDetails(playlistId);
+      if (!playlist) return null;
+
+      const exportData = {
+        name: playlist.name,
+        description: playlist.description,
+        songs: playlist.songs?.map(s => ({
+          title: s.title,
+          position: s.position
+        })) || [],
+        exportedAt: new Date().toISOString()
+      };
+
+      return JSON.stringify(exportData, null, 2);
+    } catch (error) {
+      console.error('Erreur export playlist:', error);
+      return null;
+    }
+  };
+
+  // Vérifier si une chanson est dans une playlist
+  const isSongInPlaylist = async (playlistId: string, songId: string): Promise<boolean> => {
+    const details = await getPlaylistDetails(playlistId);
+    return details?.songs?.some(s => s.song_id === songId) || false;
+  };
+
   return {
     playlists,
     loading,
@@ -291,6 +432,13 @@ export const usePlaylists = () => {
     removeSongFromPlaylist,
     reorderPlaylistSongs,
     getPlaylistDetails,
-    loadPlaylists
+    loadPlaylists,
+    duplicatePlaylist,
+    mergePlaylists,
+    getPlaylistsStats,
+    searchPlaylists,
+    sortPlaylists,
+    exportPlaylist,
+    isSongInPlaylist
   };
 };

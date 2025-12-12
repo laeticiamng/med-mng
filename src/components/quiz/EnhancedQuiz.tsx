@@ -186,17 +186,45 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
 
   const saveQuizSession = async (session: QuizSession) => {
     try {
-      // TODO: Créer la table quiz_sessions via migration
-      console.log('Quiz session completed:', session);
-      // await supabase.from('quiz_sessions').insert({
-      //   user_id: (await supabase.auth.getUser()).data.user?.id,
-      //   item_code: session.itemCode,
-      //   rang: session.rang,
-      //   score: session.score,
-      //   questions_count: session.questions.length,
-      //   correct_answers: session.answers.filter(a => a.isCorrect).length,
-      //   session_data: session
-      // });
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        console.log('Quiz session completed (not logged in):', session.sessionId);
+        return;
+      }
+
+      // Sauvegarder dans user_activity_log comme activité d'examen
+      await supabase.from('user_activity_log').insert({
+        user_id: currentUser.id,
+        activity_type: 'exam',
+        activity_date: new Date().toISOString().split('T')[0],
+        count: 1,
+        metadata: {
+          session_id: session.sessionId,
+          item_code: session.itemCode,
+          rang: session.rang,
+          score: session.score,
+          questions_count: session.questions.length,
+          correct_answers: session.answers.filter(a => a.isCorrect).length,
+          time_spent: session.endTime ?
+            Math.round((session.endTime.getTime() - session.startTime.getTime()) / 1000) : 0,
+          answers_summary: session.answers.map(a => ({
+            questionId: a.questionId,
+            isCorrect: a.isCorrect,
+            timeSpent: a.timeSpent
+          }))
+        }
+      });
+
+      // Sauvegarder également dans gamification_activities pour les points
+      await supabase.from('gamification_activities').insert({
+        user_id: currentUser.id,
+        activity_type: 'quiz_completed',
+        activity_name: `Quiz ${session.itemCode} - ${session.rang}`,
+        points_earned: session.score >= 80 ? 100 : session.score >= 60 ? 50 : 25,
+        created_at: new Date().toISOString()
+      } as any);
+
+      console.log('Quiz session saved successfully:', session.sessionId);
     } catch (error) {
       console.error('Error saving quiz session:', error);
     }

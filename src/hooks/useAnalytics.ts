@@ -105,12 +105,196 @@ export const useAnalytics = () => {
     }
   };
 
+  // Get listening stats
+  const getListeningStats = async (days: number = 30) => {
+    if (!user) return null;
+
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const { data, error } = await supabase
+        .from('med_mng_user_listening_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('created_at', startDate.toISOString());
+
+      if (error) throw error;
+
+      const stats = {
+        totalListens: data?.length || 0,
+        totalDuration: data?.reduce((sum, d) => sum + (d.listen_duration || 0), 0) || 0,
+        uniqueSongs: new Set(data?.map(d => d.song_id)).size,
+        byDay: {} as Record<string, number>
+      };
+
+      data?.forEach(d => {
+        const day = d.created_at.split('T')[0];
+        stats.byDay[day] = (stats.byDay[day] || 0) + 1;
+      });
+
+      return stats;
+    } catch (error) {
+      console.error('Error getting listening stats:', error);
+      return null;
+    }
+  };
+
+  // Track page view
+  const trackPageView = async (page: string, metadata: Record<string, any> = {}) => {
+    if (!user) return;
+
+    try {
+      await supabase.from('user_activity_log').insert({
+        user_id: user.id,
+        activity_type: 'study',
+        count: 1,
+        metadata: { page, ...metadata }
+      });
+    } catch (error) {
+      console.error('Error tracking page view:', error);
+    }
+  };
+
+  // Track feature usage
+  const trackFeatureUsage = async (feature: string, action: string = 'click') => {
+    if (!user) return;
+
+    try {
+      await supabase.from('user_activity_log').insert({
+        user_id: user.id,
+        activity_type: 'study',
+        count: 1,
+        metadata: { feature, action, timestamp: new Date().toISOString() }
+      });
+    } catch (error) {
+      console.error('Error tracking feature:', error);
+    }
+  };
+
+  // Get user engagement score
+  const getEngagementScore = async () => {
+    if (!user) return 0;
+
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data } = await supabase
+        .from('user_activity_log')
+        .select('activity_date')
+        .eq('user_id', user.id)
+        .gte('activity_date', thirtyDaysAgo.toISOString().split('T')[0]);
+
+      if (!data) return 0;
+
+      const uniqueDays = new Set(data.map(d => d.activity_date)).size;
+      return Math.min(100, Math.round((uniqueDays / 30) * 100));
+    } catch (error) {
+      console.error('Error calculating engagement:', error);
+      return 0;
+    }
+  };
+
+  // Get top listened songs
+  const getTopSongs = async (limit: number = 10) => {
+    if (!user) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_user_listening_history')
+        .select('song_id, med_mng_songs(title, artist)')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      const songCounts: Record<string, { count: number; title: string; artist: string }> = {};
+      data?.forEach(d => {
+        const song = d.med_mng_songs as any;
+        if (!songCounts[d.song_id]) {
+          songCounts[d.song_id] = {
+            count: 0,
+            title: song?.title || 'Unknown',
+            artist: song?.artist || 'Unknown'
+          };
+        }
+        songCounts[d.song_id].count++;
+      });
+
+      return Object.entries(songCounts)
+        .map(([id, data]) => ({ id, ...data }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Error getting top songs:', error);
+      return [];
+    }
+  };
+
+  // Track search query
+  const trackSearch = async (query: string, resultsCount: number) => {
+    if (!user) return;
+
+    try {
+      await supabase.from('user_activity_log').insert({
+        user_id: user.id,
+        activity_type: 'study',
+        count: 1,
+        metadata: { type: 'search', query, resultsCount }
+      });
+    } catch (error) {
+      console.error('Error tracking search:', error);
+    }
+  };
+
+  // Get session duration estimate
+  const getSessionDuration = (): number => {
+    const sessionStart = sessionStorage.getItem('session_start');
+    if (!sessionStart) {
+      sessionStorage.setItem('session_start', Date.now().toString());
+      return 0;
+    }
+    return Math.round((Date.now() - parseInt(sessionStart)) / 1000);
+  };
+
+  // Track error
+  const trackError = async (error: Error, context: string) => {
+    if (!user) return;
+
+    try {
+      await supabase.from('operation_logs').insert({
+        type: 'error',
+        message: `${context}: ${error.message}`,
+        metadata: { stack: error.stack, context }
+      });
+    } catch (e) {
+      console.error('Error tracking error:', e);
+    }
+  };
+
+  // Check if user is active
+  const isUserActive = async (): Promise<boolean> => {
+    const engagement = await getEngagementScore();
+    return engagement >= 30; // At least 30% engagement
+  };
+
   return {
     trackListening,
     logEvent,
     toggleFavorite,
     getFavorites,
     trackPerformance,
-    loading
+    loading,
+    getListeningStats,
+    trackPageView,
+    trackFeatureUsage,
+    getEngagementScore,
+    getTopSongs,
+    trackSearch,
+    getSessionDuration,
+    trackError,
+    isUserActive
   };
 };

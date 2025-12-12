@@ -112,8 +112,100 @@ class PedagogicalContentService {
   }
 
   async updateContentProgress(itemId: string, contentType: string, progress: number): Promise<void> {
-    // Simplified implementation without direct Supabase calls to avoid type issues
-    console.log('Progress updated:', { itemId, contentType, progress });
+    try {
+      const { data: existing, error: fetchError } = await supabase
+        .from('med_mng_content_ai')
+        .select('id, metadata')
+        .eq('item_id', itemId)
+        .eq('content_type', contentType)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      const metadata = (existing?.metadata as any) || {};
+      const updatedMetadata = {
+        ...metadata,
+        progress,
+        last_progress_update: new Date().toISOString()
+      };
+
+      if (existing) {
+        await supabase
+          .from('med_mng_content_ai')
+          .update({ metadata: updatedMetadata })
+          .eq('id', existing.id);
+      }
+
+      console.log('Progress updated:', { itemId, contentType, progress });
+    } catch (error) {
+      console.error('Error updating content progress:', error);
+    }
+  }
+
+  async getContentByType(contentType: 'comic' | 'novel' | 'poem', limit: number = 50): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .eq('content_type', contentType)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching content by type:', error);
+      return [];
+    }
+  }
+
+  async searchContent(query: string, limit: number = 20): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .or(`title.ilike.%${query}%,item_id.ilike.%${query}%`)
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error searching content:', error);
+      return [];
+    }
+  }
+
+  async deleteContent(contentId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('med_mng_content_ai')
+        .delete()
+        .eq('id', contentId);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      return false;
+    }
+  }
+
+  async getRecentGenerations(limit: number = 10): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching recent generations:', error);
+      return [];
+    }
   }
 
   getContentTypeColor(type: string) {

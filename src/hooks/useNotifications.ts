@@ -307,6 +307,160 @@ export function useNotifications() {
     }
   }, []);
 
+  // Get notifications by category
+  const getByCategory = useCallback((category: Notification['category']): Notification[] => {
+    return notifications.filter(n => n.category === category);
+  }, [notifications]);
+
+  // Get notifications by type
+  const getByType = useCallback((type: Notification['type']): Notification[] => {
+    return notifications.filter(n => n.type === type);
+  }, [notifications]);
+
+  // Get notifications by priority
+  const getByPriority = useCallback((priority: Notification['priority']): Notification[] => {
+    return notifications.filter(n => n.priority === priority);
+  }, [notifications]);
+
+  // Get unread notifications
+  const getUnread = useCallback((): Notification[] => {
+    return notifications.filter(n => !n.read);
+  }, [notifications]);
+
+  // Get actionable notifications
+  const getActionable = useCallback((): Notification[] => {
+    return notifications.filter(n => n.actionable);
+  }, [notifications]);
+
+  // Search notifications
+  const searchNotifications = useCallback((query: string): Notification[] => {
+    if (!query.trim()) return notifications;
+    const queryLower = query.toLowerCase();
+    return notifications.filter(n =>
+      n.title.toLowerCase().includes(queryLower) ||
+      n.message.toLowerCase().includes(queryLower)
+    );
+  }, [notifications]);
+
+  // Get notifications from last N hours
+  const getRecent = useCallback((hours: number = 24): Notification[] => {
+    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+    return notifications.filter(n => n.timestamp >= cutoff);
+  }, [notifications]);
+
+  // Sort notifications
+  const sortNotifications = useCallback((
+    by: 'date' | 'priority' | 'type',
+    order: 'asc' | 'desc' = 'desc'
+  ): Notification[] => {
+    const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+    const typeOrder = { critical: 5, error: 4, warning: 3, info: 2, success: 1 };
+
+    return [...notifications].sort((a, b) => {
+      let comparison = 0;
+      switch (by) {
+        case 'date':
+          comparison = a.timestamp.getTime() - b.timestamp.getTime();
+          break;
+        case 'priority':
+          comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+          break;
+        case 'type':
+          comparison = typeOrder[a.type] - typeOrder[b.type];
+          break;
+      }
+      return order === 'desc' ? -comparison : comparison;
+    });
+  }, [notifications]);
+
+  // Get notification stats
+  const getStats = useCallback((): {
+    total: number;
+    unread: number;
+    byType: Record<Notification['type'], number>;
+    byCategory: Record<Notification['category'], number>;
+    byPriority: Record<Notification['priority'], number>;
+  } => {
+    const byType: Record<Notification['type'], number> = {
+      info: 0, success: 0, warning: 0, error: 0, critical: 0
+    };
+    const byCategory: Record<Notification['category'], number> = {
+      system: 0, extraction: 0, quota: 0, security: 0, maintenance: 0
+    };
+    const byPriority: Record<Notification['priority'], number> = {
+      low: 0, medium: 0, high: 0, urgent: 0
+    };
+
+    notifications.forEach(n => {
+      byType[n.type]++;
+      byCategory[n.category]++;
+      byPriority[n.priority]++;
+    });
+
+    return {
+      total: notifications.length,
+      unread: notifications.filter(n => !n.read).length,
+      byType,
+      byCategory,
+      byPriority
+    };
+  }, [notifications]);
+
+  // Get notification by ID
+  const getById = useCallback((id: string): Notification | undefined => {
+    return notifications.find(n => n.id === id);
+  }, [notifications]);
+
+  // Snooze notification (move to later)
+  const snoozeNotification = useCallback((id: string, minutes: number) => {
+    setNotifications(prev => prev.map(n => {
+      if (n.id === id) {
+        return {
+          ...n,
+          timestamp: new Date(Date.now() + minutes * 60 * 1000),
+          read: true
+        };
+      }
+      return n;
+    }));
+  }, []);
+
+  // Mark category as read
+  const markCategoryAsRead = useCallback((category: Notification['category']) => {
+    setNotifications(prev =>
+      prev.map(n =>
+        n.category === category ? { ...n, read: true } : n
+      )
+    );
+  }, []);
+
+  // Delete all by category
+  const deleteByCategory = useCallback((category: Notification['category']) => {
+    setNotifications(prev => prev.filter(n => n.category !== category));
+  }, []);
+
+  // Export notifications
+  const exportNotifications = useCallback((): string => {
+    return JSON.stringify({
+      exportDate: new Date().toISOString(),
+      count: notifications.length,
+      notifications: notifications.map(n => ({
+        ...n,
+        timestamp: n.timestamp.toISOString()
+      }))
+    }, null, 2);
+  }, [notifications]);
+
+  // Check if has unread
+  const hasUnread = useCallback((): boolean => {
+    return notifications.some(n => !n.read);
+  }, [notifications]);
+
+  // Check if has critical
+  const hasCritical = useCallback((): boolean => {
+    return notifications.some(n => n.type === 'critical' && !n.read);
+  }, [notifications]);
+
   return {
     notifications,
     loading,
@@ -316,6 +470,22 @@ export function useNotifications() {
     clearAll,
     addNotification,
     unreadCount: notifications.filter(n => !n.read).length,
-    criticalCount: notifications.filter(n => n.type === 'critical').length
+    criticalCount: notifications.filter(n => n.type === 'critical').length,
+    getByCategory,
+    getByType,
+    getByPriority,
+    getUnread,
+    getActionable,
+    searchNotifications,
+    getRecent,
+    sortNotifications,
+    getStats,
+    getById,
+    snoozeNotification,
+    markCategoryAsRead,
+    deleteByCategory,
+    exportNotifications,
+    hasUnread,
+    hasCritical
   };
 }

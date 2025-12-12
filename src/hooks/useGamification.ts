@@ -277,6 +277,228 @@ export function useGamification() {
     if (aiCount && aiCount >= 10) await unlockBadge(userId, 'ai_chat');
   }, [stats, unlockBadge]);
 
+  // Get progress to next badge
+  const getProgressToNextBadge = useCallback((badgeId: string): number => {
+    if (!stats) return 0;
+
+    const thresholds: Record<string, number> = {
+      streak_3: 3,
+      streak_7: 7,
+      streak_30: 30,
+      items_10: 10,
+      items_50: 50,
+      items_100: 100,
+      items_200: 200,
+    };
+
+    const threshold = thresholds[badgeId];
+    if (!threshold) return 0;
+
+    if (badgeId.startsWith('streak_')) {
+      return Math.min(100, Math.round((stats.currentStreak / threshold) * 100));
+    }
+
+    return 0;
+  }, [stats]);
+
+  // Get XP multiplier based on streak
+  const getMultiplier = useCallback((): number => {
+    if (!stats) return 1;
+
+    if (stats.currentStreak >= 30) return 2.0;
+    if (stats.currentStreak >= 14) return 1.5;
+    if (stats.currentStreak >= 7) return 1.25;
+    if (stats.currentStreak >= 3) return 1.1;
+    return 1;
+  }, [stats]);
+
+  // Get daily challenge
+  const getDailyChallenge = useCallback((): {
+    type: string;
+    target: number;
+    description: string;
+    xpReward: number;
+  } => {
+    const today = new Date().getDay();
+    const challenges = [
+      { type: 'review', target: 10, description: 'Réviser 10 items', xpReward: 100 },
+      { type: 'quiz', target: 1, description: 'Compléter un quiz', xpReward: 150 },
+      { type: 'flashcard', target: 20, description: 'Réviser 20 flashcards', xpReward: 120 },
+      { type: 'music', target: 1, description: 'Écouter une chanson EDN', xpReward: 50 },
+      { type: 'streak', target: 1, description: 'Maintenir votre streak', xpReward: 75 },
+      { type: 'clinical', target: 1, description: 'Compléter un cas clinique', xpReward: 200 },
+      { type: 'ai', target: 3, description: 'Poser 3 questions à l\'IA', xpReward: 60 },
+    ];
+    return challenges[today];
+  }, []);
+
+  // Get recent achievements
+  const getRecentAchievements = useCallback(async (userId: string, limit: number = 5): Promise<Badge[]> => {
+    try {
+      const { data } = await supabase
+        .from('user_badges')
+        .select('badge_id, badge_name, badge_description, badge_icon, earned_at')
+        .eq('user_id', userId)
+        .eq('unlocked', true)
+        .order('earned_at', { ascending: false })
+        .limit(limit);
+
+      return (data || []).map(b => {
+        const def = BADGE_DEFINITIONS.find(d => d.id === b.badge_id);
+        return {
+          id: b.badge_id,
+          name: b.badge_name || def?.name || 'Badge',
+          description: b.badge_description || def?.description || '',
+          icon: b.badge_icon || def?.icon || '🏆',
+          rarity: def?.rarity || 'common',
+          unlockedAt: b.earned_at
+        };
+      });
+    } catch (error) {
+      console.error('Error getting recent achievements:', error);
+      return [];
+    }
+  }, []);
+
+  // Get leaderboard
+  const getLeaderboard = useCallback(async (limit: number = 10): Promise<{
+    userId: string;
+    displayName: string;
+    totalPoints: number;
+    level: number;
+    badges: number;
+  }[]> => {
+    try {
+      const { data } = await supabase
+        .from('gamification_activities')
+        .select('user_id, points_earned')
+        .limit(1000);
+
+      if (!data) return [];
+
+      // Aggregate by user
+      const userPoints = new Map<string, number>();
+      data.forEach(d => {
+        userPoints.set(d.user_id, (userPoints.get(d.user_id) || 0) + (d.points_earned || 0));
+      });
+
+      // Get user profiles
+      const userIds = Array.from(userPoints.keys());
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      // Get badge counts
+      const { data: badges } = await supabase
+        .from('user_badges')
+        .select('user_id')
+        .eq('unlocked', true)
+        .in('user_id', userIds);
+
+      const badgeCounts = new Map<string, number>();
+      badges?.forEach(b => {
+        badgeCounts.set(b.user_id, (badgeCounts.get(b.user_id) || 0) + 1);
+      });
+
+      // Build leaderboard
+      const leaderboard = userIds.map(userId => {
+        const points = userPoints.get(userId) || 0;
+        const profile = profiles?.find(p => p.id === userId);
+        return {
+          userId,
+          displayName: profile?.full_name || 'Utilisateur',
+          totalPoints: points,
+          level: calculateLevel(points),
+          badges: badgeCounts.get(userId) || 0
+        };
+      });
+
+      return leaderboard
+        .sort((a, b) => b.totalPoints - a.totalPoints)
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Error getting leaderboard:', error);
+      return [];
+    }
+  }, []);
+
+  // Get XP history
+  const getXPHistory = useCallback(async (userId: string, days: number = 7): Promise<{
+    date: string;
+    xp: number;
+  }[]> => {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const { data } = await supabase
+        .from('gamification_activities')
+        .select('points_earned, created_at')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (!data) return [];
+
+      // Group by date
+      const byDate = new Map<string, number>();
+      data.forEach(d => {
+        const date = d.created_at.split('T')[0];
+        byDate.set(date, (byDate.get(date) || 0) + (d.points_earned || 0));
+      });
+
+      return Array.from(byDate.entries()).map(([date, xp]) => ({ date, xp }));
+    } catch (error) {
+      console.error('Error getting XP history:', error);
+      return [];
+    }
+  }, []);
+
+  // Calculate total XP needed for a level
+  const getXPForLevel = useCallback((level: number): number => {
+    return (level - 1) * XP_PER_LEVEL;
+  }, []);
+
+  // Get badge rarity color
+  const getBadgeRarityColor = useCallback((rarity: Badge['rarity']): string => {
+    switch (rarity) {
+      case 'legendary': return 'text-yellow-500 bg-yellow-500/10';
+      case 'epic': return 'text-purple-500 bg-purple-500/10';
+      case 'rare': return 'text-blue-500 bg-blue-500/10';
+      default: return 'text-gray-500 bg-gray-500/10';
+    }
+  }, []);
+
+  // Check if user can unlock a specific badge
+  const canUnlockBadge = useCallback((badgeId: string): boolean => {
+    if (!stats) return false;
+    if (stats.badges.some(b => b.id === badgeId)) return false;
+    return true;
+  }, [stats]);
+
+  // Get unlocked badges count by rarity
+  const getBadgeCountByRarity = useCallback((): Record<Badge['rarity'], number> => {
+    if (!stats) return { common: 0, rare: 0, epic: 0, legendary: 0 };
+
+    return stats.badges.reduce((acc, badge) => {
+      acc[badge.rarity] = (acc[badge.rarity] || 0) + 1;
+      return acc;
+    }, { common: 0, rare: 0, epic: 0, legendary: 0 } as Record<Badge['rarity'], number>);
+  }, [stats]);
+
+  // Reset daily streak (admin function)
+  const resetStreak = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      localStorage.setItem(`gamification_${userId}`, JSON.stringify({ longestStreak: 0 }));
+      await loadStats(userId);
+      return true;
+    } catch (error) {
+      console.error('Error resetting streak:', error);
+      return false;
+    }
+  }, [loadStats]);
+
   return {
     stats,
     loading,
@@ -284,6 +506,17 @@ export function useGamification() {
     addPoints,
     unlockBadge,
     checkAndUnlockBadges,
+    getProgressToNextBadge,
+    getMultiplier,
+    getDailyChallenge,
+    getRecentAchievements,
+    getLeaderboard,
+    getXPHistory,
+    getXPForLevel,
+    getBadgeRarityColor,
+    canUnlockBadge,
+    getBadgeCountByRarity,
+    resetStreak,
     BADGE_DEFINITIONS,
     POINTS_CONFIG,
   };

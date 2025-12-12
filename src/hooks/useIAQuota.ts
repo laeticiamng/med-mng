@@ -202,6 +202,89 @@ export const useIAQuota = () => {
     fetchQuota();
   }, []);
 
+  // Obtenir le pourcentage de quota utilisé
+  const getUsagePercentage = (maxQuota: number = 100): number => {
+    return Math.round(((maxQuota - quota) / maxQuota) * 100);
+  };
+
+  // Vérifier si le quota est critique (< 20%)
+  const isQuotaCritical = (maxQuota: number = 100): boolean => {
+    return (quota / maxQuota) < 0.2;
+  };
+
+  // Vérifier si le quota est faible (< 40%)
+  const isQuotaLow = (maxQuota: number = 100): boolean => {
+    return (quota / maxQuota) < 0.4;
+  };
+
+  // Obtenir le message de statut du quota
+  const getQuotaStatus = (maxQuota: number = 100): { status: 'ok' | 'low' | 'critical'; message: string } => {
+    const percentage = (quota / maxQuota) * 100;
+    if (percentage <= 20) {
+      return { status: 'critical', message: `Quota critique: ${quota} crédits restants` };
+    } else if (percentage <= 40) {
+      return { status: 'low', message: `Quota faible: ${quota} crédits restants` };
+    }
+    return { status: 'ok', message: `Quota OK: ${quota} crédits restants` };
+  };
+
+  // Estimer le nombre d'opérations possibles
+  const estimateOperations = (serviceType: string, operationType: string): number => {
+    const costPerOp = getCreditsRequired(serviceType, operationType);
+    return Math.floor(quota / costPerOp);
+  };
+
+  // Obtenir l'historique d'utilisation simplifié
+  const getUsageHistory = async (days: number = 7): Promise<Array<{ date: string; credits: number }>> => {
+    try {
+      const stats = await getStats(days);
+      if (!stats) return [];
+
+      return stats.daily_usage.map(d => ({
+        date: d.usage_date,
+        credits: d.daily_credits
+      }));
+    } catch (error) {
+      console.error('Erreur récupération historique:', error);
+      return [];
+    }
+  };
+
+  // Obtenir le service le plus utilisé
+  const getMostUsedService = async (): Promise<string | null> => {
+    try {
+      const stats = await getStats(30);
+      if (!stats || stats.by_service.length === 0) return null;
+
+      const sorted = [...stats.by_service].sort((a, b) => b.total_credits - a.total_credits);
+      return sorted[0].service_type;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Réserver des crédits (pour opérations longues)
+  const reserveCredits = async (serviceType: string, operationType: string): Promise<{ reserved: boolean; reservationId?: string }> => {
+    const creditsNeeded = getCreditsRequired(serviceType, operationType);
+    if (quota < creditsNeeded) {
+      return { reserved: false };
+    }
+
+    // Décrémenter localement le quota en attendant
+    setQuota(prev => prev - creditsNeeded);
+
+    return {
+      reserved: true,
+      reservationId: `res_${Date.now()}_${serviceType}_${operationType}`
+    };
+  };
+
+  // Libérer une réservation (si opération annulée)
+  const releaseReservation = async (reservationId: string, serviceType: string, operationType: string) => {
+    const creditsToRestore = getCreditsRequired(serviceType, operationType);
+    setQuota(prev => prev + creditsToRestore);
+  };
+
   return {
     quota,
     loading,
@@ -209,7 +292,17 @@ export const useIAQuota = () => {
     checkQuota,
     useQuota,
     getStats,
-    refreshQuota: fetchQuota
+    refreshQuota: fetchQuota,
+    getUsagePercentage,
+    isQuotaCritical,
+    isQuotaLow,
+    getQuotaStatus,
+    estimateOperations,
+    getUsageHistory,
+    getMostUsedService,
+    reserveCredits,
+    releaseReservation,
+    getCreditsRequired
   };
 };
 

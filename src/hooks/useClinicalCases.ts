@@ -477,6 +477,171 @@ export const useClinicalCases = () => {
     return cases.find(c => c.id === currentProgress.caseId) || null;
   }, [currentProgress, cases]);
 
+  // Get case by ID
+  const getCaseById = useCallback((caseId: string): ClinicalCase | undefined => {
+    return cases.find(c => c.id === caseId);
+  }, [cases]);
+
+  // Get available specialties
+  const getSpecialties = useCallback((): string[] => {
+    return [...new Set(cases.map(c => c.specialty))];
+  }, [cases]);
+
+  // Get cases by specialty
+  const getCasesBySpecialty = useCallback((specialty: string): ClinicalCase[] => {
+    return cases.filter(c => c.specialty === specialty);
+  }, [cases]);
+
+  // Get cases by difficulty
+  const getCasesByDifficulty = useCallback((difficulty: ClinicalCase['difficulty']): ClinicalCase[] => {
+    return cases.filter(c => c.difficulty === difficulty);
+  }, [cases]);
+
+  // Get related items for a case
+  const getRelatedItems = useCallback((caseId: string): string[] => {
+    const clinicalCase = cases.find(c => c.id === caseId);
+    return clinicalCase?.relatedItems || [];
+  }, [cases]);
+
+  // Get current step
+  const getCurrentStep = useCallback((): ClinicalStep | null => {
+    if (!currentProgress) return null;
+    const clinicalCase = cases.find(c => c.id === currentProgress.caseId);
+    if (!clinicalCase) return null;
+    return clinicalCase.steps[currentProgress.currentStepIndex] || null;
+  }, [currentProgress, cases]);
+
+  // Get progress percentage
+  const getProgressPercentage = useCallback((): number => {
+    if (!currentProgress) return 0;
+    const clinicalCase = cases.find(c => c.id === currentProgress.caseId);
+    if (!clinicalCase || clinicalCase.steps.length === 0) return 0;
+    return Math.round((currentProgress.currentStepIndex / clinicalCase.steps.length) * 100);
+  }, [currentProgress, cases]);
+
+  // Get current score
+  const getCurrentScore = useCallback((): number => {
+    if (!currentProgress || currentProgress.totalAnswers === 0) return 0;
+    return Math.round((currentProgress.correctAnswers / currentProgress.totalAnswers) * 100);
+  }, [currentProgress]);
+
+  // Is case completed
+  const isCaseCompleted = useCallback((): boolean => {
+    if (!currentProgress) return false;
+    const clinicalCase = cases.find(c => c.id === currentProgress.caseId);
+    if (!clinicalCase) return false;
+    return currentProgress.currentStepIndex >= clinicalCase.steps.length;
+  }, [currentProgress, cases]);
+
+  // Reset current progress
+  const resetProgress = useCallback(() => {
+    setCurrentProgress(null);
+  }, []);
+
+  // Get time spent on current case
+  const getTimeSpent = useCallback((): number => {
+    if (!currentProgress) return 0;
+    return currentProgress.decisions.reduce((sum, d) => sum + d.timeSpent, 0);
+  }, [currentProgress]);
+
+  // Get average time per step
+  const getAverageTimePerStep = useCallback((): number => {
+    if (!currentProgress || currentProgress.decisions.length === 0) return 0;
+    const totalTime = currentProgress.decisions.reduce((sum, d) => sum + d.timeSpent, 0);
+    return Math.round(totalTime / currentProgress.decisions.length);
+  }, [currentProgress]);
+
+  // Search cases
+  const searchCases = useCallback((query: string): ClinicalCase[] => {
+    if (!query.trim()) return cases;
+    const queryLower = query.toLowerCase();
+    return cases.filter(c =>
+      c.title.toLowerCase().includes(queryLower) ||
+      c.description.toLowerCase().includes(queryLower) ||
+      c.specialty.toLowerCase().includes(queryLower) ||
+      c.learningObjectives.some(obj => obj.toLowerCase().includes(queryLower))
+    );
+  }, [cases]);
+
+  // Get recommended cases based on user stats
+  const getRecommendedCases = useCallback((userId: string): ClinicalCase[] => {
+    const stats = getStats(userId);
+
+    // Prioritize specialties with low scores or not attempted
+    const specialtyScores = new Map(
+      Object.entries(stats.bySpecialty).map(([spec, data]) => [spec, data.score])
+    );
+
+    return cases
+      .sort((a, b) => {
+        const scoreA = specialtyScores.get(a.specialty) ?? 0;
+        const scoreB = specialtyScores.get(b.specialty) ?? 0;
+        return scoreA - scoreB; // Lower scores first
+      })
+      .slice(0, 5);
+  }, [cases, getStats]);
+
+  // Get case difficulty color
+  const getDifficultyColor = useCallback((difficulty: ClinicalCase['difficulty']): string => {
+    switch (difficulty) {
+      case 'beginner': return 'text-green-500 bg-green-500/10';
+      case 'intermediate': return 'text-yellow-500 bg-yellow-500/10';
+      case 'advanced': return 'text-red-500 bg-red-500/10';
+      default: return 'text-gray-500 bg-gray-500/10';
+    }
+  }, []);
+
+  // Get estimated time display
+  const getEstimatedTimeDisplay = useCallback((minutes: number): string => {
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+  }, []);
+
+  // Export case history
+  const exportHistory = useCallback((userId: string): string => {
+    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
+      .filter((h: any) => h.userId === userId);
+
+    return JSON.stringify({
+      exportDate: new Date().toISOString(),
+      userId,
+      totalCases: history.length,
+      history
+    }, null, 2);
+  }, []);
+
+  // Clear user history
+  const clearHistory = useCallback((userId: string) => {
+    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
+      .filter((h: any) => h.userId !== userId);
+    localStorage.setItem('clinical_cases_history', JSON.stringify(history));
+  }, []);
+
+  // Get total cases count
+  const getTotalCasesCount = useCallback((): number => {
+    return cases.length;
+  }, [cases]);
+
+  // Check if case was completed by user
+  const wasCaseCompleted = useCallback((userId: string, caseId: string): boolean => {
+    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]');
+    return history.some((h: any) => h.userId === userId && h.caseId === caseId && h.completedAt);
+  }, []);
+
+  // Get best score for a case
+  const getBestScore = useCallback((userId: string, caseId: string): number => {
+    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
+      .filter((h: CaseProgress) => h.caseId === caseId && h.completedAt);
+
+    if (history.length === 0) return 0;
+
+    return Math.max(...history.map((h: CaseProgress) =>
+      h.totalAnswers > 0 ? Math.round((h.correctAnswers / h.totalAnswers) * 100) : 0
+    ));
+  }, []);
+
   return {
     loading,
     cases,
@@ -486,6 +651,27 @@ export const useClinicalCases = () => {
     submitDecision,
     completeCase,
     getStats,
-    getCurrentCase
+    getCurrentCase,
+    getCaseById,
+    getSpecialties,
+    getCasesBySpecialty,
+    getCasesByDifficulty,
+    getRelatedItems,
+    getCurrentStep,
+    getProgressPercentage,
+    getCurrentScore,
+    isCaseCompleted,
+    resetProgress,
+    getTimeSpent,
+    getAverageTimePerStep,
+    searchCases,
+    getRecommendedCases,
+    getDifficultyColor,
+    getEstimatedTimeDisplay,
+    exportHistory,
+    clearHistory,
+    getTotalCasesCount,
+    wasCaseCompleted,
+    getBestScore
   };
 };
