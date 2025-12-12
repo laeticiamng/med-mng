@@ -3,6 +3,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useLocation } from 'react-router-dom';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingStep {
@@ -20,6 +21,7 @@ export const DynamicOnboarding: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showTour, setShowTour] = useState(false);
   const { logActivity } = useActivityTracking();
+  const { addPoints, loadStats } = useGamification();
   const [user, setUser] = useState<any>(null);
   
   // ✅ Only show onboarding on homepage
@@ -38,9 +40,10 @@ export const DynamicOnboarding: React.FC = () => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      if (user) loadStats(user.id);
     };
     checkUser();
-  }, []);
+  }, [loadStats]);
 
   useEffect(() => {
     loadDynamicOnboarding();
@@ -134,6 +137,8 @@ export const DynamicOnboarding: React.FC = () => {
         count: 1,
         metadata: { action: 'onboarding_modal_complete' }
       });
+      // Award points for completing onboarding
+      await addPoints(user.id, 'itemReviewed');
     }
     
     // Check if there are tour steps
@@ -153,6 +158,8 @@ export const DynamicOnboarding: React.FC = () => {
         count: 1,
         metadata: { action: 'onboarding_tour_complete' }
       });
+      // Award points for completing tour
+      await addPoints(user.id, 'itemReviewed');
     }
     
     setShowTour(false);

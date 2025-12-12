@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
@@ -6,6 +6,9 @@ import { BandeDessinee } from '../BandeDessinee';
 import { InteractionSection } from './InteractionSection';
 import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Flame, Star, Trophy } from 'lucide-react';
 
 interface ImmersiveContentProps {
   item: any;
@@ -19,6 +22,16 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   sections
 }) => {
   const { logActivity } = useActivityTracking();
+  const { stats, loadStats, addPoints } = useGamification();
+  const hasTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadStats(user.id);
+    };
+    load();
+  }, [loadStats]);
 
   useEffect(() => {
     logActivity({
@@ -31,6 +44,18 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         sectionName: sections[currentSection]
       }
     });
+
+    // Award points for first section view
+    const awardPoints = async () => {
+      if (!hasTrackedRef.current) {
+        hasTrackedRef.current = true;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await addPoints(user.id, 'itemReviewed');
+        }
+      }
+    };
+    awardPoints();
   }, [currentSection, item.item_code]);
 
   const renderSection = () => {
@@ -183,6 +208,24 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
 
   return (
     <div className="min-h-[600px]">
+      {stats && (
+        <div className="flex items-center gap-3 mb-4 p-2 bg-muted/30 rounded-lg">
+          <div className="flex items-center gap-1">
+            <Flame className="h-4 w-4 text-warning" />
+            <span className="font-bold text-warning">{stats.currentStreak}j</span>
+          </div>
+          <div className="w-px h-4 bg-border" />
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 text-primary" />
+            <span className="font-bold text-primary">Nv.{stats.level}</span>
+          </div>
+          <div className="w-px h-4 bg-border" />
+          <div className="flex items-center gap-1">
+            <Trophy className="h-4 w-4 text-success" />
+            <span className="text-sm text-muted-foreground">{stats.badges?.length || 0} badges</span>
+          </div>
+        </div>
+      )}
       {renderSection()}
     </div>
   );
