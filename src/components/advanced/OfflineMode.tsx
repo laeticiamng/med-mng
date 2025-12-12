@@ -227,11 +227,11 @@ export const OfflineMode: React.FC = () => {
         .select('item_code, title')
         .limit(20);
 
-      // Charger les musiques disponibles
-      const { data: musicItems } = await supabase
-        .from('music_generations')
-        .select('id, title, item_code')
-        .eq('status', 'completed')
+      // Charger les musiques disponibles (depuis ai_generated_content)
+      const { data: musicItems } = await (supabase
+        .from('ai_generated_content') as any)
+        .select('id, title, identifier')
+        .eq('content_type', 'music')
         .limit(20);
 
       const available: typeof availableContent = [];
@@ -250,14 +250,14 @@ export const OfflineMode: React.FC = () => {
       });
 
       // Ajouter les musiques
-      musicItems?.forEach(item => {
+      musicItems?.forEach((item: any) => {
         if (!offlineData.find(d => d.id === `music_${item.id}`)) {
           available.push({
             id: `music_${item.id}`,
-            title: item.title || `Musique ${item.item_code}`,
+            title: item.title || `Musique ${item.identifier}`,
             type: 'music',
             size: 5 * 1024 * 1024, // ~5MB pour une musique
-            itemCode: item.item_code
+            itemCode: item.identifier
           });
         }
       });
@@ -330,10 +330,10 @@ export const OfflineMode: React.FC = () => {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 60 }));
 
         // Récupérer les compétences associées
-        const { data: competences } = await supabase
-          .from('edn_competences')
+        const { data: competences } = await (supabase
+          .from('oic_competences') as any)
           .select('*')
-          .eq('item_code', itemCode);
+          .eq('item_number', itemCode?.replace('IC-', ''));
 
         data = { item: ednData, competences };
         size = JSON.stringify(data).length;
@@ -342,8 +342,8 @@ export const OfflineMode: React.FC = () => {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 20 }));
 
         const musicId = contentId.replace('music_', '');
-        const { data: musicData, error } = await supabase
-          .from('music_generations')
+        const { data: musicData, error } = await (supabase
+          .from('ai_generated_content') as any)
           .select('*')
           .eq('id', musicId)
           .single();
@@ -353,9 +353,10 @@ export const OfflineMode: React.FC = () => {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 50 }));
 
         // Télécharger le fichier audio si disponible
-        if (musicData.audio_url) {
+        const audioUrl = musicData?.content?.audio_url;
+        if (audioUrl) {
           try {
-            const response = await fetch(musicData.audio_url);
+            const response = await fetch(audioUrl);
             const blob = await response.blob();
             const arrayBuffer = await blob.arrayBuffer();
             data = { ...musicData, audioBlob: Array.from(new Uint8Array(arrayBuffer)) };

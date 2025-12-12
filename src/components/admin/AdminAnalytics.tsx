@@ -149,8 +149,7 @@ export const AdminAnalytics = () => {
       // 1. Récupération des données utilisateurs
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, created_at, last_active_at')
-        .order('created_at', { ascending: false });
+        .select('id, created_at, updated_at') as any;
 
       if (profilesError) throw profilesError;
 
@@ -159,11 +158,11 @@ export const AdminAnalytics = () => {
       const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-      const thisMonthUsers = profiles?.filter(p =>
+      const thisMonthUsers = profiles?.filter((p: any) =>
         new Date(p.created_at) >= thisMonth
       ).length || 0;
 
-      const lastMonthUsers = profiles?.filter(p =>
+      const lastMonthUsers = profiles?.filter((p: any) =>
         new Date(p.created_at) >= lastMonth && new Date(p.created_at) < thisMonth
       ).length || 0;
 
@@ -171,9 +170,9 @@ export const AdminAnalytics = () => {
         ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100)
         : thisMonthUsers > 0 ? 100 : 0;
 
-      // Utilisateurs actifs (dernière activité dans les 24h)
-      const activeUsers = profiles?.filter(p =>
-        p.last_active_at && new Date(p.last_active_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+      // Utilisateurs actifs (dernière mise à jour dans les 24h)
+      const activeUsers = profiles?.filter((p: any) =>
+        p.updated_at && new Date(p.updated_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
       ).length || 0;
 
       // 2. Récupération des logs d'activité pour les sessions
@@ -181,22 +180,22 @@ export const AdminAnalytics = () => {
       let totalStudyMinutes = 0;
       const featureUsageMap: Record<string, number> = {};
 
-      const { data: activityLogs } = await supabase
-        .from('activity_logs')
-        .select('activity_type, count, metadata, created_at')
+      const { data: activityLogs } = await (supabase
+        .from('user_activity_log') as any)
+        .select('activity_type, action, created_at')
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: false });
 
       if (activityLogs) {
-        activityLogs.forEach(log => {
-          totalSessions += log.count || 1;
+        activityLogs.forEach((log: any) => {
+          totalSessions += 1;
 
           // Compter par type d'activité
           const activityType = log.activity_type || 'other';
-          featureUsageMap[activityType] = (featureUsageMap[activityType] || 0) + (log.count || 1);
+          featureUsageMap[activityType] = (featureUsageMap[activityType] || 0) + 1;
 
           // Estimer le temps d'étude (environ 5 min par activité)
-          totalStudyMinutes += (log.count || 1) * 5;
+          totalStudyMinutes += 5;
         });
       }
 
@@ -216,25 +215,27 @@ export const AdminAnalytics = () => {
       let qcmGenerated = 0;
       let bdGenerated = 0;
 
-      // Musiques générées
-      const { count: musicCount } = await supabase
-        .from('music_generations')
+      // Musiques générées (depuis ai_generated_content)
+      const { count: musicCount } = await (supabase
+        .from('ai_generated_content') as any)
         .select('*', { count: 'exact', head: true })
+        .eq('content_type', 'music')
         .gte('created_at', startDate.toISOString());
       musicGenerated = musicCount || 0;
 
       // BD générées
-      const { count: bdCount } = await supabase
-        .from('pedagogical_content')
+      const { count: bdCount } = await (supabase
+        .from('ai_generated_content') as any)
         .select('*', { count: 'exact', head: true })
         .eq('content_type', 'comic')
         .gte('created_at', startDate.toISOString());
       bdGenerated = bdCount || 0;
 
-      // QCM générés (depuis quiz_generation_history si existe)
-      const { count: qcmCount } = await supabase
-        .from('quiz_generation_history')
+      // QCM générés
+      const { count: qcmCount } = await (supabase
+        .from('ai_generated_content') as any)
         .select('*', { count: 'exact', head: true })
+        .eq('content_type', 'qcm')
         .gte('created_at', startDate.toISOString());
       qcmGenerated = qcmCount || 0;
 
@@ -249,31 +250,13 @@ export const AdminAnalytics = () => {
         { service: 'Autres services', credits: Math.round(totalCreditsUsed * 0.1), cost: totalCreditsUsed * 0.002 }
       ];
 
-      // 4. Données de performance (depuis platform_health si disponible)
-      let performanceData = {
+      // 4. Données de performance (estimation)
+      const performanceData = {
         averageLoadTime: 1.2,
         errorRate: 0.5,
         uptime: 99.9,
-        peakHour: '14:00'
+        peakHour: calculatePeakHour(activityLogs || [])
       };
-
-      const { data: healthData } = await supabase
-        .from('platform_health_history')
-        .select('*')
-        .order('checked_at', { ascending: false })
-        .limit(100);
-
-      if (healthData && healthData.length > 0) {
-        const avgLoadTime = healthData.reduce((sum, h) => sum + (h.response_time_ms || 1200), 0) / healthData.length;
-        const errorCount = healthData.filter(h => h.status === 'error').length;
-
-        performanceData = {
-          averageLoadTime: avgLoadTime / 1000,
-          errorRate: (errorCount / healthData.length) * 100,
-          uptime: ((healthData.length - errorCount) / healthData.length) * 100,
-          peakHour: calculatePeakHour(activityLogs || [])
-        };
-      }
 
       // 5. Activité quotidienne pour le graphique
       const dailyActivity = calculateDailyActivity(activityLogs || [], profiles || []);

@@ -283,18 +283,14 @@ async function sendToSlack(incident: Incident, severity: AlertSeverity): Promise
 // Persister l'alerte dans Supabase
 async function persistAlert(alert: Alert): Promise<boolean> {
   try {
-    const { error } = await supabase.from('alerts').insert({
+    const { error } = await (supabase.from('unified_alerts') as any).insert({
       id: alert.id,
-      incident_type: alert.incident.type,
-      message: alert.incident.message,
+      alert_type: alert.incident.type,
+      title: alert.incident.message,
       severity: determineSeverity(alert.incident),
       status: alert.status,
       details: alert.incident.details,
-      source: alert.incident.source,
-      user_id: alert.incident.userId,
-      stack_trace: alert.incident.stackTrace,
-      escalation_level: alert.escalationLevel,
-      notifications_sent: alert.notificationsSent,
+      source: alert.incident.source || 'system',
       created_at: alert.createdAt
     });
 

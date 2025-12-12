@@ -133,10 +133,10 @@ export const useItemTitle = (
 
       // Si pas trouvé, essayer la table principale
       if (!data && !queryError) {
-        const { data: mainData, error: mainError } = await supabase
-          .from('edn_items')
+        const { data: mainData, error: mainError } = await (supabase
+          .from('edn_items_immersive') as any)
           .select(includeDetails
-            ? 'item_code, title, rang, numero, completeness_score'
+            ? 'item_code, title, rang'
             : 'title'
           )
           .eq('item_code', itemCode)
@@ -155,12 +155,12 @@ export const useItemTitle = (
 
       if (data) {
         const itemDetails: ItemDetails = {
-          title: data.title || fallbackTitle,
-          subtitle: data.subtitle,
+          title: (data as any).title || fallbackTitle,
+          subtitle: (data as any).subtitle,
           itemCode: itemCode,
-          rang: data.rang,
-          numero: data.numero,
-          completenessScore: data.completeness_score
+          rang: (data as any).rang,
+          numero: (data as any).numero,
+          completenessScore: (data as any).completeness_score
         };
 
         setTitle(itemDetails.title);
@@ -260,15 +260,15 @@ export const useItemTitles = (itemCodes: string[]): {
       setError(null);
 
       try {
-        const { data, error: queryError } = await supabase
-          .from('edn_items')
+        const { data, error: queryError } = await (supabase
+          .from('edn_items_immersive') as any)
           .select('item_code, title')
           .in('item_code', itemCodes);
 
         if (queryError) throw queryError;
 
         const titleMap = new Map<string, string>();
-        data?.forEach(item => {
+        data?.forEach((item: any) => {
           titleMap.set(item.item_code, item.title || 'Sans titre');
         });
 
@@ -295,12 +295,12 @@ export const clearTitleCache = () => {
 export const preloadTitles = async (itemCodes: string[]) => {
   if (itemCodes.length === 0) return;
 
-  const { data } = await supabase
-    .from('edn_items')
+  const { data } = await (supabase
+    .from('edn_items_immersive') as any)
     .select('item_code, title')
     .in('item_code', itemCodes);
 
-  data?.forEach(item => {
+  data?.forEach((item: any) => {
     titleCache.set(item.item_code, {
       data: {
         title: item.title || 'Sans titre',

@@ -21,7 +21,7 @@ const EcosScenario = () => {
   const [quizAnswers, setQuizAnswers] = useState<{[key: number]: string}>({});
   const [user, setUser] = useState<any>(null);
   
-  const { timeLeft, formatTime } = useEcosTimer(900);
+  const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
   const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
 

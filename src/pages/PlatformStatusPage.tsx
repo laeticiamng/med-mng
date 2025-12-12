@@ -53,7 +53,7 @@ interface SystemMetrics {
 
 export default function PlatformStatusPage() {
   const { logActivity } = useActivityTracking();
-  const { addXP } = useGamification();
+  const { addPoints } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');
