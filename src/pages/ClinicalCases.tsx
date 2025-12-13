@@ -42,7 +42,7 @@ export default function ClinicalCases() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; feedback: string } | null>(null);
   const [stepStartTime, setStepStartTime] = useState<number>(Date.now());
-  const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(null);
   const [generatingAI, setGeneratingAI] = useState(false);
 
   // Auth check
