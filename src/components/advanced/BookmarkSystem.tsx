@@ -7,6 +7,7 @@ import {
   Share2, Download, Eye, Clock, Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BookmarkItem {
   id: string;
@@ -54,65 +55,95 @@ export const BookmarkSystem: React.FC<BookmarkSystemProps> = ({
     }
   }, [itemId, bookmarks]);
 
-  const loadBookmarks = () => {
-    const saved = localStorage.getItem('user-bookmarks');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setBookmarks(parsed.map((item: any) => ({
-        ...item,
-        savedAt: new Date(item.savedAt)
+  const loadBookmarks = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { data } = await (supabase as any)
+      .from('user_bookmarks')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('saved_at', { ascending: false });
+    
+    if (data) {
+      setBookmarks(data.map((item: any) => ({
+        id: item.item_id,
+        title: item.title || '',
+        type: item.item_type as 'edn' | 'ecos' | 'music' | 'quiz',
+        category: item.tags?.[0] || 'Général',
+        description: item.notes || '',
+        rating: 4.5,
+        duration: 30,
+        savedAt: new Date(item.saved_at),
+        tags: item.tags || []
       })));
     }
   };
 
-  const saveBookmarks = (newBookmarks: BookmarkItem[]) => {
-    localStorage.setItem('user-bookmarks', JSON.stringify(newBookmarks));
+  const saveBookmarks = async (newBookmarks: BookmarkItem[]) => {
     setBookmarks(newBookmarks);
   };
 
-  const handleBookmarkToggle = () => {
+  const handleBookmarkToggle = async () => {
     if (!itemId || !itemTitle || !itemType) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", description: "Connectez-vous pour ajouter des favoris", variant: "destructive" });
+      return;
+    }
 
     if (isBookmarked) {
       // Retirer des favoris
+      await (supabase as any).from('user_bookmarks').delete()
+        .eq('user_id', user.id)
+        .eq('item_id', itemId);
+      
       const updated = bookmarks.filter(bookmark => bookmark.id !== itemId);
-      saveBookmarks(updated);
+      setBookmarks(updated);
       setIsBookmarked(false);
-      toast({
-        title: "Retiré des favoris",
-        description: `${itemTitle} a été retiré de vos favoris`,
-      });
+      toast({ title: "Retiré des favoris", description: `${itemTitle} a été retiré de vos favoris` });
     } else {
       // Ajouter aux favoris
+      await (supabase as any).from('user_bookmarks').insert({
+        user_id: user.id,
+        item_id: itemId,
+        item_type: itemType,
+        title: itemTitle,
+        notes: itemDescription || '',
+        tags: [itemCategory || 'général'],
+        saved_at: new Date().toISOString()
+      });
+
       const newBookmark: BookmarkItem = {
         id: itemId,
         title: itemTitle,
         type: itemType,
         category: itemCategory || 'Général',
         description: itemDescription || '',
-        rating: 4.5, // Default rating
-        duration: 30, // Default duration
+        rating: 4.5,
+        duration: 30,
         savedAt: new Date(),
         tags: [itemCategory || 'général']
       };
 
-      const updated = [newBookmark, ...bookmarks];
-      saveBookmarks(updated);
+      setBookmarks([newBookmark, ...bookmarks]);
       setIsBookmarked(true);
-      toast({
-        title: "Ajouté aux favoris",
-        description: `${itemTitle} a été ajouté à vos favoris`,
-      });
+      toast({ title: "Ajouté aux favoris", description: `${itemTitle} a été ajouté à vos favoris` });
     }
   };
 
-  const handleRemoveBookmark = (bookmarkId: string) => {
+  const handleRemoveBookmark = async (bookmarkId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_bookmarks').delete()
+        .eq('user_id', user.id)
+        .eq('item_id', bookmarkId);
+    }
+    
     const updated = bookmarks.filter(bookmark => bookmark.id !== bookmarkId);
-    saveBookmarks(updated);
-    toast({
-      title: "Favori supprimé",
-      description: "L'élément a été retiré de vos favoris",
-    });
+    setBookmarks(updated);
+    toast({ title: "Favori supprimé", description: "L'élément a été retiré de vos favoris" });
   };
 
   const handleShare = async (bookmark: BookmarkItem) => {

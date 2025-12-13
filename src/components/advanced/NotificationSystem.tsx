@@ -9,6 +9,7 @@ import {
   Info, CheckCircle, XCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Notification {
   id: string;
@@ -45,62 +46,37 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
     // Les notifications doivent être déclenchées par des événements réels uniquement
   }, []);
 
-  const loadNotifications = () => {
-    // Charger depuis localStorage ou API
-    const saved = localStorage.getItem('user-notifications');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setNotifications(parsed.map((notif: any) => ({
-        ...notif,
-        timestamp: new Date(notif.timestamp)
-      })));
-    } else {
-      // Notifications de démo
-      const demoNotifications: Notification[] = [
-        {
-          id: '1',
-          type: 'achievement',
-          title: 'Nouveau badge débloqué !',
-          message: 'Félicitations ! Vous avez obtenu le badge "Studieux" pour 100 heures d\'étude.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000),
-          read: false,
-          category: 'achievement',
-          priority: 'high',
-          actionUrl: '/achievements',
-          actionText: 'Voir mes badges'
-        },
-        {
-          id: '2',
-          type: 'content',
-          title: 'Nouveau contenu disponible',
-          message: 'De nouveaux items EDN en cardiologie sont maintenant disponibles.',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          read: false,
-          category: 'content',
-          priority: 'medium',
-          actionUrl: '/edn-complete',
-          actionText: 'Explorer'
-        },
-        {
-          id: '3',
-          type: 'info',
-          title: 'Mise à jour de profil',
-          message: 'N\'oubliez pas de compléter votre profil pour une expérience personnalisée.',
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          read: true,
-          category: 'system',
-          priority: 'low',
-          actionUrl: '/med-mng/profile',
-          actionText: 'Compléter'
-        }
-      ];
-      setNotifications(demoNotifications);
-      saveNotifications(demoNotifications);
+  const loadNotifications = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await (supabase as any)
+        .from('user_notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (data && data.length > 0) {
+        setNotifications(data.map((notif: any) => ({
+          id: notif.id,
+          type: notif.type as Notification['type'],
+          title: notif.title,
+          message: notif.message || '',
+          timestamp: new Date(notif.created_at),
+          read: notif.is_read,
+          actionUrl: notif.action_url,
+          category: 'system' as const,
+          priority: notif.priority as 'low' | 'medium' | 'high'
+        })));
+        return;
+      }
     }
+    // Demo notifications for non-authenticated users
+    setNotifications([]);
   };
 
-  const saveNotifications = (notifs: Notification[]) => {
-    localStorage.setItem('user-notifications', JSON.stringify(notifs));
+  const saveNotifications = async (notifs: Notification[]) => {
+    // Notifications are saved via individual operations
   };
 
   const generateRandomNotification = () => {

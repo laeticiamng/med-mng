@@ -625,23 +625,26 @@ export const useClinicalCases = () => {
   }, []);
 
   // Export case history
-  const exportHistory = useCallback((userId: string): string => {
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
-      .filter((h: any) => h.userId === userId);
+  const exportHistory = useCallback(async (userId: string): Promise<string> => {
+    const { data: history } = await (supabase as any)
+      .from('clinical_cases_history')
+      .select('*')
+      .eq('user_id', userId);
 
     return JSON.stringify({
       exportDate: new Date().toISOString(),
       userId,
-      totalCases: history.length,
-      history
+      totalCases: history?.length || 0,
+      history: history || []
     }, null, 2);
   }, []);
 
   // Clear user history
-  const clearHistory = useCallback((userId: string) => {
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
-      .filter((h: any) => h.userId !== userId);
-    localStorage.setItem('clinical_cases_history', JSON.stringify(history));
+  const clearHistory = useCallback(async (userId: string) => {
+    await (supabase as any)
+      .from('clinical_cases_history')
+      .delete()
+      .eq('user_id', userId);
   }, []);
 
   // Get total cases count
@@ -650,21 +653,28 @@ export const useClinicalCases = () => {
   }, [cases]);
 
   // Check if case was completed by user
-  const wasCaseCompleted = useCallback((userId: string, caseId: string): boolean => {
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]');
-    return history.some((h: any) => h.userId === userId && h.caseId === caseId && h.completedAt);
+  const wasCaseCompleted = useCallback(async (userId: string, caseId: string): Promise<boolean> => {
+    const { data } = await (supabase as any)
+      .from('clinical_cases_history')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('case_id', caseId)
+      .not('completed_at', 'is', null)
+      .limit(1);
+    return (data?.length || 0) > 0;
   }, []);
 
   // Get best score for a case
-  const getBestScore = useCallback((userId: string, caseId: string): number => {
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
-      .filter((h: CaseProgress) => h.caseId === caseId && h.completedAt);
+  const getBestScore = useCallback(async (userId: string, caseId: string): Promise<number> => {
+    const { data: history } = await (supabase as any)
+      .from('clinical_cases_history')
+      .select('score')
+      .eq('user_id', userId)
+      .eq('case_id', caseId)
+      .not('completed_at', 'is', null);
 
-    if (history.length === 0) return 0;
-
-    return Math.max(...history.map((h: CaseProgress) =>
-      h.totalAnswers > 0 ? Math.round((h.correctAnswers / h.totalAnswers) * 100) : 0
-    ));
+    if (!history || history.length === 0) return 0;
+    return Math.max(...history.map((h: any) => h.score || 0));
   }, []);
 
   return {
