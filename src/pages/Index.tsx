@@ -1,35 +1,27 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings, Flame, Trophy } from "lucide-react";
-import { TranslatedText } from "@/components/TranslatedText";
-import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
-import MusicGenerationSection from "@/components/MusicGenerationSection";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ROUTE_PATHS } from "@/config/routes";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification } from "@/hooks/useGamification";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-
-// ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
-const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
-  default: module.MngPresentationBrief
-})));
-const MainSections = lazy(() => import("@/components/MainSections"));
+import { AntiPanicHero } from "@/components/home/AntiPanicHero";
+import { QuickActions } from "@/components/home/QuickActions";
+import { ReassuranceSection } from "@/components/home/ReassuranceSection";
+import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
 
 // Composant de loading léger
-const LazyLoadSpinner = () => <div className="flex justify-center items-center py-8">
+const LazyLoadSpinner = () => (
+  <div className="flex justify-center items-center py-8">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>;
+  </div>
+);
+
 const Index = () => {
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<any>(null);
   const { stats, loadStats } = useGamification();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -37,93 +29,64 @@ const Index = () => {
       if (user) {
         setUser(user);
         loadStats(user.id);
-        // Check admin status from user_roles table
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-        setIsAdmin(!!roles);
+      }
+      
+      // Check if first visit
+      const hasSeenOnboarding = localStorage.getItem('med-mng-onboarding-complete');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
       }
     };
     checkUser();
   }, [loadStats]);
 
-  return <>
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('med-mng-onboarding-complete', 'true');
+  };
+
+  return (
+    <>
       <SEOHead
-        title="MED MNG - Plateforme d'apprentissage médical avec IA"
-        description="Révolutionnez votre apprentissage médical avec MED-MNG : 367 items EDN complets, génération musicale IA, et outils d'étude avancés pour réussir vos examens."
-        keywords="médecine, EDN, apprentissage, IA, formation médicale, ECOS, révision"
+        title="MED MNG - Système anti-panique académique"
+        description="Tu ne sais plus par quoi commencer ? Med-MNG te dit quoi faire. Maintenant. Plateforme de stabilisation cognitive pour étudiants en médecine."
+        keywords="médecine, EDN, révision, anti-stress, étudiants, ECOS, priorité"
         canonical="/"
       />
-      <PremiumBackground>
       
-      {/* Header premium avec effet glassmorphism */}
-      <div className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-lg">
-        
-      </div>
+      {/* Anti-anxiety onboarding for new users */}
+      <AntiAnxietyOnboarding 
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+      />
+      
+      <PremiumBackground>
+        <div className="container mx-auto px-4">
+          {/* Hero Section - Anti-Panic */}
+          <div className="pt-16 pb-16">
+            <AntiPanicHero 
+              showGamification={!!user}
+              stats={stats || undefined}
+            />
+          </div>
 
-      {/* Contenu principal avec design premium */}
-      <div className="container mx-auto px-4">
-        {/* Section Hero premium */}
-        <div className="pt-16 pb-20">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-medical/10 px-6 py-3 rounded-full mb-8 border border-primary/20">
-              <Star className="h-5 w-5 text-primary" />
-              <span className="text-primary font-semibold">Plateforme Premium</span>
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-medical bg-clip-text text-transparent leading-tight">
-              MED MNG
-            </h1>
-            <p className="text-2xl md:text-3xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              <TranslatedText text="Révisez l'EDN avec l'intelligence artificielle" />
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <PremiumButton variant="primary" size="xl" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-                <BookOpen className="h-6 w-6 mr-3" />
-                <TranslatedText text="Commencer mes Révisions" />
-              </PremiumButton>
-              <PremiumButton variant="glass" size="lg" onClick={() => navigate(ROUTE_PATHS.generator)}>
-                <Music className="h-5 w-5 mr-2" />
-                <TranslatedText text="Générer une Musique" />
-              </PremiumButton>
-            </div>
+          {/* Quick Actions - Decision-first */}
+          <div className="pb-20">
+            <QuickActions />
+          </div>
 
-            {/* Widget Gamification pour utilisateurs connectés */}
-            {user && stats && (
-              <div className="mt-12 max-w-2xl mx-auto">
-                <PremiumCard variant="glass" className="p-6 cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-warning/20 border border-warning/30">
-                        <Flame className="h-5 w-5 text-warning" />
-                        <span className="font-bold text-warning">{stats.currentStreak}</span>
-                        <span className="text-sm text-warning/80">jours</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30">
-                        <Star className="h-5 w-5 text-primary" />
-                        <span className="font-bold text-primary">Nv.{stats.level}</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-success/20 border border-success/30">
-                        <Trophy className="h-5 w-5 text-success" />
-                        <span className="font-bold text-success">{stats.badges.length}</span>
-                        <span className="text-sm text-success/80">badges</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground mb-1">Objectif hebdo</div>
-                      <Progress value={(stats.weeklyGoalProgress / stats.weeklyGoal) * 100} className="w-24 h-2" />
-                      <span className="text-xs text-muted-foreground">{stats.weeklyGoalProgress}/{stats.weeklyGoal}</span>
-                    </div>
-                  </div>
-                </PremiumCard>
-              </div>
-            )}
+          {/* Reassurance Section */}
+          <div className="pb-20">
+            <ReassuranceSection />
           </div>
         </div>
+      </PremiumBackground>
+    </>
+  );
+};
+
+export default Index;
 
         {/* Section d'accès rapide premium avec grille 2x2 */}
         <div className="pb-20">
