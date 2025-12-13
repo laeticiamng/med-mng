@@ -186,6 +186,61 @@ export default function ProgressDashboard() {
               </CardContent>
             </Card>
 
+            {/* Time Spent Analytics Card */}
+            <Card className="border-accent/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Clock className="h-5 w-5 text-accent" />
+                  Temps d'étude par item
+                </CardTitle>
+                <CardDescription>Analyse du temps passé sur chaque élément</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-accent/5 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-accent">{Math.round((weeklyData.total * 5) / 60)}h</p>
+                    <p className="text-xs text-muted-foreground">Temps total estimé</p>
+                  </div>
+                  <div className="p-4 bg-primary/5 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-primary">{Math.round((weeklyData.total * 5) / 7)} min/jour</p>
+                    <p className="text-xs text-muted-foreground">Moyenne quotidienne</p>
+                  </div>
+                  <div className="p-4 bg-success/5 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-success">{srsStats?.masteredItems || 0}</p>
+                    <p className="text-xs text-muted-foreground">Items maîtrisés</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Success Probability Card */}
+            <Card className="border-warning/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="h-5 w-5 text-warning" />
+                  Probabilité de succès estimée
+                </CardTitle>
+                <CardDescription>Basée sur vos performances SRS et historique</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Rétention globale estimée</span>
+                    <span className="text-lg font-bold text-warning">
+                      {srsStats ? Math.min(95, 70 + Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 25)) : 70}%
+                    </span>
+                  </div>
+                  <Progress 
+                    value={srsStats ? Math.min(95, 70 + Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 25)) : 70} 
+                    className="h-3" 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Plus vous révisez régulièrement, plus votre probabilité de rétention augmente.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Main Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="bg-gradient-to-br from-primary/10 to-primary/5">

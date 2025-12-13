@@ -97,15 +97,69 @@ export const useSynchronizedLyrics = (songId?: string) => {
     }
   };
 
-  // Générer des timestamps approximatifs à partir du texte
-  const generateTimestampsFromText = (text: string): LyricsLine[] => {
+  // Générer des timestamps intelligents à partir du texte (basé sur longueur des lignes)
+  const generateTimestampsFromText = (text: string, totalDuration?: number): LyricsLine[] => {
     const lines = text.split('\n').filter(line => line.trim().length > 0);
-    const averageLineTime = 4; // 4 secondes par ligne en moyenne
+    if (lines.length === 0) return [];
     
-    return lines.map((line, index) => ({
-      time: index * averageLineTime,
-      text: line.trim()
-    }));
+    // Calculer le poids de chaque ligne basé sur sa longueur
+    const totalChars = lines.reduce((sum, line) => sum + line.trim().length, 0);
+    const duration = totalDuration || lines.length * 4; // Default 4s per line if no duration
+    
+    let currentTime = 0;
+    return lines.map((line, index) => {
+      const lineText = line.trim();
+      const lineWeight = lineText.length / totalChars;
+      const lineDuration = Math.max(2, duration * lineWeight); // Minimum 2 seconds per line
+      
+      const result = {
+        time: Math.round(currentTime * 100) / 100,
+        text: lineText
+      };
+      
+      currentTime += lineDuration;
+      return result;
+    });
+  };
+
+  // Fetch real timestamps from Suno API if available
+  const fetchSunoTimestamps = async (songId: string): Promise<LyricsLine[] | null> => {
+    try {
+      // Check if song has Suno metadata with timestamps
+      const { data: song } = await (supabase as any)
+        .from('med_mng_songs')
+        .select('meta, lyrics')
+        .eq('id', songId)
+        .single();
+
+      if (!song) return null;
+
+      const meta = song.meta as any;
+      
+      // Check for Suno-provided timestamps in metadata
+      if (meta?.suno_data?.lyrics_timestamps) {
+        return meta.suno_data.lyrics_timestamps.map((t: any) => ({
+          time: t.start || t.time,
+          text: t.text || t.line
+        }));
+      }
+
+      // Check for timestamps embedded in lyrics data
+      if (song.lyrics && typeof song.lyrics === 'object') {
+        const lyricsObj = song.lyrics as any;
+        if (lyricsObj.lines && Array.isArray(lyricsObj.lines)) {
+          return lyricsObj.lines.map((l: any) => ({
+            time: l.startTime || l.time || 0,
+            text: l.text || l.words || ''
+          }));
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error fetching Suno timestamps:', error);
+      return null;
+    }
   };
 
   // Sauvegarder les paroles synchronisées
