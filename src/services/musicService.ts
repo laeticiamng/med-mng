@@ -393,7 +393,7 @@ class MusicService {
   }
 
   // ===== ANALYTICS & TRACKING =====
-  private trackGeneration(
+  private async trackGeneration(
     request: MusicGenerationRequest, 
     duration: number, 
     success: boolean, 
@@ -412,18 +412,36 @@ class MusicService {
     
     console.log('📊 Music generation event:', event)
     
-    // Stocker en local storage pour analytics client
-    const existingEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]')
-    existingEvents.push(event)
-    // Garder seulement les 100 derniers événements
-    localStorage.setItem('music_analytics', JSON.stringify(existingEvents.slice(-100)))
+    // Stocker dans Supabase pour analytics persistants
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await (supabase as any).from('music_analytics').insert({
+          user_id: user.id,
+          event_type: event.event_type,
+          event_data: event
+        })
+      }
+    } catch (err) {
+      console.warn('Failed to save music analytics:', err)
+    }
   }
 
   async getAnalytics(): Promise<any> {
-    const localEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { local_events: [], session_stats: this.calculateSessionStats([]) }
+    
+    const { data } = await (supabase as any)
+      .from('music_analytics')
+      .select('event_data')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(100)
+    
+    const events = (data || []).map((d: any) => d.event_data)
     return {
-      local_events: localEvents,
-      session_stats: this.calculateSessionStats(localEvents)
+      local_events: events,
+      session_stats: this.calculateSessionStats(events)
     }
   }
 

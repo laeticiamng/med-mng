@@ -124,10 +124,15 @@ export function useGamification() {
         .eq('user_id', userId)
         .gte('activity_date', weekStart.toISOString().split('T')[0]);
 
-      // Récupérer le longest streak depuis localStorage (fallback temporaire)
-      const stored = localStorage.getItem(`gamification_${userId}`);
-      const storedStats = stored ? JSON.parse(stored) : {};
-      const longestStreak = Math.max(storedStats.longestStreak || 0, currentStreak);
+      // Récupérer le longest streak depuis Supabase
+      const { data: gamificationData } = await (supabase as any)
+        .from('user_gamification_stats')
+        .select('longest_streak')
+        .eq('user_id', userId)
+        .single();
+      
+      const storedLongestStreak = gamificationData?.longest_streak || 0;
+      const longestStreak = Math.max(storedLongestStreak, currentStreak);
 
       const baseStats: GamificationStats = {
         totalPoints,
@@ -142,8 +147,15 @@ export function useGamification() {
       };
 
       setStats(baseStats);
-      // Sauvegarder longestStreak en localStorage (seule donnée locale)
-      localStorage.setItem(`gamification_${userId}`, JSON.stringify({ longestStreak }));
+      
+      // Sauvegarder longestStreak dans Supabase
+      if (longestStreak > storedLongestStreak) {
+        await (supabase as any).from('user_gamification_stats').upsert({
+          user_id: userId,
+          longest_streak: longestStreak,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      }
     } catch (error) {
       console.error('Error loading gamification stats:', error);
     } finally {
@@ -490,7 +502,11 @@ export function useGamification() {
   // Reset daily streak (admin function)
   const resetStreak = useCallback(async (userId: string): Promise<boolean> => {
     try {
-      localStorage.setItem(`gamification_${userId}`, JSON.stringify({ longestStreak: 0 }));
+      await (supabase as any).from('user_gamification_stats').upsert({
+        user_id: userId,
+        longest_streak: 0,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
       await loadStats(userId);
       return true;
     } catch (error) {

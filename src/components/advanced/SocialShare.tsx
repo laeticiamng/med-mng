@@ -6,6 +6,7 @@ import {
   Facebook, Twitter, Linkedin, QrCode
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SocialShareProps {
   title: string;
@@ -306,25 +307,45 @@ export const ShareStats: React.FC<{
 export const useShareTracking = () => {
   const [shares, setShares] = useState<Record<string, number>>({});
 
-  const trackShare = (platform: string) => {
+  const trackShare = async (platform: string) => {
     setShares(prev => ({
       ...prev,
       [platform]: (prev[platform] || 0) + 1
     }));
 
-    // Sauvegarder localement
-    const stored = JSON.parse(localStorage.getItem('share_stats') || '{}');
-    stored[platform] = (stored[platform] || 0) + 1;
-    localStorage.setItem('share_stats', JSON.stringify(stored));
+    // Sauvegarder dans Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('share_stats').insert({
+        user_id: user.id,
+        platform
+      });
+    }
   };
 
-  const loadStats = () => {
-    const stored = JSON.parse(localStorage.getItem('share_stats') || '{}');
-    setShares(stored);
+  const loadStats = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await (supabase as any)
+        .from('share_stats')
+        .select('platform')
+        .eq('user_id', user.id);
+      
+      if (data) {
+        const counts: Record<string, number> = {};
+        data.forEach((d: any) => {
+          counts[d.platform] = (counts[d.platform] || 0) + 1;
+        });
+        setShares(counts);
+      }
+    }
   };
 
-  const resetStats = () => {
-    localStorage.removeItem('share_stats');
+  const resetStats = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('share_stats').delete().eq('user_id', user.id);
+    }
     setShares({});
   };
 
