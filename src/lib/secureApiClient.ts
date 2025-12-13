@@ -93,6 +93,32 @@ export class SecureSunoClient {
 
     return data;
   }
+
+  // Vocal extraction - removes vocals from a track
+  async extractVocals(audioUrl: string): Promise<{ vocalsUrl: string; instrumentalUrl: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
+      body: { action: 'extract_vocals', audioUrl }
+    });
+
+    if (error) {
+      throw new Error(`Vocal Extraction Error: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  // WAV conversion - converts audio to WAV format
+  async convertToWav(audioUrl: string): Promise<{ wavUrl: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
+      body: { action: 'convert_wav', audioUrl }
+    });
+
+    if (error) {
+      throw new Error(`WAV Conversion Error: ${error.message}`);
+    }
+
+    return data;
+  }
 }
 
 // Export singleton instances

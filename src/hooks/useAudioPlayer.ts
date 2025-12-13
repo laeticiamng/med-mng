@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
+import { audioCache } from '@/lib/audioCache';
 
 export const useAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -7,14 +8,27 @@ export const useAudioPlayer = () => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
+  const [isOfflineCached, setIsOfflineCached] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const play = (audioUrl: string) => {
+  const play = async (audioUrl: string, audioId?: string) => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
 
-    const audio = new Audio(audioUrl);
+    // Try to get cached audio first (for offline support)
+    let resolvedUrl = audioUrl;
+    if (audioId && !navigator.onLine) {
+      const cachedUrl = await audioCache.getCachedAudio(audioId);
+      if (cachedUrl) {
+        resolvedUrl = cachedUrl;
+        setIsOfflineCached(true);
+      }
+    } else {
+      setIsOfflineCached(false);
+    }
+
+    const audio = new Audio(resolvedUrl);
     audioRef.current = audio;
     setCurrentTrack(audioUrl);
     audio.volume = volume;
