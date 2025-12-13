@@ -113,7 +113,7 @@ class QueryCacheManager extends QueryCache {
   // Invalider par pattern
   invalidatePattern(pattern: RegExp): number {
     let count = 0;
-    Array.from((this as any).cache.keys()).forEach(key => {
+    Array.from((this as any).cache.keys()).forEach((key: string) => {
       if (pattern.test(key)) {
         this.invalidate(key);
         count++;

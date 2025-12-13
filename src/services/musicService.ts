@@ -263,7 +263,7 @@ class MusicService {
 
       const nextPosition = (existing?.[0]?.position || 0) + 1
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('med_mng_playlist_songs')
         .insert({
           playlist_id: playlistId,

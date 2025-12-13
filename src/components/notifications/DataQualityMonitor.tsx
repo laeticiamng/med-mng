@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -110,7 +111,7 @@ export function DataQualityMonitor() {
       // Vérifier chaque table
       for (const tableName of tablesToCheck) {
         try {
-          const { count, error } = await supabase
+          const { count, error } = await (supabase as any)
             .from(tableName)
             .select('*', { count: 'exact', head: true });
 

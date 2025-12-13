@@ -105,7 +105,7 @@ export const useAnalytics = () => {
     }
   };
 
-  // Get listening stats
+  // Get listening stats (using user_activity_log since med_mng_user_listening_history doesn't exist)
   const getListeningStats = async (days: number = 30) => {
     if (!user) return null;
 
@@ -114,22 +114,23 @@ export const useAnalytics = () => {
       startDate.setDate(startDate.getDate() - days);
 
       const { data, error } = await supabase
-        .from('med_mng_user_listening_history')
+        .from('user_activity_log')
         .select('*')
         .eq('user_id', user.id)
-        .gte('created_at', startDate.toISOString());
+        .eq('activity_type', 'music_generation')
+        .gte('activity_date', startDate.toISOString().split('T')[0]);
 
       if (error) throw error;
 
       const stats = {
         totalListens: data?.length || 0,
-        totalDuration: data?.reduce((sum, d) => sum + (d.listen_duration || 0), 0) || 0,
-        uniqueSongs: new Set(data?.map(d => d.song_id)).size,
+        totalDuration: data?.reduce((sum, d: any) => sum + ((d.metadata as any)?.duration || 0), 0) || 0,
+        uniqueSongs: new Set(data?.map((d: any) => (d.metadata as any)?.song_id)).size,
         byDay: {} as Record<string, number>
       };
 
-      data?.forEach(d => {
-        const day = d.created_at.split('T')[0];
+      data?.forEach((d: any) => {
+        const day = d.activity_date;
         stats.byDay[day] = (stats.byDay[day] || 0) + 1;
       });
 
@@ -196,31 +197,32 @@ export const useAnalytics = () => {
     }
   };
 
-  // Get top listened songs
+  // Get top listened songs (using activity log since listening history table doesn't exist)
   const getTopSongs = async (limit: number = 10) => {
     if (!user) return [];
 
     try {
       const { data, error } = await supabase
-        .from('med_mng_user_listening_history')
-        .select('song_id, med_mng_songs(title, artist)')
+        .from('user_activity_log')
+        .select('metadata')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .eq('activity_type', 'music_generation')
+        .order('activity_date', { ascending: false })
         .limit(100);
 
       if (error) throw error;
 
       const songCounts: Record<string, { count: number; title: string; artist: string }> = {};
-      data?.forEach(d => {
-        const song = d.med_mng_songs as any;
-        if (!songCounts[d.song_id]) {
-          songCounts[d.song_id] = {
+      data?.forEach((d: any) => {
+        const songId = (d.metadata as any)?.song_id;
+        if (songId && !songCounts[songId]) {
+          songCounts[songId] = {
             count: 0,
-            title: song?.title || 'Unknown',
-            artist: song?.artist || 'Unknown'
+            title: (d.metadata as any)?.title || 'Unknown',
+            artist: (d.metadata as any)?.artist || 'Unknown'
           };
         }
-        songCounts[d.song_id].count++;
+        if (songId) songCounts[songId].count++;
       });
 
       return Object.entries(songCounts)

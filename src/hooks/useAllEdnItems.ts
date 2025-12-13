@@ -39,7 +39,7 @@ export const useAllEdnItems = () => {
     try {
       const { data, error: supabaseError } = await supabase
         .from('edn_items_immersive')
-        .select('item_code, title, subtitle, category, has_music, has_lyrics, competences_count')
+        .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
         .order('item_code');
 
       if (supabaseError) {
@@ -49,17 +49,28 @@ export const useAllEdnItems = () => {
       }
 
       if (data) {
-        setItems(data);
+        // Map data to EdnItem interface with computed fields
+        const mappedItems: EdnItem[] = data.map(d => ({
+          item_code: d.item_code,
+          title: d.title,
+          subtitle: d.subtitle || undefined,
+          category: 'EDN',
+          has_music: Boolean(d.paroles_musicales),
+          has_lyrics: Boolean(d.paroles_musicales),
+          competences_count: d.competences_count_total || 0
+        }));
+        
+        setItems(mappedItems);
 
         // Calculer les stats
         const statsData: EdnItemsStats = {
-          total: data.length,
-          withMusic: data.filter(i => i.has_music).length,
-          withLyrics: data.filter(i => i.has_lyrics).length,
+          total: mappedItems.length,
+          withMusic: mappedItems.filter(i => i.has_music).length,
+          withLyrics: mappedItems.filter(i => i.has_lyrics).length,
           byCategory: {}
         };
 
-        data.forEach(item => {
+        mappedItems.forEach(item => {
           const cat = item.category || 'Non catégorisé';
           statsData.byCategory[cat] = (statsData.byCategory[cat] || 0) + 1;
         });
