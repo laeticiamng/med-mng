@@ -12,9 +12,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
-    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
-    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
+    console.log('🚀 VERSION 4.0 - CHARGEMENT COMPLET OIC');
 
     // Récupérer tous les items
     const { data: items, error: itemsError } = await supabase
@@ -22,42 +20,58 @@ serve(async (req) => {
       .select('id, item_code, title, subtitle');
 
     if (itemsError) throw itemsError;
+    console.log(`📦 ${items?.length || 0} items EDN chargés`);
 
-    // Récupérer TOUTES les compétences OIC depuis la table backup (source complète)
-    // IMPORTANT: Supabase limite par défaut à 1000 résultats, on doit augmenter la limite
-    console.log('🔄 DÉBUT chargement compétences OIC depuis backup_oic_competences...');
-    const { data: allOicCompetences, error: oicError } = await supabase
+    // Charger TOUTES les compétences OIC en plusieurs batches pour éviter les limites
+    console.log('🔄 Chargement des compétences OIC...');
+    
+    // Récupérer le total
+    const { count: totalCount } = await supabase
       .from('backup_oic_competences')
-      .select('item_parent, rang, objectif_id, intitule, description, rubrique')
-      .limit(10000); // Charger toutes les compétences
-
-    if (oicError) {
-      console.error('❌ ERREUR chargement OIC:', oicError);
-      throw oicError;
+      .select('*', { count: 'exact', head: true });
+    
+    console.log(`📊 Total compétences en base: ${totalCount}`);
+    
+    // Charger toutes les données avec pagination
+    let allOicCompetences: any[] = [];
+    let offset = 0;
+    const pageSize = 1000;
+    
+    while (offset < (totalCount || 0)) {
+      const { data: batch, error: batchError } = await supabase
+        .from('backup_oic_competences')
+        .select('item_parent, rang, objectif_id, intitule, description, rubrique')
+        .range(offset, offset + pageSize - 1);
+      
+      if (batchError) {
+        console.error(`❌ Erreur batch ${offset}:`, batchError);
+        throw batchError;
+      }
+      
+      allOicCompetences = allOicCompetences.concat(batch || []);
+      offset += pageSize;
+      console.log(`📥 Chargé ${allOicCompetences.length}/${totalCount} compétences`);
     }
 
-    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
-    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
-    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
+    console.log(`✅ TOTAL CHARGÉ: ${allOicCompetences.length} compétences`);
 
-    // Indexer TOUTES les compétences OIC valides (filtrer les fallbacks + null)
-    const oicByItem = new Map();
+    // Indexer par item_parent + rang
+    const oicByItem = new Map<string, any[]>();
     let acceptedCount = 0;
-    let totalCount = allOicCompetences?.length || 0;
     let rejectedFallback = 0;
-    let rejectedNull = 0;
+    let rejectedNoIntitule = 0;
     
-    (allOicCompetences || []).forEach(comp => {
+    for (const comp of allOicCompetences) {
       // Exclure les fallbacks (objectif_id commençant par IC-)
       if (comp.objectif_id && comp.objectif_id.startsWith('IC-')) {
         rejectedFallback++;
-        return;
+        continue;
       }
       
-      // Exclure les compétences sans intitulé ou description
-      if (!comp.intitule || !comp.description) {
-        rejectedNull++;
-        return;
+      // Exiger un intitulé
+      if (!comp.intitule) {
+        rejectedNoIntitule++;
+        continue;
       }
       
       acceptedCount++;
@@ -65,142 +79,95 @@ serve(async (req) => {
       if (!oicByItem.has(key)) {
         oicByItem.set(key, []);
       }
-      oicByItem.get(key).push(comp);
-      
-      // Log quelques exemples de mapping pour debug
-      if (comp.item_parent === '025' || comp.item_parent === '288' || comp.item_parent === '283') {
-        console.log(`🔑 Indexé: ${comp.item_parent}_${comp.rang} => ${comp.objectif_id}`);
-      }
-    });
-    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
-    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
-    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
-    console.log(`❌ Rejetées (fallback IC-*): ${rejectedFallback}`);
-    console.log(`❌ Rejetées (null): ${rejectedNull}`);
-    console.log(`📋 Items uniques avec OIC: ${oicByItem.size} clés distinctes`);
-    console.log(`🔍 Test IC-1: 001_A => ${oicByItem.get('001_A')?.length || 0} compétences`);
-    console.log(`🔍 Test IC-2: 002_A => ${oicByItem.get('002_A')?.length || 0} compétences`);
-    console.log(`🔍 Test IC-25: 025_A => ${oicByItem.get('025_A')?.length || 0} compétences`);
-    console.log(`🔍 Test IC-288: 288_A => ${oicByItem.get('288_A')?.length || 0} compétences`);
-    console.log(`🔍 Test IC-288: 288_B => ${oicByItem.get('288_B')?.length || 0} compétences`);
+      oicByItem.get(key)!.push(comp);
+    }
+    
+    console.log(`✅ ACCEPTÉES: ${acceptedCount}`);
+    console.log(`❌ Rejetées (fallback): ${rejectedFallback}`);
+    console.log(`❌ Rejetées (no intitulé): ${rejectedNoIntitule}`);
+    console.log(`📋 Clés uniques: ${oicByItem.size}`);
+    
+    // Tests de vérification
+    const testKeys = ['001_A', '002_A', '003_A', '025_A', '288_A'];
+    for (const key of testKeys) {
+      console.log(`🔍 ${key} => ${oicByItem.get(key)?.length || 0} compétences`);
+    }
 
     let updatedCount = 0;
-    const errors = [];
+    let itemsWithRealA = 0;
+    let itemsWithRealB = 0;
+    const errors: any[] = [];
 
-    // Traiter chaque item
     for (const item of items || []) {
       try {
-        // Extraire le numéro : IC-1 -> 001, IC-66 -> 066, IC-334 -> 334
+        // Extraire le numéro : IC-1 -> 001
         const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
-        console.log(`🔍 ${item.item_code} -> Recherche OIC avec clé: ${itemNumber}`);
         
-        let oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
-        let oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
+        const oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
+        const oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
         
-        console.log(`📊 ${item.item_code}: ${oicRangA.length} compétences A, ${oicRangB.length} compétences B`);
-
-        // SEUILS ABAISSÉS : Utiliser toutes les compétences OIC réelles disponibles, même s'il n'y en a qu'une seule
         const hasSufficientA = oicRangA.length >= 1;
         const hasSufficientB = oicRangB.length >= 1;
 
-        if (!hasSufficientA) {
-          console.log(`⚠️ ${item.item_code}: Compétences Rang A insuffisantes (${oicRangA.length})`);
-        }
-        
-        if (!hasSufficientB) {
-          console.log(`⚠️ ${item.item_code}: Compétences Rang B insuffisantes (${oicRangB.length})`);
-        }
+        if (hasSufficientA) itemsWithRealA++;
+        if (hasSufficientB) itemsWithRealB++;
 
-        // Générer Rang A avec vraies compétences OIC (ou fallback si insuffisant)
+        // Générer Rang A
         const tableauRangA = {
           title: `${item.item_code} Rang A - ${item.title}`,
           subtitle: item.subtitle || "Compétences fondamentales",
           objectifs: hasSufficientA 
-            ? oicRangA.slice(0, 5).map(c => c.intitule)
-            : [
-                `Comprendre les bases de ${item.title}`,
-                `Identifier les signes cliniques principaux`,
-                `Connaître la prise en charge initiale`,
-                `Appliquer les recommandations de bonnes pratiques`
-              ],
+            ? oicRangA.slice(0, 5).map((c: any) => c.intitule)
+            : [`Comprendre les bases de ${item.title}`],
           competences_cles: hasSufficientA 
-            ? oicRangA.map(comp => ({
+            ? oicRangA.map((comp: any) => ({
                 niveau: "Fondamental",
                 competence: comp.intitule,
-                description: comp.description,
+                description: comp.description || `Compétence pour ${item.title}`,
                 rubrique: comp.rubrique || "Compétence Fondamentale",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`
+                objectif_id: comp.objectif_id
               }))
-            : [
-                {
-                  niveau: "Fondamental",
-                  competence: `Connaissances de base - ${item.title}`,
-                  description: `Maîtriser les connaissances fondamentales concernant ${item.title}`,
-                  rubrique: "Compétence Fondamentale",
-                  objectif_id: `IC-${item.item_code}-BASE-A`
-                }
-              ],
+            : [{
+                niveau: "Fondamental",
+                competence: `Connaissances de base - ${item.title}`,
+                description: `Maîtriser les connaissances fondamentales concernant ${item.title}`,
+                rubrique: "Compétence Fondamentale",
+                objectif_id: `FALLBACK-${itemNumber}-A`
+              }],
           situations_cliniques: [
             `Cas clinique standard de ${item.title}`,
-            "Diagnostic et prise en charge initiale",
-            "Surveillance et suivi patient"
+            "Diagnostic et prise en charge initiale"
           ]
         };
 
-        // Générer Rang B avec vraies compétences OIC (ou fallback si insuffisant)
+        // Générer Rang B
         const tableauRangB = {
           title: `${item.item_code} Rang B - ${item.title}`,
           subtitle: item.subtitle || "Compétences avancées",
           objectifs: hasSufficientB
-            ? oicRangB.slice(0, 5).map(c => c.intitule)
-            : [
-                `Maîtriser la prise en charge complexe de ${item.title}`,
-                `Gérer les situations atypiques et complications`,
-                `Coordonner une approche pluridisciplinaire`
-              ],
+            ? oicRangB.slice(0, 5).map((c: any) => c.intitule)
+            : [`Maîtriser la prise en charge complexe de ${item.title}`],
           competences_cles: hasSufficientB
-            ? oicRangB.map(comp => ({
+            ? oicRangB.map((comp: any) => ({
                 niveau: "Avancé",
                 competence: comp.intitule,
-                description: comp.description,
+                description: comp.description || `Compétence avancée pour ${item.title}`,
                 rubrique: comp.rubrique || "Compétence Avancée",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`
+                objectif_id: comp.objectif_id
               }))
-            : [
-                {
-                  niveau: "Avancé",
-                  competence: `Expertise avancée - ${item.title}`,
-                  description: `Développer une expertise approfondie dans la gestion de ${item.title}`,
-                  rubrique: "Compétence Avancée",
-                  objectif_id: `IC-${item.item_code}-EXPERT-B`
-                }
-              ],
+            : [{
+                niveau: "Avancé",
+                competence: `Expertise avancée - ${item.title}`,
+                description: `Expertise approfondie dans la gestion de ${item.title}`,
+                rubrique: "Compétence Avancée",
+                objectif_id: `FALLBACK-${itemNumber}-B`
+              }],
           situations_cliniques: [
-            `Cas complexe multi-factoriel de ${item.title}`,
-            "Complications et situations atypiques",
-            "Prise en charge pluridisciplinaire"
-          ],
-          cas_complexes: [
-            "Cas avec comorbidités multiples",
-            "Situation d'urgence critique",
-            "Patient polymédiqué"
-          ],
-          competences_expertes: hasSufficientB && oicRangB.length >= 3
-            ? oicRangB.slice(0, 3).map(comp => ({
-                niveau: "Expert",
-                expertise: comp.intitule,
-                description: comp.description
-              }))
-            : [
-                {
-                  niveau: "Expert",
-                  expertise: `Maîtrise experte - ${item.title}`,
-                  description: `Expertise complète dans les aspects complexes de ${item.title}`
-                }
-              ]
+            `Cas complexe de ${item.title}`,
+            "Complications et situations atypiques"
+          ]
         };
 
-        // Mettre à jour
         const { error: updateError } = await supabase
           .from('edn_items_immersive')
           .update({
@@ -213,31 +180,34 @@ serve(async (req) => {
           errors.push({ item_code: item.item_code, error: updateError.message });
         } else {
           updatedCount++;
-          if (updatedCount % 50 === 0) {
-            console.log(`✅ ${updatedCount}/${items.length} items traités`);
-          }
         }
-      } catch (itemError) {
+      } catch (itemError: any) {
         errors.push({ item_code: item.item_code, error: itemError.message });
       }
     }
 
-    console.log(`🎉 Régénération terminée: ${updatedCount} items mis à jour`);
+    console.log(`🎉 TERMINÉ: ${updatedCount} items mis à jour`);
+    console.log(`📊 Items avec OIC Rang A: ${itemsWithRealA}`);
+    console.log(`📊 Items avec OIC Rang B: ${itemsWithRealB}`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `${updatedCount} items régénérés avec compétences OIC réelles`,
+        message: `${updatedCount} items régénérés`,
         total_processed: items?.length || 0,
         updated: updatedCount,
-        errors: errors
+        items_with_real_a: itemsWithRealA,
+        items_with_real_b: itemsWithRealB,
+        total_oic_loaded: allOicCompetences.length,
+        accepted_oic: acceptedCount,
+        errors: errors.slice(0, 10)
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('💥 Erreur:', error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
