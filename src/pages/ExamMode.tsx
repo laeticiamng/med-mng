@@ -41,7 +41,7 @@ export default function ExamMode() {
   const [showResult, setShowResult] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
-  const [stats, setStats] = useState<ReturnType<typeof getStats> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(null);
   const [activeTab, setActiveTab] = useState('exam');
   const [examMode, setExamMode] = useState<'standard' | 'ai'>('ai');
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
@@ -60,7 +60,7 @@ export default function ExamMode() {
         return;
       }
       setUser(user);
-      setStats(getStats(user.id));
+      getStats(user.id).then(setStats);
       loadGamificationStats(user.id);
     };
     checkAuth();
@@ -172,7 +172,7 @@ export default function ExamMode() {
           await addPoints(user.id, 'perfectExam');
           await unlockBadge(user.id, 'perfect_exam');
         }
-        setStats(getStats(user.id));
+        getStats(user.id).then(setStats);
         loadGamificationStats(user.id);
       }
     }

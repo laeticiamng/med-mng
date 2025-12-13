@@ -589,23 +589,22 @@ export const useClinicalCases = () => {
     );
   }, [cases]);
 
-  // Get recommended cases based on user stats
+  // Get recommended cases based on user stats (synchronous version using default)
   const getRecommendedCases = useCallback((userId: string): ClinicalCase[] => {
-    const stats = getStats(userId);
-
-    // Prioritize specialties with low scores or not attempted
-    const specialtyScores = new Map(
-      Object.entries(stats.bySpecialty).map(([spec, data]) => [spec, data.score])
-    );
+    // For sync use, recommend based on diversity of specialties
+    const specialtyCounts = new Map<string, number>();
+    cases.forEach(c => {
+      specialtyCounts.set(c.specialty, (specialtyCounts.get(c.specialty) || 0) + 1);
+    });
 
     return cases
       .sort((a, b) => {
-        const scoreA = specialtyScores.get(a.specialty) ?? 0;
-        const scoreB = specialtyScores.get(b.specialty) ?? 0;
-        return scoreA - scoreB; // Lower scores first
+        const countA = specialtyCounts.get(a.specialty) ?? 0;
+        const countB = specialtyCounts.get(b.specialty) ?? 0;
+        return countB - countA; // More diverse first
       })
       .slice(0, 5);
-  }, [cases, getStats]);
+  }, [cases]);
 
   // Get case difficulty color
   const getDifficultyColor = useCallback((difficulty: ClinicalCase['difficulty']): string => {
