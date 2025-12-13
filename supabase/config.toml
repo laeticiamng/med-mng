@@ -183,4 +183,9 @@ verify_jwt = true
 [functions.unified-alerts]
 verify_jwt = true
 
+[functions.generate-clinical-case]
+verify_jwt = false
+
+[functions.generate-qcm]
+verify_jwt = false
 
