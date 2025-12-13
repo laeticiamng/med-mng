@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, Award } from 'lucide-react';
+import { Music, Award, Sparkles, Flame, Star } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -33,8 +33,20 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangB
 }) => {
   const [musicCount, setMusicCount] = useState(0);
-  const { addPoints, unlockBadge } = useGamification();
+  const [showReward, setShowReward] = useState(false);
+  const { addPoints, unlockBadge, stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
+
+  // Load existing music generation count
+  useEffect(() => {
+    const loadMusicCount = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+      }
+    };
+    loadMusicCount();
+  }, [loadStats]);
 
   if (ENABLE_DEBUG) {
     console.log('🎵 ParolesMusicales - Rendu avec props:', { 
@@ -94,8 +106,16 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       const newCount = musicCount + 1;
       setMusicCount(newCount);
       
+      // Show reward animation
+      setShowReward(true);
+      setTimeout(() => setShowReward(false), 2000);
+      
+      // Unlock music badges
+      if (newCount === 1) {
+        await unlockBadge(user.id, 'music_first');
+      }
       if (newCount >= 10) {
-        await unlockBadge(user.id, 'items_10');
+        await unlockBadge(user.id, 'music_10');
       }
     }
   };
@@ -121,6 +141,42 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Gamification Banner */}
+      {gamificationStats && (
+        <Card className="bg-gradient-to-r from-warning/5 via-background to-primary/5 border-warning/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Music className="h-5 w-5 text-warning" />
+                  <span className="font-medium">Génération musicale</span>
+                </div>
+                <Badge variant="secondary">{musicCount} générées</Badge>
+              </div>
+              <div className="flex items-center gap-4">
+                <Badge variant="outline" className="gap-1">
+                  <Flame className="h-3 w-3 text-warning" />
+                  {gamificationStats.currentStreak} jours
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <Star className="h-3 w-3 text-primary" />
+                  Nv.{gamificationStats.level}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reward Animation */}
+      {showReward && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-bounce bg-success text-success-foreground px-6 py-3 rounded-full text-lg font-bold shadow-xl">
+            🎵 +10 points !
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

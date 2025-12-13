@@ -53,11 +53,13 @@ const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
+  const [studyPlans, setStudyPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Load user and stats
+  // Load user, stats and study plans from Supabase
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -66,6 +68,19 @@ const StudyPlanner = () => {
         loadStats(user.id);
         const summary = await getWeeklySummary();
         setWeeklySummary(summary);
+        
+        // Load study plans from Supabase
+        setLoading(true);
+        const { data: plans } = await supabase
+          .from('study_plans')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (plans) {
+          setStudyPlans(plans);
+        }
+        setLoading(false);
       }
     };
     init();
@@ -180,6 +195,13 @@ const StudyPlanner = () => {
         metadata: { sessionId, action: 'start' }
       });
       await addPoints(user.id, 'dailyStreak');
+      
+      // Track sessions completed for badge
+      const completedCount = studySessions.filter(s => s.completed).length + 1;
+      if (completedCount >= 10) {
+        await unlockBadge(user.id, 'items_10');
+      }
+      
       loadStats(user.id);
     }
     
@@ -187,6 +209,28 @@ const StudyPlanner = () => {
       title: "Session démarrée",
       description: "Votre session d'étude a commencé. Bon travail !",
     });
+  };
+
+  const createStudyPlan = async (title: string, description: string) => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('study_plans')
+      .insert([{
+        user_id: user.id,
+        title,
+        description,
+        status: 'active',
+        target_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      }])
+      .select()
+      .single();
+
+    if (data) {
+      setStudyPlans([data, ...studyPlans]);
+      await addPoints(user.id, 'itemReviewed');
+      toast({ title: "Plan créé", description: "Votre plan d'étude a été créé avec succès." });
+    }
   };
 
   return (
