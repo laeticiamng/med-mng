@@ -241,18 +241,56 @@ export const useAIExam = () => {
       }
     });
 
-    // Save to local storage
-    const history = JSON.parse(localStorage.getItem('ai_exam_history') || '[]');
-    history.push(completedSession);
-    localStorage.setItem('ai_exam_history', JSON.stringify(history.slice(-50)));
+    // Save to Supabase
+    try {
+      await (supabase as any)
+        .from('ai_exam_history')
+        .insert({
+          user_id: session.userId,
+          exam_type: session.examType,
+          questions: session.questions,
+          answers: session.answers,
+          total_questions: session.totalQuestions,
+          time_limit_minutes: session.timeLimitMinutes,
+          score,
+          started_at: session.startedAt,
+          completed_at: completedSession.completedAt,
+          ai_generated: session.aiGenerated
+        });
+    } catch (e) {
+      console.error('Error saving exam history:', e);
+    }
 
     return completedSession;
   }, [session, logActivity]);
 
-  // Get exam history
-  const getExamHistory = useCallback((userId: string) => {
-    const history = JSON.parse(localStorage.getItem('ai_exam_history') || '[]');
-    return history.filter((e: AIExamSession) => e.userId === userId);
+  // Get exam history from Supabase
+  const getExamHistory = useCallback(async (userId: string): Promise<AIExamSession[]> => {
+    try {
+      const { data } = await (supabase as any)
+        .from('ai_exam_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('completed_at', { ascending: false })
+        .limit(50);
+
+      return (data || []).map((e: any) => ({
+        id: e.id,
+        userId: e.user_id,
+        examType: e.exam_type,
+        questions: e.questions,
+        answers: e.answers,
+        totalQuestions: e.total_questions,
+        timeLimitMinutes: e.time_limit_minutes,
+        startedAt: e.started_at,
+        completedAt: e.completed_at,
+        score: e.score,
+        aiGenerated: e.ai_generated
+      }));
+    } catch (error) {
+      console.error('Error fetching exam history:', error);
+      return [];
+    }
   }, []);
 
   // Reset

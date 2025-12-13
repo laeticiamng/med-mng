@@ -162,14 +162,25 @@ export const usePersonalizedRevision = () => {
         estimated_duration_days: estimatedDays
       };
 
-      // Sauvegarder en localStorage pour l'instant (peut être migré en DB plus tard)
-      const existingPlans = JSON.parse(localStorage.getItem('revision_plans') || '[]');
-      existingPlans.push(newPlan);
-      localStorage.setItem('revision_plans', JSON.stringify(existingPlans));
+      // Save to Supabase
+      const { data: savedPlan, error: saveError } = await (supabase as any)
+        .from('revision_plans')
+        .insert({
+          user_id: user.id,
+          plan_name: planName,
+          target_items: targetItems,
+          daily_target: dailyTarget,
+          completion_rate: 0,
+          estimated_duration_days: estimatedDays
+        })
+        .select()
+        .single();
 
-      setCurrentPlan(newPlan);
+      if (saveError) throw saveError;
 
-      return newPlan;
+      const finalPlan = savedPlan ? { ...newPlan, id: savedPlan.id } : newPlan;
+      setCurrentPlan(finalPlan);
+      return finalPlan;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur création plan');
       console.error('❌ Erreur createRevisionPlan:', err);
@@ -239,11 +250,35 @@ export const usePersonalizedRevision = () => {
   useEffect(() => {
     analyzeUserWeaknesses();
     
-    // Charger le plan actuel
-    const savedPlans = JSON.parse(localStorage.getItem('revision_plans') || '[]');
-    if (savedPlans.length > 0) {
-      setCurrentPlan(savedPlans[savedPlans.length - 1]); // Dernier plan créé
-    }
+    // Charger le plan actuel depuis Supabase
+    const loadCurrentPlan = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data } = await (supabase as any)
+        .from('revision_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (data) {
+        setCurrentPlan({
+          id: data.id,
+          user_id: data.user_id,
+          plan_name: data.plan_name,
+          target_items: data.target_items || [],
+          daily_target: data.daily_target,
+          created_at: new Date(data.created_at),
+          last_updated: new Date(data.updated_at),
+          completion_rate: data.completion_rate || 0,
+          estimated_duration_days: data.estimated_duration_days
+        });
+      }
+    };
+    
+    loadCurrentPlan();
   }, [analyzeUserWeaknesses]);
 
   return {

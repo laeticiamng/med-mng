@@ -143,7 +143,7 @@ class PedagogicalContentService {
 
   async getContentByType(contentType: 'comic' | 'novel' | 'poem', limit: number = 50): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('med_mng_content_ai')
         .select('*')
         .eq('content_type', contentType)

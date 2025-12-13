@@ -524,6 +524,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_exam_history: {
+        Row: {
+          ai_generated: boolean | null
+          answers: Json | null
+          completed_at: string | null
+          created_at: string | null
+          exam_type: string | null
+          id: string
+          questions: Json | null
+          score: number | null
+          started_at: string | null
+          time_limit_minutes: number | null
+          total_questions: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          answers?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          exam_type?: string | null
+          id?: string
+          questions?: Json | null
+          score?: number | null
+          started_at?: string | null
+          time_limit_minutes?: number | null
+          total_questions?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          answers?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          exam_type?: string | null
+          id?: string
+          questions?: Json | null
+          score?: number | null
+          started_at?: string | null
+          time_limit_minutes?: number | null
+          total_questions?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_generated_content: {
         Row: {
           content: Json
@@ -2716,6 +2761,48 @@ export type Database = {
           created_by?: string | null
           details?: Json | null
           id?: string
+        }
+        Relationships: []
+      }
+      clinical_case_history: {
+        Row: {
+          case_id: string
+          completed_at: string | null
+          completed_steps: string[] | null
+          correct_answers: number | null
+          created_at: string | null
+          decisions: Json | null
+          id: string
+          score: number | null
+          started_at: string | null
+          total_answers: number | null
+          user_id: string
+        }
+        Insert: {
+          case_id: string
+          completed_at?: string | null
+          completed_steps?: string[] | null
+          correct_answers?: number | null
+          created_at?: string | null
+          decisions?: Json | null
+          id?: string
+          score?: number | null
+          started_at?: string | null
+          total_answers?: number | null
+          user_id: string
+        }
+        Update: {
+          case_id?: string
+          completed_at?: string | null
+          completed_steps?: string[] | null
+          correct_answers?: number | null
+          created_at?: string | null
+          decisions?: Json | null
+          id?: string
+          score?: number | null
+          started_at?: string | null
+          total_answers?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -14932,6 +15019,42 @@ export type Database = {
         }
         Relationships: []
       }
+      revision_plans: {
+        Row: {
+          completion_rate: number | null
+          created_at: string | null
+          daily_target: number | null
+          estimated_duration_days: number | null
+          id: string
+          plan_name: string
+          target_items: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completion_rate?: number | null
+          created_at?: string | null
+          daily_target?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          plan_name: string
+          target_items?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completion_rate?: number | null
+          created_at?: string | null
+          daily_target?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          plan_name?: string
+          target_items?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       rituals: {
         Row: {
           description: string
@@ -15918,6 +16041,48 @@ export type Database = {
           status?: string
           target_value?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      srs_card_data: {
+        Row: {
+          card_id: string
+          correct_count: number | null
+          created_at: string | null
+          ease_factor: number | null
+          id: string
+          interval_days: number | null
+          last_reviewed: string | null
+          next_review: string | null
+          review_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          correct_count?: number | null
+          created_at?: string | null
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          review_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          correct_count?: number | null
+          created_at?: string | null
+          ease_factor?: number | null
+          id?: string
+          interval_days?: number | null
+          last_reviewed?: string | null
+          next_review?: string | null
+          review_count?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
