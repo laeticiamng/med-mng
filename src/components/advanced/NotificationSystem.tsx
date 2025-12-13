@@ -355,11 +355,40 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
   );
 };
 
-// Hook pour utiliser le système de notifications
+// Hook pour utiliser le système de notifications - Synced with Supabase
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+  // Load notifications from Supabase on mount
+  useEffect(() => {
+    const loadNotifications = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await (supabase as any)
+          .from('user_notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        
+        if (data) {
+          setNotifications(data.map((n: any) => ({
+            id: n.id,
+            type: n.notification_type as Notification['type'],
+            title: n.title,
+            message: n.message || '',
+            timestamp: new Date(n.created_at),
+            read: n.read,
+            category: 'system' as const,
+            priority: 'medium' as const
+          })));
+        }
+      }
+    };
+    loadNotifications();
+  }, []);
+
+  const addNotification = async (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
@@ -367,11 +396,19 @@ export const useNotifications = () => {
       read: false
     };
 
-    setNotifications(prev => {
-      const updated = [newNotification, ...prev].slice(0, 50);
-      localStorage.setItem('user-notifications', JSON.stringify(updated));
-      return updated;
-    });
+    setNotifications(prev => [newNotification, ...prev].slice(0, 50));
+
+    // Save to Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_notifications').insert({
+        user_id: user.id,
+        notification_type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        metadata: notification.metadata || {}
+      });
+    }
 
     return newNotification.id;
   };

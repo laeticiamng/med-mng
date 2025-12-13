@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,16 +46,40 @@ const AccessibilityDashboard = () => {
   const { metrics, isLoading, error, refetch } = useGitHubAccessibilityMetrics(githubToken);
   const { logActivity } = useActivityTracking();
 
+  // Load token from Supabase or localStorage
   useEffect(() => {
-    const savedToken = localStorage.getItem('github_token');
-    if (savedToken) {
-      setGithubToken(savedToken);
-      setIsConfigured(true);
-    }
+    const loadToken = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Try to load from Supabase first
+        const { data } = await (supabase as any)
+          .from('user_integration_tokens')
+          .select('encrypted_token')
+          .eq('user_id', user.id)
+          .eq('integration_name', 'github')
+          .maybeSingle();
+        
+        if (data?.encrypted_token) {
+          setGithubToken(data.encrypted_token);
+          setIsConfigured(true);
+          return;
+        }
+      }
+      
+      // Fallback to localStorage
+      const savedToken = localStorage.getItem('github_token');
+      if (savedToken) {
+        setGithubToken(savedToken);
+        setIsConfigured(true);
+      }
+    };
+    
+    loadToken();
     logActivity({ activity_type: 'study', metadata: { action: 'view_accessibility_dashboard' } });
   }, []);
 
-  const handleSaveToken = () => {
+  const handleSaveToken = async () => {
     if (!githubToken.trim()) {
       toast({
         title: 'Erreur',
@@ -64,6 +89,20 @@ const AccessibilityDashboard = () => {
       return;
     }
 
+    // Save to Supabase if authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_integration_tokens')
+        .upsert({
+          user_id: user.id,
+          integration_name: 'github',
+          encrypted_token: githubToken,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,integration_name' });
+    }
+    
+    // Also save to localStorage as fallback
     localStorage.setItem('github_token', githubToken);
     setIsConfigured(true);
     toast({

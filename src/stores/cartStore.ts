@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ShopifyProduct } from '@/lib/shopify';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface CartItem {
   product: ShopifyProduct;
@@ -32,7 +33,23 @@ interface CartStore {
   setCheckoutUrl: (url: string) => void;
   setLoading: (loading: boolean) => void;
   createCheckout: () => Promise<void>;
+  syncWithSupabase: () => Promise<void>;
 }
+
+// Helper to sync cart with Supabase
+const syncCartToSupabase = async (items: CartItem[], checkoutUrl: string | null) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await (supabase as any)
+      .from('user_cart')
+      .upsert({
+        user_id: user.id,
+        items: items,
+        checkout_url: checkoutUrl,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+  }
+};
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -43,20 +60,22 @@ export const useCartStore = create<CartStore>()(
       isLoading: false,
 
       addItem: (item) => {
-        const { items } = get();
+        const { items, checkoutUrl } = get();
         const existingItem = items.find(i => i.variantId === item.variantId);
         
+        let newItems: CartItem[];
         if (existingItem) {
-          set({
-            items: items.map(i =>
-              i.variantId === item.variantId
-                ? { ...i, quantity: i.quantity + item.quantity }
-                : i
-            )
-          });
+          newItems = items.map(i =>
+            i.variantId === item.variantId
+              ? { ...i, quantity: i.quantity + item.quantity }
+              : i
+          );
         } else {
-          set({ items: [...items, item] });
+          newItems = [...items, item];
         }
+        
+        set({ items: newItems });
+        syncCartToSupabase(newItems, checkoutUrl);
       },
 
       updateQuantity: (variantId, quantity) => {
@@ -65,25 +84,32 @@ export const useCartStore = create<CartStore>()(
           return;
         }
         
-        set({
-          items: get().items.map(item =>
-            item.variantId === variantId ? { ...item, quantity } : item
-          )
-        });
+        const { checkoutUrl } = get();
+        const newItems = get().items.map(item =>
+          item.variantId === variantId ? { ...item, quantity } : item
+        );
+        
+        set({ items: newItems });
+        syncCartToSupabase(newItems, checkoutUrl);
       },
 
       removeItem: (variantId) => {
-        set({
-          items: get().items.filter(item => item.variantId !== variantId)
-        });
+        const { checkoutUrl } = get();
+        const newItems = get().items.filter(item => item.variantId !== variantId);
+        set({ items: newItems });
+        syncCartToSupabase(newItems, checkoutUrl);
       },
 
       clearCart: () => {
         set({ items: [], cartId: null, checkoutUrl: null });
+        syncCartToSupabase([], null);
       },
 
       setCartId: (cartId) => set({ cartId }),
-      setCheckoutUrl: (checkoutUrl) => set({ checkoutUrl }),
+      setCheckoutUrl: (checkoutUrl) => {
+        set({ checkoutUrl });
+        syncCartToSupabase(get().items, checkoutUrl);
+      },
       setLoading: (isLoading) => set({ isLoading }),
 
       createCheckout: async () => {
@@ -101,11 +127,33 @@ export const useCartStore = create<CartStore>()(
         } finally {
           setLoading(false);
         }
+      },
+
+      syncWithSupabase: async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data } = await (supabase as any)
+            .from('user_cart')
+            .select('items, checkout_url')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (data?.items && Array.isArray(data.items)) {
+            set({ 
+              items: data.items as CartItem[], 
+              checkoutUrl: data.checkout_url 
+            });
+          }
+        }
       }
     }),
     {
       name: 'medmng-cart',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        // Sync with Supabase after rehydration
+        state?.syncWithSupabase();
+      }
     }
   )
 );

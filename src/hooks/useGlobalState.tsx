@@ -1,7 +1,8 @@
-import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import React, { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * État Global de l'Application
+ * État Global de l'Application - Synced with Supabase
  */
 const GlobalStateContext = createContext<any>(null);
 
@@ -19,20 +20,13 @@ interface GlobalStateProviderProps {
 
 export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ children }) => {
   const [state, setState] = useState<any>({
-    // Interface
     sidebarCollapsed: false,
     theme: 'system',
     language: 'fr',
-    
-    // Notifications
     notifications: [],
     unreadCount: 0,
-    
-    // Performance
     performanceMode: 'auto',
     animationsEnabled: true,
-    
-    // Utilisateur
     user: null,
     preferences: {
       notifications: true,
@@ -43,41 +37,76 @@ export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ childr
     }
   });
 
-  // Persistance locale
-  useEffect(() => {
+  // Load state from Supabase or localStorage
+  const loadState = useCallback(async () => {
+    // Immediate localStorage load for fast display
     const savedState = localStorage.getItem('med-mng-global-state');
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
         setState(prev => ({ ...prev, ...parsedState }));
       } catch (error) {
-        console.warn('Erreur lors du chargement de l\'état:', error);
+        console.warn('Erreur parsing localStorage:', error);
+      }
+    }
+
+    // Then sync with Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await (supabase as any)
+        .from('user_global_state')
+        .select('state')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data?.state) {
+        const serverState = { ...state, ...data.state };
+        setState(serverState);
+        localStorage.setItem('med-mng-global-state', JSON.stringify(serverState));
       }
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('med-mng-global-state', JSON.stringify(state));
-  }, [state]);
+    loadState();
+  }, [loadState]);
 
-  const updateState = (updates) => {
-    setState(prev => ({
-      ...prev,
-      ...updates
-    }));
-  };
+  // Save state to both localStorage and Supabase
+  const saveState = useCallback(async (newState: any) => {
+    localStorage.setItem('med-mng-global-state', JSON.stringify(newState));
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_global_state')
+        .upsert({
+          user_id: user.id,
+          state: newState,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+    }
+  }, []);
 
-  const updatePreferences = (preferences) => {
-    setState(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        ...preferences
-      }
-    }));
-  };
+  const updateState = useCallback((updates: any) => {
+    setState((prev: any) => {
+      const newState = { ...prev, ...updates };
+      saveState(newState);
+      return newState;
+    });
+  }, [saveState]);
 
-  const addNotification = (notification) => {
+  const updatePreferences = useCallback((preferences: any) => {
+    setState((prev: any) => {
+      const newState = {
+        ...prev,
+        preferences: { ...prev.preferences, ...preferences }
+      };
+      saveState(newState);
+      return newState;
+    });
+  }, [saveState]);
+
+  const addNotification = useCallback(async (notification: any) => {
     const id = Date.now().toString();
     const newNotification = {
       id,
@@ -86,45 +115,82 @@ export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ childr
       ...notification
     };
 
-    setState(prev => ({
+    setState((prev: any) => ({
       ...prev,
-      notifications: [newNotification, ...prev.notifications].slice(0, 50), // Limite à 50
+      notifications: [newNotification, ...prev.notifications].slice(0, 50),
       unreadCount: prev.unreadCount + 1
     }));
 
-    return id;
-  };
+    // Also save to Supabase notifications table
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_notifications').insert({
+        user_id: user.id,
+        notification_type: notification.type || 'info',
+        title: notification.title,
+        message: notification.message,
+        metadata: notification.metadata || {}
+      });
+    }
 
-  const markNotificationRead = (id) => {
-    setState(prev => ({
+    return id;
+  }, []);
+
+  const markNotificationRead = useCallback(async (id: string) => {
+    setState((prev: any) => ({
       ...prev,
-      notifications: prev.notifications.map(notif => 
+      notifications: prev.notifications.map((notif: any) =>
         notif.id === id ? { ...notif, read: true } : notif
       ),
       unreadCount: Math.max(0, prev.unreadCount - 1)
     }));
-  };
 
-  const markAllNotificationsRead = () => {
-    setState(prev => ({
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_notifications')
+        .update({ read: true })
+        .eq('user_id', user.id)
+        .eq('id', id);
+    }
+  }, []);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    setState((prev: any) => ({
       ...prev,
-      notifications: prev.notifications.map(notif => ({ ...notif, read: true })),
+      notifications: prev.notifications.map((notif: any) => ({ ...notif, read: true })),
       unreadCount: 0
     }));
-  };
 
-  const removeNotification = (id) => {
-    setState(prev => {
-      const notification = prev.notifications.find(n => n.id === id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_notifications')
+        .update({ read: true })
+        .eq('user_id', user.id);
+    }
+  }, []);
+
+  const removeNotification = useCallback(async (id: string) => {
+    setState((prev: any) => {
+      const notification = prev.notifications.find((n: any) => n.id === id);
       const wasUnread = notification && !notification.read;
-      
       return {
         ...prev,
-        notifications: prev.notifications.filter(notif => notif.id !== id),
+        notifications: prev.notifications.filter((notif: any) => notif.id !== id),
         unreadCount: wasUnread ? Math.max(0, prev.unreadCount - 1) : prev.unreadCount
       };
     });
-  };
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('id', id);
+    }
+  }, []);
 
   const contextValue = {
     state,
