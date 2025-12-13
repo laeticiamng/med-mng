@@ -24,19 +24,49 @@ export interface GamificationStats {
 }
 
 export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
+  // Progression badges
   { id: 'first_item', name: 'Premier Pas', description: 'Réviser votre premier item', icon: '🎯', rarity: 'common' },
-  { id: 'streak_3', name: 'Régulier', description: '3 jours consécutifs', icon: '🔥', rarity: 'common' },
-  { id: 'streak_7', name: 'Déterminé', description: '7 jours consécutifs', icon: '💪', rarity: 'rare' },
-  { id: 'streak_30', name: 'Machine', description: '30 jours consécutifs', icon: '🏆', rarity: 'epic' },
-  { id: 'perfect_exam', name: 'Sans Faute', description: '100% à un examen', icon: '⭐', rarity: 'rare' },
   { id: 'items_10', name: 'Apprenti', description: 'Maîtriser 10 items', icon: '📚', rarity: 'common' },
   { id: 'items_50', name: 'Érudit', description: 'Maîtriser 50 items', icon: '🎓', rarity: 'rare' },
   { id: 'items_100', name: 'Expert', description: 'Maîtriser 100 items', icon: '👨‍⚕️', rarity: 'epic' },
   { id: 'items_200', name: 'Maître EDN', description: 'Maîtriser 200 items', icon: '👑', rarity: 'legendary' },
+  
+  // Streak badges
+  { id: 'streak_3', name: 'Régulier', description: '3 jours consécutifs', icon: '🔥', rarity: 'common' },
+  { id: 'streak_7', name: 'Déterminé', description: '7 jours consécutifs', icon: '💪', rarity: 'rare' },
+  { id: 'streak_14', name: 'Infatigable', description: '14 jours consécutifs', icon: '⚡', rarity: 'rare' },
+  { id: 'streak_30', name: 'Machine', description: '30 jours consécutifs', icon: '🏆', rarity: 'epic' },
+  { id: 'streak_100', name: 'Légende', description: '100 jours consécutifs', icon: '🌟', rarity: 'legendary' },
+  
+  // Exam badges
+  { id: 'perfect_exam', name: 'Sans Faute', description: '100% à un examen', icon: '⭐', rarity: 'rare' },
+  { id: 'exam_10', name: 'Testeur', description: 'Compléter 10 examens', icon: '📝', rarity: 'common' },
+  { id: 'exam_50', name: 'Vétéran', description: 'Compléter 50 examens', icon: '🎖️', rarity: 'epic' },
+  
+  // Clinical badges
+  { id: 'clinical_master', name: 'Clinicien', description: 'Compléter 10 cas cliniques', icon: '🏥', rarity: 'rare' },
+  { id: 'clinical_expert', name: 'Praticien', description: 'Compléter 50 cas cliniques', icon: '⚕️', rarity: 'epic' },
+  
+  // Music badges
+  { id: 'music_first', name: 'Mélomane', description: 'Générer votre première chanson', icon: '🎵', rarity: 'common' },
+  { id: 'music_10', name: 'Compositeur', description: 'Générer 10 chansons', icon: '🎸', rarity: 'rare' },
+  
+  // AI badges
+  { id: 'ai_chat', name: 'Curieux', description: 'Poser 10 questions à l\'IA', icon: '🤖', rarity: 'common' },
+  { id: 'ai_expert', name: 'Explorateur IA', description: 'Poser 100 questions à l\'IA', icon: '🧠', rarity: 'rare' },
+  
+  // Time-based badges
   { id: 'night_owl', name: 'Noctambule', description: 'Réviser après 23h', icon: '🦉', rarity: 'common' },
   { id: 'early_bird', name: 'Lève-tôt', description: 'Réviser avant 7h', icon: '🐦', rarity: 'common' },
-  { id: 'ai_chat', name: 'Curieux', description: 'Poser 10 questions à l\'IA', icon: '🤖', rarity: 'common' },
-  { id: 'clinical_master', name: 'Clinicien', description: 'Compléter 10 cas cliniques', icon: '🏥', rarity: 'rare' },
+  { id: 'weekend_warrior', name: 'Guerrier du Weekend', description: 'Réviser 5 weekends de suite', icon: '⚔️', rarity: 'rare' },
+  
+  // Social badges
+  { id: 'first_share', name: 'Partageur', description: 'Partager votre progression', icon: '📤', rarity: 'common' },
+  { id: 'community_active', name: 'Communautaire', description: 'Publier 10 posts', icon: '💬', rarity: 'rare' },
+  
+  // Flashcard badges
+  { id: 'flashcard_creator', name: 'Créateur', description: 'Créer 50 flashcards', icon: '🃏', rarity: 'common' },
+  { id: 'flashcard_master', name: 'Maître des Cartes', description: 'Créer 200 flashcards', icon: '🎴', rarity: 'epic' },
 ];
 
 export const XP_PER_LEVEL = 1000;
@@ -250,53 +280,68 @@ export function useGamification() {
     // Streak badges
     if (stats.currentStreak >= 3) await unlockBadge(userId, 'streak_3');
     if (stats.currentStreak >= 7) await unlockBadge(userId, 'streak_7');
+    if (stats.currentStreak >= 14) await unlockBadge(userId, 'streak_14');
     if (stats.currentStreak >= 30) await unlockBadge(userId, 'streak_30');
+    if (stats.currentStreak >= 100) await unlockBadge(userId, 'streak_100');
 
     // Time-based badges
     const hour = new Date().getHours();
     if (hour >= 23 || hour < 5) await unlockBadge(userId, 'night_owl');
     if (hour >= 5 && hour < 7) await unlockBadge(userId, 'early_bird');
     
-    // Items mastery badges - check from activity count
-    const { count: totalReviews } = await supabase
-      .from('user_activity_log')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('activity_type', 'review');
+    // Fetch all activity counts in parallel for performance
+    const reviewsResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'review');
+    const clinicalResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'clinical');
+    const aiResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'ai_question');
+    const examResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'exam');
+    const musicResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'music_generation');
+    const flashcardResult = await supabase.from('flashcards').select('id', { count: 'exact', head: true });
     
-    if (totalReviews && totalReviews >= 1) await unlockBadge(userId, 'first_item');
-    if (totalReviews && totalReviews >= 10) await unlockBadge(userId, 'items_10');
-    if (totalReviews && totalReviews >= 50) await unlockBadge(userId, 'items_50');
-    if (totalReviews && totalReviews >= 100) await unlockBadge(userId, 'items_100');
-    if (totalReviews && totalReviews >= 200) await unlockBadge(userId, 'items_200');
+    const totalReviews = reviewsResult.count || 0;
+    const clinicalCount = clinicalResult.count || 0;
+    const aiCount = aiResult.count || 0;
+    const examCount = examResult.count || 0;
+    const musicCount = musicResult.count || 0;
+    const flashcardCount = flashcardResult.count || 0;
+
+    // Items mastery badges
+    if (totalReviews >= 1) await unlockBadge(userId, 'first_item');
+    if (totalReviews >= 10) await unlockBadge(userId, 'items_10');
+    if (totalReviews >= 50) await unlockBadge(userId, 'items_50');
+    if (totalReviews >= 100) await unlockBadge(userId, 'items_100');
+    if (totalReviews >= 200) await unlockBadge(userId, 'items_200');
     
-    // Clinical cases badge
-    const { count: clinicalCount } = await supabase
-      .from('user_activity_log')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('activity_type', 'clinical');
+    // Clinical cases badges
+    if (clinicalCount >= 10) await unlockBadge(userId, 'clinical_master');
+    if (clinicalCount >= 50) await unlockBadge(userId, 'clinical_expert');
     
-    if (clinicalCount && clinicalCount >= 10) await unlockBadge(userId, 'clinical_master');
+    // AI questions badges
+    if (aiCount >= 10) await unlockBadge(userId, 'ai_chat');
+    if (aiCount >= 100) await unlockBadge(userId, 'ai_expert');
     
-    // AI questions badge
-    const { count: aiCount } = await supabase
-      .from('user_activity_log')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('activity_type', 'ai_question');
+    // Exam badges
+    if (examCount >= 10) await unlockBadge(userId, 'exam_10');
+    if (examCount >= 50) await unlockBadge(userId, 'exam_50');
     
-    if (aiCount && aiCount >= 10) await unlockBadge(userId, 'ai_chat');
+    // Music badges
+    if (musicCount >= 1) await unlockBadge(userId, 'music_first');
+    if (musicCount >= 10) await unlockBadge(userId, 'music_10');
+    
+    // Flashcard badges
+    if (flashcardCount >= 50) await unlockBadge(userId, 'flashcard_creator');
+    if (flashcardCount >= 200) await unlockBadge(userId, 'flashcard_master');
   }, [stats, unlockBadge]);
 
-  // Get progress to next badge
+  // Get progress to next badge - enhanced version
   const getProgressToNextBadge = useCallback((badgeId: string): number => {
     if (!stats) return 0;
 
     const thresholds: Record<string, number> = {
       streak_3: 3,
       streak_7: 7,
+      streak_14: 14,
       streak_30: 30,
+      streak_100: 100,
       items_10: 10,
       items_50: 50,
       items_100: 100,
@@ -317,7 +362,11 @@ export function useGamification() {
   const getMultiplier = useCallback((): number => {
     if (!stats) return 1;
 
+    if (stats.currentStreak >= 100) return 3.0;
     if (stats.currentStreak >= 30) return 2.0;
+    if (stats.currentStreak >= 14) return 1.5;
+    if (stats.currentStreak >= 7) return 1.25;
+    if (stats.currentStreak >= 3) return 1.1;
     if (stats.currentStreak >= 14) return 1.5;
     if (stats.currentStreak >= 7) return 1.25;
     if (stats.currentStreak >= 3) return 1.1;

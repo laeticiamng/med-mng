@@ -13,37 +13,77 @@ interface SRSStats {
 export const useAdaptiveSRS = () => {
   const [loading, setLoading] = useState(false);
 
-  // Calculate next review using SM-2 algorithm
+  // Enhanced SM-2+ algorithm with adaptive difficulty
   const calculateNextReview = useCallback((
     quality: number,
     currentEF: number,
     currentInterval: number,
-    repetitions: number
-  ): { easeFactor: number; interval: number; repetitions: number } => {
-    const newEF = Math.max(1.3, currentEF + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    repetitions: number,
+    consecutiveCorrect: number = 0,
+    consecutiveErrors: number = 0
+  ): { easeFactor: number; interval: number; repetitions: number; difficulty: 'easy' | 'medium' | 'hard' } => {
+    // Base SM-2 ease factor calculation
+    let newEF = Math.max(1.3, currentEF + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
     
-    let newInterval: number;
-    let newReps: number;
-
-    if (quality < 3) {
-      newReps = 0;
-      newInterval = 1;
-    } else {
-      newReps = repetitions + 1;
-      if (newReps === 1) newInterval = 1;
-      else if (newReps === 2) newInterval = 6;
-      else newInterval = Math.round(currentInterval * newEF);
+    // Adaptive adjustments based on performance patterns
+    if (consecutiveCorrect >= 3) {
+      newEF = Math.min(3.0, newEF * 1.05); // Boost for consistent performance
+    } else if (consecutiveErrors >= 2) {
+      newEF = Math.max(1.3, newEF * 0.9); // Reduce for struggling items
     }
 
+    let newInterval: number;
+    let newReps: number;
+    let difficulty: 'easy' | 'medium' | 'hard';
+
+    if (quality < 3) {
+      // Failed - reset with graduated relearning
+      newReps = Math.max(0, repetitions - 1);
+      newInterval = consecutiveErrors >= 2 ? 0.5 : 1; // More frequent if struggling
+      difficulty = 'hard';
+    } else {
+      newReps = repetitions + 1;
+      
+      if (newReps === 1) {
+        newInterval = quality === 5 ? 4 : 1;
+      } else if (newReps === 2) {
+        newInterval = quality === 5 ? 10 : 6;
+      } else {
+        newInterval = Math.round(currentInterval * newEF);
+        
+        // Apply fuzz factor for better distribution (±5%)
+        const fuzz = 0.95 + Math.random() * 0.1;
+        newInterval = Math.round(newInterval * fuzz);
+      }
+
+      // Determine difficulty based on performance
+      if (quality >= 4 && consecutiveCorrect >= 2) {
+        difficulty = 'easy';
+        newInterval = Math.round(newInterval * 1.1); // Bonus interval for easy items
+      } else if (quality <= 3 || consecutiveErrors >= 1) {
+        difficulty = 'hard';
+      } else {
+        difficulty = 'medium';
+      }
+    }
+
+    // Apply forgetting curve optimization
     const forgettingFactor = Math.exp(-0.1 * currentInterval);
     if (quality >= 3 && forgettingFactor < 0.5) {
       newInterval = Math.round(newInterval * 1.2);
     }
 
+    // Cap interval at 1 year
+    newInterval = Math.min(newInterval, 365);
+    
+    // Minimum interval of 0.5 days (12 hours)
+    newInterval = Math.max(newInterval, 0.5);
+
     return {
       easeFactor: newEF,
-      interval: Math.min(newInterval, 365),
-      repetitions: newReps
+      interval: newInterval,
+      repetitions: newReps,
+      difficulty
     };
   }, []);
 
