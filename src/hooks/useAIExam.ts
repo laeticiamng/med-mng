@@ -99,7 +99,23 @@ export const useAIExam = () => {
     }
   }, [toast]);
 
-  // Start an AI-powered exam with specialty filters
+  // Specialty mapping for filtering
+  const SPECIALTY_KEYWORDS: Record<string, string[]> = {
+    'Cardiologie': ['cardio', 'coeur', 'coronar', 'infarctus', 'arythmie', 'hypertension', 'valv'],
+    'Pneumologie': ['pneumo', 'poumon', 'respirat', 'bronch', 'asthme', 'bpco', 'pleural'],
+    'Neurologie': ['neuro', 'cerveau', 'AVC', 'épilepsie', 'parkinson', 'alzheimer', 'céphalée'],
+    'Gastro-entérologie': ['gastro', 'digest', 'foie', 'pancréas', 'intestin', 'colon', 'hépatite'],
+    'Néphrologie': ['néphro', 'rein', 'dialyse', 'créatinine', 'glomérul', 'protéinurie'],
+    'Endocrinologie': ['endocrino', 'diabète', 'thyroïde', 'surrénale', 'hypophyse'],
+    'Rhumatologie': ['rhumato', 'arthr', 'arthrite', 'polyarthrite', 'goutte', 'ostéoporose'],
+    'Dermatologie': ['dermato', 'peau', 'cutané', 'eczéma', 'psoriasis', 'mélanome'],
+    'Pédiatrie': ['pédia', 'enfant', 'nourrisson', 'néonat', 'vaccin'],
+    'Gynécologie': ['gynéco', 'obstétrique', 'grossesse', 'accouchement', 'utérus', 'ovaire'],
+    'Psychiatrie': ['psychia', 'dépression', 'anxiété', 'schizophrénie', 'bipol'],
+    'Urgences': ['urgence', 'réanimation', 'choc', 'arrêt cardiaque', 'polytrauma']
+  };
+
+  // Start an AI-powered exam with specialty filters and adaptive difficulty
   const startAIExam = useCallback(async (
     userId: string,
     examType: string = 'ai_generated',
@@ -115,19 +131,69 @@ export const useAIExam = () => {
       let itemCodes = specificItems;
       
       if (!itemCodes || itemCodes.length === 0) {
-        // Get random items (specialty filtering can be added when schema supports it)
+        // Get all items first
         const { data: allItems } = await supabase
           .from('edn_items_immersive')
-          .select('item_code')
-          .limit(100);
+          .select('item_code, title')
+          .limit(500);
 
         if (!allItems || allItems.length === 0) {
           throw new Error('No items available');
         }
 
+        let filteredItems = allItems;
+
+        // Filter by specialty if provided
+        if (specialty && SPECIALTY_KEYWORDS[specialty]) {
+          const keywords = SPECIALTY_KEYWORDS[specialty];
+          filteredItems = allItems.filter(item => {
+            const titleLower = (item.title || '').toLowerCase();
+            return keywords.some(kw => titleLower.includes(kw.toLowerCase()));
+          });
+          
+          // Fallback to all items if filter returns too few
+          if (filteredItems.length < 5) {
+            filteredItems = allItems;
+            toast({
+              title: "Filtre élargi",
+              description: `Pas assez d'items pour ${specialty}, sélection élargie.`,
+            });
+          }
+        }
+
         // Shuffle and pick
-        const shuffled = allItems.sort(() => Math.random() - 0.5);
+        const shuffled = filteredItems.sort(() => Math.random() - 0.5);
         itemCodes = shuffled.slice(0, Math.min(questionCount * 2, 20)).map(i => i.item_code);
+      }
+
+      // Adaptive difficulty: adjust based on user's past performance
+      let adaptedDifficulty = difficulty;
+      try {
+        const { data: history } = await (supabase as any)
+          .from('ai_exam_history')
+          .select('score')
+          .eq('user_id', userId)
+          .order('completed_at', { ascending: false })
+          .limit(5);
+        
+        if (history && history.length >= 3) {
+          const avgScore = history.reduce((sum: number, h: any) => sum + (h.score || 0), 0) / history.length;
+          if (avgScore >= 85 && difficulty !== 'hard') {
+            adaptedDifficulty = 'hard';
+            toast({
+              title: "Difficulté adaptée",
+              description: "Niveau augmenté suite à vos excellentes performances !",
+            });
+          } else if (avgScore < 50 && difficulty !== 'easy') {
+            adaptedDifficulty = 'easy';
+            toast({
+              title: "Difficulté adaptée",
+              description: "Niveau ajusté pour vous aider à progresser.",
+            });
+          }
+        }
+      } catch (e) {
+        console.log('Could not adapt difficulty:', e);
       }
 
       // Generate AI questions

@@ -254,12 +254,102 @@ export const useAdaptiveSRS = () => {
     return Math.round(retention * 100);
   }, []);
 
+  // Get memory stability indicators for all cards
+  const getMemoryStabilityIndicators = useCallback(async (userId: string): Promise<{
+    cardId: string;
+    stability: 'low' | 'medium' | 'high';
+    retentionProbability: number;
+    daysUntilCritical: number;
+    easeFactor: number;
+    reviewCount: number;
+  }[]> => {
+    try {
+      const { data: cards } = await (supabase as any)
+        .from('srs_card_data')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (!cards) return [];
+
+      const now = new Date();
+      return cards.map((card: any) => {
+        const lastReview = card.last_reviewed ? new Date(card.last_reviewed) : null;
+        const daysSinceReview = lastReview 
+          ? Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24))
+          : 999;
+        
+        const ef = card.ease_factor || 2.5;
+        const retention = predictRetention(ef, daysSinceReview);
+        
+        // Calculate stability level
+        let stability: 'low' | 'medium' | 'high';
+        if (ef >= 2.5 && card.review_count >= 5) {
+          stability = 'high';
+        } else if (ef >= 2.0 && card.review_count >= 2) {
+          stability = 'medium';
+        } else {
+          stability = 'low';
+        }
+
+        // Days until retention drops below 70%
+        const criticalRetention = 0.7;
+        const stabilityFactor = ef * 10;
+        const daysUntilCritical = Math.max(0, Math.round(-stabilityFactor * Math.log(criticalRetention) - daysSinceReview));
+
+        return {
+          cardId: card.card_id,
+          stability,
+          retentionProbability: retention,
+          daysUntilCritical,
+          easeFactor: ef,
+          reviewCount: card.review_count || 0
+        };
+      });
+    } catch (error) {
+      console.error('Error getting memory stability:', error);
+      return [];
+    }
+  }, [predictRetention]);
+
+  // Get retention prediction graph data (next 30 days)
+  const getRetentionPredictionData = useCallback(async (userId: string): Promise<{
+    day: number;
+    averageRetention: number;
+    cardsAtRisk: number;
+  }[]> => {
+    const indicators = await getMemoryStabilityIndicators(userId);
+    const predictions: { day: number; averageRetention: number; cardsAtRisk: number }[] = [];
+
+    for (let day = 0; day <= 30; day++) {
+      const retentions = indicators.map(ind => {
+        const futureRetention = predictRetention(ind.easeFactor, day);
+        return futureRetention;
+      });
+      
+      const avgRetention = retentions.length > 0 
+        ? Math.round(retentions.reduce((a, b) => a + b, 0) / retentions.length)
+        : 100;
+      
+      const atRisk = retentions.filter(r => r < 70).length;
+
+      predictions.push({
+        day,
+        averageRetention: avgRetention,
+        cardsAtRisk: atRisk
+      });
+    }
+
+    return predictions;
+  }, [getMemoryStabilityIndicators, predictRetention]);
+
   return {
     loading,
     processReview,
     getDueCards,
     getSRSStats,
     predictRetention,
-    calculateNextReview
+    calculateNextReview,
+    getMemoryStabilityIndicators,
+    getRetentionPredictionData
   };
 };

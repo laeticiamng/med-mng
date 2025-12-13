@@ -35,6 +35,24 @@ interface CommunityPost {
   images?: string[];
 }
 
+interface PostComment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
+interface DirectMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  read: boolean;
+  createdAt: string;
+}
+
 interface StudyGroup {
   id: string;
   name: string;
@@ -45,6 +63,7 @@ interface StudyGroup {
   lastActivity: string;
   isMember: boolean;
   avatar?: string;
+  sharedMaterials?: { id: string; title: string; type: string }[];
 }
 
 export const CommunityHub = () => {
@@ -54,6 +73,13 @@ export const CommunityHub = () => {
   const [newPost, setNewPost] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPost, setSelectedPost] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, PostComment[]>>({});
+  const [newComment, setNewComment] = useState('');
+  const [showDM, setShowDM] = useState(false);
+  const [dmRecipient, setDmRecipient] = useState<string | null>(null);
+  const [dmContent, setDmContent] = useState('');
+  const [directMessages, setDirectMessages] = useState<DirectMessage[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
