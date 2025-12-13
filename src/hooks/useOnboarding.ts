@@ -67,26 +67,37 @@ export const useOnboarding = () => {
     setLoading(stepsLoading);
   }, [stepsData, stepsLoading]);
 
-  const loadUserProgress = () => {
-    const completed = JSON.parse(localStorage.getItem('onboarding_completed') || '[]');
+  const loadUserProgress = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setState(prev => ({ ...prev, completedSteps: [], isActive: false }));
+      return;
+    }
     
-    // 🔒 ONBOARDING DÉSACTIVÉ PAR DÉFAUT
-    // L'utilisateur doit manuellement activer l'onboarding via startOnboarding()
-    // Cela évite le modal invasif sur toutes les pages
+    const { data } = await (supabase as any)
+      .from('user_onboarding')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
     setState(prev => ({
       ...prev,
-      completedSteps: completed,
-      isActive: false // ✅ TOUJOURS désactivé par défaut
+      completedSteps: data?.completed_steps || [],
+      isActive: data?.is_active || false
     }));
   };
 
-  const startOnboarding = () => {
-    setState(prev => ({
-      ...prev,
-      isActive: true,
-      currentStep: 0
-    }));
-    localStorage.setItem('onboarding_active', 'true');
+  const startOnboarding = async () => {
+    setState(prev => ({ ...prev, isActive: true, currentStep: 0 }));
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_onboarding').upsert({
+        user_id: user.id,
+        is_active: true,
+        current_step: 0,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    }
   };
 
   const nextStep = () => {
@@ -103,27 +114,34 @@ export const useOnboarding = () => {
     }));
   };
 
-  const completeStep = (stepKey: string) => {
+  const completeStep = async (stepKey: string) => {
     const updated = [...state.completedSteps, stepKey];
-    setState(prev => ({
-      ...prev,
-      completedSteps: updated
-    }));
-    localStorage.setItem('onboarding_completed', JSON.stringify(updated));
+    setState(prev => ({ ...prev, completedSteps: updated }));
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_onboarding').upsert({
+        user_id: user.id,
+        completed_steps: updated,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    }
   };
 
-  const completeOnboarding = () => {
-    setState(prev => ({
-      ...prev,
-      isActive: false
-    }));
-    localStorage.setItem('onboarding_active', 'false');
-    localStorage.setItem('onboarding_seen', 'true'); // ✅ Mark as seen permanently
+  const completeOnboarding = async () => {
+    setState(prev => ({ ...prev, isActive: false }));
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_onboarding').upsert({
+        user_id: user.id,
+        is_active: false,
+        is_seen: true,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    }
   };
 
-  const skipOnboarding = () => {
-    localStorage.setItem('onboarding_seen', 'true'); // ✅ Mark as seen even if skipped
-    completeOnboarding();
+  const skipOnboarding = async () => {
+    await completeOnboarding();
   };
 
   // Aller directement à une étape spécifique
@@ -161,10 +179,11 @@ export const useOnboarding = () => {
   };
 
   // Réinitialiser l'onboarding
-  const resetOnboarding = () => {
-    localStorage.removeItem('onboarding_completed');
-    localStorage.removeItem('onboarding_active');
-    localStorage.removeItem('onboarding_seen');
+  const resetOnboarding = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_onboarding').delete().eq('user_id', user.id);
+    }
     setState({
       steps: state.steps,
       currentStep: 0,
@@ -181,18 +200,39 @@ export const useOnboarding = () => {
   };
 
   // Marquer un tooltip comme vu
-  const markTooltipAsSeen = (tooltipKey: string) => {
-    const seenTooltips = JSON.parse(localStorage.getItem('seen_tooltips') || '[]');
+  const markTooltipAsSeen = async (tooltipKey: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { data } = await (supabase as any)
+      .from('user_onboarding')
+      .select('seen_tooltips')
+      .eq('user_id', user.id)
+      .single();
+    
+    const seenTooltips = data?.seen_tooltips || [];
     if (!seenTooltips.includes(tooltipKey)) {
       seenTooltips.push(tooltipKey);
-      localStorage.setItem('seen_tooltips', JSON.stringify(seenTooltips));
+      await (supabase as any).from('user_onboarding').upsert({
+        user_id: user.id,
+        seen_tooltips: seenTooltips,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
     }
   };
 
   // Vérifier si un tooltip a été vu
-  const isTooltipSeen = (tooltipKey: string): boolean => {
-    const seenTooltips = JSON.parse(localStorage.getItem('seen_tooltips') || '[]');
-    return seenTooltips.includes(tooltipKey);
+  const isTooltipSeen = async (tooltipKey: string): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    
+    const { data } = await (supabase as any)
+      .from('user_onboarding')
+      .select('seen_tooltips')
+      .eq('user_id', user.id)
+      .single();
+    
+    return (data?.seen_tooltips || []).includes(tooltipKey);
   };
 
   // Statistiques d'onboarding

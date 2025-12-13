@@ -134,9 +134,12 @@ export function useSearch() {
     }
   }, []);
 
-  const clearHistory = useCallback(() => {
+  const clearHistory = useCallback(async () => {
     setSearchHistory([]);
-    localStorage.removeItem('search-history');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_search_history').delete().eq('user_id', user.id);
+    }
   }, []);
 
   const removeFromHistory = useCallback((query: string) => {
@@ -195,19 +198,40 @@ export function useSearch() {
     };
   }, [search]);
 
-  // Load search history (keep local for performance)
+  // Load search history from Supabase
   useEffect(() => {
-    const savedHistory = localStorage.getItem('search-history');
-    if (savedHistory) {
-      setSearchHistory(JSON.parse(savedHistory));
-    }
+    const loadHistory = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await (supabase as any)
+          .from('user_search_history')
+          .select('query')
+          .eq('user_id', user.id)
+          .order('searched_at', { ascending: false })
+          .limit(50);
+        if (data) {
+          setSearchHistory(data.map((d: any) => d.query));
+        }
+      }
+    };
+    loadHistory();
   }, []);
 
-  // Save history on change
+  // Save history on change to Supabase
   useEffect(() => {
-    if (searchHistory.length > 0) {
-      localStorage.setItem('search-history', JSON.stringify(searchHistory.slice(-50)));
-    }
+    const saveHistory = async () => {
+      if (searchHistory.length === 0) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && searchHistory.length > 0) {
+        const latestQuery = searchHistory[searchHistory.length - 1];
+        await (supabase as any).from('user_search_history').upsert({
+          user_id: user.id,
+          query: latestQuery,
+          searched_at: new Date().toISOString()
+        }, { onConflict: 'user_id,query' }).select();
+      }
+    };
+    saveHistory();
   }, [searchHistory]);
 
   // Advanced filter search
@@ -312,26 +336,40 @@ export function useSearch() {
   }, [results]);
 
   // Save search for later
-  const saveSearch = useCallback((query: string, name?: string) => {
-    const savedSearches = JSON.parse(localStorage.getItem('saved-searches') || '[]');
-    savedSearches.push({
-      query,
-      name: name || query,
-      savedAt: new Date().toISOString()
-    });
-    localStorage.setItem('saved-searches', JSON.stringify(savedSearches));
+  const saveSearch = useCallback(async (query: string, name?: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_saved_searches').insert({
+        user_id: user.id,
+        query,
+        name: name || query,
+        saved_at: new Date().toISOString()
+      });
+    }
   }, []);
 
   // Get saved searches
-  const getSavedSearches = useCallback((): { query: string; name: string; savedAt: string }[] => {
-    return JSON.parse(localStorage.getItem('saved-searches') || '[]');
+  const getSavedSearches = useCallback(async (): Promise<{ query: string; name: string; savedAt: string }[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await (supabase as any)
+      .from('user_saved_searches')
+      .select('query, name, saved_at')
+      .eq('user_id', user.id)
+      .order('saved_at', { ascending: false });
+    return (data || []).map((s: any) => ({ query: s.query, name: s.name, savedAt: s.saved_at }));
   }, []);
 
   // Delete saved search
-  const deleteSavedSearch = useCallback((query: string) => {
-    const savedSearches = JSON.parse(localStorage.getItem('saved-searches') || '[]');
-    const filtered = savedSearches.filter((s: any) => s.query !== query);
-    localStorage.setItem('saved-searches', JSON.stringify(filtered));
+  const deleteSavedSearch = useCallback(async (query: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_saved_searches')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('query', query);
+    }
   }, []);
 
   // Export search results
