@@ -191,83 +191,105 @@ export const useExamMode = () => {
 
     setCurrentSession(completedSession);
 
-    // Save to local storage for history (no DB table yet)
-    const history = JSON.parse(localStorage.getItem('exam_history') || '[]');
-    history.push({
-      ...completedSession,
-      questions: questions.map(q => ({
-        ...q,
-        userAnswer: currentSession.answers[q.id]
-      }))
-    });
-    localStorage.setItem('exam_history', JSON.stringify(history.slice(-50)));
+    // Save to Supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any)
+          .from('exam_history')
+          .insert({
+            user_id: user.id,
+            exam_type: 'standard',
+            questions: questions.map(q => ({ ...q, userAnswer: currentSession.answers[q.id] })),
+            answers: currentSession.answers,
+            total_questions: questions.length,
+            score: completedSession.score,
+            time_limit_minutes: currentSession.time_limit_minutes,
+            started_at: currentSession.started_at,
+            completed_at: completedSession.completed_at
+          });
+      }
+    } catch (e) {
+      console.error('Error saving exam history:', e);
+    }
 
     return completedSession;
   }, [currentSession, questions]);
 
-  // Get exam statistics
-  const getStats = useCallback((userId: string): ExamStats => {
-    const history = JSON.parse(localStorage.getItem('exam_history') || '[]')
-      .filter((e: any) => e.user_id === userId);
+  // Get exam statistics from Supabase
+  const getStats = useCallback(async (userId: string): Promise<ExamStats> => {
+    try {
+      const { data: history } = await (supabase as any)
+        .from('exam_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('completed_at', { ascending: false })
+        .limit(50);
 
-    if (history.length === 0) {
+      if (!history || history.length === 0) {
+        return {
+          totalExams: 0,
+          averageScore: 0,
+          bestScore: 0,
+          totalQuestions: 0,
+          correctAnswers: 0,
+          byDifficulty: { easy: 0, medium: 0, hard: 0 },
+          recentExams: [],
+          weakTopics: []
+        };
+      }
+
+      const scores = history.map((e: any) => e.score || 0);
+      const totalQuestions = history.reduce((sum: number, e: any) => 
+        sum + (e.questions?.length || 0), 0);
+      const correctAnswers = history.reduce((sum: number, e: any) => 
+        sum + Object.values(e.answers || {}).filter((a: any) => a.correct).length, 0);
+
+      const errorsByItem: Record<string, { errors: number; total: number; title: string }> = {};
+      history.forEach((exam: any) => {
+        exam.questions?.forEach((q: any) => {
+          const answer = exam.answers?.[q.id];
+          if (!errorsByItem[q.item_code]) {
+            errorsByItem[q.item_code] = { errors: 0, total: 0, title: q.question_text?.split('"')[1] || q.item_code };
+          }
+          errorsByItem[q.item_code].total++;
+          if (answer && !answer.correct) {
+            errorsByItem[q.item_code].errors++;
+          }
+        });
+      });
+
+      const weakTopics = Object.entries(errorsByItem)
+        .map(([item_code, data]) => ({
+          item_code,
+          title: data.title,
+          errorRate: data.total > 0 ? data.errors / data.total : 0
+        }))
+        .filter(t => t.errorRate > 0.3)
+        .sort((a, b) => b.errorRate - a.errorRate)
+        .slice(0, 5);
+
       return {
-        totalExams: 0,
-        averageScore: 0,
-        bestScore: 0,
-        totalQuestions: 0,
-        correctAnswers: 0,
+        totalExams: history.length,
+        averageScore: Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length),
+        bestScore: Math.max(...scores),
+        totalQuestions,
+        correctAnswers,
         byDifficulty: { easy: 0, medium: 0, hard: 0 },
-        recentExams: [],
-        weakTopics: []
+        recentExams: history.slice(0, 5).map((e: any) => ({
+          date: e.completed_at || e.started_at,
+          score: e.score || 0,
+          duration: e.time_limit_minutes || 30
+        })),
+        weakTopics
+      };
+    } catch (error) {
+      console.error('Error fetching exam stats:', error);
+      return {
+        totalExams: 0, averageScore: 0, bestScore: 0, totalQuestions: 0, correctAnswers: 0,
+        byDifficulty: { easy: 0, medium: 0, hard: 0 }, recentExams: [], weakTopics: []
       };
     }
-
-    const scores = history.map((e: ExamSession) => e.score || 0);
-    const totalQuestions = history.reduce((sum: number, e: any) => 
-      sum + (e.questions?.length || 0), 0);
-    const correctAnswers = history.reduce((sum: number, e: any) => 
-      sum + Object.values(e.answers || {}).filter((a: any) => a.correct).length, 0);
-
-    // Calculate weak topics
-    const errorsByItem: Record<string, { errors: number; total: number; title: string }> = {};
-    history.forEach((exam: any) => {
-      exam.questions?.forEach((q: any) => {
-        const answer = exam.answers?.[q.id];
-        if (!errorsByItem[q.item_code]) {
-          errorsByItem[q.item_code] = { errors: 0, total: 0, title: q.question_text.split('"')[1] || q.item_code };
-        }
-        errorsByItem[q.item_code].total++;
-        if (answer && !answer.correct) {
-          errorsByItem[q.item_code].errors++;
-        }
-      });
-    });
-
-    const weakTopics = Object.entries(errorsByItem)
-      .map(([item_code, data]) => ({
-        item_code,
-        title: data.title,
-        errorRate: data.total > 0 ? data.errors / data.total : 0
-      }))
-      .filter(t => t.errorRate > 0.3)
-      .sort((a, b) => b.errorRate - a.errorRate)
-      .slice(0, 5);
-
-    return {
-      totalExams: history.length,
-      averageScore: Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length),
-      bestScore: Math.max(...scores),
-      totalQuestions,
-      correctAnswers,
-      byDifficulty: { easy: 0, medium: 0, hard: 0 },
-      recentExams: history.slice(-5).map((e: any) => ({
-        date: e.completed_at || e.started_at,
-        score: e.score || 0,
-        duration: e.time_limit_minutes || 30
-      })),
-      weakTopics
-    };
   }, []);
 
   // Reset exam
@@ -354,33 +376,70 @@ export const useExamMode = () => {
     return currentIndex;
   }, [questions, isQuestionAnswered]);
 
-  // Pause exam (save state)
-  const pauseExam = useCallback(() => {
+  // Pause exam (save state to Supabase)
+  const pauseExam = useCallback(async () => {
     if (currentSession) {
-      localStorage.setItem('exam_paused', JSON.stringify({
-        session: currentSession,
-        questions,
-        pausedAt: new Date().toISOString()
-      }));
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await (supabase as any)
+            .from('exam_paused_sessions')
+            .upsert({
+              user_id: user.id,
+              session_data: currentSession,
+              questions: questions,
+              paused_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+        }
+      } catch (e) {
+        console.error('Error pausing exam:', e);
+      }
     }
   }, [currentSession, questions]);
 
-  // Resume paused exam
-  const resumeExam = useCallback((): boolean => {
-    const paused = localStorage.getItem('exam_paused');
-    if (paused) {
-      const data = JSON.parse(paused);
-      setCurrentSession(data.session);
-      setQuestions(data.questions);
-      localStorage.removeItem('exam_paused');
-      return true;
+  // Resume paused exam from Supabase
+  const resumeExam = useCallback(async (): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { data } = await (supabase as any)
+        .from('exam_paused_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        setCurrentSession(data.session_data);
+        setQuestions(data.questions);
+        await (supabase as any)
+          .from('exam_paused_sessions')
+          .delete()
+          .eq('user_id', user.id);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
     }
-    return false;
   }, []);
 
-  // Check if has paused exam
-  const hasPausedExam = useCallback((): boolean => {
-    return !!localStorage.getItem('exam_paused');
+  // Check if has paused exam in Supabase
+  const hasPausedExam = useCallback(async (): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { data } = await (supabase as any)
+        .from('exam_paused_sessions')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      return !!data;
+    } catch (error) {
+      return false;
+    }
   }, []);
 
   // Export exam results

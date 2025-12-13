@@ -60,7 +60,7 @@ export default function ClinicalCases() {
       }
       setUser(user);
       getCases();
-      setStats(getStats(user.id));
+      getStats(user.id).then(setStats);
       loadGamificationStats(user.id);
     };
     checkAuth();
@@ -123,7 +123,7 @@ export default function ClinicalCases() {
     await addPoints(user.id, 'clinicalCase');
     
     // Check for clinical master badge
-    const newStats = getStats(user.id);
+    const newStats = await getStats(user.id);
     if ((newStats?.totalCasesCompleted || 0) >= 10) {
       await unlockBadge(user.id, 'clinical_master');
     }

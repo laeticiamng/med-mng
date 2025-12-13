@@ -51,18 +51,44 @@ export default function LearningDashboard() {
         const today = await getTodayStats();
         setTodayStats(today);
         
-        // Load goals from localStorage
-        const stored = localStorage.getItem(`learning_goals_${user.id}`);
-        if (stored) setGoals(JSON.parse(stored));
+        // Load goals from Supabase
+        const { data: goalsData } = await (supabase as any)
+          .from('learning_goals')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (goalsData) {
+          setGoals(goalsData.map((g: any) => ({
+            id: g.id,
+            title: g.title,
+            target: g.target_value,
+            current: g.current_value,
+            unit: g.goal_type || 'items',
+            completed: g.completed
+          })));
+        }
       }
     };
     init();
   }, [loadStats, getStreak, getTodayStats]);
 
-  const saveGoals = (newGoals: LearningGoal[]) => {
+  const saveGoals = async (newGoals: LearningGoal[]) => {
     setGoals(newGoals);
-    if (userId) {
-      localStorage.setItem(`learning_goals_${userId}`, JSON.stringify(newGoals));
+    if (!userId) return;
+    
+    // Save to Supabase
+    for (const goal of newGoals) {
+      await (supabase as any)
+        .from('learning_goals')
+        .upsert({
+          id: goal.id,
+          user_id: userId,
+          title: goal.title,
+          target_value: goal.target,
+          current_value: goal.current,
+          goal_type: goal.unit,
+          completed: goal.completed
+        }, { onConflict: 'id' });
     }
   };
 
