@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import {
   Search, Filter, Star, Clock, TrendingUp, 
   BookOpen, Music, Users, X
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SearchResult {
   id: string;
@@ -43,51 +44,32 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
   ]);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Mock results pour démo
-  const mockResults: SearchResult[] = [
-    {
-      id: '1',
-      title: 'ECG et troubles du rythme',
-      type: 'edn',
-      category: 'Cardiologie',
-      rating: 4.8,
-      difficulty: 'intermediate',
-      duration: 45,
-      description: 'Compréhension approfondie des ECG et identification des troubles rythmiques',
-      tags: ['ECG', 'Cardiologie', 'Diagnostic'],
-      trending: true
-    },
-    {
-      id: '2', 
-      title: 'Simulation ECOS - Urgences pédiatriques',
-      type: 'ecos',
-      category: 'Pédiatrie',
-      rating: 4.9,
-      difficulty: 'advanced',
-      duration: 30,
-      description: 'Cas clinique urgent en pédiatrie avec approche diagnostique',
-      tags: ['Urgences', 'Pédiatrie', 'Simulation'],
-      new: true
-    },
-    {
-      id: '3',
-      title: 'Mémorisation anatomie - Système nerveux',
-      type: 'music',
-      category: 'Neurologie',
-      rating: 4.7,
-      difficulty: 'beginner',
-      duration: 25,
-      description: 'Musique mnémotechnique pour retenir l\'anatomie du système nerveux',
-      tags: ['Anatomie', 'Neurologie', 'Mémorisation']
+  // Load recent searches from Supabase
+  const loadRecentSearches = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // Fallback to localStorage for anonymous users
+    if (!user) {
+      const saved = localStorage.getItem('recent-searches');
+      if (saved) setRecentSearches(JSON.parse(saved));
+      return;
     }
-  ];
 
-  useEffect(() => {
-    const saved = localStorage.getItem('recent-searches');
-    if (saved) {
-      setRecentSearches(JSON.parse(saved));
+    const { data } = await (supabase as any)
+      .from('user_search_history')
+      .select('query')
+      .eq('user_id', user.id)
+      .order('searched_at', { ascending: false })
+      .limit(5);
+
+    if (data) {
+      setRecentSearches(data.map((d: any) => d.query));
     }
   }, []);
+
+  useEffect(() => {
+    loadRecentSearches();
+  }, [loadRecentSearches]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -108,21 +90,56 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
 
     setIsLoading(true);
     
-    // Simulation d'API call
-    setTimeout(() => {
-      const filtered = mockResults.filter(result =>
-        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-      setResults(filtered);
-      setIsLoading(false);
-    }, 300);
+    // Real search from Supabase edn_items_immersive
+    try {
+      const { data } = await supabase
+        .from('edn_items_immersive')
+        .select('id, item_code, title, subtitle')
+        .or(`title.ilike.%${searchQuery}%,subtitle.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
+        .limit(10);
 
-    // Sauvegarder dans les recherches récentes
+      if (data) {
+        const searchResults: SearchResult[] = data.map((item: any) => ({
+          id: item.id,
+          title: `${item.item_code} - ${item.title}`,
+          type: 'edn' as const,
+          category: 'EDN',
+          rating: 4.5,
+          difficulty: 'intermediate' as const,
+          duration: 30,
+          description: item.subtitle || `Item EDN ${item.item_code}`,
+          tags: ['EDN', item.item_code],
+          new: false
+        }));
+        setResults(searchResults);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+
+    // Save to recent searches
+    await saveRecentSearch(searchQuery);
+  };
+
+  const saveRecentSearch = async (searchQuery: string) => {
     const newRecent = [searchQuery, ...recentSearches.filter(s => s !== searchQuery)].slice(0, 5);
     setRecentSearches(newRecent);
-    localStorage.setItem('recent-searches', JSON.stringify(newRecent));
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      localStorage.setItem('recent-searches', JSON.stringify(newRecent));
+      return;
+    }
+
+    await (supabase as any)
+      .from('user_search_history')
+      .upsert({
+        user_id: user.id,
+        query: searchQuery,
+        searched_at: new Date().toISOString()
+      }, { onConflict: 'user_id,query' });
   };
 
   const handleInputChange = (value: string) => {

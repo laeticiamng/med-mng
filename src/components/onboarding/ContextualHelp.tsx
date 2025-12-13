@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { HelpCircle, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { sanitizeHtml } from '@/utils/sanitize';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HelpTip {
   id: string;
@@ -31,18 +32,36 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [helpContent, setHelpContent] = useState<HelpTip | null>(null);
+  const [isDismissed, setIsDismissed] = useState(false);
   const location = useLocation();
+
+  // Load dismissal status from Supabase
+  const loadDismissalStatus = useCallback(async () => {
+    if (!helpKey) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const dismissed = localStorage.getItem(`help_dismissed_${helpKey}`);
+      setIsDismissed(!!dismissed);
+      return;
+    }
+
+    const { data } = await (supabase as any)
+      .from('user_feature_tracking')
+      .select('is_dismissed')
+      .eq('user_id', user.id)
+      .eq('feature_key', `help_${helpKey}`)
+      .maybeSingle();
+
+    setIsDismissed(data?.is_dismissed || false);
+  }, [helpKey]);
+
+  useEffect(() => {
+    loadDismissalStatus();
+  }, [loadDismissalStatus]);
 
   useEffect(() => {
     if (helpKey) {
-      loadContextualHelp();
-    }
-  }, [helpKey, location.pathname]);
-
-  const loadContextualHelp = async () => {
-    try {
-      // Simulate API call to get contextual help
-      // In real implementation, this would call the help endpoint
       const mockHelp: HelpTip = {
         id: '1',
         key: helpKey || '',
@@ -51,20 +70,37 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
         route: location.pathname
       };
       setHelpContent(mockHelp);
-    } catch (error) {
-      console.error('Error loading contextual help:', error);
     }
-  };
+  }, [helpKey, location.pathname, title, content]);
 
   const shouldShow = () => {
-    const dismissed = localStorage.getItem(`help_dismissed_${helpKey}`);
-    return !dismissed && (helpContent || content);
+    return !isDismissed && (helpContent || content);
   };
 
-  const dismissHelp = () => {
-    if (helpKey) {
-      localStorage.setItem(`help_dismissed_${helpKey}`, 'true');
+  const dismissHelp = async () => {
+    if (!helpKey) {
+      setIsVisible(false);
+      return;
     }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      localStorage.setItem(`help_dismissed_${helpKey}`, 'true');
+      setIsDismissed(true);
+      setIsVisible(false);
+      return;
+    }
+
+    await (supabase as any)
+      .from('user_feature_tracking')
+      .upsert({
+        user_id: user.id,
+        feature_key: `help_${helpKey}`,
+        is_dismissed: true,
+        last_visited_at: new Date().toISOString()
+      }, { onConflict: 'user_id,feature_key' });
+
+    setIsDismissed(true);
     setIsVisible(false);
   };
 

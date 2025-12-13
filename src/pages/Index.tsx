@@ -27,7 +27,7 @@ const LazyLoadSpinner = () => <div className="flex justify-center items-center p
   </div>;
 const Index = () => {
   const navigate = useNavigate();
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<any>(null);
   const { stats, loadStats } = useGamification();
 
@@ -37,6 +37,14 @@ const Index = () => {
       if (user) {
         setUser(user);
         loadStats(user.id);
+        // Check admin status from user_roles table
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+        setIsAdmin(!!roles);
       }
     };
     checkUser();

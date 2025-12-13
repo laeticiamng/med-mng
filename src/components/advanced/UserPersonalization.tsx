@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,8 @@ import {
   Palette, Volume2, Clock, Zap, Brain, Eye, Moon, Sun,
   Layout, Settings, User, Bell, Shield, Sparkles
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface PersonalizationSettings {
   theme: 'light' | 'dark' | 'system';
@@ -63,18 +65,42 @@ const defaultSettings: PersonalizationSettings = {
 export const UserPersonalization: React.FC = () => {
   const [settings, setSettings] = useState<PersonalizationSettings>(defaultSettings);
   const [isChanged, setIsChanged] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Charger les paramètres depuis localStorage
-    const saved = localStorage.getItem('med-mng-personalization');
-    if (saved) {
+  // Load settings from Supabase
+  const loadSettings = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // Fallback to localStorage first for immediate display
+    const localSaved = localStorage.getItem('med-mng-personalization');
+    if (localSaved) {
       try {
-        setSettings({ ...defaultSettings, ...JSON.parse(saved) });
+        setSettings({ ...defaultSettings, ...JSON.parse(localSaved) });
       } catch (error) {
-        console.error('Erreur lors du chargement des paramètres:', error);
+        console.error('Erreur parsing localStorage:', error);
       }
     }
+    
+    if (!user) return;
+
+    // Then load from Supabase for sync
+    const { data } = await (supabase as any)
+      .from('user_personalization_settings')
+      .select('settings')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (data?.settings) {
+      const serverSettings = { ...defaultSettings, ...data.settings };
+      setSettings(serverSettings);
+      localStorage.setItem('med-mng-personalization', JSON.stringify(serverSettings));
+    }
   }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const updateSetting = (path: string, value: any) => {
     setSettings(prev => {
@@ -92,15 +118,34 @@ export const UserPersonalization: React.FC = () => {
     setIsChanged(true);
   };
 
-  const saveSettings = () => {
-    localStorage.setItem('med-mng-personalization', JSON.stringify(settings));
-    setIsChanged(false);
+  const saveSettings = async () => {
+    setIsSaving(true);
     
-    // Appliquer les changements visuels
+    // Always save to localStorage for immediate access
+    localStorage.setItem('med-mng-personalization', JSON.stringify(settings));
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any)
+        .from('user_personalization_settings')
+        .upsert({
+          user_id: user.id,
+          settings: settings,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+    }
+    
+    setIsChanged(false);
+    setIsSaving(false);
     applyVisualSettings();
+    
+    toast({
+      title: "Paramètres sauvegardés",
+      description: "Vos préférences ont été mises à jour"
+    });
   };
 
-  const resetSettings = () => {
+  const resetSettings = async () => {
     setSettings(defaultSettings);
     setIsChanged(true);
   };
