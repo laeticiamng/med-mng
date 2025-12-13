@@ -268,6 +268,12 @@ export default function SRSReview() {
     return competences.slice(0, 5);
   };
 
+  // Calculate study stats
+  const totalStudyTime = sessionStats.reviewed * 30; // avg 30 sec per item
+  const accuracy = sessionStats.reviewed > 0 
+    ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) 
+    : 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Helmet>
@@ -290,25 +296,50 @@ export default function SRSReview() {
           </div>
         </div>
 
-        {/* Gamification Stats */}
+        {/* Gamification Stats Banner */}
         {!isSessionActive && gamificationStats && (
-          <div className="mb-6">
-            <StreakDisplay stats={gamificationStats} compact />
-          </div>
+          <Card className="mb-6 bg-gradient-to-r from-primary/5 via-background to-warning/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <Flame className="h-5 w-5 text-warning" />
+                    <span className="text-2xl font-bold">{gamificationStats.currentStreak}</span>
+                    <span className="text-sm text-muted-foreground">jours</span>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-primary" />
+                    <span className="text-lg font-medium">Niveau {gamificationStats.level}</span>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div>
+                    <Badge variant="secondary">{gamificationStats.badges?.length || 0} badges</Badge>
+                  </div>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {gamificationStats.totalPoints} points totaux
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Stats Dashboard */}
         {!isSessionActive && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
+            <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 hover:shadow-md transition-shadow">
               <CardContent className="p-4 text-center">
                 <Clock className="h-8 w-8 mx-auto mb-2 text-destructive" />
                 <p className="text-2xl font-bold text-destructive">{stats?.dueToday || 0}</p>
                 <p className="text-sm text-muted-foreground">À réviser</p>
+                {(stats?.dueToday || 0) > 0 && (
+                  <Badge variant="destructive" className="mt-2 text-xs">Prioritaire</Badge>
+                )}
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover:shadow-md transition-shadow">
               <CardContent className="p-4 text-center">
                 <Star className="h-8 w-8 mx-auto mb-2 text-primary" />
                 <p className="text-2xl font-bold text-primary">{stats?.newItems || 0}</p>
@@ -316,7 +347,7 @@ export default function SRSReview() {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
+            <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20 hover:shadow-md transition-shadow">
               <CardContent className="p-4 text-center">
                 <Brain className="h-8 w-8 mx-auto mb-2 text-warning" />
                 <p className="text-2xl font-bold text-warning">{stats?.learningItems || 0}</p>
@@ -324,7 +355,7 @@ export default function SRSReview() {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+            <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20 hover:shadow-md transition-shadow">
               <CardContent className="p-4 text-center">
                 <CheckCircle className="h-8 w-8 mx-auto mb-2 text-success" />
                 <p className="text-2xl font-bold text-success">{stats?.masteredItems || 0}</p>

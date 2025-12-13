@@ -264,37 +264,111 @@ export default function ExamMode() {
           </TabsList>
 
           <TabsContent value="exam">
-            {/* No active exam - Start screen */}
-            {!currentSession && (
+            {/* Gamification Stats Banner */}
+            {gamificationStats && !isExamActive && (
+              <Card className="mb-6 bg-gradient-to-r from-accent/5 via-background to-primary/5 border-accent/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-4">
+                      <Badge variant="outline" className="gap-1">
+                        🔥 {gamificationStats.currentStreak} jours
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        ⭐ Niveau {gamificationStats.level}
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        🏆 {gamificationStats.badges?.length || 0} badges
+                      </Badge>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{gamificationStats.totalPoints} points</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Mode Selection */}
+            {!isExamActive && !isExamCompleted && (
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <Card 
+                  className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'ai' ? 'ring-2 ring-primary border-primary' : ''}`}
+                  onClick={() => setExamMode('ai')}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                      <Sparkles className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="font-bold mb-2">Mode IA</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Questions générées par l'IA, uniques à chaque session</p>
+                    {examMode === 'ai' && (
+                      <Select value={aiDifficulty} onValueChange={(v) => setAiDifficulty(v as any)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="easy">Facile</SelectItem>
+                          <SelectItem value="medium">Moyen</SelectItem>
+                          <SelectItem value="hard">Difficile</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'standard' ? 'ring-2 ring-accent border-accent' : ''}`}
+                  onClick={() => setExamMode('standard')}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
+                      <Brain className="h-8 w-8 text-accent" />
+                    </div>
+                    <h3 className="font-bold mb-2">Mode Standard</h3>
+                    <p className="text-sm text-muted-foreground">Questions du référentiel EDN officiel</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Start Button */}
+            {!isExamActive && !isExamCompleted && (
               <Card className="text-center">
-                <CardContent className="p-12">
-                  <Trophy className="h-20 w-20 mx-auto mb-6 text-accent" />
-                  <h2 className="text-2xl font-bold mb-4">Prêt pour l'examen ?</h2>
-                  <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                    20 questions • 30 minutes • QCM basés sur le référentiel EDN
+                <CardContent className="p-8">
+                  <Trophy className="h-16 w-16 mx-auto mb-4 text-accent" />
+                  <h2 className="text-xl font-bold mb-2">Prêt pour l'examen ?</h2>
+                  <p className="text-muted-foreground mb-6 text-sm">
+                    {examMode === 'ai' ? '10 questions IA • 20 minutes' : '20 questions • 30 minutes'} • QCM EDN
                   </p>
-                  <div className="grid grid-cols-3 gap-4 mb-8 max-w-md mx-auto">
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
-                      <p className="text-sm font-medium">30 min</p>
+                  <div className="grid grid-cols-3 gap-3 mb-6 max-w-sm mx-auto">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <Clock className="h-5 w-5 mx-auto mb-1 text-primary" />
+                      <p className="text-xs font-medium">{examMode === 'ai' ? '20' : '30'} min</p>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <Target className="h-6 w-6 mx-auto mb-2 text-accent" />
-                      <p className="text-sm font-medium">20 QCM</p>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <Target className="h-5 w-5 mx-auto mb-1 text-accent" />
+                      <p className="text-xs font-medium">{examMode === 'ai' ? '10' : '20'} QCM</p>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <Award className="h-6 w-6 mx-auto mb-2 text-warning" />
-                      <p className="text-sm font-medium">Feedback</p>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <Award className="h-5 w-5 mx-auto mb-1 text-warning" />
+                      <p className="text-xs font-medium">+50 pts</p>
                     </div>
                   </div>
                   <Button 
                     size="lg" 
                     onClick={handleStartExam}
-                    disabled={loading}
+                    disabled={loading || aiLoading || generating}
                     className="gap-2"
                   >
-                    <Play className="h-5 w-5" />
-                    Commencer l'examen
+                    {generating ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Génération IA...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-5 w-5" />
+                        Commencer
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>

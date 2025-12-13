@@ -135,38 +135,54 @@ export default function ProgressDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
-            {/* Weekly Summary */}
+            {/* Weekly Summary - Enhanced */}
             <Card className="bg-gradient-to-r from-primary/5 via-background to-success/5 border-primary/20">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Star className="h-5 w-5 text-primary" />
                   Résumé de la semaine
                 </CardTitle>
+                <CardDescription>Votre activité des 7 derniers jours</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <p className="text-4xl font-bold text-primary">{weeklyData.total}</p>
-                      <p className="text-sm text-muted-foreground">activités</p>
-                    </div>
-                    <div className="h-12 w-px bg-border" />
+                <div className="grid md:grid-cols-4 gap-6">
+                  <div className="text-center p-4 bg-background/50 rounded-lg">
+                    <Activity className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-3xl font-bold text-primary">{weeklyData.total}</p>
+                    <p className="text-sm text-muted-foreground">activités</p>
+                  </div>
+                  <div className="text-center p-4 bg-background/50 rounded-lg">
+                    <Brain className="h-6 w-6 mx-auto mb-2 text-accent" />
+                    <p className="text-3xl font-bold text-accent">{weeklyData.byType['review'] || weeklyData.byType['srs_review'] || 0}</p>
+                    <p className="text-sm text-muted-foreground">révisions</p>
+                  </div>
+                  <div className="text-center p-4 bg-background/50 rounded-lg">
+                    <Trophy className="h-6 w-6 mx-auto mb-2 text-warning" />
+                    <p className="text-3xl font-bold text-warning">{examStats?.totalExams || weeklyData.byType['exam'] || 0}</p>
+                    <p className="text-sm text-muted-foreground">examens</p>
+                  </div>
+                  <div className={`text-center p-4 rounded-lg ${weeklyData.trend >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                    <TrendingUp className={`h-6 w-6 mx-auto mb-2 ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`} />
+                    <p className={`text-3xl font-bold ${weeklyData.trend >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {weeklyData.trend >= 0 ? '+' : ''}{weeklyData.trend}%
+                    </p>
+                    <p className="text-sm text-muted-foreground">vs sem. dernière</p>
+                  </div>
+                </div>
+
+                {/* Activity breakdown */}
+                {Object.keys(weeklyData.byType).length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-xs text-muted-foreground mb-2">Répartition par type</p>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(weeklyData.byType).slice(0, 4).map(([type, count]) => (
+                      {Object.entries(weeklyData.byType).map(([type, count]) => (
                         <Badge key={type} variant="secondary" className="text-xs">
                           {type}: {count}
                         </Badge>
                       ))}
                     </div>
                   </div>
-                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${
-                    weeklyData.trend >= 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-                  }`}>
-                    {weeklyData.trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
-                    <span className="font-bold">{weeklyData.trend >= 0 ? '+' : ''}{weeklyData.trend}%</span>
-                    <span className="text-xs">vs semaine dernière</span>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
