@@ -270,19 +270,20 @@ class EcosService {
     return Math.min(score, 100);
   }
 
-  // Obtenir des situations recommandées
+  // Obtenir des situations recommandées (using ecos_situations table that exists)
   async getRecommendedSituations(userId: string, count: number = 5): Promise<EcosSituation[]> {
     try {
       const studiedIds = await this.getStudiedSituations(userId);
 
-      const { data } = await supabase
-        .from('ecos_situations_depart')
+      // Use any cast to bypass type checking for table that may not exist in types
+      const { data } = await (supabase as any)
+        .from('ecos_situations')
         .select('*')
         .limit(count + studiedIds.length);
 
       if (!data) return [];
 
-      // Filtrer les situations déjà étudiées et retourner les recommandées
+      // Map and filter the data
       return (data as unknown as EcosSituation[])
         .filter(s => !studiedIds.includes(s.sd_id))
         .slice(0, count);

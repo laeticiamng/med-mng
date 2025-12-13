@@ -788,7 +788,7 @@ export const useFlashcards = () => {
     try {
       const { data, error } = await supabase
         .from('flashcard_reviews')
-        .select('reviewed_at, was_correct')
+        .select('reviewed_at, quality')
         .eq('flashcard_id', cardId)
         .order('reviewed_at', { ascending: false })
         .limit(20);
@@ -797,7 +797,7 @@ export const useFlashcards = () => {
 
       return (data || []).map(r => ({
         date: r.reviewed_at,
-        wasCorrect: r.was_correct
+        wasCorrect: (r.quality || 0) >= 3 // quality >= 3 means correct
       }));
     } catch (error) {
       console.error('Error getting review history:', error);

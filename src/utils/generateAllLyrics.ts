@@ -84,13 +84,13 @@ export async function getLyricsGenerationStatus(): Promise<{
   try {
     const { data, error } = await supabase
       .from('edn_items_immersive')
-      .select('item_code, has_lyrics')
+      .select('item_code, paroles_musicales')
 
     if (error) throw error
 
     const items = data || []
-    const withLyrics = items.filter(i => i.has_lyrics).length
-    const withoutLyrics = items.filter(i => !i.has_lyrics).length
+    const withLyrics = items.filter((i: any) => Boolean(i.paroles_musicales)).length
+    const withoutLyrics = items.filter((i: any) => !i.paroles_musicales).length
 
     return {
       total: items.length,

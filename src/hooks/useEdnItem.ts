@@ -92,7 +92,7 @@ export const useEdnItem = (slug: string | undefined) => {
           title: data.title,
           subtitle: data.subtitle,
           slug: data.slug,
-          paroles_musicales: data.paroles_musicales,
+          paroles_musicales: data.paroles_musicales as string[] | undefined,
           tableau_rang_a: data.tableau_rang_a,
           tableau_rang_b: data.tableau_rang_b,
           scene_immersive: data.scene_immersive,
@@ -100,10 +100,11 @@ export const useEdnItem = (slug: string | undefined) => {
           created_at: data.created_at,
           updated_at: data.updated_at,
           payload_v2: (data as any).payload_v2,
-          category: data.category,
-          has_music: data.has_music,
-          has_lyrics: data.has_lyrics,
-          competences_count: data.competences_count
+          // Computed fields from existing data
+          category: 'EDN',
+          has_music: Boolean(data.paroles_musicales),
+          has_lyrics: Boolean(data.paroles_musicales),
+          competences_count: data.competences_count_total || 0
         };
         setRawItem(mappedData);
         setStats(calculateStats(mappedData));
@@ -143,7 +144,7 @@ export const useEdnItem = (slug: string | undefined) => {
           title: data.title,
           subtitle: data.subtitle,
           slug: data.slug,
-          paroles_musicales: data.paroles_musicales,
+          paroles_musicales: data.paroles_musicales as string[] | undefined,
           tableau_rang_a: data.tableau_rang_a,
           tableau_rang_b: data.tableau_rang_b,
           scene_immersive: data.scene_immersive,
@@ -151,10 +152,10 @@ export const useEdnItem = (slug: string | undefined) => {
           created_at: data.created_at,
           updated_at: data.updated_at,
           payload_v2: (data as any).payload_v2,
-          category: data.category,
-          has_music: data.has_music,
-          has_lyrics: data.has_lyrics,
-          competences_count: data.competences_count
+          category: 'EDN',
+          has_music: Boolean(data.paroles_musicales),
+          has_lyrics: Boolean(data.paroles_musicales),
+          competences_count: data.competences_count_total || 0
         };
         setRawItem(mappedData);
         setStats(calculateStats(mappedData));

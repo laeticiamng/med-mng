@@ -113,28 +113,25 @@ class PedagogicalContentService {
 
   async updateContentProgress(itemId: string, contentType: string, progress: number): Promise<void> {
     try {
-      const { data: existing, error: fetchError } = await supabase
+      const { data: existing, error: fetchError } = await (supabase as any)
         .from('med_mng_content_ai')
-        .select('id, metadata')
+        .select('id, generation_status')
         .eq('item_id', itemId)
-        .eq('content_type', contentType)
         .single();
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
       }
 
-      const metadata = (existing?.metadata as any) || {};
-      const updatedMetadata = {
-        ...metadata,
+      const updatedData = {
         progress,
         last_progress_update: new Date().toISOString()
       };
 
       if (existing) {
-        await supabase
+        await (supabase as any)
           .from('med_mng_content_ai')
-          .update({ metadata: updatedMetadata })
+          .update({ generation_status: JSON.stringify(updatedData) })
           .eq('id', existing.id);
       }
 

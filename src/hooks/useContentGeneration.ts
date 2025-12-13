@@ -240,7 +240,7 @@ export const useContentGeneration = () => {
         image: 'generated_ambient_images'
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from(tables[type])
         .delete()
         .eq('id', contentId);

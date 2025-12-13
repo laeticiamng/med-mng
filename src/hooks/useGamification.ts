@@ -404,10 +404,10 @@ export function useGamification() {
       // Build leaderboard
       const leaderboard = userIds.map(userId => {
         const points = userPoints.get(userId) || 0;
-        const profile = profiles?.find(p => p.id === userId);
+        const profile = profiles?.find((p: any) => p.id === userId);
         return {
           userId,
-          displayName: profile?.full_name || 'Utilisateur',
+          displayName: (profile as any)?.name || 'Utilisateur',
           totalPoints: points,
           level: calculateLevel(points),
           badges: badgeCounts.get(userId) || 0

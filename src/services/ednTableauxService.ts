@@ -141,12 +141,12 @@ class EdnTableauxService {
     try {
       const { data, error } = await supabase
         .from('edn_items_immersive')
-        .select('id, item_code, title, tableau_rang_a, tableau_rang_b, completeness_score')
+        .select('id, item_code, title, tableau_rang_a, tableau_rang_b')
         .order('item_code')
 
       if (error) throw error
 
-      return (data || []).map(item => {
+      return (data || []).map((item: any) => {
         const hasRangA = Boolean(item.tableau_rang_a && Object.keys(item.tableau_rang_a).length > 0)
         const hasRangB = Boolean(item.tableau_rang_b && Object.keys(item.tableau_rang_b).length > 0)
 
@@ -154,11 +154,14 @@ class EdnTableauxService {
         if (!hasRangA) missingFields.push('tableau_rang_a')
         if (!hasRangB) missingFields.push('tableau_rang_b')
 
+        // Calculate completeness_score dynamically since column doesn't exist
+        const computedScore = hasRangA && hasRangB ? 100 : hasRangA || hasRangB ? 50 : 0
+
         return {
           item_id: item.id,
           item_code: item.item_code,
           title: item.title,
-          completeness_score: item.completeness_score || (hasRangA && hasRangB ? 100 : hasRangA || hasRangB ? 50 : 0),
+          completeness_score: computedScore,
           missing_fields: missingFields,
           rang_a_complete: hasRangA,
           rang_b_complete: hasRangB,
