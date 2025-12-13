@@ -251,14 +251,11 @@ export const useAnalytics = () => {
     }
   };
 
-  // Get session duration estimate
+  // Get session duration estimate (in-memory for performance)
+  const [sessionStartRef] = useState(() => Date.now());
+  
   const getSessionDuration = (): number => {
-    const sessionStart = sessionStorage.getItem('session_start');
-    if (!sessionStart) {
-      sessionStorage.setItem('session_start', Date.now().toString());
-      return 0;
-    }
-    return Math.round((Date.now() - parseInt(sessionStart)) / 1000);
+    return Math.round((Date.now() - sessionStartRef) / 1000);
   };
 
   // Track error

@@ -31,11 +31,9 @@ export const useFreeTrialLimit = () => {
           setFreeGenerationsUsed(count);
           setCanGenerateMore(count < MAX_FREE_GENERATIONS);
         } else {
-          // Non-authenticated: use localStorage fallback
-          const stored = localStorage.getItem('med-mng-free-trial-count');
-          const count = stored ? Math.min(parseInt(stored, 10) || 0, MAX_FREE_GENERATIONS) : 0;
-          setFreeGenerationsUsed(count);
-          setCanGenerateMore(count < MAX_FREE_GENERATIONS);
+          // Non-authenticated users: limited generations (in-memory only)
+          setFreeGenerationsUsed(0);
+          setCanGenerateMore(true);
         }
         setError(null);
       } catch (err) {
@@ -59,12 +57,11 @@ export const useFreeTrialLimit = () => {
           last_generation_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
-      } else {
-        localStorage.setItem('med-mng-free-trial-count', newCount.toString());
       }
+      // Non-authenticated users: in-memory count only (resets on page refresh)
 
       if (newCount >= MAX_FREE_GENERATIONS) {
-        toast.error(`🎵 Limite atteinte ! Vous avez utilisé vos ${MAX_FREE_GENERATIONS} générations gratuites.`);
+        toast.error(`🎵 Limite atteinte ! Connectez-vous pour continuer à générer.`);
       } else {
         toast.success(`🎵 Il vous reste ${MAX_FREE_GENERATIONS - newCount} génération(s) gratuite(s).`);
       }
@@ -95,8 +92,6 @@ export const useFreeTrialLimit = () => {
     try {
       if (userId) {
         await (supabase as any).from('free_trial_usage').delete().eq('user_id', userId);
-      } else {
-        localStorage.removeItem('med-mng-free-trial-count');
       }
       setFreeGenerationsUsed(0);
       setCanGenerateMore(true);

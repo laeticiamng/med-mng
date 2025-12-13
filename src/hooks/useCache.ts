@@ -45,17 +45,8 @@ export function useCache<T = any>(namespace = 'app-cache') {
 
       newCache.set(key, item as CacheItem<T>);
 
-      // Persistance localStorage
-      if (opts.persistent) {
-        try {
-          localStorage.setItem(
-            `${namespace}:${key}`,
-            JSON.stringify(item)
-          );
-        } catch (error) {
-          console.warn('Erreur sauvegarde cache localStorage:', error);
-        }
-      }
+      // Persistance désactivée - utiliser uniquement le cache mémoire
+      // Supabase est la source de vérité pour les données persistantes
 
       return newCache;
     });
@@ -65,21 +56,6 @@ export function useCache<T = any>(namespace = 'app-cache') {
     const item = cache.get(key) as CacheItem<K> | undefined;
     
     if (!item) {
-      // Essayer de récupérer depuis localStorage
-      try {
-        const stored = localStorage.getItem(`${namespace}:${key}`);
-        if (stored) {
-          const parsedItem: CacheItem<K> = JSON.parse(stored);
-          if (parsedItem.expiresAt > Date.now()) {
-            setCache(prev => new Map(prev).set(key, parsedItem as CacheItem<T>));
-            return parsedItem.data;
-          } else {
-            localStorage.removeItem(`${namespace}:${key}`);
-          }
-        }
-      } catch (error) {
-        console.warn('Erreur lecture cache localStorage:', error);
-      }
       return null;
     }
 
@@ -90,7 +66,7 @@ export function useCache<T = any>(namespace = 'app-cache') {
     }
 
     return item.data;
-  }, [cache, namespace]);
+  }, [cache]);
 
   const remove = useCallback((key: string) => {
     setCache(prev => {
@@ -98,30 +74,11 @@ export function useCache<T = any>(namespace = 'app-cache') {
       newCache.delete(key);
       return newCache;
     });
-
-    // Supprimer de localStorage
-    try {
-      localStorage.removeItem(`${namespace}:${key}`);
-    } catch (error) {
-      console.warn('Erreur suppression cache localStorage:', error);
-    }
-  }, [namespace]);
+  }, []);
 
   const clear = useCallback(() => {
     setCache(new Map());
-
-    // Vider localStorage pour ce namespace
-    try {
-      const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.startsWith(`${namespace}:`)) {
-          localStorage.removeItem(key);
-        }
-      });
-    } catch (error) {
-      console.warn('Erreur vidage cache localStorage:', error);
-    }
-  }, [namespace]);
+  }, []);
 
   const has = useCallback((key: string): boolean => {
     return get(key) !== null;

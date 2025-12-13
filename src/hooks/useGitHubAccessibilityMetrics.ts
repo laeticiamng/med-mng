@@ -265,10 +265,7 @@ export const useGitHubAccessibilityMetrics = (githubToken?: string) => {
         }
       }
       
-      // Fallback to localStorage
-      if (!token) {
-        token = localStorage.getItem('github_token') || '';
-      }
+      // No localStorage fallback - Supabase is source of truth
       
       if (!token) {
         throw new Error('GitHub token requis. Configurez-le dans les paramètres.');

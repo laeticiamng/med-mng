@@ -75,32 +75,24 @@ export function useUserPreferences() {
     try {
       setLoading(true);
       
-      // Charger depuis localStorage d'abord
-      const localPrefs = localStorage.getItem('user-preferences');
-      if (localPrefs) {
-        setPreferences({ ...defaultPreferences, ...JSON.parse(localPrefs) });
-      }
-
-      // Puis charger depuis Supabase si connecté
+      // Charger directement depuis Supabase (source of truth)
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        // Maintenant que les tables existent, charger depuis Supabase
         const { data, error } = await supabase
           .from('user_preferences')
           .select('preferences')
           .eq('user_id', user.user.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') { // Ignore "not found" error
+        if (error && error.code !== 'PGRST116') {
           throw error;
         }
 
         if (data?.preferences) {
-          const serverPrefs = { ...defaultPreferences, ...(data.preferences as any) };
-          setPreferences(serverPrefs);
-          localStorage.setItem('user-preferences', JSON.stringify(serverPrefs));
+          setPreferences({ ...defaultPreferences, ...(data.preferences as any) });
         }
       }
+      // Pour utilisateurs non connectés, utiliser les defaults
     } catch (error) {
       console.error('Erreur chargement préférences:', error);
     } finally {
@@ -112,11 +104,9 @@ export function useUserPreferences() {
     try {
       setSyncing(true);
       const updatedPrefs = { ...preferences, ...newPreferences };
-      
       setPreferences(updatedPrefs);
-      localStorage.setItem('user-preferences', JSON.stringify(updatedPrefs));
 
-      // Sync avec Supabase maintenant que les tables existent
+      // Sync directement avec Supabase (source of truth)
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
         const { error } = await supabase
@@ -127,12 +117,18 @@ export function useUserPreferences() {
           });
 
         if (error) throw error;
+        
+        toast({
+          title: "Préférences sauvegardées",
+          description: "Vos préférences ont été mises à jour"
+        });
+      } else {
+        // Non connecté - préférences en mémoire seulement
+        toast({
+          title: "Préférences appliquées",
+          description: "Connectez-vous pour les sauvegarder"
+        });
       }
-
-      toast({
-        title: "Préférences sauvegardées",
-        description: "Vos préférences ont été mises à jour"
-      });
     } catch (error) {
       console.error('Erreur sauvegarde préférences:', error);
       toast({
@@ -149,7 +145,6 @@ export function useUserPreferences() {
     try {
       setSyncing(true);
       setPreferences(defaultPreferences);
-      localStorage.setItem('user-preferences', JSON.stringify(defaultPreferences));
 
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
@@ -346,22 +341,18 @@ export function useUserPreferences() {
     }
   }, [preferences.fontSize]);
 
-  // Sync preferences across tabs
+  // Sync preferences when auth state changes
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'user-preferences' && e.newValue) {
-        try {
-          const newPrefs = JSON.parse(e.newValue);
-          setPreferences({ ...defaultPreferences, ...newPrefs });
-        } catch {
-          // Ignore invalid JSON
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        loadPreferences();
+      } else if (event === 'SIGNED_OUT') {
+        setPreferences(defaultPreferences);
       }
-    };
+    });
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    return () => subscription.unsubscribe();
+  }, [loadPreferences]);
 
   // Get preference description for UI
   const getPreferenceDescription = useCallback((key: keyof UserPreferences): string => {

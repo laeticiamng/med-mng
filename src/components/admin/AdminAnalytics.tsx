@@ -11,14 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Storage keys pour les données persistantes
-const STORAGE_KEYS = {
-  analyticsCache: 'admin_analytics_cache',
-  lastFetch: 'admin_analytics_last_fetch'
-};
-
-// Durée de validité du cache (15 minutes)
-const CACHE_DURATION = 15 * 60 * 1000;
+// Utiliser React state pour le cache (pas de localStorage)
+import { useRef } from 'react';
 
 interface AnalyticsData {
   userGrowth: {
@@ -62,30 +56,21 @@ interface AnalyticsData {
   }>;
 }
 
-// Helper pour charger depuis le cache
-const loadFromCache = (): { data: AnalyticsData | null; isValid: boolean } => {
-  try {
-    const cached = localStorage.getItem(STORAGE_KEYS.analyticsCache);
-    const lastFetch = localStorage.getItem(STORAGE_KEYS.lastFetch);
+// Durée de validité du cache (15 minutes)
+const CACHE_DURATION = 15 * 60 * 1000;
 
-    if (cached && lastFetch) {
-      const isValid = Date.now() - parseInt(lastFetch) < CACHE_DURATION;
-      return { data: JSON.parse(cached), isValid };
-    }
-  } catch (e) {
-    console.warn('Erreur lecture cache analytics:', e);
+// Cache en mémoire (pas de localStorage)
+let memoryCache: { data: AnalyticsData | null; timestamp: number } = { data: null, timestamp: 0 };
+
+const loadFromCache = (): { data: AnalyticsData | null; isValid: boolean } => {
+  if (memoryCache.data && Date.now() - memoryCache.timestamp < CACHE_DURATION) {
+    return { data: memoryCache.data, isValid: true };
   }
   return { data: null, isValid: false };
 };
 
-// Helper pour sauvegarder dans le cache
 const saveToCache = (data: AnalyticsData) => {
-  try {
-    localStorage.setItem(STORAGE_KEYS.analyticsCache, JSON.stringify(data));
-    localStorage.setItem(STORAGE_KEYS.lastFetch, Date.now().toString());
-  } catch (e) {
-    console.warn('Erreur sauvegarde cache analytics:', e);
-  }
+  memoryCache = { data, timestamp: Date.now() };
 };
 
 export const AdminAnalytics = () => {

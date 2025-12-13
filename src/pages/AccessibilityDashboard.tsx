@@ -66,13 +66,7 @@ const AccessibilityDashboard = () => {
           return;
         }
       }
-      
-      // Fallback to localStorage
-      const savedToken = localStorage.getItem('github_token');
-      if (savedToken) {
-        setGithubToken(savedToken);
-        setIsConfigured(true);
-      }
+      // No localStorage fallback - Supabase is source of truth
     };
     
     loadToken();
@@ -102,8 +96,6 @@ const AccessibilityDashboard = () => {
         }, { onConflict: 'user_id,integration_name' });
     }
     
-    // Also save to localStorage as fallback
-    localStorage.setItem('github_token', githubToken);
     setIsConfigured(true);
     toast({
       title: 'Configuration enregistrée',
