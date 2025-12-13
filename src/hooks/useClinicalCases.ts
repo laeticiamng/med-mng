@@ -313,11 +313,32 @@ export const useClinicalCases = () => {
   const [currentProgress, setCurrentProgress] = useState<CaseProgress | null>(null);
   const { toast } = useToast();
 
-  // Get all available cases
+  // Get all available cases - load from Supabase first, fallback to sample
   const getCases = useCallback(async (specialty?: string, difficulty?: string) => {
     setLoading(true);
     try {
-      let filtered = [...SAMPLE_CASES];
+      // Try to load from Supabase
+      const { data: dbCases } = await (supabase as any)
+        .from('clinical_cases')
+        .select('*')
+        .eq('is_active', true);
+      
+      let allCases: ClinicalCase[] = dbCases?.length > 0 
+        ? dbCases.map((c: any) => ({
+            id: c.id,
+            title: c.title,
+            specialty: c.specialty,
+            difficulty: c.difficulty as ClinicalCase['difficulty'],
+            description: c.description || '',
+            patientPresentation: c.patient_presentation,
+            steps: c.steps || [],
+            relatedItems: c.related_items || [],
+            estimatedTime: c.estimated_time || 15,
+            learningObjectives: c.learning_objectives || []
+          }))
+        : SAMPLE_CASES;
+      
+      let filtered = [...allCases];
       if (specialty) {
         filtered = filtered.filter(c => c.specialty === specialty);
       }
@@ -326,6 +347,10 @@ export const useClinicalCases = () => {
       }
       setCases(filtered);
       return filtered;
+    } catch (e) {
+      console.error('Error loading cases:', e);
+      setCases(SAMPLE_CASES);
+      return SAMPLE_CASES;
     } finally {
       setLoading(false);
     }
@@ -606,13 +631,13 @@ export const useClinicalCases = () => {
       .slice(0, 5);
   }, [cases]);
 
-  // Get case difficulty color
+  // Get case difficulty color (using semantic tokens)
   const getDifficultyColor = useCallback((difficulty: ClinicalCase['difficulty']): string => {
     switch (difficulty) {
-      case 'beginner': return 'text-green-500 bg-green-500/10';
-      case 'intermediate': return 'text-yellow-500 bg-yellow-500/10';
-      case 'advanced': return 'text-red-500 bg-red-500/10';
-      default: return 'text-gray-500 bg-gray-500/10';
+      case 'beginner': return 'text-success bg-success/10';
+      case 'intermediate': return 'text-warning bg-warning/10';
+      case 'advanced': return 'text-destructive bg-destructive/10';
+      default: return 'text-muted-foreground bg-muted/10';
     }
   }, []);
 

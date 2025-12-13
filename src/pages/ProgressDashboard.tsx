@@ -57,9 +57,9 @@ export default function ProgressDashboard() {
       setUser(user);
       
       getSrsStats(user.id);
-      setExamStats(getExamStats(user.id));
-      setClinicalStats(getClinicalStats(user.id));
-      setFlashcardStats(getFlashcardStats(user.id));
+      getExamStats(user.id).then(setExamStats);
+      getClinicalStats(user.id).then(setClinicalStats);
+      getFlashcardStats(user.id).then(setFlashcardStats);
       loadGamificationStats(user.id);
       checkAndUnlockBadges(user.id);
       

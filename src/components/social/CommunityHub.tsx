@@ -57,202 +57,232 @@ export const CommunityHub = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    initializeCommunityData();
+    loadCommunityData();
   }, []);
 
-  const initializeCommunityData = () => {
-    // Simulation de données de communauté
-    const mockPosts: CommunityPost[] = [
-      {
-        id: '1',
-        author: {
-          id: 'user1',
-          name: 'Dr. Sophie Martin',
-          avatar: undefined,
-          level: 15,
-          badge: 'Expert'
-        },
-        content: 'Astuce du jour : Pour mémoriser les voies anatomiques, j\'utilise la technique des palais de mémoire. Je visualise chaque structure dans une pièce de ma maison. C\'est incroyablement efficace ! 🧠',
-        type: 'study_tip',
-        category: 'Anatomie',
-        likes: 23,
-        comments: 8,
-        shares: 5,
-        isLiked: false,
-        createdAt: '2024-01-20T14:30:00Z',
-        tags: ['mémoire', 'anatomie', 'technique']
-      },
-      {
-        id: '2',
-        author: {
-          id: 'user2',
-          name: 'Marc Dubois',
-          avatar: undefined,
-          level: 12,
-          badge: 'Collaborateur'
-        },
-        content: 'Je viens de terminer l\'IC-3 ! Les quiz musicaux m\'ont vraiment aidé à retenir les concepts de raisonnement clinique. Quelqu\'un d\'autre a testé cette approche ?',
-        type: 'achievement',
-        category: 'Réussite',
-        likes: 17,
-        comments: 12,
-        shares: 3,
-        isLiked: true,
-        createdAt: '2024-01-20T12:15:00Z',
-        tags: ['IC-3', 'musique', 'réussite']
-      },
-      {
-        id: '3',
-        author: {
-          id: 'user3',
-          name: 'Emma Chen',
-          avatar: undefined,
-          level: 8,
-          badge: 'Débutant'
-        },
-        content: 'Question : Comment gérez-vous le stress pendant les révisions intensives ? J\'ai tendance à me sentir dépassée avec tout le contenu à maîtriser...',
-        type: 'question',
-        category: 'Bien-être',
-        likes: 31,
-        comments: 24,
-        shares: 7,
-        isLiked: false,
-        createdAt: '2024-01-20T09:45:00Z',
-        tags: ['stress', 'révisions', 'conseil']
-      },
-      {
-        id: '4',
-        author: {
-          id: 'user4',
-          name: 'Dr. Thomas Durand',
-          avatar: undefined,
-          level: 20,
-          badge: 'Mentor'
-        },
-        content: 'Nouvelle fonctionnalité géniale ! Les sessions d\'étude collaborative permettent vraiment d\'approfondir la compréhension. J\'ai organisé une session sur la cardiologie hier soir, 15 participants !',
-        type: 'discussion',
-        category: 'Fonctionnalités',
-        likes: 45,
-        comments: 18,
-        shares: 12,
-        isLiked: true,
-        createdAt: '2024-01-19T20:30:00Z',
-        tags: ['collaboration', 'cardiologie', 'innovation']
+  const loadCommunityData = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Load posts from Supabase
+      const { data: dbPosts } = await (supabase as any)
+        .from('community_posts')
+        .select('*, community_post_likes(user_id)')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (dbPosts && dbPosts.length > 0) {
+        const formattedPosts: CommunityPost[] = dbPosts.map((p: any) => ({
+          id: p.id,
+          author: {
+            id: p.user_id,
+            name: 'Utilisateur',
+            level: 10,
+            badge: 'Membre'
+          },
+          content: p.content,
+          type: p.post_type as CommunityPost['type'],
+          category: p.category,
+          likes: p.likes_count || 0,
+          comments: p.comments_count || 0,
+          shares: p.shares_count || 0,
+          isLiked: user ? p.community_post_likes?.some((l: any) => l.user_id === user.id) : false,
+          createdAt: p.created_at,
+          tags: p.tags || [],
+          images: p.images || []
+        }));
+        setPosts(formattedPosts);
+      } else {
+        // Fallback to sample posts
+        setPosts(getSamplePosts());
       }
-    ];
-
-    const mockStudyGroups: StudyGroup[] = [
-      {
-        id: '1',
-        name: 'Cardiologie Avancée',
-        description: 'Groupe d\'étude pour approfondir les concepts de cardiologie',
-        memberCount: 124,
-        category: 'Spécialité',
-        isPublic: true,
-        lastActivity: '2024-01-20T15:00:00Z',
-        isMember: true
-      },
-      {
-        id: '2',
-        name: 'Préparation ECN 2024',
-        description: 'Préparation intensive aux Épreuves Classantes Nationales',
-        memberCount: 89,
-        category: 'Examens',
-        isPublic: true,
-        lastActivity: '2024-01-20T12:30:00Z',
-        isMember: false
-      },
-      {
-        id: '3',
-        name: 'Anatomie Interactive',
-        description: 'Étude collaborative de l\'anatomie avec supports visuels',
-        memberCount: 67,
-        category: 'Anatomie',
-        isPublic: true,
-        lastActivity: '2024-01-20T10:15:00Z',
-        isMember: true
-      },
-      {
-        id: '4',
-        name: 'Musique & Médecine',
-        description: 'Partage de créations musicales éducatives',
-        memberCount: 156,
-        category: 'Créatif',
-        isPublic: true,
-        lastActivity: '2024-01-19T18:45:00Z',
-        isMember: false
+      
+      // Load study groups from Supabase
+      const { data: dbGroups } = await (supabase as any)
+        .from('study_groups')
+        .select('*, study_group_members(user_id)')
+        .order('last_activity_at', { ascending: false });
+      
+      if (dbGroups && dbGroups.length > 0) {
+        const formattedGroups: StudyGroup[] = dbGroups.map((g: any) => ({
+          id: g.id,
+          name: g.name,
+          description: g.description || '',
+          memberCount: g.member_count || 0,
+          category: g.category,
+          isPublic: g.is_public,
+          lastActivity: g.last_activity_at,
+          isMember: user ? g.study_group_members?.some((m: any) => m.user_id === user.id) : false
+        }));
+        setStudyGroups(formattedGroups);
+      } else {
+        setStudyGroups(getSampleGroups());
       }
-    ];
-
-    setPosts(mockPosts);
-    setStudyGroups(mockStudyGroups);
+    } catch (error) {
+      console.error('Error loading community data:', error);
+      setPosts(getSamplePosts());
+      setStudyGroups(getSampleGroups());
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleLike = (postId: string) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            isLiked: !post.isLiked,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1
-          }
-        : post
-    ));
+  const getSamplePosts = (): CommunityPost[] => [
+    {
+      id: '1',
+      author: { id: 'user1', name: 'Dr. Sophie Martin', level: 15, badge: 'Expert' },
+      content: 'Astuce du jour : Pour mémoriser les voies anatomiques, j\'utilise la technique des palais de mémoire. 🧠',
+      type: 'study_tip',
+      category: 'Anatomie',
+      likes: 23, comments: 8, shares: 5,
+      isLiked: false,
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      tags: ['mémoire', 'anatomie']
+    },
+    {
+      id: '2',
+      author: { id: 'user2', name: 'Marc Dubois', level: 12, badge: 'Collaborateur' },
+      content: 'Je viens de terminer l\'IC-3 ! Les quiz musicaux m\'ont vraiment aidé.',
+      type: 'achievement',
+      category: 'Réussite',
+      likes: 17, comments: 12, shares: 3,
+      isLiked: true,
+      createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+      tags: ['IC-3', 'musique']
+    }
+  ];
+
+  const getSampleGroups = (): StudyGroup[] => [
+    { id: '1', name: 'Cardiologie Avancée', description: 'Groupe d\'étude cardiologie', memberCount: 124, category: 'Spécialité', isPublic: true, lastActivity: new Date().toISOString(), isMember: false },
+    { id: '2', name: 'Préparation ECN 2024', description: 'Préparation aux ECN', memberCount: 89, category: 'Examens', isPublic: true, lastActivity: new Date().toISOString(), isMember: false }
+  ];
+
+  const handleLike = async (postId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return;
+    }
+
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    try {
+      if (post.isLiked) {
+        await (supabase as any).from('community_post_likes').delete()
+          .eq('post_id', postId).eq('user_id', user.id);
+        await (supabase as any).from('community_posts').update({ likes_count: Math.max(0, post.likes - 1) }).eq('id', postId);
+      } else {
+        await (supabase as any).from('community_post_likes').insert({ post_id: postId, user_id: user.id });
+        await (supabase as any).from('community_posts').update({ likes_count: post.likes + 1 }).eq('id', postId);
+      }
+      
+      setPosts(prev => prev.map(p => 
+        p.id === postId ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 } : p
+      ));
+    } catch (e) {
+      console.error('Error toggling like:', e);
+      // Local fallback
+      setPosts(prev => prev.map(p => 
+        p.id === postId ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 } : p
+      ));
+    }
   };
 
   const handleShare = (postId: string) => {
-    toast({
-      title: "Post partagé !",
-      description: "Le post a été partagé avec succès."
-    });
+    toast({ title: "Post partagé !", description: "Le post a été partagé avec succès." });
   };
 
-  const handleJoinGroup = (groupId: string) => {
-    setStudyGroups(prev => prev.map(group =>
-      group.id === groupId
-        ? { 
-            ...group, 
-            isMember: !group.isMember,
-            memberCount: group.isMember ? group.memberCount - 1 : group.memberCount + 1
-          }
-        : group
-    ));
-    
-    toast({
-      title: "Groupe rejoint !",
-      description: "Vous avez rejoint le groupe d'étude."
-    });
+  const handleJoinGroup = async (groupId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return;
+    }
+
+    const group = studyGroups.find(g => g.id === groupId);
+    if (!group) return;
+
+    try {
+      if (group.isMember) {
+        await (supabase as any).from('study_group_members').delete()
+          .eq('group_id', groupId).eq('user_id', user.id);
+        await (supabase as any).from('study_groups').update({ member_count: Math.max(0, group.memberCount - 1) }).eq('id', groupId);
+      } else {
+        await (supabase as any).from('study_group_members').insert({ group_id: groupId, user_id: user.id });
+        await (supabase as any).from('study_groups').update({ member_count: group.memberCount + 1 }).eq('id', groupId);
+      }
+      
+      setStudyGroups(prev => prev.map(g =>
+        g.id === groupId ? { ...g, isMember: !g.isMember, memberCount: g.isMember ? g.memberCount - 1 : g.memberCount + 1 } : g
+      ));
+      
+      toast({ title: group.isMember ? "Groupe quitté" : "Groupe rejoint !" });
+    } catch (e) {
+      console.error('Error toggling membership:', e);
+      setStudyGroups(prev => prev.map(g =>
+        g.id === groupId ? { ...g, isMember: !g.isMember, memberCount: g.isMember ? g.memberCount - 1 : g.memberCount + 1 } : g
+      ));
+      toast({ title: group.isMember ? "Groupe quitté" : "Groupe rejoint !" });
+    }
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPost.trim()) return;
 
-    const post: CommunityPost = {
-      id: Date.now().toString(),
-      author: {
-        id: 'current-user',
-        name: 'Vous',
-        level: 12,
-        badge: 'Étudiant'
-      },
-      content: newPost,
-      type: 'discussion',
-      category: 'Général',
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
-      createdAt: new Date().toISOString(),
-      tags: []
-    };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return;
+    }
 
-    setPosts(prev => [post, ...prev]);
-    setNewPost('');
+    try {
+      const { data: newDbPost } = await (supabase as any)
+        .from('community_posts')
+        .insert({
+          user_id: user.id,
+          content: newPost,
+          post_type: 'discussion',
+          category: 'Général',
+          tags: []
+        })
+        .select()
+        .single();
+
+      if (newDbPost) {
+        const post: CommunityPost = {
+          id: newDbPost.id,
+          author: { id: user.id, name: 'Vous', level: 12, badge: 'Étudiant' },
+          content: newPost,
+          type: 'discussion',
+          category: 'Général',
+          likes: 0, comments: 0, shares: 0,
+          isLiked: false,
+          createdAt: new Date().toISOString(),
+          tags: []
+        };
+        setPosts(prev => [post, ...prev]);
+      }
+    } catch (e) {
+      console.error('Error creating post:', e);
+      // Local fallback
+      const post: CommunityPost = {
+        id: Date.now().toString(),
+        author: { id: 'current-user', name: 'Vous', level: 12, badge: 'Étudiant' },
+        content: newPost,
+        type: 'discussion',
+        category: 'Général',
+        likes: 0, comments: 0, shares: 0,
+        isLiked: false,
+        createdAt: new Date().toISOString(),
+        tags: []
+      };
+      setPosts(prev => [post, ...prev]);
+    }
     
-    toast({
-      title: "Post publié !",
-      description: "Votre message a été partagé avec la communauté."
-    });
+    setNewPost('');
+    toast({ title: "Post publié !", description: "Votre message a été partagé avec la communauté." });
   };
 
   const formatTimeAgo = (dateString: string) => {
