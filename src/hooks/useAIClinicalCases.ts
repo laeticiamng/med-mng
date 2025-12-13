@@ -242,10 +242,24 @@ export const useAIClinicalCases = () => {
       console.error('Error updating use count:', e);
     }
 
-    // Save to local history
-    const history = JSON.parse(localStorage.getItem('ai_clinical_history') || '[]');
-    history.push({ userId, ...completedProgress, score });
-    localStorage.setItem('ai_clinical_history', JSON.stringify(history.slice(-100)));
+    // Save to Supabase
+    try {
+      await (supabase as any)
+        .from('clinical_case_history')
+        .insert({
+          user_id: userId,
+          case_id: currentProgress.caseId,
+          score,
+          completed_steps: completedProgress.completedSteps,
+          correct_answers: completedProgress.correctAnswers,
+          total_answers: completedProgress.totalAnswers,
+          decisions: completedProgress.decisions,
+          started_at: completedProgress.startedAt,
+          completed_at: completedProgress.completedAt
+        });
+    } catch (e) {
+      console.error('Error saving clinical history:', e);
+    }
 
     setCurrentProgress(null);
 
