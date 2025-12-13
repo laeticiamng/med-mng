@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Lock, Share2, Check, Sparkles, TrendingUp, Clock } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Lock, Share2, Check, Sparkles, TrendingUp, Clock, Star, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
 
 interface BadgeCollectionProps {
@@ -41,7 +42,21 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
   const { logActivity } = useActivityTracking();
   const [copiedBadge, setCopiedBadge] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
+  const [showUnlockAnimation, setShowUnlockAnimation] = useState<string | null>(null);
   const unlockedIds = new Set(unlockedBadges.map(b => b.id));
+
+  // Show unlock animation for new badges
+  useEffect(() => {
+    if (unlockedBadges.length > 0) {
+      const newest = unlockedBadges
+        .filter(b => b.unlockedAt)
+        .sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime())[0];
+      if (newest && new Date(newest.unlockedAt!).getTime() > Date.now() - 5000) {
+        setShowUnlockAnimation(newest.id);
+        setTimeout(() => setShowUnlockAnimation(null), 3000);
+      }
+    }
+  }, [unlockedBadges]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -91,6 +106,50 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
 
   return (
     <TooltipProvider>
+      {/* Unlock Animation Overlay */}
+      <AnimatePresence>
+        {showUnlockAnimation && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+            onClick={() => setShowUnlockAnimation(null)}
+          >
+            <motion.div
+              initial={{ y: 50, rotateY: -180 }}
+              animate={{ y: 0, rotateY: 0 }}
+              transition={{ type: 'spring', damping: 15 }}
+              className="text-center"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: 2, duration: 0.5 }}
+                className="text-8xl mb-4"
+              >
+                {unlockedBadges.find(b => b.id === showUnlockAnimation)?.icon}
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <h2 className="text-2xl font-bold text-primary mb-2">
+                  Badge Débloqué !
+                </h2>
+                <p className="text-lg">{unlockedBadges.find(b => b.id === showUnlockAnimation)?.name}</p>
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <Zap className="h-5 w-5 text-warning" />
+                  <span className="text-warning font-bold">
+                    +{RARITY_POINTS[unlockedBadges.find(b => b.id === showUnlockAnimation)?.rarity || 'common']} points
+                  </span>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

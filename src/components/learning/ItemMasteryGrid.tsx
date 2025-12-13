@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,7 @@ interface ItemMastery {
 }
 
 export const ItemMasteryGrid: React.FC = () => {
+  const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
   const { stats: gamificationStats, loadStats } = useGamification();
   const [items, setItems] = useState<ItemMastery[]>([]);
@@ -245,7 +247,8 @@ export const ItemMasteryGrid: React.FC = () => {
               <Tooltip key={item.itemCode}>
                 <TooltipTrigger asChild>
                   <div
-                    className={`aspect-square rounded-sm cursor-pointer transition-transform hover:scale-150 hover:z-10 ${
+                    onClick={() => navigate(`/edn/${item.itemCode}`)}
+                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:scale-150 hover:z-10 hover:ring-2 hover:ring-primary ${
                       getMasteryColor(item.masteryLevel, item.reviewCount > 0)
                     }`}
                   />
@@ -266,6 +269,7 @@ export const ItemMasteryGrid: React.FC = () => {
                         <span className="text-muted-foreground">Pas encore révisé</span>
                       )}
                     </div>
+                    <p className="text-xs text-primary font-medium mt-1">Cliquer pour réviser →</p>
                   </div>
                 </TooltipContent>
               </Tooltip>

@@ -99,14 +99,15 @@ export const useAIExam = () => {
     }
   }, [toast]);
 
-  // Start an AI-powered exam
+  // Start an AI-powered exam with specialty filters
   const startAIExam = useCallback(async (
     userId: string,
     examType: string = 'ai_generated',
     questionCount: number = 10,
     timeLimitMinutes: number = 20,
     difficulty: 'easy' | 'medium' | 'hard' = 'medium',
-    specificItems?: string[]
+    specificItems?: string[],
+    specialty?: string
   ): Promise<AIExamSession | null> => {
     setLoading(true);
     try {
@@ -114,11 +115,11 @@ export const useAIExam = () => {
       let itemCodes = specificItems;
       
       if (!itemCodes || itemCodes.length === 0) {
-        // Get random items
+        // Get random items (specialty filtering can be added when schema supports it)
         const { data: allItems } = await supabase
           .from('edn_items_immersive')
           .select('item_code')
-          .limit(50);
+          .limit(100);
 
         if (!allItems || allItems.length === 0) {
           throw new Error('No items available');
