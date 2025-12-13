@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ContextualHelp } from './ContextualHelp';
 import { useLocation } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdaptiveTooltipProps {
   children: React.ReactNode;
@@ -20,48 +21,100 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
   delay = 1000
 }) => {
   const [shouldShow, setShouldShow] = useState(false);
+  const [featureData, setFeatureData] = useState<{ visitCount: number; isFirstVisit: boolean }>({ visitCount: 0, isFirstVisit: true });
   const location = useLocation();
 
-  useEffect(() => {
-    checkIfShouldShow();
-  }, [location.pathname, feature]);
-
-  const checkIfShouldShow = () => {
-    const userLevel = getUserLevel();
-    const featureUsage = getFeatureUsage(feature);
-    const isFirstVisit = !localStorage.getItem(`visited_${feature}`);
-
-    // Adaptive logic based on user behavior
-    if (trigger === 'first-visit' && isFirstVisit) {
-      setTimeout(() => setShouldShow(true), delay);
-      localStorage.setItem(`visited_${feature}`, 'true');
-    } else if (userLevel === 'beginner' && featureUsage < 3) {
-      setShouldShow(true);
+  // Load feature tracking from Supabase
+  const loadFeatureData = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      // Fallback to localStorage for anonymous users
+      const visited = localStorage.getItem(`visited_${feature}`);
+      const count = parseInt(localStorage.getItem(`feature_usage_${feature}`) || '0');
+      setFeatureData({ visitCount: count, isFirstVisit: !visited });
+      return;
     }
-  };
+
+    const { data } = await (supabase as any)
+      .from('user_feature_tracking')
+      .select('visit_count, first_visited_at')
+      .eq('user_id', user.id)
+      .eq('feature_key', feature)
+      .maybeSingle();
+
+    if (data) {
+      setFeatureData({ visitCount: data.visit_count, isFirstVisit: false });
+    } else {
+      setFeatureData({ visitCount: 0, isFirstVisit: true });
+    }
+  }, [feature]);
+
+  useEffect(() => {
+    loadFeatureData();
+  }, [loadFeatureData, location.pathname]);
+
+  useEffect(() => {
+    const checkIfShouldShow = async () => {
+      const userLevel = getUserLevel();
+      
+      if (trigger === 'first-visit' && featureData.isFirstVisit) {
+        setTimeout(() => setShouldShow(true), delay);
+        await trackFeatureVisit();
+      } else if (userLevel === 'beginner' && featureData.visitCount < 3) {
+        setShouldShow(true);
+      }
+    };
+    checkIfShouldShow();
+  }, [featureData, trigger, delay]);
 
   const getUserLevel = (): 'beginner' | 'intermediate' | 'advanced' => {
-    const completedActions = parseInt(localStorage.getItem('completed_actions') || '0');
-    if (completedActions < 5) return 'beginner';
-    if (completedActions < 20) return 'intermediate';
+    if (featureData.visitCount < 5) return 'beginner';
+    if (featureData.visitCount < 20) return 'intermediate';
     return 'advanced';
   };
 
-  const getFeatureUsage = (featureName: string): number => {
-    return parseInt(localStorage.getItem(`feature_usage_${featureName}`) || '0');
+  const trackFeatureVisit = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      localStorage.setItem(`visited_${feature}`, 'true');
+      return;
+    }
+
+    await (supabase as any)
+      .from('user_feature_tracking')
+      .upsert({
+        user_id: user.id,
+        feature_key: feature,
+        visit_count: 1,
+        first_visited_at: new Date().toISOString(),
+        last_visited_at: new Date().toISOString()
+      }, { onConflict: 'user_id,feature_key' });
   };
 
-  const incrementFeatureUsage = () => {
-    const current = getFeatureUsage(feature);
-    localStorage.setItem(`feature_usage_${feature}`, (current + 1).toString());
+  const incrementFeatureUsage = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const current = parseInt(localStorage.getItem(`feature_usage_${feature}`) || '0');
+      localStorage.setItem(`feature_usage_${feature}`, (current + 1).toString());
+      return;
+    }
+
+    await (supabase as any)
+      .from('user_feature_tracking')
+      .upsert({
+        user_id: user.id,
+        feature_key: feature,
+        visit_count: featureData.visitCount + 1,
+        last_visited_at: new Date().toISOString()
+      }, { onConflict: 'user_id,feature_key' });
+    
+    setFeatureData(prev => ({ ...prev, visitCount: prev.visitCount + 1 }));
   };
 
   const contextualContent = getContextualContent();
 
   function getContextualContent() {
     const route = location.pathname;
-    
-    // Dynamic content based on route and feature
     const routeSpecificContent: Record<string, Record<string, string>> = {
       '/': {
         'music-generation': 'Cliquez ici pour créer votre première chanson médicale personnalisée.',
@@ -79,7 +132,6 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
         'player': 'Écoutez vos créations directement dans l\'interface.'
       }
     };
-
     return routeSpecificContent[route]?.[feature] || content;
   }
 

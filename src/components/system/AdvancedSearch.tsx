@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useSearch, SearchFilters } from '@/hooks/useSearch';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AdvancedSearch: React.FC = () => {
   const {
@@ -58,11 +59,23 @@ export const AdvancedSearch: React.FC = () => {
     search(historyQuery, filters);
   };
 
-  const saveSearch = () => {
+  const saveSearch = async () => {
     if (query.trim() && !savedSearches.includes(query)) {
       const newSaved = [...savedSearches, query];
       setSavedSearches(newSaved);
-      localStorage.setItem('saved-searches', JSON.stringify(newSaved));
+      
+      // Save to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any).from('user_saved_searches').upsert({
+          user_id: user.id,
+          query: query,
+          name: query,
+          saved_at: new Date().toISOString()
+        }, { onConflict: 'user_id,query' });
+      } else {
+        localStorage.setItem('saved-searches', JSON.stringify(newSaved));
+      }
     }
   };
 
@@ -97,12 +110,27 @@ export const AdvancedSearch: React.FC = () => {
     return iconMap[category] || iconMap.default;
   };
 
-  // Charger les recherches sauvegardées
+  // Load saved searches from Supabase
   useEffect(() => {
-    const saved = localStorage.getItem('saved-searches');
-    if (saved) {
-      setSavedSearches(JSON.parse(saved));
-    }
+    const loadSavedSearches = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        const saved = localStorage.getItem('saved-searches');
+        if (saved) setSavedSearches(JSON.parse(saved));
+        return;
+      }
+      
+      const { data } = await (supabase as any)
+        .from('user_saved_searches')
+        .select('query')
+        .eq('user_id', user.id)
+        .order('saved_at', { ascending: false });
+      
+      if (data) {
+        setSavedSearches(data.map((d: any) => d.query));
+      }
+    };
+    loadSavedSearches();
   }, []);
 
   return (
