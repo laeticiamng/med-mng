@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PullRequest {
   id: string;
@@ -244,7 +245,30 @@ export const useGitHubAccessibilityMetrics = (githubToken?: string) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['github-accessibility-metrics', REPO_OWNER, REPO_NAME],
     queryFn: async () => {
-      const token = githubToken || localStorage.getItem('github_token');
+      // Try to get token from multiple sources
+      let token = githubToken;
+      
+      if (!token) {
+        // Try Supabase first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: tokenData } = await (supabase as any)
+            .from('user_integration_tokens')
+            .select('encrypted_token')
+            .eq('user_id', user.id)
+            .eq('integration_name', 'github')
+            .maybeSingle();
+          
+          if (tokenData?.encrypted_token) {
+            token = tokenData.encrypted_token;
+          }
+        }
+      }
+      
+      // Fallback to localStorage
+      if (!token) {
+        token = localStorage.getItem('github_token') || '';
+      }
       
       if (!token) {
         throw new Error('GitHub token requis. Configurez-le dans les paramètres.');
