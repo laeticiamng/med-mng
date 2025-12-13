@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCache } from './useCache';
 
@@ -195,18 +195,20 @@ export function useSearch() {
     };
   }, [search]);
 
-  // Charger l'historique depuis localStorage
-  useState(() => {
+  // Load search history (keep local for performance)
+  useEffect(() => {
     const savedHistory = localStorage.getItem('search-history');
     if (savedHistory) {
       setSearchHistory(JSON.parse(savedHistory));
     }
-  });
+  }, []);
 
-  // Sauvegarder l'historique
-  useState(() => {
-    localStorage.setItem('search-history', JSON.stringify(searchHistory));
-  });
+  // Save history on change
+  useEffect(() => {
+    if (searchHistory.length > 0) {
+      localStorage.setItem('search-history', JSON.stringify(searchHistory.slice(-50)));
+    }
+  }, [searchHistory]);
 
   // Advanced filter search
   const searchWithFilters = useCallback(async (

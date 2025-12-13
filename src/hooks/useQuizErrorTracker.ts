@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface QuizError {
   questionId: string;
@@ -64,7 +65,7 @@ export const useQuizErrorTracker = () => {
     console.log('❌ ERREUR AJOUTÉE:', fullError);
   }, [currentSession]);
 
-  const endQuizSession = useCallback((finalScore: number) => {
+  const endQuizSession = useCallback(async (finalScore: number) => {
     if (!currentSession) {
       console.warn('⚠️ Tentative de fin de session sans session active');
       return null;
@@ -78,12 +79,22 @@ export const useQuizErrorTracker = () => {
 
     setAllSessions(prev => [...prev, completedSession]);
     
-    // Sauvegarder dans le localStorage
+    // Save to Supabase
     try {
-      const savedSessions = localStorage.getItem('quiz_sessions');
-      const sessions = savedSessions ? JSON.parse(savedSessions) : [];
-      sessions.push(completedSession);
-      localStorage.setItem('quiz_sessions', JSON.stringify(sessions));
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any)
+          .from('quiz_sessions')
+          .insert({
+            user_id: user.id,
+            item_code: completedSession.itemCode,
+            errors: completedSession.errors,
+            total_questions: completedSession.totalQuestions,
+            correct_answers: completedSession.totalQuestions - completedSession.errors.length,
+            duration_seconds: Math.round((completedSession.endTime!.getTime() - completedSession.startTime.getTime()) / 1000),
+            completed_at: completedSession.endTime?.toISOString()
+          });
+      }
     } catch (error) {
       console.error('❌ Erreur sauvegarde session:', error);
     }
@@ -125,11 +136,29 @@ export const useQuizErrorTracker = () => {
     setCurrentSession(null);
   }, []);
 
-  const loadSavedSessions = useCallback(() => {
+  const loadSavedSessions = useCallback(async () => {
     try {
-      const savedSessions = localStorage.getItem('quiz_sessions');
-      if (savedSessions) {
-        const sessions = JSON.parse(savedSessions);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await (supabase as any)
+        .from('quiz_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false })
+        .limit(100);
+
+      if (data) {
+        const sessions: QuizSession[] = data.map((s: any) => ({
+          id: s.id,
+          itemCode: s.item_code,
+          itemTitle: s.item_code,
+          startTime: new Date(s.created_at),
+          endTime: s.completed_at ? new Date(s.completed_at) : undefined,
+          errors: s.errors || [],
+          totalQuestions: s.total_questions,
+          score: s.correct_answers
+        }));
         setAllSessions(sessions);
         console.log('📚 SESSIONS CHARGÉES:', sessions.length);
       }
@@ -146,6 +175,11 @@ export const useQuizErrorTracker = () => {
       .filter(session => new Date(session.startTime) >= cutoffDate)
       .flatMap(session => session.errors);
   }, [allSessions]);
+
+  // Load sessions on mount
+  useEffect(() => {
+    loadSavedSessions();
+  }, [loadSavedSessions]);
 
   return {
     currentSession,

@@ -401,10 +401,26 @@ export const useClinicalCases = () => {
       completedAt: new Date().toISOString()
     };
 
-    // Save to local storage
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]');
-    history.push({ userId, ...completedProgress });
-    localStorage.setItem('clinical_cases_history', JSON.stringify(history.slice(-100)));
+    // Save to Supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any)
+          .from('clinical_cases_history')
+          .insert({
+            user_id: user.id,
+            case_id: currentProgress.caseId,
+            completed_steps: completedProgress.completedSteps,
+            correct_answers: completedProgress.correctAnswers,
+            total_answers: completedProgress.totalAnswers,
+            decisions: completedProgress.decisions,
+            started_at: completedProgress.startedAt,
+            completed_at: completedProgress.completedAt
+          });
+      }
+    } catch (e) {
+      console.error('Error saving clinical history:', e);
+    }
 
     const score = Math.round((currentProgress.correctAnswers / currentProgress.totalAnswers) * 100);
     
@@ -417,58 +433,68 @@ export const useClinicalCases = () => {
     return completedProgress;
   }, [currentProgress, toast]);
 
-  // Get statistics
-  const getStats = useCallback((userId: string): ClinicalStats => {
-    const history = JSON.parse(localStorage.getItem('clinical_cases_history') || '[]')
-      .filter((h: any) => h.userId === userId);
+  // Get statistics from Supabase
+  const getStats = useCallback(async (userId: string): Promise<ClinicalStats> => {
+    try {
+      const { data: history } = await (supabase as any)
+        .from('clinical_cases_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('completed_at', { ascending: false });
 
-    if (history.length === 0) {
+      if (!history || history.length === 0) {
+        return {
+          totalCasesStarted: 0,
+          totalCasesCompleted: 0,
+          averageScore: 0,
+          bySpecialty: {},
+          recentCases: []
+        };
+      }
+
+      const completed = history.filter((h: any) => h.completed_at);
+      const scores = completed.map((h: any) => 
+        h.total_answers > 0 ? (h.correct_answers / h.total_answers) * 100 : 0
+      );
+
+      const bySpecialty: Record<string, { completed: number; score: number }> = {};
+      completed.forEach((h: any) => {
+        const clinicalCase = SAMPLE_CASES.find(c => c.id === h.case_id);
+        if (clinicalCase) {
+          if (!bySpecialty[clinicalCase.specialty]) {
+            bySpecialty[clinicalCase.specialty] = { completed: 0, score: 0 };
+          }
+          bySpecialty[clinicalCase.specialty].completed++;
+          bySpecialty[clinicalCase.specialty].score += 
+            h.total_answers > 0 ? (h.correct_answers / h.total_answers) * 100 : 0;
+        }
+      });
+
+      // Average scores by specialty
+      Object.keys(bySpecialty).forEach(spec => {
+        bySpecialty[spec].score = Math.round(bySpecialty[spec].score / bySpecialty[spec].completed);
+      });
+
       return {
-        totalCasesStarted: 0,
-        totalCasesCompleted: 0,
-        averageScore: 0,
-        bySpecialty: {},
-        recentCases: []
+        totalCasesStarted: history.length,
+        totalCasesCompleted: completed.length,
+        averageScore: scores.length > 0 
+          ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) 
+          : 0,
+        bySpecialty,
+        recentCases: completed.slice(-5).map((h: any) => ({
+          caseId: h.case_id,
+          title: SAMPLE_CASES.find(c => c.id === h.case_id)?.title || 'Cas inconnu',
+          score: h.total_answers > 0 ? Math.round((h.correct_answers / h.total_answers) * 100) : 0,
+          date: h.completed_at || h.created_at
+        }))
+      };
+    } catch (error) {
+      console.error('Error fetching clinical stats:', error);
+      return {
+        totalCasesStarted: 0, totalCasesCompleted: 0, averageScore: 0, bySpecialty: {}, recentCases: []
       };
     }
-
-    const completed = history.filter((h: CaseProgress) => h.completedAt);
-    const scores = completed.map((h: CaseProgress) => 
-      h.totalAnswers > 0 ? (h.correctAnswers / h.totalAnswers) * 100 : 0
-    );
-
-    const bySpecialty: Record<string, { completed: number; score: number }> = {};
-    completed.forEach((h: CaseProgress) => {
-      const clinicalCase = SAMPLE_CASES.find(c => c.id === h.caseId);
-      if (clinicalCase) {
-        if (!bySpecialty[clinicalCase.specialty]) {
-          bySpecialty[clinicalCase.specialty] = { completed: 0, score: 0 };
-        }
-        bySpecialty[clinicalCase.specialty].completed++;
-        bySpecialty[clinicalCase.specialty].score += 
-          h.totalAnswers > 0 ? (h.correctAnswers / h.totalAnswers) * 100 : 0;
-      }
-    });
-
-    // Average scores by specialty
-    Object.keys(bySpecialty).forEach(spec => {
-      bySpecialty[spec].score = Math.round(bySpecialty[spec].score / bySpecialty[spec].completed);
-    });
-
-    return {
-      totalCasesStarted: history.length,
-      totalCasesCompleted: completed.length,
-      averageScore: scores.length > 0 
-        ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) 
-        : 0,
-      bySpecialty,
-      recentCases: completed.slice(-5).map((h: CaseProgress) => ({
-        caseId: h.caseId,
-        title: SAMPLE_CASES.find(c => c.id === h.caseId)?.title || 'Cas inconnu',
-        score: h.totalAnswers > 0 ? Math.round((h.correctAnswers / h.totalAnswers) * 100) : 0,
-        date: h.completedAt || h.startedAt
-      }))
-    };
   }, []);
 
   // Get current case
