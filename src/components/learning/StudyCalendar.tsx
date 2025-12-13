@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame, Star, Trophy } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame, Star, Trophy, Download, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface DayData {
   date: Date;
@@ -119,7 +120,9 @@ export const StudyCalendar: React.FC = () => {
     };
 
     loadData();
-  }, [currentMonth, getSRSStats, getHeatmapData]);
+  }, [currentMonth, getSRSStats, getHeatmapData, getStreak, getActiveDaysCount]);
+
+  const { toast } = useToast();
 
   const navigateMonth = (delta: number) => {
     setCurrentMonth(prev => {
@@ -128,6 +131,59 @@ export const StudyCalendar: React.FC = () => {
       return newDate;
     });
   };
+
+  // Export to iCal format
+  const exportToICal = useCallback(() => {
+    if (!stats?.predictedWorkload) {
+      toast({ title: 'Aucune donnée', description: 'Pas de révisions prévues à exporter.', variant: 'destructive' });
+      return;
+    }
+
+    const events: string[] = [];
+    const today = new Date();
+    
+    stats.predictedWorkload.forEach((count, dayOffset) => {
+      if (count > 0) {
+        const eventDate = new Date(today);
+        eventDate.setDate(eventDate.getDate() + dayOffset);
+        const dateStr = eventDate.toISOString().split('T')[0].replace(/-/g, '');
+        
+        events.push(
+          `BEGIN:VEVENT`,
+          `DTSTART;VALUE=DATE:${dateStr}`,
+          `DTEND;VALUE=DATE:${dateStr}`,
+          `SUMMARY:📚 Révisions EDN (${count} items)`,
+          `DESCRIPTION:${count} cartes à réviser - MED-MNG`,
+          `END:VEVENT`
+        );
+      }
+    });
+
+    if (events.length === 0) {
+      toast({ title: 'Aucune révision', description: 'Aucune révision prévue dans les 7 prochains jours.' });
+      return;
+    }
+
+    const icalContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//MED-MNG//EDN Revisions//FR',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      ...events,
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `revisions-edn-${today.toISOString().split('T')[0]}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({ title: 'Export réussi', description: 'Fichier iCal téléchargé. Importez-le dans votre calendrier.' });
+  }, [stats, toast]);
 
   const monthName = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
   const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -202,6 +258,14 @@ export const StudyCalendar: React.FC = () => {
               Niveau {gamificationStats.level}
             </Badge>
           )}
+        </div>
+        
+        {/* Export Button */}
+        <div className="flex justify-end mt-2">
+          <Button variant="outline" size="sm" onClick={exportToICal} className="gap-1 text-xs">
+            <Download className="h-3 w-3" />
+            Exporter iCal
+          </Button>
         </div>
       </CardHeader>
       <CardContent>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, BellOff, Clock, Calendar, Mail, Smartphone, Check, Flame, Star } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Bell, BellOff, Clock, Calendar, Mail, Smartphone, Check, Flame, Star, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NotificationPreferences {
   enabled: boolean;
@@ -27,20 +28,23 @@ interface SRSNotificationSettingsProps {
   userId: string;
 }
 
+const DEFAULT_PREFS: NotificationPreferences = {
+  enabled: false,
+  pushEnabled: false,
+  emailEnabled: false,
+  dailyReminder: true,
+  reminderTime: '09:00',
+  overdueAlerts: true,
+  overdueThreshold: 10,
+  weeklyDigest: true,
+  streakReminder: true,
+};
+
 export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps) {
-  const [prefs, setPrefs] = useState<NotificationPreferences>({
-    enabled: false,
-    pushEnabled: false,
-    emailEnabled: false,
-    dailyReminder: true,
-    reminderTime: '09:00',
-    overdueAlerts: true,
-    overdueThreshold: 10,
-    weeklyDigest: true,
-    streakReminder: true,
-  });
+  const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFS);
   const [pushSupported, setPushSupported] = useState(false);
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
   const { stats: gamificationStats, loadStats } = useGamification();
@@ -57,25 +61,56 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
     });
   }, []);
 
+  // Load preferences from Supabase
   useEffect(() => {
-    // Check push notification support
-    setPushSupported('Notification' in window && 'serviceWorker' in navigator);
-    if ('Notification' in window) {
-      setPushPermission(Notification.permission);
-    }
+    const loadPrefs = async () => {
+      setPushSupported('Notification' in window && 'serviceWorker' in navigator);
+      if ('Notification' in window) {
+        setPushPermission(Notification.permission);
+      }
 
-    // Load preferences
-    const stored = localStorage.getItem(`notification_prefs_${userId}`);
-    if (stored) {
-      setPrefs(JSON.parse(stored));
-    }
+      try {
+        const { data } = await (supabase as any)
+          .from('user_notification_settings')
+          .select('preferences')
+          .eq('user_id', userId)
+          .single();
+
+        if (data?.preferences) {
+          setPrefs({ ...DEFAULT_PREFS, ...data.preferences });
+        }
+      } catch (e) {
+        // No saved preferences, use defaults
+        console.log('Using default notification preferences');
+      }
+    };
+    loadPrefs();
   }, [userId]);
 
-  const savePrefs = (newPrefs: NotificationPreferences) => {
+  // Save preferences to Supabase
+  const savePrefs = useCallback(async (newPrefs: NotificationPreferences) => {
     setPrefs(newPrefs);
-    localStorage.setItem(`notification_prefs_${userId}`, JSON.stringify(newPrefs));
-    toast({ title: 'Préférences sauvegardées' });
-  };
+    setSaving(true);
+    
+    try {
+      await (supabase as any)
+        .from('user_notification_settings')
+        .upsert({
+          user_id: userId,
+          preferences: newPrefs,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      
+      toast({ title: 'Préférences sauvegardées' });
+    } catch (e) {
+      console.error('Error saving notification prefs:', e);
+      // Fallback to localStorage
+      localStorage.setItem(`notification_prefs_${userId}`, JSON.stringify(newPrefs));
+      toast({ title: 'Préférences sauvegardées localement' });
+    } finally {
+      setSaving(false);
+    }
+  }, [userId, toast]);
 
   const requestPushPermission = async () => {
     if (!pushSupported) return;
