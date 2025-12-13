@@ -205,9 +205,9 @@ export default function Flashcards() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-warning to-primary bg-clip-text text-transparent">
-              Flashcards
+              Révision flash
             </h1>
-            <p className="text-muted-foreground">Créez et révisez vos cartes mémoire</p>
+            <p className="text-muted-foreground">Pour les moments de fatigue. 5 minutes, c'est déjà avancer.</p>
           </div>
         </div>
 

@@ -106,9 +106,9 @@ export default function ProgressDashboard() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Tableau de Bord
+              Ma progression
             </h1>
-            <p className="text-muted-foreground">Vue d'ensemble de votre progression</p>
+            <p className="text-muted-foreground">C'est fait. Continue comme ça.</p>
           </div>
         </div>
 

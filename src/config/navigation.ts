@@ -8,6 +8,9 @@ import {
   Music,
   ShoppingBag,
   Users,
+  Zap,
+  Brain,
+  Target,
 } from 'lucide-react';
 
 import { ROUTE_PATHS } from './routes';
@@ -19,13 +22,12 @@ export interface NavItem {
   badge?: number;
 }
 
+// Repositionnement sémantique : Action > Ressource
 export const MAIN_NAV_ITEMS: NavItem[] = [
-  { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
-  { path: ROUTE_PATHS.dashboard, label: 'Dashboard', icon: BarChart3 },
-  { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
-  { path: ROUTE_PATHS.generator, label: 'Générateur', icon: Music },
-  { path: ROUTE_PATHS.store, label: 'Store', icon: ShoppingBag },
-  { path: ROUTE_PATHS.medMngLibrary, label: 'Bibliothèque', icon: Library },
-  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', icon: Users },
-  { path: ROUTE_PATHS.chat, label: 'Assistant IA', icon: MessageSquare },
+  { path: ROUTE_PATHS.home, label: 'Priorité', icon: Zap },
+  { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', icon: Target },
+  { path: ROUTE_PATHS.ednComplete, label: 'Avancer', icon: BookOpen },
+  { path: ROUTE_PATHS.examMode, label: 'S\'entraîner', icon: Brain },
+  { path: ROUTE_PATHS.ecosIndex, label: 'Simuler', icon: Users },
+  { path: ROUTE_PATHS.chat, label: 'Demander', icon: MessageSquare },
 ];

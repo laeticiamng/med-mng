@@ -50,59 +50,50 @@ export const AppFooter = () => {
               <span className="font-bold text-xl text-foreground">MED MNG</span>
             </div>
             <p className="text-muted-foreground text-sm">
-              Par EmotionsCare - L'apprentissage médical révolutionnaire avec la méthode MNG
+              Par EmotionsCare - Ton système anti-panique académique. Quand tu bloques, on te débloque.
             </p>
           </div>
           
-          {/* Formations */}
+          {/* Actions - Repositionnement sémantique */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Formations</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Avancer</h3>
             <div className="space-y-2">
               <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Items EDN
+                Maîtriser un item
+              </Link>
+              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                S'entraîner (QCM)
               </Link>
               <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Situations ECOS
+                Simuler (ECOS)
               </Link>
-              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Générateur Musical
+              <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Révision flash
               </Link>
               <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Assistant IA
+                Poser une question
               </Link>
             </div>
           </div>
           
-          {/* Outils */}
+          {/* Suivi */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Outils</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Mon suivi</h3>
             <div className="space-y-2">
-              <Link to={ROUTE_PATHS.learningDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Analytics
+              <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Ma progression
               </Link>
-              <Link to={ROUTE_PATHS.medMngLibrary} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Bibliothèque
-              </Link>
-              <Link to={ROUTE_PATHS.favorites} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Favoris
+              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Révisions espacées
               </Link>
               <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Succès
+                Mes succès
               </Link>
-              <Link to={ROUTE_PATHS.studyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Planificateur
+              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Mon planning
               </Link>
-              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Statistiques
-              </Link>
-              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Communauté
-              </Link>
-              <Link to={ROUTE_PATHS.designSystem} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Design System
-              </Link>
-              <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Installer l'App
+              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Musique médicale
               </Link>
             </div>
           </div>

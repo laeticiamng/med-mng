@@ -310,9 +310,9 @@ export default function SRSReview() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Révision Espacée
+              Révisions espacées
             </h1>
-            <p className="text-muted-foreground">Algorithme SM-2 pour une mémorisation optimale</p>
+            <p className="text-muted-foreground">Commence. La motivation viendra après.</p>
           </div>
         </div>
 
