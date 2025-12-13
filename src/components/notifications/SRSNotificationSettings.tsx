@@ -87,7 +87,7 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
     loadPrefs();
   }, [userId]);
 
-  // Save preferences to Supabase
+  // Save preferences to Supabase (no localStorage fallback)
   const savePrefs = useCallback(async (newPrefs: NotificationPreferences) => {
     setPrefs(newPrefs);
     setSaving(true);
@@ -104,9 +104,11 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
       toast({ title: 'Préférences sauvegardées' });
     } catch (e) {
       console.error('Error saving notification prefs:', e);
-      // Fallback to localStorage
-      localStorage.setItem(`notification_prefs_${userId}`, JSON.stringify(newPrefs));
-      toast({ title: 'Préférences sauvegardées localement' });
+      toast({ 
+        title: 'Erreur de sauvegarde', 
+        description: 'Veuillez réessayer',
+        variant: 'destructive' 
+      });
     } finally {
       setSaving(false);
     }

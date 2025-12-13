@@ -149,9 +149,9 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'medmng-cart',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage for temporary cart, Supabase is source of truth
       onRehydrateStorage: () => (state) => {
-        // Sync with Supabase after rehydration
+        // Sync with Supabase after rehydration - Supabase is the source of truth
         state?.syncWithSupabase();
       }
     }

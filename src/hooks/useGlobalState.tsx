@@ -37,20 +37,9 @@ export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ childr
     }
   });
 
-  // Load state from Supabase or localStorage
+  // Load state from Supabase (source of truth)
   const loadState = useCallback(async () => {
-    // Immediate localStorage load for fast display
-    const savedState = localStorage.getItem('med-mng-global-state');
-    if (savedState) {
-      try {
-        const parsedState = JSON.parse(savedState);
-        setState(prev => ({ ...prev, ...parsedState }));
-      } catch (error) {
-        console.warn('Erreur parsing localStorage:', error);
-      }
-    }
-
-    // Then sync with Supabase
+    // Load directly from Supabase for authenticated users
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await (supabase as any)
@@ -60,21 +49,18 @@ export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ childr
         .maybeSingle();
 
       if (data?.state) {
-        const serverState = { ...state, ...data.state };
-        setState(serverState);
-        localStorage.setItem('med-mng-global-state', JSON.stringify(serverState));
+        setState(prev => ({ ...prev, ...data.state }));
       }
     }
+    // Anonymous users use default state only
   }, []);
 
   useEffect(() => {
     loadState();
   }, [loadState]);
 
-  // Save state to both localStorage and Supabase
+  // Save state to Supabase only (source of truth)
   const saveState = useCallback(async (newState: any) => {
-    localStorage.setItem('med-mng-global-state', JSON.stringify(newState));
-    
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await (supabase as any)
@@ -85,6 +71,7 @@ export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ childr
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
     }
+    // Anonymous users don't persist state
   }, []);
 
   const updateState = useCallback((updates: any) => {

@@ -44,14 +44,13 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
   ]);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Load recent searches from Supabase
+  // Load recent searches from Supabase (no localStorage fallback)
   const loadRecentSearches = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     
-    // Fallback to localStorage for anonymous users
+    // Anonymous users don't persist searches
     if (!user) {
-      const saved = localStorage.getItem('recent-searches');
-      if (saved) setRecentSearches(JSON.parse(saved));
+      setRecentSearches([]);
       return;
     }
 
@@ -127,11 +126,9 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
     const newRecent = [searchQuery, ...recentSearches.filter(s => s !== searchQuery)].slice(0, 5);
     setRecentSearches(newRecent);
 
+    // Only save for authenticated users - Supabase is source of truth
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      localStorage.setItem('recent-searches', JSON.stringify(newRecent));
-      return;
-    }
+    if (!user) return;
 
     await (supabase as any)
       .from('user_search_history')
