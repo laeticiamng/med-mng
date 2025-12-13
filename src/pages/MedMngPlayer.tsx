@@ -239,7 +239,6 @@ const MedMngPlayerComponent = () => {
                         onClick={() => {
                           toast.info("Le téléchargement n'est pas disponible. Les chansons peuvent être écoutées en streaming depuis votre bibliothèque.");
                         }}
-                        }}
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Streaming uniquement
