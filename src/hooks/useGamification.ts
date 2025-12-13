@@ -373,7 +373,7 @@ export function useGamification() {
     return 1;
   }, [stats]);
 
-  // Get daily challenge
+  // Get daily challenge - enhanced with weekly challenges
   const getDailyChallenge = useCallback((): {
     type: string;
     target: number;
@@ -392,6 +392,55 @@ export function useGamification() {
     ];
     return challenges[today];
   }, []);
+
+  // Get weekly challenges
+  const getWeeklyChallenges = useCallback((): {
+    id: string;
+    title: string;
+    description: string;
+    target: number;
+    current: number;
+    xpReward: number;
+    multiplier: number;
+    endsAt: Date;
+  }[] => {
+    const weekEnd = new Date();
+    weekEnd.setDate(weekEnd.getDate() + (7 - weekEnd.getDay()));
+    weekEnd.setHours(23, 59, 59, 999);
+
+    return [
+      {
+        id: 'weekly_mastery',
+        title: '🎯 Maître de la semaine',
+        description: 'Maîtriser 20 nouveaux items cette semaine',
+        target: 20,
+        current: stats?.weeklyGoalProgress || 0,
+        xpReward: 500,
+        multiplier: 2,
+        endsAt: weekEnd,
+      },
+      {
+        id: 'weekly_streak',
+        title: '🔥 Flamme éternelle',
+        description: 'Maintenir votre streak pendant 7 jours',
+        target: 7,
+        current: stats?.currentStreak || 0,
+        xpReward: 300,
+        multiplier: 1.5,
+        endsAt: weekEnd,
+      },
+      {
+        id: 'weekly_exams',
+        title: '📝 Champion des examens',
+        description: 'Compléter 5 examens cette semaine',
+        target: 5,
+        current: 0, // Would need to fetch from activity log
+        xpReward: 400,
+        multiplier: 1.75,
+        endsAt: weekEnd,
+      },
+    ];
+  }, [stats]);
 
   // Get recent achievements
   const getRecentAchievements = useCallback(async (userId: string, limit: number = 5): Promise<Badge[]> => {
@@ -574,6 +623,7 @@ export function useGamification() {
     getProgressToNextBadge,
     getMultiplier,
     getDailyChallenge,
+    getWeeklyChallenges,
     getRecentAchievements,
     getLeaderboard,
     getXPHistory,

@@ -274,6 +274,26 @@ export default function SRSReview() {
     ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) 
     : 0;
 
+  // Calculate memory stability and retention prediction
+  const getMemoryStability = (progress?: UserItemProgress): number => {
+    if (!progress) return 0;
+    // Stability based on ease factor and successful reviews
+    const baseStability = ((progress.ease_factor - 1.3) / 2.2) * 100;
+    const intervalBonus = Math.min(30, progress.interval_days) * 2;
+    return Math.min(100, Math.max(0, baseStability + intervalBonus));
+  };
+
+  const getRetentionProbability = (progress?: UserItemProgress): number => {
+    if (!progress || !progress.last_review_date) return 0;
+    // SM-2 retention curve approximation
+    const daysSinceReview = Math.floor(
+      (Date.now() - new Date(progress.last_review_date).getTime()) / 86400000
+    );
+    const optimalInterval = progress.interval_days || 1;
+    const retention = Math.exp(-daysSinceReview / (optimalInterval * 1.5)) * 100;
+    return Math.max(0, Math.min(100, Math.round(retention)));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Helmet>
@@ -402,21 +422,44 @@ export default function SRSReview() {
             {/* Review Card */}
             <Card className="overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant={currentItem.isNew ? "default" : "secondary"}>
-                      {currentItem.isNew ? "Nouveau" : "Révision"}
-                    </Badge>
-                    <span className="font-mono text-lg">{currentItem.item_code}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={currentItem.isNew ? "default" : "secondary"}>
+                        {currentItem.isNew ? "Nouveau" : "Révision"}
+                      </Badge>
+                      <span className="font-mono text-lg">{currentItem.item_code}</span>
+                    </div>
+                    {currentItem.progress && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="gap-1">
+                          <TrendingUp className="h-3 w-3" />
+                          {currentItem.progress.interval_days}j
+                        </Badge>
+                        <Badge variant="outline" className="gap-1 bg-success/10 text-success border-success/20">
+                          🧠 {getMemoryStability(currentItem.progress).toFixed(0)}%
+                        </Badge>
+                        <Badge variant="outline" className="gap-1 bg-primary/10 text-primary border-primary/20">
+                          📊 {getRetentionProbability(currentItem.progress)}%
+                        </Badge>
+                      </div>
+                    )}
                   </div>
+                  <CardTitle className="text-xl mt-2">{currentItem.title}</CardTitle>
+                  {/* Memory Stability Indicator */}
                   {currentItem.progress && (
-                    <Badge variant="outline" className="gap-1">
-                      <TrendingUp className="h-3 w-3" />
-                      Intervalle: {currentItem.progress.interval_days}j
-                    </Badge>
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Stabilité mémoire</span>
+                        <span className="font-medium">{getMemoryStability(currentItem.progress).toFixed(0)}%</span>
+                      </div>
+                      <Progress value={getMemoryStability(currentItem.progress)} className="h-1.5" />
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Probabilité rétention</span>
+                        <span className="font-medium text-primary">{getRetentionProbability(currentItem.progress)}%</span>
+                      </div>
+                      <Progress value={getRetentionProbability(currentItem.progress)} className="h-1.5 [&>div]:bg-primary" />
+                    </div>
                   )}
-                </div>
-                <CardTitle className="text-xl mt-2">{currentItem.title}</CardTitle>
               </CardHeader>
 
               <CardContent className="p-6">

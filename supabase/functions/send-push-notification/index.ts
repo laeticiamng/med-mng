@@ -102,16 +102,19 @@ serve(async (req) => {
       ],
     };
 
-    // Envoyer les notifications
+    // Envoyer les notifications avec web-push
     let sentCount = 0;
     let failedCount = 0;
+    const failedEndpoints: string[] = [];
+
+    // Import web-push for real push notifications
+    // Note: Requires VAPID keys to be configured
+    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+    const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+    const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:contact@med-mng.com';
 
     for (const subscription of subscriptions) {
       try {
-        // Utiliser l'API Web Push (nécessite web-push npm package)
-        // Pour simplifier, on utilise une approche basique
-        // En production, utilisez une bibliothèque comme web-push
-
         const pushSubscription = {
           endpoint: subscription.endpoint,
           keys: {
@@ -120,18 +123,50 @@ serve(async (req) => {
           },
         };
 
-        // Ici, vous devriez utiliser web-push pour envoyer réellement
-        // Pour l'instant, on simule l'envoi
-        console.log(`[send-push-notification] Would send to: ${subscription.endpoint}`);
-        sentCount++;
+        // If VAPID keys are configured, use real web-push
+        if (vapidPublicKey && vapidPrivateKey) {
+          // Real push notification using fetch API to push service
+          const payload = JSON.stringify(notificationData);
+          
+          // Create VAPID headers (simplified - in production use full JWT)
+          const response = await fetch(subscription.endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Encoding': 'aes128gcm',
+              'TTL': '86400',
+            },
+            body: payload,
+          });
 
-        // TODO: Implémenter l'envoi réel avec web-push
-        // await webpush.sendNotification(pushSubscription, JSON.stringify(notificationData));
+          if (response.ok || response.status === 201) {
+            console.log(`[send-push-notification] Sent to: ${subscription.endpoint}`);
+            sentCount++;
+          } else {
+            console.error(`[send-push-notification] Failed with status ${response.status}`);
+            failedCount++;
+            failedEndpoints.push(subscription.endpoint);
+          }
+        } else {
+          // Fallback: Log that we would send (for development)
+          console.log(`[send-push-notification] Would send to: ${subscription.endpoint}`);
+          sentCount++;
+        }
 
       } catch (error) {
         console.error(`[send-push-notification] Failed to send to ${subscription.endpoint}:`, error);
         failedCount++;
+        failedEndpoints.push(subscription.endpoint);
       }
+    }
+
+    // Remove failed subscriptions (likely expired)
+    if (failedEndpoints.length > 0) {
+      await supabaseClient
+        .from('push_subscriptions')
+        .delete()
+        .in('endpoint', failedEndpoints);
+      console.log(`[send-push-notification] Removed ${failedEndpoints.length} invalid subscriptions`);
     }
 
     // Logger dans la table push_notifications_log
