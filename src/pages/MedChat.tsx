@@ -48,16 +48,15 @@ export const MedChat: React.FC = () => {
     {
       id: '1',
       role: 'assistant',
-      content: `Bonjour ! 👋 Je suis votre assistant IA médical intelligent.
+      content: `Si tu bloques sur quelque chose, pose ta question ici.
 
-Je peux vous aider avec :
-• 📚 Questions sur vos cours médicaux
-• 🩺 Diagnostics et diagnostics différentiels  
-• 💊 Thérapeutiques et protocoles
-• 🏥 Cas cliniques et situations d'urgence
-• 📝 Préparation aux examens EDN et ECOS
+Je peux t'aider avec :
+• 🩺 Comprendre un concept
+• 💊 Clarifier une thérapeutique
+• 🏥 Démêler un cas clinique
+• 📝 Préparer un item spécifique
 
-Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
+Tu n'as pas besoin de tout chercher toi-même.`,
       timestamp: new Date(),
     }
   ]);

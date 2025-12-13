@@ -245,9 +245,9 @@ export default function ExamMode() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-              Mode Examen
+              S'entraîner
             </h1>
-            <p className="text-muted-foreground">Simulez les conditions d'examen EDN</p>
+            <p className="text-muted-foreground">Tu n'as pas besoin de tout savoir. Juste d'être prêt.</p>
           </div>
         </div>
 

@@ -126,11 +126,11 @@ const EcosIndex = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Stethoscope className="h-10 w-10 text-primary" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-              Situations ECOS
+              Simuler un ECOS
             </h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Préparez vos ECOS avec des scénarios cliniques réalistes et interactifs
+            Mets-toi en situation. C'est le meilleur moyen d'être prêt le jour J.
           </p>
         </div>
 

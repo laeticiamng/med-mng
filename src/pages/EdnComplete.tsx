@@ -358,9 +358,9 @@ export default function EdnComplete() {
                   <BookOpen className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
+                  <h1 className="text-xl font-bold text-foreground">Avancer sur l'EDN</h1>
                   <p className="text-sm text-muted-foreground">
-                    {stats.total} items {stats.complete > 0 ? `• ${stats.complete} complets` : 'disponibles'}
+                    {stats.total} items • Choisis et maîtrise un bloc
                   </p>
                 </div>
                 {gamificationStats && (
@@ -434,10 +434,10 @@ export default function EdnComplete() {
                 </Button>
                 <QuotaIndicator compact />
                 <TabsList className="bg-muted">
-                  <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>
-                  <TabsTrigger value="complete" className="text-xs">📚 Tous les items</TabsTrigger>
-                  <TabsTrigger value="immersive" className="text-xs">🎯 Mode Visuel</TabsTrigger>
-                  <TabsTrigger value="music" className="text-xs">🎵 Musiques</TabsTrigger>
+                  <TabsTrigger value="revision" className="text-xs">📊 Mon suivi</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-xs">📚 Choisir un item</TabsTrigger>
+                  <TabsTrigger value="immersive" className="text-xs">🎯 Approfondir</TabsTrigger>
+                  <TabsTrigger value="music" className="text-xs">🎵 Écouter</TabsTrigger>
                   <TabsTrigger value="subscription" className="text-xs">⭐ Premium</TabsTrigger>
                 </TabsList>
               </div>
