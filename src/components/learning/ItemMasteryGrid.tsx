@@ -246,11 +246,24 @@ export const ItemMasteryGrid: React.FC = () => {
             {filteredItems.slice(0, 200).map((item) => (
               <Tooltip key={item.itemCode}>
                 <TooltipTrigger asChild>
-                  <div
-                    onClick={() => navigate(`/edn/${item.itemCode}`)}
-                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:scale-150 hover:z-10 hover:ring-2 hover:ring-primary ${
+                  <button
+                    onClick={() => {
+                      logActivity({
+                        activity_type: 'study',
+                        count: 1,
+                        metadata: { 
+                          component: 'item_mastery_grid', 
+                          action: 'click_item',
+                          item_code: item.itemCode,
+                          mastery_level: item.masteryLevel 
+                        }
+                      });
+                      navigate(`/edn/${item.itemCode}`);
+                    }}
+                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:scale-150 hover:z-10 hover:ring-2 hover:ring-primary focus:outline-none focus:ring-2 focus:ring-primary ${
                       getMasteryColor(item.masteryLevel, item.reviewCount > 0)
                     }`}
+                    aria-label={`Item ${item.itemCode}: ${item.masteryLevel}% maîtrisé - Cliquer pour réviser`}
                   />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">

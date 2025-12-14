@@ -45,6 +45,7 @@ export default function ExamMode() {
   const [activeTab, setActiveTab] = useState('exam');
   const [examMode, setExamMode] = useState<'standard' | 'ai'>('ai');
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
 
   // Auth check
   useEffect(() => {
@@ -100,7 +101,8 @@ export default function ExamMode() {
     if (!user) return;
     
     if (examMode === 'ai') {
-      await startAIExam(user.id, 'ai_generated', 10, 20, aiDifficulty);
+      const specialty = selectedSpecialty !== 'all' ? selectedSpecialty : undefined;
+      await startAIExam(user.id, 'ai_generated', 10, 20, aiDifficulty, undefined, specialty);
     } else {
       await startExam(user.id, 'standard', 20, 30);
     }
@@ -288,44 +290,69 @@ export default function ExamMode() {
 
             {/* Mode Selection */}
             {!isExamActive && !isExamCompleted && (
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <Card 
-                  className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'ai' ? 'ring-2 ring-primary border-primary' : ''}`}
-                  onClick={() => setExamMode('ai')}
-                >
-                  <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <Sparkles className="h-8 w-8 text-primary" />
-                    </div>
-                    <h3 className="font-bold mb-2">Mode IA</h3>
-                    <p className="text-sm text-muted-foreground mb-4">Questions générées par l'IA, uniques à chaque session</p>
-                    {examMode === 'ai' && (
-                      <Select value={aiDifficulty} onValueChange={(v) => setAiDifficulty(v as any)}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="easy">Facile</SelectItem>
-                          <SelectItem value="medium">Moyen</SelectItem>
-                          <SelectItem value="hard">Difficile</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </CardContent>
-                </Card>
+              <div className="space-y-6 mb-6">
+                {/* Mode cards */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'ai' ? 'ring-2 ring-primary border-primary' : ''}`}
+                    onClick={() => setExamMode('ai')}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <Sparkles className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-bold mb-2">Mode IA</h3>
+                      <p className="text-sm text-muted-foreground mb-4">Questions générées par l'IA, uniques à chaque session</p>
+                      {examMode === 'ai' && (
+                        <div className="space-y-3">
+                          <Select value={aiDifficulty} onValueChange={(v) => setAiDifficulty(v as any)}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Difficulté" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="easy">Facile</SelectItem>
+                              <SelectItem value="medium">Moyen</SelectItem>
+                              <SelectItem value="hard">Difficile</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Toutes spécialités" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Toutes spécialités</SelectItem>
+                              <SelectItem value="Cardiologie">Cardiologie</SelectItem>
+                              <SelectItem value="Pneumologie">Pneumologie</SelectItem>
+                              <SelectItem value="Neurologie">Neurologie</SelectItem>
+                              <SelectItem value="Gastro-entérologie">Gastro-entérologie</SelectItem>
+                              <SelectItem value="Néphrologie">Néphrologie</SelectItem>
+                              <SelectItem value="Endocrinologie">Endocrinologie</SelectItem>
+                              <SelectItem value="Rhumatologie">Rhumatologie</SelectItem>
+                              <SelectItem value="Dermatologie">Dermatologie</SelectItem>
+                              <SelectItem value="Pédiatrie">Pédiatrie</SelectItem>
+                              <SelectItem value="Gynécologie">Gynécologie</SelectItem>
+                              <SelectItem value="Psychiatrie">Psychiatrie</SelectItem>
+                              <SelectItem value="Urgences">Urgences</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                <Card 
-                  className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'standard' ? 'ring-2 ring-accent border-accent' : ''}`}
-                  onClick={() => setExamMode('standard')}
-                >
-                  <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
-                      <Brain className="h-8 w-8 text-accent" />
-                    </div>
-                    <h3 className="font-bold mb-2">Mode Standard</h3>
-                    <p className="text-sm text-muted-foreground">Questions du référentiel EDN officiel</p>
-                  </CardContent>
-                </Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-lg ${examMode === 'standard' ? 'ring-2 ring-accent border-accent' : ''}`}
+                    onClick={() => setExamMode('standard')}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
+                        <Brain className="h-8 w-8 text-accent" />
+                      </div>
+                      <h3 className="font-bold mb-2">Mode Standard</h3>
+                      <p className="text-sm text-muted-foreground">Questions du référentiel EDN officiel</p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             )}
 
