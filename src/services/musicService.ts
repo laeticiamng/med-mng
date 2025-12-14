@@ -635,10 +635,12 @@ class MusicService {
     return shuffled
   }
 
-  // Nettoyer les analytics locaux
+  // Clear analytics (now uses in-memory queue instead of localStorage)
   clearLocalAnalytics(): void {
-    localStorage.removeItem('music_analytics')
-    console.log('Local analytics cleared')
+    if (typeof window !== 'undefined') {
+      (window as any).__musicAnalyticsQueue = [];
+    }
+    console.log('Music analytics cleared')
   }
 }
 

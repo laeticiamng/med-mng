@@ -58,20 +58,20 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       }
     });
 
-    // Store preferences
+    // Store preferences in Supabase for logged-in users
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('user_preferences' as any).upsert({
+      await (supabase as any).from('user_onboarding').upsert({
         user_id: user.id,
         onboarding_completed: true,
         preferred_deadline: deadline,
         last_state: state,
-        updated_at: new Date().toISOString()
+        completed_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
+    } else {
+      // Use sessionStorage for anonymous users (clears on browser close)
+      sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
-    
-    // Mark as seen in localStorage for anonymous users
-    localStorage.setItem('med-mng-onboarding-complete', 'true');
     
     setStep('action');
   };

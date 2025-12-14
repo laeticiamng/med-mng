@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, AlertCircle, CheckCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface StudyEvent {
   id: string;
@@ -22,54 +23,64 @@ export const StudyCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState<StudyEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const { toast } = useToast();
 
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setEvents([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch from plan_sessions table
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+      const { data, error } = await (supabase as any)
+        .from('plan_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('scheduled_date', startOfMonth.toISOString().split('T')[0])
+        .lte('scheduled_date', endOfMonth.toISOString().split('T')[0])
+        .order('scheduled_date', { ascending: true });
+
+      if (error) throw error;
+
+      // Transform to StudyEvent format
+      const transformedEvents: StudyEvent[] = (data || []).map((session: any) => ({
+        id: session.id,
+        title: session.title || 'Session d\'étude',
+        description: session.description,
+        date: session.scheduled_date,
+        time: session.scheduled_time || '09:00',
+        duration: session.duration_minutes || 60,
+        type: session.session_type || 'study',
+        priority: session.priority || 'medium',
+        status: session.status || 'planned',
+        item_code: session.item_code
+      }));
+
+      setEvents(transformedEvents);
+    } catch (error) {
+      console.error('Error fetching calendar events:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les événements',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [currentDate, toast]);
+
   useEffect(() => {
     fetchEvents();
-  }, [currentDate]);
-
-  const fetchEvents = async () => {
-    // Mock data - Replace with real Supabase query
-    const mockEvents: StudyEvent[] = [
-      {
-        id: '1',
-        title: 'Révision Cardiologie',
-        description: 'Items IC-220 à IC-235',
-        date: '2025-01-15',
-        time: '14:00',
-        duration: 90,
-        type: 'study',
-        priority: 'high',
-        status: 'planned',
-        item_code: 'IC-220'
-      },
-      {
-        id: '2',
-        title: 'Quiz Neurologie',
-        description: 'Test sur les AVC',
-        date: '2025-01-16',
-        time: '09:00',
-        duration: 30,
-        type: 'quiz',
-        priority: 'medium',
-        status: 'planned',
-        item_code: 'IC-125'
-      },
-      {
-        id: '3',
-        title: 'Examen Blanc',
-        description: 'Simulation EDN complète',
-        date: '2025-01-20',
-        time: '08:00',
-        duration: 360,
-        type: 'exam',
-        priority: 'high',
-        status: 'planned'
-      }
-    ];
-    setEvents(mockEvents);
-  };
+  }, [fetchEvents]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
