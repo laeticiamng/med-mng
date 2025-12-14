@@ -1,13 +1,16 @@
-import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, Music } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
 import { SunoGenerationStatus } from './SunoGenerationStatus';
+import { SynchronizedLyricsDisplay } from '@/components/music/SynchronizedLyricsDisplay';
+import { Button } from '@/components/ui/button';
+import { useSynchronizedLyrics } from '@/hooks/music/useSynchronizedLyrics';
 
 interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
   itemCode: string;
   musicDuration: number;
-  selectedStyle: string; // Add this prop
+  selectedStyle: string;
   isGenerating: { rangA: boolean; rangB: boolean };
   generatedAudio: { rangA?: string; rangB?: string };
   currentTrack: any;
@@ -35,7 +38,7 @@ interface ParolesMusicalesMainContentProps {
   onSeek: (time: number) => void;
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
-  pollingTracks?: number; // Ajout pour le status
+  pollingTracks?: number;
 }
 
 export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentProps> = ({
@@ -59,14 +62,34 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
-  console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
+  const [showSyncLyrics, setShowSyncLyrics] = useState<'A' | 'B' | null>(null);
   
   // Normaliser les paroles en format attendu
   const normalizedParoles = Array.isArray(paroles[0]) 
     ? (paroles as string[][]).map(section => section.join('\n'))
     : paroles as string[];
 
-  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
+  // Load synchronized lyrics when audio is available
+  const { lyrics: lyricsA } = useSynchronizedLyrics({
+    audioId: generatedAudio.rangA ? `${itemCode}-A` : undefined,
+    rawLyrics: normalizedParoles[0],
+    enableAutoSync: true
+  });
+  
+  const { lyrics: lyricsB } = useSynchronizedLyrics({
+    audioId: generatedAudio.rangB ? `${itemCode}-B` : undefined,
+    rawLyrics: normalizedParoles[1],
+    enableAutoSync: true
+  });
+
+  // Calculate current line index from currentTime
+  const getCurrentLineIndex = (lyrics: { time: number; text: string }[]) => {
+    if (!lyrics?.length || !currentTime) return -1;
+    return lyrics.findIndex((line, index) => {
+      const nextLine = lyrics[index + 1];
+      return currentTime >= line.time && (!nextLine || currentTime < nextLine.time);
+    });
+  };
 
   if (!normalizedParoles || normalizedParoles.length === 0) {
     return (
@@ -114,6 +137,30 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             onStop={onStop}
             generationProgress={generationProgress?.rangA}
           />
+          
+          {/* Synchronized Lyrics Display for Rang A */}
+          {generatedAudio.rangA && lyricsA.length > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSyncLyrics(showSyncLyrics === 'A' ? null : 'A')}
+                className="mb-2 gap-2"
+              >
+                <Music className="h-4 w-4" />
+                {showSyncLyrics === 'A' ? 'Masquer' : 'Afficher'} paroles synchronisées
+              </Button>
+              
+              {showSyncLyrics === 'A' && (
+                <SynchronizedLyricsDisplay
+                  lyrics={lyricsA}
+                  currentLineIndex={getCurrentLineIndex(lyricsA)}
+                  variant="karaoke"
+                  onLineClick={(index) => onSeek(lyricsA[index].time)}
+                />
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -145,6 +192,30 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             onStop={onStop}
             generationProgress={generationProgress?.rangB}
           />
+          
+          {/* Synchronized Lyrics Display for Rang B */}
+          {generatedAudio.rangB && lyricsB.length > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSyncLyrics(showSyncLyrics === 'B' ? null : 'B')}
+                className="mb-2 gap-2"
+              >
+                <Music className="h-4 w-4" />
+                {showSyncLyrics === 'B' ? 'Masquer' : 'Afficher'} paroles synchronisées
+              </Button>
+              
+              {showSyncLyrics === 'B' && (
+                <SynchronizedLyricsDisplay
+                  lyrics={lyricsB}
+                  currentLineIndex={getCurrentLineIndex(lyricsB)}
+                  variant="karaoke"
+                  onLineClick={(index) => onSeek(lyricsB[index].time)}
+                />
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -156,20 +227,17 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           <ParolesMusicalesRangSection
             rang="A"
             paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
-            musicDuration={musicDuration * 1.5} // Durée augmentée pour la fusion
+            musicDuration={musicDuration * 1.5}
             selectedStyle={selectedStyle}
             isGenerating={isGenerating.rangA || isGenerating.rangB}
-            generatedAudio={undefined} // Pas encore d'audio combiné
+            generatedAudio={undefined}
             itemCode={`${itemCode}-FUSION`}
             currentTrack={currentTrack}
             isPlaying={isPlaying}
             currentTime={currentTime}
             duration={duration}
             volume={volume}
-            onGenerate={() => {
-              // Générer Mix A+B avec toutes les compétences
-              onGenerateMix();
-            }}
+            onGenerate={() => onGenerateMix()}
             onPlayAudio={onPlayAudio}
             onSeek={onSeek}
             onVolumeChange={onVolumeChange}
