@@ -24,8 +24,10 @@ import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
 import { LearningInsights } from '@/components/learning/LearningInsights';
 import { StudyCalendar } from '@/components/learning/StudyCalendar';
 import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
+import { StudyCalendarSync } from '@/components/learning/StudyCalendarSync';
 import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 import { BadgeCollection } from '@/components/gamification/BadgeCollection';
+import { WeeklyChallenges } from '@/components/gamification/WeeklyChallenges';
 import { ProgressExport } from '@/components/export/ProgressExport';
 import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
 
@@ -280,7 +282,11 @@ export default function ProgressDashboard() {
             <StudyCalendar />
           </TabsContent>
 
-          <TabsContent value="badges" className="mt-6">
+          <TabsContent value="badges" className="space-y-6 mt-6">
+            {/* Weekly Challenges */}
+            <WeeklyChallenges />
+            
+            {/* Badge Collection */}
             {gamificationStats && (
               <BadgeCollection 
                 unlockedBadges={gamificationStats.badges} 
@@ -297,6 +303,7 @@ export default function ProgressDashboard() {
           <TabsContent value="settings" className="space-y-6 mt-6">
             <div className="grid md:grid-cols-2 gap-6">
               {user && <SRSNotificationSettings userId={user.id} />}
+              <StudyCalendarSync />
               {user && gamificationStats && (
                 <ProgressExport userId={user.id} stats={gamificationStats} />
               )}

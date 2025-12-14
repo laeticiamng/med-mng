@@ -262,6 +262,9 @@ export const useAdaptiveSRS = () => {
     daysUntilCritical: number;
     easeFactor: number;
     reviewCount: number;
+    trend: 'improving' | 'stable' | 'declining';
+    consecutiveCorrect: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
   }[]> => {
     try {
       const { data: cards } = await (supabase as any)
@@ -280,12 +283,15 @@ export const useAdaptiveSRS = () => {
         
         const ef = card.ease_factor || 2.5;
         const retention = predictRetention(ef, daysSinceReview);
+        const intervalDays = card.interval_days || 1;
+        const reviewCount = card.review_count || 0;
+        const correctCount = card.correct_count || 0;
         
         // Calculate stability level
         let stability: 'low' | 'medium' | 'high';
-        if (ef >= 2.5 && card.review_count >= 5) {
+        if (ef >= 2.5 && reviewCount >= 5) {
           stability = 'high';
-        } else if (ef >= 2.0 && card.review_count >= 2) {
+        } else if (ef >= 2.0 && reviewCount >= 2) {
           stability = 'medium';
         } else {
           stability = 'low';
@@ -296,13 +302,32 @@ export const useAdaptiveSRS = () => {
         const stabilityFactor = ef * 10;
         const daysUntilCritical = Math.max(0, Math.round(-stabilityFactor * Math.log(criticalRetention) - daysSinceReview));
 
+        // Determine trend based on ease factor changes
+        let trend: 'improving' | 'stable' | 'declining';
+        if (ef > 2.7) trend = 'improving';
+        else if (ef < 2.0) trend = 'declining';
+        else trend = 'stable';
+
+        // Calculate consecutive correct
+        const consecutiveCorrect = reviewCount > 0 ? Math.min(reviewCount, Math.round(correctCount / reviewCount * reviewCount)) : 0;
+
+        // Risk level
+        let riskLevel: 'low' | 'medium' | 'high' | 'critical';
+        if (retention < 30 || (daysSinceReview > intervalDays * 2)) riskLevel = 'critical';
+        else if (retention < 50 || (daysSinceReview > intervalDays * 1.5)) riskLevel = 'high';
+        else if (retention < 70 || (daysSinceReview > intervalDays)) riskLevel = 'medium';
+        else riskLevel = 'low';
+
         return {
           cardId: card.card_id,
           stability,
           retentionProbability: retention,
           daysUntilCritical,
           easeFactor: ef,
-          reviewCount: card.review_count || 0
+          reviewCount,
+          trend,
+          consecutiveCorrect,
+          riskLevel
         };
       });
     } catch (error) {
@@ -342,6 +367,14 @@ export const useAdaptiveSRS = () => {
     return predictions;
   }, [getMemoryStabilityIndicators, predictRetention]);
 
+  // Get items at risk of being forgotten
+  const getAtRiskItems = useCallback(async (userId: string) => {
+    const indicators = await getMemoryStabilityIndicators(userId);
+    return indicators
+      .filter(i => i.riskLevel === 'high' || i.riskLevel === 'critical')
+      .sort((a, b) => a.retentionProbability - b.retentionProbability);
+  }, [getMemoryStabilityIndicators]);
+
   return {
     loading,
     processReview,
@@ -350,6 +383,7 @@ export const useAdaptiveSRS = () => {
     predictRetention,
     calculateNextReview,
     getMemoryStabilityIndicators,
-    getRetentionPredictionData
+    getRetentionPredictionData,
+    getAtRiskItems
   };
 };
