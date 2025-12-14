@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy, Search
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,6 +18,7 @@ import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -99,6 +100,9 @@ export const MainNavigation: React.FC = () => {
 
           {/* Actions utilisateur */}
           <div className="flex items-center space-x-3">
+            {/* Global Search */}
+            <GlobalSearchBar />
+            
             {/* Gamification stats for logged in users */}
             {user && gamificationStats && (
               <div className="hidden sm:flex items-center gap-2">

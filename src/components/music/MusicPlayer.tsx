@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AIGeneratedBadge } from '@/components/common/AIGeneratedBadge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useAudioWithCache } from '@/hooks/useAudioWithCache';
+import { cn } from '@/lib/utils';
 
 interface SupabaseMusicTrack {
   id: string;
@@ -29,7 +33,35 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [isCached, setIsCached] = useState(false);
+  const [audioSrc, setAudioSrc] = useState(track.audio_url);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const { cacheAudio, isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' });
+
+  // Check cache on mount and track change
+  useEffect(() => {
+    const checkCache = async () => {
+      const cached = await isAudioCached(track.id);
+      setIsCached(cached);
+      if (cached) {
+        const cachedUrl = await getAudioUrl(track.id, track.audio_url);
+        setAudioSrc(cachedUrl);
+      } else {
+        setAudioSrc(track.audio_url);
+      }
+    };
+    checkCache();
+  }, [track.id, track.audio_url, isAudioCached, getAudioUrl]);
+
+  const handleCacheTrack = async () => {
+    const success = await cacheAudio(track.id, track.audio_url, track.title);
+    if (success) {
+      setIsCached(true);
+      const cachedUrl = await getAudioUrl(track.id, track.audio_url);
+      setAudioSrc(cachedUrl);
+    }
+  };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -118,7 +150,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
       <CardContent className="p-6">
         <audio
           ref={audioRef}
-          src={track.audio_url}
+          src={audioSrc}
           preload="metadata"
           aria-label={`Lecteur audio pour ${track.title || 'musique sans titre'}`}
         />
@@ -193,27 +225,52 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           </button>
         </div>
 
-        {/* Contrôle du volume */}
-        <div className="flex items-center space-x-2" role="group" aria-label="Contrôle du volume">
-          <Volume2 size={16} className="text-muted-foreground" aria-hidden="true" />
-          <label htmlFor="volume-slider" className="sr-only">
-            Contrôle du volume
-          </label>
-          <input
-            id="volume-slider"
-            type="range"
-            min="0"
-            max="100"
-            value={volume * 100}
-            onChange={handleVolumeChange}
-            aria-label={`Volume: ${Math.round(volume * 100)}%`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(volume * 100)}
-            aria-valuetext={`${Math.round(volume * 100)}%`}
-            className="flex-1 h-1 bg-secondary rounded-lg appearance-none cursor-pointer slider touch-target"
-          />
+        {/* Contrôle du volume et cache */}
+        <div className="flex items-center justify-between gap-4" role="group" aria-label="Contrôles secondaires">
+          <div className="flex items-center space-x-2 flex-1">
+            <Volume2 size={16} className="text-muted-foreground" aria-hidden="true" />
+            <label htmlFor="volume-slider" className="sr-only">
+              Contrôle du volume
+            </label>
+            <input
+              id="volume-slider"
+              type="range"
+              min="0"
+              max="100"
+              value={volume * 100}
+              onChange={handleVolumeChange}
+              aria-label={`Volume: ${Math.round(volume * 100)}%`}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(volume * 100)}
+              aria-valuetext={`${Math.round(volume * 100)}%`}
+              className="flex-1 h-1 bg-secondary rounded-lg appearance-none cursor-pointer slider touch-target"
+            />
+          </div>
+          
+          {/* Cache button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCacheTrack}
+            disabled={isCached || isCaching(track.id)}
+            className={cn("gap-1", isCached && "text-success border-success/30")}
+            title={isCached ? "Disponible hors-ligne" : "Mettre en cache"}
+          >
+            <HardDrive size={14} className={cn(isCached && "fill-current")} />
+            {isCached ? "Hors-ligne" : "Cacher"}
+          </Button>
         </div>
+        
+        {/* Offline indicator */}
+        {isCached && (
+          <div className="mt-3 flex justify-center">
+            <Badge variant="outline" className="text-success border-success/30 text-xs">
+              <HardDrive className="h-3 w-3 mr-1" />
+              Disponible hors-ligne
+            </Badge>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -12,12 +12,13 @@ import {
   VolumeX, 
   Heart,
   Plus,
-  MoreHorizontal,
   Download,
-  Share
+  Share,
+  HardDrive
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useAudioWithCache } from '@/hooks/useAudioWithCache'
 
 interface AudioPlayerProps {
   song: {
@@ -49,9 +50,37 @@ export function AudioPlayer({
   const [volume, setVolume] = useState(0.8)
   const [isMuted, setIsMuted] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
+  const [isCached, setIsCached] = useState(false)
+  const [audioSrc, setAudioSrc] = useState(song.audio_url)
   
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
+  
+  const { cacheAudio, isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' })
+
+  // Check if audio is cached and get cached URL
+  useEffect(() => {
+    const checkCache = async () => {
+      const cached = await isAudioCached(song.id)
+      setIsCached(cached)
+      if (cached) {
+        const cachedUrl = await getAudioUrl(song.id, song.audio_url)
+        setAudioSrc(cachedUrl)
+      } else {
+        setAudioSrc(song.audio_url)
+      }
+    }
+    checkCache()
+  }, [song.id, song.audio_url, isAudioCached, getAudioUrl])
+
+  const handleCacheAudio = async () => {
+    const success = await cacheAudio(song.id, song.audio_url, song.title, song.duration)
+    if (success) {
+      setIsCached(true)
+      const cachedUrl = await getAudioUrl(song.id, song.audio_url)
+      setAudioSrc(cachedUrl)
+    }
+  }
 
   useEffect(() => {
     const audio = audioRef.current
@@ -213,7 +242,7 @@ export function AudioPlayer({
         {/* Audio element caché */}
         <audio
           ref={audioRef}
-          src={song.audio_url}
+          src={audioSrc}
           preload="metadata"
           style={{ display: 'none' }}
         />
@@ -337,17 +366,29 @@ export function AudioPlayer({
               <Share className="h-4 w-4" />
             </Button>
 
-            {/* Faux bouton download pour montrer que c'est bloqué */}
+            {/* Cache for offline */}
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={handleDownloadAttempt}
-              className="opacity-50 cursor-not-allowed"
+              onClick={handleCacheAudio}
+              disabled={isCached || isCaching(song.id)}
+              className={cn(isCached && "text-success")}
+              title={isCached ? "Disponible hors-ligne" : "Mettre en cache pour hors-ligne"}
             >
-              <Download className="h-4 w-4" />
+              <HardDrive className={cn("h-4 w-4", isCached && "fill-current")} />
             </Button>
           </div>
         </div>
+        
+        {/* Offline status */}
+        {isCached && (
+          <div className="mt-2 text-center">
+            <Badge variant="outline" className="text-success border-success/30">
+              <HardDrive className="h-3 w-3 mr-1" />
+              Disponible hors-ligne
+            </Badge>
+          </div>
+        )}
 
         {/* Warning streaming-only */}
         <div className="mt-3 text-center">
