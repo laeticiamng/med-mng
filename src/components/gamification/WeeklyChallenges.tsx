@@ -51,17 +51,30 @@ export function WeeklyChallenges() {
     weekEnd.setDate(weekStart.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
 
-    // Fetch activity counts for this week
+    // Fetch activity counts for this week - optimized query
     const { data: activities } = await (supabase as any)
       .from('user_activity_log')
-      .select('activity_type')
+      .select('activity_type, count')
       .eq('user_id', user.id)
       .gte('activity_date', weekStart.toISOString().split('T')[0])
       .lte('activity_date', weekEnd.toISOString().split('T')[0]);
 
+    // Also check gamification_activities for more accurate counts
+    const { data: gamificationActivities } = await (supabase as any)
+      .from('gamification_activities')
+      .select('activity_type')
+      .eq('user_id', user.id)
+      .gte('created_at', weekStart.toISOString());
+
     const counts: Record<string, number> = {};
     (activities || []).forEach((a: any) => {
-      counts[a.activity_type] = (counts[a.activity_type] || 0) + 1;
+      counts[a.activity_type] = (counts[a.activity_type] || 0) + (a.count || 1);
+    });
+    (gamificationActivities || []).forEach((a: any) => {
+      const type = a.activity_type?.replace('weekly_challenge_', '');
+      if (type && !type.startsWith('weekly')) {
+        counts[type] = (counts[type] || 0) + 1;
+      }
     });
 
     const streak = stats?.currentStreak || 0;

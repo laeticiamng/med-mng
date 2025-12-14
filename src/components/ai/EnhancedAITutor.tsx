@@ -41,6 +41,8 @@ interface ItemContext {
   itemCode: string;
   title: string;
   competences?: string[];
+  rangA?: any;
+  rangB?: any;
 }
 
 interface EnhancedAITutorProps {
@@ -54,6 +56,8 @@ const QUICK_PROMPTS = [
   { icon: '🏥', text: 'Donne-moi un cas clinique type', category: 'clinical' },
   { icon: '⚠️', text: 'Quels sont les pièges classiques ?', category: 'pitfalls' },
   { icon: '🔗', text: 'Liens avec d\'autres items EDN ?', category: 'links' },
+  { icon: '💊', text: 'Quels sont les traitements de référence ?', category: 'treatment' },
+  { icon: '🩺', text: 'Signes cliniques pathognomoniques ?', category: 'signs' },
 ];
 
 export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
@@ -180,13 +184,23 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   };
 
   const streamChat = async (userMessages: Message[]) => {
+    // Enrich context with medical data when available
+    const enrichedContext = itemContext ? {
+      ...itemContext,
+      systemPrompt: itemContext.rangA || itemContext.rangB 
+        ? `Tu es un tuteur médical expert. Contexte actuel: Item ${itemContext.itemCode} - ${itemContext.title}. ` +
+          `Compétences Rang A: ${JSON.stringify(itemContext.rangA?.competences_cles?.slice(0, 5) || [])}. ` +
+          `Réponds de manière pédagogique et structurée.`
+        : undefined
+    } : undefined;
+
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
-      body: JSON.stringify({ messages: userMessages, itemContext }),
+      body: JSON.stringify({ messages: userMessages, itemContext: enrichedContext }),
     });
 
     if (resp.status === 429) {

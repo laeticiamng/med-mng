@@ -478,14 +478,58 @@ export const useFlashcards = () => {
         .select('*', { count: 'exact', head: true })
         .gte('reviewed_at', today);
 
+      // Calculate streak days from flashcard_reviews
+      let streakDays = 0;
+      const { data: recentReviews } = await supabase
+        .from('flashcard_reviews')
+        .select('reviewed_at')
+        .order('reviewed_at', { ascending: false })
+        .limit(30);
+      
+      if (recentReviews && recentReviews.length > 0) {
+        const uniqueDays = new Set(
+          recentReviews.map((r: any) => new Date(r.reviewed_at).toDateString())
+        );
+        const sortedDays = Array.from(uniqueDays).sort((a, b) => 
+          new Date(b).getTime() - new Date(a).getTime()
+        );
+        
+        let currentDate = new Date();
+        for (const day of sortedDays) {
+          if (new Date(day).toDateString() === currentDate.toDateString() ||
+              new Date(day).toDateString() === new Date(currentDate.getTime() - 86400000).toDateString()) {
+            streakDays++;
+            currentDate = new Date(currentDate.getTime() - 86400000);
+          } else break;
+        }
+      }
+
+      // Calculate weekly progress
+      const weeklyProgress: number[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const dayStart = new Date();
+        dayStart.setDate(dayStart.getDate() - i);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setHours(23, 59, 59, 999);
+        
+        const { count: dayCount } = await supabase
+          .from('flashcard_reviews')
+          .select('*', { count: 'exact', head: true })
+          .gte('reviewed_at', dayStart.toISOString())
+          .lte('reviewed_at', dayEnd.toISOString());
+        
+        weeklyProgress.push(dayCount || 0);
+      }
+
       return {
         totalDecks: deckCount || 0,
         totalCards,
         cardsReviewed: totalReviews,
         accuracy: totalReviews > 0 ? Math.round((correctReviews / totalReviews) * 100) : 0,
-        streakDays: 0, // Would need more complex calculation
+        streakDays,
         todayReviewed: todayCount || 0,
-        weeklyProgress: [0, 0, 0, 0, 0, 0, 0] // Simplified
+        weeklyProgress
       };
     } catch (error) {
       console.error('Error getting stats:', error);
@@ -496,7 +540,7 @@ export const useFlashcards = () => {
         accuracy: 0,
         streakDays: 0,
         todayReviewed: 0,
-        weeklyProgress: []
+        weeklyProgress: [0, 0, 0, 0, 0, 0, 0]
       };
     }
   }, []);

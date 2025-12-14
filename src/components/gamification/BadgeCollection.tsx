@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Lock, Share2, Check, Sparkles, TrendingUp, Clock, Star, Zap } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Lock, Share2, Check, Sparkles, TrendingUp, Clock, Star, Zap, Volume2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,9 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useBadgeUnlockTrigger } from '@/hooks/useBadgeUnlockTrigger';
 import { motion, AnimatePresence } from 'framer-motion';
+import canvasConfetti from 'canvas-confetti';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
 
 interface BadgeCollectionProps {
@@ -40,23 +42,78 @@ const RARITY_POINTS = {
 export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }: BadgeCollectionProps) {
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
+  const { unlockedBadge, hideBadgeUnlock } = useBadgeUnlockTrigger();
   const [copiedBadge, setCopiedBadge] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
   const [showUnlockAnimation, setShowUnlockAnimation] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const unlockedIds = new Set(unlockedBadges.map(b => b.id));
 
-  // Show unlock animation for new badges
+  // Play unlock sound effect
+  const playUnlockSound = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+      oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+      oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+      console.log('Audio not supported');
+    }
+  }, [soundEnabled]);
+
+  // Fire confetti on unlock
+  const fireConfetti = useCallback((rarity: string) => {
+    const colors = {
+      common: ['#64748b', '#94a3b8'],
+      rare: ['#3b82f6', '#60a5fa'],
+      epic: ['#8b5cf6', '#a78bfa'],
+      legendary: ['#eab308', '#fde047', '#f59e0b'],
+    };
+    canvasConfetti({
+      particleCount: rarity === 'legendary' ? 150 : rarity === 'epic' ? 100 : 50,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: colors[rarity as keyof typeof colors] || colors.common,
+    });
+  }, []);
+
+  // Show unlock animation for new badges (from real-time subscription or local)
   useEffect(() => {
-    if (unlockedBadges.length > 0) {
+    if (unlockedBadge) {
+      setShowUnlockAnimation(unlockedBadge.id);
+      playUnlockSound();
+      fireConfetti(unlockedBadge.rarity);
+      setTimeout(() => {
+        setShowUnlockAnimation(null);
+        hideBadgeUnlock();
+      }, 4000);
+    }
+  }, [unlockedBadge, playUnlockSound, fireConfetti, hideBadgeUnlock]);
+
+  // Also check local badge list for recent unlocks
+  useEffect(() => {
+    if (unlockedBadges.length > 0 && !showUnlockAnimation) {
       const newest = unlockedBadges
         .filter(b => b.unlockedAt)
         .sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime())[0];
       if (newest && new Date(newest.unlockedAt!).getTime() > Date.now() - 5000) {
         setShowUnlockAnimation(newest.id);
-        setTimeout(() => setShowUnlockAnimation(null), 3000);
+        playUnlockSound();
+        fireConfetti(newest.rarity);
+        setTimeout(() => setShowUnlockAnimation(null), 4000);
       }
     }
-  }, [unlockedBadges]);
+  }, [unlockedBadges, playUnlockSound, fireConfetti, showUnlockAnimation]);
 
   // Calculate stats
   const stats = useMemo(() => {

@@ -1,14 +1,15 @@
 // Interactive Tableau Rang with clickable sections and progress tracking
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Play } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Play, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 interface Competence {
   competence_id: string;
   concept?: string;
@@ -43,7 +44,29 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
 }) => {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]));
   const [masteredCompetences, setMasteredCompetences] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
   const { logActivity } = useActivityTracking();
+  const { toast } = useToast();
+
+  // Load mastered competences from Supabase
+  useEffect(() => {
+    const loadMastered = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data } = await (supabase as any)
+        .from('user_item_progress')
+        .select('competence_id')
+        .eq('user_id', user.id)
+        .eq('item_code', itemCode)
+        .eq('mastered', true);
+      
+      if (data) {
+        setMasteredCompetences(new Set(data.map((d: any) => d.competence_id)));
+      }
+    };
+    loadMastered();
+  }, [itemCode]);
 
   const toggleSection = (index: number) => {
     const newExpanded = new Set(expandedSections);
@@ -55,16 +78,56 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
     setExpandedSections(newExpanded);
   };
 
-  const toggleMastered = (competenceId: string) => {
+  const toggleMastered = useCallback(async (competenceId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
     const newMastered = new Set(masteredCompetences);
-    if (newMastered.has(competenceId)) {
+    const wasMastered = newMastered.has(competenceId);
+    
+    if (wasMastered) {
       newMastered.delete(competenceId);
     } else {
       newMastered.add(competenceId);
       logActivity({ activity_type: 'srs_review', metadata: { competenceId, itemCode, rang, action: 'competence_mastered' } });
     }
     setMasteredCompetences(newMastered);
-  };
+
+    // Persist to Supabase
+    if (user) {
+      try {
+        await (supabase as any).from('user_item_progress').upsert({
+          user_id: user.id,
+          item_code: itemCode,
+          competence_id: competenceId,
+          rang,
+          mastered: !wasMastered,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,item_code,competence_id' });
+      } catch (e) {
+        console.error('Error saving progress:', e);
+      }
+    }
+  }, [masteredCompetences, itemCode, rang, logActivity]);
+
+  const resetProgress = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      await (supabase as any)
+        .from('user_item_progress')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('item_code', itemCode);
+      
+      setMasteredCompetences(new Set());
+      toast({ title: 'Progression réinitialisée' });
+    } catch (e) {
+      console.error('Error resetting:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [itemCode, toast]);
 
   const handleCompetenceClick = (competence: Competence) => {
     logActivity({ activity_type: 'study', metadata: { competenceId: competence.competence_id, itemCode, action: 'competence_viewed' } });
@@ -87,9 +150,22 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
             </Badge>
             <span className="text-lg">Compétences {rang === 'A' ? 'Fondamentales' : 'Approfondies'}</span>
           </CardTitle>
-          <Badge variant="outline" className="gap-1">
-            {masteredCount}/{totalCompetences} maîtrisées
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="gap-1">
+              {masteredCount}/{totalCompetences} maîtrisées
+            </Badge>
+            {masteredCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetProgress}
+                disabled={loading}
+                className="h-6 w-6 p-0"
+              >
+                <RotateCcw className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </div>
         
         {/* Progress bar */}
