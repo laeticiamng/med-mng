@@ -3,18 +3,23 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Lazy load Sentry to avoid interfering with React initialization
-const initializeSentry = async () => {
+// Initialize analytics and error tracking
+const initializeAnalytics = async () => {
   try {
+    // Initialize Sentry for error tracking
     const { initSentry } = await import('./lib/sentry');
     initSentry();
+    
+    // Initialize Google Analytics
+    const { initGoogleAnalytics } = await import('./lib/analytics');
+    initGoogleAnalytics();
   } catch (e) {
-    console.debug('Sentry initialization skipped');
+    console.debug('Analytics initialization skipped');
   }
 };
 
-// Initialize Sentry after React is ready
-initializeSentry();
+// Initialize after React is ready
+initializeAnalytics();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
