@@ -6,13 +6,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   MessageCircle, Heart, Share2, Users, TrendingUp,
   BookOpen, Music, Award, Search, Plus, Filter,
-  Clock, Star, ThumbsUp, Send, Image, Smile
+  Clock, Star, ThumbsUp, Send, Image, Smile, ChevronDown
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { CommentThread } from './CommentThread';
+import { DirectMessaging } from './DirectMessaging';
 
 interface CommunityPost {
   id: string;
@@ -366,14 +369,18 @@ export const CommunityHub = () => {
       </Card>
 
       <Tabs defaultValue="feed" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="feed" className="flex items-center gap-2">
             <MessageCircle className="h-4 w-4" />
-            Fil d'actualité
+            Fil
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="flex items-center gap-2">
+            <Send className="h-4 w-4" />
+            Messages
           </TabsTrigger>
           <TabsTrigger value="groups" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            Groupes d'étude
+            Groupes
           </TabsTrigger>
           <TabsTrigger value="trending" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
@@ -514,10 +521,18 @@ export const CommunityHub = () => {
                         {post.likes}
                       </Button>
                       
-                      <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground">
-                        <MessageCircle className="h-4 w-4" />
-                        {post.comments}
-                      </Button>
+                      <Collapsible>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground">
+                            <MessageCircle className="h-4 w-4" />
+                            {post.comments}
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-4 pl-12">
+                          <CommentThread postId={post.id} onCommentAdded={() => loadCommunityData()} />
+                        </CollapsibleContent>
+                      </Collapsible>
                       
                       <Button
                         variant="ghost"
@@ -534,6 +549,10 @@ export const CommunityHub = () => {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="messages" className="space-y-6">
+          <DirectMessaging />
         </TabsContent>
 
         <TabsContent value="groups" className="space-y-6">
