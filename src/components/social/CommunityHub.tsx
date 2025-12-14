@@ -94,33 +94,45 @@ export const CommunityHub = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Load posts from Supabase
-      const { data: dbPosts } = await (supabase as any)
-        .from('community_posts')
-        .select('*, community_post_likes(user_id)')
-        .order('created_at', { ascending: false })
-        .limit(20);
+      // Load posts and user profiles in parallel for better performance
+      const [postsResult, profilesResult] = await Promise.all([
+        (supabase as any)
+          .from('community_posts')
+          .select('*, community_post_likes(user_id)')
+          .order('created_at', { ascending: false })
+          .limit(20),
+        (supabase as any)
+          .from('profiles')
+          .select('id, display_name, avatar_url') as Promise<{ data: { id: string; display_name?: string; avatar_url?: string }[] | null }>
+      ]);
+      
+      const dbPosts = postsResult.data;
+      const profiles = new Map((profilesResult.data || []).map((p) => [p.id, p]));
       
       if (dbPosts && dbPosts.length > 0) {
-        const formattedPosts: CommunityPost[] = dbPosts.map((p: any) => ({
-          id: p.id,
-          author: {
-            id: p.user_id,
-            name: 'Utilisateur',
-            level: 10,
-            badge: 'Membre'
-          },
-          content: p.content,
-          type: p.post_type as CommunityPost['type'],
-          category: p.category,
-          likes: p.likes_count || 0,
-          comments: p.comments_count || 0,
-          shares: p.shares_count || 0,
-          isLiked: user ? p.community_post_likes?.some((l: any) => l.user_id === user.id) : false,
-          createdAt: p.created_at,
-          tags: p.tags || [],
-          images: p.images || []
-        }));
+        const formattedPosts: CommunityPost[] = dbPosts.map((p: any) => {
+          const profile = profiles.get(p.user_id);
+          return {
+            id: p.id,
+            author: {
+              id: p.user_id,
+              name: profile?.display_name || 'Utilisateur',
+              avatar: profile?.avatar_url,
+              level: 10,
+              badge: 'Membre'
+            },
+            content: p.content,
+            type: p.post_type as CommunityPost['type'],
+            category: p.category,
+            likes: p.likes_count || 0,
+            comments: p.comments_count || 0,
+            shares: p.shares_count || 0,
+            isLiked: user ? p.community_post_likes?.some((l: any) => l.user_id === user.id) : false,
+            createdAt: p.created_at,
+            tags: p.tags || [],
+            images: p.images || []
+          };
+        });
         setPosts(formattedPosts);
       } else {
         // Fallback to sample posts

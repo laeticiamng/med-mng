@@ -1,18 +1,21 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, Award, Sparkles, Flame, Star } from 'lucide-react';
+import { Music, Award, Sparkles, Flame, Star, ThumbsUp, ThumbsDown, Download } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAnalyticsTracking } from '@/hooks/useAnalyticsTracking';
+import { useAudioWithCache } from '@/hooks/useAudioWithCache';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { ENABLE_DEBUG } from '@/config/env';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
 import { ParolesMusicalesMainContent } from './music/ParolesMusicalesMainContent';
+import { MusicGenerationWaveform } from './music/MusicGenerationWaveform';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 interface ParolesMusicalesProps {
   paroles?: string[];
   paroles_rang_a?: string[];
@@ -34,19 +37,33 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 }) => {
   const [musicCount, setMusicCount] = useState(0);
   const [showReward, setShowReward] = useState(false);
+  const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
   const { addPoints, unlockBadge, stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
+  const { trackMusicGeneration } = useAnalyticsTracking();
+  const { cacheAudio, isAudioCached, isCaching } = useAudioWithCache({ type: 'music' });
+  const { toast } = useToast();
 
-  // Load existing music generation count
+  // Load existing music generation count and feedback
   useEffect(() => {
-    const loadMusicCount = async () => {
+    const loadMusicData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         loadStats(user.id);
+        // Load previous feedback for this item
+        const { data } = await (supabase as any)
+          .from('music_feedback')
+          .select('rating')
+          .eq('user_id', user.id)
+          .eq('item_code', itemCode)
+          .single();
+        if (data) {
+          setUserFeedback(data.rating > 3 ? 'like' : data.rating < 3 ? 'dislike' : null);
+        }
       }
     };
-    loadMusicCount();
-  }, [loadStats]);
+    loadMusicData();
+  }, [loadStats, itemCode]);
 
   if (ENABLE_DEBUG) {
     console.log('🎵 ParolesMusicales - Rendu avec props:', { 
@@ -117,6 +134,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       if (newCount >= 10) {
         await unlockBadge(user.id, 'music_10');
       }
+      // Track analytics
+      trackMusicGeneration(itemCode, 'A', selectedStyle, 'complete');
     }
   };
 
@@ -131,8 +150,56 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         count: 1, 
         metadata: { itemCode, type: 'music_mix_generation' } 
       });
+      trackMusicGeneration(itemCode, 'A', selectedStyle, 'complete');
     }
   };
+
+  // Handle user feedback on generated music
+  const handleFeedback = useCallback(async (feedback: 'like' | 'dislike') => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return;
+    }
+
+    const rating = feedback === 'like' ? 5 : 2;
+    setUserFeedback(feedback);
+
+    try {
+      await (supabase as any).from('music_feedback').upsert({
+        user_id: user.id,
+        item_code: itemCode,
+        style: selectedStyle,
+        rating,
+        audio_url: generatedAudio,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'user_id,item_code' });
+
+      toast({
+        title: feedback === 'like' ? '👍 Merci !' : '📝 Feedback enregistré',
+        description: 'Votre avis nous aide à améliorer la génération musicale'
+      });
+    } catch (e) {
+      console.error('Feedback error:', e);
+    }
+  }, [itemCode, selectedStyle, generatedAudio, toast]);
+
+  // Handle download/cache for offline
+  const handleCacheAudio = useCallback(async () => {
+    const audioUrl = typeof generatedAudio === 'string' 
+      ? generatedAudio 
+      : generatedAudio?.rangA || generatedAudio?.rangB || '';
+    if (!audioUrl) return;
+    const success = await cacheAudio(
+      `music-${itemCode}`,
+      audioUrl,
+      `Musique ${itemCode}`,
+      duration
+    );
+    if (success) {
+      toast({ title: '📥 Audio mis en cache', description: 'Disponible hors-ligne' });
+    }
+  }, [generatedAudio, itemCode, duration, cacheAudio, toast]);
 
   if (ENABLE_DEBUG) {
     console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
@@ -169,6 +236,15 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       )}
 
       {/* Reward Animation */}
+      {/* Waveform visualization during generation */}
+      {(isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB) && (
+        <MusicGenerationWaveform 
+          isGenerating={Boolean(isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB)} 
+          progress={(generationProgress.rangA as any)?.progress || (generationProgress.rangB as any)?.progress || 50} 
+          className="h-24"
+        />
+      )}
+
       {showReward && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="animate-bounce bg-success text-success-foreground px-6 py-3 rounded-full text-lg font-bold shadow-xl">
@@ -241,6 +317,41 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               onStop={stop}
               pollingTracks={pollingTracks}
             />
+
+            {/* Feedback and cache section after generation */}
+            {generatedAudio && (
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Cette musique vous plaît ?</span>
+                  <Button
+                    variant={userFeedback === 'like' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleFeedback('like')}
+                    className="gap-1"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={userFeedback === 'dislike' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleFeedback('dislike')}
+                    className="gap-1"
+                  >
+                    <ThumbsDown className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCacheAudio}
+                  disabled={isCaching(`music-${itemCode}`)}
+                  className="gap-1"
+                >
+                  <Download className="h-4 w-4" />
+                  {isCaching(`music-${itemCode}`) ? 'Téléchargement...' : 'Hors-ligne'}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
