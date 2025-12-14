@@ -29,20 +29,43 @@ const Index = () => {
       if (user) {
         setUser(user);
         loadStats(user.id);
-      }
-      
-      // Check if first visit
-      const hasSeenOnboarding = localStorage.getItem('med-mng-onboarding-complete');
-      if (!hasSeenOnboarding) {
-        setShowOnboarding(true);
+        
+        // Check onboarding status from Supabase
+        const { data } = await (supabase as any)
+          .from('user_onboarding')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (!data?.onboarding_completed) {
+          setShowOnboarding(true);
+        }
+      } else {
+        // Anonymous users - check sessionStorage (not localStorage for privacy)
+        const hasSeenOnboarding = sessionStorage.getItem('med-mng-onboarding-seen');
+        if (!hasSeenOnboarding) {
+          setShowOnboarding(true);
+        }
       }
     };
     checkUser();
   }, [loadStats]);
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
     setShowOnboarding(false);
-    localStorage.setItem('med-mng-onboarding-complete', 'true');
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Store in Supabase for logged-in users
+      await (supabase as any).from('user_onboarding').upsert({
+        user_id: user.id,
+        onboarding_completed: true,
+        completed_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    } else {
+      // Use sessionStorage for anonymous (clears on browser close)
+      sessionStorage.setItem('med-mng-onboarding-seen', 'true');
+    }
   };
 
   return (

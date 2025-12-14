@@ -151,31 +151,47 @@ export function initGoogleAnalytics() {
   console.debug('Google Analytics initialized');
 }
 
-// Internal event logging (for custom analytics dashboard)
+// Internal event logging - uploads to Supabase when possible
 async function logInternalEvent(eventName: string, params?: Record<string, any>) {
+  const sessionId = getSessionId();
+  const event = {
+    event: eventName,
+    params,
+    timestamp: new Date().toISOString(),
+    session_id: sessionId
+  };
+
+  // Try to upload to Supabase directly
   try {
-    // Store locally for batch upload
-    const events = JSON.parse(localStorage.getItem('analytics_queue') || '[]');
-    events.push({
-      event: eventName,
-      params,
-      timestamp: new Date().toISOString(),
-      session_id: getSessionId()
-    });
-
-    // Keep only last 100 events
-    if (events.length > 100) {
-      events.shift();
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      await (supabase as any).from('user_activity_log').insert({
+        user_id: user.id,
+        activity_type: eventName,
+        action: params?.action || eventName,
+        metadata: params,
+        session_id: sessionId
+      });
+      return; // Successfully uploaded
     }
+  } catch {
+    // Fall through to in-memory queue
+  }
 
-    localStorage.setItem('analytics_queue', JSON.stringify(events));
-  } catch (e) {
-    // Silently fail
+  // Fallback: store in memory (not localStorage) for anonymous users
+  if (typeof window !== 'undefined') {
+    const queue = (window as any).__analyticsQueue || [];
+    queue.push(event);
+    if (queue.length > 50) queue.shift();
+    (window as any).__analyticsQueue = queue;
   }
 }
 
-// Session management
+// Session management - sessionStorage is OK (session-scoped, not persistent)
 function getSessionId(): string {
+  if (typeof window === 'undefined') return 'server';
   let sessionId = sessionStorage.getItem('analytics_session');
   if (!sessionId) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -184,15 +200,14 @@ function getSessionId(): string {
   return sessionId;
 }
 
-// Export analytics queue for backend sync
+// Export analytics queue for backend sync (from memory, not localStorage)
 export function getAnalyticsQueue(): any[] {
-  try {
-    return JSON.parse(localStorage.getItem('analytics_queue') || '[]');
-  } catch {
-    return [];
-  }
+  if (typeof window === 'undefined') return [];
+  return (window as any).__analyticsQueue || [];
 }
 
 export function clearAnalyticsQueue() {
-  localStorage.removeItem('analytics_queue');
+  if (typeof window !== 'undefined') {
+    (window as any).__analyticsQueue = [];
+  }
 }
