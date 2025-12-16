@@ -131,23 +131,29 @@ export default function EdnComplete() {
     setLoading(true);
     setLoadingError(null);
     
-    console.log('🔄 Début chargement EDN items, page:', page);
+    console.log('🔄 Début chargement EDN items');
     
     try {
-      // TEST SIMPLE: requête minimale
-      console.log('🧪 TEST: Envoi requête Supabase...');
-      
-      const { data: immersiveData, error: immersiveError, count } = await supabase
+      // Timeout de 5 secondes pour la requête
+      const queryPromise = supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, subtitle, slug, updated_at', { count: 'exact' })
         .range(0, 49)
         .order('item_code');
       
-      console.log('📊 Résultat requête:', { 
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('TIMEOUT: La requête a pris plus de 5 secondes')), 5000)
+      );
+      
+      console.log('🧪 Envoi requête...');
+      const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+      
+      const { data: immersiveData, error: immersiveError, count } = result;
+      
+      console.log('📊 Résultat:', { 
         dataLength: immersiveData?.length, 
         error: immersiveError?.message,
-        total: count,
-        firstItem: immersiveData?.[0]
+        total: count
       });
       
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > 50);
