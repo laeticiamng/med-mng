@@ -33,14 +33,18 @@ export const useAllEdnItems = () => {
   const [stats, setStats] = useState<EdnItemsStats | null>(null);
 
   const fetchAllItems = useCallback(async () => {
+    console.log('🔍 useAllEdnItems - fetchAllItems appelé');
     setLoading(true);
     setError(null);
 
     try {
+      console.log('🔍 useAllEdnItems - Démarrage requête Supabase');
       const { data, error: supabaseError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
         .order('item_code');
+      
+      console.log('🔍 useAllEdnItems - Requête terminée', { dataLength: data?.length, hasError: !!supabaseError });
 
       if (supabaseError) {
         console.error('Erreur Supabase lors de la récupération des items:', supabaseError);
@@ -140,6 +144,7 @@ export const useAllEdnItems = () => {
   }, [fetchAllItems]);
 
   useEffect(() => {
+    console.log('🔍 useAllEdnItems - useEffect déclenché');
     fetchAllItems();
   }, [fetchAllItems]);
 
