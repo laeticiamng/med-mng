@@ -136,7 +136,7 @@ export default function EdnComplete() {
     try {
       // Timeout de 5 secondes pour la requête
       const queryPromise = supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id, item_code, title, subtitle, slug, updated_at', { count: 'exact' })
         .range(0, 49)
         .order('item_code');
