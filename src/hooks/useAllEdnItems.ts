@@ -45,6 +45,7 @@ export const useAllEdnItems = () => {
       if (supabaseError) {
         console.error('Erreur Supabase lors de la récupération des items:', supabaseError);
         setError('Erreur lors du chargement des items');
+        setLoading(false);
         return;
       }
 
