@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -12,12 +12,18 @@ import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
-import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+
+interface EdnItem {
+  item_code: string;
+  title: string;
+  subtitle?: string;
+}
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -35,13 +41,43 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   
+  // Chargement direct des items EDN
+  const [allEdnItems, setAllEdnItems] = useState<EdnItem[]>([]);
+  const [itemsLoading, setItemsLoading] = useState(true);
+  const [itemsError, setItemsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('🚀 Generator - Chargement des items EDN');
+    const loadItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('item_code, title, subtitle')
+          .order('item_code');
+        
+        console.log('📡 Generator - Résultat:', { count: data?.length, error: error?.message });
+        
+        if (error) {
+          setItemsError(error.message);
+        } else {
+          setAllEdnItems(data || []);
+        }
+      } catch (err) {
+        console.error('❌ Generator - Exception:', err);
+        setItemsError('Erreur de chargement');
+      } finally {
+        setItemsLoading(false);
+      }
+    };
+    loadItems();
+  }, []);
+  
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
     contentType === 'edn' ? selectedItem : null
   );
   
   const remainingFree = getRemainingGenerations();
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
-  const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
 
   const canGenerate = useCallback(() => {
     if (contentType === 'edn') {
