@@ -96,7 +96,7 @@ export const useAIRecommendations = () => {
           user_id: (await supabase.auth.getUser()).data.user?.id,
           ...preferences,
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
 

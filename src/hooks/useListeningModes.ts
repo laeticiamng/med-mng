@@ -158,7 +158,7 @@ export const useListeningModes = () => {
           started_at: new Date().toISOString(),
           duration_minutes: mode.duration_minutes,
           is_active: true
-        });
+        }, { onConflict: 'user_id,mode_id' });
 
       if (error) throw error;
 

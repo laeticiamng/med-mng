@@ -198,7 +198,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
           music_volume: volume,
           auto_play: audioSettings.autoPlay,
           binaural_enabled: audioSettings.binauralBeats
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
 

@@ -56,7 +56,7 @@ serve(async (req) => {
             status: 'active',
             current_period_start: new Date().toISOString(),
             current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-          });
+          }, { onConflict: 'stripe_subscription_id' });
 
         if (error) {
           console.error("Error creating subscription:", error);
