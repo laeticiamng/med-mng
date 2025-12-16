@@ -25,7 +25,12 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
+// Debug: log immédiatement au chargement du module
+console.log('📦 useAllEdnItems MODULE CHARGÉ');
+
 export const useAllEdnItems = () => {
+  console.log('🔄 useAllEdnItems HOOK APPELÉ');
+  
   const [items, setItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,28 +38,31 @@ export const useAllEdnItems = () => {
   const [stats, setStats] = useState<EdnItemsStats | null>(null);
 
   const fetchAllItems = useCallback(async () => {
-    console.log('🔍 useAllEdnItems - fetchAllItems appelé');
+    console.log('🔍 fetchAllItems DÉMARRÉ');
     setLoading(true);
     setError(null);
 
     try {
-      console.log('🔍 useAllEdnItems - Démarrage requête Supabase');
+      console.log('📡 Requête Supabase edn_items_immersive...');
       const { data, error: supabaseError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
         .order('item_code');
       
-      console.log('🔍 useAllEdnItems - Requête terminée', { dataLength: data?.length, hasError: !!supabaseError });
+      console.log('📡 Résultat Supabase:', { 
+        dataCount: data?.length ?? 0, 
+        hasError: !!supabaseError,
+        errorMsg: supabaseError?.message 
+      });
 
       if (supabaseError) {
-        console.error('Erreur Supabase lors de la récupération des items:', supabaseError);
+        console.error('❌ Erreur Supabase:', supabaseError);
         setError('Erreur lors du chargement des items');
         setLoading(false);
         return;
       }
 
       if (data) {
-        // Map data to EdnItem interface with computed fields
         const mappedItems: EdnItem[] = data.map(d => ({
           item_code: d.item_code,
           title: d.title,
@@ -65,9 +73,9 @@ export const useAllEdnItems = () => {
           competences_count: d.competences_count_total || 0
         }));
         
+        console.log('✅ Items mappés:', mappedItems.length);
         setItems(mappedItems);
 
-        // Calculer les stats
         const statsData: EdnItemsStats = {
           total: mappedItems.length,
           withMusic: mappedItems.filter(i => i.has_music).length,
@@ -82,10 +90,12 @@ export const useAllEdnItems = () => {
 
         setStats(statsData);
       }
+      
+      setLoading(false);
+      console.log('✅ Chargement terminé, loading=false');
     } catch (err) {
-      console.error('Erreur lors de la récupération des items:', err);
+      console.error('❌ Exception catch:', err);
       setError('Erreur lors du chargement');
-    } finally {
       setLoading(false);
     }
   }, []);
@@ -144,9 +154,11 @@ export const useAllEdnItems = () => {
   }, [fetchAllItems]);
 
   useEffect(() => {
-    console.log('🔍 useAllEdnItems - useEffect déclenché');
+    console.log('⚡ useEffect DÉCLENCHÉ - appel fetchAllItems');
     fetchAllItems();
   }, [fetchAllItems]);
+
+  console.log('🔄 useAllEdnItems RETURN - loading:', loading, 'items:', items.length);
 
   return {
     items,
