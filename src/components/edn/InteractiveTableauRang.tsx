@@ -91,20 +91,12 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
     }
     setMasteredCompetences(newMastered);
 
-    // Persist to Supabase
-    if (user) {
-      try {
-        await (supabase as any).from('user_item_progress').upsert({
-          user_id: user.id,
-          item_code: itemCode,
-          competence_id: competenceId,
-          rang,
-          mastered: !wasMastered,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,item_code,competence_id' });
-      } catch (e) {
-        console.error('Error saving progress:', e);
-      }
+    // Persist to localStorage (user_item_progress table doesn't have competence_id column)
+    try {
+      const key = `tableau_progress_${itemCode}_${rang}`;
+      localStorage.setItem(key, JSON.stringify(Array.from(newMastered)));
+    } catch (e) {
+      console.error('Error saving progress:', e);
     }
   }, [masteredCompetences, itemCode, rang, logActivity]);
 
