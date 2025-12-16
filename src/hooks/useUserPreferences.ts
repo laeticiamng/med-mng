@@ -114,7 +114,7 @@ export function useUserPreferences() {
           .upsert({
             user_id: user.user.id,
             preferences: updatedPrefs as any
-          });
+          }, { onConflict: 'user_id' });
 
         if (error) throw error;
         
@@ -153,7 +153,7 @@ export function useUserPreferences() {
           .upsert({
             user_id: user.user.id,
             preferences: defaultPreferences as any
-          });
+          }, { onConflict: 'user_id' });
 
         if (error) throw error;
       }

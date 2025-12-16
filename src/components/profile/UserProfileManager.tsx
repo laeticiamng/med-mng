@@ -177,7 +177,7 @@ export const UserProfileManager = () => {
           notification_email: preferences.notifications.email,
           study_reminders: preferences.notifications.study_reminders,
           auto_play: preferences.auto_play
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
 
