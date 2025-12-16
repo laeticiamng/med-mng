@@ -14906,6 +14906,7 @@ export type Database = {
       }
       pwa_metrics: {
         Row: {
+          browser: string | null
           cls: number | null
           connection_type: string | null
           created_at: string | null
@@ -14915,11 +14916,16 @@ export type Database = {
           inp: number | null
           is_pwa: boolean | null
           lcp: number | null
+          os: string | null
+          page_views: number | null
+          screen_height: number | null
+          screen_width: number | null
           session_id: string
           ttfb: number | null
           user_id: string | null
         }
         Insert: {
+          browser?: string | null
           cls?: number | null
           connection_type?: string | null
           created_at?: string | null
@@ -14929,11 +14935,16 @@ export type Database = {
           inp?: number | null
           is_pwa?: boolean | null
           lcp?: number | null
+          os?: string | null
+          page_views?: number | null
+          screen_height?: number | null
+          screen_width?: number | null
           session_id: string
           ttfb?: number | null
           user_id?: string | null
         }
         Update: {
+          browser?: string | null
           cls?: number | null
           connection_type?: string | null
           created_at?: string | null
@@ -14943,6 +14954,10 @@ export type Database = {
           inp?: number | null
           is_pwa?: boolean | null
           lcp?: number | null
+          os?: string | null
+          page_views?: number | null
+          screen_height?: number | null
+          screen_width?: number | null
           session_id?: string
           ttfb?: number | null
           user_id?: string | null
@@ -20299,6 +20314,7 @@ export type Database = {
           created_at: string
           id: string
           language: string | null
+          medical_consents: Json | null
           nyvee_tutorial_seen: boolean | null
           preferences: Json
           updated_at: string
@@ -20308,6 +20324,7 @@ export type Database = {
           created_at?: string
           id?: string
           language?: string | null
+          medical_consents?: Json | null
           nyvee_tutorial_seen?: boolean | null
           preferences?: Json
           updated_at?: string
@@ -20317,6 +20334,7 @@ export type Database = {
           created_at?: string
           id?: string
           language?: string | null
+          medical_consents?: Json | null
           nyvee_tutorial_seen?: boolean | null
           preferences?: Json
           updated_at?: string
