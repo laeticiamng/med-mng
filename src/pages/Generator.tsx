@@ -46,24 +46,25 @@ const Generator = () => {
   const [itemsLoading, setItemsLoading] = useState(true);
   const [itemsError, setItemsError] = useState<string | null>(null);
 
+  // Force le chargement immédiat au rendu
   useEffect(() => {
-    console.log('🚀 Generator - Chargement des items EDN');
     const loadItems = async () => {
+      console.log('🚀 LOADING EDN ITEMS NOW');
       try {
         const { data, error } = await supabase
           .from('edn_items_immersive')
           .select('item_code, title, subtitle')
           .order('item_code');
         
-        console.log('📡 Generator - Résultat:', { count: data?.length, error: error?.message });
-        
         if (error) {
+          console.error('ERROR:', error);
           setItemsError(error.message);
         } else {
+          console.log('SUCCESS:', data?.length, 'items');
           setAllEdnItems(data || []);
         }
       } catch (err) {
-        console.error('❌ Generator - Exception:', err);
+        console.error('EXCEPTION:', err);
         setItemsError('Erreur de chargement');
       } finally {
         setItemsLoading(false);
@@ -71,6 +72,9 @@ const Generator = () => {
     };
     loadItems();
   }, []);
+
+  // Debug: afficher l'état actuel
+  console.log('RENDER STATE:', { itemsLoading, itemsCount: allEdnItems.length, itemsError });
   
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
     contentType === 'edn' ? selectedItem : null
