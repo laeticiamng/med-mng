@@ -96,7 +96,7 @@ serve(async (req) => {
 
     // Sauvegarder dans la base de données
     if (userId) {
-      const { error } = await supabase.from('generated_voice_tracks').insert({
+      const { error } = await supabase.from('generated_voice_tracks').upsert({
         user_id: userId,
         text,
         voice_id: voiceId,
@@ -108,7 +108,7 @@ serve(async (req) => {
           character_count: text.length
         },
         generation_status: 'completed'
-      });
+      }, { onConflict: 'user_id,text,voice_id' });
 
       if (error) {
         console.error('Erreur sauvegarde voix:', error);

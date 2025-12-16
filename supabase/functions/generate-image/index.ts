@@ -86,7 +86,7 @@ serve(async (req) => {
 
     // Sauvegarder dans la base de données
     if (userId) {
-      const { error } = await supabase.from('generated_ambient_images').insert({
+      const { error } = await supabase.from('generated_ambient_images').upsert({
         user_id: userId,
         prompt: revisedPrompt,
         image_base64: imageBase64,
@@ -99,7 +99,7 @@ serve(async (req) => {
           model: 'dall-e-3'
         },
         generation_status: 'completed'
-      });
+      }, { onConflict: 'user_id,prompt' });
 
       if (error) {
         console.error('Erreur sauvegarde image:', error);

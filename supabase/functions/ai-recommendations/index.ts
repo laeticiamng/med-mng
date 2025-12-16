@@ -98,7 +98,7 @@ serve(async (req) => {
 
         await supabase
           .from('med_mng_recommendations')
-          .upsert(recommendationsToSave);
+          .upsert(recommendationsToSave, { onConflict: 'user_id,content_id' });
 
         return new Response(JSON.stringify(analysis), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
