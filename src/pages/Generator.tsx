@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -17,13 +17,7 @@ import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { supabase } from '@/integrations/supabase/client';
-
-interface EdnItem {
-  item_code: string;
-  title: string;
-  subtitle?: string;
-}
+import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -41,33 +35,8 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   
-  // Chargement des items avec useRef pour éviter les problèmes de double-render
-  const [allEdnItems, setAllEdnItems] = useState<EdnItem[]>([]);
-  const [itemsLoading, setItemsLoading] = useState(true);
-  const [itemsError, setItemsError] = useState<string | null>(null);
-  const fetchStarted = React.useRef(false);
-
-  // Forcer le fetch immédiatement lors du premier render
-  if (!fetchStarted.current && itemsLoading) {
-    fetchStarted.current = true;
-    console.log('🚀 FETCH STARTED (sync)');
-    
-    supabase
-      .from('edn_items_immersive')
-      .select('item_code, title, subtitle')
-      .order('item_code')
-      .then(({ data, error }) => {
-        console.log('✅ DATA RECEIVED:', data?.length, 'items');
-        if (error) {
-          setItemsError(error.message);
-        } else {
-          setAllEdnItems(data || []);
-        }
-        setItemsLoading(false);
-      });
-  }
-
-  console.log('RENDER:', { itemsLoading, count: allEdnItems.length });
+  // Utiliser le hook centralisé pour charger les items EDN
+  const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
   
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
     contentType === 'edn' ? selectedItem : null
