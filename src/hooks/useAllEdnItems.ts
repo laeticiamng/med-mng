@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItem {
@@ -25,79 +25,78 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
-// Debug: log immédiatement au chargement du module
-console.log('📦 useAllEdnItems MODULE CHARGÉ');
-
 export const useAllEdnItems = () => {
-  console.log('🔄 useAllEdnItems HOOK APPELÉ');
-  
   const [items, setItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<EdnItemsFilters>({});
   const [stats, setStats] = useState<EdnItemsStats | null>(null);
+  const hasFetched = useRef(false);
 
-  const fetchAllItems = useCallback(async () => {
-    console.log('🔍 fetchAllItems DÉMARRÉ');
-    setLoading(true);
-    setError(null);
+  // Fetch au montage - sans useCallback pour éviter les problèmes de référence
+  useEffect(() => {
+    // Éviter les doubles appels en StrictMode
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
-    try {
-      console.log('📡 Requête Supabase edn_items_immersive...');
-      const { data, error: supabaseError } = await supabase
-        .from('edn_items_immersive')
-        .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
-        .order('item_code');
-      
-      console.log('📡 Résultat Supabase:', { 
-        dataCount: data?.length ?? 0, 
-        hasError: !!supabaseError,
-        errorMsg: supabaseError?.message 
-      });
+    const fetchItems = async () => {
+      console.log('🔍 useAllEdnItems - Début du chargement');
+      setLoading(true);
+      setError(null);
 
-      if (supabaseError) {
-        console.error('❌ Erreur Supabase:', supabaseError);
-        setError('Erreur lors du chargement des items');
+      try {
+        const { data, error: supabaseError } = await supabase
+          .from('edn_items_immersive')
+          .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
+          .order('item_code');
+
+        console.log('📡 Supabase response:', { count: data?.length, error: supabaseError?.message });
+
+        if (supabaseError) {
+          console.error('❌ Erreur Supabase:', supabaseError);
+          setError('Erreur lors du chargement des items');
+          setLoading(false);
+          return;
+        }
+
+        if (data) {
+          const mappedItems: EdnItem[] = data.map(d => ({
+            item_code: d.item_code,
+            title: d.title,
+            subtitle: d.subtitle || undefined,
+            category: 'EDN',
+            has_music: Boolean(d.paroles_musicales),
+            has_lyrics: Boolean(d.paroles_musicales),
+            competences_count: d.competences_count_total || 0
+          }));
+
+          console.log('✅ Items chargés:', mappedItems.length);
+          setItems(mappedItems);
+
+          const statsData: EdnItemsStats = {
+            total: mappedItems.length,
+            withMusic: mappedItems.filter(i => i.has_music).length,
+            withLyrics: mappedItems.filter(i => i.has_lyrics).length,
+            byCategory: {}
+          };
+
+          mappedItems.forEach(item => {
+            const cat = item.category || 'Non catégorisé';
+            statsData.byCategory[cat] = (statsData.byCategory[cat] || 0) + 1;
+          });
+
+          setStats(statsData);
+        }
+
         setLoading(false);
-        return;
+      } catch (err) {
+        console.error('❌ Exception:', err);
+        setError('Erreur lors du chargement');
+        setLoading(false);
       }
+    };
 
-      if (data) {
-        const mappedItems: EdnItem[] = data.map(d => ({
-          item_code: d.item_code,
-          title: d.title,
-          subtitle: d.subtitle || undefined,
-          category: 'EDN',
-          has_music: Boolean(d.paroles_musicales),
-          has_lyrics: Boolean(d.paroles_musicales),
-          competences_count: d.competences_count_total || 0
-        }));
-        
-        console.log('✅ Items mappés:', mappedItems.length);
-        setItems(mappedItems);
-
-        const statsData: EdnItemsStats = {
-          total: mappedItems.length,
-          withMusic: mappedItems.filter(i => i.has_music).length,
-          withLyrics: mappedItems.filter(i => i.has_lyrics).length,
-          byCategory: {}
-        };
-
-        mappedItems.forEach(item => {
-          const cat = item.category || 'Non catégorisé';
-          statsData.byCategory[cat] = (statsData.byCategory[cat] || 0) + 1;
-        });
-
-        setStats(statsData);
-      }
-      
-      setLoading(false);
-      console.log('✅ Chargement terminé, loading=false');
-    } catch (err) {
-      console.error('❌ Exception catch:', err);
-      setError('Erreur lors du chargement');
-      setLoading(false);
-    }
+    fetchItems();
   }, []);
 
   const filteredItems = useMemo(() => {
@@ -150,15 +149,11 @@ export const useAllEdnItems = () => {
   }, [items]);
 
   const refreshItems = useCallback(() => {
-    fetchAllItems();
-  }, [fetchAllItems]);
-
-  useEffect(() => {
-    console.log('⚡ useEffect DÉCLENCHÉ - appel fetchAllItems');
-    fetchAllItems();
-  }, [fetchAllItems]);
-
-  console.log('🔄 useAllEdnItems RETURN - loading:', loading, 'items:', items.length);
+    hasFetched.current = false;
+    setLoading(true);
+    // Re-trigger by forcing a state update
+    setItems([]);
+  }, []);
 
   return {
     items,
