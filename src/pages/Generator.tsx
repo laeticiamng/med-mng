@@ -41,21 +41,23 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   
-  // Chargement direct des items EDN
+  // Chargement des items avec useRef pour éviter les problèmes de double-render
   const [allEdnItems, setAllEdnItems] = useState<EdnItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(true);
   const [itemsError, setItemsError] = useState<string | null>(null);
+  const fetchStarted = React.useRef(false);
 
-  // Chargement des items
-  useEffect(() => {
-    console.log('⚡ USEEFFECT TRIGGERED');
+  // Forcer le fetch immédiatement lors du premier render
+  if (!fetchStarted.current && itemsLoading) {
+    fetchStarted.current = true;
+    console.log('🚀 FETCH STARTED (sync)');
     
     supabase
       .from('edn_items_immersive')
       .select('item_code, title, subtitle')
       .order('item_code')
       .then(({ data, error }) => {
-        console.log('✅ SUPABASE RESPONSE:', { count: data?.length, error: error?.message });
+        console.log('✅ DATA RECEIVED:', data?.length, 'items');
         if (error) {
           setItemsError(error.message);
         } else {
@@ -63,10 +65,9 @@ const Generator = () => {
         }
         setItemsLoading(false);
       });
-  }, []);
+  }
 
-  // Debug
-  console.log('RENDER:', { itemsLoading, itemsCount: allEdnItems.length });
+  console.log('RENDER:', { itemsLoading, count: allEdnItems.length });
   
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
     contentType === 'edn' ? selectedItem : null
