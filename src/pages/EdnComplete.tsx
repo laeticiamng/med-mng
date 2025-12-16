@@ -134,27 +134,23 @@ export default function EdnComplete() {
     console.log('🔄 Début chargement EDN items, page:', page);
     
     try {
-      // PAGINATION: Charger seulement 50 items à la fois
-      const from = page * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
+      // TEST SIMPLE: requête minimale
+      console.log('🧪 TEST: Envoi requête Supabase...');
       
-      // OPTIMISATION: Ne charger que les métadonnées légères pour la liste
       const { data: immersiveData, error: immersiveError, count } = await supabase
         .from('edn_items_immersive')
-        .select(`
-          id, item_code, title, subtitle, slug, updated_at,
-          competences_count_rang_a, competences_count_rang_b, competences_count_total
-        `, { count: 'exact' })
-        .range(from, to)
+        .select('id, item_code, title, subtitle, slug, updated_at', { count: 'exact' })
+        .range(0, 49)
         .order('item_code');
       
       console.log('📊 Résultat requête:', { 
-        count: immersiveData?.length, 
+        dataLength: immersiveData?.length, 
         error: immersiveError?.message,
-        total: count 
+        total: count,
+        firstItem: immersiveData?.[0]
       });
       
-      setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
+      setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > 50);
 
       if (immersiveError) {
         setLoadingError(`Erreur: ${immersiveError.message}`);
