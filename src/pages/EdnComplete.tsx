@@ -134,29 +134,16 @@ export default function EdnComplete() {
     console.log('🔄 Début chargement EDN items');
     
     try {
-      // Timeout de 5 secondes pour la requête
-      const queryPromise = supabase
-        .from('edn_items_complete')
-        .select('id, item_code, title, subtitle, slug, updated_at', { count: 'exact' })
-        .range(0, 49)
+      const start = page * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE - 1;
+      
+      const { data: immersiveData, error: immersiveError, count } = await supabase
+        .from('edn_items_immersive')
+        .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
+        .range(start, end)
         .order('item_code');
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('TIMEOUT: La requête a pris plus de 5 secondes')), 5000)
-      );
-      
-      console.log('🧪 Envoi requête...');
-      const result = await Promise.race([queryPromise, timeoutPromise]) as any;
-      
-      const { data: immersiveData, error: immersiveError, count } = result;
-      
-      console.log('📊 Résultat:', { 
-        dataLength: immersiveData?.length, 
-        error: immersiveError?.message,
-        total: count
-      });
-      
-      setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > 50);
+      setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > end + 1);
 
       if (immersiveError) {
         setLoadingError(`Erreur: ${immersiveError.message}`);
@@ -173,7 +160,7 @@ export default function EdnComplete() {
       if (immersiveData && immersiveData.length > 0) {
         const itemCodes = immersiveData.map(item => item.item_code);
         const { data } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('id, item_code, title, specialite, completeness_score, is_validated')
           .in('item_code', itemCodes)
           .order('item_code');
