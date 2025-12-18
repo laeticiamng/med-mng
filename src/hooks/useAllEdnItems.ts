@@ -46,7 +46,7 @@ export const useAllEdnItems = () => {
 
       try {
         const { data, error: supabaseError } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
           .order('item_code');
 
