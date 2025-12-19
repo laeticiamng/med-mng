@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Calendar, 
+  Headphones,
+  Music, 
   Brain, 
-  Zap, 
   ArrowRight,
-  Clock,
-  AlertCircle,
-  Battery,
-  BatteryLow,
-  BatteryWarning,
+  BookOpen,
+  Target,
   Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -19,8 +16,9 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 
-type Deadline = 'today' | 'this_week' | 'this_month';
-type UserState = 'ok' | 'tired' | 'saturated';
+type RevisionType = 'edn' | 'ecos' | 'both';
+type MusicStyle = 'rap' | 'lofi' | 'spoken' | 'mix';
+type Level = 'discovery' | 'revision' | 'mastery';
 
 interface AntiAnxietyOnboardingProps {
   isOpen: boolean;
@@ -35,26 +33,26 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
 }) => {
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const [step, setStep] = useState<'welcome' | 'deadline' | 'state' | 'action'>('welcome');
-  const [deadline, setDeadline] = useState<Deadline | null>(null);
-  const [userState, setUserState] = useState<UserState | null>(null);
+  const [step, setStep] = useState<'welcome' | 'revision' | 'style' | 'action'>('welcome');
+  const [revisionType, setRevisionType] = useState<RevisionType | null>(null);
+  const [musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
 
-  const handleDeadlineSelect = (d: Deadline) => {
-    setDeadline(d);
-    setStep('state');
+  const handleRevisionSelect = (type: RevisionType) => {
+    setRevisionType(type);
+    setStep('style');
   };
 
-  const handleStateSelect = async (state: UserState) => {
-    setUserState(state);
+  const handleStyleSelect = async (style: MusicStyle) => {
+    setMusicStyle(style);
     
     // Log the onboarding completion
     await logActivity({
       activity_type: 'study',
       count: 1,
       metadata: { 
-        action: 'anti_anxiety_onboarding_complete',
-        deadline,
-        userState: state
+        action: 'music_onboarding_complete',
+        revisionType,
+        musicStyle: style
       }
     });
 
@@ -64,80 +62,50 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       await (supabase as any).from('user_onboarding').upsert({
         user_id: user.id,
         onboarding_completed: true,
-        preferred_deadline: deadline,
-        last_state: state,
+        revision_type: revisionType,
+        music_style: style,
         completed_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
     } else {
-      // Use sessionStorage for anonymous users (clears on browser close)
       sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
     
     setStep('action');
   };
 
-  const getActionPath = () => {
-    if (userState === 'saturated') {
-      return ROUTE_PATHS.flashcards; // Light activity
-    } else if (deadline === 'today') {
-      return ROUTE_PATHS.examMode; // Intensive
-    } else {
-      return ROUTE_PATHS.ednComplete; // Standard revision
-    }
-  };
-
-  const getActionText = () => {
-    if (userState === 'saturated') {
-      return {
-        title: 'On y va doucement',
-        subtitle: 'Une petite révision légère pour débloquer',
-        duration: '5 min'
-      };
-    } else if (deadline === 'today') {
-      return {
-        title: 'Action immédiate',
-        subtitle: 'QCM ciblé sur ce qui compte vraiment',
-        duration: '10 min'
-      };
-    } else {
-      return {
-        title: 'Prêt à avancer',
-        subtitle: 'Un bloc de révision efficace',
-        duration: '15 min'
-      };
-    }
-  };
-
   const handleStartAction = () => {
     onComplete();
-    navigate(getActionPath());
+    navigate(ROUTE_PATHS.generator);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md p-0 bg-card border-border/50 overflow-hidden">
-        {/* Step: Welcome */}
+        {/* Step: Welcome - Identité musicale */}
         {step === 'welcome' && (
           <div className="p-8 text-center space-y-6">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-              <Sparkles className="h-8 w-8 text-primary" />
+            <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto relative">
+              <Headphones className="h-10 w-10 text-primary" />
+              <Music className="h-5 w-5 text-accent-foreground absolute -bottom-1 -right-1" />
             </div>
             
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">
-                Si tu es ici, c'est probablement que tu es en retard sur quelque chose.
+                🎧 Apprends la médecine en musique
               </h2>
               <p className="text-muted-foreground">
-                Pas de panique. On va te dire exactement quoi faire.
+                Écoute. Retiens. Sans t'épuiser.
+                <br />
+                <span className="text-foreground font-medium">30 secondes pour personnaliser ton expérience.</span>
               </p>
             </div>
 
             <Button 
               size="lg" 
-              className="w-full py-6 text-lg"
-              onClick={() => setStep('deadline')}
+              className="w-full py-6 text-lg bg-gradient-to-r from-primary to-primary/80"
+              onClick={() => setStep('revision')}
             >
-              OK, on y va
+              C'est parti !
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
 
@@ -151,73 +119,34 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
           </div>
         )}
 
-        {/* Step: Deadline */}
-        {step === 'deadline' && (
+        {/* Step: Révision - Tu révises quoi ? */}
+        {step === 'revision' && (
           <div className="p-8 text-center space-y-6">
             <Badge variant="outline" className="mb-2 px-4 py-1">
-              <Calendar className="h-3 w-3 mr-2" />
+              <BookOpen className="h-3 w-3 mr-2" />
               Étape 1/2
             </Badge>
             
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                C'est pour quand ?
+                📚 Tu révises quoi ?
               </h2>
               <p className="text-muted-foreground">
-                Ta prochaine échéance importante
+                On adapte les musiques à ton objectif
               </p>
             </div>
             
             <div className="space-y-3">
               {[
-                { value: 'today' as Deadline, label: 'Aujourd\'hui', icon: AlertCircle, color: 'text-destructive', bg: 'bg-destructive/10' },
-                { value: 'this_week' as Deadline, label: 'Cette semaine', icon: Clock, color: 'text-warning', bg: 'bg-warning/10' },
-                { value: 'this_month' as Deadline, label: 'Ce mois-ci', icon: Calendar, color: 'text-success', bg: 'bg-success/10' },
+                { value: 'edn' as RevisionType, label: 'Items EDN', desc: '367 items - Rang A & B', icon: BookOpen, color: 'text-primary', bg: 'bg-primary/10' },
+                { value: 'ecos' as RevisionType, label: 'Simulations ECOS', desc: 'Situations cliniques', icon: Target, color: 'text-success', bg: 'bg-success/10' },
+                { value: 'both' as RevisionType, label: 'Les deux', desc: 'EDN + ECOS en alternance', icon: Brain, color: 'text-accent-foreground', bg: 'bg-accent/10' },
               ].map((option) => (
                 <Button
                   key={option.value}
                   variant="outline"
                   className={`w-full h-auto py-4 flex items-center justify-start gap-4 hover:${option.bg} hover:border-current transition-all`}
-                  onClick={() => handleDeadlineSelect(option.value)}
-                >
-                  <div className={`p-2 rounded-lg ${option.bg}`}>
-                    <option.icon className={`h-5 w-5 ${option.color}`} />
-                  </div>
-                  <span className="font-semibold text-lg">{option.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step: State */}
-        {step === 'state' && (
-          <div className="p-8 text-center space-y-6">
-            <Badge variant="outline" className="mb-2 px-4 py-1">
-              <Brain className="h-3 w-3 mr-2" />
-              Étape 2/2
-            </Badge>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">
-                Tu te sens comment là, honnêtement ?
-              </h2>
-              <p className="text-muted-foreground">
-                Pas de jugement, c'est pour t'aider
-              </p>
-            </div>
-            
-            <div className="space-y-3">
-              {[
-                { value: 'ok' as UserState, label: 'OK', desc: 'Je peux bosser', icon: Battery, color: 'text-success', bg: 'bg-success/10' },
-                { value: 'tired' as UserState, label: 'Fatigué', desc: 'Mais je veux avancer', icon: BatteryWarning, color: 'text-warning', bg: 'bg-warning/10' },
-                { value: 'saturated' as UserState, label: 'Saturé', desc: 'Je ne sais plus où j\'en suis', icon: BatteryLow, color: 'text-destructive', bg: 'bg-destructive/10' },
-              ].map((option) => (
-                <Button
-                  key={option.value}
-                  variant="outline"
-                  className={`w-full h-auto py-4 flex items-center justify-start gap-4 hover:${option.bg} hover:border-current transition-all`}
-                  onClick={() => handleStateSelect(option.value)}
+                  onClick={() => handleRevisionSelect(option.value)}
                 >
                   <div className={`p-2 rounded-lg ${option.bg}`}>
                     <option.icon className={`h-5 w-5 ${option.color}`} />
@@ -229,50 +158,101 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
                 </Button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Step: Style - Tu préfères quel style ? */}
+        {step === 'style' && (
+          <div className="p-8 text-center space-y-6">
+            <Badge variant="outline" className="mb-2 px-4 py-1">
+              <Headphones className="h-3 w-3 mr-2" />
+              Étape 2/2
+            </Badge>
+            
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">
+                🎵 Tu préfères quel style ?
+              </h2>
+              <p className="text-muted-foreground">
+                La musique qui te parle le plus
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: 'rap' as MusicStyle, label: '🎤 Rap', desc: 'Flow & rimes' },
+                { value: 'lofi' as MusicStyle, label: '🎹 Lo-Fi', desc: 'Chill & focus' },
+                { value: 'spoken' as MusicStyle, label: '🎙️ Spoken', desc: 'Narration claire' },
+                { value: 'mix' as MusicStyle, label: '🎧 Mix', desc: 'Un peu de tout' },
+              ].map((option) => (
+                <Button
+                  key={option.value}
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 hover:border-primary transition-all"
+                  onClick={() => handleStyleSelect(option.value)}
+                >
+                  <span className="text-2xl">{option.label.split(' ')[0]}</span>
+                  <span className="font-semibold">{option.label.split(' ')[1]}</span>
+                  <span className="text-xs text-muted-foreground">{option.desc}</span>
+                </Button>
+              ))}
+            </div>
 
             <Button 
               variant="ghost" 
               className="text-muted-foreground text-sm"
-              onClick={() => setStep('deadline')}
+              onClick={() => setStep('revision')}
             >
               ← Retour
             </Button>
           </div>
         )}
 
-        {/* Step: Action */}
+        {/* Step: Action - Prêt à écouter */}
         {step === 'action' && (
           <div className="p-8 text-center space-y-6">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-              <Zap className="h-8 w-8 text-primary" />
+            <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-success/20 rounded-full flex items-center justify-center mx-auto">
+              <Sparkles className="h-10 w-10 text-primary" />
             </div>
             
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">
-                {getActionText().title}
+                🎉 C'est prêt !
               </h2>
               <p className="text-lg text-muted-foreground">
-                {getActionText().subtitle}
+                Tu peux maintenant générer ta première musique de révision.
               </p>
             </div>
 
-            <div className="bg-muted/30 rounded-xl p-4 flex items-center justify-center gap-2">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <span className="text-lg font-medium">{getActionText().duration}</span>
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-4 text-left space-y-2">
+              <p className="text-sm font-medium text-foreground">💡 Comment ça marche ?</p>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Choisis un item EDN ou une situation ECOS</li>
+                <li>• L'IA génère une chanson avec les points clés</li>
+                <li>• Écoute en boucle → mémorisation passive</li>
+              </ul>
             </div>
 
             <Button 
               size="lg" 
-              className="w-full py-6 text-lg font-bold"
+              className="w-full py-6 text-lg font-bold bg-gradient-to-r from-primary to-primary/80"
               onClick={handleStartAction}
             >
-              Commencer maintenant
+              <Headphones className="h-5 w-5 mr-2" />
+              Générer ma première musique
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
 
-            <p className="text-sm text-muted-foreground">
-              Tu n'as pas besoin d'être motivé.
-            </p>
+            <Button 
+              variant="ghost"
+              className="text-muted-foreground"
+              onClick={() => {
+                onComplete();
+                navigate(ROUTE_PATHS.ednComplete);
+              }}
+            >
+              Ou explorer les items d'abord
+            </Button>
           </div>
         )}
       </DialogContent>

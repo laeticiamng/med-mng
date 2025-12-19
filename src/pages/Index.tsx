@@ -71,9 +71,9 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="MED MNG - Système anti-panique académique"
-        description="Tu ne sais plus par quoi commencer ? Med-MNG te dit quoi faire. Maintenant. Plateforme de stabilisation cognitive pour étudiants en médecine."
-        keywords="médecine, EDN, révision, anti-stress, étudiants, ECOS, priorité"
+        title="MED MNG - Révise la médecine en musique | EDN & ECOS"
+        description="🎧 Apprends la médecine autrement. Mémorise les 367 items EDN et les simulations ECOS grâce à la musique. Écoute, retiens, réussis."
+        keywords="médecine, EDN, ECOS, musique, révision, mémorisation, étudiants médecine, apprentissage musical, items EDN"
         canonical="/"
       />
       
