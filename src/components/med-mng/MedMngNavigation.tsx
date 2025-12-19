@@ -2,7 +2,18 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Music, Library, CreditCard, User, Plus, LogOut, Home, Flame, Star } from 'lucide-react';
+import { 
+  Headphones, 
+  ListMusic, 
+  BookOpen, 
+  Brain, 
+  Star, 
+  Settings, 
+  LogOut, 
+  Home, 
+  Flame,
+  Music
+} from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -42,85 +53,96 @@ export const MedMngNavigation: React.FC = () => {
     <nav id="main-navigation" className="bg-card shadow-sm border-b sticky top-0 z-40" role="navigation" aria-label="Navigation principale">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          {/* Logo avec identité musicale */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(ROUTE_PATHS.home)}>
+            <div className="relative">
+              <Headphones className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <Music className="h-3 w-3 text-accent-foreground absolute -bottom-1 -right-1" />
+            </div>
             <span className="text-lg sm:text-xl font-bold text-foreground">
-              <TranslatedText text="MED-MNG" />
+              MED-MNG
             </span>
+            <Badge variant="outline" className="hidden sm:inline-flex text-xs text-muted-foreground">
+              🎵 Music Learning
+            </Badge>
           </div>
 
           {/* Gamification stats */}
           {gamificationStats && (
             <div className="hidden sm:flex items-center gap-2">
-              <Badge variant="outline" className="gap-1 py-1">
+              <Badge variant="outline" className="gap-1 py-1 border-warning/30 bg-warning/5">
                 <Flame className="h-3 w-3 text-warning" />
                 {gamificationStats.currentStreak}
               </Badge>
-              <Badge variant="outline" className="gap-1 py-1">
+              <Badge variant="outline" className="gap-1 py-1 border-primary/30 bg-primary/5">
                 <Star className="h-3 w-3 text-primary" />
                 Nv.{gamificationStats.level}
               </Badge>
             </div>
           )}
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Desktop Navigation - Orienté étudiant */}
+          <div className="hidden md:flex items-center gap-1">
             <Button
-              variant="ghost"
-              onClick={() => navigate(ROUTE_PATHS.home)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+              variant={isActive(ROUTE_PATHS.home) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.home, 'Accueil')}
+              className="flex items-center gap-2 px-3"
             >
               <Home className="h-4 w-4" />
-              <TranslatedText text="Accueil" />
+              Accueil
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngLibrary) ? 'default' : 'ghost'}
-              onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+              variant={isActive(ROUTE_PATHS.medMngLibrary) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngLibrary, 'Mes playlists')}
+              className="flex items-center gap-2 px-3"
             >
-              <Library className="h-4 w-4" />
-              <TranslatedText text="Bibliothèque" />
+              <ListMusic className="h-4 w-4" />
+              🎧 Mes playlists
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngCreate) ? 'default' : 'ghost'}
-              onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+              variant={isActive(ROUTE_PATHS.ednComplete) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.ednComplete, 'Mes items')}
+              className="flex items-center gap-2 px-3"
             >
-              <Plus className="h-4 w-4" />
-              <TranslatedText text="Créer" />
+              <BookOpen className="h-4 w-4" />
+              📚 Mes items
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngPricing) ? 'default' : 'ghost'}
-              onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+              variant={isActive(ROUTE_PATHS.progressDashboard) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.progressDashboard, 'Progression')}
+              className="flex items-center gap-2 px-3"
             >
-              <CreditCard className="h-4 w-4" />
-              <TranslatedText text="Abonnements" />
+              <Brain className="h-4 w-4" />
+              🧠 Progression
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngProfile) ? 'default' : 'ghost'}
-              onClick={() => navigate(ROUTE_PATHS.medMngProfile)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+              variant={isActive(ROUTE_PATHS.medMngProfile) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngProfile, 'Paramètres')}
+              className="flex items-center gap-2 px-3"
             >
-              <User className="h-4 w-4" />
-              <TranslatedText text="Profil" />
+              <Settings className="h-4 w-4" />
             </Button>
 
             <Button
               variant="ghost"
+              size="sm"
               onClick={handleSignOut}
-              className="flex items-center gap-2 text-destructive hover:text-destructive/90 hover:bg-destructive/10 px-3 py-2 rounded-lg transition-all"
+              className="flex items-center gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3"
             >
               <LogOut className="h-4 w-4" />
-              <TranslatedText text="Déconnexion" />
             </Button>
           </div>
 
-          {/* Mobile Navigation - Simplified header */}
+          {/* Mobile Navigation */}
           <div className="md:hidden flex items-center gap-2">
             <Button
               variant="ghost"
@@ -135,7 +157,7 @@ export const MedMngNavigation: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 p-2"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2"
             >
               <LogOut className="h-4 w-4" />
             </Button>
