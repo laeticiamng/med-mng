@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Med-MNG MVP Specification</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #fff;
+    }
+
+    @media print {
+      body {
+        padding: 20px;
+        font-size: 11pt;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+      table, pre {
+        page-break-inside: avoid;
+      }
+    }
+
+    h1 {
+      font-size: 2.2em;
+      color: #1e40af;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-style: italic;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      color: #1e40af;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    h3 {
+      font-size: 1.2em;
+      color: #374151;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+
+    h4 {
+      font-size: 1em;
+      color: #4b5563;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 12px;
+    }
+
+    ul, ol {
+      margin-left: 25px;
+      margin-bottom: 15px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .priority-p0 {
+      background: #fef2f2;
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .priority-p1 {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .priority-p2 {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    pre {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.85em;
+      margin: 15px 0;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9em;
+    }
+
+    .wireframe {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.75em;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.4;
+    }
+
+    .schema {
+      background: #fefce8;
+      border: 2px solid #fde047;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.7em;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.3;
+    }
+
+    .sql-code {
+      background: #0f172a;
+      color: #94a3b8;
+    }
+
+    .sql-code .keyword {
+      color: #c084fc;
+    }
+
+    .sql-code .string {
+      color: #86efac;
+    }
+
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .warning-box {
+      background: #fefce8;
+      border-left: 4px solid #eab308;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .success-box {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-green {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .badge-yellow {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .badge-red {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .toc {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+    }
+
+    .toc h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    .toc ul {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .toc li {
+      padding: 5px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .toc li:last-child {
+      border-bottom: none;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 30px 0;
+    }
+
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .two-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: #1e40af;
+    }
+
+    .metric-label {
+      color: #6b7280;
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Med-MNG MVP Specification</h1>
+  <p class="subtitle">Lead Produit & Architecture - Version 1.0 | Sprint 1 & 2 Planning</p>
+
+  <div class="toc">
+    <h3>Sommaire</h3>
+    <ul>
+      <li><strong>1.</strong> Structure Fonctionnelle MVP (5 pages)</li>
+      <li><strong>2.</strong> Modele de Donnees Supabase</li>
+      <li><strong>3.</strong> Criteres d'Acceptation</li>
+      <li><strong>4.</strong> Backlog Sprint 1 & 2</li>
+      <li><strong>Annexes</strong> Routes, Hooks, Composants</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ -->
+  <h2>1. Structure Fonctionnelle MVP (5 pages)</h2>
+  <!-- ============================================ -->
+
+  <h3>Architecture de Navigation</h3>
+
+  <div class="wireframe">┌─────────────────────────────────────────────────────────────┐
+│  [Logo] Med-MNG    [Search]    [Favoris] [Profil]           │
+├─────────────────────────────────────────────────────────────┤
+│  ┌────────────┐ ┌──────────┐ ┌───────────┐ ┌─────────┐      │
+│  │Bibliotheque│ │Playlists │ │Progression│ │ Favoris │      │
+│  └────────────┘ └──────────┘ └───────────┘ └─────────┘      │
+├─────────────────────────────────────────────────────────────┤
+│                      Content Area                           │
+├─────────────────────────────────────────────────────────────┤
+│  Player Audio (sticky bottom)                               │
+│  [<<] [Play/Pause] [>>]  ════○════  2:34 / 4:12  [Vol]     │
+└─────────────────────────────────────────────────────────────┘</div>
+
+  <h3>Page 1: Bibliotheque (Hub Principal)</h3>
+  <p><strong>Route:</strong> <code>/med-mng/library</code></p>
+
+  <h4>Fonctionnalites:</h4>
+  <ul>
+    <li>Barre de recherche globale (titre, item_code, specialite)</li>
+    <li>Filtres actifs:
+      <ul>
+        <li>Type: EDN / ECOS / SD (Situations Depart)</li>
+        <li>Specialite: Cardiologie, Pneumologie, etc.</li>
+        <li>Rang: A / B / Mix</li>
+        <li>Statut: Non revise / En cours / Revise</li>
+      </ul>
+    </li>
+    <li>Vue grille ou liste (toggle)</li>
+    <li>Tri: Recent, Alphabetique, % progression, Popularite</li>
+    <li>Carte item: titre, code, specialite, badge rang, icone audio, statut revision</li>
+  </ul>
+
+  <div class="wireframe">┌────────────────────────────────────────────────────────────┐
+│ [Rechercher un item, une specialite...]                    │
+├────────────────────────────────────────────────────────────┤
+│ [EDN v] [Specialite v] [Rang v] [Statut v]    [= Grille]  │
+├────────────────────────────────────────────────────────────┤
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │
+│ │ Item 157     │ │ Item 234     │ │ Item 312     │        │
+│ │ Cardiologie  │ │ Pneumologie  │ │ Neurologie   │        │
+│ │ ━━━━━━━━     │ │ ▓▓▓▓▓▓▓▓▓▓   │ │ ░░░░░░░░░░   │        │
+│ │ 60% revise   │ │ [Revise]     │ │ Non commence │        │
+│ │ [Audio] [Fav]│ │ [Audio] [Fav]│ │ [Audio] [Fav]│        │
+│ └──────────────┘ └──────────────┘ └──────────────┘        │
+└────────────────────────────────────────────────────────────┘</div>
+
+  <hr>
+
+  <h3>Page 2: Detail Item (Fiche + Audio)</h3>
+  <p><strong>Route:</strong> <code>/med-mng/items/:itemCode</code></p>
+
+  <h4>Fonctionnalites:</h4>
+  <ul>
+    <li>Header: titre, code, specialite, rang, tags</li>
+    <li>Section Fiche: tableaux responsives avec sections collapsibles</li>
+    <li>Section Audio: player inline avec selection rang A/B/Mix</li>
+    <li>Actions: Marquer revise, Ajouter favoris, Ajouter playlist</li>
+    <li>Navigation: Item precedent/suivant</li>
+  </ul>
+
+  <div class="wireframe">┌────────────────────────────────────────────────────────────┐
+│ <- Retour                         [Fav] [Playlist] [Revise]│
+├────────────────────────────────────────────────────────────┤
+│ Item 157 - Insuffisance cardiaque                          │
+│ Cardiologie - Rang A/B - EDN                               │
+├────────────────────────────────────────────────────────────┤
+│ ┌─ Audio Educatif ───────────────────────────────────────┐ │
+│ │  [Rang A v]                                            │ │
+│ │  [<<] [Play] [>>]  ═══════○════════  1:23 / 3:45      │ │
+│ │  Style: Rap FR - 120 BPM                               │ │
+│ └────────────────────────────────────────────────────────┘ │
+├────────────────────────────────────────────────────────────┤
+│ v Definition                                               │
+│   Syndrome clinique caracterise par...                     │
+├────────────────────────────────────────────────────────────┤
+│ v Etiologies (Tableau)                                     │
+│   ┌────────────────┬─────────────────┬──────────────────┐ │
+│   │ Cause          │ Mecanisme       │ Frequence        │ │
+│   ├────────────────┼─────────────────┼──────────────────┤ │
+│   │ Cardiopathie   │ Dilatation VG   │ +++              │ │
+│   │ ischémique     │                 │                  │ │
+│   ├────────────────┼─────────────────┼──────────────────┤ │
+│   │ HTA            │ Hypertrophie    │ ++               │ │
+│   └────────────────┴─────────────────┴──────────────────┘ │
+├────────────────────────────────────────────────────────────┤
+│ > Diagnostic                                               │
+│ > Traitement                                               │
+│ > Surveillance                                             │
+└────────────────────────────────────────────────────────────┘</div>
+
+  <hr>
+
+  <h3>Page 3: Playlists</h3>
+  <p><strong>Route:</strong> <code>/med-mng/playlists</code> et <code>/med-mng/playlists/:id</code></p>
+
+  <h4>Fonctionnalites:</h4>
+  <ul>
+    <li>Liste playlists utilisateur</li>
+    <li>Creation rapide playlist</li>
+    <li>Playlists suggerees (par specialite, par difficulte)</li>
+    <li>Detail playlist: drag-drop reordonnancement, lecture continue</li>
+    <li>Mode revision: lecture sequentielle avec pause entre items</li>
+  </ul>
+
+  <hr>
+
+  <h3>Page 4: Favoris</h3>
+  <p><strong>Route:</strong> <code>/med-mng/favorites</code></p>
+
+  <h4>Fonctionnalites:</h4>
+  <ul>
+    <li>Liste items favoris avec filtres rapides</li>
+    <li>Vue compacte ou detaillee</li>
+    <li>Actions groupees (ajouter a playlist, marquer revise)</li>
+    <li>Export liste favoris</li>
+  </ul>
+
+  <hr>
+
+  <h3>Page 5: Progression</h3>
+  <p><strong>Route:</strong> <code>/med-mng/progress</code></p>
+
+  <h4>Fonctionnalites:</h4>
+  <ul>
+    <li>Dashboard progression globale</li>
+    <li>Streak de revision (jours consecutifs)</li>
+    <li>Stats par specialite (% complete)</li>
+    <li>Historique recent</li>
+    <li>Objectifs hebdomadaires</li>
+  </ul>
+
+  <div class="wireframe">┌────────────────────────────────────────────────────────────┐
+│ Ma Progression                                             │
+├────────────────────────────────────────────────────────────┤
+│ ┌──────────────────────┐ ┌──────────────────────────────┐ │
+│ │ Streak: 7 jours      │ │ Cette semaine: 12/20 items  │ │
+│ │ Record: 15 jours     │ │ ████████████░░░░░░░░ 60%    │ │
+│ └──────────────────────┘ └──────────────────────────────┘ │
+├────────────────────────────────────────────────────────────┤
+│ Progression par Specialite                                 │
+│ ┌────────────────────────────────────────────────────────┐│
+│ │ Cardiologie    ████████████████████░░░░  80%  32/40   ││
+│ │ Pneumologie    ████████████░░░░░░░░░░░░  50%  18/36   ││
+│ │ Neurologie     ████████░░░░░░░░░░░░░░░░  35%  14/40   ││
+│ │ Infectiologie  ████░░░░░░░░░░░░░░░░░░░░  15%   6/40   ││
+│ └────────────────────────────────────────────────────────┘│
+└────────────────────────────────────────────────────────────┘</div>
+
+  <div class="page-break"></div>
+
+  <!-- ============================================ -->
+  <h2>2. Modele de Donnees Supabase</h2>
+  <!-- ============================================ -->
+
+  <h3>Schema Relationnel</h3>
+
+  <div class="schema">┌─────────────────┐       ┌─────────────────┐
+│    profiles     │       │   specialties   │
+├─────────────────┤       ├─────────────────┤
+│ id (PK)         │       │ id (PK)         │
+│ email           │       │ name            │
+│ name            │       │ code            │
+│ avatar_url      │       │ color           │
+│ streak_current  │       │ icon            │
+│ streak_best     │       └─────────────────┘
+│ last_active     │               │
+│ preferences     │               │
+└────────┬────────┘               │
+         │                        │
+         │    ┌───────────────────┤
+         │    │                   │
+         ▼    ▼                   ▼
+┌─────────────────┐       ┌─────────────────┐
+│  user_progress  │       │     items       │
+├─────────────────┤       ├─────────────────┤
+│ id (PK)         │◄──────│ id (PK)         │
+│ user_id (FK)    │       │ code            │
+│ item_id (FK)    │       │ title           │
+│ status          │       │ type            │
+│ last_seen_at    │       │ specialty_id    │
+│ revision_count  │       │ rang            │
+│ score           │       │ description     │
+│ time_spent      │       └────────┬────────┘
+└─────────────────┘                │
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   item_tags     │       │     fiches      │       │     audios      │
+├─────────────────┤       ├─────────────────┤       ├─────────────────┤
+│ item_id (FK)    │       │ id (PK)         │       │ id (PK)         │
+│ tag_id (FK)     │       │ item_id (FK)    │       │ item_id (FK)    │
+└─────────────────┘       │ title           │       │ rang            │
+         │                │ content (JSONB) │       │ url             │
+         ▼                │ type            │       │ stream_url      │
+┌─────────────────┐       │ position        │       │ duration        │
+│      tags       │       │ source_id       │       │ bpm             │
+├─────────────────┤       └─────────────────┘       │ style           │
+│ id (PK)         │                                 │ suno_id         │
+│ name            │                                 │ lyrics          │
+│ category        │                                 └─────────────────┘
+└─────────────────┘
+
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   playlists     │       │ playlist_items  │       │    favorites    │
+├─────────────────┤       ├─────────────────┤       ├─────────────────┤
+│ id (PK)         │◄──────│ id (PK)         │       │ id (PK)         │
+│ user_id (FK)    │       │ playlist_id (FK)│       │ user_id (FK)    │
+│ name            │       │ item_id (FK)    │       │ item_id (FK)    │
+│ description     │       │ audio_id (FK)   │       │ created_at      │
+│ is_public       │       │ position        │       └─────────────────┘
+│ item_count      │       │ added_at        │
+│ total_duration  │       └─────────────────┘
+└─────────────────┘</div>
+
+  <h3>Tables Principales</h3>
+
+  <table>
+    <tr>
+      <th>Table</th>
+      <th>Description</th>
+      <th>Champs cles</th>
+    </tr>
+    <tr>
+      <td><code>items</code></td>
+      <td>Items EDN/ECOS/SD</td>
+      <td>code, title, type, specialty_id, rang</td>
+    </tr>
+    <tr>
+      <td><code>fiches</code></td>
+      <td>Contenu structure (tableaux/texte)</td>
+      <td>item_id, title, content (JSONB), type, position</td>
+    </tr>
+    <tr>
+      <td><code>audios</code></td>
+      <td>Musique educative</td>
+      <td>item_id, rang, url, duration, bpm, style</td>
+    </tr>
+    <tr>
+      <td><code>user_progress</code></td>
+      <td>Progression par item</td>
+      <td>user_id, item_id, status, revision_count, score</td>
+    </tr>
+    <tr>
+      <td><code>favorites</code></td>
+      <td>Items favoris</td>
+      <td>user_id, item_id, created_at</td>
+    </tr>
+    <tr>
+      <td><code>playlists</code></td>
+      <td>Playlists utilisateur</td>
+      <td>user_id, name, is_public, item_count</td>
+    </tr>
+    <tr>
+      <td><code>study_sessions</code></td>
+      <td>Sessions pour calcul streak</td>
+      <td>user_id, date, items_revised</td>
+    </tr>
+  </table>
+
+  <h3>Structure JSONB pour Fiches (type='table')</h3>
+  <pre>{
+  "headers": ["Cause", "Mecanisme", "Frequence"],
+  "rows": [
+    ["Cardiopathie ischemique", "Dilatation VG", "+++"],
+    ["HTA", "Hypertrophie", "++"]
+  ],
+  "notes": "Principales causes d'IC en France"
+}</pre>
+
+  <h3>Trigger Streak Automatique</h3>
+  <div class="highlight-box">
+    <p><strong>Logique:</strong></p>
+    <ul>
+      <li>Si <code>last_study_date</code> = hier → increment streak</li>
+      <li>Si <code>last_study_date</code> &lt; hier-1 → reset streak a 1</li>
+      <li>Si <code>last_study_date</code> = aujourd'hui → ne rien faire</li>
+      <li>Mise a jour automatique de <code>streak_best</code> si nouveau record</li>
+    </ul>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ============================================ -->
+  <h2>3. Criteres d'Acceptation</h2>
+  <!-- ============================================ -->
+
+  <h3>3.1 Recherche + Filtres</h3>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Critere</th>
+      <th>Priorite</th>
+    </tr>
+    <tr>
+      <td>S-01</td>
+      <td>La recherche textuelle trouve les items par titre, code (EDN-157), et mots-cles</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>S-02</td>
+      <td>La recherche est insensible a la casse et aux accents</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>S-03</td>
+      <td>Les resultats apparaissent en &lt; 300ms apres 3 caracteres minimum</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>S-04</td>
+      <td>Le filtre Type (EDN/ECOS/SD) filtre correctement et est cumulable</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>S-05</td>
+      <td>Le filtre Specialite affiche les specialites avec compteur d'items</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>S-06</td>
+      <td>Le filtre Rang (A/B/Mix) filtre selon le rang principal de l'item</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>S-07</td>
+      <td>Le filtre Statut (Non revise/En cours/Revise) reflete la progression utilisateur</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>S-08</td>
+      <td>Les filtres actifs sont affiches comme chips cliquables pour suppression</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>S-09</td>
+      <td>L'URL reflete les filtres actifs (query params) pour partage/bookmark</td>
+      <td><span class="badge badge-green">P2</span></td>
+    </tr>
+    <tr>
+      <td>S-10</td>
+      <td>Un bouton "Reinitialiser" supprime tous les filtres</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+  </table>
+
+  <h3>3.2 Affichage Tableau Responsive</h3>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Critere</th>
+      <th>Priorite</th>
+    </tr>
+    <tr>
+      <td>T-01</td>
+      <td>Les tableaux s'affichent correctement sur desktop (&gt;1024px) en format classique</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>T-02</td>
+      <td>Sur tablette (768-1024px), les colonnes se reduisent proportionnellement</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>T-03</td>
+      <td>Sur mobile (&lt;768px), les tableaux passent en mode "card stack"</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>T-04</td>
+      <td>Chaque ligne de tableau mobile affiche label: valeur</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>T-05</td>
+      <td>Les tableaux &gt; 5 lignes sont scrollables horizontalement sur mobile</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>T-06</td>
+      <td>Le header du tableau reste sticky en scroll vertical</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+  </table>
+
+  <div class="highlight-box">
+    <p><strong>Breakpoints:</strong></p>
+    <ul>
+      <li>Mobile: &lt; 768px</li>
+      <li>Tablette: 768px - 1024px</li>
+      <li>Desktop: &gt; 1024px</li>
+    </ul>
+  </div>
+
+  <h3>3.3 Player Audio</h3>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Critere</th>
+      <th>Priorite</th>
+    </tr>
+    <tr>
+      <td>A-01</td>
+      <td>Le bouton Play/Pause alterne l'etat de lecture</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>A-02</td>
+      <td>La barre de progression affiche le temps ecoule/total</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>A-03</td>
+      <td>Click/drag sur la barre permet de seek</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>A-04</td>
+      <td>Le volume est ajustable via slider (0-100%)</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>A-05</td>
+      <td>L'etat volume est persiste en localStorage</td>
+      <td><span class="badge badge-green">P2</span></td>
+    </tr>
+    <tr>
+      <td>A-06</td>
+      <td>Previous/Next navigue dans la playlist courante</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>A-07</td>
+      <td>La lecture continue automatiquement au prochain track</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>A-08</td>
+      <td>Un indicateur de chargement s'affiche pendant le buffering</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>A-09</td>
+      <td>Le player sticky reste visible pendant la navigation</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+  </table>
+
+  <h3>3.4 Marquage "Revise"</h3>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Critere</th>
+      <th>Priorite</th>
+    </tr>
+    <tr>
+      <td>R-01</td>
+      <td>Un bouton "Marquer revise" est visible sur la page detail</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>R-02</td>
+      <td>Le statut passe de "not_started" -> "in_progress" au premier clic</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>R-03</td>
+      <td>Le statut passe de "in_progress" -> "revised" au second clic</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>R-04</td>
+      <td>L'utilisateur peut revenir en arriere (revised -> in_progress)</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>R-05</td>
+      <td>Un toast confirme le changement de statut</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>R-06</td>
+      <td>Le statut est visible dans la bibliotheque (badge colore)</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+  </table>
+
+  <div class="highlight-box">
+    <p><strong>Etats visuels:</strong></p>
+    <ul>
+      <li><span class="badge badge-blue">not_started</span> Gris + "A reviser"</li>
+      <li><span class="badge badge-yellow">in_progress</span> Orange + "En cours"</li>
+      <li><span class="badge badge-green">revised</span> Vert + "Revise"</li>
+    </ul>
+  </div>
+
+  <h3>3.5 Progression (Streak)</h3>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Critere</th>
+      <th>Priorite</th>
+    </tr>
+    <tr>
+      <td>P-01</td>
+      <td>Le streak affiche le nombre de jours consecutifs de revision</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>P-02</td>
+      <td>Une revision par jour minimum maintient le streak</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>P-03</td>
+      <td>Le streak se reset a 0 si un jour est manque</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>P-04</td>
+      <td>Le meilleur streak historique est affiche</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+    </tr>
+    <tr>
+      <td>P-05</td>
+      <td>Animation de celebration a +5, +10, +15 jours</td>
+      <td><span class="badge badge-green">P2</span></td>
+    </tr>
+    <tr>
+      <td>P-06</td>
+      <td>Progress bar "Cette semaine" affiche items revises vs objectif</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+    <tr>
+      <td>P-07</td>
+      <td>L'objectif hebdomadaire est configurable (5/10/15/20 items)</td>
+      <td><span class="badge badge-green">P2</span></td>
+    </tr>
+    <tr>
+      <td>P-08</td>
+      <td>Stats par specialite en barres horizontales</td>
+      <td><span class="badge badge-red">P0</span></td>
+    </tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ============================================ -->
+  <h2>4. Backlog Sprint 1 & 2</h2>
+  <!-- ============================================ -->
+
+  <h3>Sprint 1: MVP Core (2 semaines)</h3>
+  <p><strong>Objectif:</strong> Parcours utilisateur complet Bibliotheque -> Detail -> Revision</p>
+
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Story</th>
+      <th>Points</th>
+      <th>Priorite</th>
+      <th>Risque</th>
+    </tr>
+    <tr>
+      <td>1.1</td>
+      <td><strong>Migration DB:</strong> Creer tables items, fiches, audios, user_progress</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>1.2</td>
+      <td><strong>Seed data:</strong> Importer 20 items EDN avec fiches + audios</td>
+      <td>2</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.3</td>
+      <td><strong>API items:</strong> CRUD items + recherche full-text</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.4</td>
+      <td><strong>Bibliotheque:</strong> Page liste avec cards + filtres</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.5</td>
+      <td><strong>Recherche:</strong> Barre recherche + debounce + highlight</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.6</td>
+      <td><strong>Detail item:</strong> Page avec sections collapsibles</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>1.7</td>
+      <td><strong>Tableaux responsive:</strong> Composant tableau adaptatif</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>1.8</td>
+      <td><strong>Player audio:</strong> Integration player existant sur detail</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.9</td>
+      <td><strong>Marquage revise:</strong> Toggle statut + sync DB</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>1.10</td>
+      <td><strong>User progress:</strong> Hook + context progression</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+  </table>
+
+  <div class="success-box">
+    <p><strong>Total Sprint 1:</strong> 37 points</p>
+  </div>
+
+  <h4>Risques Sprint 1</h4>
+  <table>
+    <tr>
+      <th>Risque</th>
+      <th>Impact</th>
+      <th>Mitigation</th>
+    </tr>
+    <tr>
+      <td>Schema migration complexe</td>
+      <td>Retard 2j</td>
+      <td>Preparer rollback, tester en staging</td>
+    </tr>
+    <tr>
+      <td>Performance recherche full-text</td>
+      <td>UX degradee</td>
+      <td>Index GIN, pagination, cache React Query</td>
+    </tr>
+    <tr>
+      <td>Tableaux casses sur mobile</td>
+      <td>Frustration users</td>
+      <td>Design mobile-first, tests reels device</td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <h3>Sprint 2: Features & Polish (2 semaines)</h3>
+  <p><strong>Objectif:</strong> Playlists, Favoris, Progression, Polish UX</p>
+
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Story</th>
+      <th>Points</th>
+      <th>Priorite</th>
+      <th>Risque</th>
+    </tr>
+    <tr>
+      <td>2.1</td>
+      <td><strong>Page Progression:</strong> Dashboard streak + stats</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.2</td>
+      <td><strong>Calcul streak:</strong> Trigger DB + affichage temps reel</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>2.3</td>
+      <td><strong>Page Favoris:</strong> Liste + actions groupees</td>
+      <td>3</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.4</td>
+      <td><strong>Playlists enhance:</strong> Integration items (pas juste songs)</td>
+      <td>5</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>2.5</td>
+      <td><strong>Navigation items:</strong> Prev/Next dans detail</td>
+      <td>2</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.6</td>
+      <td><strong>Filtres avances:</strong> Combinaison multi-filtres + URL sync</td>
+      <td>3</td>
+      <td><span class="badge badge-yellow">P1</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.7</td>
+      <td><strong>Objectifs hebdo:</strong> Config + tracking</td>
+      <td>3</td>
+      <td><span class="badge badge-green">P2</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.8</td>
+      <td><strong>Animations:</strong> Transitions pages + celebrations streak</td>
+      <td>2</td>
+      <td><span class="badge badge-green">P2</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.9</td>
+      <td><strong>PWA update:</strong> Manifest + offline basics</td>
+      <td>3</td>
+      <td><span class="badge badge-green">P2</span></td>
+      <td><span class="badge badge-yellow">Moyen</span></td>
+    </tr>
+    <tr>
+      <td>2.10</td>
+      <td><strong>Tests E2E:</strong> Parcours critiques (5 scenarios)</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td><span class="badge badge-green">Bas</span></td>
+    </tr>
+    <tr>
+      <td>2.11</td>
+      <td><strong>Bug fixes & polish:</strong> Buffer pour imprevus</td>
+      <td>5</td>
+      <td><span class="badge badge-red">P0</span></td>
+      <td>-</td>
+    </tr>
+  </table>
+
+  <div class="success-box">
+    <p><strong>Total Sprint 2:</strong> 39 points</p>
+  </div>
+
+  <hr>
+
+  <h3>Definition of Done (Global)</h3>
+  <ul>
+    <li>Code review passee</li>
+    <li>Tests unitaires couvrant les cas nominaux</li>
+    <li>Pas de regression Lighthouse (perf &gt; 80, a11y &gt; 90)</li>
+    <li>Teste sur Chrome + Safari mobile</li>
+    <li>Documentation API mise a jour</li>
+    <li>Feature flag si necessaire</li>
+  </ul>
+
+  <h3>Metriques de Succes MVP</h3>
+
+  <table>
+    <tr>
+      <th>Metrique</th>
+      <th>Cible Sprint 1</th>
+      <th>Cible Sprint 2</th>
+    </tr>
+    <tr>
+      <td>Items navigables</td>
+      <td>20</td>
+      <td>50+</td>
+    </tr>
+    <tr>
+      <td>Temps chargement bibliotheque</td>
+      <td>&lt; 2s</td>
+      <td>&lt; 1.5s</td>
+    </tr>
+    <tr>
+      <td>Taux completion parcours</td>
+      <td>60%</td>
+      <td>75%</td>
+    </tr>
+    <tr>
+      <td>Streak moyen users actifs</td>
+      <td>2 jours</td>
+      <td>4 jours</td>
+    </tr>
+    <tr>
+      <td>Bugs critiques</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>Satisfaction utilisateur (NPS)</td>
+      <td>-</td>
+      <td>&gt; 40</td>
+    </tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ============================================ -->
+  <h2>Annexes</h2>
+  <!-- ============================================ -->
+
+  <h3>A. Routes a creer/modifier</h3>
+  <pre>// src/config/routes.ts - Nouvelles routes
+{ path: '/med-mng/items/:itemCode', component: ItemDetail },
+{ path: '/med-mng/favorites', component: Favorites },
+{ path: '/med-mng/progress', component: ProgressDashboard },
+
+// Routes existantes a enrichir
+{ path: '/med-mng/library', component: MedMngLibrary }, // Ajouter filtres
+{ path: '/med-mng/playlists', component: PlaylistManager }, // Support items</pre>
+
+  <h3>B. Hooks a creer</h3>
+  <pre>// Nouveaux hooks
+useItems(filters)           // Fetch items avec filtres
+useItemDetail(itemCode)     // Detail item + fiches + audios
+useUserProgress(userId)     // Progression globale
+useStreak(userId)           // Calcul et affichage streak
+useFavorites(userId)        // CRUD favoris
+useResponsiveTable()        // Detection breakpoint pour tableaux</pre>
+
+  <h3>C. Composants a creer</h3>
+  <pre>src/components/
+├── items/
+│   ├── ItemCard.tsx
+│   ├── ItemDetail.tsx
+│   ├── ItemFilters.tsx
+│   └── ItemSearch.tsx
+├── fiches/
+│   ├── FicheSection.tsx
+│   ├── ResponsiveTable.tsx
+│   └── CollapsibleSection.tsx
+├── progress/
+│   ├── StreakDisplay.tsx
+│   ├── ProgressBar.tsx
+│   ├── SpecialtyProgress.tsx
+│   └── WeeklyGoal.tsx
+└── favorites/
+    └── FavoritesList.tsx</pre>
+
+  <footer>
+    <p>Med-MNG MVP Specification v1.0 | Generated December 2024</p>
+    <p>Lead Produit & Architecture</p>
+  </footer>
+
+</body>
+</html>
