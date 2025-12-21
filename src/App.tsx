@@ -80,12 +80,16 @@ const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(m => (
 const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(m => ({ default: m.MedMngSuccess })));
 const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(m => ({ default: m.MedMngCreate })));
 const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(m => ({ default: m.MedMngLibrary })));
+const MedMngItemsLibrary = lazy(() => import("./pages/MedMngItemsLibrary").then(m => ({ default: m.MedMngItemsLibrary })));
+const MedMngItemDetail = lazy(() => import("./pages/MedMngItemDetail").then(m => ({ default: m.MedMngItemDetail })));
 const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(m => ({ default: m.MedMngProfile })));
 const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(m => ({ default: m.MedMngPlayer })));
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(m => ({ default: m.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(m => ({ default: m.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(m => ({ default: m.MusicAnalytics })));
 const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.MedChat })));
+const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
+const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
 
 // 📊 AUDIT PAGES - Lazy loaded
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
@@ -228,12 +232,16 @@ const App = () => {
           <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSubscribe /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngSuccess} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSuccess /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngCreate /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngLibrary} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLibrary /></Suspense></ProtectedRoute>} />
+          <Route path={ROUTE_PATHS.medMngMusicLibrary} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLibrary /></Suspense></ProtectedRoute>} />
+          <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngItemsLibrary /></Suspense></ProtectedRoute>} />
+          <Route path={ROUTE_PATHS.medMngItemDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngItemDetail /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngProfile} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProfile /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngPlayer} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPlayer /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngPlaylists} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistManager /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngPlaylistDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistDetail /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
+          <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProgress /></Suspense></ProtectedRoute>} />
+          <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngFavorites /></Suspense></ProtectedRoute>} />
            <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
            

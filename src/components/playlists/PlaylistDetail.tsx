@@ -285,7 +285,7 @@ export const PlaylistDetail = () => {
           <p className="text-muted-foreground mb-6">
             <TranslatedText text="Ajoutez des chansons à cette playlist depuis votre bibliothèque" />
           </p>
-          <Button onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}>
             <TranslatedText text="Parcourir ma bibliothèque" />
           </Button>
         </Card>

@@ -12,7 +12,8 @@ import {
   LogOut, 
   Home, 
   Flame,
-  Music
+  Music,
+  Heart
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -94,13 +95,13 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngLibrary) ? 'secondary' : 'ghost'}
+              variant={isActive(ROUTE_PATHS.medMngItemsLibrary) ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => handleNavigation(ROUTE_PATHS.medMngLibrary, 'Mes playlists')}
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngItemsLibrary, 'Bibliothèque')}
               className="flex items-center gap-2 px-3"
             >
               <ListMusic className="h-4 w-4" />
-              🎧 Mes playlists
+              📚 Bibliothèque
             </Button>
 
             <Button
@@ -114,13 +115,23 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.progressDashboard) ? 'secondary' : 'ghost'}
+              variant={isActive(ROUTE_PATHS.medMngProgress) ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => handleNavigation(ROUTE_PATHS.progressDashboard, 'Progression')}
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngProgress, 'Progression')}
               className="flex items-center gap-2 px-3"
             >
               <Brain className="h-4 w-4" />
               🧠 Progression
+            </Button>
+
+            <Button
+              variant={isActive(ROUTE_PATHS.medMngFavorites) ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngFavorites, 'Favoris')}
+              className="flex items-center gap-2 px-3"
+            >
+              <Heart className="h-4 w-4" />
+              ❤️ Favoris
             </Button>
 
             <Button
