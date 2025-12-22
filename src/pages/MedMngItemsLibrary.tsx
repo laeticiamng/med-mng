@@ -50,7 +50,7 @@ const MedMngItemsLibraryComponent = () => {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 250);
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 400);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 

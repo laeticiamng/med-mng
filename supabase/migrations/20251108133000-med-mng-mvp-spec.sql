@@ -42,12 +42,15 @@ create index if not exists idx_items_type on public.items(type);
 create index if not exists idx_items_specialty on public.items(specialty_id);
 create index if not exists idx_items_keywords on public.items using gin(keywords);
 
--- Rename item_type -> type when needed
+-- Rename item_type -> type when needed (only if type doesn't already exist)
 DO $$
 BEGIN
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'items' AND column_name = 'item_type'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'items' AND column_name = 'type'
   ) THEN
     EXECUTE 'alter table public.items rename column item_type to type';
   END IF;
@@ -95,12 +98,18 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'audio_url'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'url'
   ) THEN
     EXECUTE 'alter table public.audios rename column audio_url to url';
   END IF;
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'duration_seconds'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'duration'
   ) THEN
     EXECUTE 'alter table public.audios rename column duration_seconds to duration';
   END IF;
@@ -112,7 +121,7 @@ BEGIN
     SELECT 1 FROM information_schema.table_constraints
     WHERE table_schema = 'public' AND table_name = 'audios' AND constraint_name = 'audios_rang_check'
   ) THEN
-    EXECUTE 'alter table public.audios add constraint audios_rang_check check (rang in (''A'', ''B'', ''mix'')) not valid';
+    EXECUTE 'alter table public.audios add constraint audios_rang_check check (rang in (''A'', ''B'', ''AB'')) not valid';
   END IF;
 END $$;
 
@@ -155,13 +164,41 @@ BEGIN
   END IF;
 END $$;
 
+-- Migrate old status values to new values
+update public.user_progress
+set status = case
+  when status = 'todo' then 'not_started'
+  when status = 'done' then 'revised'
+  else status
+end
+where status in ('todo', 'done');
+
+-- Ensure all existing rows have a UUID before changing primary key
+update public.user_progress
+  set id = gen_random_uuid()
+  where id is null;
+
+alter table public.user_progress
+  alter column id set not null;
+
 DO $$
+DECLARE
+  pk_name text;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.table_constraints
-    WHERE table_schema = 'public' AND table_name = 'user_progress' AND constraint_type = 'PRIMARY KEY'
-  ) THEN
-    EXECUTE 'alter table public.user_progress drop constraint user_progress_pkey';
+  -- Check if a primary key exists and drop it
+  SELECT constraint_name
+  INTO pk_name
+  FROM information_schema.table_constraints
+  WHERE table_schema = 'public'
+    AND table_name = 'user_progress'
+    AND constraint_type = 'PRIMARY KEY'
+  LIMIT 1;
+
+  IF pk_name IS NOT NULL THEN
+    EXECUTE format(
+      'alter table public.user_progress drop constraint %I',
+      pk_name
+    );
   END IF;
 END $$;
 
@@ -183,22 +220,72 @@ alter table public.user_progress
 
 create index if not exists idx_progress_user on public.user_progress(user_id);
 create index if not exists idx_progress_status on public.user_progress(status);
+create index if not exists idx_progress_user_status on public.user_progress(user_id, status);
 
 -- Favorites adjustments
-alter table public.favorites add column if not exists id uuid default gen_random_uuid();
 DO $$
+DECLARE
+  v_has_user_id boolean;
+  v_has_item_id boolean;
+  v_has_pk      boolean;
+  pk_name       text;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.table_constraints
-    WHERE table_schema = 'public' AND table_name = 'favorites' AND constraint_type = 'PRIMARY KEY'
-  ) THEN
-    EXECUTE 'alter table public.favorites drop constraint favorites_pkey';
+  -- If the favorites table does not exist, skip adjustments.
+  IF to_regclass('public.favorites') IS NULL THEN
+    RETURN;
+  END IF;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'favorites'
+      AND column_name  = 'user_id'
+  ) INTO v_has_user_id;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'favorites'
+      AND column_name  = 'item_id'
+  ) INTO v_has_item_id;
+
+  -- Ensure the id column exists.
+  EXECUTE 'alter table public.favorites add column if not exists id uuid default gen_random_uuid()';
+
+  -- Ensure all existing favorites rows have a UUID before adding the primary key
+  EXECUTE 'update public.favorites set id = gen_random_uuid() where id is null';
+  
+  EXECUTE 'alter table public.favorites alter column id set not null';
+
+  -- Check if a primary key already exists on favorites.
+  SELECT constraint_name
+  INTO pk_name
+  FROM information_schema.table_constraints
+  WHERE table_schema = 'public'
+    AND table_name = 'favorites'
+    AND constraint_type = 'PRIMARY KEY'
+  LIMIT 1;
+
+  -- Drop existing primary key if present (to allow changing it to id).
+  IF pk_name IS NOT NULL THEN
+    EXECUTE format('alter table public.favorites drop constraint %I', pk_name);
+  END IF;
+
+  -- Add primary key on id
+  EXECUTE 'alter table public.favorites add primary key (id)';
+
+  -- Only create the unique index if user_id and item_id both exist.
+  IF v_has_user_id AND v_has_item_id THEN
+    EXECUTE 'create unique index if not exists favorites_user_item_unique on public.favorites(user_id, item_id)';
+  END IF;
+
+  -- Create user_id index only if user_id exists.
+  IF v_has_user_id THEN
+    EXECUTE 'create index if not exists idx_favorites_user on public.favorites(user_id)';
   END IF;
 END $$;
-
-alter table public.favorites add primary key (id);
-create unique index if not exists favorites_user_item_unique on public.favorites(user_id, item_id);
-create index if not exists idx_favorites_user on public.favorites(user_id);
 
 -- Playlists
 create table if not exists public.playlists (
@@ -253,6 +340,12 @@ create policy "Users can manage own playlists" on public.playlists
 
 create policy "Users can manage own playlist items" on public.playlist_items
   for all using (
+    exists (
+      select 1 from public.playlists
+      where playlists.id = playlist_items.playlist_id
+      and playlists.user_id = auth.uid()
+    )
+  ) with check (
     exists (
       select 1 from public.playlists
       where playlists.id = playlist_items.playlist_id
