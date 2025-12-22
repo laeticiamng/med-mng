@@ -104,30 +104,55 @@ const MedMngFavoritesComponent = () => {
       return;
     }
 
-    await Promise.all(
-      selectedIds.map(itemId => toggleFavoriteItem({ userId: user.id, itemId, isFavorite: true }))
-    );
+    try {
+      await Promise.all(
+        selectedIds.map(itemId =>
+          toggleFavoriteItem({ userId: user.id, itemId, isFavorite: true })
+        )
+      );
 
-    setSelectedIds([]);
-    toast({
-      title: 'Favoris mis à jour',
-      description: 'Les items sélectionnés ont été retirés des favoris.',
-    });
-    await refetch();
+      setSelectedIds([]);
+      toast({
+        title: 'Favoris mis à jour',
+        description: 'Les items sélectionnés ont été retirés des favoris.',
+      });
+      await refetch();
+    } catch (error) {
+      console.error('Failed to remove selected favorites', error);
+      toast({
+        title: 'Erreur lors de la mise à jour des favoris',
+        description: 'Une erreur est survenue lors du retrait des items sélectionnés des favoris.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleExport = () => {
+    const escapeCsvField = (value: unknown): string => {
+      const stringValue = value === null || value === undefined ? '' : String(value);
+      const escaped = stringValue.replace(/"/g, '""');
+      return `"${escaped}"`;
+    };
+
     const rows = favorites.map(item => ({
       code: item.code,
       title: item.title,
       specialty: item.specialty ?? '',
       status: item.status,
     }));
+
     const header = 'code,title,specialty,status';
     const csv = [
       header,
-      ...rows.map(row => `${row.code},\"${row.title}\",\"${row.specialty}\",${row.status}`),
-    ].join('\\n');
+      ...rows.map(row =>
+        [
+          escapeCsvField(row.code),
+          escapeCsvField(row.title),
+          escapeCsvField(row.specialty),
+          escapeCsvField(row.status),
+        ].join(',')
+      ),
+    ].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
