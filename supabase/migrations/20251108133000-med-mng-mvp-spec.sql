@@ -249,10 +249,20 @@ alter table public.study_sessions enable row level security;
 create policy "Users can view own/public playlists" on public.playlists
   for select using (auth.uid() = user_id or is_public = true);
 create policy "Users can manage own playlists" on public.playlists
-  for all using (auth.uid() = user_id);
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 create policy "Users can manage own playlist items" on public.playlist_items
-  for all using (
+  for all
+  using (
+    exists (
+      select 1 from public.playlists
+      where playlists.id = playlist_items.playlist_id
+      and playlists.user_id = auth.uid()
+    )
+  )
+  with check (
     exists (
       select 1 from public.playlists
       where playlists.id = playlist_items.playlist_id
@@ -261,7 +271,9 @@ create policy "Users can manage own playlist items" on public.playlist_items
   );
 
 create policy "Users can manage own sessions" on public.study_sessions
-  for all using (auth.uid() = user_id);
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 -- Functions & triggers
 create or replace function public.update_user_streak()
