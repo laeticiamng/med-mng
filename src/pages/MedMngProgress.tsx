@@ -9,9 +9,11 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { fetchProgressOverview } from '@/services/medMngItemsService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const MedMngProgressComponent = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['med-mng-progress', user?.id],
