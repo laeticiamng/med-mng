@@ -11,8 +11,8 @@ import type {
   ProgressItem,
 } from '@/types/medMngItems';
 
-const mapTags = (itemTags?: { tags: { name: string } }[] | null): string[] => {
-  const names = (itemTags ?? []).map(tag => tag.tags.name).filter(Boolean);
+const mapTags = (itemTags?: { tags?: { name?: string } }[] | null): string[] => {
+  const names = (itemTags ?? []).map(tag => tag.tags?.name).filter((n): n is string => Boolean(n));
   return Array.from(new Set(names));
 };
 
@@ -30,7 +30,7 @@ const mapStatus = (status?: string | ItemStatus | null): ItemStatus => {
 };
 
 export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]> => {
-  const { data: itemsData, error } = await supabase
+  const { data: itemsData, error } = await (supabase as any)
     .from('items')
     .select(
       'id, code, title, type, rang, created_at, keywords, specialties(name, code), item_tags(tags(name)), audios(id)'
@@ -49,10 +49,10 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
 
   const [favoritesResponse, progressResponse] = await Promise.all([
     userId
-      ? supabase.from('favorites').select('item_id').eq('user_id', userId)
+      ? (supabase as any).from('favorites').select('item_id').eq('user_id', userId)
       : Promise.resolve({ data: [] as { item_id: string }[] }),
     userId
-      ? supabase
+      ? (supabase as any)
           .from('user_progress')
           .select('item_id, status, last_seen_at, revision_count, score')
           .eq('user_id', userId)
@@ -67,13 +67,13 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
         }),
   ]);
 
-  const favoriteIds = new Set((favoritesResponse.data ?? []).map(item => item.item_id));
+  const favoriteIds = new Set((favoritesResponse.data ?? []).map((item: any) => item.item_id));
   const progressMap = new Map(
-    (progressResponse.data ?? []).map(item => [item.item_id, item])
+    (progressResponse.data ?? []).map((item: any) => [item.item_id, item])
   );
 
   return parsedItems.data.map(item => {
-    const progress = progressMap.get(item.id);
+    const progress = progressMap.get(item.id) as any;
 
     return {
       id: item.id,
@@ -101,7 +101,7 @@ export const fetchItemDetail = async (
   itemCode: string,
   userId?: string
 ): Promise<ItemDetail> => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('items')
     .select(
       'id, code, title, type, rang, created_at, keywords, specialties(name, code), fiches(id, title, content, type, rang), audios(id, title, url, stream_url, duration, rang, bpm, style), item_tags(tags(name))'
@@ -125,7 +125,7 @@ export const fetchItemDetail = async (
 
   const [favoritesResponse, progressResponse] = await Promise.all([
     userId
-      ? supabase
+      ? (supabase as any)
           .from('favorites')
           .select('item_id')
           .eq('user_id', userId)
@@ -133,7 +133,7 @@ export const fetchItemDetail = async (
           .maybeSingle()
       : Promise.resolve({ data: null as { item_id: string } | null }),
     userId
-      ? supabase
+      ? (supabase as any)
           .from('user_progress')
           .select('status, last_seen_at, revision_count, score')
           .eq('user_id', userId)
@@ -149,7 +149,7 @@ export const fetchItemDetail = async (
         }),
   ]);
 
-  const progress = progressResponse.data;
+  const progress = progressResponse.data as any;
 
   return {
     id: parsed.data.id,
@@ -184,6 +184,8 @@ export const fetchItemDetail = async (
     isFavorite: Boolean(favoritesResponse.data),
     revisionCount: progress?.revision_count ?? 0,
     score: progress?.score ?? 0,
+    hasAudio: Boolean(parsed.data.audios && parsed.data.audios.length > 0),
+    popularityScore: progress?.revision_count ?? 0,
   };
 };
 
@@ -202,7 +204,7 @@ export const upsertItemProgress = async ({
   revisionCount: number;
   score: number;
 }) => {
-  const { error } = await supabase.from('user_progress').upsert(
+  const { error } = await (supabase as any).from('user_progress').upsert(
     {
       user_id: userId,
       item_id: itemId,
@@ -230,7 +232,7 @@ export const toggleFavoriteItem = async ({
   isFavorite: boolean;
 }) => {
   if (isFavorite) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('favorites')
       .delete()
       .eq('user_id', userId)
@@ -243,7 +245,7 @@ export const toggleFavoriteItem = async ({
     return false;
   }
 
-  const { error } = await supabase.from('favorites').insert({
+  const { error } = await (supabase as any).from('favorites').insert({
     user_id: userId,
     item_id: itemId,
   });
@@ -260,8 +262,8 @@ export const fetchProgressOverview = async (
 ): Promise<ProgressOverview> => {
   const [itemsCountResponse, progressResponse, profileResponse, sessionsResponse] =
     await Promise.all([
-      supabase.from('items').select('id', { count: 'exact', head: true }),
-      supabase
+      (supabase as any).from('items').select('id', { count: 'exact', head: true }),
+      (supabase as any)
         .from('user_progress')
         .select('item_id, status, last_seen_at, revision_count, items(id, code, title, type, specialties(name, code))')
         .eq('user_id', userId),
@@ -270,7 +272,7 @@ export const fetchProgressOverview = async (
         .select('streak_current, streak_best, weekly_goal')
         .eq('id', userId)
         .maybeSingle(),
-      supabase
+      (supabase as any)
         .from('study_sessions')
         .select('date, items_revised')
         .eq('user_id', userId)
@@ -294,7 +296,7 @@ export const fetchProgressOverview = async (
     throw sessionsResponse.error;
   }
 
-  const progressItems = (progressResponse.data ?? []).map(row => {
+  const progressItems = (progressResponse.data ?? []).map((row: any) => {
     const item = row.items as {
       id: string;
       code: string;
@@ -320,50 +322,48 @@ export const fetchProgressOverview = async (
     } satisfies ProgressItem;
   });
 
-  const deletedItemsCount = progressItems.filter(item => item === null).length;
+  const deletedItemsCount = progressItems.filter((item: any) => item === null).length;
   const totalProgressItems = progressItems.length;
   const deletedItemsRatio =
     totalProgressItems > 0 ? deletedItemsCount / totalProgressItems : 0;
 
   if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
-    // A significant portion of the user's progress references deleted items.
-    // Stats below are computed only on existing items.
     console.warn(
       `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
         'reference deleted content. Progress overview stats are based only on existing items.'
     );
   }
   const validProgressItems = progressItems.filter(
-    (item): item is ProgressItem => Boolean(item)
+    (item: any): item is ProgressItem => Boolean(item)
   );
 
-  const revisedCount = validProgressItems.filter(item => item.status === 'revised')
+  const revisedCount = validProgressItems.filter((item: any) => item.status === 'revised')
     .length;
   const inProgressCount = validProgressItems.filter(
-    item => item.status === 'in_progress'
+    (item: any) => item.status === 'in_progress'
   ).length;
-  const notStartedCount = validProgressItems.filter(item => item.status === 'not_started')
+  const notStartedCount = validProgressItems.filter((item: any) => item.status === 'not_started')
     .length;
-  const streakCurrent = profileResponse.data?.streak_current ?? 0;
-  const streakBest = profileResponse.data?.streak_best ?? 0;
-  const weeklyGoal = profileResponse.data?.weekly_goal ?? 10;
+  const profileData = profileResponse.data as any;
+  const streakCurrent = profileData?.streak_current ?? 0;
+  const streakBest = profileData?.streak_best ?? 0;
+  const weeklyGoal = profileData?.weekly_goal ?? 10;
   const weeklyRevisedCount = (sessionsResponse.data ?? []).reduce(
-    (sum, session) => sum + (session.items_revised ?? 0),
+    (sum: number, session: any) => sum + (session.items_revised ?? 0),
     0
   );
 
-  const specialtyStats = validProgressItems.reduce<Record<string, { total: number; revised: number }>>(
-    (acc, item) => {
-      const specialtyLabel = item.specialty ?? 'Sans spécialité';
-      acc[specialtyLabel] = acc[specialtyLabel] ?? { total: 0, revised: 0 };
-      acc[specialtyLabel].total += 1;
-      if (item.status === 'revised') {
-        acc[specialtyLabel].revised += 1;
-      }
-      return acc;
-    },
-    {}
-  );
+  const specialtyStats: Record<string, { total: number; revised: number }> = {};
+  validProgressItems.forEach((item: any) => {
+    const specialtyLabel = item.specialty ?? 'Sans spécialité';
+    if (!specialtyStats[specialtyLabel]) {
+      specialtyStats[specialtyLabel] = { total: 0, revised: 0 };
+    }
+    specialtyStats[specialtyLabel].total += 1;
+    if (item.status === 'revised') {
+      specialtyStats[specialtyLabel].revised += 1;
+    }
+  });
 
   return {
     totalItems: itemsCountResponse.count ?? 0,
@@ -379,13 +379,13 @@ export const fetchProgressOverview = async (
       total: values.total,
       revised: values.revised,
     })),
-    recentActivity: (sessionsResponse.data ?? []).map(session => ({
+    recentActivity: (sessionsResponse.data ?? []).map((session: any) => ({
       date: session.date,
       revisedCount: session.items_revised ?? 0,
     })),
     itemsToReview: validProgressItems
-      .filter(item => item.status !== 'revised')
-      .sort((a, b) => {
+      .filter((item: any) => item.status !== 'revised')
+      .sort((a: any, b: any) => {
         const aTime = a.lastSeenAt ? new Date(a.lastSeenAt).getTime() : 0;
         const bTime = b.lastSeenAt ? new Date(b.lastSeenAt).getTime() : 0;
         return aTime - bTime;
