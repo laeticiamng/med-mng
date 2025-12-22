@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicLibrary } from './useMusicLibrary';
+import { supabase } from '@/integrations/supabase/client';
 
 export type RangType = 'A' | 'B' | 'Mix';
 
@@ -40,16 +41,13 @@ export const useMusicGeneration = () => {
       // Construire le prompt basé sur le tableau et le rang
       const prompt = buildMedicalPrompt(itemCode, rang, tableauData);
       
-      setGenerationProgress('Génération de la musique Suno...');
+      setGenerationProgress('Génération de la musique...');
 
-      const response = await fetch('/api/med-mng/songs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Use Supabase edge function instead of /api endpoint
+      const { data: result, error } = await supabase.functions.invoke('generate-music', {
+        body: {
           title: `${itemCode} Rang ${rang} - Compétences Médicales`,
-          suno_audio_id: `${itemCode}-${rang}-${Date.now()}`, // Temporaire, sera remplacé par Suno
+          suno_audio_id: `${itemCode}-${rang}-${Date.now()}`,
           meta: {
             itemCode,
             rang,
@@ -58,27 +56,24 @@ export const useMusicGeneration = () => {
             style: 'educatif-medical',
             generated_at: new Date().toISOString()
           }
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la génération musicale');
+      if (error) {
+        throw new Error(error.message || 'Erreur lors de la génération musicale');
       }
-
-      const result = await response.json();
       
       setGenerationProgress('Ajout à votre bibliothèque...');
 
-      // Ajouter automatiquement à la bibliothèque
-      await fetch('/api/med-mng/library', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          song_id: result.id
-        }),
-      });
+      // Add to library via Supabase directly
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && result?.id) {
+        await supabase.from('med_mng_library' as any).insert({
+          user_id: user.id,
+          song_id: result.id,
+          added_at: new Date().toISOString()
+        });
+      }
 
       // Rafraîchir la bibliothèque
       await loadLibrary();
