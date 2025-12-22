@@ -50,24 +50,53 @@ const MedMngFavoritesComponent = () => {
     }
 
     const itemsToUpdate = favorites.filter(item => selectedIds.includes(item.id));
-    await Promise.all(
-      itemsToUpdate.map(item =>
-        upsertItemProgress({
-          userId: user.id,
-          itemId: item.id,
-          status: 'revised',
-          lastSeenAt: new Date().toISOString(),
-          revisionCount: item.revisionCount + 1,
-          score: 100,
-        })
-      )
-    );
 
-    toast({
-      title: 'Favoris mis à jour',
-      description: 'Les items sélectionnés sont marqués comme révisés.',
-    });
-    await refetch();
+    // If nothing is selected, do nothing to avoid misleading toasts.
+    if (itemsToUpdate.length === 0) {
+      return;
+    }
+
+    try {
+      const results = await Promise.allSettled(
+        itemsToUpdate.map(item =>
+          upsertItemProgress({
+            userId: user.id,
+            itemId: item.id,
+            status: 'revised',
+            lastSeenAt: new Date().toISOString(),
+            revisionCount: item.revisionCount + 1,
+            score: 100,
+          })
+        )
+      );
+
+      const failedCount = results.filter(result => result.status === 'rejected').length;
+      const successCount = results.length - failedCount;
+
+      if (failedCount === 0) {
+        toast({
+          title: 'Favoris mis à jour',
+          description: 'Les items sélectionnés sont marqués comme révisés.',
+        });
+      } else if (successCount > 0) {
+        toast({
+          title: 'Mise à jour partielle des favoris',
+          description: `Certains items ont été marqués comme révisés, mais ${failedCount} mise(s) à jour ont échoué.`,
+        });
+      } else {
+        toast({
+          title: 'Échec de la mise à jour des favoris',
+          description: 'Aucun des items sélectionnés n’a pu être marqué comme révisé.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erreur lors de la mise à jour des favoris',
+        description: 'Une erreur inattendue est survenue pendant la mise à jour des items sélectionnés.',
+      });
+    } finally {
+      await refetch();
+    }
   };
 
   const handleRemoveSelected = async () => {
