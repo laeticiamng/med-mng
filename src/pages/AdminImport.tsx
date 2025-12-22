@@ -190,7 +190,7 @@ export default function AdminImport() {
           mapping_config: mappingConfig
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (batchError) throw batchError;
 
@@ -248,7 +248,7 @@ export default function AdminImport() {
           mapping_config: defaultMapping
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

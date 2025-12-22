@@ -97,7 +97,7 @@ export const useAIClinicalCases = () => {
           generated_by: 'ai'
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (saveError) {
         console.error('Error saving case:', saveError);

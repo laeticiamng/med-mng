@@ -104,7 +104,7 @@ export function useAppliedRecommendations() {
           notes,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
