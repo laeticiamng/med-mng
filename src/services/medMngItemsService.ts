@@ -323,6 +323,20 @@ export const fetchProgressOverview = async (
     (item): item is ProgressItem => Boolean(item)
   );
 
+  const deletedItemsCount = progressItems.filter(item => item === null).length;
+  const totalProgressItems = progressItems.length;
+  const deletedItemsRatio =
+    totalProgressItems > 0 ? deletedItemsCount / totalProgressItems : 0;
+
+  if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
+    // A significant portion of the user's progress references deleted items.
+    // Stats below are computed only on existing items.
+    console.warn(
+      `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
+        'reference deleted content. Progress overview stats are based only on existing items.'
+    );
+  }
+
   const revisedCount = validProgressItems.filter(item => item.status === 'revised')
     .length;
   const inProgressCount = validProgressItems.filter(
@@ -330,6 +344,12 @@ export const fetchProgressOverview = async (
   ).length;
   const notStartedCount = validProgressItems.filter(item => item.status === 'not_started')
     .length;
+  
+  // Calculate true not started as items without progress records
+  const totalItems = itemsCountResponse.count ?? 0;
+  const itemsWithProgress = validProgressItems.length;
+  const itemsWithoutProgress = Math.max(0, totalItems - itemsWithProgress);
+  const totalNotStarted = notStartedCount + itemsWithoutProgress;
   const streakCurrent = profileResponse.data?.streak_current ?? 0;
   const streakBest = profileResponse.data?.streak_best ?? 0;
   const weeklyGoal = profileResponse.data?.weekly_goal ?? 10;
@@ -355,7 +375,7 @@ export const fetchProgressOverview = async (
     totalItems: itemsCountResponse.count ?? 0,
     revisedCount,
     inProgressCount,
-    notStartedCount,
+    notStartedCount: totalNotStarted,
     streakCurrent,
     streakBest,
     weeklyGoal,
