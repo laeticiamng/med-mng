@@ -115,7 +115,8 @@ create policy "user_progress_write_own" on public.user_progress
 for insert with check (auth.uid() = user_id);
 
 create policy "user_progress_update_own" on public.user_progress
-for update using (auth.uid() = user_id);
+for update using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
 
 create policy "user_progress_delete_own" on public.user_progress
 for delete using (auth.uid() = user_id);
