@@ -330,17 +330,21 @@ begin
   select last_study_date, streak_current into last_date, current_streak
   from public.profiles where id = new.user_id;
 
-  if last_date is null or last_date < current_date - 1 then
-    update public.profiles set
-      streak_current = 1,
-      last_study_date = current_date
-    where id = new.user_id;
-  elsif last_date = current_date - 1 then
-    update public.profiles set
-      streak_current = streak_current + 1,
-      streak_best = greatest(streak_best, streak_current + 1),
-      last_study_date = current_date
-    where id = new.user_id;
+  -- Only update streak if this is the first session for the date
+  -- to handle multiple sessions or bulk imports for the same date
+  if last_date is null or last_date < new.date then
+    if last_date is null or last_date < new.date - 1 then
+      update public.profiles set
+        streak_current = 1,
+        last_study_date = new.date
+      where id = new.user_id;
+    elsif last_date = new.date - 1 then
+      update public.profiles set
+        streak_current = streak_current + 1,
+        streak_best = greatest(streak_best, streak_current + 1),
+        last_study_date = new.date
+      where id = new.user_id;
+    end if;
   end if;
 
   return new;
@@ -367,6 +371,9 @@ create trigger on_playlist_item_change
   after insert or delete on public.playlist_items
   for each row execute function public.update_playlist_count();
 
+-- Note: This function performs well with the existing indexes idx_progress_user and idx_progress_status
+-- on user_progress table. For very large databases, consider adding a composite index:
+-- create index if not exists idx_user_progress_user_status on public.user_progress(user_id, status);
 create or replace function public.get_user_progress_stats(p_user_id uuid)
 returns table (
   total_items bigint,
