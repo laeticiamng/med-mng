@@ -320,6 +320,19 @@ export const fetchProgressOverview = async (
     } satisfies ProgressItem;
   });
 
+  const deletedItemsCount = progressItems.filter(item => item === null).length;
+  const totalProgressItems = progressItems.length;
+  const deletedItemsRatio =
+    totalProgressItems > 0 ? deletedItemsCount / totalProgressItems : 0;
+
+  if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
+    // A significant portion of the user's progress references deleted items.
+    // Stats below are computed only on existing items.
+    console.warn(
+      `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
+        'reference deleted content. Progress overview stats are based only on existing items.'
+    );
+  }
   const validProgressItems = progressItems.filter(
     (item): item is ProgressItem => Boolean(item)
   );
