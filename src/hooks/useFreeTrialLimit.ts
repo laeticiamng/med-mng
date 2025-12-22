@@ -25,7 +25,7 @@ export const useFreeTrialLimit = () => {
             .from('free_trial_usage')
             .select('generations_used')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
           
           const count = data?.generations_used || 0;
           setFreeGenerationsUsed(count);

@@ -122,7 +122,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
       .from('edn_items_immersive')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
-      .single();
+      .maybeSingle();
       
     if (fetchError || !item) {
       throw new Error(`Item ${itemCode} non trouvé`);

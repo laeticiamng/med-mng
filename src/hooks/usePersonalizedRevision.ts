@@ -174,7 +174,7 @@ export const usePersonalizedRevision = () => {
           estimated_duration_days: estimatedDays
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (saveError) throw saveError;
 

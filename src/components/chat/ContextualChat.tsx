@@ -217,7 +217,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
             last_message: assistantMessage.content.slice(0, 100)
           })
           .select()
-          .single();
+          .maybeSingle();
         
         if (convData) {
           setConversationId(convData.id);

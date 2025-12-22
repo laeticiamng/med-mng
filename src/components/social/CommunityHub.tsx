@@ -289,7 +289,7 @@ export const CommunityHub = () => {
           tags: []
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (newDbPost) {
         const post: CommunityPost = {
