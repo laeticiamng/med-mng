@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pause, Play, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -50,7 +50,12 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
 
     const handleTimeUpdate = () => setCurrentTime(element.currentTime);
     const handleLoadedMetadata = () => setDuration(element.duration || 0);
-    const handleEnded = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      if (selectedIndex < audios.length - 1) {
+        onSelect(selectedIndex + 1);
+      }
+    };
     const handleWaiting = () => setIsBuffering(true);
     const handleCanPlay = () => setIsBuffering(false);
 
@@ -67,7 +72,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
       element.removeEventListener('waiting', handleWaiting);
       element.removeEventListener('canplay', handleCanPlay);
     };
-  }, [audio?.audioUrl]);
+  }, [audio?.audioUrl, selectedIndex, audios.length, onSelect]);
 
   useEffect(() => {
     const element = audioRef.current;
@@ -80,25 +85,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     }
   }, [volume]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === 'Space') {
-        event.preventDefault();
-        handleToggle();
-      }
-      if (event.code === 'ArrowLeft') {
-        handleSeek(Math.max(0, currentTime - 10));
-      }
-      if (event.code === 'ArrowRight') {
-        handleSeek(Math.min(duration, currentTime + 10));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentTime, duration]);
-
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     const element = audioRef.current;
     if (!element) {
       return;
@@ -112,7 +99,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
 
     element.play();
     setIsPlaying(true);
-  };
+  }, [isPlaying]);
 
   const handleSeek = (value: number) => {
     const element = audioRef.current;
@@ -135,6 +122,24 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
       onSelect(selectedIndex + 1);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        handleToggle();
+      }
+      if (event.code === 'ArrowLeft') {
+        handleSeek(Math.max(0, currentTime - 10));
+      }
+      if (event.code === 'ArrowRight') {
+        handleSeek(Math.min(duration, currentTime + 10));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentTime, duration, handleToggle]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -220,11 +225,6 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
         ref={audioRef}
         src={audio.streamUrl ?? audio.audioUrl}
         preload="metadata"
-        onEnded={() => {
-          if (selectedIndex < audios.length - 1) {
-            onSelect(selectedIndex + 1);
-          }
-        }}
       />
     </Card>
   );

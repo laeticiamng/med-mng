@@ -112,11 +112,25 @@ const MedMngProgressComponent = () => {
                         if (!user?.id) {
                           return;
                         }
-                        await supabase
-                          .from('profiles')
-                          .update({ weekly_goal: Number(value) })
-                          .eq('id', user.id);
-                        await refetch();
+                        try {
+                          const { error } = await supabase
+                            .from('profiles')
+                            .update({ weekly_goal: Number(value) })
+                            .eq('id', user.id);
+                          
+                          if (error) {
+                            throw error;
+                          }
+                          
+                          await refetch();
+                        } catch (error) {
+                          console.error('Failed to update weekly goal', error);
+                          toast({
+                            title: 'Erreur',
+                            description: 'Impossible de mettre à jour l\'objectif hebdomadaire.',
+                            variant: 'destructive',
+                          });
+                        }
                       }}
                     >
                       <SelectTrigger className="w-24">
@@ -134,7 +148,11 @@ const MedMngProgressComponent = () => {
                     <div
                       className="h-full bg-primary"
                       style={{
-                        width: `${Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)}%`,
+                        width: `${
+                          data.weeklyGoal > 0
+                            ? Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)
+                            : 0
+                        }%`,
                       }}
                     />
                   </div>

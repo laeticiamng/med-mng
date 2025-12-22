@@ -210,7 +210,6 @@ export const upsertItemProgress = async ({
       last_seen_at: lastSeenAt,
       revision_count: revisionCount,
       score,
-      updated_at: new Date().toISOString(),
     },
     { onConflict: 'user_id,item_id' }
   );

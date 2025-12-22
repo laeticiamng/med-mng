@@ -31,7 +31,6 @@ export const ROUTE_PATHS = {
   medMngSubscribe: '/med-mng/subscribe/:planId',
   medMngSuccess: '/med-mng/success',
   medMngCreate: '/med-mng/create',
-  medMngLibrary: '/med-mng/library',
   medMngMusicLibrary: '/med-mng/music-library',
   medMngItemsLibrary: '/med-mng/library',
   medMngItemDetail: '/med-mng/items/:itemCode',

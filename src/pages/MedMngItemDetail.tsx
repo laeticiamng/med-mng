@@ -59,6 +59,9 @@ const MedMngItemDetailComponent = () => {
     const requestedRang = searchParams.get('rang');
     const requestedIndex = item.audios.findIndex(audio => audio.rang === requestedRang);
     setSelectedAudioIndex(requestedIndex >= 0 ? requestedIndex : 0);
+    
+    // Reset tracking ref when item changes to allow re-tracking on revisit
+    trackingRef.current = null;
   }, [item, searchParams]);
 
   useEffect(() => {
@@ -313,19 +316,19 @@ const MedMngItemDetailComponent = () => {
                   </CardContent>
                 </Card>
 
-                {currentIndex >= 0 && (
+                {currentIndex >= 0 && orderedCodes.length > 0 && (
                   <Card>
                     <CardContent className="p-4 flex items-center justify-between">
                       <Button
                         variant="outline"
-                        onClick={() =>
-                          navigate(
-                            ROUTE_PATHS.medMngItemDetail.replace(
-                              ':itemCode',
-                              orderedCodes[currentIndex - 1]
-                            )
-                          )
-                        }
+                        onClick={() => {
+                          const prevCode = orderedCodes[currentIndex - 1];
+                          if (prevCode) {
+                            navigate(
+                              ROUTE_PATHS.medMngItemDetail.replace(':itemCode', prevCode)
+                            );
+                          }
+                        }}
                         disabled={currentIndex <= 0}
                         className="gap-2"
                       >
@@ -334,14 +337,14 @@ const MedMngItemDetailComponent = () => {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={() =>
-                          navigate(
-                            ROUTE_PATHS.medMngItemDetail.replace(
-                              ':itemCode',
-                              orderedCodes[currentIndex + 1]
-                            )
-                          )
-                        }
+                        onClick={() => {
+                          const nextCode = orderedCodes[currentIndex + 1];
+                          if (nextCode) {
+                            navigate(
+                              ROUTE_PATHS.medMngItemDetail.replace(':itemCode', nextCode)
+                            );
+                          }
+                        }}
                         disabled={currentIndex === orderedCodes.length - 1}
                         className="gap-2"
                       >
