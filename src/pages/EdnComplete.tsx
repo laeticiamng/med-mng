@@ -310,21 +310,32 @@ export default function EdnComplete() {
 
   const stats = calculateStats();
 
-  if (loading) {
+  if (loading && !loadingError) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Chargement des items EDN...</p>
-          {loadingError && (
-            <Alert variant="destructive" className="max-w-md mx-auto">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{loadingError}</AlertDescription>
-            </Alert>
-          )}
+          <p className="text-muted-foreground">Un instant…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadingError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Alert variant="destructive" className="max-w-md mx-auto">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>Quelque chose n'a pas fonctionné. Tu peux réessayer tranquillement.</AlertDescription>
+          </Alert>
           <Button 
             variant="outline" 
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              setLoadingError(null);
+              setPage(0);
+              fetchAllData();
+            }}
             className="mt-4"
           >
             Réessayer
