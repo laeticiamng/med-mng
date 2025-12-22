@@ -98,12 +98,18 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'audio_url'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'url'
   ) THEN
     EXECUTE 'alter table public.audios rename column audio_url to url';
   END IF;
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'duration_seconds'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'audios' AND column_name = 'duration'
   ) THEN
     EXECUTE 'alter table public.audios rename column duration_seconds to duration';
   END IF;
@@ -115,7 +121,7 @@ BEGIN
     SELECT 1 FROM information_schema.table_constraints
     WHERE table_schema = 'public' AND table_name = 'audios' AND constraint_name = 'audios_rang_check'
   ) THEN
-    EXECUTE 'alter table public.audios add constraint audios_rang_check check (rang in (''A'', ''B'', ''mix'')) not valid';
+    EXECUTE 'alter table public.audios add constraint audios_rang_check check (rang in (''A'', ''B'', ''AB'')) not valid';
   END IF;
 END $$;
 
@@ -158,15 +164,42 @@ BEGIN
   END IF;
 END $$;
 
+-- Normalize existing status values to match new constraint
+update public.user_progress
+set status = case
+  when status = 'todo' then 'not_started'
+  when status = 'done' then 'revised'
+  else status
+end
+where status in ('todo', 'done');
+
 DO $$
+DECLARE
+  pk_name text;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.table_constraints
-    WHERE table_schema = 'public' AND table_name = 'user_progress' AND constraint_type = 'PRIMARY KEY'
-  ) THEN
-    EXECUTE 'alter table public.user_progress drop constraint user_progress_pkey';
+  SELECT constraint_name
+  INTO pk_name
+  FROM information_schema.table_constraints
+  WHERE table_schema = 'public'
+    AND table_name = 'user_progress'
+    AND constraint_type = 'PRIMARY KEY'
+  LIMIT 1;
+
+  IF pk_name IS NOT NULL THEN
+    EXECUTE format(
+      'alter table public.user_progress drop constraint %I',
+      pk_name
+    );
   END IF;
 END $$;
+
+-- Ensure the id column exists and is fully populated before setting it as the primary key
+update public.user_progress
+  set id = gen_random_uuid()
+  where id is null;
+
+alter table public.user_progress
+  alter column id set not null;
 
 alter table public.user_progress add primary key (id);
 create unique index if not exists user_progress_user_item_unique on public.user_progress(user_id, item_id);
@@ -189,6 +222,12 @@ create index if not exists idx_progress_status on public.user_progress(status);
 
 -- Favorites adjustments
 alter table public.favorites add column if not exists id uuid default gen_random_uuid();
+
+-- Ensure all existing favorites rows have a UUID before adding the primary key
+update public.favorites
+  set id = gen_random_uuid()
+  where id is null;
+
 DO $$
 BEGIN
   IF EXISTS (
@@ -198,6 +237,9 @@ BEGIN
     EXECUTE 'alter table public.favorites drop constraint favorites_pkey';
   END IF;
 END $$;
+
+alter table public.favorites
+  alter column id set not null;
 
 alter table public.favorites add primary key (id);
 create unique index if not exists favorites_user_item_unique on public.favorites(user_id, item_id);
