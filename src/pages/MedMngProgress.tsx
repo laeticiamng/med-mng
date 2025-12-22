@@ -49,42 +49,44 @@ const MedMngProgressComponent = () => {
   }, [data]);
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
-      <div className="container mx-auto px-4 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Progression</h1>
-          <p className="text-muted-foreground">
-            Suivez vos items à faire et votre rythme de révision.
+    <MedMngLayout className="bg-background">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-4xl">
+        {/* Header - Rassurant */}
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-foreground">Ma progression</h1>
+          <p className="text-sm text-muted-foreground">
+            Une vision claire de ce que tu as déjà vu.
           </p>
         </div>
 
+        {/* Loading */}
         {isLoading && (
-          <Card>
+          <Card className="border-border/30">
             <CardContent className="p-8 flex items-center justify-center text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Chargement de la progression...
+              Chargement...
             </CardContent>
           </Card>
         )}
 
+        {/* Error */}
         {isError && (
-          <Card>
+          <Card className="border-border/30">
             <CardContent className="p-8 text-center">
-              <p className="text-destructive font-medium">Impossible de charger la progression.</p>
+              <p className="text-muted-foreground">Impossible de charger la progression.</p>
             </CardContent>
           </Card>
         )}
 
+        {/* Stats cards - Mise en avant régularité */}
         {stats && (
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {stats.map((stat) => (
-              <Card key={stat.label}>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  </div>
+              <Card key={stat.label} className="border-border/30 bg-card/60">
+                <CardContent className="p-4 text-center">
+                  <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </CardContent>
               </Card>
             ))}
@@ -92,54 +94,58 @@ const MedMngProgressComponent = () => {
         )}
 
         {data && (
-          <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-            <div className="space-y-6">
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Objectif hebdomadaire</h2>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Target className="h-4 w-4" />
-                      Objectif {data.weeklyGoal} items
-                    </div>
-                    <p className="font-semibold">{data.weeklyRevisedCount} révisés</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Changer l'objectif</span>
-                    <Select
-                      value={String(data.weeklyGoal)}
-                      onValueChange={async (value) => {
-                        if (!user?.id) {
-                          return;
-                        }
-                        await (supabase as any)
-                          .from('profiles')
-                          .update({ weekly_goal: Number(value) })
-                          .eq('id', user.id);
-                        await refetch();
-                      }}
-                    >
-                      <SelectTrigger className="w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="15">15</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                      </SelectContent>
-                    </Select>
+          <div className="space-y-5">
+            {/* Objectif hebdomadaire - Valorise régularité */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-foreground">Objectif hebdomadaire</h2>
+                  <Select
+                    value={String(data.weeklyGoal)}
+                    onValueChange={async (value) => {
+                      if (!user?.id) return;
+                      await (supabase as any).from('profiles').update({ weekly_goal: Number(value) }).eq('id', user.id);
+                      await refetch();
+                    }}
+                  >
+                    <SelectTrigger className="w-20 h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="15">15</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{data.weeklyRevisedCount} / {data.weeklyGoal} items</span>
+                    <span className="font-medium text-foreground">{Math.round((data.weeklyRevisedCount / data.weeklyGoal) * 100)}%</span>
                   </div>
                   <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary"
-                      style={{
-                        width: `${Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)}%`,
-                      }}
-                    />
+                    <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)}%` }} />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <p className="text-xs text-muted-foreground/70 italic">
+                  Bonne continuité. La régularité fait la différence.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Streak - Mise en valeur */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Flame className="h-8 w-8 text-warning" />
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{data.streakCurrent} jours</p>
+                    <p className="text-xs text-muted-foreground">Record : {data.streakBest} jours</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
               <Card>
                 <CardContent className="p-6 space-y-4">

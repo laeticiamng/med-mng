@@ -174,185 +174,187 @@ const MedMngItemDetailComponent = () => {
   };
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
-      <div className="container mx-auto px-4 py-8 space-y-6">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
+    <MedMngLayout className="bg-background">
+      <div className="container mx-auto px-4 py-6 space-y-5 max-w-4xl">
+        {/* Navigation retour */}
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
-          Retour à la bibliothèque
+          Retour
         </Button>
 
+        {/* Loading */}
         {isLoading && (
-          <Card>
+          <Card className="border-border/30">
             <CardContent className="p-8 flex items-center justify-center text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Chargement de la fiche...
+              Chargement...
             </CardContent>
           </Card>
         )}
 
+        {/* Error */}
         {isError && (
-          <Card>
+          <Card className="border-border/30">
             <CardContent className="p-8 text-center space-y-2">
-              <h2 className="text-lg font-semibold">Impossible de charger la fiche</h2>
-              <p className="text-muted-foreground">
-                Vérifiez votre connexion ou réessayez plus tard.
+              <h2 className="text-lg font-medium">Impossible de charger la fiche</h2>
+              <p className="text-sm text-muted-foreground">
+                Vérifiez votre connexion ou réessayez.
               </p>
             </CardContent>
           </Card>
         )}
 
         {item && (
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <Badge variant="outline">{item.code}</Badge>
-                      <Badge variant="secondary">{item.itemType}</Badge>
-                      {item.rang && <Badge variant="outline">Rang {item.rang}</Badge>}
-                      {status === 'revised' && (
-                        <Badge variant="outline">Révisé</Badge>
-                      )}
-                    </div>
-                    <h1 className="text-2xl font-bold text-foreground">{item.title}</h1>
-                    <p className="text-muted-foreground">
-                      {item.specialty ?? 'Spécialité non précisée'}
-                    </p>
-                  </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" onClick={handleToggleFavorite} className="gap-2">
-                    <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
-                    {isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate(`${ROUTE_PATHS.medMngPlaylists}?item=${item.code}`)}
-                    className="gap-2"
-                  >
-                    <FolderPlus className="h-4 w-4" />
-                    Ajouter à playlist
-                  </Button>
-                  <Button onClick={handleMarkReviewed} className="gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    {status === 'not_started'
-                      ? 'Démarrer'
-                      : status === 'in_progress'
-                      ? 'Marquer révisé'
-                      : 'Revenir en cours'}
-                  </Button>
-                </div>
+          <div className="space-y-5">
+            {/* Header de l'item - Simplifié */}
+            <div className="space-y-3">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="font-medium">{item.code}</Badge>
+                <Badge variant="secondary">{item.itemType}</Badge>
+                {item.rang && <Badge variant="outline">Rang {item.rang}</Badge>}
+                {status === 'revised' && (
+                  <Badge variant="default" className="bg-success/20 text-success border-success/30">
+                    Révisé
+                  </Badge>
+                )}
               </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {item.tags.length === 0 ? (
-                    <Badge variant="secondary">Sans tag</Badge>
-                  ) : (
-                    item.tags.map(tag => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))
-                  )}
-                </div>
+              {/* Titre */}
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                {item.title}
+              </h1>
+
+              {/* Spécialité + sous-texte */}
+              <p className="text-muted-foreground">
+                {item.specialty ?? 'Spécialité non précisée'}
+              </p>
+
+              {/* Sous-texte encourageant */}
+              <p className="text-sm text-muted-foreground/70 italic">
+                Prends le temps de comprendre chaque point clé.
+              </p>
+            </div>
+
+            {/* Actions secondaires - Discrètes */}
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" size="sm" onClick={handleToggleFavorite} className="gap-2 text-muted-foreground hover:text-foreground">
+                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
+                {isFavorite ? 'Favori' : 'Ajouter'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`${ROUTE_PATHS.medMngPlaylists}?item=${item.code}`)}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <FolderPlus className="h-4 w-4" />
+                Playlist
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleMarkReviewed} className="gap-2 ml-auto">
+                <CheckCircle className="h-4 w-4" />
+                {status === 'not_started'
+                  ? 'Démarrer'
+                  : status === 'in_progress'
+                  ? 'Marquer révisé'
+                  : 'Revenir en cours'}
+              </Button>
+            </div>
+
+            {/* Contenu principal - Fiche de synthèse */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-4">
+                <h2 className="text-lg font-semibold text-foreground">Fiche de synthèse</h2>
+                <Accordion type="multiple" className="space-y-2">
+                  {(item.notes.length > 0 ? item.notes : [{
+                    id: 'empty',
+                    title: 'Résumé',
+                    content: 'Aucune fiche disponible pour cet item.',
+                    contentType: 'text',
+                    rang: null,
+                  }]).map(note => (
+                    <AccordionItem key={note.id} value={note.id} className="border border-border/30 rounded-lg overflow-hidden">
+                      <AccordionTrigger className="px-4 py-3 hover:bg-muted/30 text-sm font-medium">
+                        {note.title}
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4 pt-2">
+                        {renderFicheContent(note.content)}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
               </CardContent>
             </Card>
 
-            <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Fiche de synthèse</h2>
-                  <Accordion type="multiple" className="space-y-2">
-                    {(item.notes.length > 0 ? item.notes : [{
-                      id: 'empty',
-                      title: 'Résumé',
-                      content: 'Aucune fiche disponible pour cet item.',
-                      contentType: 'text',
-                      rang: null,
-                    }]).map(note => (
-                      <AccordionItem key={note.id} value={note.id} className="border rounded-lg">
-                        <AccordionTrigger className="px-4">
-                          {note.title}
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          {renderFicheContent(note.content)}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+            {/* Audio Player - Discret mais accessible */}
+            {selectedAudio ? (
+              <Card className="border-border/30 bg-card/60">
+                <CardContent className="p-4">
+                  <p className="text-xs text-muted-foreground mb-3 italic">
+                    💡 Idéal pour réviser en marchant ou en répétition passive.
+                  </p>
+                  <ItemAudioPlayer
+                    audios={item.audios}
+                    selectedIndex={selectedAudioIndex}
+                    onSelect={setSelectedAudioIndex}
+                  />
                 </CardContent>
               </Card>
+            ) : (
+              <Card className="border-border/30">
+                <CardContent className="p-4 text-center text-sm text-muted-foreground">
+                  Aucun audio disponible pour cet item.
+                </CardContent>
+              </Card>
+            )}
 
-              <div className="space-y-4">
-                {selectedAudio ? (
-                  <div className="sticky bottom-4">
-                    <ItemAudioPlayer
-                      audios={item.audios}
-                      selectedIndex={selectedAudioIndex}
-                      onSelect={setSelectedAudioIndex}
-                    />
-                  </div>
-                ) : (
-                  <Card>
-                    <CardContent className="p-6 text-center text-muted-foreground">
-                      Aucun audio disponible pour cet item.
-                    </CardContent>
-                  </Card>
-                )}
-
-                <Card>
-                  <CardContent className="p-4 space-y-2">
-                    <p className="text-sm text-muted-foreground">Progression</p>
-                    <p className="text-2xl font-bold text-primary">{revisionCount} révision(s)</p>
-                    <p className="text-xs text-muted-foreground">
-                      Dernière ouverture :{' '}
-                      {lastSeenAt
-                        ? new Date(lastSeenAt).toLocaleDateString('fr-FR')
-                        : 'Jamais'}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {currentIndex >= 0 && (
-                  <Card>
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          navigate(
-                            ROUTE_PATHS.medMngItemDetail.replace(
-                              ':itemCode',
-                              orderedCodes[currentIndex - 1]
-                            )
-                          )
-                        }
-                        disabled={currentIndex <= 0}
-                        className="gap-2"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Précédent
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          navigate(
-                            ROUTE_PATHS.medMngItemDetail.replace(
-                              ':itemCode',
-                              orderedCodes[currentIndex + 1]
-                            )
-                          )
-                        }
-                        disabled={currentIndex === orderedCodes.length - 1}
-                        className="gap-2"
-                      >
-                        Suivant
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+            {/* Progression - Discret */}
+            <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
+              <span>
+                {revisionCount} révision{revisionCount > 1 ? 's' : ''} • Dernière ouverture : {lastSeenAt ? new Date(lastSeenAt).toLocaleDateString('fr-FR') : 'Jamais'}
+              </span>
+              <span className="text-foreground font-medium">{score}%</span>
             </div>
+
+            {/* Navigation entre items */}
+            {currentIndex >= 0 && (
+              <div className="flex items-center justify-between pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      ROUTE_PATHS.medMngItemDetail.replace(
+                        ':itemCode',
+                        orderedCodes[currentIndex - 1]
+                      )
+                    )
+                  }
+                  disabled={currentIndex <= 0}
+                  className="gap-2 text-muted-foreground"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Précédent
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      ROUTE_PATHS.medMngItemDetail.replace(
+                        ':itemCode',
+                        orderedCodes[currentIndex + 1]
+                      )
+                    )
+                  }
+                  disabled={currentIndex === orderedCodes.length - 1}
+                  className="gap-2 text-muted-foreground"
+                >
+                  Suivant
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
