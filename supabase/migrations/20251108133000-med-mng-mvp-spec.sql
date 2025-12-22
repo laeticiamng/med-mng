@@ -12,6 +12,20 @@ create table if not exists public.specialties (
 );
 
 -- Items adjustments
+-- Handle rename of item_type -> type before adding the type column
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'items' AND column_name = 'item_type'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'items' AND column_name = 'type'
+  ) THEN
+    EXECUTE 'alter table public.items rename column item_type to type';
+  END IF;
+END $$;
+
 alter table public.items add column if not exists type text;
 alter table public.items add column if not exists specialty_id uuid references public.specialties(id);
 alter table public.items add column if not exists rang text;
@@ -41,17 +55,6 @@ create index if not exists idx_items_code on public.items(code);
 create index if not exists idx_items_type on public.items(type);
 create index if not exists idx_items_specialty on public.items(specialty_id);
 create index if not exists idx_items_keywords on public.items using gin(keywords);
-
--- Rename item_type -> type when needed
-DO $$
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'items' AND column_name = 'item_type'
-  ) THEN
-    EXECUTE 'alter table public.items rename column item_type to type';
-  END IF;
-END $$;
 
 -- Fiches & sources
 create table if not exists public.sources (
