@@ -36,13 +36,13 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
     <>
       <div className="text-center mb-12 px-4">
         {/* Headline studieux - Direct et rassurant */}
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 text-foreground leading-tight tracking-tight">
+        <h1 className="text-3xl md:text-5xl font-bold mb-3 text-foreground leading-tight tracking-tight">
           Qu'est-ce que tu veux réviser aujourd'hui ?
         </h1>
         
-        {/* Sous-texte - Guidage clair */}
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
-          Recherche par spécialité, type ou mots-clés.
+        {/* Sous-texte émotionnel */}
+        <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-lg mx-auto">
+          Un espace pour organiser et avancer dans ta révision.
         </p>
 
         {/* Barre de recherche - Point d'entrée principal */}

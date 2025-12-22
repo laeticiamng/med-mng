@@ -165,12 +165,12 @@ const MedMngItemsLibraryComponent = () => {
     <MedMngLayout className="bg-background">
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header - Simplifié */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground">
             Bibliothèque des items
           </h1>
           <p className="text-muted-foreground text-sm">
-            Tous les items, organisés pour réviser efficacement.
+            Filtre par spécialité, type ou mots-clés pour aller vite.
           </p>
         </div>
 
@@ -402,21 +402,31 @@ const MedMngItemsLibraryComponent = () => {
 
         {/* Liste des items - Cards aérées */}
         {!isLoading && !isError && filteredItems.length > 0 && (
-          <div className={viewMode === 'grid' ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-3'}>
+          <div className={viewMode === 'grid' ? 'grid gap-5 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
             {filteredItems.map(item => (
               <Card 
                 key={item.id} 
-                className="border-border/30 bg-card/60 hover:bg-card/80 hover:shadow-sm transition-all cursor-pointer rounded-xl overflow-hidden"
+                className="border-border/30 bg-card/60 hover:bg-card hover:shadow-md hover:border-border/50 transition-all duration-200 cursor-pointer rounded-xl overflow-hidden group"
                 onClick={() => navigate(ROUTE_PATHS.medMngItemDetail.replace(':itemCode', item.code))}
               >
                 <CardContent className={viewMode === 'grid' ? 'p-5 space-y-3' : 'p-4'}>
-                  {/* Badges en haut */}
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    <Badge variant="outline" className="text-xs font-medium">
+                  {/* Titre - Plus visible, plus contrasté */}
+                  <h3 className="font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {/* Spécialité - Plus discret */}
+                  <p className="text-sm text-muted-foreground/80">
+                    {item.specialty ?? 'Spécialité non précisée'}
+                  </p>
+
+                  {/* Tags - Couleurs plus douces, espacement augmenté */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <Badge variant="outline" className="text-xs font-medium bg-muted/30">
                       {item.code}
                     </Badge>
                     {item.rang && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-secondary/50">
                         Rang {item.rang}
                       </Badge>
                     )}
@@ -428,29 +438,19 @@ const MedMngItemsLibraryComponent = () => {
                     </Badge>
                   </div>
 
-                  {/* Titre - Lisible */}
-                  <h3 className="font-medium text-foreground leading-snug line-clamp-2">
-                    {item.title}
-                  </h3>
-
-                  {/* Spécialité */}
-                  <p className="text-sm text-muted-foreground">
-                    {item.specialty ?? 'Spécialité non précisée'}
-                  </p>
-
                   {/* Footer avec indicateurs */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/20">
+                  <div className="flex items-center justify-between pt-3 mt-2 border-t border-border/20">
                     <div className="flex items-center gap-2">
                       {item.hasAudio && (
-                        <Badge variant="outline" className="text-xs py-0.5 px-1.5">
-                          <Music2 className="h-3 w-3" />
+                        <Badge variant="outline" className="text-xs py-0.5 px-1.5 bg-primary/5 border-primary/20">
+                          <Music2 className="h-3 w-3 text-primary" />
                         </Badge>
                       )}
                       {item.isFavorite && (
                         <Heart className="h-3.5 w-3.5 text-destructive fill-current" />
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">{item.score}%</span>
+                    <span className="text-xs text-muted-foreground font-medium">{item.score}%</span>
                   </div>
                 </CardContent>
               </Card>

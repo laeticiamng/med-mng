@@ -52,10 +52,10 @@ const MedMngProgressComponent = () => {
     <MedMngLayout className="bg-background">
       <div className="container mx-auto px-4 py-6 space-y-6 max-w-4xl">
         {/* Header - Rassurant */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground">Ma progression</h1>
           <p className="text-sm text-muted-foreground">
-            Une vision claire de ce que tu as déjà vu.
+            Une vision claire de ce que tu as déjà vu. La régularité fait la différence.
           </p>
         </div>
 
@@ -95,11 +95,75 @@ const MedMngProgressComponent = () => {
 
         {data && (
           <div className="space-y-5">
-            {/* Objectif hebdomadaire - Valorise régularité */}
+            {/* Progression globale - Cercle visuel */}
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-6">
+                  {/* Cercle de progression */}
+                  <div className="relative w-24 h-24 shrink-0">
+                    <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        className="text-muted/30"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        strokeLinecap="round"
+                        className="text-primary transition-all duration-500"
+                        strokeDasharray={`${(data.revisedCount / data.totalItems) * 251.2} 251.2`}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-foreground">
+                        {Math.round((data.revisedCount / data.totalItems) * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-foreground">
+                      Tu avances à ton rythme — bravo !
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {data.revisedCount} items révisés sur {data.totalItems}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Streak - Mise en valeur */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="border-warning/20 bg-warning/5">
+                <CardContent className="p-4 text-center">
+                  <Flame className="h-6 w-6 text-warning mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-foreground">{data.streakCurrent}</p>
+                  <p className="text-xs text-muted-foreground">jours de suite</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/30">
+                <CardContent className="p-4 text-center">
+                  <Target className="h-6 w-6 text-primary mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-foreground">{data.weeklyRevisedCount}/{data.weeklyGoal}</p>
+                  <p className="text-xs text-muted-foreground">objectif semaine</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Objectif hebdomadaire */}
             <Card className="border-border/30">
-              <CardContent className="p-5 space-y-4">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-foreground">Objectif hebdomadaire</h2>
+                  <h2 className="font-medium text-foreground">Objectif hebdomadaire</h2>
                   <Select
                     value={String(data.weeklyGoal)}
                     onValueChange={async (value) => {
@@ -108,7 +172,7 @@ const MedMngProgressComponent = () => {
                       await refetch();
                     }}
                   >
-                    <SelectTrigger className="w-20 h-8 text-sm">
+                    <SelectTrigger className="w-16 h-7 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -119,30 +183,11 @@ const MedMngProgressComponent = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{data.weeklyRevisedCount} / {data.weeklyGoal} items</span>
-                    <span className="font-medium text-foreground">{Math.round((data.weeklyRevisedCount / data.weeklyGoal) * 100)}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)}%` }} />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground/70 italic">
-                  Bonne continuité. La régularité fait la différence.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Streak - Mise en valeur */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Flame className="h-8 w-8 text-warning" />
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{data.streakCurrent} jours</p>
-                    <p className="text-xs text-muted-foreground">Record : {data.streakBest} jours</p>
-                  </div>
+                <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500 rounded-full" 
+                    style={{ width: `${Math.min(100, (data.weeklyRevisedCount / data.weeklyGoal) * 100)}%` }} 
+                  />
                 </div>
               </CardContent>
             </Card>

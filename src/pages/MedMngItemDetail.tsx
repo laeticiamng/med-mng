@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Heart, Loader2, CheckCircle, FolderPlus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Heart, Loader2, CheckCircle, FolderPlus, ChevronLeft, ChevronRight, Headphones } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
@@ -261,11 +261,16 @@ const MedMngItemDetailComponent = () => {
               </Button>
             </div>
 
-            {/* Contenu principal - Fiche de synthèse */}
+            {/* Contenu principal - Points essentiels */}
             <Card className="border-border/30">
               <CardContent className="p-5 space-y-4">
-                <h2 className="text-lg font-semibold text-foreground">Fiche de synthèse</h2>
-                <Accordion type="multiple" className="space-y-2">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold text-foreground">Points essentiels à retenir</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Prends le temps de comprendre chaque point clé.
+                  </p>
+                </div>
+                <Accordion type="multiple" className="space-y-3">
                   {(item.notes.length > 0 ? item.notes : [{
                     id: 'empty',
                     title: 'Résumé',
@@ -273,11 +278,11 @@ const MedMngItemDetailComponent = () => {
                     contentType: 'text',
                     rang: null,
                   }]).map(note => (
-                    <AccordionItem key={note.id} value={note.id} className="border border-border/30 rounded-lg overflow-hidden">
-                      <AccordionTrigger className="px-4 py-3 hover:bg-muted/30 text-sm font-medium">
+                    <AccordionItem key={note.id} value={note.id} className="border border-border/30 rounded-xl overflow-hidden bg-muted/20">
+                      <AccordionTrigger className="px-4 py-3.5 hover:bg-muted/40 text-sm font-medium">
                         {note.title}
                       </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4 pt-2">
+                      <AccordionContent className="px-4 pb-5 pt-3 bg-card/50">
                         {renderFicheContent(note.content)}
                       </AccordionContent>
                     </AccordionItem>
@@ -286,13 +291,21 @@ const MedMngItemDetailComponent = () => {
               </CardContent>
             </Card>
 
-            {/* Audio Player - Discret mais accessible */}
+            {/* Audio Player - Plus visible avec fond coloré */}
             {selectedAudio ? (
-              <Card className="border-border/30 bg-card/60">
-                <CardContent className="p-4">
-                  <p className="text-xs text-muted-foreground mb-3 italic">
-                    💡 Idéal pour réviser en marchant ou en répétition passive.
-                  </p>
+              <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Headphones className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Écoute audio</p>
+                      <p className="text-xs text-muted-foreground">
+                        Tu peux écouter pendant une autre activité.
+                      </p>
+                    </div>
+                  </div>
                   <ItemAudioPlayer
                     audios={item.audios}
                     selectedIndex={selectedAudioIndex}
