@@ -5,7 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy } from 'lucide-react';
+import { Music, Plus, AlertCircle, ListMusic } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -14,9 +14,6 @@ import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
-import { Badge } from '@/components/ui/badge';
-import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 
 const MedMngLibraryComponent = () => {
@@ -27,29 +24,12 @@ const MedMngLibraryComponent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-  
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
-  const { logActivity } = useActivityTracking();
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
   const { text: errorMessage } = useTranslation('Impossible de charger votre bibliothèque');
   const { text: retryText } = useTranslation('Réessayer');
 
-  // Load gamification stats
-  React.useEffect(() => {
-    if (user?.id) {
-      loadStats(user.id);
-    }
-  }, [user?.id, loadStats]);
-
-  const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
-
   const handleSongPlay = async (song: any) => {
-    // Log activity for playing music
-    await logActivity({
-      activity_type: 'study',
-      metadata: { action: 'music_play', song_id: song.id, song_title: song.title }
-    });
     navigate(`/med-mng/player/${song.id}`);
   };
 
@@ -161,49 +141,24 @@ const MedMngLibraryComponent = () => {
   }
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <TranslatedText 
-              text="Ma bibliothèque musicale"
-              as="h1"
-              className="text-2xl sm:text-4xl font-bold text-foreground mb-2"
-              showLoader
-            />
-            <TranslatedText 
-              text={`${filteredSongs.length} chanson${filteredSongs.length > 1 ? 's' : ''} dans votre collection`}
-              as="p"
-              className="text-muted-foreground"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            {gamificationStats && (
-              <div className="hidden sm:flex items-center gap-2">
-                <Badge variant="outline" className="gap-1 py-1.5">
-                  <Flame className="h-3 w-3 text-warning" />
-                  {gamificationStats.currentStreak || 0}j
-                </Badge>
-                <Badge variant="outline" className="gap-1 py-1.5">
-                  <Trophy className="h-3 w-3 text-primary" />
-                  Niv.{level}
-                </Badge>
-              </div>
-            )}
-            <div className="text-right">
-              <div className="bg-card rounded-lg px-3 py-2 shadow-sm">
-                <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-muted-foreground" />
-                <div className="text-lg sm:text-2xl font-bold text-primary">
-                  {quota?.remaining_credits || 0}
-                </div>
-              </div>
-            </div>
-          </div>
+    <MedMngLayout>
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header - Clean and Simple */}
+        <div className="mb-6">
+          <TranslatedText 
+            text="Ma bibliothèque"
+            as="h1"
+            className="text-xl sm:text-2xl font-semibold text-foreground mb-1"
+          />
+          <TranslatedText 
+            text={`${filteredSongs.length} chanson${filteredSongs.length > 1 ? 's' : ''}`}
+            as="p"
+            className="text-sm text-muted-foreground"
+          />
         </div>
 
-        {/* Advanced Search */}
-        <div className="mb-8">
+        {/* Search */}
+        <div className="mb-6">
           <AdvancedSearch
             songs={library || []}
             onFilteredSongs={setFilteredSongs}
@@ -211,80 +166,72 @@ const MedMngLibraryComponent = () => {
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        {/* Quick Actions - Sober */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <Button 
             onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
-            className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
+            size="sm"
+            className="shrink-0"
           >
-            <Plus className="h-4 w-4" />
-            <TranslatedText text="Créer une chanson" />
+            <Plus className="h-4 w-4 mr-1.5" />
+            Créer
           </Button>
           <Button 
             variant="outline"
+            size="sm"
             onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)}
-            className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
+            className="shrink-0"
           >
-            <ListMusic className="h-4 w-4" />
-            <TranslatedText text="Mes Playlists" />
+            <ListMusic className="h-4 w-4 mr-1.5" />
+            Playlists
           </Button>
         </div>
 
-        {/* Tabs pour filtrer */}
+        {/* Tabs - Simplified */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <Music className="h-4 w-4" />
-              <span className="hidden sm:inline">Toutes</span>
-              <span className="sm:hidden">Tout</span>
-              <span className="text-xs ml-1">({library?.length || 0})</span>
+          <TabsList className="grid w-full grid-cols-3 h-10">
+            <TabsTrigger value="all" className="text-sm">
+              Tout ({library?.length || 0})
             </TabsTrigger>
-            <TabsTrigger value="favorites" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              <span className="hidden sm:inline">Favoris</span>
-              <span className="sm:hidden">♥</span>
-              <span className="text-xs ml-1">({library?.filter(s => s.is_liked).length || 0})</span>
+            <TabsTrigger value="favorites" className="text-sm">
+              Favoris ({library?.filter(s => s.is_liked).length || 0})
             </TabsTrigger>
-            <TabsTrigger value="playlists" className="flex items-center gap-2">
-              <ListMusic className="h-4 w-4" />
-              <span className="hidden sm:inline">Playlists</span>
-              <span className="sm:hidden">Lists</span>
+            <TabsTrigger value="playlists" className="text-sm">
+              Playlists
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="mt-0">
+          <TabsContent value="all" className="mt-4">
             {renderSongGrid()}
           </TabsContent>
 
-          <TabsContent value="favorites" className="mt-0">
+          <TabsContent value="favorites" className="mt-4">
             {renderSongGrid()}
           </TabsContent>
 
-          <TabsContent value="playlists" className="mt-0">
+          <TabsContent value="playlists" className="mt-4">
             {renderPlaylistsSection()}
           </TabsContent>
         </Tabs>
 
         {/* Pagination */}
         {library && library.length === 12 && activeTab !== 'playlists' && (
-          <div className="flex justify-center mt-8">
-            <div className="flex gap-3 sm:gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
-              >
-                <TranslatedText text="Précédent" />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => p + 1)}
-                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
-              >
-                <TranslatedText text="Suivant" />
-              </Button>
-            </div>
+          <div className="flex justify-center gap-2 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              Suivant
+            </Button>
           </div>
         )}
       </div>
@@ -293,30 +240,26 @@ const MedMngLibraryComponent = () => {
 
   function renderSongGrid() {
     return filteredSongs.length === 0 ? (
-      <div className="text-center py-16">
-        <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-        <TranslatedText 
-          text={activeTab === 'favorites' ? 'Aucun favori' : (library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide')}
-          as="h3"
-          className="text-xl font-semibold text-foreground mb-2"
-        />
-        <TranslatedText 
-          text={activeTab === 'favorites' 
-            ? 'Ajoutez des chansons à vos favoris en cliquant sur ❤️' 
+      <div className="text-center py-12">
+        <Music className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+        <h3 className="text-base font-medium text-foreground mb-1">
+          {activeTab === 'favorites' ? 'Aucun favori' : (library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide')}
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          {activeTab === 'favorites' 
+            ? 'Aimez des chansons pour les retrouver ici' 
             : (library && library.length > 0
-              ? 'Aucune chanson ne correspond à votre recherche' 
-              : 'Commencez par créer votre première chanson')}
-          as="p"
-          className="text-muted-foreground mb-6"
-        />
+              ? 'Essayez d\'autres termes de recherche' 
+              : 'Créez votre première chanson pour commencer')}
+        </p>
         {(!library || library.length === 0) && activeTab === 'all' && (
-          <Button onClick={() => navigate(ROUTE_PATHS.medMngCreate)} className="min-h-[48px] px-6">
-            <TranslatedText text="Créer ma première chanson" />
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngCreate)} size="sm">
+            Créer ma première chanson
           </Button>
         )}
       </div>
     ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 animate-fade-in">
+      <div className="space-y-2">
         {filteredSongs.map((song) => (
           <SongCard 
             key={song.id} 
@@ -332,27 +275,20 @@ const MedMngLibraryComponent = () => {
 
   function renderPlaylistsSection() {
     return (
-      <div className="text-center py-16">
-        <ListMusic className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-        <TranslatedText 
-          text="Gérez vos playlists"
-          as="h3"
-          className="text-xl font-semibold text-foreground mb-2"
-        />
-        <TranslatedText 
-          text="Créez et organisez vos playlists de chansons"
-          as="p"
-          className="text-muted-foreground mb-6"
-        />
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button 
-            onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)} 
-            className="min-h-[48px] px-6"
-          >
-            <ListMusic className="h-4 w-4 mr-2" />
-            <TranslatedText text="Voir mes playlists" />
-          </Button>
-        </div>
+      <div className="text-center py-12">
+        <ListMusic className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+        <h3 className="text-base font-medium text-foreground mb-1">
+          Gérez vos playlists
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Organisez vos chansons par thème ou spécialité
+        </p>
+        <Button 
+          onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)} 
+          size="sm"
+        >
+          Voir mes playlists
+        </Button>
       </div>
     );
   }
