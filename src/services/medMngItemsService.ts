@@ -54,22 +54,23 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
     userId
       ? (supabase as any)
           .from('user_progress')
-          .select('item_id, status, last_seen_at, revision_count, score')
+          .select('content_id, mastery_level, last_accessed, attempts_count, best_score')
           .eq('user_id', userId)
+          .eq('content_type', 'item')
       : Promise.resolve({
           data: [] as {
-            item_id: string;
-            status: ItemStatus;
-            last_seen_at: string | null;
-            revision_count: number | null;
-            score: number | null;
+            content_id: string;
+            mastery_level: string | null;
+            last_accessed: string | null;
+            attempts_count: number | null;
+            best_score: number | null;
           }[],
         }),
   ]);
 
   const favoriteIds = new Set((favoritesResponse.data ?? []).map((item: any) => item.item_id));
   const progressMap = new Map(
-    (progressResponse.data ?? []).map((item: any) => [item.item_id, item])
+    (progressResponse.data ?? []).map((item: any) => [item.content_id, item])
   );
 
   return parsedItems.data.map(item => {
@@ -86,13 +87,13 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
       createdAt: item.created_at,
       keywords: item.keywords ?? [],
       tags: mapTags(item.item_tags),
-      status: mapStatus(progress?.status),
-      lastSeenAt: progress?.last_seen_at ?? null,
+      status: mapStatus(progress?.mastery_level),
+      lastSeenAt: progress?.last_accessed ?? null,
       isFavorite: favoriteIds.has(item.id),
-      revisionCount: progress?.revision_count ?? 0,
-      score: progress?.score ?? 0,
+      revisionCount: progress?.attempts_count ?? 0,
+      score: progress?.best_score ?? 0,
       hasAudio: Boolean(item.audios && item.audios.length > 0),
-      popularityScore: progress?.revision_count ?? 0,
+      popularityScore: progress?.attempts_count ?? 0,
     };
   });
 };
@@ -135,16 +136,17 @@ export const fetchItemDetail = async (
     userId
       ? (supabase as any)
           .from('user_progress')
-          .select('status, last_seen_at, revision_count, score')
+          .select('mastery_level, last_accessed, attempts_count, best_score')
           .eq('user_id', userId)
-          .eq('item_id', data?.id ?? '')
+          .eq('content_type', 'item')
+          .eq('content_id', data?.id ?? '')
           .maybeSingle()
       : Promise.resolve({
           data: null as {
-            status: ItemStatus;
-            last_seen_at: string | null;
-            revision_count: number | null;
-            score: number | null;
+            mastery_level: string | null;
+            last_accessed: string | null;
+            attempts_count: number | null;
+            best_score: number | null;
           } | null,
         }),
   ]);
@@ -179,13 +181,13 @@ export const fetchItemDetail = async (
       bpm: audio.bpm ?? null,
       style: audio.style ?? null,
     })),
-    status: mapStatus(progress?.status),
-    lastSeenAt: progress?.last_seen_at ?? null,
+    status: mapStatus(progress?.mastery_level),
+    lastSeenAt: progress?.last_accessed ?? null,
     isFavorite: Boolean(favoritesResponse.data),
-    revisionCount: progress?.revision_count ?? 0,
-    score: progress?.score ?? 0,
+    revisionCount: progress?.attempts_count ?? 0,
+    score: progress?.best_score ?? 0,
     hasAudio: Boolean(parsed.data.audios && parsed.data.audios.length > 0),
-    popularityScore: progress?.revision_count ?? 0,
+    popularityScore: progress?.attempts_count ?? 0,
   };
 };
 
@@ -204,17 +206,22 @@ export const upsertItemProgress = async ({
   revisionCount: number;
   score: number;
 }) => {
+  // Map status to progress_percentage
+  const progressPercentage = status === 'revised' ? 100 : status === 'in_progress' ? 50 : 0;
+  
   const { error } = await (supabase as any).from('user_progress').upsert(
     {
       user_id: userId,
-      item_id: itemId,
-      status,
-      last_seen_at: lastSeenAt,
-      revision_count: revisionCount,
-      score,
+      content_type: 'item',
+      content_id: itemId,
+      progress_percentage: progressPercentage,
+      best_score: score,
+      attempts_count: revisionCount,
+      last_accessed: lastSeenAt,
+      mastery_level: status,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: 'user_id,item_id' }
+    { onConflict: 'user_id,content_type,content_id' }
   );
 
   if (error) {
@@ -265,8 +272,9 @@ export const fetchProgressOverview = async (
       (supabase as any).from('items').select('id', { count: 'exact', head: true }),
       (supabase as any)
         .from('user_progress')
-        .select('item_id, status, last_seen_at, revision_count, items(id, code, title, type, specialties(name, code))')
-        .eq('user_id', userId),
+        .select('content_id, mastery_level, last_accessed, attempts_count')
+        .eq('user_id', userId)
+        .eq('content_type', 'item'),
       supabase
         .from('profiles')
         .select('streak_current, streak_best, weekly_goal')
@@ -296,14 +304,23 @@ export const fetchProgressOverview = async (
     throw sessionsResponse.error;
   }
 
+  // Get item details for progress items
+  const contentIds = (progressResponse.data ?? []).map((row: any) => row.content_id);
+  let itemsMap = new Map<string, any>();
+  
+  if (contentIds.length > 0) {
+    const { data: itemsData } = await (supabase as any)
+      .from('items')
+      .select('id, code, title, type, specialties(name, code)')
+      .in('id', contentIds);
+    
+    if (itemsData) {
+      itemsMap = new Map(itemsData.map((item: any) => [item.id, item]));
+    }
+  }
+
   const progressItems = (progressResponse.data ?? []).map((row: any) => {
-    const item = row.items as {
-      id: string;
-      code: string;
-      title: string;
-      type: 'EDN' | 'ECOS' | 'SD';
-      specialties?: { name: string; code: string } | null;
-    } | null;
+    const item = itemsMap.get(row.content_id);
 
     if (!item) {
       return null;
@@ -316,9 +333,9 @@ export const fetchProgressOverview = async (
       specialty: item.specialties?.name ?? null,
       specialtyCode: item.specialties?.code ?? null,
       itemType: item.type,
-      status: mapStatus(row.status as ItemStatus | null),
-      lastSeenAt: row.last_seen_at ?? null,
-      revisionCount: row.revision_count ?? 0,
+      status: mapStatus(row.mastery_level),
+      lastSeenAt: row.last_accessed ?? null,
+      revisionCount: row.attempts_count ?? 0,
     } satisfies ProgressItem;
   });
 
