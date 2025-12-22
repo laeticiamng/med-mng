@@ -155,7 +155,7 @@ export const StudyPlanManager = () => {
           total_sessions: newPlan.total_sessions
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

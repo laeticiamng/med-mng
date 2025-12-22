@@ -129,7 +129,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
         title,
       } as any)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error creating conversation:', error);

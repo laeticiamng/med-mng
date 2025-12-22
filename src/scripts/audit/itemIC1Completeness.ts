@@ -18,7 +18,7 @@ export class IC1CompletenessAuditor {
         .from('edn_items_immersive')
         .select('*')
         .or('item_code.eq.IC-1,item_code.eq.IC-001,slug.eq.ic-1,slug.eq.relation-medecin-malade')
-        .single();
+        .maybeSingle();
 
       if (error || !ic1Item) {
         return this.createErrorReport();

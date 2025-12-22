@@ -117,7 +117,7 @@ export const useFlashcards = () => {
           is_public: false,
         } as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -249,7 +249,7 @@ export const useFlashcards = () => {
           correct_count: 0,
         } as any)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

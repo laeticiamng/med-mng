@@ -108,7 +108,7 @@ export const PlaylistsTab = () => {
           play_count: 0
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

@@ -185,7 +185,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
           read: false
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (newMsg) {
         setMessages(prev => [...prev, {

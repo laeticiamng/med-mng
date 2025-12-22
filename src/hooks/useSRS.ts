@@ -302,7 +302,7 @@ export const useSRS = () => {
           session_type: sessionType
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -348,7 +348,7 @@ export const useSRS = () => {
         .select('*')
         .eq('user_id', userId)
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       return data as UserItemProgress | null;

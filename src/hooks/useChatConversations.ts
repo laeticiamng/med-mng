@@ -59,7 +59,7 @@ export const useChatConversations = () => {
           user_id: (await supabase.auth.getUser()).data.user?.id,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Erreur lors de la création de la conversation:', error);
