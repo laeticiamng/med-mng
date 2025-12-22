@@ -82,7 +82,7 @@ export function useUserPreferences() {
           .from('user_preferences')
           .select('preferences')
           .eq('user_id', user.user.id)
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           throw error;

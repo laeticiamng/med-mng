@@ -41,7 +41,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           .from('edn_items_immersive')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
         if (supabaseError) {
           console.error('❌ Erreur Supabase:', supabaseError);

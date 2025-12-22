@@ -349,7 +349,7 @@ class MusicService {
         .from('emotionscare_song_likes')
         .select('id')
         .eq('song_id', songId)
-        .single()
+        .maybeSingle()
 
       if (existing) {
         // Retirer des favoris

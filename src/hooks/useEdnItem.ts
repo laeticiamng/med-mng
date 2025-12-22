@@ -78,7 +78,7 @@ export const useEdnItem = (slug: string | undefined) => {
         .from('edn_items_immersive')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         setError(fetchError.message);
@@ -130,7 +130,7 @@ export const useEdnItem = (slug: string | undefined) => {
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         setError(fetchError.message);

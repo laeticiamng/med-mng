@@ -134,7 +134,7 @@ export default function SRSReview() {
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', currentItem.item_code)
-        .single();
+        .maybeSingle();
       
       setItemDetails(data);
       setItemStartTime(new Date());
