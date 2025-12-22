@@ -48,6 +48,9 @@ const MedMngItemDetailComponent = () => {
   });
 
   useEffect(() => {
+    // Reset tracking ref when item changes to allow progress updates on revisited items
+    trackingRef.current = null;
+    
     if (!item) {
       return;
     }
@@ -59,8 +62,6 @@ const MedMngItemDetailComponent = () => {
     const requestedRang = searchParams.get('rang');
     const requestedIndex = item.audios.findIndex(audio => audio.rang === requestedRang);
     setSelectedAudioIndex(requestedIndex >= 0 ? requestedIndex : 0);
-    // Reset tracking ref when item changes to allow progress updates on revisited items
-    trackingRef.current = null;
   }, [item, searchParams]);
 
   useEffect(() => {
