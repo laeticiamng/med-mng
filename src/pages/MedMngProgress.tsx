@@ -62,9 +62,9 @@ const MedMngProgressComponent = () => {
         {/* Loading */}
         {isLoading && (
           <Card className="border-border/30">
-            <CardContent className="p-8 flex items-center justify-center text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Chargement...
+            <CardContent className="p-8 flex flex-col items-center justify-center text-muted-foreground gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-sm">Un instant…</span>
             </CardContent>
           </Card>
         )}
@@ -72,8 +72,9 @@ const MedMngProgressComponent = () => {
         {/* Error */}
         {isError && (
           <Card className="border-border/30">
-            <CardContent className="p-8 text-center">
-              <p className="text-muted-foreground">Impossible de charger la progression.</p>
+            <CardContent className="p-8 text-center space-y-2">
+              <h2 className="text-lg font-medium">Quelque chose n'a pas fonctionné</h2>
+              <p className="text-sm text-muted-foreground">Tu peux réessayer tranquillement.</p>
             </CardContent>
           </Card>
         )}
