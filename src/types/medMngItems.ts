@@ -36,7 +36,7 @@ export interface ItemAudio {
   audioUrl: string;
   streamUrl: string | null;
   durationSeconds: number | null;
-  rang: 'A' | 'B' | 'mix';
+  rang: ItemRang;
   bpm: number | null;
   style: string | null;
 }
