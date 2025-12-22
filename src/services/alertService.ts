@@ -601,7 +601,7 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
       .from('unified_alerts') as any)
       .select('notes')
       .eq('id', alertId)
-      .single();
+      .maybeSingle();
 
     const currentNotes = (existing as any)?.notes || [];
     const updatedNotes = [...currentNotes, `[${new Date().toISOString()}] ${note}`];
@@ -633,7 +633,7 @@ export async function escalateAlert(alertId: string): Promise<boolean> {
       .from('unified_alerts') as any)
       .select('escalation_level')
       .eq('id', alertId)
-      .single();
+      .maybeSingle();
 
     const newLevel = ((existing as any)?.escalation_level || 0) + 1;
 

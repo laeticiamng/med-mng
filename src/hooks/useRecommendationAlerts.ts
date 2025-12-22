@@ -98,7 +98,7 @@ export function useRecommendationAlerts() {
         .eq('user_id', user.id)
         .eq('recommendation_id', recommendation.id)
         .eq('dismissed', false)
-        .single();
+        .maybeSingle();
 
       if (existing) {
         // Déjà trackée, ne rien faire

@@ -74,7 +74,7 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
           .from('user_notification_settings')
           .select('preferences')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
 
         if (data?.preferences) {
           setPrefs({ ...DEFAULT_PREFS, ...data.preferences });

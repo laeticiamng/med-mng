@@ -73,7 +73,7 @@ export const useEdnItemComplete = (slug: string) => {
           .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         setItem(data);
