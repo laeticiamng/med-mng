@@ -363,7 +363,7 @@ const MedMngItemsLibraryComponent = () => {
 
         {/* États loading/error/empty */}
         {isLoading && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <Card key={index} className="border-border/30">
                 <CardContent className="p-5 space-y-3">
@@ -373,6 +373,7 @@ const MedMngItemsLibraryComponent = () => {
                 </CardContent>
               </Card>
             ))}
+            <p className="col-span-full text-center text-sm text-muted-foreground">Un instant…</p>
           </div>
         )}
 
@@ -380,9 +381,9 @@ const MedMngItemsLibraryComponent = () => {
           <Card className="border-border/30">
             <CardContent className="p-8 text-center space-y-3">
               <BookOpen className="h-10 w-10 mx-auto text-muted-foreground" />
-              <h2 className="text-lg font-medium">Impossible de charger les items</h2>
+              <h2 className="text-lg font-medium">Quelque chose n'a pas fonctionné</h2>
               <p className="text-sm text-muted-foreground">
-                Réessayez dans quelques instants.
+                Tu peux réessayer tranquillement.
               </p>
             </CardContent>
           </Card>
@@ -392,9 +393,9 @@ const MedMngItemsLibraryComponent = () => {
           <Card className="border-border/30">
             <CardContent className="p-8 text-center space-y-3">
               <BookOpen className="h-10 w-10 mx-auto text-muted-foreground" />
-              <h2 className="text-lg font-medium">Aucun item trouvé</h2>
+              <h2 className="text-lg font-medium">Rien ici pour l'instant</h2>
               <p className="text-sm text-muted-foreground">
-                Ajustez vos filtres ou essayez un autre terme.
+                Ajuste tes filtres ou essaie un autre terme.
               </p>
             </CardContent>
           </Card>
