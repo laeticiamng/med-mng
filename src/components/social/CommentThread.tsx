@@ -83,7 +83,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
         .from('profiles')
         .select('name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       await (supabase as any).from('community_comments').insert({
         post_id: postId,

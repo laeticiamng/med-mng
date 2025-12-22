@@ -31,7 +31,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
         .from('med_mng_synchronized_lyrics')
         .select('*')
         .eq('song_id', id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
         throw error;
@@ -72,7 +72,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
         .from('med_mng_songs')
         .select('meta, lyrics')
         .eq('id', targetSongId)
-        .single();
+        .maybeSingle();
 
       if (error || !song) return;
 
@@ -130,7 +130,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
         .from('med_mng_songs')
         .select('meta, lyrics')
         .eq('id', songId)
-        .single();
+        .maybeSingle();
 
       if (!song) return null;
 

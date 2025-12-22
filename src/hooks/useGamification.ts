@@ -159,7 +159,7 @@ export function useGamification() {
         .from('user_gamification_stats')
         .select('longest_streak')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
       
       const storedLongestStreak = gamificationData?.longest_streak || 0;
       const longestStreak = Math.max(storedLongestStreak, currentStreak);

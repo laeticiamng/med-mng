@@ -212,7 +212,7 @@ class QcmService {
         .from('user_quotas')
         .select('*')
         .eq('user_id', user.user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching quotas:', error);

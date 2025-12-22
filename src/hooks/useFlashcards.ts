@@ -328,7 +328,7 @@ export const useFlashcards = () => {
         .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (!item) {
         toast({

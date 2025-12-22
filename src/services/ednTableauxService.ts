@@ -272,7 +272,7 @@ class EdnTableauxService {
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       if (!data) throw new Error('Item non trouvé')

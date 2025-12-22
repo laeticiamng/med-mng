@@ -14,7 +14,7 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
       .from('edn_items_immersive')
       .select('*')
       .eq('item_code', 'IC-2')
-      .single();
+      .maybeSingle();
 
     if (error || !item) {
       console.log('❌ Item IC-2 non trouvé');
