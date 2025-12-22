@@ -33,7 +33,6 @@ export const ROUTE_PATHS = {
   medMngCreate: '/med-mng/create',
   medMngLibrary: '/med-mng/library',
   medMngMusicLibrary: '/med-mng/music-library',
-  medMngItemsLibrary: '/med-mng/library',
   medMngItemDetail: '/med-mng/items/:itemCode',
   medMngProfile: '/med-mng/profile',
   medMngPlayer: '/med-mng/player/:songId',

@@ -342,8 +342,9 @@ export const fetchProgressOverview = async (
   const inProgressCount = validProgressItems.filter(
     item => item.status === 'in_progress'
   ).length;
-  const notStartedCount = validProgressItems.filter(item => item.status === 'not_started')
-    .length;
+  const totalItemsCount = itemsCountResponse.count ?? 0;
+  // Calculate not_started as total items minus items with progress
+  const notStartedCount = totalItemsCount - revisedCount - inProgressCount;
   const streakCurrent = profileResponse.data?.streak_current ?? 0;
   const streakBest = profileResponse.data?.streak_best ?? 0;
   const weeklyGoal = profileResponse.data?.weekly_goal ?? 10;
@@ -366,7 +367,7 @@ export const fetchProgressOverview = async (
   );
 
   return {
-    totalItems: itemsCountResponse.count ?? 0,
+    totalItems: totalItemsCount,
     revisedCount,
     inProgressCount,
     notStartedCount,

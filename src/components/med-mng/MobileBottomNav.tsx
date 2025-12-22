@@ -79,8 +79,8 @@ export const MobileBottomNav: React.FC = () => {
     {
       icon: <Library className="h-5 w-5" />,
       label: "Bibliothèque", 
-      path: ROUTE_PATHS.medMngItemsLibrary,
-      onClick: () => navigate(ROUTE_PATHS.medMngItemsLibrary)
+      path: ROUTE_PATHS.medMngLibrary,
+      onClick: () => navigate(ROUTE_PATHS.medMngLibrary)
     },
     {
       icon: <Heart className="h-5 w-5" />,

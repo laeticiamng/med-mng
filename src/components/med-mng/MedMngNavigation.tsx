@@ -95,9 +95,9 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive(ROUTE_PATHS.medMngItemsLibrary) ? 'secondary' : 'ghost'}
+              variant={isActive(ROUTE_PATHS.medMngLibrary) ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => handleNavigation(ROUTE_PATHS.medMngItemsLibrary, 'Bibliothèque')}
+              onClick={() => handleNavigation(ROUTE_PATHS.medMngLibrary, 'Bibliothèque')}
               className="flex items-center gap-2 px-3"
             >
               <ListMusic className="h-4 w-4" />
