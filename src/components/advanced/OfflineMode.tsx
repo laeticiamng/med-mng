@@ -323,7 +323,7 @@ export const OfflineMode: React.FC = () => {
           .from('edn_items_immersive')
           .select('*')
           .eq('item_code', itemCode)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -346,7 +346,7 @@ export const OfflineMode: React.FC = () => {
           .from('ai_generated_content') as any)
           .select('*')
           .eq('id', musicId)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 

@@ -165,7 +165,7 @@ export function WeeklyChallenges() {
       .eq('user_id', user.id)
       .eq('activity_type', `weekly_challenge_${challenge.id}`)
       .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
-      .single();
+      .maybeSingle();
 
     if (existing) {
       return; // Already claimed this week

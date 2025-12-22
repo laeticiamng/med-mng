@@ -20,7 +20,7 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Erreur:', error);

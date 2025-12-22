@@ -68,7 +68,7 @@ export const EmailReportConfig: React.FC = () => {
       const { data, error } = await supabase
         .from('accessibility_report_config')
         .select('*')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 

@@ -121,7 +121,7 @@ export const UserProfileManager = () => {
       const { data } = await supabase
         .from('user_preferences_extended')
         .select('*')
-        .single();
+        .maybeSingle();
       
       if (data) {
         setPreferences(prev => ({

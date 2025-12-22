@@ -46,7 +46,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
         .from('edn_items_immersive')
         .select('item_code, title, subtitle, paroles_musicales')
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (supabaseError) {
         setError('Item non trouvé');
