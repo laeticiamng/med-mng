@@ -229,12 +229,22 @@ update public.favorites
   where id is null;
 
 DO $$
+DECLARE
+  pk_name text;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.table_constraints
-    WHERE table_schema = 'public' AND table_name = 'favorites' AND constraint_type = 'PRIMARY KEY'
-  ) THEN
-    EXECUTE 'alter table public.favorites drop constraint favorites_pkey';
+  SELECT constraint_name
+  INTO pk_name
+  FROM information_schema.table_constraints
+  WHERE table_schema = 'public'
+    AND table_name = 'favorites'
+    AND constraint_type = 'PRIMARY KEY'
+  LIMIT 1;
+
+  IF pk_name IS NOT NULL THEN
+    EXECUTE format(
+      'alter table public.favorites drop constraint %I',
+      pk_name
+    );
   END IF;
 END $$;
 
