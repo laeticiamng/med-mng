@@ -1,42 +1,36 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
+import { PremiumBackground } from "@/components/ui/premium-background";
 import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ROUTE_PATHS } from "@/config/routes";
 import { supabase } from "@/integrations/supabase/client";
-import { StudyHomeHero } from "@/components/home/StudyHomeHero";
-import { MedMngLayout } from "@/components/med-mng/MedMngLayout";
+import { useGamification } from "@/hooks/useGamification";
+import { AntiPanicHero } from "@/components/home/AntiPanicHero";
+import { QuickActions } from "@/components/home/QuickActions";
+import { ReassuranceSection } from "@/components/home/ReassuranceSection";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
+
+// Composant de loading léger
+const LazyLoadSpinner = () => (
+  <div className="flex justify-center items-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const { stats, loadStats } = useGamification();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [lastItem, setLastItem] = useState<{ code: string; title: string; type: string } | null>(null);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
+        loadStats(user.id);
         
-        // Fetch last viewed item
-        const { data: lastProgress } = await (supabase as any)
-          .from('med_mng_item_progress')
-          .select('item_id, last_seen_at, med_mng_items(code, title, item_type)')
-          .eq('user_id', user.id)
-          .order('last_seen_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        
-        if (lastProgress?.med_mng_items) {
-          setLastItem({
-            code: lastProgress.med_mng_items.code,
-            title: lastProgress.med_mng_items.title,
-            type: lastProgress.med_mng_items.item_type || 'Item',
-          });
-        }
-        
-        // Check onboarding status
+        // Check onboarding status from Supabase
         const { data } = await (supabase as any)
           .from('user_onboarding')
           .select('onboarding_completed')
@@ -47,6 +41,7 @@ const Index = () => {
           setShowOnboarding(true);
         }
       } else {
+        // Anonymous users - check sessionStorage (not localStorage for privacy)
         const hasSeenOnboarding = sessionStorage.getItem('med-mng-onboarding-seen');
         if (!hasSeenOnboarding) {
           setShowOnboarding(true);
@@ -54,19 +49,21 @@ const Index = () => {
       }
     };
     checkUser();
-  }, []);
+  }, [loadStats]);
 
   const handleOnboardingComplete = async () => {
     setShowOnboarding(false);
     
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      // Store in Supabase for logged-in users
       await (supabase as any).from('user_onboarding').upsert({
         user_id: user.id,
         onboarding_completed: true,
         completed_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
     } else {
+      // Use sessionStorage for anonymous (clears on browser close)
       sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
   };
@@ -75,22 +72,39 @@ const Index = () => {
     <>
       <SEOHead
         title="MED MNG - Révise la médecine en musique | EDN & ECOS"
-        description="Apprends la médecine autrement. Mémorise les 367 items EDN et les simulations ECOS grâce à la musique."
-        keywords="médecine, EDN, ECOS, musique, révision, mémorisation, étudiants médecine"
+        description="🎧 Apprends la médecine autrement. Mémorise les 367 items EDN et les simulations ECOS grâce à la musique. Écoute, retiens, réussis."
+        keywords="médecine, EDN, ECOS, musique, révision, mémorisation, étudiants médecine, apprentissage musical, items EDN"
         canonical="/"
       />
       
+      {/* Anti-anxiety onboarding for new users */}
       <AntiAnxietyOnboarding 
         isOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
         onComplete={handleOnboardingComplete}
       />
       
-      <MedMngLayout>
-        <div className="container mx-auto px-4 max-w-2xl">
-          <StudyHomeHero lastItem={lastItem} />
+      <PremiumBackground>
+        <div className="container mx-auto px-4">
+          {/* Hero Section - Anti-Panic */}
+          <div className="pt-16 pb-16">
+            <AntiPanicHero 
+              showGamification={!!user}
+              stats={stats || undefined}
+            />
+          </div>
+
+          {/* Quick Actions - Decision-first */}
+          <div className="pb-20">
+            <QuickActions />
+          </div>
+
+          {/* Reassurance Section */}
+          <div className="pb-20">
+            <ReassuranceSection />
+          </div>
         </div>
-      </MedMngLayout>
+      </PremiumBackground>
     </>
   );
 };

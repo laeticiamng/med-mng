@@ -185,58 +185,47 @@ export const SongCard: React.FC<SongCardProps> = ({
   const titleInfo = parseTitle();
 
   return (
-    <Card className="group hover:shadow-soft transition-all duration-200 bg-card border-border/40 hover:border-border/60">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          {/* Play Button */}
-          <button
-            onClick={handlePlay}
-            className="relative w-12 h-12 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center shrink-0 transition-colors"
-          >
-            <Play className="h-5 w-5 text-primary ml-0.5" />
-          </button>
-
-          {/* Song Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground text-sm leading-tight truncate">
-              {itemTitle || fallbackTitle || titleInfo.item || song.title}
-            </h3>
-            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-              {titleInfo.rang && <span>{titleInfo.rang}</span>}
-              {titleInfo.style && (
-                <>
-                  <span className="text-muted-foreground/40">•</span>
-                  <span className="truncate">{titleInfo.style}</span>
-                </>
-              )}
+    <Card className="group hover:shadow-lg transition-all duration-200 bg-card touch-manipulation">
+      <CardContent className="p-0">
+        {/* Cover Image */}
+        <div className="relative aspect-square bg-gradient-to-br from-primary to-accent rounded-t-lg flex items-center justify-center">
+          <Music className="h-8 w-8 sm:h-12 sm:w-12 text-primary-foreground/80" />
+          
+          {/* AI Badge (Conformité AI Act) */}
+          <div className="absolute top-2 left-2">
+            <AIGeneratedBadge type="music" provider="Suno AI" model="v4.5 Plus" variant="compact" />
+          </div>
+          
+          {/* Gamification Stats */}
+          {stats && (
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded-full text-xs">
+              <Flame className="h-3 w-3 text-warning" />
+              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <Star className="h-3 w-3 text-primary ml-1" />
+              <span className="font-bold text-primary">Nv.{stats.level}</span>
             </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-muted-foreground">{getDuration()}</span>
-              {song.is_liked && (
-                <Heart className="h-3 w-3 fill-destructive text-destructive" />
-              )}
-            </div>
+          )}
+          
+          {/* Play Button Overlay */}
+          <div className="absolute inset-0 bg-black/20 rounded-t-lg opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-200 flex items-center justify-center">
+            <Button
+              onClick={handlePlay}
+              size="lg"
+              className="rounded-full bg-card text-primary hover:bg-card/90 shadow-lg min-h-[48px] min-w-[48px]"
+            >
+              <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-1" />
+            </Button>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggleLike}
-              disabled={isLikeLoading}
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-            >
-              {isLikeLoading ? (
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
-              ) : (
-                <Heart className={`h-4 w-4 ${song.is_liked ? 'fill-current text-destructive' : ''}`} />
-              )}
-            </Button>
-            
+          <div className="absolute top-2 right-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary-foreground hover:bg-primary-foreground/20 opacity-0 group-hover:opacity-100 md:transition-opacity min-h-[44px] min-w-[44px]"
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -244,6 +233,14 @@ export const SongCard: React.FC<SongCardProps> = ({
                 <DropdownMenuItem onClick={handlePlay}>
                   <Play className="h-4 w-4 mr-2" />
                   Écouter
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleToggleLike} disabled={isLikeLoading}>
+                  {isLikeLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                  ) : (
+                    <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-destructive text-destructive' : ''}`} />
+                  )}
+                  {song.is_liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
@@ -275,14 +272,62 @@ export const SongCard: React.FC<SongCardProps> = ({
                   className="text-destructive focus:text-destructive"
                 >
                   {isLoading ? (
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-2" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
                   ) : (
                     <Trash2 className="h-4 w-4 mr-2" />
                   )}
-                  Retirer
+                  Retirer de la bibliothèque
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Song Info */}
+        <div className="p-3 sm:p-4">
+          {/* Item name (highlighted) */}
+          <div className="mb-2">
+            <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight">
+              {itemTitle || fallbackTitle || titleInfo.item || song.title}
+            </h3>
+            {titleInfo.rang && (
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                {titleInfo.rang} • {titleInfo.style}
+              </p>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground mb-3">
+            <span>{getDuration()}</span>
+            <span className="hidden sm:inline">{formatDate(song.added_to_library_at)}</span>
+            <span className="sm:hidden">{formatDate(song.added_to_library_at).split(' ')[0]}</span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleToggleLike}
+              disabled={isLikeLoading}
+              className={`${song.is_liked ? 'text-destructive' : 'text-muted-foreground'} hover:text-destructive transition-colors min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px]`}
+            >
+              {isLikeLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+              ) : (
+                <Heart className={`h-4 w-4 ${song.is_liked ? 'fill-current' : ''}`} />
+              )}
+            </Button>
+            
+            <Button
+              onClick={handlePlay}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex-1 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
+            >
+              <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+              <span className="hidden sm:inline">Écouter</span>
+              <span className="sm:hidden">Play</span>
+            </Button>
           </div>
         </div>
       </CardContent>
