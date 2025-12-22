@@ -1,13 +1,9 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-// Configuration
-const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
-
-const client: SupabaseClient | null =
-  SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    : null;
+// Use the existing supabase client for logging
+// Service role key operations should be done via edge functions
+const client: SupabaseClient | null = supabase as any;
 
 // Types
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical';
@@ -68,7 +64,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   critical: 4
 };
 
-const CURRENT_LOG_LEVEL: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+const CURRENT_LOG_LEVEL: LogLevel = 'info';
 
 // Buffer pour batch logging
 let logBuffer: LogEntry[] = [];

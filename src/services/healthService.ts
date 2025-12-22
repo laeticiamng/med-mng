@@ -201,7 +201,7 @@ export async function getSystemHealth(): Promise<HealthCheckResult> {
     const systemHealth: SystemHealth = {
       status: overallStatus,
       timestamp: new Date().toISOString(),
-      version: import.meta.env.VITE_APP_VERSION || '1.0.0',
+      version: '1.0.0',
       uptime: Math.round((Date.now() - startTime) / 1000),
       services,
       metrics: {

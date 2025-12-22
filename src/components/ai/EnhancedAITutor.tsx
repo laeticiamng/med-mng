@@ -76,7 +76,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
 
-  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
+  const CHAT_URL = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/ai-tutor`;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -198,7 +198,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
       },
       body: JSON.stringify({ messages: userMessages, itemContext: enrichedContext }),
     });

@@ -8,12 +8,12 @@ async function launchEdnExtraction() {
   console.log('🚀 Lancement de l\'extraction automatique des 367 items EDN...');
   
   try {
-    // ✅ SÉCURISÉ: Récupération des credentials depuis l'environnement ou prompt
-    const username = import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:');
-    const password = import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:');
+    // CAS credentials must be provided by the user via secure form
+    const username = prompt('Username CAS:');
+    const password = prompt('Password CAS:');
     
     if (!username || !password) {
-      throw new Error('Credentials manquants - veuillez configurer VITE_CAS_USERNAME et VITE_CAS_PASSWORD');
+      throw new Error('Credentials manquants - veuillez saisir vos identifiants CAS');
     }
     
     const { data, error } = await supabase.functions.invoke('extract-edn-uness', {

@@ -3,7 +3,8 @@
 import { captureError, addBreadcrumb } from './sentry';
 
 // Google Analytics 4 configuration
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+// GA Measurement ID should be configured via secrets if needed
+const GA_MEASUREMENT_ID: string | undefined = undefined;
 
 // Track page views
 export function trackPageView(pagePath: string, pageTitle?: string) {
