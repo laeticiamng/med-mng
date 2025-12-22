@@ -196,6 +196,10 @@ BEGIN
   END IF;
 END $$;
 
+-- Ensure all existing favorites rows have a UUID before adding the primary key
+update public.favorites
+  set id = gen_random_uuid()
+  where id is null;
 alter table public.favorites add primary key (id);
 create unique index if not exists favorites_user_item_unique on public.favorites(user_id, item_id);
 create index if not exists idx_favorites_user on public.favorites(user_id);
