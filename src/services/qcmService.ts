@@ -240,7 +240,7 @@ class QcmService {
         monthly_chat_quota: 100
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error creating default quotas:', error);

@@ -234,7 +234,7 @@ class MusicService {
           is_public: isPublic
         })
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) throw error
 
