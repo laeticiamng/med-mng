@@ -48,6 +48,9 @@ const MedMngItemDetailComponent = () => {
   });
 
   useEffect(() => {
+    // Reset tracking ref when item changes to allow progress updates on revisited items
+    trackingRef.current = null;
+    
     if (!item) {
       return;
     }
