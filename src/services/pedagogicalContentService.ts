@@ -117,7 +117,7 @@ class PedagogicalContentService {
         .from('med_mng_content_ai')
         .select('id, generation_status')
         .eq('item_id', itemId)
-        .single();
+        .maybeSingle();
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;

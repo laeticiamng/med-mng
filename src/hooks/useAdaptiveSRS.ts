@@ -103,7 +103,7 @@ export const useAdaptiveSRS = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('card_id', cardId)
-        .single();
+        .maybeSingle();
 
       const currentEF = existingData?.ease_factor || 2.5;
       const currentInterval = existingData?.interval_days || 0;

@@ -184,7 +184,7 @@ export const useSRS = () => {
         .select('*')
         .eq('user_id', userId)
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       const progress: Partial<UserItemProgress> = currentProgress 
         ? {

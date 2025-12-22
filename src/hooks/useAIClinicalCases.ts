@@ -230,7 +230,7 @@ export const useAIClinicalCases = () => {
         .from('ai_clinical_cases')
         .select('use_count')
         .eq('id', currentProgress.caseId)
-        .single();
+        .maybeSingle();
       
       if (currentCase) {
         await supabase

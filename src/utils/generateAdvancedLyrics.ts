@@ -66,7 +66,7 @@ async function fetchItemData(itemCode: string): Promise<EdnItemData> {
     .from('edn_items_immersive')
     .select('item_code, title, tableau_rang_a, tableau_rang_b')
     .eq('item_code', itemCode)
-    .single();
+    .maybeSingle();
     
   if (error || !data) {
     throw new Error(`Item ${itemCode} non trouvé`);

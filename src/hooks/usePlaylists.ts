@@ -237,7 +237,7 @@ export const usePlaylists = () => {
         .from('med_mng_playlists')
         .select('*')
         .eq('id', playlistId)
-        .single();
+        .maybeSingle();
 
       if (playlistError) throw playlistError;
 
