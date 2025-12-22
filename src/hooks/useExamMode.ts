@@ -407,7 +407,7 @@ export const useExamMode = () => {
         .from('exam_paused_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setCurrentSession(data.session_data);
@@ -434,7 +434,7 @@ export const useExamMode = () => {
         .from('exam_paused_sessions')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       return !!data;
     } catch (error) {

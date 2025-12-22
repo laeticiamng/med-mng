@@ -78,7 +78,7 @@ export const useOnboarding = () => {
       .from('user_onboarding')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     
     setState(prev => ({
       ...prev,
@@ -208,7 +208,7 @@ export const useOnboarding = () => {
       .from('user_onboarding')
       .select('seen_tooltips')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     
     const seenTooltips = data?.seen_tooltips || [];
     if (!seenTooltips.includes(tooltipKey)) {
@@ -230,7 +230,7 @@ export const useOnboarding = () => {
       .from('user_onboarding')
       .select('seen_tooltips')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     
     return (data?.seen_tooltips || []).includes(tooltipKey);
   };

@@ -56,7 +56,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
           .select('rating')
           .eq('user_id', user.id)
           .eq('item_code', itemCode)
-          .single();
+          .maybeSingle();
         if (data) {
           setUserFeedback(data.rating > 3 ? 'like' : data.rating < 3 ? 'dislike' : null);
         }

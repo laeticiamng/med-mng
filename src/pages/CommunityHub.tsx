@@ -76,7 +76,7 @@ const CommunityHub = () => {
           .from('profiles')
           .select('name, email')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         setCurrentUser({ ...user, profile });
         
         // Get badges count from stats

@@ -289,7 +289,7 @@ export default function EdnComplete() {
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', item.item_code)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Erreur fetch item complet:', error);
