@@ -147,98 +147,80 @@ const MedMngProgressComponent = () => {
               </CardContent>
             </Card>
 
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Progression par spécialité</h2>
-                  {data.specialtyStats.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucune donnée disponible.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {data.specialtyStats.map(stat => {
-                        const percent = stat.total ? Math.round((stat.revised / stat.total) * 100) : 0;
-                        return (
-                          <div key={stat.specialty} className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
-                              <span>{stat.specialty}</span>
-                              <span>{percent}%</span>
-                            </div>
-                            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                              <div className="h-full bg-success" style={{ width: `${percent}%` }} />
-                            </div>
+            {/* Progression par spécialité */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-4">
+                <h2 className="font-semibold text-foreground">Progression par spécialité</h2>
+                {data.specialtyStats.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Aucune donnée disponible.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {data.specialtyStats.map(stat => {
+                      const percent = stat.total ? Math.round((stat.revised / stat.total) * 100) : 0;
+                      return (
+                        <div key={stat.specialty} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">{stat.specialty}</span>
+                            <span className="text-foreground">{percent}%</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Items à faire</h2>
-                  {data.itemsToReview.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-6">
-                      Aucun item à faire pour le moment.
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {data.itemsToReview.map(item => (
-                        <div
-                          key={item.id}
-                          className="flex flex-col gap-2 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
-                        >
-                          <div>
-                            <p className="text-sm text-muted-foreground">{item.code}</p>
-                            <p className="font-medium text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {item.specialty ?? 'Spécialité non précisée'} • {item.itemType}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary">
-                              {item.status === 'not_started' ? 'À faire' : 'En cours'}
-                            </Badge>
-                            <Badge variant="outline">
-                              {item.revisionCount}x
-                            </Badge>
+                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-success transition-all" style={{ width: `${percent}%` }} />
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <div className="space-y-6">
-              <Card>
-                <CardContent className="p-6 space-y-2">
-                  <h2 className="text-lg font-semibold">Streak</h2>
-                  <p className="text-3xl font-bold text-primary">{data.streakCurrent} jours</p>
-                  <p className="text-sm text-muted-foreground">
-                    Record: {data.streakBest} jours
+            {/* Items à faire */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-4">
+                <h2 className="font-semibold text-foreground">Items à réviser</h2>
+                {data.itemsToReview.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Aucun item à faire pour le moment.
                   </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">Activité récente</h2>
-                  {data.recentActivity.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Pas d'activité récente.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {data.recentActivity.map(activity => (
-                        <div key={activity.date} className="flex items-center justify-between text-sm">
-                          <span>{new Date(activity.date).toLocaleDateString('fr-FR')}</span>
-                          <Badge variant="secondary">{activity.revisedCount} révisés</Badge>
+                ) : (
+                  <div className="space-y-2">
+                    {data.itemsToReview.map(item => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between rounded-lg border border-border/30 p-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">{item.code}</p>
+                          <p className="font-medium text-foreground text-sm truncate">{item.title}</p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                        <Badge variant="secondary" className="text-xs ml-2 shrink-0">
+                          {item.status === 'not_started' ? 'À faire' : 'En cours'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Activité récente */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-3">
+                <h2 className="font-semibold text-foreground">Activité récente</h2>
+                {data.recentActivity.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Pas d'activité récente.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {data.recentActivity.map(activity => (
+                      <div key={activity.date} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{new Date(activity.date).toLocaleDateString('fr-FR')}</span>
+                        <Badge variant="outline" className="text-xs">{activity.revisedCount} révisés</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
