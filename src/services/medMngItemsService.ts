@@ -91,7 +91,11 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
       isFavorite: favoriteIds.has(item.id),
       revisionCount: progress?.revision_count ?? 0,
       score: progress?.score ?? 0,
-      hasAudio: Boolean(item.audios && item.audios.length > 0),
+      hasAudio: Boolean(
+        item.audios && 
+        item.audios.length > 0 && 
+        item.audios.some((audio: any) => audio.url || audio.audio_url || audio.stream_url)
+      ),
       popularityScore: progress?.revision_count ?? 0,
     };
   });

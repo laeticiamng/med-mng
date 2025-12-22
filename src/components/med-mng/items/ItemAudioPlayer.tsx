@@ -102,7 +102,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentTime, duration, handleToggle]);
+  }, [currentTime, duration, handleToggle, handleSeek]);
 
   const handleToggle = useCallback(() => {
     const element = audioRef.current;
@@ -120,7 +120,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     setIsPlaying(true);
   }, [isPlaying]);
 
-  const handleSeek = (value: number) => {
+  const handleSeek = useCallback((value: number) => {
     const element = audioRef.current;
     if (!element) {
       return;
@@ -128,7 +128,7 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
 
     element.currentTime = value;
     setCurrentTime(value);
-  };
+  }, []);
 
   const handlePrevious = () => {
     if (selectedIndex > 0) {
