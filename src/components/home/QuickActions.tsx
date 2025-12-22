@@ -73,38 +73,38 @@ export const QuickActions: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          🎵 Comment tu veux réviser ?
+    <div className="space-y-6 px-4">
+      {/* Section header - Studieux */}
+      <div className="text-center mb-2">
+        <h2 className="text-xl font-semibold text-foreground">
+          Accès rapides
         </h2>
-        <p className="text-muted-foreground">
-          La musique d'abord. Le reste suivra.
-        </p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+      {/* Grid de cards - Espaces généreux, mobile-first */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
         {actions.map((action) => (
           <Card 
             key={action.id}
-            className={`p-6 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 group ${
-              action.highlight 
-                ? 'bg-gradient-to-br from-primary/10 via-card/80 to-accent/10 border-primary/30 hover:border-primary/50' 
-                : 'bg-card/50 hover:bg-card/80 border-border/30'
+            className={`p-5 cursor-pointer transition-all hover:shadow-md border-border/40 bg-card/60 backdrop-blur-sm rounded-xl ${
+              action.highlight ? 'border-primary/20' : ''
             }`}
             onClick={() => navigate(action.path)}
           >
             <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-xl ${action.bgLight}`}>
-                <action.icon className={`h-6 w-6 ${action.textColor}`} />
+              <div className={`p-2.5 rounded-lg ${action.bgLight}`}>
+                <action.icon className={`h-5 w-5 ${action.textColor}`} />
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-foreground">
-                    {action.title}
-                  </h3>
-                  <Badge variant="secondary" className="text-xs">
+                <h3 className="font-medium text-foreground text-sm mb-1">
+                  {action.title}
+                </h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {action.subtitle}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs py-0.5 px-2">
                     {action.duration === 'Passif' ? (
                       <Sparkles className="h-3 w-3 mr-1" />
                     ) : (
@@ -113,34 +113,24 @@ export const QuickActions: React.FC = () => {
                     {action.duration}
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {action.subtitle}
-                </p>
-                <Button 
-                  variant={action.highlight ? "default" : "ghost"}
-                  size="sm" 
-                  className={`${action.highlight ? 'bg-primary hover:bg-primary/90' : `p-0 h-auto ${action.textColor}`} group-hover:underline`}
-                >
-                  {action.highlight && <Play className="h-4 w-4 mr-1" />}
-                  {action.cta}
-                  <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </Button>
               </div>
+              
+              <ArrowRight className="h-4 w-4 text-muted-foreground/50 mt-1" />
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Bibliothèque musicale - lien secondaire prominent */}
-      <div className="flex justify-center pt-4">
+      {/* Lien bibliothèque - Discret */}
+      <div className="flex justify-center pt-2">
         <Button 
-          variant="outline" 
-          size="lg"
-          className="border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+          variant="ghost" 
+          size="sm"
+          className="text-muted-foreground hover:text-foreground"
           onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
         >
-          <ListMusic className="h-5 w-5 mr-2 text-primary" />
-          Accéder à ma bibliothèque musicale
+          <ListMusic className="h-4 w-4 mr-2" />
+          Ma bibliothèque musicale
         </Button>
       </div>
     </div>

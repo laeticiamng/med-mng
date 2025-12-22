@@ -34,115 +34,114 @@ export const AntiPanicHero: React.FC<AntiPanicHeroProps> = ({ showGamification, 
 
   return (
     <>
-      <div className="text-center mb-16">
-        {/* Badge musical - visible immédiatement */}
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 px-5 py-2.5 rounded-full mb-8 border border-primary/20">
-          <Headphones className="h-5 w-5 text-primary animate-pulse" />
-          <span className="text-sm text-foreground font-semibold">Apprends la médecine en musique</span>
-          <Music className="h-4 w-4 text-accent-foreground" />
-        </div>
-        
-        {/* Main headline - Étudiant + Musique */}
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
-          <span className="bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">
-            Révise la médecine
-          </span>
-          <br />
-          <span className="text-foreground">en musique</span>
+      <div className="text-center mb-12 px-4">
+        {/* Headline studieux - Direct et rassurant */}
+        <h1 className="text-3xl md:text-5xl font-bold mb-4 text-foreground leading-tight tracking-tight">
+          Qu'est-ce que tu veux réviser aujourd'hui ?
         </h1>
         
-        {/* Subheadline - Bénéfice clair */}
-        <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed">
-          🎧 La musique fait le travail de mémorisation.
-          <br />
-          <span className="text-foreground font-semibold">Toi, tu écoutes. Tu retiens.</span>
+        {/* Sous-texte - Guidage clair */}
+        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
+          Recherche par spécialité, type ou mots-clés.
         </p>
 
-        {/* Micro-preuves étudiantes */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
-          <Badge variant="secondary" className="py-1.5 px-3 text-sm">
-            <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-            367 items EDN
-          </Badge>
-          <Badge variant="secondary" className="py-1.5 px-3 text-sm">
-            <Target className="h-3.5 w-3.5 mr-1.5" />
-            Simulations ECOS
-          </Badge>
-          <Badge variant="secondary" className="py-1.5 px-3 text-sm">
-            <Brain className="h-3.5 w-3.5 mr-1.5" />
-            Mémorisation passive
-          </Badge>
-        </div>
-        
-        {/* Primary CTA - Lanceur de session */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <Button 
-            size="lg" 
-            className="h-16 px-10 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-xl shadow-primary/30 group"
-            onClick={() => navigate(ROUTE_PATHS.generator)}
+        {/* Barre de recherche - Point d'entrée principal */}
+        <div className="max-w-2xl mx-auto mb-10">
+          <div 
+            className="relative group cursor-pointer"
+            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
           >
-            <Play className="h-6 w-6 mr-3 group-hover:scale-110 transition-transform" />
-            Lancer ma session de révision
-            <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform" />
-          </Button>
+            <div className="flex items-center bg-card/80 backdrop-blur-sm border-2 border-border/50 hover:border-primary/40 rounded-2xl px-6 py-4 transition-all shadow-sm hover:shadow-lg">
+              <BookOpen className="h-5 w-5 text-muted-foreground mr-3" />
+              <span className="text-muted-foreground text-left flex-1">
+                Rechercher un item EDN, une spécialité...
+              </span>
+              <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
         </div>
 
-        {/* Secondary CTA */}
-        <div className="flex flex-wrap gap-3 justify-center">
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="h-12 px-6 text-muted-foreground border-border/50 hover:bg-muted/50 hover:text-foreground"
-            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
-          >
-            <BookOpen className="h-4 w-4 mr-2" />
-            Explorer les items EDN
-          </Button>
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="h-12 px-6 text-muted-foreground border-border/50 hover:bg-muted/50 hover:text-foreground"
-            onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
-          >
-            <Target className="h-4 w-4 mr-2" />
-            Simulations ECOS
-          </Button>
-        </div>
-
-        {/* Reassurance text */}
-        <p className="text-sm text-muted-foreground/70 mt-8 italic">
-          "Écoute en marchant, en cuisinant, en te reposant. Le cerveau mémorise tout seul."
-        </p>
-
-        {/* Gamification widget for logged in users */}
+        {/* Bloc "Reprendre ma révision" - Valorisé */}
         {showGamification && stats && (
-          <div className="mt-12 max-w-xl mx-auto">
+          <div className="max-w-md mx-auto mb-10">
             <div 
-              className="bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-sm rounded-xl p-5 border border-primary/20 cursor-pointer hover:border-primary/40 transition-all group"
-              onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
+              className="bg-card/90 backdrop-blur-sm rounded-2xl p-5 border border-border/50 cursor-pointer hover:border-primary/30 hover:shadow-md transition-all"
+              onClick={() => navigate(ROUTE_PATHS.medMngProgress)}
             >
-              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wide">Ta progression</p>
-              <div className="flex items-center justify-center gap-8 flex-wrap">
+              <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">
+                Reprendre ma révision
+              </p>
+              <div className="flex items-center justify-center gap-6">
                 <div className="flex items-center gap-2">
-                  <Flame className="h-6 w-6 text-warning" />
-                  <span className="text-2xl font-bold text-foreground">{stats.currentStreak}</span>
+                  <Flame className="h-5 w-5 text-warning" />
+                  <span className="text-xl font-bold text-foreground">{stats.currentStreak}</span>
                   <span className="text-sm text-muted-foreground">jours</span>
                 </div>
-                <div className="w-px h-8 bg-border hidden sm:block" />
+                <div className="w-px h-6 bg-border" />
                 <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  <span className="text-xl font-bold text-foreground">Niveau {stats.level}</span>
-                </div>
-                <div className="w-px h-8 bg-border hidden sm:block" />
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🏆</span>
-                  <span className="text-xl font-bold text-foreground">{stats.badges.length}</span>
-                  <span className="text-sm text-muted-foreground">badges</span>
+                  <Target className="h-4 w-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    {stats.weeklyGoalProgress}/{stats.weeklyGoal} cette semaine
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Tags rapides - Accès directs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          <Badge 
+            variant="secondary" 
+            className="py-2 px-4 text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
+            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+          >
+            <BookOpen className="h-3.5 w-3.5 mr-2" />
+            367 items EDN
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="py-2 px-4 text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
+            onClick={() => navigate(ROUTE_PATHS.ecosIndex)}
+          >
+            <Target className="h-3.5 w-3.5 mr-2" />
+            ECOS
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="py-2 px-4 text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
+            onClick={() => navigate(ROUTE_PATHS.generator)}
+          >
+            <Headphones className="h-3.5 w-3.5 mr-2" />
+            Écoute musicale
+          </Badge>
+        </div>
+        
+        {/* CTA Principal - Session de révision */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <Button 
+            size="lg" 
+            className="h-14 px-8 text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+          >
+            <Play className="h-5 w-5 mr-2" />
+            Commencer à réviser
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="lg"
+            className="h-14 px-6 text-muted-foreground hover:text-foreground"
+            onClick={() => navigate(ROUTE_PATHS.generator)}
+          >
+            <Headphones className="h-4 w-4 mr-2" />
+            Écouter en musique
+          </Button>
+        </div>
+
+        {/* Message rassurant */}
+        <p className="text-sm text-muted-foreground/70 mt-8">
+          Prends ton temps. La régularité fait la différence.
+        </p>
       </div>
 
       {/* Priority Mode Dialog */}
