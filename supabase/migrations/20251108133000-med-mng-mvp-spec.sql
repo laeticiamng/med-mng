@@ -22,6 +22,28 @@ alter table public.items add column if not exists difficulty integer default 1;
 
 DO $$
 BEGIN
+  -- Drop old item_type constraint if it exists (before or after rename)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE table_schema = 'public' AND table_name = 'items' 
+    AND constraint_name LIKE '%item_type%check%'
+  ) THEN
+    -- Get the actual constraint name and drop it
+    DECLARE
+      constraint_name_var text;
+    BEGIN
+      SELECT constraint_name INTO constraint_name_var
+      FROM information_schema.table_constraints
+      WHERE table_schema = 'public' AND table_name = 'items' 
+      AND constraint_name LIKE '%item_type%check%'
+      LIMIT 1;
+      
+      IF constraint_name_var IS NOT NULL THEN
+        EXECUTE format('alter table public.items drop constraint %I', constraint_name_var);
+      END IF;
+    END;
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
     WHERE table_schema = 'public' AND table_name = 'items' AND constraint_name = 'items_type_check'
