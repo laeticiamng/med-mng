@@ -268,6 +268,12 @@ create policy "Users can manage own playlist items" on public.playlist_items
       where playlists.id = playlist_items.playlist_id
       and playlists.user_id = auth.uid()
     )
+  ) with check (
+    exists (
+      select 1 from public.playlists
+      where playlists.id = playlist_items.playlist_id
+      and playlists.user_id = auth.uid()
+    )
   );
 
 create policy "Users can manage own sessions" on public.study_sessions
