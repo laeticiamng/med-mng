@@ -97,14 +97,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         console.groupEnd();
       }
 
-      // Send to API endpoint for logging
-      await fetch('/api/errors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(error)
-      }).catch(() => {
-        // Silently fail - don't throw errors in error reporting
-      });
+      // Log errors via console in Lovable (no /api endpoint available)
+      // Error tracking should be done via Sentry or Supabase edge functions if configured
+      console.error('[ErrorBoundary] Error logged:', error);
     } catch (reportingError) {
       // Silently fail - don't let error reporting break the error boundary
       console.warn('Failed to report error:', reportingError);

@@ -51,23 +51,21 @@ export const DynamicOnboarding: React.FC = () => {
 
   const loadDynamicOnboarding = async () => {
     try {
-      // ⚡ OPTIMISATION : Pas d'attente pour l'API - démarrer avec le static d'abord
+      // ⚡ OPTIMISATION : Use static onboarding (no API endpoint in Lovable)
       loadStaticOnboarding();
       setIsLoading(false);
       
-      // Charger l'API en arrière-plan sans bloquer l'interface
-      const response = await fetch('/api/med-mng/help/onboarding', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      // Try to load dynamic onboarding from Supabase edge function if available
+      try {
+        const { data, error } = await supabase.functions.invoke('get-onboarding-steps', {
+          body: {}
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.steps && data.steps.length > 0) {
-          setOnboardingData(data.steps); // Mettre à jour seulement si l'API a du contenu
+        if (!error && data?.steps && data.steps.length > 0) {
+          setOnboardingData(data.steps);
         }
+      } catch {
+        // Edge function not available, use static fallback (this is expected)
       }
     } catch (error) {
       console.warn('Failed to load dynamic onboarding, using static fallback:', error);
