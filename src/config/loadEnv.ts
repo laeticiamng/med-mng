@@ -1,11 +1,7 @@
-import { config } from 'dotenv'
-import { existsSync } from 'fs'
-import path from 'path'
-
+// Environment loading is handled by Vite and Lovable
+// This file is kept for backwards compatibility but does nothing in Lovable environment
 export function loadEnv() {
-  const env = process.env.NODE_ENV || 'development'
-  const envFile = path.resolve(process.cwd(), `.env.${env}`)
-  if (existsSync(envFile)) {
-    config({ path: envFile })
-  }
+  // No-op in Lovable environment
+  // Environment variables should be configured via secrets or hardcoded for Supabase
+  console.debug('loadEnv called - no-op in Lovable environment');
 }

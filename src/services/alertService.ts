@@ -71,9 +71,10 @@ export interface AlertStats {
   openAlerts: number;
 }
 
-// Configuration des webhooks
-const discordWebhook = process.env.DISCORD_WEBHOOK_URL || import.meta.env?.VITE_DISCORD_WEBHOOK_URL;
-const slackWebhook = process.env.SLACK_WEBHOOK_URL || import.meta.env?.VITE_SLACK_WEBHOOK_URL;
+// Configuration des webhooks - les webhooks doivent être configurés via edge functions
+// Ces variables sont optionnelles et ne bloquent pas le fonctionnement
+const discordWebhook: string | undefined = undefined;
+const slackWebhook: string | undefined = undefined;
 
 // Cache pour déduplication et rate limiting
 const alertCache = new Map<string, number>();

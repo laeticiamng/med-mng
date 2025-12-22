@@ -83,10 +83,11 @@ export const usePushNotifications = () => {
     setIsLoading(true);
 
     try {
-      // Récupérer la clé publique VAPID depuis l'environnement
-      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      // VAPID public key - should be configured via edge function or secrets
+      // This is a placeholder - push notifications require proper VAPID setup
+      const vapidPublicKey: string | undefined = undefined;
       if (!vapidPublicKey) {
-        throw new Error('VAPID public key not configured');
+        throw new Error('VAPID public key not configured - please set up push notifications via edge functions');
       }
 
       const registration = await navigator.serviceWorker.ready;
