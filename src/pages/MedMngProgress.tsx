@@ -112,7 +112,7 @@ const MedMngProgressComponent = () => {
                         if (!user?.id) {
                           return;
                         }
-                        await supabase
+                        await (supabase as any)
                           .from('profiles')
                           .update({ weekly_goal: Number(value) })
                           .eq('id', user.id);
