@@ -176,7 +176,7 @@ const MedMngCreateComponent = () => {
                 </div>
                 <div className="flex gap-3 justify-center">
                   <Button 
-                    onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
+                    onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
                     variant="outline"
                   >
                     Ma Bibliothèque

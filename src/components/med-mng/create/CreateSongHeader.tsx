@@ -28,7 +28,7 @@ export const CreateSongHeader: React.FC<CreateSongHeaderProps> = ({ remainingCre
         
         <Button
           variant="outline"
-          onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
+          onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
           className="flex items-center gap-2 bg-background/80 hover:bg-background shadow-sm"
         >
           <Music className="h-4 w-4" />

@@ -184,7 +184,7 @@ const MedMngPlayerComponent = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/10 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Chanson introuvable</h1>
-          <Button onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
+          <Button onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}>
             Retour à la bibliothèque
           </Button>
         </div>
@@ -201,7 +201,7 @@ const MedMngPlayerComponent = () => {
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

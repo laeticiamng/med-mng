@@ -144,7 +144,7 @@ export const useSongGeneration = () => {
       try {
         await medMngApi.addToLibrary(generatedSong.id);
         toast.success('Ajouté à votre bibliothèque !');
-        navigate(ROUTE_PATHS.medMngLibrary);
+        navigate(ROUTE_PATHS.medMngMusicLibrary);
       } catch (error) {
         toast.error('Erreur lors de l\'ajout');
       }

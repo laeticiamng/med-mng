@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Library, Plus, CreditCard, User, Flame } from 'lucide-react';
+import { Home, Library, Plus, CreditCard, User, Flame, Heart } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { cn } from '@/lib/utils';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -79,8 +79,14 @@ export const MobileBottomNav: React.FC = () => {
     {
       icon: <Library className="h-5 w-5" />,
       label: "Bibliothèque", 
-      path: ROUTE_PATHS.medMngLibrary,
-      onClick: () => navigate(ROUTE_PATHS.medMngLibrary)
+      path: ROUTE_PATHS.medMngItemsLibrary,
+      onClick: () => navigate(ROUTE_PATHS.medMngItemsLibrary)
+    },
+    {
+      icon: <Heart className="h-5 w-5" />,
+      label: "Favoris",
+      path: ROUTE_PATHS.medMngFavorites,
+      onClick: () => navigate(ROUTE_PATHS.medMngFavorites)
     },
     {
       icon: <Plus className="h-5 w-5" />,
