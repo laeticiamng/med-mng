@@ -104,16 +104,27 @@ const MedMngFavoritesComponent = () => {
       return;
     }
 
-    await Promise.all(
-      selectedIds.map(itemId => toggleFavoriteItem({ userId: user.id, itemId, isFavorite: true }))
-    );
+    try {
+      await Promise.all(
+        selectedIds.map(itemId =>
+          toggleFavoriteItem({ userId: user.id, itemId, isFavorite: true })
+        )
+      );
 
-    setSelectedIds([]);
-    toast({
-      title: 'Favoris mis à jour',
-      description: 'Les items sélectionnés ont été retirés des favoris.',
-    });
-    await refetch();
+      setSelectedIds([]);
+      toast({
+        title: 'Favoris mis à jour',
+        description: 'Les items sélectionnés ont été retirés des favoris.',
+      });
+      await refetch();
+    } catch (error) {
+      console.error('Failed to remove selected favorites', error);
+      toast({
+        title: 'Erreur lors de la mise à jour des favoris',
+        description: 'Une erreur est survenue lors du retrait des items sélectionnés des favoris.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleExport = () => {
