@@ -1,5 +1,9 @@
 export const ROUTE_PATHS = {
   home: '/',
+  niveaux: '/niveaux',
+  niveauD2: '/niveaux/d2',
+  niveauD3: '/niveaux/d3',
+  niveauD4: '/niveaux/d4',
   modularDashboard: '/modular-dashboard',
   dashboard: '/dashboard',
   learningDashboard: '/learning-dashboard',
