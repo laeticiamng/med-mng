@@ -84,7 +84,7 @@ const Index = () => {
               >
                 <Button 
                   size="lg"
-                  onClick={() => navigate(ROUTE_PATHS.ednComplete)}
+                  onClick={() => navigate(ROUTE_PATHS.niveaux)}
                   className="text-lg px-8 py-6 h-auto font-semibold group"
                 >
                   Choisir mon niveau
@@ -179,7 +179,7 @@ const Index = () => {
               <Button 
                 variant="outline"
                 size="lg"
-                onClick={() => navigate(ROUTE_PATHS.ednComplete)}
+                onClick={() => navigate(ROUTE_PATHS.niveaux)}
                 className="text-lg px-8 py-6 h-auto font-medium group"
               >
                 Commencer maintenant
