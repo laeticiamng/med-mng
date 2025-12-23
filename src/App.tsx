@@ -47,7 +47,6 @@ const Niveaux = lazy(() => import("./pages/Niveaux"));
 const NiveauD2 = lazy(() => import("./pages/NiveauD2"));
 const NiveauD3 = lazy(() => import("./pages/NiveauD3"));
 const NiveauD4 = lazy(() => import("./pages/NiveauD4"));
-const FicheCliniqueDemo = lazy(() => import("./pages/FicheCliniqueDemo"));
 
 // 🎵 EDN PAGES - Lazy loaded
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
@@ -198,7 +197,6 @@ const App = () => {
           <Route path={ROUTE_PATHS.niveauD2} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NiveauD2 /></Suspense>} />
           <Route path={ROUTE_PATHS.niveauD3} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NiveauD3 /></Suspense>} />
           <Route path={ROUTE_PATHS.niveauD4} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NiveauD4 /></Suspense>} />
-          <Route path={ROUTE_PATHS.ficheDemo} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FicheCliniqueDemo /></Suspense>} />
           
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
