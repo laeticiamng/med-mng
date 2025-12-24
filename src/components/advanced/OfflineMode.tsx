@@ -46,6 +46,22 @@ interface SyncQueueItem {
   table: string;
   data: any;
   timestamp: number;
+  retryCount: number;
+  maxRetries: number;
+  priority: 'high' | 'medium' | 'low';
+}
+
+interface DownloadProgress {
+  itemId: string;
+  progress: number;
+  status: 'pending' | 'downloading' | 'completed' | 'error';
+  error?: string;
+}
+
+interface StorageQuota {
+  used: number;
+  available: number;
+  percentage: number;
 }
 
 // IndexedDB helper class

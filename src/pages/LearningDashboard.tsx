@@ -24,6 +24,22 @@ interface LearningGoal {
   unit: string;
   deadline?: string;
   completed: boolean;
+  category: 'study' | 'music' | 'quiz' | 'flashcards' | 'general';
+  priority: 'high' | 'medium' | 'low';
+  createdAt: string;
+  completedAt?: string;
+  streakDays: number;
+}
+
+interface UserSettings {
+  studyNotifications: boolean;
+  autoRecommendations: boolean;
+  detailedAnalytics: boolean;
+  adaptiveMode: boolean;
+  dailyGoal: number;
+  weeklyGoal: number;
+  preferredTime: string;
+  reminderTime: string;
 }
 
 export default function LearningDashboard() {
@@ -39,6 +55,21 @@ export default function LearningDashboard() {
   const [newGoalTitle, setNewGoalTitle] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState('');
   const [newGoalUnit, setNewGoalUnit] = useState('items');
+  const [newGoalPriority, setNewGoalPriority] = useState<'high' | 'medium' | 'low'>('medium');
+  const [newGoalDeadline, setNewGoalDeadline] = useState('');
+
+  // Settings state
+  const [settings, setSettings] = useState<UserSettings>({
+    studyNotifications: true,
+    autoRecommendations: true,
+    detailedAnalytics: true,
+    adaptiveMode: true,
+    dailyGoal: 10,
+    weeklyGoal: 50,
+    preferredTime: 'afternoon',
+    reminderTime: '19:00'
+  });
+  const [settingsLoading, setSavingSettings] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -64,13 +95,72 @@ export default function LearningDashboard() {
             target: g.target_value,
             current: g.current_value,
             unit: g.goal_type || 'items',
-            completed: g.completed
+            completed: g.completed,
+            category: g.category || 'general',
+            priority: g.priority || 'medium',
+            createdAt: g.created_at || new Date().toISOString(),
+            completedAt: g.completed_at,
+            streakDays: g.streak_days || 0
           })));
+        }
+
+        // Load user settings
+        const { data: settingsData } = await (supabase as any)
+          .from('user_preferences')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (settingsData) {
+          setSettings({
+            studyNotifications: settingsData.study_notifications ?? true,
+            autoRecommendations: settingsData.auto_recommendations ?? true,
+            detailedAnalytics: settingsData.detailed_analytics ?? true,
+            adaptiveMode: settingsData.adaptive_mode ?? true,
+            dailyGoal: settingsData.daily_goal ?? 10,
+            weeklyGoal: settingsData.weekly_goal ?? 50,
+            preferredTime: settingsData.preferred_time ?? 'afternoon',
+            reminderTime: settingsData.reminder_time ?? '19:00'
+          });
         }
       }
     };
     init();
   }, [loadStats, getStreak, getTodayStats]);
+
+  // Save settings to Supabase
+  const saveSettings = async (newSettings: UserSettings) => {
+    if (!userId) return;
+    setSavingSettings(true);
+
+    try {
+      await (supabase as any)
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          study_notifications: newSettings.studyNotifications,
+          auto_recommendations: newSettings.autoRecommendations,
+          detailed_analytics: newSettings.detailedAnalytics,
+          adaptive_mode: newSettings.adaptiveMode,
+          daily_goal: newSettings.dailyGoal,
+          weekly_goal: newSettings.weeklyGoal,
+          preferred_time: newSettings.preferredTime,
+          reminder_time: newSettings.reminderTime,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+
+      setSettings(newSettings);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const updateSetting = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
+    const newSettings = { ...settings, [key]: value };
+    saveSettings(newSettings);
+  };
 
   const saveGoals = async (newGoals: LearningGoal[]) => {
     setGoals(newGoals);
@@ -94,19 +184,46 @@ export default function LearningDashboard() {
 
   const addGoal = () => {
     if (!newGoalTitle || !newGoalTarget) return;
-    
+
     const newGoal: LearningGoal = {
       id: Date.now().toString(),
       title: newGoalTitle,
       target: parseInt(newGoalTarget),
       current: 0,
       unit: newGoalUnit,
-      completed: false
+      completed: false,
+      category: 'general',
+      priority: newGoalPriority,
+      createdAt: new Date().toISOString(),
+      streakDays: 0,
+      deadline: newGoalDeadline || undefined
     };
-    
+
     saveGoals([...goals, newGoal]);
     setNewGoalTitle('');
     setNewGoalTarget('');
+    setNewGoalPriority('medium');
+    setNewGoalDeadline('');
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'border-l-4 border-l-destructive';
+      case 'medium': return 'border-l-4 border-l-warning';
+      case 'low': return 'border-l-4 border-l-success';
+      default: return '';
+    }
+  };
+
+  const getGoalProgress = (goal: LearningGoal) => {
+    return Math.min(100, Math.round((goal.current / goal.target) * 100));
+  };
+
+  const getDaysRemaining = (deadline?: string) => {
+    if (!deadline) return null;
+    const diff = new Date(deadline).getTime() - new Date().getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days;
   };
 
   const updateGoalProgress = (goalId: string, progress: number) => {
@@ -346,7 +463,7 @@ export default function LearningDashboard() {
                 <CardHeader>
                   <CardTitle>Paramètres d'Apprentissage</CardTitle>
                   <CardDescription>
-                    Personnalisez votre expérience d'apprentissage
+                    Personnalisez votre expérience d'apprentissage {settingsLoading && '(Sauvegarde...)'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -358,10 +475,11 @@ export default function LearningDashboard() {
                           Recevoir des rappels pour vos sessions d'étude
                         </p>
                       </div>
-                      <input 
-                        type="checkbox" 
-                        defaultChecked 
-                        className="h-4 w-4 text-primary"
+                      <input
+                        type="checkbox"
+                        checked={settings.studyNotifications}
+                        onChange={(e) => updateSetting('studyNotifications', e.target.checked)}
+                        className="h-4 w-4 text-primary rounded"
                       />
                     </div>
 
@@ -372,10 +490,11 @@ export default function LearningDashboard() {
                           Activer les suggestions d'items basées sur vos performances
                         </p>
                       </div>
-                      <input 
-                        type="checkbox" 
-                        defaultChecked 
-                        className="h-4 w-4 text-primary"
+                      <input
+                        type="checkbox"
+                        checked={settings.autoRecommendations}
+                        onChange={(e) => updateSetting('autoRecommendations', e.target.checked)}
+                        className="h-4 w-4 text-primary rounded"
                       />
                     </div>
 
@@ -386,10 +505,11 @@ export default function LearningDashboard() {
                           Collecter des données détaillées sur votre progression
                         </p>
                       </div>
-                      <input 
-                        type="checkbox" 
-                        defaultChecked 
-                        className="h-4 w-4 text-primary"
+                      <input
+                        type="checkbox"
+                        checked={settings.detailedAnalytics}
+                        onChange={(e) => updateSetting('detailedAnalytics', e.target.checked)}
+                        className="h-4 w-4 text-primary rounded"
                       />
                     </div>
 
@@ -400,10 +520,91 @@ export default function LearningDashboard() {
                           Ajuster automatiquement la difficulté selon vos performances
                         </p>
                       </div>
-                      <input 
-                        type="checkbox" 
-                        defaultChecked 
-                        className="h-4 w-4 text-primary"
+                      <input
+                        type="checkbox"
+                        checked={settings.adaptiveMode}
+                        onChange={(e) => updateSetting('adaptiveMode', e.target.checked)}
+                        className="h-4 w-4 text-primary rounded"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Objectifs Quotidiens</CardTitle>
+                  <CardDescription>
+                    Définissez vos objectifs d'apprentissage
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Objectif quotidien</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Nombre d'activités par jour
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        value={settings.dailyGoal}
+                        onChange={(e) => updateSetting('dailyGoal', parseInt(e.target.value) || 10)}
+                        className="w-20"
+                        min={1}
+                        max={100}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Objectif hebdomadaire</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Nombre d'activités par semaine
+                        </p>
+                      </div>
+                      <Input
+                        type="number"
+                        value={settings.weeklyGoal}
+                        onChange={(e) => updateSetting('weeklyGoal', parseInt(e.target.value) || 50)}
+                        className="w-20"
+                        min={1}
+                        max={500}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Moment préféré</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Quand étudiez-vous le mieux ?
+                        </p>
+                      </div>
+                      <select
+                        value={settings.preferredTime}
+                        onChange={(e) => updateSetting('preferredTime', e.target.value)}
+                        className="px-3 py-2 border rounded-md bg-background"
+                      >
+                        <option value="morning">Matin (6h-12h)</option>
+                        <option value="afternoon">Après-midi (12h-18h)</option>
+                        <option value="evening">Soir (18h-22h)</option>
+                        <option value="night">Nuit (22h-6h)</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Heure de rappel</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Quand voulez-vous être notifié ?
+                        </p>
+                      </div>
+                      <Input
+                        type="time"
+                        value={settings.reminderTime}
+                        onChange={(e) => updateSetting('reminderTime', e.target.value)}
+                        className="w-32"
                       />
                     </div>
                   </div>

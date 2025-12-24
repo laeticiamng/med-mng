@@ -63,10 +63,20 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
   // Social badges
   { id: 'first_share', name: 'Partageur', description: 'Partager votre progression', icon: '📤', rarity: 'common' },
   { id: 'community_active', name: 'Communautaire', description: 'Publier 10 posts', icon: '💬', rarity: 'rare' },
-  
+
   // Flashcard badges
   { id: 'flashcard_creator', name: 'Créateur', description: 'Créer 50 flashcards', icon: '🃏', rarity: 'common' },
   { id: 'flashcard_master', name: 'Maître des Cartes', description: 'Créer 200 flashcards', icon: '🎴', rarity: 'epic' },
+
+  // Special badges
+  { id: 'speed_learner', name: 'Apprentissage Éclair', description: 'Compléter 20 items en une journée', icon: '⚡', rarity: 'rare' },
+  { id: 'perfectionist', name: 'Perfectionniste', description: '5 examens consécutifs à 100%', icon: '💎', rarity: 'legendary' },
+  { id: 'marathon', name: 'Marathonien', description: 'Étudier 4 heures en une session', icon: '🏃', rarity: 'epic' },
+  { id: 'comeback', name: 'Retour en Force', description: 'Reprendre après 7 jours d\'absence', icon: '🔄', rarity: 'common' },
+  { id: 'explorer', name: 'Explorateur', description: 'Visiter toutes les sections', icon: '🧭', rarity: 'rare' },
+  { id: 'helper', name: 'Entraideur', description: 'Aider 5 autres étudiants', icon: '🤝', rarity: 'rare' },
+  { id: 'diversity', name: 'Polyvalent', description: 'Utiliser 5 types d\'apprentissage différents', icon: '🎭', rarity: 'rare' },
+  { id: 'consistency', name: 'Régulier', description: 'Même heure d\'étude 10 jours', icon: '⏰', rarity: 'epic' },
 ];
 
 export const XP_PER_LEVEL = 1000;
@@ -78,6 +88,14 @@ export const POINTS_CONFIG = {
   dailyStreak: 25,
   clinicalCase: 75,
   aiQuestion: 5,
+  flashcardReviewed: 3,
+  musicGenerated: 30,
+  ecosCompleted: 80,
+  shareContent: 15,
+  helpOther: 25,
+  marathonSession: 150,
+  weeklyGoalComplete: 100,
+  monthlyGoalComplete: 500,
 };
 
 export function useGamification() {
@@ -330,6 +348,45 @@ export function useGamification() {
     // Flashcard badges
     if (flashcardCount >= 50) await unlockBadge(userId, 'flashcard_creator');
     if (flashcardCount >= 200) await unlockBadge(userId, 'flashcard_master');
+
+    // Weekend warrior badge - check weekend study pattern
+    const { data: weekendActivity } = await supabase
+      .from('user_activity_log')
+      .select('activity_date')
+      .eq('user_id', userId);
+
+    if (weekendActivity) {
+      const weekendDates = weekendActivity
+        .map(a => new Date(a.activity_date))
+        .filter(d => d.getDay() === 0 || d.getDay() === 6);
+      const uniqueWeekends = new Set(weekendDates.map(d => {
+        const weekStart = new Date(d);
+        weekStart.setDate(d.getDate() - d.getDay());
+        return weekStart.toISOString().split('T')[0];
+      }));
+      if (uniqueWeekends.size >= 5) await unlockBadge(userId, 'weekend_warrior');
+    }
+
+    // Diversity badge - check variety of activity types
+    const { data: activityTypes } = await supabase
+      .from('user_activity_log')
+      .select('activity_type')
+      .eq('user_id', userId);
+
+    if (activityTypes) {
+      const uniqueTypes = new Set(activityTypes.map(a => a.activity_type));
+      if (uniqueTypes.size >= 5) await unlockBadge(userId, 'diversity');
+    }
+
+    // Speed learner badge - 20 items in one day
+    const today = new Date().toISOString().split('T')[0];
+    const { count: todayCount } = await supabase
+      .from('user_activity_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('activity_date', today);
+
+    if ((todayCount || 0) >= 20) await unlockBadge(userId, 'speed_learner');
   }, [stats, unlockBadge]);
 
   // Get progress to next badge - enhanced version
@@ -364,9 +421,6 @@ export function useGamification() {
 
     if (stats.currentStreak >= 100) return 3.0;
     if (stats.currentStreak >= 30) return 2.0;
-    if (stats.currentStreak >= 14) return 1.5;
-    if (stats.currentStreak >= 7) return 1.25;
-    if (stats.currentStreak >= 3) return 1.1;
     if (stats.currentStreak >= 14) return 1.5;
     if (stats.currentStreak >= 7) return 1.25;
     if (stats.currentStreak >= 3) return 1.1;

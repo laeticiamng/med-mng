@@ -35,26 +35,36 @@ interface Post {
     avatar: string;
     specialty: string;
     level: string;
+    badges?: string[];
+    streak?: number;
   };
   content: string;
-  type: 'discussion' | 'question' | 'resource' | 'success';
+  type: 'discussion' | 'question' | 'resource' | 'success' | 'tip' | 'announcement';
   tags: string[];
   timestamp: Date;
   likes: number;
   comments: number;
   isLiked: boolean;
+  isPinned?: boolean;
+  isVerified?: boolean;
+  viewCount?: number;
+  attachments?: { type: string; url: string; name: string }[];
 }
 
 interface Event {
   id: string;
   title: string;
   description: string;
-  type: 'webinar' | 'workshop' | 'meetup' | 'competition';
+  type: 'webinar' | 'workshop' | 'meetup' | 'competition' | 'study_session' | 'exam_prep';
   date: Date;
   participants: number;
   maxParticipants: number;
   isRegistered: boolean;
   location?: string;
+  host?: string;
+  duration?: number;
+  xpReward?: number;
+  tags?: string[];
 }
 
 const CommunityHub = () => {

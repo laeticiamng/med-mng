@@ -15,8 +15,22 @@ interface Recommendation {
   recommendation_type: string;
   confidence_score: number;
   reasoning: string;
-  metadata: any;
+  metadata: RecommendationMetadata;
   expires_at: string;
+  priority: 'high' | 'medium' | 'low';
+  estimatedTime: number;
+  xpReward: number;
+}
+
+interface RecommendationMetadata {
+  difficulty?: string;
+  specialty?: string;
+  category?: string;
+  lastReviewed?: string;
+  reviewCount?: number;
+  averageScore?: number;
+  prerequisites?: string[];
+  relatedItems?: string[];
 }
 
 export const SmartRecommendations: React.FC = () => {
@@ -91,28 +105,60 @@ export const SmartRecommendations: React.FC = () => {
         recommendation_type: 'next_study',
         confidence_score: 0.95,
         reasoning: 'Item fondamental pour commencer votre parcours d\'apprentissage EDN',
-        metadata: { difficulty: 'A', category: 'fondamentaux' }
+        metadata: { difficulty: 'A', category: 'fondamentaux', specialty: 'Médecine générale', prerequisites: [] },
+        priority: 'high',
+        estimatedTime: 30,
+        xpReward: 50
       },
       {
         recommended_item_code: 'IC-033',
         recommendation_type: 'interest_based',
         confidence_score: 0.88,
         reasoning: 'Recommandé en fonction de vos préférences d\'apprentissage',
-        metadata: { difficulty: 'A', category: 'gynecologie' }
+        metadata: { difficulty: 'A', category: 'gynecologie', specialty: 'Gynécologie-Obstétrique', relatedItems: ['IC-034', 'IC-035'] },
+        priority: 'medium',
+        estimatedTime: 45,
+        xpReward: 60
       },
       {
         recommended_item_code: 'IC-087',
         recommendation_type: 'difficulty_match',
         confidence_score: 0.82,
         reasoning: 'Niveau de difficulté adapté à votre progression actuelle',
-        metadata: { difficulty: 'B', category: 'neurologie' }
+        metadata: { difficulty: 'B', category: 'neurologie', specialty: 'Neurologie', averageScore: 72 },
+        priority: 'medium',
+        estimatedTime: 60,
+        xpReward: 80
       },
       {
         recommended_item_code: 'IC-156',
         recommendation_type: 'review',
         confidence_score: 0.75,
         reasoning: 'Révision recommandée pour consolider vos acquis',
-        metadata: { difficulty: 'A', category: 'cardiologie' }
+        metadata: { difficulty: 'A', category: 'cardiologie', specialty: 'Cardiologie', lastReviewed: '2024-12-15', reviewCount: 3 },
+        priority: 'low',
+        estimatedTime: 20,
+        xpReward: 30
+      },
+      {
+        recommended_item_code: 'IC-078',
+        recommendation_type: 'spaced_repetition',
+        confidence_score: 0.90,
+        reasoning: 'Basé sur la courbe d\'oubli - révision optimale maintenant',
+        metadata: { difficulty: 'A', category: 'urgences', specialty: 'Médecine d\'urgence' },
+        priority: 'high',
+        estimatedTime: 25,
+        xpReward: 40
+      },
+      {
+        recommended_item_code: 'IC-112',
+        recommendation_type: 'weakness',
+        confidence_score: 0.85,
+        reasoning: 'Zone à améliorer identifiée dans vos derniers examens',
+        metadata: { difficulty: 'B', category: 'pneumologie', specialty: 'Pneumologie', averageScore: 58 },
+        priority: 'high',
+        estimatedTime: 50,
+        xpReward: 70
       }
     ];
 
@@ -155,8 +201,42 @@ export const SmartRecommendations: React.FC = () => {
         return 'Niveau adapté';
       case 'interest_based':
         return 'Basé sur vos intérêts';
+      case 'spaced_repetition':
+        return 'Répétition espacée';
+      case 'weakness':
+        return 'Zone à renforcer';
+      case 'prerequisite':
+        return 'Prérequis';
+      case 'trending':
+        return 'Populaire';
       default:
         return 'Recommandé';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-destructive/10 text-destructive border-destructive/30';
+      case 'medium':
+        return 'bg-warning/10 text-warning border-warning/30';
+      case 'low':
+        return 'bg-success/10 text-success border-success/30';
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'Urgent';
+      case 'medium':
+        return 'Normal';
+      case 'low':
+        return 'Optionnel';
+      default:
+        return priority;
     }
   };
 
@@ -228,24 +308,48 @@ export const SmartRecommendations: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-3">
                 {rec.reasoning}
               </p>
-              
+
+              {/* Priority & Time */}
+              <div className="flex items-center gap-2 mb-3">
+                {rec.priority && (
+                  <Badge variant="outline" className={`text-xs ${getPriorityColor(rec.priority)}`}>
+                    {getPriorityLabel(rec.priority)}
+                  </Badge>
+                )}
+                {rec.estimatedTime && (
+                  <Badge variant="outline" className="text-xs">
+                    ~{rec.estimatedTime} min
+                  </Badge>
+                )}
+                {rec.xpReward && (
+                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary">
+                    +{rec.xpReward} XP
+                  </Badge>
+                )}
+              </div>
+
               <div className="flex items-center justify-between">
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {rec.metadata?.difficulty && (
                     <Badge variant="outline" className="text-xs">
                       Rang {rec.metadata.difficulty}
                     </Badge>
                   )}
-                  {rec.metadata?.category && (
+                  {rec.metadata?.specialty && (
                     <Badge variant="outline" className="text-xs">
-                      {rec.metadata.category}
+                      {rec.metadata.specialty}
+                    </Badge>
+                  )}
+                  {rec.metadata?.averageScore && (
+                    <Badge variant="outline" className="text-xs">
+                      Score moy: {rec.metadata.averageScore}%
                     </Badge>
                   )}
                 </div>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"

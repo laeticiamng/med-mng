@@ -1,14 +1,26 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export type ActivityType = 'srs_review' | 'exam' | 'flashcard' | 'clinical_case' | 'study' | 'ai_question' | 'music_generation' | 'ecos';
+export type ActivityType = 'srs_review' | 'exam' | 'flashcard' | 'clinical_case' | 'study' | 'ai_question' | 'music_generation' | 'ecos' | 'share' | 'bookmark' | 'download' | 'quiz' | 'achievement';
 
 interface ActivityLog {
   activity_type: ActivityType;
   count?: number;
   duration_seconds?: number;
   score?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
+  itemCode?: string;
+  source?: string;
+}
+
+interface ActivityStats {
+  totalActivities: number;
+  totalDuration: number;
+  averageScore: number;
+  mostActiveDay: string;
+  mostActiveHour: number;
+  streakDays: number;
+  activitiesByType: Record<ActivityType, number>;
 }
 
 interface HeatmapData {

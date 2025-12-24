@@ -36,6 +36,23 @@ export interface ContentAnalytics {
     item_id: string;
   }>;
   unique_items: number;
+  averageGenerationTime: number;
+  successRate: number;
+  popularItems: string[];
+  trendsThisWeek: {
+    generated: number;
+    viewed: number;
+    shared: number;
+  };
+}
+
+export interface ContentQualityMetrics {
+  contentId: string;
+  readabilityScore: number;
+  accuracyScore: number;
+  engagementScore: number;
+  overallQuality: 'excellent' | 'good' | 'fair' | 'poor';
+  suggestions: string[];
 }
 
 export interface GenerationResult {
@@ -230,6 +247,159 @@ class PedagogicalContentService {
       poem: 'Poème'
     };
     return titles[type as keyof typeof titles] || 'Contenu';
+  }
+
+  // Get content quality metrics
+  async getContentQuality(contentId: string): Promise<ContentQualityMetrics | null> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .eq('id', contentId)
+        .maybeSingle();
+
+      if (error || !data) return null;
+
+      // Calculate basic quality metrics
+      const content = data.content || '';
+      const wordCount = content.split(/\s+/).length;
+
+      const readabilityScore = Math.min(100, Math.max(0, wordCount > 100 ? 80 : wordCount * 0.8));
+      const accuracyScore = data.status === 'completed' ? 85 : 50;
+      const engagementScore = Math.random() * 20 + 70; // Placeholder
+
+      const overallScore = (readabilityScore + accuracyScore + engagementScore) / 3;
+      const overallQuality: ContentQualityMetrics['overallQuality'] =
+        overallScore >= 80 ? 'excellent' :
+        overallScore >= 65 ? 'good' :
+        overallScore >= 50 ? 'fair' : 'poor';
+
+      const suggestions: string[] = [];
+      if (wordCount < 200) suggestions.push('Enrichir le contenu avec plus de détails');
+      if (readabilityScore < 70) suggestions.push('Améliorer la lisibilité du texte');
+      if (!data.images || data.images.length === 0) suggestions.push('Ajouter des illustrations');
+
+      return {
+        contentId,
+        readabilityScore: Math.round(readabilityScore),
+        accuracyScore: Math.round(accuracyScore),
+        engagementScore: Math.round(engagementScore),
+        overallQuality,
+        suggestions
+      };
+    } catch (error) {
+      console.error('Error getting content quality:', error);
+      return null;
+    }
+  }
+
+  // Batch generate content for multiple items
+  async batchGenerateContent(itemCodes: string[], contentType: 'comic' | 'novel' | 'poem'): Promise<{
+    success: number;
+    failed: number;
+    results: Array<{ itemCode: string; success: boolean; error?: string }>;
+  }> {
+    const results: Array<{ itemCode: string; success: boolean; error?: string }> = [];
+    let success = 0;
+    let failed = 0;
+
+    for (const itemCode of itemCodes) {
+      try {
+        await this.generateMissingContent(itemCode);
+        results.push({ itemCode, success: true });
+        success++;
+      } catch (error) {
+        results.push({ itemCode, success: false, error: String(error) });
+        failed++;
+      }
+    }
+
+    return { success, failed, results };
+  }
+
+  // Get content statistics by specialty
+  async getContentBySpecialty(): Promise<Record<string, number>> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('item_id');
+
+      if (error) throw error;
+
+      const bySpecialty: Record<string, number> = {};
+      (data || []).forEach((item: any) => {
+        // Extract specialty from item_id pattern (e.g., IC-001 -> IC)
+        const specialty = item.item_id?.split('-')[0] || 'Unknown';
+        bySpecialty[specialty] = (bySpecialty[specialty] || 0) + 1;
+      });
+
+      return bySpecialty;
+    } catch (error) {
+      console.error('Error getting content by specialty:', error);
+      return {};
+    }
+  }
+
+  // Get trending content
+  async getTrendingContent(limit: number = 10): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error getting trending content:', error);
+      return [];
+    }
+  }
+
+  // Export content to different formats
+  async exportContent(contentId: string, format: 'json' | 'markdown' | 'pdf'): Promise<string | Blob | null> {
+    try {
+      const { data, error } = await supabase
+        .from('med_mng_content_ai')
+        .select('*')
+        .eq('id', contentId)
+        .maybeSingle();
+
+      if (error || !data) return null;
+
+      switch (format) {
+        case 'json':
+          return JSON.stringify(data, null, 2);
+        case 'markdown':
+          return `# ${data.title || 'Content'}\n\n${data.content || ''}\n\n---\n*Generated on ${new Date(data.created_at).toLocaleDateString()}*`;
+        case 'pdf':
+          // Return markdown for PDF generation (would need external library)
+          return `# ${data.title || 'Content'}\n\n${data.content || ''}`;
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error('Error exporting content:', error);
+      return null;
+    }
+  }
+
+  // Validate content before saving
+  validateContent(content: any): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (!content.item_id) errors.push('Item ID is required');
+    if (!content.content_type) errors.push('Content type is required');
+    if (!content.content || content.content.length < 50) {
+      errors.push('Content must be at least 50 characters');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
   }
 }
 

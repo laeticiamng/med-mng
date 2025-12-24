@@ -15,6 +15,10 @@ interface SocialShareProps {
   image?: string;
   hashtags?: string[];
   className?: string;
+  itemCode?: string;
+  shareType?: 'content' | 'progress' | 'achievement' | 'song';
+  xpReward?: number;
+  onShareComplete?: (platform: string) => void;
 }
 
 export const SocialShare: React.FC<SocialShareProps> = ({
@@ -23,10 +27,16 @@ export const SocialShare: React.FC<SocialShareProps> = ({
   url = window.location.href,
   image,
   hashtags = [],
-  className = ""
+  className = "",
+  itemCode,
+  shareType = 'content',
+  xpReward = 15,
+  onShareComplete
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [shareCount, setShareCount] = useState(0);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const shareData = {
@@ -102,16 +112,48 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     }
 
     window.open(shareUrl, '_blank', 'width=600,height=400');
+    trackShare(platform);
     setIsOpen(false);
   };
 
   const generateQRCode = async () => {
     setShowQR(true);
-    // Dans un vrai projet, vous utiliseriez une bibliothèque QR code
+    // Generate a simple QR code using a free API
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    setQrDataUrl(qrUrl);
     toast({
       title: "QR Code généré",
       description: "Le QR Code a été généré pour ce contenu",
     });
+  };
+
+  const trackShare = async (platform: string) => {
+    setShareCount(prev => prev + 1);
+    onShareComplete?.(platform);
+
+    // Track in database
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await (supabase as any).from('user_activity_log').insert({
+        user_id: user.id,
+        activity_type: 'share',
+        count: 1,
+        metadata: {
+          platform,
+          shareType,
+          itemCode,
+          url
+        }
+      });
+
+      // Award XP for sharing
+      if (xpReward > 0) {
+        toast({
+          title: `+${xpReward} XP`,
+          description: "Merci d'avoir partagé !",
+        });
+      }
+    }
   };
 
   return (
@@ -253,26 +295,55 @@ export const SocialShare: React.FC<SocialShareProps> = ({
         </Card>
       )}
 
-      {/* QR Code Modal (simulé) */}
+      {/* QR Code Modal */}
       {showQR && (
         <Card className="absolute top-full left-0 mt-2 z-50 w-64 shadow-lg">
           <CardContent className="p-4 text-center">
-            <div className="w-32 h-32 bg-muted mx-auto mb-3 rounded flex items-center justify-center">
-              <QrCode className="w-16 h-16 text-muted-foreground" />
+            <div className="w-48 h-48 bg-white mx-auto mb-3 rounded flex items-center justify-center p-2">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="QR Code" className="w-full h-full" />
+              ) : (
+                <QrCode className="w-16 h-16 text-muted-foreground" />
+              )}
             </div>
             <p className="text-sm text-muted-foreground mb-3">
               Scannez ce QR code pour accéder au contenu
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowQR(false)}
-              className="w-full"
-            >
-              Fermer
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (qrDataUrl) {
+                    const link = document.createElement('a');
+                    link.href = qrDataUrl;
+                    link.download = 'qrcode.png';
+                    link.click();
+                    trackShare('qrcode');
+                  }
+                }}
+                className="flex-1"
+              >
+                Télécharger
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowQR(false)}
+                className="flex-1"
+              >
+                Fermer
+              </Button>
+            </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Share count indicator */}
+      {shareCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          {shareCount}
+        </span>
       )}
     </div>
   );

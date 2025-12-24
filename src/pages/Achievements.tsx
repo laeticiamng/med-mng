@@ -32,8 +32,13 @@ const Achievements: React.FC = () => {
         // Count completed challenges based on achievements
         let completed = 0;
         if (stats?.currentStreak && stats.currentStreak >= 7) completed++;
+        if (stats?.currentStreak && stats.currentStreak >= 30) completed++;
         if (stats?.weeklyGoalProgress && stats.weeklyGoalProgress >= 100) completed++;
         if (stats?.badges && stats.badges.length >= 5) completed++;
+        if (stats?.badges && stats.badges.length >= 10) completed++;
+        if (stats?.totalPoints && stats.totalPoints >= 1000) completed++;
+        if (stats?.totalPoints && stats.totalPoints >= 5000) completed++;
+        if (stats?.level && stats.level >= 10) completed++;
         setChallengesCompleted(completed);
       }
     };

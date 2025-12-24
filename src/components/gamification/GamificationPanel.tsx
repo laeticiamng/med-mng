@@ -189,6 +189,56 @@ export const GamificationPanel: React.FC = () => {
       maxProgress: 10,
       category: 'social',
       unlocked: (stats?.badges.length || 0) >= 10
+    },
+    {
+      id: '4',
+      title: 'Mélomane Médical',
+      description: 'Générez 10 musiques éducatives',
+      reward: '+300 XP + Badge Musique',
+      progress: Math.min(stats?.musicGenerated || 0, 10),
+      maxProgress: 10,
+      category: 'music',
+      unlocked: (stats?.musicGenerated || 0) >= 10
+    },
+    {
+      id: '5',
+      title: 'Série de Platine',
+      description: 'Étudiez 30 jours consécutifs',
+      reward: '+2000 XP + Badge Légendaire',
+      progress: Math.min(stats?.currentStreak || 0, 30),
+      maxProgress: 30,
+      category: 'streak',
+      unlocked: (stats?.currentStreak || 0) >= 30
+    },
+    {
+      id: '6',
+      title: 'Premier Pas',
+      description: 'Complétez votre premier item',
+      reward: '+50 XP',
+      progress: Math.min(stats?.itemsCompleted || 0, 1),
+      maxProgress: 1,
+      category: 'study',
+      unlocked: (stats?.itemsCompleted || 0) >= 1
+    },
+    {
+      id: '7',
+      title: 'Expert EDN',
+      description: 'Complétez 50 items',
+      reward: '+1000 XP + Badge Expert',
+      progress: Math.min(stats?.itemsCompleted || 0, 50),
+      maxProgress: 50,
+      category: 'study',
+      unlocked: (stats?.itemsCompleted || 0) >= 50
+    },
+    {
+      id: '8',
+      title: 'Maître des Quiz',
+      description: '10 quiz parfaits (100%)',
+      reward: '+500 XP + Badge Maître',
+      progress: Math.min(stats?.perfectQuizzes || 0, 10),
+      maxProgress: 10,
+      category: 'study',
+      unlocked: (stats?.perfectQuizzes || 0) >= 10
     }
   ];
 

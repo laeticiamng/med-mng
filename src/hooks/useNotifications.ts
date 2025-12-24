@@ -9,13 +9,19 @@ interface Notification {
   message: string;
   timestamp: Date;
   read: boolean;
-  category: 'system' | 'extraction' | 'quota' | 'security' | 'maintenance';
+  category: 'system' | 'extraction' | 'quota' | 'security' | 'maintenance' | 'achievement' | 'social' | 'reminder';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   actionable?: boolean;
   action?: {
     label: string;
     url: string;
+    callback?: () => void;
   };
+  expiresAt?: Date;
+  icon?: string;
+  metadata?: Record<string, unknown>;
+  snoozedUntil?: Date;
+  archived?: boolean;
 }
 
 export function useNotifications() {
@@ -461,6 +467,104 @@ export function useNotifications() {
     return notifications.some(n => n.type === 'critical' && !n.read);
   }, [notifications]);
 
+  // Archive notification
+  const archiveNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n =>
+      n.id === id ? { ...n, archived: true, read: true } : n
+    ));
+  }, []);
+
+  // Unarchive notification
+  const unarchiveNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n =>
+      n.id === id ? { ...n, archived: false } : n
+    ));
+  }, []);
+
+  // Get archived notifications
+  const getArchived = useCallback((): Notification[] => {
+    return notifications.filter(n => n.archived);
+  }, [notifications]);
+
+  // Get active (non-archived) notifications
+  const getActive = useCallback((): Notification[] => {
+    return notifications.filter(n => !n.archived);
+  }, [notifications]);
+
+  // Check if notification is expired
+  const isExpired = useCallback((notification: Notification): boolean => {
+    if (!notification.expiresAt) return false;
+    return new Date() > notification.expiresAt;
+  }, []);
+
+  // Remove expired notifications
+  const removeExpired = useCallback(() => {
+    setNotifications(prev => prev.filter(n => !isExpired(n)));
+  }, [isExpired]);
+
+  // Get snoozed notifications
+  const getSnoozed = useCallback((): Notification[] => {
+    const now = new Date();
+    return notifications.filter(n => n.snoozedUntil && n.snoozedUntil > now);
+  }, [notifications]);
+
+  // Check snoozed notifications and un-snooze if time has passed
+  const checkSnoozed = useCallback(() => {
+    const now = new Date();
+    setNotifications(prev => prev.map(n => {
+      if (n.snoozedUntil && n.snoozedUntil <= now) {
+        return { ...n, snoozedUntil: undefined, read: false };
+      }
+      return n;
+    }));
+  }, []);
+
+  // Create achievement notification
+  const notifyAchievement = useCallback((badge: { name: string; description: string; icon: string }) => {
+    addNotification({
+      type: 'success',
+      title: `Badge débloqué: ${badge.name}`,
+      message: badge.description,
+      category: 'achievement',
+      priority: 'medium',
+      read: false,
+      icon: badge.icon
+    });
+  }, [addNotification]);
+
+  // Create reminder notification
+  const createReminder = useCallback((title: string, message: string, remindAt: Date) => {
+    const reminder: Notification = {
+      id: `reminder-${Date.now()}`,
+      type: 'info',
+      title,
+      message,
+      timestamp: new Date(),
+      read: true,
+      category: 'reminder',
+      priority: 'medium',
+      snoozedUntil: remindAt
+    };
+    setNotifications(prev => [...prev, reminder]);
+  }, []);
+
+  // Batch update notifications
+  const batchUpdate = useCallback((ids: string[], updates: Partial<Notification>) => {
+    setNotifications(prev => prev.map(n =>
+      ids.includes(n.id) ? { ...n, ...updates } : n
+    ));
+  }, []);
+
+  // Get notification count by category
+  const getCountByCategory = useCallback((): Record<Notification['category'], number> => {
+    const counts: Record<Notification['category'], number> = {
+      system: 0, extraction: 0, quota: 0, security: 0,
+      maintenance: 0, achievement: 0, social: 0, reminder: 0
+    };
+    notifications.forEach(n => { counts[n.category]++; });
+    return counts;
+  }, [notifications]);
+
   return {
     notifications,
     loading,
@@ -486,6 +590,18 @@ export function useNotifications() {
     deleteByCategory,
     exportNotifications,
     hasUnread,
-    hasCritical
+    hasCritical,
+    archiveNotification,
+    unarchiveNotification,
+    getArchived,
+    getActive,
+    isExpired,
+    removeExpired,
+    getSnoozed,
+    checkSnoozed,
+    notifyAchievement,
+    createReminder,
+    batchUpdate,
+    getCountByCategory
   };
 }
