@@ -41,8 +41,17 @@ export const processTableauRangAIC10 = (data: any) => {
   };
 };
 
+// Fonction pour détecter si c'est l'item IC-10 (vérification exacte)
 export const isIC10Item = (data: any): boolean => {
-  return data?.theme?.includes('IC-10') || 
-         data?.title?.includes('Approches transversales du corps') ||
-         data?.item_code === 'IC-10';
+  if (!data) return false;
+  
+  // Vérification exacte du code
+  if (data.item_code === 'IC-10') return true;
+  
+  // Vérifier le titre spécifique
+  if (data.title?.includes('Approches transversales du corps')) return true;
+  
+  // Vérifier le thème avec regex pour correspondance exacte
+  const theme = data.theme || '';
+  return /\bIC-10\b/i.test(theme);
 };

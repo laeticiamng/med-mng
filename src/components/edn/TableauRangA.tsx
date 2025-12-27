@@ -9,12 +9,12 @@ import { TableauRangAFooterIC3 } from './tableau/TableauRangAFooterIC3';
 import { TableauRangAFooterIC4 } from './tableau/TableauRangAFooterIC4';
 import { TableauRangAFooterIC5 } from './tableau/TableauRangAFooterIC5';
 import { TableauRangAFooterIC10 } from './tableau/TableauRangAFooterIC10';
-import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
-import { processTableauRangAIC2, isIC2Item } from './tableau/TableauRangAUtilsIC2Integration';
-import { processTableauRangAIC3, isIC3Item } from './tableau/TableauRangAUtilsIC3Integration';
-import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC4Integration';
-import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC5Integration';
-import { processTableauRangAIC10, isIC10Item } from './tableau/TableauRangAUtilsIC10Integration';
+import { processTableauRangAIC1 } from './tableau/TableauRangAUtilsIC1Integration';
+import { processTableauRangAIC2 } from './tableau/TableauRangAUtilsIC2Integration';
+import { processTableauRangAIC3 } from './tableau/TableauRangAUtilsIC3Integration';
+import { processTableauRangAIC4 } from './tableau/TableauRangAUtilsIC4Integration';
+import { processTableauRangAIC5 } from './tableau/TableauRangAUtilsIC5Integration';
+import { processTableauRangAIC10 } from './tableau/TableauRangAUtilsIC10Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 
 interface TableauRangAProps {
@@ -153,19 +153,22 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
     );
   }
 
-  // Déterminer le type d'item et traiter les données en conséquence
+  // Déterminer le type d'item basé sur itemCode passé en prop (prioritaire)
   let lignesEnrichies: string[][];
   let colonnesUtiles: any[];
   let theme: string;
   let footerComponent: JSX.Element;
 
-  if (isIC1Item(data)) {
+  // Utiliser le itemCode passé en prop pour la détection exacte
+  const normalizedCode = itemCode.toUpperCase();
+  
+  if (normalizedCode === 'IC-1') {
     const processed = processTableauRangAIC1(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC1 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (isIC2Item(data)) {
+  } else if (normalizedCode === 'IC-2') {
     const processed = processTableauRangAIC2(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
@@ -175,7 +178,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
-  } else if (isIC3Item(data)) {
+  } else if (normalizedCode === 'IC-3') {
     const processed = processTableauRangAIC3(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
@@ -185,13 +188,13 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
-  } else if (isIC4Item(data)) {
+  } else if (normalizedCode === 'IC-4') {
     const processed = processTableauRangAIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (isIC5Item(data)) {
+  } else if (normalizedCode === 'IC-5') {
     const processed = processTableauRangAIC5(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
@@ -201,17 +204,17 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
-  } else if (isIC10Item(data)) {
+  } else if (normalizedCode === 'IC-10') {
     const processed = processTableauRangAIC10(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC10 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
-    // Traitement générique pour les autres items
+    // Traitement générique pour les autres items - utilise les données du tableau
     lignesEnrichies = generateLignesRangAIntelligent(data);
     colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
-    theme = data.theme || data.title || 'Tableau Rang A';
+    theme = data.theme || data.title || `Tableau Rang A - ${itemCode}`;
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   }
 

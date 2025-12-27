@@ -6,22 +6,22 @@ import {
   enrichirDonneesIC2 
 } from './TableauRangAUtilsIC2';
 
-// Fonction pour détecter si c'est l'item IC-2 selon E-LiSA
+// Fonction pour détecter si c'est l'item IC-2 selon E-LiSA (et pas IC-20, IC-21, etc.)
 export const isIC2Item = (data: any): boolean => {
   if (!data) return false;
   
   // Vérifier le code d'item directement
   if (data.item_code === 'IC-2') return true;
   
-  // Vérifier le titre
+  // Vérifier le titre spécifique
   if (data.title && data.title.toLowerCase().includes('valeurs professionnelles')) return true;
   
-  // Vérifier le thème
+  // Vérifier le thème avec regex pour éviter les faux positifs
   if (data.theme) {
     const theme = data.theme.toLowerCase();
-    return (theme.includes('valeurs') && theme.includes('professionnelles')) || 
-           (theme.includes('ic-2') || theme.includes('ic2')) ||
-           (theme.includes('médecin') && theme.includes('professions') && theme.includes('santé'));
+    const hasValeursProf = (theme.includes('valeurs') && theme.includes('professionnelles'));
+    const codeMatch = /\bic-2\b/i.test(theme);
+    return hasValeursProf || codeMatch;
   }
   
   return false;
