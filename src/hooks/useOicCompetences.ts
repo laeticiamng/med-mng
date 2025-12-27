@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface OicCompetence {
@@ -27,80 +27,87 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
   const [competences, setCompetences] = useState<OicCompetence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const fetchedRef = useRef(false);
+  const mountedRef = useRef(true);
   
-  // Créer une clé de cache stable
-  const cacheKey = `${itemCode}-${rang}`;
-
-  const fetchOicCompetences = useCallback(async () => {
-    // Éviter les doubles appels
-    if (fetchedRef.current) return;
+  useEffect(() => {
+    mountedRef.current = true;
     
-    // Vérifier le cache d'abord
-    const cached = competencesCache.get(cacheKey);
-    if (cached) {
-      setCompetences(cached);
-      setLoading(false);
-      return;
-    }
-
-    fetchedRef.current = true;
-    
-    try {
-      setLoading(true);
-      setError(null);
+    const fetchOicCompetences = async () => {
+      const cacheKey = `${itemCode}-${rang}`;
       
-      // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
-      const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
-      
-      const { data, error: queryError } = await supabase
-        .from('backup_oic_competences')
-        .select(`
-          objectif_id,
-          intitule,
-          description,
-          rubrique,
-          rang,
-          item_parent
-        `)
-        .eq('item_parent', itemNumber)
-        .eq('rang', rang)
-        .order('objectif_id');
-
-      if (queryError) {
-        console.error('❌ Erreur récupération OIC:', queryError);
-        setError(queryError.message);
+      // Vérifier le cache d'abord
+      const cached = competencesCache.get(cacheKey);
+      if (cached) {
+        setCompetences(cached);
         setLoading(false);
         return;
       }
 
-      // Garder toutes les compétences avec objectif_id et intitule
-      const realCompetences = (data || [])
-        .filter(comp => comp.objectif_id && comp.intitule)
-        .map(comp => ({
-          ...comp,
-          description: comp.description || comp.intitule
-        })) as OicCompetence[];
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
+        const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+        
+        const { data, error: queryError } = await supabase
+          .from('backup_oic_competences')
+          .select(`
+            objectif_id,
+            intitule,
+            description,
+            rubrique,
+            rang,
+            item_parent
+          `)
+          .eq('item_parent', itemNumber)
+          .eq('rang', rang)
+          .order('objectif_id');
 
-      // Mettre en cache
-      competencesCache.set(cacheKey, realCompetences);
-      setCompetences(realCompetences);
-      
-    } catch (err) {
-      console.error('❌ Erreur:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-    } finally {
-      setLoading(false);
-    }
-  }, [itemCode, rang, cacheKey]);
+        if (!mountedRef.current) return;
 
-  useEffect(() => {
-    fetchedRef.current = false;
-    
+        if (queryError) {
+          console.error('❌ Erreur récupération OIC:', queryError);
+          setError(queryError.message);
+          setLoading(false);
+          return;
+        }
+
+        // Garder toutes les compétences avec objectif_id et intitule
+        const realCompetences = (data || [])
+          .filter(comp => comp.objectif_id && comp.intitule)
+          .map(comp => ({
+            ...comp,
+            description: comp.description || comp.intitule
+          })) as OicCompetence[];
+
+        // Mettre en cache
+        competencesCache.set(cacheKey, realCompetences);
+        
+        if (mountedRef.current) {
+          setCompetences(realCompetences);
+          setLoading(false);
+        }
+        
+      } catch (err) {
+        console.error('❌ Erreur:', err);
+        if (mountedRef.current) {
+          setError(err instanceof Error ? err.message : 'Erreur inconnue');
+          setLoading(false);
+        }
+      }
+    };
+
     if (itemCode) {
       fetchOicCompetences();
+    } else {
+      setLoading(false);
     }
-  }, [itemCode, rang, fetchOicCompetences]);
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [itemCode, rang]);
 
   return { competences, loading, error };
 };
