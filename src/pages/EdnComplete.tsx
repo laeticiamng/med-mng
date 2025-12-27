@@ -31,6 +31,8 @@ import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
+import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
+
 interface EdnItem {
   id: string;
   item_code: string;
@@ -59,11 +61,8 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  // État local pour les items
-  const [ednItems, setEdnItems] = useState<EdnItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingError, setLoadingError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(false);
+  // Utiliser le hook optimisé avec cache
+  const { items: ednItems, stats: optimizedStats, loading, error: loadingError, refresh } = useEdnItemsOptimized();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -87,71 +86,17 @@ export default function EdnComplete() {
   const { subscription, canGenerateMusic } = useSubscription();
   
   // Alias pour compatibilité
-  const immersiveItems = ednItems;
-  const completeItems = ednItems;
+  const immersiveItems = ednItems as EdnItem[];
+  const completeItems = ednItems as EdnItem[];
   
-  // Chargement initial des items - utilise fetch direct pour éviter les problèmes de typage
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchItems = async () => {
-      try {
-        const response = await fetch(
-          'https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500',
-          {
-            headers: {
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-            }
-          }
-        );
-        
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const data = await response.json();
-        
-        if (isMounted) {
-          setEdnItems(data || []);
-          setLoading(false);
-          setHasMore(false);
-        }
-      } catch (err: any) {
-        console.error('Erreur chargement EDN:', err);
-        if (isMounted) {
-          setLoadingError(err.message || 'Erreur de chargement');
-          setLoading(false);
-        }
-      }
-    };
-    
-    fetchItems();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-  
-  const refresh = () => {
-    setLoading(true);
-    setLoadingError(null);
-    fetch(
-      'https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500',
-      {
-        headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-        }
-      }
-    )
-    .then(res => res.json())
-    .then(data => {
-      setEdnItems(data || []);
-      setLoading(false);
-    })
-    .catch(err => {
-      setLoadingError(err.message);
-      setLoading(false);
-    });
+  // Stats calculées depuis le hook optimisé
+  const stats = {
+    total: optimizedStats.total,
+    complete: optimizedStats.complete,
+    withMusic: optimizedStats.withMusic,
+    avgScore: optimizedStats.avgScore,
+    withRangA: optimizedStats.withRangA,
+    withRangB: optimizedStats.withRangB,
   };
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
@@ -226,10 +171,16 @@ export default function EdnComplete() {
             return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
           case 'withMusic':
             return item.paroles_musicales && item.paroles_musicales.length > 0;
+          case 'noMusic':
+            return !item.paroles_musicales || item.paroles_musicales.length === 0;
           case 'rangA':
             return (item.competences_count_rang_a || 0) > 0;
           case 'rangB':
             return (item.competences_count_rang_b || 0) > 0;
+          case 'noRangA':
+            return (item.competences_count_rang_a || 0) === 0;
+          case 'noRangB':
+            return (item.competences_count_rang_b || 0) === 0;
           default:
             return true;
         }
@@ -250,51 +201,27 @@ export default function EdnComplete() {
     });
   }, [allItems, searchTerm, selectedCategory, sortBy]);
 
-  const calculateStats = () => {
-    const total = immersiveItems.length;
-    const complete = immersiveItems.filter(item => 
-      (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0
-    ).length;
-    const withMusic = immersiveItems.filter(item => 
-      item.paroles_musicales && item.paroles_musicales.length > 0
-    ).length;
-    const avgScore = total > 0 ? Math.round(immersiveItems.reduce((sum, item) => 
-      sum + getCompletionPercentage(item), 0) / total) : 0;
-    
-    return { total, complete, withMusic, avgScore };
-  };
-
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
     // Ouvrir la modal immédiatement avec données partielles
     setSelectedItem(item);
     setSelectedItemTab(tab || 'overview');
     setIsModalOpen(true);
     
-    // Puis fetch données complètes (tableaux, quiz, scène, etc.) via fetch direct
+    // Puis fetch données complètes (tableaux, quiz, scène, etc.) via supabase
     try {
-      const response = await fetch(
-        `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(item.item_code)}&select=*`,
-        {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-          }
-        }
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.length > 0) {
-          setSelectedItem({ ...item, ...data[0] });
-        }
+      const { data } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', item.item_code)
+        .maybeSingle();
+        
+      if (data) {
+        setSelectedItem({ ...item, ...data });
       }
     } catch (err) {
       // Silently ignore - partial data is still usable
     }
   }, []);
-  
-
-  const stats = calculateStats();
 
   if (loading) {
     return (
@@ -452,25 +379,29 @@ export default function EdnComplete() {
           <div className="flex gap-2 items-center justify-between">
             <div className="flex gap-2">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[160px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous ({stats.total})</SelectItem>
                   <SelectItem value="complete">Complets ({stats.complete})</SelectItem>
-                  <SelectItem value="rangA">Avec Rang A</SelectItem>
-                  <SelectItem value="rangB">Avec Rang B</SelectItem>
-                  <SelectItem value="withMusic">Avec musique ({stats.withMusic})</SelectItem>
+                  <SelectItem value="rangA">Rang A ({stats.withRangA || 0})</SelectItem>
+                  <SelectItem value="rangB">Rang B ({stats.withRangB || 0})</SelectItem>
+                  <SelectItem value="withMusic">Musique ({stats.withMusic})</SelectItem>
+                  <SelectItem value="noRangA">Sans Rang A</SelectItem>
+                  <SelectItem value="noRangB">Sans Rang B</SelectItem>
+                  <SelectItem value="noMusic">Sans Musique</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[130px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="item_code">Code</SelectItem>
-                  <SelectItem value="completeness_score">Score</SelectItem>
+                  <SelectItem value="item_code">Par code</SelectItem>
+                  <SelectItem value="completeness_score">Par score</SelectItem>
+                  <SelectItem value="updated_at">Récents</SelectItem>
                 </SelectContent>
               </Select>
             </div>
