@@ -378,13 +378,37 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     itemTitle={finalItem.title}
                   />
                 ) : (
-                  <Card className="text-center p-8">
-                    <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-semibold mb-2">Quiz en préparation</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Les questions de quiz pour cet item sont en cours de création.
-                      Consultez les compétences Rang A et B en attendant.
-                    </p>
+                  <Card className="border-2 border-primary/20">
+                    <CardHeader className="text-center">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                        <Brain className="h-8 w-8 text-primary" />
+                      </div>
+                      <CardTitle>Quiz en préparation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-4">
+                      <p className="text-muted-foreground">
+                        Les questions de quiz pour <strong>{finalItem.item_code}</strong> sont en cours de création.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                        <button 
+                          onClick={() => setActiveTab('rang-a')}
+                          className="p-4 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-primary mb-1">📚 Rang A</div>
+                          <div className="text-xs text-muted-foreground">Compétences fondamentales</div>
+                        </button>
+                        <button 
+                          onClick={() => setActiveTab('rang-b')}
+                          className="p-4 rounded-lg border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-accent-foreground mb-1">🎯 Rang B</div>
+                          <div className="text-xs text-muted-foreground">Compétences avancées</div>
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-2">
+                        En attendant, révisez les compétences pour préparer vos révisions.
+                      </p>
+                    </CardContent>
                   </Card>
                 )}
               </TabsContent>

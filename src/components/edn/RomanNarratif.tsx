@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RomanNarratifProps {
@@ -32,6 +33,10 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
 
+  // Charger les vraies compétences OIC
+  const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
+  const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
+
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -51,29 +56,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     }
   }, [itemCode]);
 
-  // Extraire les compétences depuis les différents formats
-  const getCompetencesData = (tableau: any): { title: string; concepts: any[] }[] => {
-    if (!tableau) return [];
-    
-    // Format 1: competences_cles (format OIC principal)
-    if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
-      return [{ title: tableau.title || 'Compétences', concepts: tableau.competences_cles }];
-    }
-    // Format 2: sections avec concepts
-    if (tableau.sections && Array.isArray(tableau.sections)) {
-      return tableau.sections.map((s: any) => ({
-        title: s.title || 'Section',
-        concepts: s.concepts || s.competences || []
-      }));
-    }
-    // Format 3: competences directes
-    if (tableau.competences && Array.isArray(tableau.competences)) {
-      return [{ title: 'Compétences', concepts: tableau.competences }];
-    }
-    return [];
-  };
-
-  // Générer les chapitres basés sur les compétences
+  // Générer les chapitres basés sur les vraies compétences OIC
   const generateChapters = () => {
     const chapters = [];
     
@@ -83,46 +66,52 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
       title: 'Prologue : L\'Art Médical',
       content: `Dans l'univers complexe de la médecine moderne, ${title} représente un défi majeur pour tout praticien. Cette histoire vous plongera au cœur des compétences essentielles de l'${itemCode}, où chaque décision peut changer une vie.\n\nNotre protagoniste, Dr. Sarah Martin, jeune interne passionnée, découvre l'importance cruciale de maîtriser parfaitement ces concepts médicaux. Son parcours vous guidera à travers les nuances de cette spécialité.\n\n"La médecine, c'est avant tout comprendre l'humain dans sa complexité", se répète-t-elle en consultant le dossier du prochain patient.`,
       type: 'intro',
-      competences: 0
+      competences: []
     });
 
-    // Chapitres pour rang A (utilise getCompetencesData)
-    const rangAData = getCompetencesData(tableauRangA);
-    rangAData.forEach((section, index) => {
-      const concepts = section.concepts;
-      chapters.push({
-        id: `rang-a-${index}`,
-        title: `Chapitre ${index + 1} : Les Fondements - ${section.title}`,
-        content: `Dr. Martin fait face à son premier cas complexe impliquant ${section.title}. L'équipe médicale se rassemble pour analyser la situation.\n\n${concepts.slice(0, 3).map((concept: any, i: number) => 
-          `"${concept.competence || concept.concept || `Compétence ${i + 1}`}" explique le chef de service. "${concept.description?.substring(0, 200) || 'Cette compétence est essentielle pour comprendre les bases de ce domaine médical.'}..."\n\nLe Dr. Martin note scrupuleusement ces informations cruciales pour la suite.`
-        ).join('\n\n')}\n\nL'apprentissage se poursuit, chaque détail compte dans cette spécialité exigeante.`,
-        type: 'rang-a',
-        competences: concepts.length
-      });
-    });
+    // Chapitres pour rang A (vraies compétences OIC)
+    if (competencesA.length > 0) {
+      for (let i = 0; i < competencesA.length; i += 2) {
+        const batch = competencesA.slice(i, i + 2);
+        const chapterContent = batch.map((comp, idx) => 
+          `"${comp.intitule}" explique le chef de service. "${comp.description?.substring(0, 250) || 'Cette compétence fondamentale est essentielle pour la prise en charge des patients.'}..."\n\nLe Dr. Martin note scrupuleusement: ${comp.objectif_id}.`
+        ).join('\n\n');
+        
+        chapters.push({
+          id: `rang-a-${i}`,
+          title: `Chapitre ${chapters.length} : Les Fondements`,
+          content: `Dr. Martin fait face à un cas complexe nécessitant la maîtrise des compétences de Rang A.\n\n${chapterContent}\n\nL'apprentissage se poursuit, chaque détail compte dans cette spécialité exigeante.`,
+          type: 'rang-a',
+          competences: batch
+        });
+      }
+    }
 
-    // Chapitres pour rang B (utilise getCompetencesData)
-    const rangBData = getCompetencesData(tableauRangB);
-    rangBData.forEach((section, index) => {
-      const concepts = section.concepts;
-      chapters.push({
-        id: `rang-b-${index}`,
-        title: `Chapitre ${rangAData.length + index + 1} : L'Expertise - ${section.title}`,
-        content: `L'expertise de Dr. Martin est maintenant mise à l'épreuve avec ${section.title}. Les enjeux sont plus élevés.\n\n${concepts.slice(0, 3).map((concept: any, i: number) => 
-          `Face à "${concept.competence || concept.concept || `ce défi expert ${i + 1}`}", elle mobilise toute son expertise. "${concept.description?.substring(0, 200) || 'L\'analyse experte révèle des nuances importantes.'}..."\n\nL'excellence clinique se mesure dans ces moments critiques.`
-        ).join('\n\n')}\n\nChaque décision expert façonne l'issue de ce cas délicat.`,
-        type: 'rang-b',
-        competences: concepts.length
-      });
-    });
+    // Chapitres pour rang B (vraies compétences OIC)
+    if (competencesB.length > 0) {
+      for (let i = 0; i < competencesB.length; i += 2) {
+        const batch = competencesB.slice(i, i + 2);
+        const chapterContent = batch.map((comp, idx) => 
+          `Face à "${comp.intitule}", elle mobilise toute son expertise. "${comp.description?.substring(0, 250) || 'L\'analyse experte révèle des nuances importantes pour la pratique clinique avancée.'}..."\n\nRéférence: ${comp.objectif_id}.`
+        ).join('\n\n');
+        
+        chapters.push({
+          id: `rang-b-${i}`,
+          title: `Chapitre ${chapters.length} : L'Expertise`,
+          content: `L'expertise de Dr. Martin est maintenant mise à l'épreuve avec les compétences de Rang B.\n\n${chapterContent}\n\nChaque décision experte façonne l'issue de ce cas délicat.`,
+          type: 'rang-b',
+          competences: batch
+        });
+      }
+    }
 
     // Chapitre de conclusion
     chapters.push({
       id: 'epilogue',
       title: 'Épilogue : La Maîtrise Accomplie',
-      content: `Plusieurs mois plus tard, Dr. Martin reflète sur son parcours d'apprentissage de l'${itemCode}. Chaque compétence maîtrisée, chaque concept intégré a contribué à faire d'elle une praticienne accomplie.\n\n"De la compréhension des fondements du rang A jusqu'à l'expertise avancée du rang B, chaque étape était nécessaire", se dit-elle en observant ses collègues internes débuter leur propre apprentissage.\n\nLe cycle de transmission des connaissances continue, perpétuant l'excellence médicale dans cette spécialité exigeante.\n\n${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis les plus complexes de sa spécialité.`,
+      content: `Plusieurs mois plus tard, Dr. Martin reflète sur son parcours d'apprentissage de l'${itemCode}. Les ${competencesA.length} compétences de Rang A et ${competencesB.length} compétences de Rang B ont contribué à faire d'elle une praticienne accomplie.\n\n"De la compréhension des fondements jusqu'à l'expertise avancée, chaque étape était nécessaire", se dit-elle en observant ses collègues internes débuter leur propre apprentissage.\n\nLe cycle de transmission des connaissances continue, perpétuant l'excellence médicale dans cette spécialité exigeante.\n\n${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis les plus complexes de sa spécialité.`,
       type: 'conclusion',
-      competences: 0
+      competences: []
     });
 
     return chapters;
