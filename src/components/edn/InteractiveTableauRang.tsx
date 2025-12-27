@@ -48,17 +48,30 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
   const { logActivity } = useActivityTracking();
   const { toast } = useToast();
 
-  // Load mastered competences from Supabase
+  // Load mastered competences from Supabase (migré depuis localStorage)
   useEffect(() => {
     const loadMastered = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        // Fallback: charger depuis localStorage pour utilisateurs non connectés
+        try {
+          const key = `tableau_progress_${itemCode}_${rang}`;
+          const saved = localStorage.getItem(key);
+          if (saved) {
+            setMasteredCompetences(new Set(JSON.parse(saved)));
+          }
+        } catch (e) {
+          console.error('Error loading from localStorage:', e);
+        }
+        return;
+      }
       
-      const { data } = await (supabase as any)
-        .from('user_item_progress')
+      const { data } = await supabase
+        .from('user_competence_progress')
         .select('competence_id')
         .eq('user_id', user.id)
         .eq('item_code', itemCode)
+        .eq('rang', rang)
         .eq('mastered', true);
       
       if (data) {
@@ -66,7 +79,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
       }
     };
     loadMastered();
-  }, [itemCode]);
+  }, [itemCode, rang]);
 
   const toggleSection = (index: number) => {
     const newExpanded = new Set(expandedSections);
@@ -91,35 +104,73 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
     }
     setMasteredCompetences(newMastered);
 
-    // Persist to localStorage (user_item_progress table doesn't have competence_id column)
-    try {
-      const key = `tableau_progress_${itemCode}_${rang}`;
-      localStorage.setItem(key, JSON.stringify(Array.from(newMastered)));
-    } catch (e) {
-      console.error('Error saving progress:', e);
+    // Persist to Supabase (nouvelle table user_competence_progress)
+    if (user) {
+      try {
+        if (wasMastered) {
+          // Supprimer la maîtrise
+          await supabase
+            .from('user_competence_progress')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('item_code', itemCode)
+            .eq('rang', rang)
+            .eq('competence_id', competenceId);
+        } else {
+          // Ajouter la maîtrise
+          await supabase
+            .from('user_competence_progress')
+            .upsert({
+              user_id: user.id,
+              item_code: itemCode,
+              rang: rang,
+              competence_id: competenceId,
+              mastered: true,
+              mastered_at: new Date().toISOString()
+            }, { onConflict: 'user_id,item_code,rang,competence_id' });
+        }
+      } catch (e) {
+        console.error('Error saving to Supabase:', e);
+      }
+    } else {
+      // Fallback localStorage pour utilisateurs non connectés
+      try {
+        const key = `tableau_progress_${itemCode}_${rang}`;
+        localStorage.setItem(key, JSON.stringify(Array.from(newMastered)));
+      } catch (e) {
+        console.error('Error saving to localStorage:', e);
+      }
     }
   }, [masteredCompetences, itemCode, rang, logActivity]);
 
   const resetProgress = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
     
     setLoading(true);
     try {
-      await (supabase as any)
-        .from('user_item_progress')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('item_code', itemCode);
+      if (user) {
+        // Supprimer depuis Supabase
+        await supabase
+          .from('user_competence_progress')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('item_code', itemCode)
+          .eq('rang', rang);
+      } else {
+        // Supprimer depuis localStorage
+        const key = `tableau_progress_${itemCode}_${rang}`;
+        localStorage.removeItem(key);
+      }
       
       setMasteredCompetences(new Set());
       toast({ title: 'Progression réinitialisée' });
     } catch (e) {
       console.error('Error resetting:', e);
+      toast({ title: 'Erreur lors de la réinitialisation', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  }, [itemCode, toast]);
+  }, [itemCode, rang, toast]);
 
   const handleCompetenceClick = (competence: Competence) => {
     logActivity({ activity_type: 'study', metadata: { competenceId: competence.competence_id, itemCode, action: 'competence_viewed' } });

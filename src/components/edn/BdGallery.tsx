@@ -9,6 +9,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BdGalleryProps {
@@ -29,6 +30,10 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
+  
+  // Charger les vraies compétences OIC
+  const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
+  const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
 
   useEffect(() => {
     const load = async () => {
@@ -42,29 +47,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     load();
   }, [loadStats, logActivity, addPoints, itemCode]);
 
-  // Extraire les compétences depuis les différents formats possibles
-  const getCompetences = (tableau: any): { title: string; competences: any[] }[] => {
-    if (!tableau) return [];
-    
-    // Format 1: competences_cles (format OIC principal)
-    if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
-      return [{ title: tableau.title || 'Compétences', competences: tableau.competences_cles }];
-    }
-    // Format 2: sections avec concepts
-    if (tableau.sections && Array.isArray(tableau.sections)) {
-      return tableau.sections.map((s: any) => ({
-        title: s.title || 'Section',
-        competences: s.concepts || s.competences || []
-      }));
-    }
-    // Format 3: competences directes
-    if (tableau.competences && Array.isArray(tableau.competences)) {
-      return [{ title: 'Compétences', competences: tableau.competences }];
-    }
-    return [];
-  };
-
-  // Générer des vignettes basées sur les compétences
+  // Générer des vignettes basées sur les vraies compétences OIC
   const generateVignettes = () => {
     const vignettes = [];
     
@@ -74,42 +57,49 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       title: `${itemCode} - Introduction`,
       description: `Découvrez l'univers médical de ${title}`,
       image: `https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop`,
-      type: 'intro'
+      type: 'intro',
+      competences: []
     });
 
-    // Vignettes pour rang A (utilise getCompetences)
-    const rangAData = getCompetences(tableauRangA);
-    rangAData.forEach((section, index) => {
-      vignettes.push({
-        id: `rang-a-${index}`,
-        title: `Rang A - ${section.title}`,
-        description: `Compétences fondamentales pour ${itemCode}`,
-        image: `https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=600&fit=crop`,
-        type: 'rang-a',
-        competences: section.competences.length
-      });
-    });
+    // Vignettes pour rang A (vraies compétences OIC)
+    if (competencesA.length > 0) {
+      // Grouper par 3 compétences par vignette
+      for (let i = 0; i < competencesA.length; i += 3) {
+        const batch = competencesA.slice(i, i + 3);
+        vignettes.push({
+          id: `rang-a-${i}`,
+          title: `Rang A - Compétences ${i + 1}-${Math.min(i + 3, competencesA.length)}`,
+          description: batch.map(c => c.intitule).join(' • '),
+          image: `https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=600&fit=crop`,
+          type: 'rang-a',
+          competences: batch
+        });
+      }
+    }
 
-    // Vignettes pour rang B (utilise getCompetences)
-    const rangBData = getCompetences(tableauRangB);
-    rangBData.forEach((section, index) => {
-      vignettes.push({
-        id: `rang-b-${index}`,
-        title: `Rang B - ${section.title}`,
-        description: `Compétences expertes pour ${itemCode}`,
-        image: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop`,
-        type: 'rang-b',
-        competences: section.competences.length
-      });
-    });
+    // Vignettes pour rang B (vraies compétences OIC)
+    if (competencesB.length > 0) {
+      for (let i = 0; i < competencesB.length; i += 3) {
+        const batch = competencesB.slice(i, i + 3);
+        vignettes.push({
+          id: `rang-b-${i}`,
+          title: `Rang B - Compétences ${i + 1}-${Math.min(i + 3, competencesB.length)}`,
+          description: batch.map(c => c.intitule).join(' • '),
+          image: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop`,
+          type: 'rang-b',
+          competences: batch
+        });
+      }
+    }
 
     // Vignette de conclusion
     vignettes.push({
       id: 'conclusion',
       title: `${itemCode} - Synthèse`,
-      description: `Intégration complète des compétences médicales`,
+      description: `${competencesA.length + competencesB.length} compétences OIC maîtrisées`,
       image: `https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=800&h=600&fit=crop`,
-      type: 'conclusion'
+      type: 'conclusion',
+      competences: []
     });
 
     return vignettes;
@@ -144,6 +134,20 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       default: return <Image className="h-4 w-4" />;
     }
   };
+
+  if (loadingA || loadingB) {
+    return (
+      <Card className="border-2 border-accent/20">
+        <CardContent className="p-8 text-center">
+          <div className="animate-pulse space-y-4">
+            <div className="h-48 bg-muted rounded-lg"></div>
+            <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
+          </div>
+          <p className="text-muted-foreground mt-4">Chargement de la BD interactive...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (vignettes.length === 0) {
     return (
@@ -249,11 +253,16 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
             <p className="text-muted-foreground mb-4">{currentVig.description}</p>
             
-            {currentVig.competences && (
-              <div className="flex items-center gap-2 mb-4">
-                <Badge variant="outline">
-                  {currentVig.competences} compétences
-                </Badge>
+            {currentVig.competences && currentVig.competences.length > 0 && (
+              <div className="space-y-2 mb-4">
+                <h4 className="text-sm font-semibold text-muted-foreground">Compétences OIC:</h4>
+                <div className="space-y-2">
+                  {currentVig.competences.map((comp: any, idx: number) => (
+                    <div key={idx} className="p-2 bg-muted/50 rounded-lg text-sm">
+                      <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             
