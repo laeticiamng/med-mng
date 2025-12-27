@@ -2,13 +2,27 @@
  * 🎵 Generate Music - Edge Function principale
  * 
  * Endpoint pour générer de la musique via l'API Suno
- * Version refactorisée et modulaire
+ * Documentation: https://docs.sunoapi.org/suno-api/generate-music
+ * 
+ * Modèles disponibles:
+ * - V5: Expression musicale supérieure, génération plus rapide
+ * - V4_5PLUS: Son plus riche, nouvelles façons de créer, max 8 min
+ * - V4_5ALL: Meilleure structure de chanson, max 8 min
+ * - V4_5: Meilleur mélange de genres, jusqu'à 8 min
+ * - V4: Meilleure qualité audio, jusqu'à 4 min
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
-import { SunoAPIClient, getCorrectSunoModel, SunoGenerationOptions } from '../_shared/suno-api-client.ts';
+import { 
+  SunoAPIClient, 
+  getCorrectSunoModel, 
+  getModelLimits,
+  type SunoGenerationOptions,
+  type SunoModel,
+  type VocalGender
+} from '../_shared/suno-api-client.ts';
 import { 
   buildRichEducationalPrompt, 
   buildRichStyle, 
@@ -18,11 +32,12 @@ import {
   insertMusicTrack, 
   insertGenerationMetric, 
   getAuthenticatedUser,
-  MusicTrackInsertData
+  type MusicTrackInsertData
 } from '../_shared/music-database.ts';
 
-// Interfaces de requête/réponse
+// Interface de requête avec tous les nouveaux paramètres Suno
 interface MusicGenerationRequest {
+  // Paramètres de base
   lyrics?: string;
   prompt?: string;
   style?: string;
@@ -33,12 +48,25 @@ interface MusicGenerationRequest {
   userId?: string;
   rang?: string;
   language?: string;
-  fastMode?: boolean;
   itemCode?: string;
-  instrumental?: boolean;
-  customMode?: boolean;
-  model?: string;
   title?: string;
+
+  // Paramètres Suno requis
+  customMode?: boolean;
+  instrumental?: boolean;
+  model?: SunoModel;
+
+  // Nouveaux paramètres Suno V4.5+
+  personaId?: string;
+  negativeTags?: string;
+  vocalGender?: VocalGender;
+  styleWeight?: number;
+  weirdnessConstraint?: number;
+  audioWeight?: number;
+
+  // Legacy (gardés pour compatibilité)
+  fastMode?: boolean;
+  optimized?: boolean;
 }
 
 interface MusicGenerationResponse {
@@ -60,6 +88,8 @@ interface MusicGenerationResponse {
     credits_used?: number;
     status?: string;
     estimated_duration?: string;
+    vocalGender?: string;
+    negativeTags?: string;
   };
   error?: string;
 }
@@ -92,8 +122,14 @@ serve(async (req) => {
       duration: body.duration,
       language: body.language,
       itemCode: body.itemCode,
-      apiMode: 'REAL_SUNO',
-      willCallRealAPI: true
+      model: body.model,
+      customMode: body.customMode,
+      instrumental: body.instrumental,
+      vocalGender: body.vocalGender,
+      negativeTags: body.negativeTags,
+      styleWeight: body.styleWeight,
+      weirdnessConstraint: body.weirdnessConstraint,
+      apiMode: 'REAL_SUNO'
     });
 
     // Get authenticated user
@@ -110,30 +146,58 @@ serve(async (req) => {
       itemCode = 'EDN',
       customMode = true,
       instrumental = false,
-      model = 'V4_5',
+      model = 'V4_5ALL',
       title,
-      optimized = true,
-      fastMode = true
+      // Nouveaux paramètres V4.5+
+      personaId,
+      negativeTags,
+      vocalGender,
+      styleWeight,
+      weirdnessConstraint,
+      audioWeight
     } = body;
 
-    // Build enhanced components
-    const enhancedPrompt = lyrics || buildRichEducationalPrompt(
+    // Sélectionner le bon modèle
+    const correctModel = getCorrectSunoModel(model);
+    const modelLimits = getModelLimits(correctModel);
+
+    // Build enhanced components (avec respect des limites)
+    let enhancedPrompt = lyrics || buildRichEducationalPrompt(
       itemCode, 
       rang, 
       style, 
       'relaxing', 
       'moderate'
     );
-    const enhancedStyle = buildRichStyle(
+
+    // Tronquer le prompt si nécessaire
+    const maxPromptLength = customMode ? modelLimits.promptMax : 500;
+    if (enhancedPrompt.length > maxPromptLength) {
+      console.log(`⚠️ Prompt tronqué: ${enhancedPrompt.length} -> ${maxPromptLength} chars`);
+      enhancedPrompt = enhancedPrompt.substring(0, maxPromptLength - 3) + '...';
+    }
+
+    let enhancedStyle = buildRichStyle(
       style, 
       'relaxing', 
       'moderate', 
       ['piano', 'strings']
     );
-    const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
-    const correctModel = getCorrectSunoModel(model);
+    // Tronquer le style si nécessaire
+    if (enhancedStyle.length > modelLimits.styleMax) {
+      console.log(`⚠️ Style tronqué: ${enhancedStyle.length} -> ${modelLimits.styleMax} chars`);
+      enhancedStyle = enhancedStyle.substring(0, modelLimits.styleMax - 3) + '...';
+    }
 
-    console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
+    let enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
+    // Tronquer le titre si nécessaire
+    if (enhancedTitle.length > modelLimits.titleMax) {
+      console.log(`⚠️ Titre tronqué: ${enhancedTitle.length} -> ${modelLimits.titleMax} chars`);
+      enhancedTitle = enhancedTitle.substring(0, modelLimits.titleMax - 3) + '...';
+    }
+
+    console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production');
+    console.log(`🎯 Modèle sélectionné: ${correctModel} (limites: prompt=${modelLimits.promptMax}, style=${modelLimits.styleMax}, title=${modelLimits.titleMax})`);
 
     // Check API key
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
@@ -150,7 +214,6 @@ serve(async (req) => {
     }
 
     console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
-    console.log('🎯 Modèle fixé:', correctModel, 'pour tous les utilisateurs');
 
     // Initialize Suno API client
     const sunoClient = new SunoAPIClient(SUNO_API_KEY);
@@ -158,29 +221,42 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // Prepare Suno payload with optimizations
+    // Prepare Suno payload avec tous les nouveaux paramètres
     const sunoPayload: SunoGenerationOptions = {
-      prompt: enhancedPrompt,
-      customMode: true,
+      // Paramètres requis
+      customMode: customMode,
       instrumental: instrumental,
-      style: enhancedStyle,
-      title: enhancedTitle,
       model: correctModel,
       callBackUrl: callbackUrl,
-      fastMode: true,
-      priority: "high",
-      streamingEnabled: true,
-      optimizeForSpeed: true
+
+      // Paramètres conditionnels
+      prompt: enhancedPrompt,
+      style: enhancedStyle,
+      title: enhancedTitle,
+
+      // Nouveaux paramètres V4.5+ (optionnels)
+      ...(personaId && { personaId }),
+      ...(negativeTags && { negativeTags }),
+      ...(vocalGender && { vocalGender }),
+      ...(typeof styleWeight === 'number' && { styleWeight }),
+      ...(typeof weirdnessConstraint === 'number' && { weirdnessConstraint }),
+      ...(typeof audioWeight === 'number' && { audioWeight })
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload:', {
-      hasPrompt: !!sunoPayload.prompt,
-      promptLength: sunoPayload.prompt.length,
-      style: sunoPayload.style,
-      title: sunoPayload.title,
+      customMode: sunoPayload.customMode,
       instrumental: sunoPayload.instrumental,
       model: sunoPayload.model,
-      customMode: sunoPayload.customMode
+      hasPrompt: !!sunoPayload.prompt,
+      promptLength: sunoPayload.prompt?.length || 0,
+      style: sunoPayload.style,
+      styleLength: sunoPayload.style?.length || 0,
+      title: sunoPayload.title,
+      titleLength: sunoPayload.title?.length || 0,
+      vocalGender: sunoPayload.vocalGender,
+      negativeTags: sunoPayload.negativeTags,
+      styleWeight: sunoPayload.styleWeight,
+      weirdnessConstraint: sunoPayload.weirdnessConstraint
     });
 
     // Call Suno API to generate music (returns taskId immediately)
@@ -203,7 +279,14 @@ serve(async (req) => {
         model: correctModel,
         prompt: enhancedPrompt,
         provider: 'suno',
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
+        // Nouveaux champs
+        vocalGender: vocalGender,
+        negativeTags: negativeTags,
+        styleWeight: styleWeight,
+        weirdnessConstraint: weirdnessConstraint,
+        audioWeight: audioWeight,
+        personaId: personaId
       },
       generation_status: 'generating'
     };
@@ -235,9 +318,9 @@ serve(async (req) => {
     const response: MusicGenerationResponse = {
       success: true,
       trackId: taskId,
-      audioUrl: null, // Will be populated via callback or polling
-      streamUrl: null,
-      imageUrl: null,
+      audioUrl: undefined,
+      streamUrl: undefined,
+      imageUrl: undefined,
       metadata: {
         title: enhancedTitle,
         style: style,
@@ -248,7 +331,9 @@ serve(async (req) => {
         prompt: enhancedPrompt,
         generatedAt: new Date().toISOString(),
         status: 'generating',
-        estimated_duration: '2-3 minutes'
+        estimated_duration: '2-3 minutes',
+        vocalGender: vocalGender,
+        negativeTags: negativeTags
       }
     };
 
