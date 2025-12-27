@@ -90,30 +90,44 @@ export default function EdnComplete() {
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
     let cancelled = false;
+    let timeoutId: NodeJS.Timeout;
     
     const loadData = async () => {
-      console.log('🔄 useEffect - Chargement page:', page);
+      console.log('🔄 EdnComplete - Chargement page:', page);
       
       if (page === 0) {
         setLoading(true);
         setLoadingError(null);
       }
       
+      // Timeout de sécurité de 15 secondes
+      timeoutId = setTimeout(() => {
+        if (!cancelled) {
+          console.error('⏱️ Timeout: chargement trop long');
+          setLoadingError('Le chargement prend trop de temps. Vérifiez votre connexion.');
+          setLoading(false);
+        }
+      }, 15000);
+      
       try {
         const start = page * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE - 1;
         
-        console.log('📥 Fetch edn_items_immersive range:', start, '-', end);
+        console.log('📥 Requête edn_items_immersive:', start, '-', end);
         
-        const { data: immersiveData, error: immersiveError, count } = await supabase
+        const response = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, end)
           .order('item_code');
         
+        clearTimeout(timeoutId);
+        
         if (cancelled) return;
         
-        console.log('✅ Données reçues:', immersiveData?.length || 0, 'items, total:', count);
+        const { data: immersiveData, error: immersiveError, count } = response;
+        
+        console.log('✅ Réponse reçue:', immersiveData?.length || 0, 'items, total:', count, 'error:', immersiveError?.message || 'aucune');
         
         if (immersiveError) {
           console.error('❌ Erreur Supabase:', immersiveError);
@@ -122,19 +136,26 @@ export default function EdnComplete() {
           return;
         }
         
-        setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > end + 1);
-        setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
-        setCompleteItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
+        // Mise à jour des états
+        const newItems = immersiveData || [];
+        setHasMore(newItems.length === ITEMS_PER_PAGE && (count || 0) > end + 1);
         
-        console.log('🎉 Items mis à jour avec succès');
+        if (page === 0) {
+          setImmersiveItems(newItems);
+          setCompleteItems(newItems);
+        } else {
+          setImmersiveItems(prev => [...prev, ...newItems]);
+          setCompleteItems(prev => [...prev, ...newItems]);
+        }
+        
+        console.log('🎉 Items chargés avec succès:', newItems.length);
+        setLoading(false);
       } catch (error) {
+        clearTimeout(timeoutId);
         if (cancelled) return;
         console.error('❌ Exception:', error);
         setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
     
@@ -142,6 +163,7 @@ export default function EdnComplete() {
     
     return () => {
       cancelled = true;
+      clearTimeout(timeoutId);
     };
   }, [page]);
 
