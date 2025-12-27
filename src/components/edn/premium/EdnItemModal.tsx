@@ -82,15 +82,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     // Rang B - toujours disponible car hook useOicCompetences charge les vraies données
     tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     
-    // ORDRE PÉDAGOGIQUE: Quiz juste après les tableaux pour tester les connaissances
-    if (finalItem.quiz_questions) {
-      tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
-    }
+    // Quiz - toujours disponible (affiche message si vide)
+    tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
     
-    if ((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
-        finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) {
-      tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
-    }
+    // Musique - toujours disponible (génération possible)
+    tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
     
     if (finalItem.scene_immersive) {
       tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
@@ -352,21 +348,18 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
 
-              {/* Music */}
-              {((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
-                finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) && (
-                <TabsContent value="music" className="mt-0 p-6">
-                  <ParolesMusicales 
-                    paroles={finalItem.paroles_musicales}
-                    paroles_rang_a={finalItem.paroles_rang_a}
-                    paroles_rang_b={finalItem.paroles_rang_b}
-                    paroles_rang_ab={finalItem.paroles_rang_ab}
-                    itemCode={finalItem.item_code}
-                    tableauRangA={finalItem.tableau_rang_a}
-                    tableauRangB={finalItem.tableau_rang_b}
-                  />
-                </TabsContent>
-              )}
+              {/* Music - Toujours affiché */}
+              <TabsContent value="music" className="mt-0 p-6">
+                <ParolesMusicales 
+                  paroles={finalItem.paroles_musicales}
+                  paroles_rang_a={finalItem.paroles_rang_a}
+                  paroles_rang_b={finalItem.paroles_rang_b}
+                  paroles_rang_ab={finalItem.paroles_rang_ab}
+                  itemCode={finalItem.item_code}
+                  tableauRangA={finalItem.tableau_rang_a}
+                  tableauRangB={finalItem.tableau_rang_b}
+                />
+              </TabsContent>
 
               {/* Scene */}
               {finalItem.scene_immersive && (
@@ -376,15 +369,25 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               )}
 
               {/* Quiz */}
-              {finalItem.quiz_questions && (
-                <TabsContent value="quiz" className="mt-0 p-6">
+              {/* Quiz - Toujours affiché */}
+              <TabsContent value="quiz" className="mt-0 p-6">
+                {finalItem.quiz_questions ? (
                   <EnhancedQuizFinal 
                     questions={finalItem.quiz_questions}
                     itemCode={finalItem.item_code}
                     itemTitle={finalItem.title}
                   />
-                </TabsContent>
-              )}
+                ) : (
+                  <Card className="text-center p-8">
+                    <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="font-semibold mb-2">Quiz en préparation</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Les questions de quiz pour cet item sont en cours de création.
+                      Consultez les compétences Rang A et B en attendant.
+                    </p>
+                  </Card>
+                )}
+              </TabsContent>
 
               {/* BD Gallery */}
               <TabsContent value="bd" className="mt-0 p-6">

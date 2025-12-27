@@ -93,7 +93,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
           <CardTitle className={`${rang === 'A' ? 'text-primary' : 'text-accent-foreground'} flex items-center justify-between`}>
             <span>{itemCode} Rang {rang} - Compétences OIC</span>
             <Badge variant="outline" className="ml-2 text-muted-foreground">
-              0 compétence OIC
+              En attente
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -103,10 +103,11 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
               <Book className={`w-8 h-8 ${rang === 'A' ? 'text-primary' : 'text-accent-foreground'}`} />
             </div>
             <h4 className="font-semibold text-foreground">
-              Aucune compétence OIC disponible
+              Compétences en cours d'extraction
             </h4>
             <p className="text-muted-foreground text-sm max-w-md mx-auto">
-              Cet item n'a pas encore de compétences OIC officielles définies pour le rang {rang}.
+              Les compétences OIC officielles pour le rang {rang} de cet item sont en cours d'extraction depuis UNESS.
+              Consultez les autres formats disponibles en attendant.
             </p>
           </div>
         </CardContent>
@@ -114,7 +115,11 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
     );
   }
 
+  // Déstructurer les données
   const { title, competences, count, theme } = data;
+  
+  // Message spécial pour items avec très peu de compétences
+  const isLowCount = count <= 3;
   const themeColors = rang === 'A' 
     ? 'from-primary to-primary/80'
     : 'from-accent to-accent/80';

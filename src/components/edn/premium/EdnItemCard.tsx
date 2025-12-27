@@ -46,8 +46,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
 
   const getFeatures = () => {
     const features = [];
-    if (finalItem.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-primary' });
-    if (finalItem.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-accent' });
+    // Utiliser les comptages réels OIC
+    const rangACount = finalItem.competences_count_rang_a || 0;
+    const rangBCount = finalItem.competences_count_rang_b || 0;
+    
+    if (rangACount > 0) features.push({ icon: BookOpen, text: `Rang A: ${rangACount}`, color: 'text-primary' });
+    if (rangBCount > 0) features.push({ icon: BookOpen, text: `Rang B: ${rangBCount}`, color: 'text-accent' });
     if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
       features.push({ icon: Music, text: 'Musique', color: 'text-success' });
     }
