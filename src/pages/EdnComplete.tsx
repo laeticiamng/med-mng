@@ -90,18 +90,25 @@ export default function EdnComplete() {
   const immersiveItems = ednItems;
   const completeItems = ednItems;
   
-  // Chargement initial des items
+  // Chargement initial des items - utilise fetch direct pour éviter les problèmes de typage
   useEffect(() => {
     let isMounted = true;
     
     const fetchItems = async () => {
       try {
-        const { data, error } = await supabase
-          .from('edn_items_immersive')
-          .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
-          .limit(500);
+        const response = await fetch(
+          'https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500',
+          {
+            headers: {
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+            }
+          }
+        );
         
-        if (error) throw error;
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
         
         if (isMounted) {
           setEdnItems(data || []);
@@ -127,18 +134,24 @@ export default function EdnComplete() {
   const refresh = () => {
     setLoading(true);
     setLoadingError(null);
-    supabase
-      .from('edn_items_immersive')
-      .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
-      .limit(500)
-      .then(({ data, error }) => {
-        if (error) {
-          setLoadingError(error.message);
-        } else {
-          setEdnItems(data || []);
+    fetch(
+      'https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500',
+      {
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
         }
-        setLoading(false);
-      });
+      }
+    )
+    .then(res => res.json())
+    .then(data => {
+      setEdnItems(data || []);
+      setLoading(false);
+    })
+    .catch(err => {
+      setLoadingError(err.message);
+      setLoading(false);
+    });
   };
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
