@@ -51,6 +51,28 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     }
   }, [itemCode]);
 
+  // Extraire les compétences depuis les différents formats
+  const getCompetencesData = (tableau: any): { title: string; concepts: any[] }[] => {
+    if (!tableau) return [];
+    
+    // Format 1: competences_cles (format OIC principal)
+    if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
+      return [{ title: tableau.title || 'Compétences', concepts: tableau.competences_cles }];
+    }
+    // Format 2: sections avec concepts
+    if (tableau.sections && Array.isArray(tableau.sections)) {
+      return tableau.sections.map((s: any) => ({
+        title: s.title || 'Section',
+        concepts: s.concepts || s.competences || []
+      }));
+    }
+    // Format 3: competences directes
+    if (tableau.competences && Array.isArray(tableau.competences)) {
+      return [{ title: 'Compétences', concepts: tableau.competences }];
+    }
+    return [];
+  };
+
   // Générer les chapitres basés sur les compétences
   const generateChapters = () => {
     const chapters = [];
@@ -64,30 +86,30 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
       competences: 0
     });
 
-    // Chapitres pour rang A
-    const rangASections = tableauRangA?.sections || [];
-    rangASections.forEach((section: any, index: number) => {
-      const concepts = section.concepts || [];
+    // Chapitres pour rang A (utilise getCompetencesData)
+    const rangAData = getCompetencesData(tableauRangA);
+    rangAData.forEach((section, index) => {
+      const concepts = section.concepts;
       chapters.push({
         id: `rang-a-${index}`,
-        title: `Chapitre ${index + 1} : Les Fondements - ${section.title || 'Compétences de Base'}`,
-        content: `Dr. Martin fait face à son premier cas complexe impliquant ${section.title || 'ces compétences fondamentales'}. L'équipe médicale se rassemble pour analyser la situation.\n\n${concepts.map((concept: any, i: number) => 
-          `"${concept.concept || `Concept ${i + 1}`}" explique le chef de service. "${concept.definition || concept.exemple || 'Cette compétence est essentielle pour comprendre les bases de ce domaine médical.'}"\n\nLe Dr. Martin note scrupuleusement : "${concept.mnemo || concept.application || 'Il faut retenir cette approche pour les cas futurs.'}" Cette information sera cruciale pour la suite.`
+        title: `Chapitre ${index + 1} : Les Fondements - ${section.title}`,
+        content: `Dr. Martin fait face à son premier cas complexe impliquant ${section.title}. L'équipe médicale se rassemble pour analyser la situation.\n\n${concepts.slice(0, 3).map((concept: any, i: number) => 
+          `"${concept.competence || concept.concept || `Compétence ${i + 1}`}" explique le chef de service. "${concept.description?.substring(0, 200) || 'Cette compétence est essentielle pour comprendre les bases de ce domaine médical.'}..."\n\nLe Dr. Martin note scrupuleusement ces informations cruciales pour la suite.`
         ).join('\n\n')}\n\nL'apprentissage se poursuit, chaque détail compte dans cette spécialité exigeante.`,
         type: 'rang-a',
         competences: concepts.length
       });
     });
 
-    // Chapitres pour rang B
-    const rangBSections = tableauRangB?.sections || [];
-    rangBSections.forEach((section: any, index: number) => {
-      const concepts = section.concepts || [];
+    // Chapitres pour rang B (utilise getCompetencesData)
+    const rangBData = getCompetencesData(tableauRangB);
+    rangBData.forEach((section, index) => {
+      const concepts = section.concepts;
       chapters.push({
         id: `rang-b-${index}`,
-        title: `Chapitre ${rangASections.length + index + 1} : L'Expertise - ${section.title || 'Compétences Avancées'}`,
-        content: `L'expertise de Dr. Martin est maintenant mise à l'épreuve avec ${section.title || 'des cas complexes nécessitant une expertise approfondie'}. Les enjeux sont plus élevés.\n\n${concepts.map((concept: any, i: number) => 
-          `Face à ${concept.concept || `ce défi expert ${i + 1}`}, elle mobilise toute son expertise. "${concept.analyse || concept.cas || 'L\'analyse experte révèle des nuances importantes qu\'un praticien moins expérimenté pourrait manquer.'}"\n\nLe piège serait de ${concept.ecueil || 'sous-estimer la complexité de cette situation'}. La technique spécialisée requiert ${concept.technique || concept.maitrise || 'une maîtrise parfaite des protocoles avancés'}.\n\n"${concept.excellence || 'L\'excellence clinique se mesure dans ces moments critiques'}", réfléchit-elle en appliquant ses connaissances approfondies.`
+        title: `Chapitre ${rangAData.length + index + 1} : L'Expertise - ${section.title}`,
+        content: `L'expertise de Dr. Martin est maintenant mise à l'épreuve avec ${section.title}. Les enjeux sont plus élevés.\n\n${concepts.slice(0, 3).map((concept: any, i: number) => 
+          `Face à "${concept.competence || concept.concept || `ce défi expert ${i + 1}`}", elle mobilise toute son expertise. "${concept.description?.substring(0, 200) || 'L\'analyse experte révèle des nuances importantes.'}..."\n\nL'excellence clinique se mesure dans ces moments critiques.`
         ).join('\n\n')}\n\nChaque décision expert façonne l'issue de ce cas délicat.`,
         type: 'rang-b',
         competences: concepts.length
