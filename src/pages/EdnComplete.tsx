@@ -90,7 +90,6 @@ export default function EdnComplete() {
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
     let isMounted = true;
-    const controller = new AbortController();
     
     console.log('🚀 EdnComplete - Démarrage chargement page:', page);
     
@@ -99,33 +98,32 @@ export default function EdnComplete() {
       setLoadingError(null);
     }
     
-    const fetchData = async () => {
-      const start = page * ITEMS_PER_PAGE;
-      
-      console.log('📥 Fetch API:', start, '-', start + ITEMS_PER_PAGE - 1);
-      
+    const start = page * ITEMS_PER_PAGE;
+    console.log('📥 Appel Supabase:', start, '-', start + ITEMS_PER_PAGE - 1);
+    
+    (async () => {
       try {
         const { data, error, count } = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, start + ITEMS_PER_PAGE - 1)
-          .order('item_code')
-          .abortSignal(controller.signal);
+          .order('item_code');
+        
+        console.log('📦 Réponse Supabase:', { data: data?.length, error: error?.message, count });
         
         if (!isMounted) {
-          console.log('⚠️ Composant démonté, données ignorées');
+          console.log('⚠️ Composant démonté');
           return;
         }
         
         if (error) {
-          if (error.message?.includes('aborted')) {
-            console.log('📭 Requête annulée');
-            return;
-          }
-          throw error;
+          console.error('❌ Erreur:', error.message);
+          setLoadingError(error.message);
+          setLoading(false);
+          return;
         }
         
-        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count);
+        console.log('✅ Données:', data?.length || 0, 'items');
         
         const items = data || [];
         setHasMore(items.length === ITEMS_PER_PAGE && (count || 0) > start + items.length);
@@ -140,18 +138,15 @@ export default function EdnComplete() {
         
         setLoading(false);
       } catch (err: any) {
+        console.error('❌ Exception:', err);
         if (!isMounted) return;
-        console.error('❌ Erreur fetch:', err);
         setLoadingError(err.message || 'Erreur inconnue');
         setLoading(false);
       }
-    };
-    
-    fetchData();
+    })();
     
     return () => {
       isMounted = false;
-      controller.abort();
     };
   }, [page]);
 
