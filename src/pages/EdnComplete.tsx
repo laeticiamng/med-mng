@@ -92,6 +92,7 @@ export default function EdnComplete() {
   
   // Fonction de chargement optimisée - exclut les JSONB lourds
   const loadItems = useCallback(async () => {
+    console.log('[EDN] Début chargement items...');
     try {
       setLoading(true);
       setLoadingError(null);
@@ -103,27 +104,31 @@ export default function EdnComplete() {
         .order('item_code')
         .limit(500);
       
+      console.log('[EDN] Requête terminée:', data?.length || 0, 'items, erreur:', error);
+      
       if (error) throw error;
       
       setEdnItems(data || []);
       setHasMore(false);
+      console.log('[EDN] Items chargés avec succès');
     } catch (err: any) {
-      console.error('Erreur chargement:', err);
+      console.error('[EDN] Erreur chargement:', err);
       setLoadingError(err.message || 'Erreur de chargement');
     } finally {
       setLoading(false);
+      console.log('[EDN] Loading = false');
     }
   }, []);
-  
   
   const refresh = useCallback(() => {
     loadItems();
   }, [loadItems]);
   
-  // Chargement initial
+  // Chargement initial - une seule fois
   useEffect(() => {
+    console.log('[EDN] useEffect: démarrage loadItems');
     loadItems();
-  }, [loadItems]);
+  }, []);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
