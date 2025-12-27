@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useRef } from 'react';
 
 export interface EdnItemBasic {
   id: string;
@@ -14,6 +13,8 @@ export interface EdnItemBasic {
 }
 
 const ITEMS_PER_PAGE = 50;
+const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
 
 export const useEdnItems = () => {
   const [items, setItems] = useState<EdnItemBasic[]>([]);
@@ -22,8 +23,19 @@ export const useEdnItems = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  
+  // Ref pour éviter les appels multiples en parallèle
+  const fetchingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const fetchPage = async (pageNum: number, append: boolean = false) => {
+    // Éviter les appels multiples
+    if (fetchingRef.current) {
+      console.log('⏳ useEdnItems - Fetch already in progress, skipping');
+      return;
+    }
+    
+    fetchingRef.current = true;
     const start = pageNum * ITEMS_PER_PAGE;
     
     console.log('🔄 useEdnItems - Fetching page:', pageNum, 'range:', start, '-', start + ITEMS_PER_PAGE - 1);
@@ -34,17 +46,36 @@ export const useEdnItems = () => {
         setError(null);
       }
       
-      const { data, error: fetchError, count } = await supabase
-        .from('edn_items_immersive')
-        .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
-        .range(start, start + ITEMS_PER_PAGE - 1)
-        .order('item_code');
+      // Utiliser fetch directement au lieu du SDK Supabase
+      const url = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
       
-      console.log('📦 useEdnItems - Response:', { count: data?.length, error: fetchError?.message, total: count });
+      console.log('📤 useEdnItems - Sending fetch request');
       
-      if (fetchError) {
-        throw fetchError;
+      const response = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'count=exact'
+        }
+      });
+      
+      console.log('📥 useEdnItems - Response status:', response.status);
+      
+      if (!mountedRef.current) {
+        console.log('⚠️ useEdnItems - Component unmounted');
+        fetchingRef.current = false;
+        return;
       }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const contentRange = response.headers.get('content-range');
+      const total = contentRange ? parseInt(contentRange.split('/')[1]) : data.length;
+      
+      console.log('✅ useEdnItems - Received:', data.length, 'items, total:', total);
       
       const fetchedItems = data || [];
       
@@ -54,25 +85,29 @@ export const useEdnItems = () => {
         setItems(fetchedItems);
       }
       
-      setTotalCount(count || 0);
-      setHasMore(fetchedItems.length === ITEMS_PER_PAGE && (count || 0) > start + fetchedItems.length);
+      setTotalCount(total);
+      setHasMore(fetchedItems.length === ITEMS_PER_PAGE && total > start + fetchedItems.length);
       setPage(pageNum);
       setLoading(false);
+      fetchingRef.current = false;
       
     } catch (err: any) {
       console.error('❌ useEdnItems - Error:', err);
+      fetchingRef.current = false;
+      if (!mountedRef.current) return;
       setError(err.message || 'Erreur lors du chargement');
       setLoading(false);
     }
   };
 
   const loadMore = () => {
-    if (hasMore && !loading) {
+    if (hasMore && !loading && !fetchingRef.current) {
       fetchPage(page + 1, true);
     }
   };
 
   const refresh = () => {
+    fetchingRef.current = false;
     setPage(0);
     fetchPage(0, false);
   };
@@ -80,7 +115,13 @@ export const useEdnItems = () => {
   // Initial fetch
   useEffect(() => {
     console.log('🚀 useEdnItems - Initial mount');
+    mountedRef.current = true;
     fetchPage(0, false);
+    
+    return () => {
+      console.log('🔚 useEdnItems - Unmounting');
+      mountedRef.current = false;
+    };
   }, []);
 
   return {
