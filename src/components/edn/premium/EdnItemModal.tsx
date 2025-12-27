@@ -76,13 +76,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       { id: 'overview', label: 'Aperçu', icon: BookOpen, available: true },
     ];
     
-    if (finalItem.tableau_rang_a) {
-      tabs.push({ id: 'rang-a', label: 'Rang A', icon: BookOpen, available: true });
-    }
+    // Rang A - toujours disponible car hook useOicCompetences charge les vraies données
+    tabs.push({ id: 'rang-a', label: 'Rang A', icon: BookOpen, available: true });
     
-    if (finalItem.tableau_rang_b) {
-      tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
-    }
+    // Rang B - toujours disponible car hook useOicCompetences charge les vraies données
+    tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     
     // ORDRE PÉDAGOGIQUE: Quiz juste après les tableaux pour tester les connaissances
     if (finalItem.quiz_questions) {
@@ -98,11 +96,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
     }
     
-    // BD et Roman - toujours disponibles car ils peuvent générer du contenu à la demande
-    if (finalItem.tableau_rang_a || finalItem.tableau_rang_b) {
-      tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
-      tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
-    }
+    // BD et Roman - disponibles pour génération à la demande
+    tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
+    tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
     
     return tabs;
   };
@@ -346,19 +342,15 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </div>
               )}
 
-              {/* Rang A */}
-              {(finalItem.tableau_rang_a || completeItemData?.tableau_rang_a) && (
-                <TabsContent value="rang-a" className="mt-0 p-6">
-                  <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
-                </TabsContent>
-              )}
+              {/* Rang A - Toujours affiché car useOicCompetences charge les vraies données */}
+              <TabsContent value="rang-a" className="mt-0 p-6">
+                <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
+              </TabsContent>
 
-              {/* Rang B */}
-              {(finalItem.tableau_rang_b || completeItemData?.tableau_rang_b) && (
-                <TabsContent value="rang-b" className="mt-0 p-6">
-                  <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
-                </TabsContent>
-              )}
+              {/* Rang B - Toujours affiché car useOicCompetences charge les vraies données */}
+              <TabsContent value="rang-b" className="mt-0 p-6">
+                <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+              </TabsContent>
 
               {/* Music */}
               {((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
