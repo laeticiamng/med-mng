@@ -96,11 +96,10 @@ export default function EdnComplete() {
       setLoading(true);
       setLoadingError(null);
       
-      // Requête légère sans tableaux JSONB (trop lourds pour la liste)
+      // Requête légère sans tableaux JSONB (tri côté client pour ordre numérique)
       const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
-        .order('item_code')
         .limit(500);
       
       if (error) throw error;
