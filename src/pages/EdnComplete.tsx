@@ -90,46 +90,26 @@ export default function EdnComplete() {
   const immersiveItems = ednItems;
   const completeItems = ednItems;
   
-  // Fonction de chargement optimisée avec Supabase SDK
+  // Fonction de chargement optimisée - exclut les JSONB lourds
   const loadItems = useCallback(async () => {
     try {
       setLoading(true);
       setLoadingError(null);
       
+      // Requête légère sans tableaux JSONB (trop lourds pour la liste)
       const { data, error } = await supabase
         .from('edn_items_immersive')
-        .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,tableau_rang_a,tableau_rang_b')
+        .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
         .order('item_code')
         .limit(500);
       
       if (error) throw error;
       
-      // Enrichissement des compteurs dynamiquement si absents
-      const enrichedData = (data || []).map(item => {
-        let countA = item.competences_count_rang_a || 0;
-        let countB = item.competences_count_rang_b || 0;
-        
-        if (countA === 0 && item.tableau_rang_a) {
-          const t = item.tableau_rang_a as any;
-          if (t.competences_cles?.length) countA = t.competences_cles.length;
-          else if (t.sections) countA = t.sections.reduce((acc: number, s: any) => acc + (s.concepts?.length || 0), 0);
-          else if (t.competences?.length) countA = t.competences.length;
-        }
-        if (countB === 0 && item.tableau_rang_b) {
-          const t = item.tableau_rang_b as any;
-          if (t.competences_cles?.length) countB = t.competences_cles.length;
-          else if (t.sections) countB = t.sections.reduce((acc: number, s: any) => acc + (s.concepts?.length || 0), 0);
-          else if (t.competences?.length) countB = t.competences.length;
-        }
-        
-        return { ...item, competences_count_rang_a: countA, competences_count_rang_b: countB };
-      });
-      
-      setEdnItems(enrichedData);
+      setEdnItems(data || []);
       setHasMore(false);
     } catch (err: any) {
-      console.error('❌ Erreur:', err);
-      setLoadingError(err.message);
+      console.error('Erreur chargement:', err);
+      setLoadingError(err.message || 'Erreur de chargement');
     } finally {
       setLoading(false);
     }
