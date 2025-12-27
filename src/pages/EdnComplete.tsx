@@ -90,46 +90,51 @@ export default function EdnComplete() {
   const immersiveItems = ednItems;
   const completeItems = ednItems;
   
-  // Fonction de chargement - charge tous les items pour permettre le tri numérique
+  // Fonction de chargement optimisée avec Supabase SDK
   const loadItems = useCallback(async () => {
-    console.log('📥 Loading all items...');
-    
     try {
       setLoading(true);
       setLoadingError(null);
       
-      const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500`;
+      const { data, error } = await supabase
+        .from('edn_items_immersive')
+        .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,tableau_rang_a,tableau_rang_b')
+        .order('item_code')
+        .limit(500);
       
-      const response = await fetch(url, {
-        headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+      if (error) throw error;
+      
+      // Enrichissement des compteurs dynamiquement si absents
+      const enrichedData = (data || []).map(item => {
+        let countA = item.competences_count_rang_a || 0;
+        let countB = item.competences_count_rang_b || 0;
+        
+        if (countA === 0 && item.tableau_rang_a) {
+          const t = item.tableau_rang_a as any;
+          if (t.competences_cles?.length) countA = t.competences_cles.length;
+          else if (t.sections) countA = t.sections.reduce((acc: number, s: any) => acc + (s.concepts?.length || 0), 0);
+          else if (t.competences?.length) countA = t.competences.length;
         }
+        if (countB === 0 && item.tableau_rang_b) {
+          const t = item.tableau_rang_b as any;
+          if (t.competences_cles?.length) countB = t.competences_cles.length;
+          else if (t.sections) countB = t.sections.reduce((acc: number, s: any) => acc + (s.concepts?.length || 0), 0);
+          else if (t.competences?.length) countB = t.competences.length;
+        }
+        
+        return { ...item, competences_count_rang_a: countA, competences_count_rang_b: countB };
       });
       
-      console.log('📦 Response:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('✅ Received:', data.length, 'items');
-      
-      setEdnItems(data);
+      setEdnItems(enrichedData);
       setHasMore(false);
-      setLoading(false);
-      
     } catch (err: any) {
-      console.error('❌ Error:', err);
+      console.error('❌ Erreur:', err);
       setLoadingError(err.message);
+    } finally {
       setLoading(false);
     }
   }, []);
   
-  const loadMore = useCallback(() => {
-    // Plus besoin de pagination
-  }, []);
   
   const refresh = useCallback(() => {
     loadItems();
@@ -137,7 +142,6 @@ export default function EdnComplete() {
   
   // Chargement initial
   useEffect(() => {
-    console.log('🚀 EdnComplete - Initial load');
     loadItems();
   }, [loadItems]);
 
@@ -256,28 +260,24 @@ export default function EdnComplete() {
   };
 
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
-    // Ouvrir la modal immédiatement avec données partielles pour feedback utilisateur
+    // Ouvrir la modal immédiatement avec données partielles
     setSelectedItem(item);
     setSelectedItemTab(tab || 'overview');
     setIsModalOpen(true);
     
-    // Puis fetch données complètes (tableaux, quiz, scène, etc.) pour l'item
+    // Puis fetch données complètes (tableaux, quiz, scène, etc.)
     try {
-      console.log('📖 Fetching complete data for:', item.item_code);
       const { data: fullItem, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', item.item_code)
         .maybeSingle();
       
-      if (error) {
-        console.error('❌ Erreur fetch item complet:', error);
-      } else if (fullItem) {
-        console.log('✅ Item complet chargé:', item.item_code);
+      if (!error && fullItem) {
         setSelectedItem({ ...item, ...fullItem });
       }
     } catch (err) {
-      console.error('❌ Erreur:', err);
+      // Silently ignore - partial data is still usable
     }
   }, []);
   
@@ -520,20 +520,6 @@ export default function EdnComplete() {
                 ))}
               </div>
               
-              {/* Bouton Charger Plus */}
-              {hasMore && !loading && (
-                <div className="flex justify-center pt-4">
-                  <Button 
-                    onClick={loadMore}
-                    variant="outline"
-                    size="lg"
-                    className="min-w-[200px]"
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2" />
-                    Charger plus d'items
-                  </Button>
-                </div>
-              )}
               
               {loading && immersiveItems.length > 0 && (
                 <div className="flex justify-center py-4">
@@ -561,20 +547,6 @@ export default function EdnComplete() {
                   ))}
                 </div>
                 
-                {/* Bouton Charger Plus */}
-                {hasMore && !loading && (
-                  <div className="flex justify-center pt-4">
-                    <Button 
-                      onClick={loadMore}
-                      variant="outline"
-                      size="lg"
-                      className="min-w-[200px]"
-                    >
-                      <ArrowRight className="h-4 w-4 mr-2" />
-                      Charger plus d'items
-                    </Button>
-                  </div>
-                )}
                 
                 {loading && immersiveItems.length > 0 && (
                   <div className="flex justify-center py-4">

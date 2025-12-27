@@ -42,6 +42,28 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     load();
   }, [loadStats, logActivity, addPoints, itemCode]);
 
+  // Extraire les compétences depuis les différents formats possibles
+  const getCompetences = (tableau: any): { title: string; competences: any[] }[] => {
+    if (!tableau) return [];
+    
+    // Format 1: competences_cles (format OIC principal)
+    if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
+      return [{ title: tableau.title || 'Compétences', competences: tableau.competences_cles }];
+    }
+    // Format 2: sections avec concepts
+    if (tableau.sections && Array.isArray(tableau.sections)) {
+      return tableau.sections.map((s: any) => ({
+        title: s.title || 'Section',
+        competences: s.concepts || s.competences || []
+      }));
+    }
+    // Format 3: competences directes
+    if (tableau.competences && Array.isArray(tableau.competences)) {
+      return [{ title: 'Compétences', competences: tableau.competences }];
+    }
+    return [];
+  };
+
   // Générer des vignettes basées sur les compétences
   const generateVignettes = () => {
     const vignettes = [];
@@ -55,29 +77,29 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       type: 'intro'
     });
 
-    // Vignettes pour rang A
-    const rangASections = tableauRangA?.sections || [];
-    rangASections.forEach((section: any, index: number) => {
+    // Vignettes pour rang A (utilise getCompetences)
+    const rangAData = getCompetences(tableauRangA);
+    rangAData.forEach((section, index) => {
       vignettes.push({
         id: `rang-a-${index}`,
-        title: `Rang A - ${section.title || `Compétence ${index + 1}`}`,
+        title: `Rang A - ${section.title}`,
         description: `Compétences fondamentales pour ${itemCode}`,
         image: `https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=600&fit=crop`,
         type: 'rang-a',
-        competences: section.concepts?.length || 0
+        competences: section.competences.length
       });
     });
 
-    // Vignettes pour rang B
-    const rangBSections = tableauRangB?.sections || [];
-    rangBSections.forEach((section: any, index: number) => {
+    // Vignettes pour rang B (utilise getCompetences)
+    const rangBData = getCompetences(tableauRangB);
+    rangBData.forEach((section, index) => {
       vignettes.push({
         id: `rang-b-${index}`,
-        title: `Rang B - ${section.title || `Expertise ${index + 1}`}`,
+        title: `Rang B - ${section.title}`,
         description: `Compétences expertes pour ${itemCode}`,
         image: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop`,
         type: 'rang-b',
-        competences: section.concepts?.length || 0
+        competences: section.competences.length
       });
     });
 
