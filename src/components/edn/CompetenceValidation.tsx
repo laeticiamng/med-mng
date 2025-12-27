@@ -44,11 +44,19 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       issues: []
     };
 
-    // Validation Rang A - logique améliorée
+    // Validation Rang A - logique améliorée pour supporter competences_cles
     if (item.tableau_rang_a) {
       validation.rangA.present = true;
       
-      if (item.tableau_rang_a.sections && Array.isArray(item.tableau_rang_a.sections)) {
+      // Chercher dans competences_cles (format OIC)
+      if (item.tableau_rang_a.competences_cles && Array.isArray(item.tableau_rang_a.competences_cles)) {
+        validation.rangA.count = item.tableau_rang_a.competences_cles.length;
+        validation.rangA.competences = item.tableau_rang_a.competences_cles.map((c: any) => 
+          c.competence || c.competence_id || c.title || 'Compétence'
+        ).filter(Boolean);
+      }
+      // Fallback: sections
+      else if (item.tableau_rang_a.sections && Array.isArray(item.tableau_rang_a.sections)) {
         const concepts = item.tableau_rang_a.sections.flatMap((section: any) => 
           section.concepts || section.competences || []
         );
@@ -56,21 +64,35 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         validation.rangA.competences = concepts.map((c: any) => 
           c.competence_id || c.concept || c.title || 'Compétence'
         ).filter(Boolean);
-      } else if (item.tableau_rang_a.competences && Array.isArray(item.tableau_rang_a.competences)) {
+      } 
+      // Fallback: competences
+      else if (item.tableau_rang_a.competences && Array.isArray(item.tableau_rang_a.competences)) {
         validation.rangA.count = item.tableau_rang_a.competences.length;
         validation.rangA.competences = item.tableau_rang_a.competences.map((c: any) => 
           c.competence_id || c.concept || c.title || 'Compétence'
         );
       }
+      // Fallback: utiliser competences_count_rang_a si disponible
+      else if (item.competences_count_rang_a && item.competences_count_rang_a > 0) {
+        validation.rangA.count = item.competences_count_rang_a;
+      }
     } else {
       validation.issues.push("Tableau Rang A manquant");
     }
 
-    // Validation Rang B - logique améliorée
+    // Validation Rang B - logique améliorée pour supporter competences_cles
     if (item.tableau_rang_b) {
       validation.rangB.present = true;
       
-      if (item.tableau_rang_b.sections && Array.isArray(item.tableau_rang_b.sections)) {
+      // Chercher dans competences_cles (format OIC)
+      if (item.tableau_rang_b.competences_cles && Array.isArray(item.tableau_rang_b.competences_cles)) {
+        validation.rangB.count = item.tableau_rang_b.competences_cles.length;
+        validation.rangB.competences = item.tableau_rang_b.competences_cles.map((c: any) => 
+          c.competence || c.competence_id || c.title || 'Compétence'
+        ).filter(Boolean);
+      }
+      // Fallback: sections
+      else if (item.tableau_rang_b.sections && Array.isArray(item.tableau_rang_b.sections)) {
         const concepts = item.tableau_rang_b.sections.flatMap((section: any) => 
           section.concepts || section.competences || []
         );
@@ -78,11 +100,17 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         validation.rangB.competences = concepts.map((c: any) => 
           c.competence_id || c.concept || c.title || 'Compétence'
         ).filter(Boolean);
-      } else if (item.tableau_rang_b.competences && Array.isArray(item.tableau_rang_b.competences)) {
+      } 
+      // Fallback: competences
+      else if (item.tableau_rang_b.competences && Array.isArray(item.tableau_rang_b.competences)) {
         validation.rangB.count = item.tableau_rang_b.competences.length;
         validation.rangB.competences = item.tableau_rang_b.competences.map((c: any) => 
           c.competence_id || c.concept || c.title || 'Compétence'
         );
+      }
+      // Fallback: utiliser competences_count_rang_b si disponible
+      else if (item.competences_count_rang_b && item.competences_count_rang_b > 0) {
+        validation.rangB.count = item.competences_count_rang_b;
       }
     } else {
       validation.issues.push("Tableau Rang B manquant");

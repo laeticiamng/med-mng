@@ -48,25 +48,41 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
     const tableau = rang === 'A' ? item.tableau_rang_a : item.tableau_rang_b;
     if (!tableau) return 0;
     
-    // Logique complète pour compter les compétences (sections, concepts, competences)
     let count = 0;
     
-    if (tableau.sections && Array.isArray(tableau.sections)) {
+    // 1. Chercher dans competences_cles (format OIC principal)
+    if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
+      count = tableau.competences_cles.length;
+    }
+    // 2. Fallback: sections
+    else if (tableau.sections && Array.isArray(tableau.sections)) {
       count = tableau.sections.reduce((total: number, section: any) => {
-        // Chercher dans section.competences (format OIC)
         if (section.competences && Array.isArray(section.competences)) {
           return total + section.competences.length;
         }
-        // Chercher dans section.concepts (format alternatif)
         if (section.concepts && Array.isArray(section.concepts)) {
           return total + section.concepts.length;
         }
         return total;
       }, 0);
-    } else if (tableau.competences && Array.isArray(tableau.competences)) {
+    } 
+    // 3. Fallback: competences
+    else if (tableau.competences && Array.isArray(tableau.competences)) {
       count = tableau.competences.length;
-    } else if (tableau.concepts && Array.isArray(tableau.concepts)) {
+    } 
+    // 4. Fallback: concepts
+    else if (tableau.concepts && Array.isArray(tableau.concepts)) {
       count = tableau.concepts.length;
+    }
+    
+    // 5. Ultime fallback: utiliser competences_count si disponible sur l'item
+    if (count === 0) {
+      const itemAny = item as any;
+      if (rang === 'A' && itemAny.competences_count_rang_a) {
+        count = itemAny.competences_count_rang_a;
+      } else if (rang === 'B' && itemAny.competences_count_rang_b) {
+        count = itemAny.competences_count_rang_b;
+      }
     }
     
     return count;
