@@ -16,6 +16,8 @@ interface CompetencesBadgesProps {
     paroles_musicales?: string[];
     scene_immersive?: any;
     quiz_questions?: any;
+    competences_count_rang_a?: number;
+    competences_count_rang_b?: number;
   };
 }
 
@@ -45,18 +47,25 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
   }, []);
   
   const getCompetencesCount = (rang: 'A' | 'B') => {
+    // 1. Priorité: utiliser les compteurs pré-calculés (plus rapide)
+    if (rang === 'A' && item.competences_count_rang_a && item.competences_count_rang_a > 0) {
+      return item.competences_count_rang_a;
+    }
+    if (rang === 'B' && item.competences_count_rang_b && item.competences_count_rang_b > 0) {
+      return item.competences_count_rang_b;
+    }
+    
+    // 2. Fallback: extraire depuis les tableaux si chargés
     const tableau = rang === 'A' ? item.tableau_rang_a : item.tableau_rang_b;
     if (!tableau) return 0;
     
-    let count = 0;
-    
-    // 1. Chercher dans competences_cles (format OIC principal)
+    // Chercher dans competences_cles (format OIC principal)
     if (tableau.competences_cles && Array.isArray(tableau.competences_cles)) {
-      count = tableau.competences_cles.length;
+      return tableau.competences_cles.length;
     }
-    // 2. Fallback: sections
-    else if (tableau.sections && Array.isArray(tableau.sections)) {
-      count = tableau.sections.reduce((total: number, section: any) => {
+    // Fallback: sections
+    if (tableau.sections && Array.isArray(tableau.sections)) {
+      return tableau.sections.reduce((total: number, section: any) => {
         if (section.competences && Array.isArray(section.competences)) {
           return total + section.competences.length;
         }
@@ -65,27 +74,16 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
         }
         return total;
       }, 0);
-    } 
-    // 3. Fallback: competences
-    else if (tableau.competences && Array.isArray(tableau.competences)) {
-      count = tableau.competences.length;
-    } 
-    // 4. Fallback: concepts
-    else if (tableau.concepts && Array.isArray(tableau.concepts)) {
-      count = tableau.concepts.length;
+    }
+    // Fallback: competences ou concepts
+    if (tableau.competences && Array.isArray(tableau.competences)) {
+      return tableau.competences.length;
+    }
+    if (tableau.concepts && Array.isArray(tableau.concepts)) {
+      return tableau.concepts.length;
     }
     
-    // 5. Ultime fallback: utiliser competences_count si disponible sur l'item
-    if (count === 0) {
-      const itemAny = item as any;
-      if (rang === 'A' && itemAny.competences_count_rang_a) {
-        count = itemAny.competences_count_rang_a;
-      } else if (rang === 'B' && itemAny.competences_count_rang_b) {
-        count = itemAny.competences_count_rang_b;
-      }
-    }
-    
-    return count;
+    return 0;
   };
 
   const rangACount = getCompetencesCount('A');
