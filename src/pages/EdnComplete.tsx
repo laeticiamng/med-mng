@@ -90,80 +90,65 @@ export default function EdnComplete() {
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
     let cancelled = false;
-    let timeoutId: NodeJS.Timeout;
     
-    const loadData = async () => {
-      console.log('🔄 EdnComplete - Chargement page:', page);
+    console.log('🚀 EdnComplete useEffect démarré, page:', page);
+    
+    if (page === 0) {
+      setLoading(true);
+      setLoadingError(null);
+    }
+    
+    const fetchData = async () => {
+      const start = page * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE - 1;
       
-      if (page === 0) {
-        setLoading(true);
-        setLoadingError(null);
-      }
-      
-      // Timeout de sécurité de 15 secondes
-      timeoutId = setTimeout(() => {
-        if (!cancelled) {
-          console.error('⏱️ Timeout: chargement trop long');
-          setLoadingError('Le chargement prend trop de temps. Vérifiez votre connexion.');
-          setLoading(false);
-        }
-      }, 15000);
+      console.log('📥 Requête Supabase:', start, '-', end);
       
       try {
-        const start = page * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE - 1;
-        
-        console.log('📥 Requête edn_items_immersive:', start, '-', end);
-        
-        const response = await supabase
+        const { data, error, count } = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, end)
           .order('item_code');
         
-        clearTimeout(timeoutId);
+        if (cancelled) {
+          console.log('⚠️ Requête annulée');
+          return;
+        }
         
-        if (cancelled) return;
+        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count);
         
-        const { data: immersiveData, error: immersiveError, count } = response;
-        
-        console.log('✅ Réponse reçue:', immersiveData?.length || 0, 'items, total:', count, 'error:', immersiveError?.message || 'aucune');
-        
-        if (immersiveError) {
-          console.error('❌ Erreur Supabase:', immersiveError);
-          setLoadingError(`Erreur: ${immersiveError.message}`);
+        if (error) {
+          console.error('❌ Erreur:', error.message);
+          setLoadingError(error.message);
           setLoading(false);
           return;
         }
         
-        // Mise à jour des états
-        const newItems = immersiveData || [];
-        setHasMore(newItems.length === ITEMS_PER_PAGE && (count || 0) > end + 1);
+        const items = data || [];
+        setHasMore(items.length === ITEMS_PER_PAGE && (count || 0) > end + 1);
         
         if (page === 0) {
-          setImmersiveItems(newItems);
-          setCompleteItems(newItems);
+          setImmersiveItems(items);
+          setCompleteItems(items);
         } else {
-          setImmersiveItems(prev => [...prev, ...newItems]);
-          setCompleteItems(prev => [...prev, ...newItems]);
+          setImmersiveItems(prev => [...prev, ...items]);
+          setCompleteItems(prev => [...prev, ...items]);
         }
         
-        console.log('🎉 Items chargés avec succès:', newItems.length);
         setLoading(false);
-      } catch (error) {
-        clearTimeout(timeoutId);
+      } catch (err) {
         if (cancelled) return;
-        console.error('❌ Exception:', error);
-        setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
+        console.error('❌ Exception:', err);
+        setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
         setLoading(false);
       }
     };
     
-    loadData();
+    fetchData();
     
     return () => {
       cancelled = true;
-      clearTimeout(timeoutId);
     };
   }, [page]);
 
