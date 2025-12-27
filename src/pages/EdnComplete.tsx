@@ -173,6 +173,12 @@ export default function EdnComplete() {
     }
   }, [slug, immersiveItems]);
 
+  // Fonction pour extraire le numéro de l'item_code (ex: "IC-1" -> 1, "IC-10" -> 10)
+  const getItemNumber = (itemCode: string): number => {
+    const match = itemCode.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
   const allItems = useMemo(() => {
     const mergedItems = immersiveItems.map(immersive => {
       const complete = completeItems.find(c => c.item_code === immersive.item_code);
@@ -180,10 +186,10 @@ export default function EdnComplete() {
         ...immersive,
         ...complete,
         slug: immersive.slug,
-        // Ces champs lourds seront chargés à la demande dans la modal
       };
     });
-    return mergedItems;
+    // Tri numérique par item_code
+    return mergedItems.sort((a, b) => getItemNumber(a.item_code) - getItemNumber(b.item_code));
   }, [immersiveItems, completeItems]);
 
   const getCompletionPercentage = (item: EdnItem) => {
