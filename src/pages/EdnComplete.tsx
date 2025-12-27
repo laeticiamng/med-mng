@@ -63,8 +63,7 @@ export default function EdnComplete() {
   const [ednItems, setEdnItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -75,20 +74,21 @@ export default function EdnComplete() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
+  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
-  // Hooks qui font des appels Supabase - déplacés après les useState de base
+  // Hooks qui font des appels Supabase
   const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
   const { subscription, canGenerateMusic } = useSubscription();
   
-  // Mapper les items vers le format attendu
-  const immersiveItems = useMemo(() => ednItems as EdnItem[], [ednItems]);
-  const completeItems = useMemo(() => ednItems, [ednItems]);
+  // Alias pour compatibilité
+  const immersiveItems = ednItems;
+  const completeItems = ednItems;
   
   // Fonction de chargement - charge tous les items pour permettre le tri numérique
   const loadItems = useCallback(async () => {
@@ -98,7 +98,6 @@ export default function EdnComplete() {
       setLoading(true);
       setLoadingError(null);
       
-      // Charger tous les items (environ 367) sans pagination pour permettre le tri numérique
       const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500`;
       
       const response = await fetch(url, {
@@ -129,7 +128,7 @@ export default function EdnComplete() {
   }, []);
   
   const loadMore = useCallback(() => {
-    // Plus besoin de pagination, tous les items sont chargés
+    // Plus besoin de pagination
   }, []);
   
   const refresh = useCallback(() => {
@@ -282,7 +281,6 @@ export default function EdnComplete() {
     }
   }, []);
   
-  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
 
   const stats = calculateStats();
 
