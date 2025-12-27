@@ -128,14 +128,19 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
-    setLoading(true);
-    setLoadingError(null);
+    console.log('🔄 Début chargement EDN items, page:', page);
     
-    console.log('🔄 Début chargement EDN items');
+    // Ne pas réinitialiser loading si on pagine (page > 0)
+    if (page === 0) {
+      setLoading(true);
+      setLoadingError(null);
+    }
     
     try {
       const start = page * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
+      
+      console.log('📥 Fetch edn_items_immersive range:', start, '-', end);
       
       const { data: immersiveData, error: immersiveError, count } = await supabase
         .from('edn_items_immersive')
@@ -143,46 +148,25 @@ export default function EdnComplete() {
         .range(start, end)
         .order('item_code');
       
+      console.log('✅ Données reçues:', immersiveData?.length || 0, 'items, total:', count);
+      
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > end + 1);
 
       if (immersiveError) {
+        console.error('❌ Erreur Supabase:', immersiveError);
         setLoadingError(`Erreur: ${immersiveError.message}`);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données.",
-          variant: "destructive"
-        });
+        setLoading(false);
         return;
-      }
-
-      // OPTIMISATION CRITIQUE: Ne charger que les données complètes correspondant aux items paginés
-      let completeData: any[] = [];
-      if (immersiveData && immersiveData.length > 0) {
-        const itemCodes = immersiveData.map(item => item.item_code);
-        const { data } = await supabase
-          .from('edn_items_immersive')
-          .select('id, item_code, title, specialite, completeness_score, is_validated')
-          .in('item_code', itemCodes)
-          .order('item_code');
-        completeData = data || [];
       }
 
       // Ajouter les nouveaux items (append pour pagination)
       setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
-      setCompleteItems(prev => page === 0 ? (completeData || []) : [...prev, ...(completeData || [])]);
+      setCompleteItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
       
-      toast({
-        title: "Interface EDN",
-        description: `${immersiveData?.length || 0} items chargés`,
-      });
+      console.log('🎉 Items mis à jour avec succès');
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('❌ Exception:', error);
       setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
-      toast({
-        title: "Erreur",
-        description: "Erreur lors du chargement.",
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
