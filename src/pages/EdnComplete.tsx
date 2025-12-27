@@ -90,38 +90,56 @@ export default function EdnComplete() {
   const immersiveItems = ednItems;
   const completeItems = ednItems;
   
-  // Fonction de chargement optimisée - exclut les JSONB lourds
-  const loadItems = useCallback(async () => {
-    try {
-      setLoading(true);
-      setLoadingError(null);
-      
-      // Requête légère sans tableaux JSONB (tri côté client pour ordre numérique)
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
-        .limit(500);
-      
-      if (error) throw error;
-      
-      setEdnItems(data || []);
-      setHasMore(false);
-    } catch (err: any) {
-      console.error('Erreur chargement EDN:', err);
-      setLoadingError(err.message || 'Erreur de chargement');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  
-  const refresh = useCallback(() => {
-    loadItems();
-  }, [loadItems]);
-  
-  // Chargement initial - une seule fois
+  // Chargement initial des items
   useEffect(() => {
-    loadItems();
+    let isMounted = true;
+    
+    const fetchItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
+          .limit(500);
+        
+        if (error) throw error;
+        
+        if (isMounted) {
+          setEdnItems(data || []);
+          setLoading(false);
+          setHasMore(false);
+        }
+      } catch (err: any) {
+        console.error('Erreur chargement EDN:', err);
+        if (isMounted) {
+          setLoadingError(err.message || 'Erreur de chargement');
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchItems();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
+  
+  const refresh = () => {
+    setLoading(true);
+    setLoadingError(null);
+    supabase
+      .from('edn_items_immersive')
+      .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b')
+      .limit(500)
+      .then(({ data, error }) => {
+        if (error) {
+          setLoadingError(error.message);
+        } else {
+          setEdnItems(data || []);
+        }
+        setLoading(false);
+      });
+  };
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
