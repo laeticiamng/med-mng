@@ -208,20 +208,28 @@ export default function EdnComplete() {
   };
 
   const filteredItems = useMemo(() => {
+    const searchLower = searchTerm.toLowerCase();
+    
     return allItems.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
+      // Recherche étendue : titre, code, mots-clés, spécialité
+      const matchesSearch = 
+        item.title.toLowerCase().includes(searchLower) ||
+        item.item_code.toLowerCase().includes(searchLower) ||
+        (item.specialite && item.specialite.toLowerCase().includes(searchLower)) ||
+        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(searchLower)));
       
       if (selectedCategory === 'all') return matchesSearch;
       
       const matchesCategory = (() => {
         switch (selectedCategory) {
           case 'complete':
-            // Un item est "complet" s'il a Rang A et Rang B
             return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
           case 'withMusic':
-            // Vérifie si paroles présentes
             return item.paroles_musicales && item.paroles_musicales.length > 0;
+          case 'rangA':
+            return (item.competences_count_rang_a || 0) > 0;
+          case 'rangB':
+            return (item.competences_count_rang_b || 0) > 0;
           default:
             return true;
         }
@@ -444,13 +452,15 @@ export default function EdnComplete() {
           <div className="flex gap-2 items-center justify-between">
             <div className="flex gap-2">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="complete">Complets</SelectItem>
-                  <SelectItem value="withMusic">Avec musique</SelectItem>
+                  <SelectItem value="all">Tous ({stats.total})</SelectItem>
+                  <SelectItem value="complete">Complets ({stats.complete})</SelectItem>
+                  <SelectItem value="rangA">Avec Rang A</SelectItem>
+                  <SelectItem value="rangB">Avec Rang B</SelectItem>
+                  <SelectItem value="withMusic">Avec musique ({stats.withMusic})</SelectItem>
                 </SelectContent>
               </Select>
 
