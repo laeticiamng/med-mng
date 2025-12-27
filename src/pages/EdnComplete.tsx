@@ -262,16 +262,23 @@ export default function EdnComplete() {
     setSelectedItemTab(tab || 'overview');
     setIsModalOpen(true);
     
-    // Puis fetch données complètes (tableaux, quiz, scène, etc.)
+    // Puis fetch données complètes (tableaux, quiz, scène, etc.) via fetch direct
     try {
-      const { data: fullItem, error } = await supabase
-        .from('edn_items_immersive')
-        .select('*')
-        .eq('item_code', item.item_code)
-        .maybeSingle();
+      const response = await fetch(
+        `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(item.item_code)}&select=*`,
+        {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+          }
+        }
+      );
       
-      if (!error && fullItem) {
-        setSelectedItem({ ...item, ...fullItem });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setSelectedItem({ ...item, ...data[0] });
+        }
       }
     } catch (err) {
       // Silently ignore - partial data is still usable
