@@ -89,8 +89,7 @@ export default function EdnComplete() {
 
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
-    const controller = new AbortController();
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let isMounted = true;
     
     console.log('🚀 EdnComplete useEffect démarré, page:', page);
     
@@ -103,35 +102,28 @@ export default function EdnComplete() {
       const start = page * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
       
-      console.log('📥 Requête Supabase:', start, '-', end);
-      
-      // Timeout de 10 secondes
-      timeoutId = setTimeout(() => {
-        console.error('⏱️ Timeout après 10s');
-        controller.abort();
-        setLoadingError('Délai de chargement dépassé. Cliquez sur Réessayer.');
-        setLoading(false);
-      }, 10000);
+      console.log('📥 Requête Supabase edn_items_immersive:', start, '-', end);
       
       try {
-        const { data, error, count } = await supabase
+        const response = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, end)
-          .order('item_code')
-          .abortSignal(controller.signal);
+          .order('item_code');
         
-        clearTimeout(timeoutId);
+        console.log('📦 Réponse brute:', response);
         
-        if (controller.signal.aborted) {
-          console.log('⚠️ Requête annulée');
+        if (!isMounted) {
+          console.log('⚠️ Composant démonté, ignoré');
           return;
         }
         
-        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count);
+        const { data, error, count } = response;
+        
+        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count, 'erreur:', error?.message || 'aucune');
         
         if (error) {
-          console.error('❌ Erreur:', error.message);
+          console.error('❌ Erreur Supabase:', error);
           setLoadingError(error.message);
           setLoading(false);
           return;
@@ -150,8 +142,7 @@ export default function EdnComplete() {
         
         setLoading(false);
       } catch (err) {
-        clearTimeout(timeoutId);
-        if (controller.signal.aborted) return;
+        if (!isMounted) return;
         console.error('❌ Exception:', err);
         setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
         setLoading(false);
@@ -161,8 +152,7 @@ export default function EdnComplete() {
     fetchData();
     
     return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
+      isMounted = false;
     };
   }, [page]);
 
