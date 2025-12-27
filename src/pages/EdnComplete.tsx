@@ -188,29 +188,17 @@ export default function EdnComplete() {
   }, [immersiveItems, completeItems]);
 
   const getCompletionPercentage = (item: EdnItem) => {
-    // Calcul basé sur les données réelles disponibles
+    // Calcul basé uniquement sur les données disponibles dans le fetch initial
     let score = 0;
-    let criteria = 0;
     
-    // Rang A (25%)
-    criteria++;
-    if ((item.competences_count_rang_a || 0) > 0) score += 25;
+    // Rang A (35%) - basé sur competences_count_rang_a
+    if ((item.competences_count_rang_a || 0) > 0) score += 35;
     
-    // Rang B (25%)
-    criteria++;
-    if ((item.competences_count_rang_b || 0) > 0) score += 25;
+    // Rang B (35%) - basé sur competences_count_rang_b
+    if ((item.competences_count_rang_b || 0) > 0) score += 35;
     
-    // Paroles musicales (20%) - vérifie si présentes
-    criteria++;
-    if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 20;
-    
-    // Quiz (15%) - check si quiz_questions existe lors du fetch complet
-    criteria++;
-    if (item.quiz_questions) score += 15;
-    
-    // Scène immersive (15%)
-    criteria++;
-    if (item.scene_immersive) score += 15;
+    // Paroles musicales (30%) - vérifie si présentes
+    if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 30;
     
     return score;
   };
@@ -690,17 +678,6 @@ export default function EdnComplete() {
             </div>
           </TabsContent>
 
-        {filteredItems.length === 0 && (
-          <Card className="text-center py-8">
-            <CardContent>
-              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Aucun résultat</h3>
-              <p className="text-sm text-muted-foreground">
-                Aucun item ne correspond à vos critères.
-              </p>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
         {/* Modal */}
