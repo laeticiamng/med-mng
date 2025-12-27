@@ -55,8 +55,6 @@ interface EdnItem {
   competences_count_rang_a?: number;
   competences_count_rang_b?: number;
   competences_count_total?: number;
-  completeness_score?: number;
-  is_validated?: boolean;
   competences_oic_rang_a?: any;
   competences_oic_rang_b?: any;
 }
@@ -174,33 +172,36 @@ export default function EdnComplete() {
     return mergedItems;
   }, [immersiveItems, completeItems]);
 
-  const isItemComplete = (item: EdnItem) => {
-    return getCompletionPercentage(item) === 100;
-  };
-
   const getCompletionPercentage = (item: EdnItem) => {
-    // OPTIMISATION: Utiliser le score pré-calculé de la DB si disponible
-    if (item.completeness_score != null) {
-      return item.completeness_score;
-    }
-    
-    // Fallback: estimation basée sur les compteurs seulement (métadonnées légères)
-    // Impossible de vérifier les détails lourds qui ne sont pas chargés
-    const hasRangA = (item.competences_count_rang_a || 0) > 0;
-    const hasRangB = (item.competences_count_rang_b || 0) > 0;
-    
-    // Estimation grossière basée uniquement sur les compteurs
+    // Calcul basé sur les données réelles disponibles
     let score = 0;
-    if (hasRangA) score += 40; // Rang A = 40%
-    if (hasRangB) score += 40; // Rang B = 40%
-    // Les 20% restants (musique, scène, quiz) ne peuvent être vérifiés sans charger les détails
+    let criteria = 0;
+    
+    // Rang A (25%)
+    criteria++;
+    if ((item.competences_count_rang_a || 0) > 0) score += 25;
+    
+    // Rang B (25%)
+    criteria++;
+    if ((item.competences_count_rang_b || 0) > 0) score += 25;
+    
+    // Paroles musicales (20%) - vérifie si présentes
+    criteria++;
+    if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 20;
+    
+    // Quiz (15%) - check si quiz_questions existe lors du fetch complet
+    criteria++;
+    if (item.quiz_questions) score += 15;
+    
+    // Scène immersive (15%)
+    criteria++;
+    if (item.scene_immersive) score += 15;
     
     return score;
   };
 
-  const getOldCompletionPercentage = (item: EdnItem) => {
-    // Version simplifiée basée sur les compteurs disponibles
-    return getCompletionPercentage(item);
+  const isItemComplete = (item: EdnItem) => {
+    return getCompletionPercentage(item) >= 80;
   };
 
   const filteredItems = useMemo(() => {
@@ -213,12 +214,11 @@ export default function EdnComplete() {
       const matchesCategory = (() => {
         switch (selectedCategory) {
           case 'complete':
-            // Un item est "complet" s'il a à la fois Rang A et Rang B
+            // Un item est "complet" s'il a Rang A et Rang B
             return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
           case 'withMusic':
-            // Impossible de vérifier sans charger les détails, on utilise un heuristique
-            // Si l'item a été mis à jour récemment, il a probablement de la musique
-            return item.completeness_score ? item.completeness_score > 60 : false;
+            // Vérifie si paroles présentes
+            return item.paroles_musicales && item.paroles_musicales.length > 0;
           default:
             return true;
         }
@@ -228,7 +228,7 @@ export default function EdnComplete() {
     }).sort((a, b) => {
       switch (sortBy) {
         case 'completeness_score':
-          return (b.completeness_score || getCompletionPercentage(b)) - (a.completeness_score || getCompletionPercentage(a));
+          return getCompletionPercentage(b) - getCompletionPercentage(a);
         case 'updated_at':
           return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
         default:
@@ -240,19 +240,17 @@ export default function EdnComplete() {
   }, [allItems, searchTerm, selectedCategory, sortBy]);
 
   const calculateStats = () => {
-    // Utiliser les items chargés pour les stats partielles
     const total = immersiveItems.length;
     const complete = immersiveItems.filter(item => 
       (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0
     ).length;
-    const validated = immersiveItems.filter(item => item.is_validated).length;
     const withMusic = immersiveItems.filter(item => 
-      item.completeness_score ? item.completeness_score > 60 : false
+      item.paroles_musicales && item.paroles_musicales.length > 0
     ).length;
     const avgScore = total > 0 ? Math.round(immersiveItems.reduce((sum, item) => 
-      sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
+      sum + getCompletionPercentage(item), 0) / total) : 0;
     
-    return { total, complete, validated, withMusic, avgScore };
+    return { total, complete, withMusic, avgScore };
   };
 
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
