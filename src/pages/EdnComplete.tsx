@@ -257,8 +257,14 @@ export default function EdnComplete() {
   };
 
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
-    // Fetch données complètes (tableaux, quiz, scène, etc.) pour l'item
+    // Ouvrir la modal immédiatement avec données partielles pour feedback utilisateur
+    setSelectedItem(item);
+    setSelectedItemTab(tab || 'overview');
+    setIsModalOpen(true);
+    
+    // Puis fetch données complètes (tableaux, quiz, scène, etc.) pour l'item
     try {
+      console.log('📖 Fetching complete data for:', item.item_code);
       const { data: fullItem, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
@@ -266,18 +272,14 @@ export default function EdnComplete() {
         .maybeSingle();
       
       if (error) {
-        console.error('Erreur fetch item complet:', error);
-        setSelectedItem(item); // Fallback sur les données partielles
-      } else {
+        console.error('❌ Erreur fetch item complet:', error);
+      } else if (fullItem) {
+        console.log('✅ Item complet chargé:', item.item_code);
         setSelectedItem({ ...item, ...fullItem });
       }
     } catch (err) {
-      console.error('Erreur:', err);
-      setSelectedItem(item);
+      console.error('❌ Erreur:', err);
     }
-    
-    setIsModalOpen(true);
-    setSelectedItemTab(tab || 'overview');
   }, []);
   
   const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
