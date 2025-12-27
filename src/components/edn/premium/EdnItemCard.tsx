@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
-  BookOpen, Music, Users, Brain, Play, Headphones, 
-  Image, FileText, Volume2, Gamepad2, Maximize2,
-  Star, CheckCircle, AlertCircle
+  BookOpen, Music, Users, Brain, Volume2,
+  CheckCircle, AlertCircle
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 
 interface EdnItemCardProps {
@@ -25,6 +23,8 @@ interface EdnItemCardProps {
     quiz_questions?: any;
     audio_ambiance?: any;
     visual_ambiance?: any;
+    competences_count_rang_a?: number;
+    competences_count_rang_b?: number;
   };
   completionPercentage: number;
   onOpen: (tab?: string) => void;
@@ -144,11 +144,18 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           })}
         </div>
 
-        {/* Badges de compétences */}
+        {/* Badges de compétences - version simplifiée pour les cartes */}
         {!isMobile && (
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-foreground">Compétences UNESS:</h4>
-            <CompetencesBadges item={finalItem} />
+            <div className="flex gap-2 flex-wrap">
+              <Badge variant="outline" className="text-primary border-primary/30">
+                Rang A: {finalItem.competences_count_rang_a || 0}
+              </Badge>
+              <Badge variant="outline" className="text-accent border-accent/30">
+                Rang B: {finalItem.competences_count_rang_b || 0}
+              </Badge>
+            </div>
           </div>
         )}
 
