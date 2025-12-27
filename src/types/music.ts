@@ -13,15 +13,32 @@ export interface Track {
   is_favorite?: boolean;
 }
 
+// Modèles Suno disponibles selon documentation officielle
+export type SunoModel = 'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5';
+export type VocalGender = 'm' | 'f';
+
 export interface MusicGenerationRequest {
   rang?: 'A' | 'B' | 'AB';
   itemCode?: string;
   lyrics: string | string[];
   style: string;
   duration?: number;
-  model?: 'V3_5' | 'V4' | 'V4_5';
+  model?: SunoModel;
   language?: string;
-  fastMode?: boolean;
+  
+  // Paramètres Suno
+  customMode?: boolean;
+  instrumental?: boolean;
+  title?: string;
+  
+  // Nouveaux paramètres V4.5+
+  personaId?: string;
+  negativeTags?: string;
+  vocalGender?: VocalGender;
+  styleWeight?: number;        // 0.00-1.00
+  weirdnessConstraint?: number; // 0.00-1.00
+  audioWeight?: number;        // 0.00-1.00
+  
   [key: string]: unknown;
 }
 
