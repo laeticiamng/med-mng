@@ -87,19 +87,10 @@ export default function EdnComplete() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
-  // Ref pour éviter les appels multiples
-  const isLoadingRef = React.useRef(false);
-
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
-    // Éviter les appels concurrents (React Strict Mode)
-    if (isLoadingRef.current && page === 0) {
-      console.log('⏳ Requête déjà en cours, ignorée');
-      return;
-    }
-    
-    isLoadingRef.current = true;
     let isMounted = true;
+    const controller = new AbortController();
     
     console.log('🚀 EdnComplete - Démarrage chargement page:', page);
     
@@ -108,45 +99,36 @@ export default function EdnComplete() {
       setLoadingError(null);
     }
     
-    // Utiliser fetch directement pour éviter les problèmes potentiels du SDK
     const fetchData = async () => {
       const start = page * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE - 1;
       
-      console.log('📥 Fetch direct API:', start, '-', end);
+      console.log('📥 Fetch API:', start, '-', start + ITEMS_PER_PAGE - 1);
       
       try {
-        const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-            'Prefer': 'count=exact'
-          }
-        });
-        
-        isLoadingRef.current = false;
+        const { data, error, count } = await supabase
+          .from('edn_items_immersive')
+          .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
+          .range(start, start + ITEMS_PER_PAGE - 1)
+          .order('item_code')
+          .abortSignal(controller.signal);
         
         if (!isMounted) {
-          console.log('⚠️ Composant démonté');
+          console.log('⚠️ Composant démonté, données ignorées');
           return;
         }
         
-        console.log('📦 Réponse HTTP:', response.status);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        if (error) {
+          if (error.message?.includes('aborted')) {
+            console.log('📭 Requête annulée');
+            return;
+          }
+          throw error;
         }
         
-        const data = await response.json();
-        const countHeader = response.headers.get('content-range');
-        const totalCount = countHeader ? parseInt(countHeader.split('/')[1]) : data.length;
-        
-        console.log('✅ Données:', data.length, 'items, total:', totalCount);
+        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count);
         
         const items = data || [];
-        setHasMore(items.length === ITEMS_PER_PAGE && totalCount > start + items.length);
+        setHasMore(items.length === ITEMS_PER_PAGE && (count || 0) > start + items.length);
         
         if (page === 0) {
           setImmersiveItems(items);
@@ -157,11 +139,10 @@ export default function EdnComplete() {
         }
         
         setLoading(false);
-      } catch (err) {
-        isLoadingRef.current = false;
+      } catch (err: any) {
         if (!isMounted) return;
         console.error('❌ Erreur fetch:', err);
-        setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
+        setLoadingError(err.message || 'Erreur inconnue');
         setLoading(false);
       }
     };
@@ -170,6 +151,7 @@ export default function EdnComplete() {
     
     return () => {
       isMounted = false;
+      controller.abort();
     };
   }, [page]);
 
