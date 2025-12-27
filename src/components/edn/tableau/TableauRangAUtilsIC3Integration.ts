@@ -2,13 +2,20 @@
 import { conceptsRangAIC3, conceptsRangBIC3 } from './TableauRangADataIC3Concepts';
 import { colonnesConfigIC3 } from './TableauRangADataIC3Config';
 
+// Fonction pour détecter si c'est l'item IC-3 (vérification exacte)
 export const isIC3Item = (data: any): boolean => {
-  return data?.item_code === 'IC-3' ||
-         data?.theme?.toLowerCase().includes('raisonnement') ||
-         data?.theme?.toLowerCase().includes('décision') ||
-         data?.theme?.toLowerCase().includes('scientifique') ||
-         data?.title?.toLowerCase().includes('ic-3') ||
-         data?.title?.toLowerCase().includes('démarche scientifique');
+  if (!data) return false;
+  
+  // Vérification exacte du code
+  if (data.item_code === 'IC-3') return true;
+  
+  // Vérifier le titre spécifique à IC-3
+  const title = data.title?.toLowerCase() || '';
+  if (title.includes('raisonnement médical') || title.includes('raisonnement et décision')) return true;
+  
+  // Vérifier avec regex pour éviter les faux positifs
+  const theme = data.theme || '';
+  return /\bIC-3\b/i.test(theme);
 };
 
 export const processTableauRangAIC3 = (data: any) => {

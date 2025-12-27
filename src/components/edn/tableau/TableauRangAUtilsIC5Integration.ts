@@ -1,24 +1,20 @@
 
 import { conceptsRangAIC5, conceptsRangBIC5, colonnesConfigIC5 } from './TableauRangADataIC5';
 
+// Fonction pour détecter si c'est l'item IC-5 (vérification exacte)
 export const isIC5Item = (data: any): boolean => {
   if (!data) return false;
   
-  // Vérifier le code d'item directement
+  // Vérification exacte du code
   if (data.item_code === 'IC-5') return true;
   
-  // Vérifier le titre
-  if (data.title && data.title.toLowerCase().includes('organisation du système')) return true;
+  // Vérifier le titre spécifique à IC-5
+  const title = data.title?.toLowerCase() || '';
+  if (title.includes('gestion des erreurs et des plaintes') || title.includes('aléa thérapeutique')) return true;
   
-  // Vérifier le thème
-  if (data.theme) {
-    const theme = data.theme.toLowerCase();
-    return theme.includes('organisation') || 
-           theme.includes('système') || 
-           (theme.includes('ic-5') || theme.includes('ic5'));
-  }
-  
-  return false;
+  // Vérifier avec regex pour éviter les faux positifs
+  const theme = data.theme || '';
+  return /\bIC-5\b/i.test(theme);
 };
 
 // Fonction pour détecter si c'est le rang B selon les données

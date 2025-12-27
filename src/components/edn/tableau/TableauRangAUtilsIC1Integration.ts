@@ -24,16 +24,24 @@ export function processTableauRangAIC1(data: any) {
   };
 }
 
-// Fonction pour vérifier si c'est l'item IC-1
+// Fonction pour vérifier si c'est l'item IC-1 (et pas IC-10, IC-11, etc.)
 export function isIC1Item(data: any): boolean {
   if (!data) return false;
+  
+  // Vérification exacte du code d'item
+  if (data.item_code === 'IC-1') return true;
   
   const theme = data.theme?.toLowerCase() || '';
   const title = data.title?.toLowerCase() || '';
   
-  return theme.includes('relation médecin-malade') || 
-         theme.includes('relation medecin-malade') ||
-         title.includes('relation médecin-malade') ||
-         title.includes('relation medecin-malade') ||
-         theme.includes('ic-1') || theme.includes('ic1');
+  // Vérifier le contenu sémantique spécifique à IC-1
+  const isRelationMedecin = theme.includes('relation médecin-malade') || 
+                            theme.includes('relation medecin-malade') ||
+                            title.includes('relation médecin-malade') ||
+                            title.includes('relation medecin-malade');
+  
+  // Vérifier le code avec regex pour éviter les faux positifs (IC-10, IC-11, etc.)
+  const codeMatch = /\bic-1\b/i.test(theme) || /\bic-1\b/i.test(title);
+  
+  return isRelationMedecin || codeMatch;
 }
