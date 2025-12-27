@@ -31,7 +31,6 @@ import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
-import { useEdnItems } from "@/hooks/useEdnItems";
 interface EdnItem {
   id: string;
   item_code: string;
@@ -60,20 +59,12 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  // Charger les items EDN en premier via un hook dédié
-  const { 
-    items: ednItems, 
-    loading, 
-    error: loadingError, 
-    hasMore, 
-    loadMore, 
-    refresh 
-  } = useEdnItems();
-  
-  // Hooks secondaires qui peuvent faire des appels Supabase
-  const { stats: gamificationStats } = useGamification();
-  const { quota } = useIAQuota();
-  const { subscription, canGenerateMusic } = useSubscription();
+  // État local pour les items
+  const [ednItems, setEdnItems] = useState<EdnItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -90,9 +81,83 @@ export default function EdnComplete() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
-  // Mapper les items du hook vers le format attendu
+  // Hooks qui font des appels Supabase - déplacés après les useState de base
+  const { stats: gamificationStats } = useGamification();
+  const { quota } = useIAQuota();
+  const { subscription, canGenerateMusic } = useSubscription();
+  
+  // Mapper les items vers le format attendu
   const immersiveItems = useMemo(() => ednItems as EdnItem[], [ednItems]);
   const completeItems = useMemo(() => ednItems, [ednItems]);
+  
+  // Fonction de chargement
+  const loadItems = useCallback(async (pageNum: number, append: boolean = false) => {
+    const ITEMS_PER_PAGE = 50;
+    const start = pageNum * ITEMS_PER_PAGE;
+    
+    console.log('📥 Loading items:', start, '-', start + ITEMS_PER_PAGE - 1);
+    
+    try {
+      if (!append) {
+        setLoading(true);
+        setLoadingError(null);
+      }
+      
+      const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+          'Prefer': 'count=exact'
+        }
+      });
+      
+      console.log('📦 Response:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const contentRange = response.headers.get('content-range');
+      const total = contentRange ? parseInt(contentRange.split('/')[1]) : data.length;
+      
+      console.log('✅ Received:', data.length, 'items');
+      
+      if (append) {
+        setEdnItems(prev => [...prev, ...data]);
+      } else {
+        setEdnItems(data);
+      }
+      
+      setHasMore(data.length === ITEMS_PER_PAGE && total > start + data.length);
+      setPage(pageNum);
+      setLoading(false);
+      
+    } catch (err: any) {
+      console.error('❌ Error:', err);
+      setLoadingError(err.message);
+      setLoading(false);
+    }
+  }, []);
+  
+  const loadMore = useCallback(() => {
+    if (hasMore && !loading) {
+      loadItems(page + 1, true);
+    }
+  }, [hasMore, loading, page, loadItems]);
+  
+  const refresh = useCallback(() => {
+    setPage(0);
+    loadItems(0, false);
+  }, [loadItems]);
+  
+  // Chargement initial
+  useEffect(() => {
+    console.log('🚀 EdnComplete - Initial load');
+    loadItems(0, false);
+  }, [loadItems]);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
