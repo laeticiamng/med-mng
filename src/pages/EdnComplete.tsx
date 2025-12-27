@@ -86,12 +86,22 @@ export default function EdnComplete() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
+  
+  // Ref pour éviter les appels multiples
+  const isLoadingRef = React.useRef(false);
 
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
-    let isMounted = true;
+    // Éviter les appels concurrents (React Strict Mode)
+    if (isLoadingRef.current && page === 0) {
+      console.log('⏳ Requête déjà en cours, ignorée');
+      return;
+    }
     
-    console.log('🚀 EdnComplete useEffect démarré, page:', page);
+    let isMounted = true;
+    isLoadingRef.current = true;
+    
+    console.log('🚀 EdnComplete - Démarrage chargement page:', page);
     
     if (page === 0) {
       setLoading(true);
@@ -102,28 +112,26 @@ export default function EdnComplete() {
       const start = page * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
       
-      console.log('📥 Requête Supabase edn_items_immersive:', start, '-', end);
+      console.log('📥 Appel Supabase edn_items_immersive:', start, '-', end);
       
       try {
-        const response = await supabase
+        const { data, error, count } = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, end)
           .order('item_code');
         
-        console.log('📦 Réponse brute:', response);
+        isLoadingRef.current = false;
         
         if (!isMounted) {
-          console.log('⚠️ Composant démonté, ignoré');
+          console.log('⚠️ Composant démonté');
           return;
         }
         
-        const { data, error, count } = response;
-        
-        console.log('✅ Données reçues:', data?.length || 0, 'items, total:', count, 'erreur:', error?.message || 'aucune');
+        console.log('✅ Réponse:', data?.length || 0, 'items, total:', count);
         
         if (error) {
-          console.error('❌ Erreur Supabase:', error);
+          console.error('❌ Erreur:', error.message);
           setLoadingError(error.message);
           setLoading(false);
           return;
@@ -142,6 +150,7 @@ export default function EdnComplete() {
         
         setLoading(false);
       } catch (err) {
+        isLoadingRef.current = false;
         if (!isMounted) return;
         console.error('❌ Exception:', err);
         setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
