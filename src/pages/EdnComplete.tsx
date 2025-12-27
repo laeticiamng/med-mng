@@ -31,7 +31,7 @@ import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
-
+import { useEdnItems } from "@/hooks/useEdnItems";
 interface EdnItem {
   id: string;
   item_code: string;
@@ -60,15 +60,21 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  const { stats: gamificationStats } = useGamification();
+  // Charger les items EDN en premier via un hook dédié
+  const { 
+    items: ednItems, 
+    loading, 
+    error: loadingError, 
+    hasMore, 
+    loadMore, 
+    refresh 
+  } = useEdnItems();
   
-  const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
-  const [completeItems, setCompleteItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingError, setLoadingError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const ITEMS_PER_PAGE = 50;
+  // Hooks secondaires qui peuvent faire des appels Supabase
+  const { stats: gamificationStats } = useGamification();
+  const { quota } = useIAQuota();
+  const { subscription, canGenerateMusic } = useSubscription();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -79,76 +85,14 @@ export default function EdnComplete() {
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
   
-  const { quota } = useIAQuota();
-  const { subscription, canGenerateMusic } = useSubscription();
-  
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
-  // Chargement des données au montage et lors de la pagination
-  useEffect(() => {
-    let isMounted = true;
-    
-    console.log('🚀 EdnComplete - Démarrage chargement page:', page);
-    
-    if (page === 0) {
-      setLoading(true);
-      setLoadingError(null);
-    }
-    
-    const start = page * ITEMS_PER_PAGE;
-    console.log('📥 Appel Supabase:', start, '-', start + ITEMS_PER_PAGE - 1);
-    
-    (async () => {
-      try {
-        const { data, error, count } = await supabase
-          .from('edn_items_immersive')
-          .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
-          .range(start, start + ITEMS_PER_PAGE - 1)
-          .order('item_code');
-        
-        console.log('📦 Réponse Supabase:', { data: data?.length, error: error?.message, count });
-        
-        if (!isMounted) {
-          console.log('⚠️ Composant démonté');
-          return;
-        }
-        
-        if (error) {
-          console.error('❌ Erreur:', error.message);
-          setLoadingError(error.message);
-          setLoading(false);
-          return;
-        }
-        
-        console.log('✅ Données:', data?.length || 0, 'items');
-        
-        const items = data || [];
-        setHasMore(items.length === ITEMS_PER_PAGE && (count || 0) > start + items.length);
-        
-        if (page === 0) {
-          setImmersiveItems(items);
-          setCompleteItems(items);
-        } else {
-          setImmersiveItems(prev => [...prev, ...items]);
-          setCompleteItems(prev => [...prev, ...items]);
-        }
-        
-        setLoading(false);
-      } catch (err: any) {
-        console.error('❌ Exception:', err);
-        if (!isMounted) return;
-        setLoadingError(err.message || 'Erreur inconnue');
-        setLoading(false);
-      }
-    })();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [page]);
+  // Mapper les items du hook vers le format attendu
+  const immersiveItems = useMemo(() => ednItems as EdnItem[], [ednItems]);
+  const completeItems = useMemo(() => ednItems, [ednItems]);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
@@ -300,7 +244,7 @@ export default function EdnComplete() {
           )}
           <Button 
             variant="outline" 
-            onClick={() => window.location.reload()}
+            onClick={refresh}
             className="mt-4"
           >
             Réessayer
@@ -526,7 +470,7 @@ export default function EdnComplete() {
               {hasMore && !loading && (
                 <div className="flex justify-center pt-4">
                   <Button 
-                    onClick={() => setPage(prev => prev + 1)}
+                    onClick={loadMore}
                     variant="outline"
                     size="lg"
                     className="min-w-[200px]"
@@ -537,7 +481,7 @@ export default function EdnComplete() {
                 </div>
               )}
               
-              {loading && page > 0 && (
+              {loading && immersiveItems.length > 0 && (
                 <div className="flex justify-center py-4">
                   <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
@@ -557,7 +501,7 @@ export default function EdnComplete() {
                     <EdnItemCard
                       key={item.id}
                       item={item}
-                      completionPercentage={item.completeness_score || getCompletionPercentage(item)}
+                      completionPercentage={getCompletionPercentage(item)}
                       onOpen={(tab) => openItemModal(item, tab)}
                     />
                   ))}
@@ -567,7 +511,7 @@ export default function EdnComplete() {
                 {hasMore && !loading && (
                   <div className="flex justify-center pt-4">
                     <Button 
-                      onClick={() => setPage(prev => prev + 1)}
+                      onClick={loadMore}
                       variant="outline"
                       size="lg"
                       className="min-w-[200px]"
@@ -578,7 +522,7 @@ export default function EdnComplete() {
                   </div>
                 )}
                 
-                {loading && page > 0 && (
+                {loading && immersiveItems.length > 0 && (
                   <div className="flex justify-center py-4">
                     <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   </div>
