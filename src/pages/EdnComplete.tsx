@@ -90,26 +90,21 @@ export default function EdnComplete() {
   const immersiveItems = useMemo(() => ednItems as EdnItem[], [ednItems]);
   const completeItems = useMemo(() => ednItems, [ednItems]);
   
-  // Fonction de chargement
-  const loadItems = useCallback(async (pageNum: number, append: boolean = false) => {
-    const ITEMS_PER_PAGE = 50;
-    const start = pageNum * ITEMS_PER_PAGE;
-    
-    console.log('📥 Loading items:', start, '-', start + ITEMS_PER_PAGE - 1);
+  // Fonction de chargement - charge tous les items pour permettre le tri numérique
+  const loadItems = useCallback(async () => {
+    console.log('📥 Loading all items...');
     
     try {
-      if (!append) {
-        setLoading(true);
-        setLoadingError(null);
-      }
+      setLoading(true);
+      setLoadingError(null);
       
-      const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
+      // Charger tous les items (environ 367) sans pagination pour permettre le tri numérique
+      const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&limit=500`;
       
       const response = await fetch(url, {
         headers: {
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-          'Prefer': 'count=exact'
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
         }
       });
       
@@ -120,19 +115,10 @@ export default function EdnComplete() {
       }
       
       const data = await response.json();
-      const contentRange = response.headers.get('content-range');
-      const total = contentRange ? parseInt(contentRange.split('/')[1]) : data.length;
-      
       console.log('✅ Received:', data.length, 'items');
       
-      if (append) {
-        setEdnItems(prev => [...prev, ...data]);
-      } else {
-        setEdnItems(data);
-      }
-      
-      setHasMore(data.length === ITEMS_PER_PAGE && total > start + data.length);
-      setPage(pageNum);
+      setEdnItems(data);
+      setHasMore(false);
       setLoading(false);
       
     } catch (err: any) {
@@ -143,20 +129,17 @@ export default function EdnComplete() {
   }, []);
   
   const loadMore = useCallback(() => {
-    if (hasMore && !loading) {
-      loadItems(page + 1, true);
-    }
-  }, [hasMore, loading, page, loadItems]);
+    // Plus besoin de pagination, tous les items sont chargés
+  }, []);
   
   const refresh = useCallback(() => {
-    setPage(0);
-    loadItems(0, false);
+    loadItems();
   }, [loadItems]);
   
   // Chargement initial
   useEffect(() => {
     console.log('🚀 EdnComplete - Initial load');
-    loadItems(0, false);
+    loadItems();
   }, [loadItems]);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
