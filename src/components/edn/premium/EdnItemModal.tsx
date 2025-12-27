@@ -98,9 +98,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
     }
     
-    // Nouveaux onglets pour BD et Roman
-    tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
-    tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
+    // BD et Roman - toujours disponibles car ils peuvent générer du contenu à la demande
+    if (finalItem.tableau_rang_a || finalItem.tableau_rang_b) {
+      tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
+      tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
+    }
     
     return tabs;
   };
