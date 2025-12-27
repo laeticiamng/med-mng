@@ -89,7 +89,8 @@ export default function EdnComplete() {
 
   // Chargement des données au montage et lors de la pagination
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    let timeoutId: ReturnType<typeof setTimeout>;
     
     console.log('🚀 EdnComplete useEffect démarré, page:', page);
     
@@ -104,14 +105,25 @@ export default function EdnComplete() {
       
       console.log('📥 Requête Supabase:', start, '-', end);
       
+      // Timeout de 10 secondes
+      timeoutId = setTimeout(() => {
+        console.error('⏱️ Timeout après 10s');
+        controller.abort();
+        setLoadingError('Délai de chargement dépassé. Cliquez sur Réessayer.');
+        setLoading(false);
+      }, 10000);
+      
       try {
         const { data, error, count } = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
           .range(start, end)
-          .order('item_code');
+          .order('item_code')
+          .abortSignal(controller.signal);
         
-        if (cancelled) {
+        clearTimeout(timeoutId);
+        
+        if (controller.signal.aborted) {
           console.log('⚠️ Requête annulée');
           return;
         }
@@ -138,7 +150,8 @@ export default function EdnComplete() {
         
         setLoading(false);
       } catch (err) {
-        if (cancelled) return;
+        clearTimeout(timeoutId);
+        if (controller.signal.aborted) return;
         console.error('❌ Exception:', err);
         setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
         setLoading(false);
@@ -148,7 +161,8 @@ export default function EdnComplete() {
     fetchData();
     
     return () => {
-      cancelled = true;
+      clearTimeout(timeoutId);
+      controller.abort();
     };
   }, [page]);
 
