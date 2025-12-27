@@ -98,8 +98,8 @@ export default function EdnComplete() {
       return;
     }
     
-    let isMounted = true;
     isLoadingRef.current = true;
+    let isMounted = true;
     
     console.log('🚀 EdnComplete - Démarrage chargement page:', page);
     
@@ -108,18 +108,23 @@ export default function EdnComplete() {
       setLoadingError(null);
     }
     
+    // Utiliser fetch directement pour éviter les problèmes potentiels du SDK
     const fetchData = async () => {
       const start = page * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
       
-      console.log('📥 Appel Supabase edn_items_immersive:', start, '-', end);
+      console.log('📥 Fetch direct API:', start, '-', end);
       
       try {
-        const { data, error, count } = await supabase
-          .from('edn_items_immersive')
-          .select('id, item_code, title, subtitle, slug, updated_at, paroles_musicales, competences_count_rang_a, competences_count_rang_b', { count: 'exact' })
-          .range(start, end)
-          .order('item_code');
+        const url = `https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
+        
+        const response = await fetch(url, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
+            'Prefer': 'count=exact'
+          }
+        });
         
         isLoadingRef.current = false;
         
@@ -128,17 +133,20 @@ export default function EdnComplete() {
           return;
         }
         
-        console.log('✅ Réponse:', data?.length || 0, 'items, total:', count);
+        console.log('📦 Réponse HTTP:', response.status);
         
-        if (error) {
-          console.error('❌ Erreur:', error.message);
-          setLoadingError(error.message);
-          setLoading(false);
-          return;
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
         
+        const data = await response.json();
+        const countHeader = response.headers.get('content-range');
+        const totalCount = countHeader ? parseInt(countHeader.split('/')[1]) : data.length;
+        
+        console.log('✅ Données:', data.length, 'items, total:', totalCount);
+        
         const items = data || [];
-        setHasMore(items.length === ITEMS_PER_PAGE && (count || 0) > end + 1);
+        setHasMore(items.length === ITEMS_PER_PAGE && totalCount > start + items.length);
         
         if (page === 0) {
           setImmersiveItems(items);
@@ -152,7 +160,7 @@ export default function EdnComplete() {
       } catch (err) {
         isLoadingRef.current = false;
         if (!isMounted) return;
-        console.error('❌ Exception:', err);
+        console.error('❌ Erreur fetch:', err);
         setLoadingError(err instanceof Error ? err.message : 'Erreur inconnue');
         setLoading(false);
       }
