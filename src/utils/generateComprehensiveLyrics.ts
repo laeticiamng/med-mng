@@ -3,9 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface CompetenceOIC {
   objectif_id: string;
   intitule: string;
-  description: string;
+  description: string | null;
   rang: string;
-  rubrique: string;
   item_parent: string;
 }
 
@@ -25,10 +24,12 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     // 1. Récupérer TOUTES les compétences pour cet item
     const { data: competences, error } = await supabase
       .from('oic_competences')
-      .select('*')
+      .select('objectif_id, intitule, description, rang, item_parent')
       .eq('item_parent', itemNumber)
       .eq('rang', rang)
-      .order('ordre');
+      .order('objectif_id');
+    
+    console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
     if (error) {
       console.error('Erreur récupération compétences:', error);
@@ -80,7 +81,7 @@ function generateMusicalLyricsFromContent(itemCode: string, competences: Compete
     verses.push(cleanIntitule);
     
     // Extraire les points clés de la description
-    if (description.length > 20) {
+    if (description && description.length > 20) {
       const keyPoints = extractKeyPointsFromDescription(description);
       keyPoints.forEach(point => {
         verses.push(point);
