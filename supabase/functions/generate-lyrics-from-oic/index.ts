@@ -8,8 +8,10 @@ const corsHeaders = {
 };
 
 /**
- * Génère les paroles musicales (Rang A, B, AB) pour tous les items
+ * 🎤 Génère les paroles musicales STYLE NEKFEU (Rang A, B, AB) pour tous les items
  * à partir des compétences OIC officielles (table oic_competences - 5606 entrées)
+ * 
+ * Style: Rap français conscient avec assonances, rimes riches et flow médical
  */
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -24,7 +26,7 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const { itemCode, forceAll = false } = body;
 
-    console.log('🎵 Génération paroles depuis OIC...', { itemCode, forceAll });
+    console.log('🎤 Génération paroles STYLE NEKFEU depuis OIC...', { itemCode, forceAll });
 
     // 1. Récupérer TOUTES les compétences OIC (table principale avec 5606 entrées)
     const { data: allOicCompetences, error: oicError } = await supabase
@@ -83,29 +85,10 @@ serve(async (req) => {
 
         console.log(`🔄 ${item.item_code}: ${competencesA.length} A, ${competencesB.length} B`);
 
-        // Générer les paroles Rang A
-        const parolesRangA = generateLyricsFromCompetences(
-          item.item_code, 
-          item.title, 
-          competencesA, 
-          'A'
-        );
-
-        // Générer les paroles Rang B
-        const parolesRangB = generateLyricsFromCompetences(
-          item.item_code, 
-          item.title, 
-          competencesB, 
-          'B'
-        );
-
-        // Générer les paroles combinées A+B
-        const parolesRangAB = generateMixedLyrics(
-          item.item_code, 
-          item.title, 
-          competencesA, 
-          competencesB
-        );
+        // Générer les paroles STYLE NEKFEU
+        const parolesRangA = generateNekfeuLyrics(item.item_code, item.title, competencesA, 'A');
+        const parolesRangB = generateNekfeuLyrics(item.item_code, item.title, competencesB, 'B');
+        const parolesRangAB = generateNekfeuMixedLyrics(item.item_code, item.title, competencesA, competencesB);
 
         // Mettre à jour l'item
         const { error: updateError } = await supabase
@@ -144,12 +127,12 @@ serve(async (req) => {
       }
     }
 
-    console.log(`🎉 Génération terminée: ${updatedCount}/${processedCount} items mis à jour`);
+    console.log(`🎉 Génération NEKFEU terminée: ${updatedCount}/${processedCount} items mis à jour`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `${updatedCount} items mis à jour avec paroles OIC`,
+        message: `${updatedCount} items mis à jour avec paroles STYLE NEKFEU`,
         total_processed: processedCount,
         updated: updatedCount,
         errors_count: errors.length,
@@ -179,140 +162,230 @@ serve(async (req) => {
 });
 
 /**
- * Génère des paroles musicales à partir des compétences OIC réelles
+ * 🎤 Génère des paroles STYLE NEKFEU à partir des compétences OIC
+ * Rap français conscient avec assonances, rimes riches et flow médical
  */
-function generateLyricsFromCompetences(
+function generateNekfeuLyrics(
   itemCode: string, 
   title: string, 
   competences: any[], 
   rang: 'A' | 'B'
 ): string[] {
   const lyrics: string[] = [];
-  const rangLabel = rang === 'A' ? 'fondamental' : 'expert';
-  const shortTitle = title.length > 50 ? title.substring(0, 50) + '...' : title;
+  const rangLabel = rang === 'A' ? 'Fondamentaux' : 'Expertise';
+  const shortTitle = cleanForRap(title, 40);
   
-  // Intro
-  lyrics.push(`[Intro - Rang ${rang}]`);
-  lyrics.push(`${itemCode} ${shortTitle}`);
-  lyrics.push(`Niveau ${rangLabel} à maîtriser`);
+  // Titre de la chanson
+  lyrics.push(`CHANSON RANG ${rang} - "${shortTitle}"`);
   lyrics.push('');
   
   if (competences.length === 0) {
-    // Fallback si pas de compétences
-    lyrics.push(`[Couplet 1]`);
-    lyrics.push(`Item ${itemCode} Rang ${rang}`);
-    lyrics.push(`Connaissances ${rangLabel}es à acquérir`);
-    lyrics.push(`Formation médicale rigoureuse`);
-    lyrics.push(`Compétences essentielles à retenir`);
+    // Fallback style Nekfeu si pas de compétences
+    lyrics.push('[Couplet 1]');
+    lyrics.push(`${itemCode} dans le game, je maîtrise le terrain`);
+    lyrics.push(`Rang ${rang} validé, chaque concept est serein`);
+    lyrics.push(`Formation médicale, flow qui reste vital`);
+    lyrics.push(`Compétences acquises, résultat optimal`);
     lyrics.push('');
-    lyrics.push(`[Refrain]`);
-    lyrics.push(`${itemCode} bien compris`);
-    lyrics.push(`Rang ${rang} maîtrisé aujourd'hui`);
+    lyrics.push('[Refrain]');
+    lyrics.push(`${shortTitle}, c'est la base qu'on pose`);
+    lyrics.push(`Chaque notion s'impose, jamais de pause`);
+    lyrics.push(`Du diagnostic à la prise en charge`);
+    lyrics.push(`On avance ensemble, on prend le large`);
   } else {
-    // Générer à partir des vraies compétences OIC
-    competences.slice(0, 6).forEach((comp, index) => {
-      lyrics.push(`[Couplet ${index + 1}]`);
-      
-      // Utiliser l'intitulé de la compétence
-      const cleanIntitule = cleanText(comp.intitule, 60);
-      lyrics.push(cleanIntitule);
-      
-      // Ajouter la description si disponible
-      if (comp.description && comp.description.length > 20) {
-        const descLines = extractKeyPoints(comp.description);
-        descLines.forEach(line => lyrics.push(line));
-      }
-      
-      // Refrain intermédiaire (tous les 2 couplets)
-      if (index % 2 === 1 && index < competences.length - 1) {
-        lyrics.push('');
-        lyrics.push(`[Refrain]`);
-        lyrics.push(`${itemCode} Rang ${rang} on avance`);
-        lyrics.push(`Compétence par compétence`);
-        lyrics.push('');
-      } else {
-        lyrics.push('');
-      }
+    // Couplet 1 - Premières compétences avec rimes
+    lyrics.push('[Couplet 1]');
+    const firstBatch = competences.slice(0, 4);
+    firstBatch.forEach((comp, i) => {
+      const line = createRapLine(comp.intitule, i);
+      lyrics.push(line);
     });
+    lyrics.push('');
+    
+    // Refrain avec le titre
+    lyrics.push('[Refrain]');
+    lyrics.push(`${shortTitle}, c'est l'objectif qu'on vise`);
+    lyrics.push(`Rang ${rang} ${rangLabel}, expertise qui s'précise`);
+    lyrics.push(`Chaque compétence compte, on les assemble`);
+    lyrics.push(`Formation complète, ensemble on tremble`);
+    lyrics.push('');
+    
+    // Couplet 2 - Compétences suivantes
+    if (competences.length > 4) {
+      lyrics.push('[Couplet 2]');
+      const secondBatch = competences.slice(4, 8);
+      secondBatch.forEach((comp, i) => {
+        const line = createRapLine(comp.intitule, i + 4);
+        lyrics.push(line);
+      });
+      lyrics.push('');
+    }
+    
+    // Pont avec concepts clés
+    lyrics.push('[Pont]');
+    if (competences.length > 2) {
+      const keyComp = competences[Math.floor(competences.length / 2)];
+      const keyWords = extractKeywords(keyComp.intitule);
+      lyrics.push(`${keyWords[0] || 'Diagnostic'} précis, jamais approximatif`);
+      lyrics.push(`${keyWords[1] || 'Traitement'} adapté, résultat positif`);
+      lyrics.push(`Prise en charge globale, approche holistique`);
+      lyrics.push(`${itemCode} maîtrisé, c'est automatique`);
+    } else {
+      lyrics.push(`Chaque détail compte dans cette formation`);
+      lyrics.push(`Du savoir à la pratique, c'est l'évolution`);
+      lyrics.push(`Rang ${rang} validé, compétences en action`);
+      lyrics.push(`${itemCode} c'est notre destination`);
+    }
+    lyrics.push('');
+    
+    // Outro
+    lyrics.push('[Outro]');
+    lyrics.push(`${itemCode} Rang ${rang}, mission accomplie`);
+    lyrics.push(`${competences.length} compétences gravées, c'est la vie`);
+    lyrics.push(`Excellence médicale, on continue le chemin`);
+    lyrics.push(`Formation EDN, demain c'est certain`);
   }
-  
-  // Outro
-  lyrics.push(`[Outro]`);
-  lyrics.push(`${itemCode} Rang ${rang} validé`);
-  lyrics.push(`Compétences ${rangLabel}es acquises`);
-  lyrics.push(`Excellence médicale atteinte`);
   
   return lyrics;
 }
 
 /**
- * Génère des paroles combinées A+B
+ * 🎤 Génère des paroles MIXTES A+B style Nekfeu
  */
-function generateMixedLyrics(
+function generateNekfeuMixedLyrics(
   itemCode: string, 
   title: string, 
   competencesA: any[], 
   competencesB: any[]
 ): string[] {
   const lyrics: string[] = [];
-  const shortTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
+  const shortTitle = cleanForRap(title, 35);
+  const totalComp = competencesA.length + competencesB.length;
   
-  // Intro combinée
-  lyrics.push(`[Intro - Fusion A+B]`);
-  lyrics.push(`${itemCode} maîtrise complète`);
-  lyrics.push(`Du fondamental à l'expertise`);
-  lyrics.push(`${shortTitle}`);
+  // Titre
+  lyrics.push(`CHANSON FUSION A+B - "${shortTitle}"`);
   lyrics.push('');
   
-  // Section Rang A
-  lyrics.push(`[Partie Rang A - Fondamentaux]`);
+  // Intro
+  lyrics.push('[Intro]');
+  lyrics.push(`${itemCode} version complète, A et B réunis`);
+  lyrics.push(`Du fondamental à l'expertise, tout est dit`);
+  lyrics.push(`${totalComp} compétences, un seul objectif`);
+  lyrics.push(`Maîtrise totale, flow définitif`);
+  lyrics.push('');
+  
+  // Partie Rang A
+  lyrics.push('[Partie Rang A - Fondamentaux]');
   if (competencesA.length > 0) {
-    competencesA.slice(0, 3).forEach(comp => {
-      lyrics.push(cleanText(comp.intitule, 55));
+    competencesA.slice(0, 4).forEach((comp, i) => {
+      lyrics.push(createRapLine(comp.intitule, i));
     });
   } else {
-    lyrics.push(`Bases solides ${itemCode}`);
-    lyrics.push(`Connaissances fondamentales`);
+    lyrics.push(`Bases solides, fondations posées`);
+    lyrics.push(`Concepts clés, parfaitement dosés`);
+    lyrics.push(`Rang A validé, on peut avancer`);
+    lyrics.push(`Vers l'expertise, prêt à s'envoler`);
   }
   lyrics.push('');
   
-  // Transition
-  lyrics.push(`[Pont]`);
-  lyrics.push(`Rang A validé on passe au B`);
-  lyrics.push(`L'expertise nous attend`);
+  // Transition/Pont
+  lyrics.push('[Pont - Transition]');
+  lyrics.push(`Rang A c'est fait, maintenant on passe au B`);
+  lyrics.push(`L'expertise nous attend, faut pas hésiter`);
+  lyrics.push(`Chaque niveau compte dans cette ascension`);
+  lyrics.push(`${itemCode} complet, c'est notre mission`);
   lyrics.push('');
   
-  // Section Rang B
-  lyrics.push(`[Partie Rang B - Expert]`);
+  // Partie Rang B
+  lyrics.push('[Partie Rang B - Expertise]');
   if (competencesB.length > 0) {
-    competencesB.slice(0, 3).forEach(comp => {
-      lyrics.push(cleanText(comp.intitule, 55));
+    competencesB.slice(0, 4).forEach((comp, i) => {
+      lyrics.push(createRapLine(comp.intitule, i));
     });
   } else {
-    lyrics.push(`Expertise ${itemCode}`);
-    lyrics.push(`Cas complexes maîtrisés`);
+    lyrics.push(`Niveau expert, on monte en puissance`);
+    lyrics.push(`Cas complexes, on gère avec aisance`);
+    lyrics.push(`Rang B maîtrisé, excellence atteinte`);
+    lyrics.push(`Compétences avancées, plus aucune crainte`);
   }
   lyrics.push('');
   
-  // Outro combiné
-  lyrics.push(`[Outro Final]`);
-  lyrics.push(`${itemCode} A+B validés`);
-  lyrics.push(`${competencesA.length + competencesB.length} compétences intégrées`);
-  lyrics.push(`Excellence EDN certifiée`);
-  lyrics.push(`Musique et médecine associées`);
+  // Refrain final
+  lyrics.push('[Refrain Final]');
+  lyrics.push(`${shortTitle}, maîtrise complète`);
+  lyrics.push(`A plus B égale excellence parfaite`);
+  lyrics.push(`${totalComp} objectifs, tous validés`);
+  lyrics.push(`Formation EDN, prêt pour les épreuves`);
+  lyrics.push('');
+  
+  // Outro
+  lyrics.push('[Outro]');
+  lyrics.push(`${itemCode} A+B, c'est dans la poche`);
+  lyrics.push(`Du diagnostic au traitement, rien qui cloche`);
+  lyrics.push(`Excellence médicale gravée dans l'ADN`);
+  lyrics.push(`Nekfeu style, formation EDN`);
   
   return lyrics;
 }
 
 /**
- * Nettoie le texte pour les paroles
+ * Crée une ligne de rap avec rimes/assonances à partir d'un intitulé de compétence
  */
-function cleanText(text: string, maxLength: number = 60): string {
+function createRapLine(intitule: string, index: number): string {
+  const clean = cleanForRap(intitule, 50);
+  
+  // Suffixes pour créer des rimes
+  const rhymeSuffixes = [
+    ", c'est la clé qu'on détient",
+    ", maîtrise au quotidien",
+    ", savoir essentiel",
+    ", objectif réel",
+    ", compétence acquise",
+    ", expertise précise",
+    ", diagnostic certain",
+    ", traitement serein"
+  ];
+  
+  // Préfixes pour varier le flow
+  const flowPrefixes = [
+    "",
+    "On parle de ",
+    "Focus sur ",
+    "",
+    "J'maîtrise ",
+    "",
+    "C'est ",
+    ""
+  ];
+  
+  const suffix = rhymeSuffixes[index % rhymeSuffixes.length];
+  const prefix = flowPrefixes[index % flowPrefixes.length];
+  
+  // Si l'intitulé est court, on peut ajouter le suffixe
+  if (clean.length < 35) {
+    return `${prefix}${clean}${suffix}`;
+  }
+  
+  // Sinon on retourne juste l'intitulé nettoyé
+  return clean;
+}
+
+/**
+ * Nettoie le texte pour le format rap
+ */
+function cleanForRap(text: string, maxLength: number = 50): string {
   let clean = text
-    .replace(/[.,!?;:]/g, '')
+    .replace(/[.,!?;:()]/g, '')
     .replace(/\s+/g, ' ')
+    .replace(/'/g, "'")
     .trim();
   
+  // Première lettre en majuscule
+  if (clean.length > 0) {
+    clean = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+  }
+  
+  // Tronquer si trop long
   if (clean.length > maxLength) {
     const words = clean.split(' ');
     clean = '';
@@ -329,19 +402,17 @@ function cleanText(text: string, maxLength: number = 60): string {
 }
 
 /**
- * Extrait les points clés d'une description
+ * Extrait les mots-clés d'un intitulé
  */
-function extractKeyPoints(description: string): string[] {
-  const points: string[] = [];
-  const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 15);
+function extractKeywords(text: string): string[] {
+  const stopWords = ['le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'et', 'ou', 'à', 'en', 'par', 'pour', 'avec', 'sans', 'sur', 'dans'];
   
-  const maxPoints = Math.min(2, sentences.length);
-  for (let i = 0; i < maxPoints; i++) {
-    const verse = cleanText(sentences[i], 55);
-    if (verse.length > 15) {
-      points.push(verse);
-    }
-  }
+  const words = text
+    .toLowerCase()
+    .replace(/[.,!?;:()]/g, '')
+    .split(' ')
+    .filter(w => w.length > 3 && !stopWords.includes(w));
   
-  return points;
+  // Retourner les 2-3 premiers mots significatifs, capitalisés
+  return words.slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1));
 }
