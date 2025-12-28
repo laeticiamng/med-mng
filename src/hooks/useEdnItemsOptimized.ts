@@ -16,53 +16,42 @@ export interface EdnItemOptimized {
   mots_cles?: string[];
 }
 
-// Module-level cache for persistence across HMR
-let cachedItems: EdnItemOptimized[] = [];
-let cacheTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
 export const useEdnItemsOptimized = () => {
-  const [items, setItems] = useState<EdnItemOptimized[]>(cachedItems);
-  const [loading, setLoading] = useState(cachedItems.length === 0);
+  const [items, setItems] = useState<EdnItemOptimized[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
-  const fetchingRef = useRef(false);
+  const hasFetchedRef = useRef(false);
 
-  const fetchItems = useCallback(async (force = false) => {
-    // Check cache validity
-    const now = Date.now();
-    if (!force && cachedItems.length > 0 && now - cacheTimestamp < CACHE_TTL) {
-      if (mountedRef.current) {
-        setItems(cachedItems);
-        setLoading(false);
-        setError(null);
-      }
-      return;
-    }
-
-    // Prevent concurrent fetches
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
+  const fetchItems = useCallback(async () => {
+    // Prevent double fetch in StrictMode
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
     
-    if (mountedRef.current) {
-      setLoading(true);
-      setError(null);
-    }
+    setLoading(true);
+    setError(null);
     
     try {
-      // Fast initial fetch - minimal columns only
+      console.log('[EDN] Fetching items...');
+      
       const { data, error: fetchError } = await supabase
         .from('edn_items_immersive')
         .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
         .order('item_code');
       
-      if (!mountedRef.current) {
-        fetchingRef.current = false;
-        return;
+      if (!mountedRef.current) return;
+      
+      if (fetchError) {
+        console.error('[EDN] Fetch error:', fetchError);
+        throw new Error(fetchError.message);
       }
       
-      if (fetchError) throw new Error(fetchError.message);
-      if (!data || data.length === 0) throw new Error('Aucun item EDN trouvé');
+      if (!data || data.length === 0) {
+        console.warn('[EDN] No data returned');
+        throw new Error('Aucun item EDN trouvé');
+      }
+      
+      console.log('[EDN] Fetched', data.length, 'items');
       
       const mappedItems: EdnItemOptimized[] = data.map((item) => ({
         id: item.id,
@@ -76,26 +65,18 @@ export const useEdnItemsOptimized = () => {
         competences_count_rang_b: 0,
       }));
       
-      // Update cache and state immediately
-      cachedItems = mappedItems;
-      cacheTimestamp = now;
-      
-      if (mountedRef.current) {
-        setItems(mappedItems);
-        setLoading(false);
-        setError(null);
-      }
+      setItems(mappedItems);
+      setLoading(false);
       
       // Async OIC enrichment (background, non-blocking)
       enrichWithOic(mappedItems);
       
     } catch (err) {
+      console.error('[EDN] Error:', err);
       if (mountedRef.current) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
         setLoading(false);
       }
-    } finally {
-      fetchingRef.current = false;
     }
   }, []);
 
@@ -118,11 +99,9 @@ export const useEdnItemsOptimized = () => {
       });
 
       const enrichedItems = currentItems.map((item) => {
-        // Try multiple matching strategies for item_parent
         const itemNumber = item.item_code.replace('IC-', '');
         const paddedNumber = itemNumber.padStart(3, '0');
         
-        // Try different formats: "001", "1", "IC-1"
         const counts = countsMap.get(paddedNumber) 
           || countsMap.get(itemNumber) 
           || countsMap.get(item.item_code)
@@ -135,10 +114,6 @@ export const useEdnItemsOptimized = () => {
         };
       });
 
-      // Update cache and state atomically
-      cachedItems = enrichedItems;
-      cacheTimestamp = Date.now(); // Refresh cache timestamp after enrichment
-      
       if (mountedRef.current) {
         setItems(enrichedItems);
       }
@@ -149,19 +124,18 @@ export const useEdnItemsOptimized = () => {
 
   useEffect(() => {
     mountedRef.current = true;
-    fetchingRef.current = false; // Reset on mount to prevent HMR lock
-    // Force fresh fetch on mount
-    cacheTimestamp = 0;
-    fetchItems(true);
+    hasFetchedRef.current = false;
+    
+    fetchItems();
+    
     return () => { 
       mountedRef.current = false;
-      fetchingRef.current = false; // Also reset on unmount
     };
   }, [fetchItems]);
 
   const refresh = useCallback(() => {
-    cacheTimestamp = 0;
-    fetchItems(true);
+    hasFetchedRef.current = false;
+    fetchItems();
   }, [fetchItems]);
 
   const stats = useMemo(() => {
@@ -192,6 +166,5 @@ export const useEdnItemsOptimized = () => {
 };
 
 export const invalidateEdnCache = () => {
-  cachedItems = [];
-  cacheTimestamp = 0;
+  // No-op for compatibility - cache removed for reliability
 };
