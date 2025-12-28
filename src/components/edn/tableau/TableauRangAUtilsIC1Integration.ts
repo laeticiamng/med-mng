@@ -1,8 +1,28 @@
 
 import { determinerColonnesUtilesIC1, generateLignesRangAIC1 } from './TableauRangAUtilsIC1';
 
+interface TableauDataIC1 {
+  item_code?: string;
+  theme?: string;
+  title?: string;
+}
+
+interface ColonneConfig {
+  nom: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+}
+
+interface ProcessedTableauResultIC1 {
+  lignesEnrichies: string[][];
+  colonnesUtiles: ColonneConfig[];
+  theme: string;
+  isComplete: boolean;
+}
+
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
-export function processTableauRangAIC1(data: any) {
+export function processTableauRangAIC1(data: TableauDataIC1): ProcessedTableauResultIC1 {
   // Générer les lignes enrichies spécifiquement pour IC-1 (15 connaissances)
   const lignesEnrichies = generateLignesRangAIC1(data);
   
@@ -21,7 +41,7 @@ export function processTableauRangAIC1(data: any) {
 }
 
 // Fonction pour vérifier si c'est l'item IC-1 (et pas IC-10, IC-11, etc.)
-export function isIC1Item(data: any): boolean {
+export function isIC1Item(data: TableauDataIC1 | null): boolean {
   if (!data) return false;
   
   // Vérification exacte du code d'item

@@ -157,7 +157,7 @@ export const conceptsRangAIC1 = [
 ];
 
 // Pas de concepts Rang B pour l'item IC-1 selon E-LiSA
-export const conceptsRangBIC1: any[] = [];
+export const conceptsRangBIC1: typeof conceptsRangAIC1 = [];
 
 export const colonnesConfigIC1 = [
   { nom: 'Connaissance Fondamentale', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary font-bold' },

@@ -1,11 +1,46 @@
 
+interface TableauDataIC10 {
+  tableau_rang_a?: {
+    sections?: Array<{
+      concepts?: Array<{
+        concept?: string;
+        definition?: string;
+        exemple?: string;
+        piege?: string;
+        mnemo?: string;
+        subtilite?: string;
+        application?: string;
+        vigilance?: string;
+      }>;
+    }>;
+  };
+  item_code?: string;
+  title?: string;
+  theme?: string;
+}
+
+interface ColonneConfig {
+  nom: string;
+  description: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+}
+
+interface ProcessedTableauResult {
+  lignesEnrichies: string[][];
+  colonnesUtiles: ColonneConfig[];
+  theme: string;
+  isRangB: boolean;
+}
+
 // Utilitaires pour l'affichage du Tableau Rang A IC-10
-export const processTableauRangAIC10 = (data: any) => {
+export const processTableauRangAIC10 = (data: TableauDataIC10): ProcessedTableauResult => {
   // Extraire les données des concepts
   const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as TableauDataIC10['tableau_rang_a'])?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneConfig[] = [
     { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-muted', couleurCellule: 'bg-muted/50', couleurTexte: 'text-muted-foreground' },
     { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-accent', couleurCellule: 'bg-accent/10', couleurTexte: 'text-accent-foreground' },
     { nom: 'Exemple', description: 'Application clinique', couleur: 'bg-primary', couleurCellule: 'bg-primary/10', couleurTexte: 'text-primary' },
@@ -16,7 +51,7 @@ export const processTableauRangAIC10 = (data: any) => {
     { nom: 'Vigilance', description: 'Points d\'attention', couleur: 'bg-warning', couleurCellule: 'bg-warning/10', couleurTexte: 'text-warning' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -38,7 +73,7 @@ export const processTableauRangAIC10 = (data: any) => {
 };
 
 // Fonction pour détecter si c'est l'item IC-10 (vérification exacte)
-export const isIC10Item = (data: any): boolean => {
+export const isIC10Item = (data: TableauDataIC10 | null): boolean => {
   if (!data) return false;
   
   // Vérification exacte du code

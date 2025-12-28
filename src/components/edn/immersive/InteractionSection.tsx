@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,8 +6,26 @@ import { CheckCircle, AlertCircle, Flame, Star } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+
+interface InteractionItem {
+  id: string;
+  text: string;
+  category: 'concept' | 'definition';
+}
+
+interface InteractionPair {
+  concept: string;
+  definition: string;
+}
+
+interface InteractionConfig {
+  title?: string;
+  items?: InteractionItem[];
+  pairs?: InteractionPair[];
+}
+
 interface InteractionSectionProps {
-  interactionConfig: any;
+  interactionConfig: InteractionConfig | null;
   itemCode: string;
 }
 
@@ -16,11 +34,20 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
   itemCode 
 }) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints, unlockBadge } = useGamification();
+  const { addPoints, stats, loadStats } = useGamification();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<string>('');
   const [completed, setCompleted] = useState(false);
+
+  const loadUserStats = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) loadStats(user.id);
+  }, [loadStats]);
+
+  useEffect(() => {
+    loadUserStats();
+  }, [loadUserStats]);
 
   if (!interactionConfig) {
     return (
@@ -57,22 +84,21 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   const checkAnswers = async () => {
-    if (!interactionConfig.pairs) return;
+    if (!interactionConfig.pairs || interactionConfig.pairs.length === 0) return;
     
     let correct = 0;
     const total = interactionConfig.pairs.length;
     
-    interactionConfig.pairs.forEach((pair: any) => {
+    interactionConfig.pairs.forEach((pair) => {
       if (matches[pair.concept] === pair.definition) {
         correct++;
       }
     });
     
-    const percentage = Math.round((correct / total) * 100);
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
     setFeedback(`${correct}/${total} bonnes réponses (${percentage}%)`);
     setCompleted(true);
     
-    // Track interaction completion
     await logActivity({
       activity_type: 'study',
       count: 1,
@@ -80,7 +106,6 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
       metadata: { itemCode, type: 'interaction_drag_drop', correct, total }
     });
     
-    // Award points for good performance
     if (percentage >= 80) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -95,18 +120,8 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     setCompleted(false);
   };
 
-  const concepts = interactionConfig.items?.filter((item: any) => item.category === 'concept') || [];
-  const definitions = interactionConfig.items?.filter((item: any) => item.category === 'definition') || [];
-  
-  const { stats, loadStats } = useGamification();
-  
-  useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadStats(user.id);
-    };
-    load();
-  }, [loadStats]);
+  const concepts = interactionConfig.items?.filter((item) => item.category === 'concept') || [];
+  const definitions = interactionConfig.items?.filter((item) => item.category === 'definition') || [];
 
   return (
     <Card className="w-full">
@@ -117,9 +132,9 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
             {stats && (
               <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <span className="font-bold text-warning">{stats.currentStreak ?? 0}</span>
                 <Star className="h-3 w-3 text-primary ml-1" />
-                <span className="font-bold text-primary">Nv.{stats.level}</span>
+                <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
               </div>
             )}
           </div>
@@ -132,7 +147,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
           <div>
             <h3 className="font-semibold mb-4 text-primary">Concepts</h3>
             <div className="space-y-2">
-              {concepts.map((concept: any) => (
+              {concepts.map((concept) => (
                 <div
                   key={concept.id}
                   draggable
@@ -151,7 +166,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
           <div>
             <h3 className="font-semibold mb-4 text-success">Définitions</h3>
             <div className="space-y-2">
-              {definitions.map((definition: any) => (
+              {definitions.map((definition) => (
                 <div
                   key={definition.id}
                   onDragOver={handleDragOver}
