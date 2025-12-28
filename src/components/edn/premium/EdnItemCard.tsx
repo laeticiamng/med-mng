@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   BookOpen, Music, Users, Brain, Volume2,
-  CheckCircle, AlertCircle
+  CheckCircle, AlertCircle, Heart
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
@@ -28,12 +28,16 @@ interface EdnItemCardProps {
   };
   completionPercentage: number;
   onOpen: (tab?: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   item,
   completionPercentage,
-  onOpen
+  onOpen,
+  isFavorite = false,
+  onToggleFavorite
 }) => {
   const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
@@ -101,9 +105,25 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <Badge variant="secondary" className="bg-background/20 text-accent-foreground border-background/20">
                 {finalItem.item_code}
               </Badge>
-            )}
-          </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {onToggleFavorite && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleFavorite();
+              }}
+              className={`h-8 w-8 ${isFavorite ? 'text-red-500' : 'text-accent-foreground/60'} hover:text-red-500`}
+            >
+              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </Button>
+          )}
           {getCompletionBadge()}
+        </div>
         </div>
         
         <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight text-accent-foreground group-hover:text-accent-foreground/80 transition-colors`}>
