@@ -10,14 +10,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RotateCcw, Music, Brain, Trophy, History } from 'lucide-react';
+interface TableauSection {
+  concepts?: Array<{ concept?: string; definition?: string }>;
+}
+
+interface TableauRangData {
+  sections?: TableauSection[];
+}
+
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer?: number;
+}
+
 interface QuizManagerProps {
   item: {
     id: string;
     item_code: string;
     title: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
-    quiz_questions?: any;
+    tableau_rang_a?: TableauRangData;
+    tableau_rang_b?: TableauRangData;
+    quiz_questions?: { questions?: QuizQuestion[] };
   };
 }
 
@@ -68,7 +82,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
     
     // Compter les compétences disponibles pour générer des questions
     if (item.tableau_rang_a?.sections) {
-      item.tableau_rang_a.sections.forEach((section: any) => {
+      item.tableau_rang_a.sections.forEach((section: TableauSection) => {
         if (section.concepts) {
           total += section.concepts.length * 2; // 2 questions par concept
         }
@@ -76,7 +90,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
     }
     
     if (item.tableau_rang_b?.sections) {
-      item.tableau_rang_b.sections.forEach((section: any) => {
+      item.tableau_rang_b.sections.forEach((section: TableauSection) => {
         if (section.concepts) {
           total += section.concepts.length * 2; // 2 questions par concept
         }

@@ -12,11 +12,28 @@ interface QuizQuestion {
   tags: string[];
 }
 
+interface TableauSection {
+  concepts?: Array<{ concept?: string; definition?: string }>;
+}
+
+interface TableauRangData {
+  sections?: TableauSection[];
+}
+
 interface EdnItem {
   item_code: string;
   title: string;
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
+  tableau_rang_a?: TableauRangData;
+  tableau_rang_b?: TableauRangData;
+}
+
+interface QuestionTemplate {
+  id: string;
+  rang: string;
+  difficulty: string[];
+  template: string;
+  type: string;
+  distractors: string[];
 }
 
 export class QuizGenerator {
@@ -39,7 +56,7 @@ export class QuizGenerator {
     item: EdnItem, 
     config: QuizConfig, 
     questionId: number,
-    templates: any[]
+    templates: QuestionTemplate[]
   ): QuizQuestion | null {
     // Déterminer le rang de la question
     let rang: 'A' | 'B';
@@ -127,7 +144,7 @@ export class QuizGenerator {
     ];
   }
 
-  private static selectTemplate(templates: any[], difficulty: string, rang: 'A' | 'B') {
+  private static selectTemplate(templates: QuestionTemplate[], difficulty: string, rang: 'A' | 'B') {
     const availableTemplates = templates.filter(t => 
       t.rang === rang && t.difficulty.includes(difficulty)
     );
@@ -142,7 +159,7 @@ export class QuizGenerator {
 
   private static buildQuestionFromTemplate(
     item: EdnItem, 
-    template: any, 
+    template: QuestionTemplate, 
     rang: 'A' | 'B',
     difficulty: string
   ) {
@@ -170,8 +187,8 @@ export class QuizGenerator {
     };
   }
 
-  private static generateOptions(item: EdnItem, template: any, rang: 'A' | 'B', difficulty: string) {
-    const topic = item.title;
+  private static generateOptions(_item: EdnItem, template: QuestionTemplate, _rang: 'A' | 'B', difficulty: string) {
+    const topic = _item.title;
     
     // Options correctes selon le type de template
     const correctAnswers = {
@@ -245,7 +262,7 @@ export class QuizGenerator {
 
   private static generateExplanation(
     item: EdnItem, 
-    template: any, 
+    _template: QuestionTemplate, 
     rang: 'A' | 'B',
     correctAnswer: number,
     options: string[]
@@ -261,7 +278,7 @@ export class QuizGenerator {
     return explanationTemplates[rang];
   }
 
-  private static generateCommonErrors(item: EdnItem, template: any, difficulty: string) {
+  private static generateCommonErrors(item: EdnItem, _template: QuestionTemplate, difficulty: string) {
     const topic = item.title;
     
     const baseErrors = [

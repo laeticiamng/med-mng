@@ -20,8 +20,8 @@ interface CompetenceOIC {
   causes_echec?: string;
   contributeurs?: string;
   ordre_affichage?: number;
-  sections_detaillees?: any;
-  contenu_detaille?: any;
+  sections_detaillees?: Record<string, unknown>;
+  contenu_detaille?: Record<string, unknown>;
 }
 
 interface TableauCompetencesOICProps {
@@ -139,7 +139,7 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
               </tr>
             </thead>
             <tbody>
-              {displayCompetences.map((competence: any, index) => {
+              {displayCompetences.map((competence: CompetenceOIC, index) => {
                 const isPlaceholder = index >= competences.length;
                 
                 return (

@@ -2,6 +2,11 @@
 import React from 'react';
 import { MusicCard } from './MusicCard';
 
+interface CurrentTrack {
+  url?: string;
+  title?: string;
+}
+
 interface ParolesMusicalesRangSectionProps {
   rang: 'A' | 'B';
   paroles: string;
@@ -9,7 +14,7 @@ interface ParolesMusicalesRangSectionProps {
   isGenerating: boolean;
   generatedAudio?: string;
   itemCode?: string;
-  currentTrack: any;
+  currentTrack: CurrentTrack | null;
   isPlaying: boolean;
   currentTime: number;
   duration: number;

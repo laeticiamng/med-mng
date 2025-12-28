@@ -5,13 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { GenerateButton } from './GenerateButton';
 import { ParolesDisplay } from './ParolesDisplay';
 
+interface TableauRangData {
+  sections?: Array<{ concepts?: Array<{ concept?: string; definition?: string }> }>;
+}
+
 interface ParolesMusicalesRangTabProps {
   rang: 'A' | 'B';
   title: string;
   description: string;
   paroles: string[];
   hasParoles: boolean;
-  tableauData: any;
+  tableauData: TableauRangData | null;
   selectedStyle: string;
   selectedDuration: number;
   isGenerating: boolean;

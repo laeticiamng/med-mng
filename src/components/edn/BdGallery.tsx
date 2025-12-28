@@ -15,11 +15,20 @@ import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 
+interface TableauRangData {
+  sections?: Array<{ concepts?: Array<{ concept?: string; definition?: string }> }>;
+}
+
+interface OicCompetenceRef {
+  objectif_id?: string;
+  intitule?: string;
+}
+
 interface BdGalleryProps {
   itemCode: string;
   title: string;
-  tableauRangA?: any;
-  tableauRangB?: any;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
 }
 
 export const BdGallery: React.FC<BdGalleryProps> = ({ 
@@ -284,7 +293,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           <div className="space-y-2 mb-4">
             <h4 className="text-sm font-semibold text-muted-foreground">Compétences OIC:</h4>
             <div className="space-y-2">
-              {currentVig.competences.map((comp: any, idx: number) => (
+              {currentVig.competences.map((comp: OicCompetenceRef, idx: number) => (
                 <div key={idx} className="p-2 bg-muted/50 rounded-lg text-sm">
                   <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule}
                 </div>
@@ -302,7 +311,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               onClick={async () => {
                 setIsExporting(true);
                 const allContent = vignettes.map(v => 
-                  `${v.title}\n${v.description}\n${v.competences?.map((c: any) => `- ${c.objectif_id}: ${c.intitule}`).join('\n') || ''}`
+                  `${v.title}\n${v.description}\n${v.competences?.map((c: OicCompetenceRef) => `- ${c.objectif_id || ''}: ${c.intitule || ''}`).join('\n') || ''}`
                 ).join('\n\n---\n\n');
                 await exportToPDF({
                   title,
