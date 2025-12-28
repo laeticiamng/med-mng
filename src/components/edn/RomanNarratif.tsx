@@ -292,6 +292,39 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Table des matières cliquable */}
+      <Card className="border border-border/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Table des matières
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="flex flex-wrap gap-2">
+            {chapters.map((chap, idx) => (
+              <Button
+                key={chap.id}
+                variant={currentChapter === idx ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setCurrentChapter(idx);
+                  setReadingProgress((idx / chapters.length) * 100);
+                }}
+                className={`text-xs ${
+                  chap.type === 'intro' ? 'border-primary/30' :
+                  chap.type === 'rang-a' ? 'border-success/30' :
+                  chap.type === 'rang-b' ? 'border-accent/30' :
+                  'border-warning/30'
+                }`}
+              >
+                {idx + 1}. {chap.title.replace(/^Chapitre \d+ : /, '').substring(0, 15)}...
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header avec navigation */}
       <Card className="border-2 border-success/30">
         <CardHeader className="bg-gradient-to-r from-success to-accent text-success-foreground">
