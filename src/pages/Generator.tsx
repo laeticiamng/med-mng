@@ -48,14 +48,23 @@ const Generator = () => {
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
   const canGenerate = useCallback(() => {
+    console.log('🔍 canGenerate check:', { contentType, selectedItem, selectedRang, selectedStyle, ednLyrics: !!ednLyrics });
+    
     if (contentType === 'edn') {
       // Vérifier les paroles par rang ou le legacy paroles_musicales
+      const hasLyricsA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
+      const hasLyricsB = ednLyrics?.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0;
+      const hasLyricsAB = ednLyrics?.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0;
+      const hasLegacy = ednLyrics?.paroles_musicales && ednLyrics.paroles_musicales.length > 0;
+      
       const hasLyrics = ednLyrics && (
-        (selectedRang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) ||
-        (selectedRang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) ||
-        (selectedRang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) ||
-        (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0)
+        (selectedRang === 'A' && (hasLyricsA || hasLegacy)) ||
+        (selectedRang === 'B' && (hasLyricsB || hasLegacy)) ||
+        (selectedRang === 'AB' && (hasLyricsAB || hasLegacy)) ||
+        hasLegacy
       );
+      
+      console.log('🔍 EDN lyrics check:', { hasLyricsA, hasLyricsB, hasLyricsAB, hasLegacy, hasLyrics, selectedRang });
       return !!(selectedItem && selectedRang && selectedStyle && hasLyrics);
     }
     if (contentType === 'ecos') {
