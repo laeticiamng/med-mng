@@ -150,8 +150,13 @@ export const useEdnItemsOptimized = () => {
   useEffect(() => {
     mountedRef.current = true;
     fetchingRef.current = false; // Reset on mount to prevent HMR lock
-    fetchItems();
-    return () => { mountedRef.current = false; };
+    // Force fresh fetch on mount
+    cacheTimestamp = 0;
+    fetchItems(true);
+    return () => { 
+      mountedRef.current = false;
+      fetchingRef.current = false; // Also reset on unmount
+    };
   }, [fetchItems]);
 
   const refresh = useCallback(() => {
