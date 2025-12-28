@@ -82,7 +82,7 @@ export const useEdnItemsOptimized = () => {
         setItems(mappedItems);
         setLoading(false);
         
-        // Background OIC enrichment - charger TOUTES les compétences (pagination pour dépasser limite 1000)
+        // Background OIC enrichment - utiliser oic_competences (table principale avec 5606 entrées)
         try {
           let allOicData: any[] = [];
           let offset = 0;
@@ -91,7 +91,7 @@ export const useEdnItemsOptimized = () => {
           
           while (hasMore) {
             const oicResponse = await fetch(
-              `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=item_parent,rang&objectif_id=not.is.null&limit=${limit}&offset=${offset}`,
+              `${SUPABASE_URL}/rest/v1/oic_competences?select=item_parent,rang&objectif_id=not.is.null&limit=${limit}&offset=${offset}`,
               {
                 headers: {
                   'apikey': SUPABASE_KEY,
@@ -114,7 +114,7 @@ export const useEdnItemsOptimized = () => {
             }
           }
           
-          console.log('📊 OIC data loaded:', allOicData.length, 'competences (toutes)');
+          console.log('📊 OIC data loaded from oic_competences:', allOicData.length, 'competences');
 
           if (allOicData.length === 0) return;
 
