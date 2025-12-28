@@ -18,34 +18,26 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
-// Cache global simple
-let cachedData: { items: EdnItem[]; stats: EdnItemsStats } | null = null;
-
 export const useAllEdnItems = () => {
-  const [items, setItems] = useState<EdnItem[]>(cachedData?.items || []);
-  const [stats, setStats] = useState<EdnItemsStats>(cachedData?.stats || { total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
-  const [loading, setLoading] = useState(!cachedData);
+  const [items, setItems] = useState<EdnItem[]>([]);
+  const [stats, setStats] = useState<EdnItemsStats>({ total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Si on a déjà des données en cache, ne pas refetch
-    if (cachedData) {
-      setItems(cachedData.items);
-      setStats(cachedData.stats);
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
+    let isMounted = true;
 
     const fetchItems = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const { data, error: fetchError } = await supabase
           .from('edn_items_immersive')
           .select('item_code, title, subtitle, paroles_musicales')
           .order('item_code');
 
-        if (cancelled) return;
+        if (!isMounted) return;
 
         if (fetchError) {
           console.error('Supabase error:', fetchError);
@@ -72,18 +64,14 @@ export const useAllEdnItems = () => {
             byCategory: { EDN: mappedItems.length }
           };
 
-          // Mettre en cache
-          cachedData = { items: mappedItems, stats: statsData };
-          
-          if (!cancelled) {
-            setItems(mappedItems);
-            setStats(statsData);
-            setLoading(false);
-          }
+          setItems(mappedItems);
+          setStats(statsData);
         }
+        
+        setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
-        if (!cancelled) {
+        if (isMounted) {
           setError('Erreur lors du chargement');
           setLoading(false);
         }
@@ -93,7 +81,7 @@ export const useAllEdnItems = () => {
     fetchItems();
 
     return () => {
-      cancelled = true;
+      isMounted = false;
     };
   }, []);
 
@@ -118,7 +106,6 @@ export const useAllEdnItems = () => {
   const itemsWithLyrics = useMemo(() => items.filter(i => i.has_lyrics), [items]);
 
   const refreshItems = useCallback(() => {
-    cachedData = null;
     window.location.reload();
   }, []);
 
