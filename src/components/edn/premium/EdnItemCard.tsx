@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   BookOpen, Music, Users, Brain, Volume2,
-  CheckCircle, AlertCircle, Heart
+  CheckCircle, AlertCircle, Heart, StickyNote
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
+import { useEdnNotes } from "@/hooks/useEdnNotes";
 
 interface EdnItemCardProps {
   item: {
@@ -43,6 +44,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
+  
+  // Check if user has notes for this item
+  const { hasNote } = useEdnNotes();
+  const hasNotes = hasNote(finalItem.item_code);
 
   const getItemNumber = (itemCode: string) => {
     return parseInt(itemCode.replace('IC-', '') || '0');
@@ -108,6 +113,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {hasNotes && (
+            <Badge variant="secondary" className="bg-warning/20 text-warning border-warning/30 text-xs">
+              <StickyNote className="h-3 w-3 mr-1" />
+              Notes
+            </Badge>
+          )}
           {onToggleFavorite && (
             <Button
               variant="ghost"
