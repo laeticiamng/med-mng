@@ -108,6 +108,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
               lyricsLoading={lyricsLoading}
               lyricsError={lyricsError}
               ednLyrics={ednLyrics}
+              selectedRang={selectedRang}
             />
 
             <RangSelector
