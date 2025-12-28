@@ -24,6 +24,8 @@ import { EdnItemExport } from "@/components/edn/export/EdnItemExport";
 import { PersonalNotes } from "@/components/edn/PersonalNotes";
 import { QuizLeaderboard } from "@/components/edn/QuizLeaderboard";
 import { QuizHistorySummary } from "@/components/edn/QuizHistorySummary";
+import { QuizProgressChart } from "@/components/edn/quiz/QuizProgressChart";
+import { ProgressHeatmap } from "@/components/edn/quiz/ProgressHeatmap";
 import { SocialShare } from "@/components/social/SocialShare";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
@@ -555,8 +557,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         </div>
                       )}
                       
-                      {/* Quiz History Summary */}
-                      <QuizHistorySummary itemCode={finalItem.item_code} />
+                      {/* Quiz History Summary + Progression Charts */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <QuizHistorySummary itemCode={finalItem.item_code} />
+                        <QuizProgressChart itemCode={finalItem.item_code} />
+                      </div>
+                      
+                      {/* Heatmap d'activité */}
+                      <ProgressHeatmap itemCode={finalItem.item_code} days={28} />
                       
                       {/* Competence Progress */}
                       <CompetenceValidation item={finalItem} />
