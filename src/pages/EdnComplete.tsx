@@ -311,7 +311,7 @@ export default function EdnComplete() {
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Avancer sur l'EDN</h1>
                   <p className="text-sm text-muted-foreground">
-                    {stats.total} items • {stats.totalOicCompetences > 0 ? `${stats.totalOicCompetences} compétences UNESS` : 'Choisis et maîtrise un bloc'}
+                    {stats.total} items • {(stats.totalOicRangA || 0) + (stats.totalOicRangB || 0)} compétences UNESS
                   </p>
                 </div>
                 {gamificationStats && gamificationStats.currentStreak !== undefined && (
