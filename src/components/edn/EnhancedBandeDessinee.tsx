@@ -19,8 +19,8 @@ interface EnhancedBandeDessineeProps {
     subtitle: string;
     slug?: string;
     item_code?: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: Record<string, unknown>;
+    tableau_rang_b?: Record<string, unknown>;
   };
 }
 
@@ -39,8 +39,7 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemData.item_code]);
+  }, [itemData.item_code, loadStats, logActivity, addPoints]);
 
   const handleTabChange = async (tab: string) => {
     setActiveTab(tab);

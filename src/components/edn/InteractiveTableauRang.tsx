@@ -89,7 +89,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         .eq('mastered', true);
       
       if (data) {
-        setMasteredCompetences(new Set(data.map((d: any) => d.competence_id)));
+        setMasteredCompetences(new Set(data.map((d: { competence_id: string }) => d.competence_id)));
       }
     };
     loadMastered();
@@ -155,8 +155,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         // Error handled silently
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [masteredCompetences, itemCode, rang]);
+  }, [masteredCompetences, itemCode, rang, logActivity]);
 
   const resetProgress = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();

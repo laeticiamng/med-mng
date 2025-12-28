@@ -7,12 +7,23 @@ import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Flame, Star, BookOpen } from 'lucide-react';
 
+interface TableauRangData {
+  sections?: Array<{
+    title?: string;
+    content?: string;
+    keywords?: string[];
+    concepts?: unknown[];
+    competences?: unknown[];
+  }>;
+  competences_cles?: unknown[];
+}
+
 interface ValeursProfessionnellesBDProps {
   itemData: {
     title: string;
     subtitle: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: TableauRangData;
+    tableau_rang_b?: TableauRangData;
   };
 }
 
@@ -46,8 +57,7 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
       }
     };
     track();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemData.title]);
+  }, [itemData.title, logActivity, addPoints]);
 
   // Données des vignettes spécifiques aux valeurs professionnelles
   const panelsData = [

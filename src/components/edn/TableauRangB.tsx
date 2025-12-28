@@ -1,8 +1,19 @@
 import React from 'react';
 import { TableauCompetencesOICWithRealData } from './tableau/TableauCompetencesOICWithRealData';
 
+interface TableauRangData {
+  sections?: Array<{
+    title?: string;
+    content?: string;
+    keywords?: string[];
+    concepts?: unknown[];
+    competences?: unknown[];
+  }>;
+  competences_cles?: unknown[];
+}
+
 interface TableauRangBProps {
-  data?: any;
+  data?: TableauRangData;
   itemCode?: string;
 }
 
