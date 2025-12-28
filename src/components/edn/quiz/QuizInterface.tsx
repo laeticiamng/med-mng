@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react';
 import { QuizConfig } from './QuizSelector';
 import { useToast } from '@/hooks/use-toast';
-
+import { supabase } from '@/integrations/supabase/client';
 interface QuizQuestion {
   id: number;
   question: string;
@@ -112,11 +112,33 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
     }
   };
 
-  const completeQuiz = () => {
+  const completeQuiz = async () => {
     const quizResults = calculateResults();
     setResults(quizResults);
     setIsCompleted(true);
     onQuizComplete(quizResults);
+    
+    // Sauvegarder en base de données
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('quiz_results').insert({
+          user_id: user.id,
+          item_code: itemCode,
+          item_title: itemTitle,
+          score: quizResults.score,
+          total_questions: quizResults.totalQuestions,
+          correct_answers: quizResults.correctAnswers,
+          wrong_answers: quizResults.wrongAnswers,
+          time_spent: quizResults.timeSpent,
+          performance: quizResults.performance,
+          answers: quizResults.answers
+        });
+        console.log('✅ Quiz results saved to database');
+      }
+    } catch (err) {
+      console.warn('Failed to save quiz results:', err);
+    }
     
     toast({
       title: "Quiz terminé !",
