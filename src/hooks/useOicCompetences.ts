@@ -75,6 +75,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     // Fetch with explicit promise handling and timeout
     const doFetch = async () => {
+      console.log(`[useOicCompetences] Fetching ${itemCode} rang ${rang}, itemNumber: ${itemNumber}`);
       try {
         // Set a 10 second timeout
         const timeoutPromise = new Promise<never>((_, reject) => {
