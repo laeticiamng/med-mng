@@ -56,8 +56,9 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     const cacheKey = `${itemCode}-${rang}`;
     
     // Check cache first - return immediately without touching loading state
-    const cached = competencesCache.get(cacheKey);
-    if (cached && cached.length > 0) {
+    // Accept both populated and empty cached arrays to prevent re-fetching
+    if (competencesCache.has(cacheKey)) {
+      const cached = competencesCache.get(cacheKey)!;
       setCompetences(cached);
       setLoading(false);
       setError(null);
