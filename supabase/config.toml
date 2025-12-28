@@ -189,3 +189,6 @@ verify_jwt = false
 [functions.generate-qcm]
 verify_jwt = false
 
+[functions.update-edn-unique-content]
+verify_jwt = false
+
