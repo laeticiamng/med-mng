@@ -43,6 +43,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
   useEffect(() => {
     let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     // Skip if no itemCode or invalid format
     if (!itemCode || (!itemCode.startsWith('IC-') && !itemCode.startsWith('OIC-'))) {
@@ -54,7 +55,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     const cacheKey = `${itemCode}-${rang}`;
     
-    // Check cache first
+    // Check cache first - return immediately without touching loading state
     const cached = competencesCache.get(cacheKey);
     if (cached && cached.length > 0) {
       setCompetences(cached);
@@ -71,19 +72,28 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     setLoading(true);
     setError(null);
 
-    // Fetch with explicit promise handling
+    // Fetch with explicit promise handling and timeout
     const doFetch = async () => {
       try {
-        const result = await supabase
+        // Set a 10 second timeout
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Timeout')), 10000);
+        });
+
+        const fetchPromise = supabase
           .from('backup_oic_competences')
           .select('objectif_id, intitule, description, rubrique, rang, item_parent')
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
           .order('objectif_id');
+
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
         
+        if (timeoutId) clearTimeout(timeoutId);
         if (cancelled) return;
         
         if (result.error) {
+          console.warn(`[useOicCompetences] Error fetching ${itemCode} rang ${rang}:`, result.error.message);
           setError(result.error.message);
           setCompetences([]);
           setLoading(false);
@@ -105,16 +115,19 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
             item_parent: comp.item_parent || itemNumber
           })) as OicCompetence[];
 
-        // Cache results
-        if (realCompetences.length > 0) {
-          competencesCache.set(cacheKey, realCompetences);
-        }
+        // Cache results (even empty arrays to prevent re-fetching)
+        competencesCache.set(cacheKey, realCompetences);
 
-        setCompetences(realCompetences);
-        setError(null);
-        setLoading(false);
+        if (!cancelled) {
+          setCompetences(realCompetences);
+          setError(null);
+          setLoading(false);
+        }
       } catch (err) {
+        if (timeoutId) clearTimeout(timeoutId);
         if (cancelled) return;
+        
+        console.warn(`[useOicCompetences] Exception for ${itemCode} rang ${rang}:`, err);
         setError(String(err));
         setCompetences([]);
         setLoading(false);
@@ -125,6 +138,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     return () => {
       cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [itemCode, rang]);
 
