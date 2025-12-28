@@ -64,13 +64,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [audioUrl, isGenerating, generatedSong, toast]);
 
-  console.log('🎵 GeneratorMusicPlayer render:', {
-    hasGeneratedSong: !!generatedSong,
-    audioUrl: generatedSong?.audioUrl,
-    isCurrentTrack: currentTrack?.url === generatedSong?.audioUrl,
-    isPlaying,
-    currentTrack
-  });
 
   if (!generatedSong) return null;
 
@@ -89,15 +82,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       });
       return;
     }
-    console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
-      audioUrl: generatedSong.audioUrl,
-      title: generatedSong.title,
-      isCurrentTrack,
-      isPlaying,
-      hasGeneratedSong: !!generatedSong,
-      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative',
-      generatedSongObject: generatedSong
-    });
 
     // Vérifier que l'URL audio finale est valide
     if (!finalAudioUrl || 

@@ -38,7 +38,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     setLoading(true);
     setError(null);
 
-    const url = `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${itemNumber}&rang=eq.${rang}&order=objectif_id`;
+    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${itemNumber}&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
       headers: {

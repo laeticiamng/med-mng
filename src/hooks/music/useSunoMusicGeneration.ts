@@ -12,7 +12,6 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 
 export const useSunoMusicGeneration = () => {
-  console.log('🎵 HOOK - useSunoMusicGeneration initialisé');
 
   const { toast } = useToast();
   const {
@@ -38,7 +37,6 @@ export const useSunoMusicGeneration = () => {
     duration: number = 240,
     model: "V3_5" | "V4" | "V4_5" = "V3_5"
   ) => {
-    console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
     
     if (isAlreadyGenerating(rang)) {
       console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
