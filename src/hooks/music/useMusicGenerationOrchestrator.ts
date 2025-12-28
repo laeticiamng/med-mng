@@ -31,7 +31,7 @@ export const useMusicGenerationOrchestrator = () => {
     validateAndNormalizeAudioUrl
   }: GenerationConfig) => {
     try {
-      console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO Rang ${rang} en ${currentLanguage}`);
+      // Démarrage génération Suno
       
       const requestBody = {
         lyrics: translatedLyrics,
@@ -43,21 +43,16 @@ export const useMusicGenerationOrchestrator = () => {
       };
 
       // Démarrer la génération initiale
-      console.log('🎵 Appel initial pour démarrer la génération...');
       const { data: initialData, error: initialError } = await supabase.functions.invoke('generate-music', {
         body: requestBody
       });
 
       if (initialError) {
-        console.error('❌ Erreur lors du démarrage:', initialError);
         throw new Error(initialError.message || 'Erreur lors du démarrage de la génération');
       }
 
-      console.log('🎵 Réponse initiale:', initialData);
-
       // Si c'est déjà un succès (peu probable), on termine
       if (initialData?.status === 'success' && initialData?.audioUrl) {
-        console.log('🎵 GÉNÉRATION TERMINÉE IMMÉDIATEMENT:', initialData.audioUrl);
         const validatedAudioUrl = validateAndNormalizeAudioUrl(initialData.audioUrl);
         
         toast({
@@ -113,8 +108,6 @@ export const useMusicGenerationOrchestrator = () => {
       });
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
-      
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       toast({
         title: "Erreur de génération Suno",

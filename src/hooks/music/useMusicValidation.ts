@@ -6,12 +6,10 @@ export const useMusicValidation = () => {
     }
 
     if (audioUrl.startsWith('/')) {
-      console.log('🎵 URL RELATIVE DÉTECTÉE:', audioUrl);
       return audioUrl;
     }
 
     if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
-      console.log('🎵 URL ABSOLUE DÉTECTÉE:', audioUrl);
       return audioUrl;
     }
 
