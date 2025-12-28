@@ -1,5 +1,4 @@
-// @refresh reset
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface EdnItemOptimized {
@@ -21,73 +20,7 @@ export const useEdnItemsOptimized = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const doFetch = async () => {
-      console.log('[EDN] Fetching items...');
-      
-      try {
-        const response = await supabase
-          .from('edn_items_immersive')
-          .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
-          .order('item_code');
-        
-        console.log('[EDN] Response received:', response.status, response.data?.length ?? 0);
-        
-        if (!isMounted) return;
-        
-        if (response.error) {
-          console.error('[EDN] Supabase error:', response.error);
-          setError(response.error.message);
-          setLoading(false);
-          return;
-        }
-        
-        const data = response.data || [];
-        
-        if (data.length === 0) {
-          setError('Aucun item EDN trouvé');
-          setLoading(false);
-          return;
-        }
-        
-        const mappedItems: EdnItemOptimized[] = data.map((item) => ({
-          id: item.id,
-          item_code: item.item_code,
-          title: item.title,
-          subtitle: item.subtitle || undefined,
-          slug: item.slug,
-          updated_at: item.updated_at,
-          paroles_musicales: item.paroles_musicales || undefined,
-          competences_count_rang_a: 0,
-          competences_count_rang_b: 0,
-        }));
-        
-        console.log('[EDN] Setting', mappedItems.length, 'items');
-        setItems(mappedItems);
-        setLoading(false);
-        
-        // Background OIC enrichment
-        enrichWithOic(mappedItems, setItems, isMounted);
-        
-      } catch (err) {
-        console.error('[EDN] Unexpected error:', err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Erreur inconnue');
-          setLoading(false);
-        }
-      }
-    };
-    
-    doFetch();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const refresh = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -97,8 +30,17 @@ export const useEdnItemsOptimized = () => {
         .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
         .order('item_code');
       
-      if (fetchError) throw new Error(fetchError.message);
-      if (!data || data.length === 0) throw new Error('Aucun item EDN trouvé');
+      if (fetchError) {
+        setError(fetchError.message);
+        setLoading(false);
+        return;
+      }
+      
+      if (!data || data.length === 0) {
+        setError('Aucun item EDN trouvé');
+        setLoading(false);
+        return;
+      }
       
       const mappedItems: EdnItemOptimized[] = data.map((item) => ({
         id: item.id,
@@ -114,12 +56,48 @@ export const useEdnItemsOptimized = () => {
       
       setItems(mappedItems);
       setLoading(false);
-      enrichWithOic(mappedItems, setItems, true);
+      
+      // Background OIC enrichment
+      const { data: oicData } = await supabase
+        .from('backup_oic_competences')
+        .select('item_parent,rang')
+        .not('objectif_id', 'is', null);
+
+      if (oicData) {
+        const countsMap = new Map<string, { rangA: number; rangB: number }>();
+        oicData.forEach((row) => {
+          const key = row.item_parent || '';
+          const existing = countsMap.get(key) || { rangA: 0, rangB: 0 };
+          if (row.rang === 'A') existing.rangA++;
+          else if (row.rang === 'B') existing.rangB++;
+          countsMap.set(key, existing);
+        });
+
+        setItems(prev => prev.map((item) => {
+          const itemNumber = item.item_code.replace('IC-', '');
+          const paddedNumber = itemNumber.padStart(3, '0');
+          
+          const counts = countsMap.get(paddedNumber) 
+            || countsMap.get(itemNumber) 
+            || countsMap.get(item.item_code)
+            || { rangA: 0, rangB: 0 };
+          
+          return {
+            ...item,
+            competences_count_rang_a: counts.rangA,
+            competences_count_rang_b: counts.rangB,
+          };
+        }));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const stats = useMemo(() => {
     const total = items.length;
@@ -145,56 +123,8 @@ export const useEdnItemsOptimized = () => {
     return { total, withRangA, withRangB, complete, withMusic, avgScore };
   }, [items]);
 
-  return { items, stats, loading, error, refresh };
+  return { items, stats, loading, error, refresh: fetchData };
 };
-
-// Separate function for OIC enrichment
-async function enrichWithOic(
-  currentItems: EdnItemOptimized[], 
-  setItems: React.Dispatch<React.SetStateAction<EdnItemOptimized[]>>,
-  isMounted: boolean
-) {
-  try {
-    const { data: oicData } = await supabase
-      .from('backup_oic_competences')
-      .select('item_parent,rang')
-      .not('objectif_id', 'is', null);
-
-    if (!oicData || !isMounted) return;
-
-    const countsMap = new Map<string, { rangA: number; rangB: number }>();
-    oicData.forEach((row) => {
-      const key = row.item_parent || '';
-      const existing = countsMap.get(key) || { rangA: 0, rangB: 0 };
-      if (row.rang === 'A') existing.rangA++;
-      else if (row.rang === 'B') existing.rangB++;
-      countsMap.set(key, existing);
-    });
-
-    const enrichedItems = currentItems.map((item) => {
-      const itemNumber = item.item_code.replace('IC-', '');
-      const paddedNumber = itemNumber.padStart(3, '0');
-      
-      const counts = countsMap.get(paddedNumber) 
-        || countsMap.get(itemNumber) 
-        || countsMap.get(item.item_code)
-        || { rangA: 0, rangB: 0 };
-      
-      return {
-        ...item,
-        competences_count_rang_a: counts.rangA,
-        competences_count_rang_b: counts.rangB,
-      };
-    });
-
-    if (isMounted) {
-      setItems(enrichedItems);
-      console.log('[EDN] OIC enrichment complete');
-    }
-  } catch (err) {
-    console.warn('[EDN] OIC enrichment failed:', err);
-  }
-}
 
 export const invalidateEdnCache = () => {
   // No-op for compatibility
