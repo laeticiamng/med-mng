@@ -223,11 +223,11 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               <div className="flex items-center gap-4">
                 <Badge variant="outline" className="gap-1">
                   <Flame className="h-3 w-3 text-warning" />
-                  {gamificationStats.currentStreak} jours
+                  {gamificationStats?.currentStreak ?? 0} jours
                 </Badge>
                 <Badge variant="outline" className="gap-1">
                   <Star className="h-3 w-3 text-primary" />
-                  Nv.{gamificationStats.level}
+                  Nv.{gamificationStats?.level ?? 1}
                 </Badge>
               </div>
             </div>

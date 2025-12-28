@@ -246,11 +246,11 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats.currentStreak}j
+                {stats?.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats.level}
+                Niv. {stats?.level ?? 1}
               </Badge>
             </div>
           )}
