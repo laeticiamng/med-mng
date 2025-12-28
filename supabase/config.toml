@@ -192,3 +192,6 @@ verify_jwt = false
 [functions.update-edn-unique-content]
 verify_jwt = false
 
+[functions.generate-lyrics-from-oic]
+verify_jwt = false
+
