@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
-import { supabase } from '@/integrations/supabase/client';
 
 interface OicCompetence {
   objectif_id: string;
@@ -14,6 +13,9 @@ interface TableauCompetencesOICWithRealDataProps {
   itemCode: string;
   rang: 'A' | 'B';
 }
+
+const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
 
 export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWithRealDataProps> = ({ 
   itemCode, 
@@ -35,24 +37,36 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     setLoading(true);
     setError(null);
 
-    supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule, description, rubrique')
-      .eq('item_parent', itemNumber)
-      .eq('rang', rang)
-      .order('objectif_id')
-      .then(result => {
-        console.log(`📊 TableauOIC Result:`, result);
+    // Use direct fetch instead of Supabase client
+    const url = `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${itemNumber}&rang=eq.${rang}&order=objectif_id`;
+    
+    fetch(url, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        console.log(`📡 TableauOIC Response status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        console.log(`📊 TableauOIC Result:`, data);
         
-        if (result.error) {
-          setError(result.error.message);
-          setLoading(false);
-          return;
+        if (Array.isArray(data)) {
+          const filtered = data.filter((c: any) => c.objectif_id && c.intitule) as OicCompetence[];
+          console.log(`✅ TableauOIC: ${filtered.length} compétences loaded`);
+          setCompetences(filtered);
+        } else {
+          console.error('❌ TableauOIC: Unexpected response format', data);
+          setError('Format de réponse inattendu');
         }
-
-        const data = (result.data || []).filter(c => c.objectif_id && c.intitule) as OicCompetence[];
-        console.log(`✅ TableauOIC: ${data.length} compétences loaded`);
-        setCompetences(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('❌ TableauOIC Fetch error:', err);
+        setError(err.message);
         setLoading(false);
       });
   }, [itemCode, rang]);
