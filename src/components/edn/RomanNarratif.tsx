@@ -5,13 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   BookOpen, ChevronLeft, ChevronRight, Volume2, 
-  VolumeX, Download, Share2, Bookmark, Eye, Flame, Star, Loader2
+  VolumeX, Download, Share2, Bookmark, BookmarkCheck, Eye, Flame, Star, Loader2, Pause
 } from 'lucide-react';
 import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface RomanNarratifProps {
   itemCode: string;
@@ -29,24 +30,44 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
+  const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [savedProgress, setSavedProgress] = useState<number | null>(null);
 
   // Charger les vraies compétences OIC
   const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
   const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
 
+  // Load saved progress from localStorage
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) loadStats(user.id);
+      
+      // Restore saved reading progress
+      const saved = localStorage.getItem(`roman-progress-${itemCode}`);
+      if (saved) {
+        const progress = JSON.parse(saved);
+        setSavedProgress(progress.chapter);
+        setIsBookmarked(true);
+      }
     };
     load();
-  }, [loadStats]);
+    
+    // Cleanup speech synthesis on unmount
+    return () => {
+      if (speechSynthRef.current) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [loadStats, itemCode]);
 
   useEffect(() => {
     if (!hasTrackedRef.current) {
@@ -58,6 +79,79 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
       });
     }
   }, [itemCode]);
+
+  // Handle Text-to-Speech
+  const toggleAudio = useCallback(() => {
+    if (!('speechSynthesis' in window)) {
+      toast.error('La synthèse vocale n\'est pas supportée par votre navigateur');
+      return;
+    }
+
+    if (isAudioPlaying) {
+      window.speechSynthesis.cancel();
+      setIsAudioPlaying(false);
+      setIsAudioEnabled(false);
+    } else {
+      const chapters = generateChapters();
+      const currentChap = chapters[currentChapter];
+      if (!currentChap) return;
+
+      const utterance = new SpeechSynthesisUtterance(currentChap.content);
+      utterance.lang = 'fr-FR';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      
+      // Find a French voice
+      const voices = window.speechSynthesis.getVoices();
+      const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
+      if (frenchVoice) utterance.voice = frenchVoice;
+
+      utterance.onend = () => {
+        setIsAudioPlaying(false);
+        setIsAudioEnabled(false);
+      };
+
+      utterance.onerror = () => {
+        setIsAudioPlaying(false);
+        setIsAudioEnabled(false);
+        toast.error('Erreur lors de la lecture audio');
+      };
+
+      speechSynthRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+      setIsAudioPlaying(true);
+      setIsAudioEnabled(true);
+      toast.success('Lecture audio démarrée');
+    }
+  }, [isAudioPlaying, currentChapter]);
+
+  // Handle bookmark
+  const handleBookmark = useCallback(() => {
+    const progressData = {
+      chapter: currentChapter,
+      timestamp: Date.now(),
+      itemCode
+    };
+    localStorage.setItem(`roman-progress-${itemCode}`, JSON.stringify(progressData));
+    setIsBookmarked(true);
+    setSavedProgress(currentChapter);
+    toast.success(`Marque-page ajouté au chapitre ${currentChapter + 1}`);
+    
+    logActivity({
+      activity_type: 'study',
+      count: 1,
+      metadata: { component: 'roman_narratif', action: 'bookmark', chapter: currentChapter, itemCode }
+    });
+  }, [currentChapter, itemCode, logActivity]);
+
+  // Restore from bookmark
+  const restoreFromBookmark = useCallback(() => {
+    if (savedProgress !== null) {
+      setCurrentChapter(savedProgress);
+      setReadingProgress((savedProgress / generateChapters().length) * 100);
+      toast.success(`Reprise au chapitre ${savedProgress + 1}`);
+    }
+  }, [savedProgress]);
 
   // Générer les chapitres basés sur les vraies compétences OIC
   const generateChapters = () => {
@@ -203,10 +297,11 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                onClick={toggleAudio}
                 className="text-background hover:bg-background/20"
+                title={isAudioPlaying ? 'Arrêter la lecture' : 'Lire le chapitre'}
               >
-                {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                {isAudioPlaying ? <Pause className="h-4 w-4" /> : isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -283,10 +378,21 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
             ))}
           </div>
           
-          <div className="flex gap-2 mt-6 pt-4 border-t">
-            <Button variant="outline" size="sm">
-              <Bookmark className="h-4 w-4 mr-1" />
-              Marque-page
+          <div className="flex gap-2 mt-6 pt-4 border-t flex-wrap">
+            {savedProgress !== null && savedProgress !== currentChapter && (
+              <Button variant="outline" size="sm" onClick={restoreFromBookmark} className="border-warning/30 text-warning hover:bg-warning/10">
+                <BookmarkCheck className="h-4 w-4 mr-1" />
+                Reprendre Ch.{savedProgress + 1}
+              </Button>
+            )}
+            <Button 
+              variant={isBookmarked ? "default" : "outline"} 
+              size="sm" 
+              onClick={handleBookmark}
+              className={isBookmarked ? "bg-success hover:bg-success/90" : ""}
+            >
+              {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-1" /> : <Bookmark className="h-4 w-4 mr-1" />}
+              {isBookmarked ? 'Enregistré' : 'Marque-page'}
             </Button>
             <Button 
               variant="outline" 

@@ -32,6 +32,14 @@ interface GeneratedQuestion {
 /**
  * Génère des questions de quiz à partir des compétences OIC réelles
  */
+const QUESTION_TEMPLATES = [
+  { template: 'definition', question: (comp: OicCompetence) => `Concernant "${comp.intitule}", quelle affirmation est correcte ?` },
+  { template: 'objectif', question: (comp: OicCompetence) => `L'objectif ${comp.objectif_id} correspond à :` },
+  { template: 'rubrique', question: (comp: OicCompetence) => `Dans quelle catégorie se situe la compétence "${comp.objectif_id}" ?` },
+  { template: 'identification', question: (comp: OicCompetence) => `Identifiez la compétence UNESS officielle :` },
+  { template: 'association', question: (comp: OicCompetence) => `Quelle compétence est associée à l'item parent ${comp.item_parent} ?` },
+];
+
 const generateQuestionsFromCompetences = (
   competences: OicCompetence[],
   maxQuestions: number = 10
@@ -42,30 +50,43 @@ const generateQuestionsFromCompetences = (
   const selected = shuffled.slice(0, Math.min(maxQuestions, competences.length));
 
   return selected.map((comp, index) => {
-    // Générer des distracteurs basés sur d'autres compétences
+    // Sélectionner un template de question aléatoire
+    const templateIndex = index % QUESTION_TEMPLATES.length;
+    const template = QUESTION_TEMPLATES[templateIndex];
+    
+    // Générer des distracteurs variés basés sur d'autres compétences
     const otherComps = competences.filter(c => c.objectif_id !== comp.objectif_id);
     const distractors = otherComps
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
-      .map(c => c.intitule);
+      .map(c => {
+        // Varier le type de distracteur selon le template
+        if (template.template === 'rubrique' && c.rubrique) return c.rubrique;
+        if (template.template === 'definition' && c.description) return c.description.substring(0, 100) + '...';
+        return c.intitule;
+      });
 
-    // S'assurer qu'on a 4 options
+    // S'assurer qu'on a 4 options uniques
     while (distractors.length < 3) {
-      distractors.push(`Option ${distractors.length + 2}`);
+      distractors.push(`Option incorrecte ${distractors.length + 1}`);
     }
 
+    // Générer la bonne réponse selon le template
+    let correctAnswer = comp.intitule;
+    if (template.template === 'rubrique' && comp.rubrique) correctAnswer = comp.rubrique;
+    if (template.template === 'definition' && comp.description) correctAnswer = comp.description.substring(0, 100) + '...';
+    
     // Mélanger les options avec la bonne réponse
-    const correctAnswer = comp.intitule;
-    const allOptions = [correctAnswer, ...distractors];
+    const allOptions = [correctAnswer, ...distractors.filter(d => d !== correctAnswer)].slice(0, 4);
     const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
     const correctIndex = shuffledOptions.indexOf(correctAnswer);
 
     return {
       id: `q-${index}-${comp.objectif_id}`,
-      question: `Quelle est la compétence correspondant à l'objectif ${comp.objectif_id} ?`,
+      question: template.question(comp),
       options: shuffledOptions,
-      correctIndex,
-      explanation: comp.description || comp.intitule,
+      correctIndex: correctIndex >= 0 ? correctIndex : 0,
+      explanation: `${comp.objectif_id}: ${comp.intitule}${comp.description ? `\n\n${comp.description}` : ''}`,
       competence: comp,
     };
   });

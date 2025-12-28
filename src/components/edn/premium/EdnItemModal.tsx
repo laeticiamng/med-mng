@@ -20,6 +20,7 @@ import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
+import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
 
 interface EdnItemModalProps {
@@ -45,6 +46,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
 
+  // Charger les vraies compétences OIC depuis la base de données
+  const { competences: oicCompetencesA, loading: loadingA } = useOicCompetences(finalItem?.item_code || '', 'A');
+  const { competences: oicCompetencesB, loading: loadingB } = useOicCompetences(finalItem?.item_code || '', 'B');
+
   // Mise à jour du tab actif quand initialTab change
   useEffect(() => {
     if (initialTab && isOpen) {
@@ -52,18 +57,34 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
   }, [initialTab, isOpen]);
 
-  // Les données OIC sont déjà dans finalItem grâce au fetch optimisé
+  // Memorize last tab in localStorage
+  useEffect(() => {
+    if (isOpen && finalItem?.item_code) {
+      localStorage.setItem(`modal-tab-${finalItem.item_code}`, activeTab);
+    }
+  }, [activeTab, isOpen, finalItem?.item_code]);
+
+  // Restore last tab on open
+  useEffect(() => {
+    if (isOpen && finalItem?.item_code && !initialTab) {
+      const savedTab = localStorage.getItem(`modal-tab-${finalItem.item_code}`);
+      if (savedTab) {
+        setActiveTab(savedTab);
+      }
+    }
+  }, [isOpen, finalItem?.item_code, initialTab]);
+
+  // Les données OIC sont maintenant chargées via useOicCompetences
   useEffect(() => {
     if (finalItem && isOpen) {
-      // Utiliser les données déjà présentes dans l'item
       setCompleteItemData({
-        competences_oic_rang_a: finalItem.competences_oic_rang_a,
-        competences_oic_rang_b: finalItem.competences_oic_rang_b,
+        competences_oic_rang_a: oicCompetencesA,
+        competences_oic_rang_b: oicCompetencesB,
         tableau_rang_a: finalItem.tableau_rang_a,
         tableau_rang_b: finalItem.tableau_rang_b
       });
     }
-  }, [finalItem, isOpen]);
+  }, [finalItem, isOpen, oicCompetencesA, oicCompetencesB]);
 
   if (!finalItem) return null;
 
@@ -261,40 +282,65 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     </CardContent>
                   </Card>
 
-                  {/* Données OIC complètes */}
-                  {completeItemData && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Compétences UNESS (OIC)</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <h4 className="font-semibold mb-2">Compétences OIC Rang A</h4>
-                              <p className="text-sm text-muted-foreground">
-                              {completeItemData.competences_oic_rang_a ? 
-                                Array.isArray(completeItemData.competences_oic_rang_a) ?
-                                  `${completeItemData.competences_oic_rang_a.length} compétences` :
-                                  'Données disponibles' :
-                                'Non disponible'
-                              }
-                            </p>
-                          </div>
-                          <div>
-                            <h4 className="font-semibold mb-2">Compétences OIC Rang B</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {completeItemData.competences_oic_rang_b ? 
-                                Array.isArray(completeItemData.competences_oic_rang_b) ?
-                                  `${completeItemData.competences_oic_rang_b.length} compétences` :
-                                  'Données disponibles' :
-                                'Non disponible'
-                              }
-                            </p>
-                          </div>
+                  {/* Données OIC complètes avec détails */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <span>Compétences UNESS (OIC)</span>
+                        {(loadingA || loadingB) && (
+                          <span className="text-xs text-muted-foreground animate-pulse">Chargement...</span>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                          <h4 className="font-semibold mb-2 text-primary flex items-center gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            Rang A - {oicCompetencesA.length} compétences
+                          </h4>
+                          {oicCompetencesA.length > 0 ? (
+                            <div className="space-y-1 max-h-40 overflow-y-auto">
+                              {oicCompetencesA.slice(0, 5).map((comp, idx) => (
+                                <div key={idx} className="text-xs p-1.5 bg-background/50 rounded">
+                                  <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule?.substring(0, 60)}...
+                                </div>
+                              ))}
+                              {oicCompetencesA.length > 5 && (
+                                <p className="text-xs text-muted-foreground">+{oicCompetencesA.length - 5} autres compétences</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">{loadingA ? 'Chargement...' : 'Aucune compétence'}</p>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                        <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                          <h4 className="font-semibold mb-2 text-accent-foreground flex items-center gap-2">
+                            <Brain className="h-4 w-4" />
+                            Rang B - {oicCompetencesB.length} compétences
+                          </h4>
+                          {oicCompetencesB.length > 0 ? (
+                            <div className="space-y-1 max-h-40 overflow-y-auto">
+                              {oicCompetencesB.slice(0, 5).map((comp, idx) => (
+                                <div key={idx} className="text-xs p-1.5 bg-background/50 rounded">
+                                  <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule?.substring(0, 60)}...
+                                </div>
+                              ))}
+                              {oicCompetencesB.length > 5 && (
+                                <p className="text-xs text-muted-foreground">+{oicCompetencesB.length - 5} autres compétences</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">{loadingB ? 'Chargement...' : 'Aucune compétence'}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-center p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
+                        <span className="font-bold text-lg">{oicCompetencesA.length + oicCompetencesB.length}</span>
+                        <span className="text-muted-foreground ml-2">compétences UNESS officielles</span>
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Validation complète des compétences */}
                   <CompetenceValidation item={finalItem} />
