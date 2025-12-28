@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Trophy, Target, Clock, Loader2, TrendingDown, Minus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, Trophy, Target, Clock, Loader2, TrendingDown, Minus, FileDown } from 'lucide-react';
 import { useQuizHistory } from '@/hooks/useQuizHistory';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import jsPDF from 'jspdf';
 
 interface QuizHistorySummaryProps {
   itemCode: string;
@@ -13,6 +15,55 @@ interface QuizHistorySummaryProps {
 
 export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode }) => {
   const { summary, loading } = useQuizHistory(itemCode);
+
+  const exportToPDF = useCallback(() => {
+    if (!summary) return;
+    
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFontSize(18);
+    doc.setTextColor(59, 130, 246);
+    doc.text(`Historique Quiz - ${itemCode}`, pageWidth / 2, 20, { align: 'center' });
+    
+    // Date
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Généré le ${format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr })}`, pageWidth / 2, 28, { align: 'center' });
+    
+    // Stats
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text('Statistiques', 20, 45);
+    
+    doc.setFontSize(12);
+    doc.text(`Meilleur score: ${Math.round(summary.bestScore)}%`, 25, 55);
+    doc.text(`Score moyen: ${Math.round(summary.averageScore)}%`, 25, 63);
+    doc.text(`Nombre d'essais: ${summary.totalAttempts}`, 25, 71);
+    
+    if (summary.lastAttempt) {
+      doc.text(`Dernier essai: ${format(new Date(summary.lastAttempt), 'dd/MM/yyyy à HH:mm', { locale: fr })}`, 25, 79);
+    }
+    
+    // Recent scores
+    if (summary.recentScores.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Scores récents', 20, 95);
+      
+      doc.setFontSize(11);
+      summary.recentScores.slice(0, 10).forEach((score, idx) => {
+        doc.text(`Essai ${idx + 1}: ${Math.round(score)}%`, 25, 105 + (idx * 8));
+      });
+    }
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text('EDN Complete - Plateforme de révision médicale', pageWidth / 2, 280, { align: 'center' });
+    
+    doc.save(`quiz-history-${itemCode}-${format(new Date(), 'yyyyMMdd')}.pdf`);
+  }, [summary, itemCode]);
 
   if (loading) {
     return (
@@ -146,6 +197,17 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
             Dernier essai: {formatDistanceToNow(new Date(summary.lastAttempt), { addSuffix: true, locale: fr })}
           </p>
         )}
+        
+        {/* Export PDF Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportToPDF}
+          className="w-full mt-3 gap-2"
+        >
+          <FileDown className="h-4 w-4" />
+          Exporter PDF
+        </Button>
       </CardContent>
     </Card>
   );

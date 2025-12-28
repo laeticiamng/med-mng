@@ -16,6 +16,9 @@ interface WeakItem {
   item_code: string;
   avg_score: number;
   attempts: number;
+  recent_score?: number;
+  last_attempt?: string;
+  priority?: number;
 }
 
 export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision }) => {
@@ -31,35 +34,50 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
       if (user) {
         loadStats(user.id);
         
-        // Fetch weak items (lowest scores)
+        // Fetch weak items (lowest scores) with intelligent analysis
         const { data: quizData } = await supabase
           .from('quiz_results')
-          .select('item_code, score')
-          .eq('user_id', user.id);
+          .select('item_code, score, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(100);
         
         if (quizData && quizData.length > 0) {
           setTotalQuizzes(quizData.length);
           
-          // Group by item and calculate averages
-          const itemScores: Record<string, { total: number; count: number }> = {};
-          quizData.forEach(q => {
+          // Group by item and calculate weighted averages (recent scores weighted higher)
+          const itemScores: Record<string, { total: number; count: number; recentScore?: number; lastAttempt?: string }> = {};
+          quizData.forEach((q, idx) => {
             if (!itemScores[q.item_code]) {
               itemScores[q.item_code] = { total: 0, count: 0 };
             }
-            itemScores[q.item_code].total += q.score;
-            itemScores[q.item_code].count += 1;
+            // Weight recent scores higher
+            const weight = Math.max(0.5, 1 - (idx * 0.02));
+            itemScores[q.item_code].total += q.score * weight;
+            itemScores[q.item_code].count += weight;
+            
+            // Track most recent score
+            if (!itemScores[q.item_code].recentScore) {
+              itemScores[q.item_code].recentScore = q.score;
+              itemScores[q.item_code].lastAttempt = q.created_at;
+            }
           });
           
-          // Find items with avg < 70%
+          // Find items with avg < 70% OR recent score < 60% (smart prioritization)
           const weak = Object.entries(itemScores)
             .map(([item_code, data]) => ({
               item_code,
               avg_score: Math.round(data.total / data.count),
-              attempts: data.count
+              attempts: Math.round(data.count),
+              recent_score: data.recentScore,
+              last_attempt: data.lastAttempt,
+              // Priority score: lower avg + declining trend = higher priority
+              priority: (100 - (data.total / data.count)) + 
+                (data.recentScore && data.recentScore < (data.total / data.count) ? 10 : 0)
             }))
-            .filter(item => item.avg_score < 70)
-            .sort((a, b) => a.avg_score - b.avg_score)
-            .slice(0, 3);
+            .filter(item => item.avg_score < 70 || (item.recent_score && item.recent_score < 60))
+            .sort((a, b) => b.priority - a.priority)
+            .slice(0, 5);
           
           setWeakItems(weak);
         }
@@ -166,13 +184,13 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
         </p>
       </div>
 
-      {/* Personalized Weak Items Alert */}
+      {/* Personalized Weak Items Alert with smart analysis */}
       {weakItems.length > 0 && (
         <Card className="border-warning/30 bg-warning/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2 text-warning">
               <AlertTriangle className="h-4 w-4" />
-              Items à réviser en priorité
+              Items à réviser en priorité ({weakItems.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -181,17 +199,25 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-warning" />
                   <span className="font-medium">{item.item_code}</span>
+                  {item.recent_score && item.recent_score < item.avg_score && (
+                    <Badge variant="destructive" className="text-xs">
+                      ↓ En baisse
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Progress value={item.avg_score} className="w-20 h-2" />
                   <Badge variant="outline" className="text-xs">
                     {item.avg_score}%
                   </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    ({item.attempts}x)
+                  </span>
                 </div>
               </div>
             ))}
             <p className="text-xs text-muted-foreground pt-1">
-              Basé sur vos {totalQuizzes} quiz effectués
+              Basé sur vos {totalQuizzes} quiz effectués (pondération récence)
             </p>
           </CardContent>
         </Card>

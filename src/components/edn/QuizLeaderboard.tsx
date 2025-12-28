@@ -21,14 +21,18 @@ interface LeaderboardEntry {
 interface QuizLeaderboardProps {
   itemCode?: string;
   limit?: number;
+  showItemFilter?: boolean;
 }
 
 type TimePeriod = 'week' | 'month' | 'all';
 
 export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({ 
-  itemCode,
-  limit = 10 
+  itemCode: initialItemCode,
+  limit = 10,
+  showItemFilter = true
 }) => {
+  const [itemCode, setItemCode] = useState<string | undefined>(initialItemCode);
+  const [availableItems, setAvailableItems] = useState<string[]>([]);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [allEntries, setAllEntries] = useState<LeaderboardEntry[]>([]);
   const [userStats, setUserStats] = useState<{ rank: number; avgScore: number; total: number } | null>(null);
@@ -36,6 +40,22 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Fetch available items for filter
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data } = await supabase
+        .from('quiz_results')
+        .select('item_code')
+        .order('item_code');
+      
+      if (data) {
+        const uniqueItems = [...new Set(data.map(d => d.item_code))].sort();
+        setAvailableItems(uniqueItems);
+      }
+    };
+    if (showItemFilter) fetchItems();
+  }, [showItemFilter]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -204,6 +224,21 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
               <SelectItem value="all">Tout le temps</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Item Filter */}
+          {showItemFilter && availableItems.length > 1 && (
+            <Select value={itemCode || 'all'} onValueChange={(v) => { setItemCode(v === 'all' ? undefined : v); setCurrentPage(1); }}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Tous les items" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                {availableItems.map(item => (
+                  <SelectItem key={item} value={item}>{item}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
