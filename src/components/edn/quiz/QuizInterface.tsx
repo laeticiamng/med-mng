@@ -131,8 +131,8 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
           correct_answers: quizResults.correctAnswers,
           wrong_answers: quizResults.wrongAnswers,
           time_spent: quizResults.timeSpent,
-          performance: quizResults.performance,
-          answers: quizResults.answers
+          performance: JSON.stringify(quizResults.performance),
+          answers: JSON.stringify(quizResults.answers)
         });
       }
     } catch (err) {

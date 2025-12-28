@@ -243,6 +243,8 @@ export const AudioPlayer = ({
                 variant={playbackRate === rate ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onPlaybackRateChange(rate)}
+                aria-label={`Vitesse ${rate}x`}
+                aria-pressed={playbackRate === rate}
                 className={`h-6 px-2 text-xs ${playbackRate === rate ? 'bg-warning text-warning-foreground' : 'text-warning hover:bg-warning/10'}`}
               >
                 {rate}x

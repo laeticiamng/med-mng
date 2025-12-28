@@ -198,11 +198,12 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
             {weakItems.map((item) => (
               <div 
                 key={item.item_code} 
-                className={`flex items-center justify-between p-2 bg-background rounded-lg ${onOpenItem ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
+                className={`flex items-center justify-between p-2 bg-background rounded-lg ${onOpenItem ? 'cursor-pointer hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary' : ''}`}
                 onClick={() => onOpenItem?.(item.item_code)}
                 role={onOpenItem ? 'button' : undefined}
                 tabIndex={onOpenItem ? 0 : undefined}
-                onKeyDown={(e) => e.key === 'Enter' && onOpenItem?.(item.item_code)}
+                aria-label={onOpenItem ? `Ouvrir ${item.item_code} - Score moyen: ${item.avg_score}%` : undefined}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onOpenItem?.(item.item_code)}
               >
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-warning" />

@@ -63,6 +63,15 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       setIsTTSPlaying(true);
     }
   }, [isTTSPlaying, paroles, paroles_rang_a, paroles_rang_b]);
+  
+  // Cleanup TTS on unmount
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   // Load existing music generation count and feedback
   useEffect(() => {

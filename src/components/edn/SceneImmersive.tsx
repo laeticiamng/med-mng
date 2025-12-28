@@ -163,7 +163,7 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
         currentWordIndex={currentWordIndex}
         isAnimating={isAnimating}
         effet={sceneData.effet}
-        context={sceneData.context}
+        context={sceneData.context || sceneData.description}
       />
 
       <SceneConclusion 

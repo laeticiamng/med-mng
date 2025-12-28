@@ -134,15 +134,21 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Heatmap grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {activityData.map((day, idx) => (
-            <div
-              key={idx}
-              className={`aspect-square rounded-sm ${getIntensity(day.count)} transition-colors`}
-              title={`${day.date}: ${day.count} quiz`}
-            />
-          ))}
-        </div>
+        {totalActivity === 0 ? (
+          <div className="text-center py-4 text-muted-foreground text-sm">
+            Aucune activité sur cette période. Commencez à réviser !
+          </div>
+        ) : (
+          <div className="grid grid-cols-7 gap-1">
+            {activityData.map((day, idx) => (
+              <div
+                key={idx}
+                className={`aspect-square rounded-sm ${getIntensity(day.count)} transition-colors`}
+                title={`${day.date}: ${day.count} activités`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Legend */}
         <div className="flex items-center justify-between text-xs">
