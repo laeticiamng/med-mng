@@ -304,8 +304,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       setPointsAwarded(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showResults, pointsAwarded, score, allQuestions.length, userId]);
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId, startTime, addPoints, logActivity, itemCode, itemTitle, unlockBadge, toast, onQuizFinished]);
 
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;

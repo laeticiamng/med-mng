@@ -61,8 +61,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     };
     
     loadBandeDessinee();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemData.item_code]);
+  }, [itemData.item_code, logActivity, addPoints, itemData]);
 
   // Images médicales Unsplash variées et valides
   const MEDICAL_IMAGES = [

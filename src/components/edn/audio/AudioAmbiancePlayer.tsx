@@ -89,8 +89,7 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
         audioRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ambianceUrl]);
+  }, [ambianceUrl, ambianceData.fallback, volume]);
 
   useEffect(() => {
     if (audioRef.current) {

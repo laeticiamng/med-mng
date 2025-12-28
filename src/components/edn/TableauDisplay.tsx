@@ -54,8 +54,7 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rang]);
+  }, [rang, loadStats, logActivity, addPoints]);
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
       <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>

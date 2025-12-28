@@ -56,8 +56,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
         metadata: { component: 'competences_badges', action: 'view' }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [logActivity]);
   
   const getCompetencesCount = (rang: 'A' | 'B') => {
     // 1. Priorité: utiliser les compteurs pré-calculés (plus rapide)
