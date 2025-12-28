@@ -1,6 +1,6 @@
 
-import { useEffect, useState, useRef } from 'react';
-import { SceneImmersiveProps } from './scene/sceneTypes';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { SceneImmersiveProps, SceneData, SceneCharacter } from './scene/sceneTypes';
 import { getUniqueSpectacularTheme } from './scene/sceneThemes';
 import { SceneBackground } from './scene/SceneBackground';
 import { SceneHeader } from './scene/SceneHeader';
@@ -23,14 +23,14 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
   const [isPaused, setIsPaused] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
 
+  const loadUserStats = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) loadStats(user.id);
+  }, [loadStats]);
+
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadStats(user.id);
-    };
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    loadUserStats();
+  }, [loadUserStats]);
 
   useEffect(() => {
     const trackView = async () => {
@@ -49,26 +49,28 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       }
     };
     trackView();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCode]);
+  }, [itemCode, logActivity, addPoints]);
 
-  // Contenu personnalisé basé sur les vraies données de l'item (avec cast pour permettre propriétés additionnelles)
-  const rawData = data as any;
+  // Contenu personnalisé basé sur les vraies données de l'item
+  const getMotsCles = (): string[] => {
+    if (data.mots_cles && data.mots_cles.length > 0) return data.mots_cles;
+    if (data.characters) return data.characters.map((c: SceneCharacter) => c.role);
+    if (data.keywords) return data.keywords;
+    return ["Diagnostic", "Traitement", "Patient", "Expertise"];
+  };
+
   const sceneData = {
-    description: rawData.description || rawData.scenario || 
+    description: data.description || data.scenario || 
       `Explorez ${itemCode} à travers cette scène médicale immersive.`,
-    mots_cles: rawData.mots_cles || 
-      (rawData.characters ? rawData.characters.map((c: any) => c.role) : 
-      rawData.keywords || ["Diagnostic", "Traitement", "Patient", "Expertise"]),
-    effet: rawData.effet || rawData.effect ||
-      (rawData.setting ? `Environnement: ${rawData.setting}` : 
+    mots_cles: getMotsCles(),
+    effet: data.effet || data.effect ||
+      (data.setting ? `Environnement: ${data.setting}` : 
       `Maîtrisez les compétences essentielles de ${itemCode}`),
-    setting: rawData.setting || rawData.lieu || "Cabinet médical",
-    characters: rawData.characters || rawData.personnages,
-    // Enriched data usage
-    objective: rawData.objective || rawData.objectif,
-    context: rawData.context || rawData.contexte,
-    conclusion: rawData.conclusion || rawData.resolution
+    setting: data.setting || data.lieu || "Cabinet médical",
+    characters: data.characters || data.personnages,
+    objective: data.objective || data.objectif,
+    context: data.context || data.contexte,
+    conclusion: data.conclusion || data.resolution
   };
 
   useEffect(() => {

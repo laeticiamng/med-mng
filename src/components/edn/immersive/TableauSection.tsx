@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -6,8 +6,30 @@ import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Flame, Star } from 'lucide-react';
 
+interface TableauConcept {
+  competence_id?: string;
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  cas?: string;
+  piege?: string;
+  ecueil?: string;
+  application?: string;
+  technique?: string;
+}
+
+interface TableauSectionData {
+  title?: string;
+  concepts?: TableauConcept[];
+}
+
+interface TableauData {
+  sections?: TableauSectionData[];
+  title?: string;
+}
+
 interface TableauSectionProps {
-  data: any;
+  data: TableauData | null;
   title: string;
   type: 'rang_a' | 'rang_b';
 }
@@ -17,14 +39,14 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
 
+  const loadUserStats = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) loadStats(user.id);
+  }, [loadStats]);
+
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadStats(user.id);
-    };
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    loadUserStats();
+  }, [loadUserStats]);
   
   useEffect(() => {
     const track = async () => {
@@ -43,8 +65,7 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
       }
     };
     track();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, type, title]);
+  }, [data, type, title, logActivity, addPoints]);
 
   if (!data) {
     return (
@@ -83,7 +104,7 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {sections.map((section: any, sectionIndex: number) => (
+        {sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="space-y-4">
             {section.title && (
               <h3 className="font-semibold text-lg mb-3 text-primary">
@@ -92,7 +113,7 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
             )}
             
             {/* Afficher les compétences de la section */}
-            {section.concepts && section.concepts.map((concept: any, conceptIndex: number) => (
+            {section.concepts && section.concepts.map((concept, conceptIndex) => (
               <div key={`${sectionIndex}-${conceptIndex}`} className="p-4 bg-muted/50 rounded-lg border-l-4 border-primary">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="outline" className="text-xs">

@@ -5,9 +5,37 @@ import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
 import { generateLignesRangBIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+interface ConceptData {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface SectionData {
+  concepts?: ConceptData[];
+}
+
+interface TableauData {
+  sections?: SectionData[];
+  theme?: string;
+}
+
+interface ColonneConfig {
+  nom: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+  icone?: string;
+}
+
 interface TableauRangBIC4Props {
   data: {
-    tableau_rang_b?: any;
+    tableau_rang_b?: TableauData;
     title?: string;
     item_code?: string;
   };
@@ -17,7 +45,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [processedData, setProcessedData] = useState<{
     lignesEnrichies: string[][];
-    colonnesUtiles: any[];
+    colonnesUtiles: ColonneConfig[];
     theme: string;
   } | null>(null);
   const isMobile = useIsMobile();
@@ -28,8 +56,8 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
     if (tableauData && tableauData.sections) {
       // Convertir les sections en lignes pour l'affichage
       const lignes: string[][] = [];
-      tableauData.sections.forEach((section: any) => {
-        section.concepts?.forEach((concept: any) => {
+      tableauData.sections.forEach((section) => {
+        section.concepts?.forEach((concept) => {
           lignes.push([
             concept.concept || '',
             concept.definition || '',

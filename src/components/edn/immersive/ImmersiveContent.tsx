@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
@@ -10,8 +10,32 @@ import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Flame, Star, Trophy } from 'lucide-react';
 
+interface SceneCharacter {
+  name: string;
+  role: string;
+  description: string;
+}
+
+interface ImmersiveItem {
+  item_code: string;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  pitch_intro?: string;
+  scene_immersive?: {
+    setting?: string;
+    scenario?: string;
+    characters?: SceneCharacter[];
+  };
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+  paroles_musicales?: string[];
+  interaction_config?: Record<string, unknown>;
+  quiz_questions?: unknown[];
+}
+
 interface ImmersiveContentProps {
-  item: any;
+  item: ImmersiveItem;
   currentSection: number;
   sections: string[];
 }
@@ -30,14 +54,14 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
     hasTrackedRef.current = false;
   }, [item.item_code]);
 
+  const loadUserStats = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) loadStats(user.id);
+  }, [loadStats]);
+
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadStats(user.id);
-    };
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    loadUserStats();
+  }, [loadUserStats]);
 
   useEffect(() => {
     logActivity({
@@ -62,8 +86,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       }
     };
     awardPoints();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, item.item_code]);
+  }, [currentSection, item.item_code, sections, logActivity, addPoints]);
 
   const renderSection = () => {
     const sectionName = sections[currentSection];
@@ -96,7 +119,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Personnages :</h4>
                     <div className="space-y-2">
-                      {item.scene_immersive.characters.map((char: any, idx: number) => (
+                      {item.scene_immersive.characters.map((char, idx) => (
                         <div key={idx} className="flex items-center gap-2">
                           <Badge variant="outline">{char.role}</Badge>
                           <span>{char.name} - {char.description}</span>

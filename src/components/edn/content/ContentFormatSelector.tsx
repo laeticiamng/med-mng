@@ -19,8 +19,8 @@ interface ContentFormatSelectorProps {
   itemData: {
     title: string;
     item_code: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: Record<string, unknown>;
+    tableau_rang_b?: Record<string, unknown>;
   };
   onFormatSelect: (format: ContentFormat) => void;
   selectedFormat: string | null;

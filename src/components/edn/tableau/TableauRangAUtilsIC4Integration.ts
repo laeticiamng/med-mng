@@ -1,17 +1,62 @@
 
+interface TableauDataIC4 {
+  tableau_rang_a?: {
+    sections?: Array<{
+      concepts?: Array<{
+        concept?: string;
+        definition?: string;
+        exemple?: string;
+        piege?: string;
+        mnemo?: string;
+        application?: string;
+        vigilance?: string;
+      }>;
+    }>;
+  };
+  tableau_rang_b?: {
+    sections?: Array<{
+      concepts?: Array<{
+        concept?: string;
+        analyse?: string;
+        cas?: string;
+        ecueil?: string;
+        technique?: string;
+        maitrise?: string;
+        excellence?: string;
+      }>;
+    }>;
+  };
+  item_code?: string;
+  title?: string;
+  slug?: string;
+}
+
+interface ColonneConfigIC4 {
+  nom: string;
+  description: string;
+}
+
+interface ProcessedTableauResultIC4 {
+  lignesEnrichies: string[][];
+  colonnesUtiles: ColonneConfigIC4[];
+  theme: string;
+  isRangB: boolean;
+}
+
 // Utilitaires pour l'intégration des données IC-4 avec structure complexe
-export const isIC4Item = (data: any): boolean => {
-  return data?.item_code === 'IC-4' || 
-         data?.title?.includes('Qualité et sécurité des soins') ||
-         data?.slug === 'ic4-qualite-securite-soins';
+export const isIC4Item = (data: TableauDataIC4 | null): boolean => {
+  if (!data) return false;
+  return data.item_code === 'IC-4' || 
+         data.title?.includes('Qualité et sécurité des soins') === true ||
+         data.slug === 'ic4-qualite-securite-soins';
 };
 
-export const processTableauRangAIC4 = (data: any) => {
+export const processTableauRangAIC4 = (data: TableauDataIC4): ProcessedTableauResultIC4 => {
   // Extraire les données des concepts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as TableauDataIC4['tableau_rang_a'])?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneConfigIC4[] = [
     { nom: 'Concept', description: 'Notion clé à maîtriser' },
     { nom: 'Définition', description: 'Définition précise et complète' },
     { nom: 'Exemple', description: 'Illustration pratique' },
@@ -21,7 +66,7 @@ export const processTableauRangAIC4 = (data: any) => {
     { nom: 'Vigilance', description: 'Point de vigilance' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -41,12 +86,12 @@ export const processTableauRangAIC4 = (data: any) => {
   };
 };
 
-export const processTableauRangBIC4 = (data: any) => {
+export const processTableauRangBIC4 = (data: TableauDataIC4): ProcessedTableauResultIC4 => {
   // Extraire les données des concepts experts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_b || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as TableauDataIC4['tableau_rang_b'])?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneConfigIC4[] = [
     { nom: 'Concept', description: 'Expertise avancée' },
     { nom: 'Analyse', description: 'Analyse approfondie' },
     { nom: 'Cas complexe', description: 'Situation concrète' },
@@ -56,7 +101,7 @@ export const processTableauRangBIC4 = (data: any) => {
     { nom: 'Excellence', description: 'Niveau d\'excellence' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept) => [
     concept.concept || '',
     concept.analyse || '',
     concept.cas || '',
