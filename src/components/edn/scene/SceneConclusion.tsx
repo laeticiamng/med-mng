@@ -20,7 +20,7 @@ export const SceneConclusion = ({ theme, conclusion, objective }: SceneConclusio
           </div>
         )}
         
-        <div className="text-6xl mb-6">🚀</div>
+        <div className="text-6xl mb-6" role="img" aria-label="Fusée">🚀</div>
         
         {/* Conclusion personnalisée ou par défaut */}
         <p className={`text-2xl ${theme.accent} italic leading-relaxed font-medium`}>

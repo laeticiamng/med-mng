@@ -4,11 +4,11 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useQuizHistory } from '@/hooks/useQuizHistory';
 
 interface QuizProgressChartProps {
-  itemCode: string;
+  itemCode?: string;
 }
 
 export const QuizProgressChart: React.FC<QuizProgressChartProps> = ({ itemCode }) => {
-  const { history, loading } = useQuizHistory(itemCode);
+  const { history, loading } = useQuizHistory(itemCode || '');
 
   if (loading) {
     return (
@@ -23,7 +23,13 @@ export const QuizProgressChart: React.FC<QuizProgressChartProps> = ({ itemCode }
   }
 
   if (!history || history.length === 0) {
-    return null;
+    return (
+      <Card className="border-muted">
+        <CardContent className="py-6 text-center text-muted-foreground text-sm">
+          Aucune progression enregistrée
+        </CardContent>
+      </Card>
+    );
   }
 
   // Calculate trend

@@ -19,7 +19,8 @@ export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
 
   useEffect(() => {
     logActivity({ activity_type: 'study', metadata: { action: 'view_bande_dessinee', itemCode: itemData.item_code, slug: itemData.slug } });
-  }, [logActivity, itemData.item_code, itemData.slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemData.item_code, itemData.slug]);
 
   // Si c'est l'item sur les valeurs professionnelles, utiliser le composant spécialisé
   if (itemData.slug === 'valeurs-professionnelles-medecin') {

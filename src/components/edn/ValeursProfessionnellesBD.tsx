@@ -46,6 +46,7 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
       }
     };
     track();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemData.title]);
 
   // Données des vignettes spécifiques aux valeurs professionnelles
@@ -97,12 +98,12 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
             <BookOpen className="h-4 w-4 text-primary" />
             <div className="flex items-center gap-1 text-warning">
               <Flame className="h-4 w-4" />
-              <span className="font-bold">{stats.currentStreak}j</span>
+              <span className="font-bold">{stats.currentStreak ?? 0}j</span>
             </div>
             <div className="w-px h-4 bg-border" />
             <div className="flex items-center gap-1 text-primary">
               <Star className="h-4 w-4" />
-              <span className="font-bold">Nv.{stats.level}</span>
+              <span className="font-bold">Nv.{stats.level ?? 1}</span>
             </div>
           </div>
         )}

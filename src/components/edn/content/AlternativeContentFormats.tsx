@@ -89,7 +89,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
   };
 
   const getFormatLabel = (format: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
       'novel': 'Roman médical',
       'podcast': 'Script podcast',
       'video': 'Script vidéo',

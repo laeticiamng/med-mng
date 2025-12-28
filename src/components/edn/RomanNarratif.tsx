@@ -78,6 +78,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
         metadata: { component: 'roman_narratif', action: 'view', itemCode }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemCode]);
 
   // Speech rate state
