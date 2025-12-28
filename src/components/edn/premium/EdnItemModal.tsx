@@ -21,6 +21,9 @@ import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
 import { AudioAmbiancePlayer } from "@/components/edn/audio/AudioAmbiancePlayer";
 import { EdnItemExport } from "@/components/edn/export/EdnItemExport";
+import { PersonalNotes } from "@/components/edn/PersonalNotes";
+import { QuizLeaderboard } from "@/components/edn/QuizLeaderboard";
+import { SocialShare } from "@/components/social/SocialShare";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
@@ -385,6 +388,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     parolesRangB={finalItem.paroles_rang_b}
                   />
                   
+                  {/* Personal Notes */}
+                  <PersonalNotes itemCode={finalItem.item_code} />
+                  
                   {/* Badges de compétences */}
                   <CompetencesBadges item={finalItem} />
                 </div>
@@ -496,15 +502,29 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 )}
               </TabsContent>
 
-              {/* Quiz */}
               {/* Quiz - Toujours affiché */}
-              <TabsContent value="quiz" className="mt-0 p-6">
+              <TabsContent value="quiz" className="mt-0 p-6 space-y-6">
                 {(completeItemData?.quiz_questions || finalItem.quiz_questions) ? (
-                  <EnhancedQuizFinal 
-                    questions={completeItemData?.quiz_questions || finalItem.quiz_questions}
-                    itemCode={finalItem.item_code}
-                    itemTitle={finalItem.title}
-                  />
+                  <>
+                    <EnhancedQuizFinal 
+                      questions={completeItemData?.quiz_questions || finalItem.quiz_questions}
+                      itemCode={finalItem.item_code}
+                      itemTitle={finalItem.title}
+                    />
+                    
+                    {/* Leaderboard */}
+                    <QuizLeaderboard itemCode={finalItem.item_code} limit={10} />
+                    
+                    {/* Social Share */}
+                    <div className="flex justify-center">
+                      <SocialShare 
+                        type="score"
+                        title={`Quiz ${finalItem.item_code}`}
+                        description={`J'ai complété le quiz ${finalItem.title} !`}
+                        value="100%"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <Card className="border-2 border-primary/20">
                     <CardHeader className="text-center">
