@@ -500,6 +500,146 @@ function generateUniqueContent(itemNumber: number, existingTitle: string) {
   };
 }
 
+// Fonction pour nettoyer le texte pour les paroles
+function cleanTextForLyrics(text: string, maxLength: number = 60): string {
+  let clean = text
+    .replace(/[.,!?;:]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  if (clean.length > maxLength) {
+    const words = clean.split(' ');
+    clean = '';
+    for (const word of words) {
+      if ((clean + ' ' + word).length <= maxLength) {
+        clean = clean ? clean + ' ' + word : word;
+      } else {
+        break;
+      }
+    }
+  }
+  
+  return clean;
+}
+
+// Fonction pour extraire les points clés
+function extractKeyPoints(description: string): string[] {
+  const points: string[] = [];
+  const cleanDesc = description.replace(/\s+/g, ' ').trim();
+  const sentences = cleanDesc.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  
+  const maxPoints = Math.min(2, sentences.length);
+  for (let i = 0; i < maxPoints; i++) {
+    const verse = cleanTextForLyrics(sentences[i].trim(), 55);
+    if (verse.length > 10) points.push(verse);
+  }
+  
+  return points;
+}
+
+// Génère les paroles DEPUIS les compétences OIC réelles
+function generateLyricsFromOicCompetences(
+  itemCode: string, 
+  title: string,
+  competences: Array<{ objectif_id: string; intitule: string; description: string | null; rang: string }>,
+  rang: 'A' | 'B'
+): string[] {
+  const verses: string[] = [];
+  const rangText = rang === 'A' ? 'fondamental' : 'expert';
+  const filtered = competences.filter(c => c.rang === rang);
+  
+  if (filtered.length === 0) {
+    return [
+      `[Intro]`,
+      `${itemCode} ${title.substring(0, 40)}`,
+      `Niveau ${rangText} à maîtriser`,
+      ``,
+      `[Couplet]`,
+      `Compétences essentielles`,
+      `Savoir médical approfondi`,
+      ``,
+      `[Outro]`,
+      `${itemCode} ${rangText} validé`
+    ];
+  }
+  
+  // Intro avec le titre de l'item
+  verses.push(`[Intro]`);
+  verses.push(`${itemCode} ${cleanTextForLyrics(title, 40)}`);
+  verses.push(`Niveau ${rangText} à maîtriser`);
+  verses.push(``);
+  
+  // Traiter chaque compétence
+  filtered.forEach((comp, index) => {
+    const intitule = comp.intitule || `Objectif ${comp.objectif_id}`;
+    const description = comp.description || '';
+    
+    verses.push(`[Couplet ${index + 1}]`);
+    verses.push(cleanTextForLyrics(intitule, 55));
+    
+    if (description && description.length > 20) {
+      const keyPoints = extractKeyPoints(description);
+      keyPoints.forEach(point => verses.push(point));
+    }
+    
+    // Refrain tous les 2 couplets
+    if (index < filtered.length - 1 && index % 2 === 1) {
+      verses.push(``);
+      verses.push(`[Refrain]`);
+      verses.push(`${itemCode} bien compris`);
+      verses.push(`Compétences acquises`);
+      verses.push(``);
+    }
+  });
+  
+  // Outro
+  verses.push(``);
+  verses.push(`[Outro]`);
+  verses.push(`${itemCode} ${cleanTextForLyrics(title, 30)}`);
+  verses.push(`Compétences ${rangText}es validées`);
+  verses.push(`Formation réussie avec succès`);
+  
+  return verses;
+}
+
+// Génère les paroles mixtes A+B
+function generateMixedLyrics(
+  itemCode: string,
+  title: string,
+  competences: Array<{ objectif_id: string; intitule: string; description: string | null; rang: string }>
+): string[] {
+  const verses: string[] = [];
+  const compA = competences.filter(c => c.rang === 'A');
+  const compB = competences.filter(c => c.rang === 'B');
+  
+  verses.push(`[Intro]`);
+  verses.push(`${itemCode} ${cleanTextForLyrics(title, 35)}`);
+  verses.push(`Rang A et B complets`);
+  verses.push(``);
+  
+  // Partie A
+  verses.push(`[Partie Rang A - Fondamentaux]`);
+  compA.slice(0, 3).forEach(comp => {
+    verses.push(cleanTextForLyrics(comp.intitule, 50));
+  });
+  verses.push(``);
+  
+  // Partie B
+  verses.push(`[Partie Rang B - Expert]`);
+  compB.slice(0, 3).forEach(comp => {
+    verses.push(cleanTextForLyrics(comp.intitule, 50));
+  });
+  verses.push(``);
+  
+  // Outro
+  verses.push(`[Outro]`);
+  verses.push(`${itemCode} maîtrise totale`);
+  verses.push(`Rang A et B validés`);
+  verses.push(`Excellence médicale certifiée`);
+  
+  return verses;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -519,7 +659,7 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('🚀 Début de la mise à jour avec contenus uniques...');
+    console.log('🚀 Génération paroles depuis compétences OIC réelles...');
 
     let processedCount = 0;
     let successCount = 0;
@@ -533,189 +673,129 @@ serve(async (req) => {
       .order('item_code');
 
     if (fetchError) {
-      throw new Error(`Erreur lors de la récupération des items: ${fetchError.message}`);
+      throw new Error(`Erreur récupération items: ${fetchError.message}`);
     }
 
-    console.log(`📋 ${existingItems?.length || 0} items trouvés à mettre à jour`);
+    console.log(`📋 ${existingItems?.length || 0} items à traiter`);
 
-    // Traiter chaque item avec du contenu unique
-    for (const existingItem of existingItems || []) {
+    // Récupérer TOUTES les compétences OIC en une seule requête
+    const { data: allCompetences, error: compError } = await supabase
+      .from('oic_competences')
+      .select('objectif_id, intitule, description, rang, item_parent')
+      .order('objectif_id');
+
+    if (compError) {
+      throw new Error(`Erreur récupération compétences: ${compError.message}`);
+    }
+
+    console.log(`📋 ${allCompetences?.length || 0} compétences OIC chargées`);
+
+    // Indexer les compétences par item_parent
+    const competencesByItem: Record<string, typeof allCompetences> = {};
+    (allCompetences || []).forEach(comp => {
+      const key = comp.item_parent;
+      if (!competencesByItem[key]) competencesByItem[key] = [];
+      competencesByItem[key].push(comp);
+    });
+
+    // Traiter chaque item
+    for (const item of existingItems || []) {
       try {
         processedCount++;
-        const itemNumber = parseInt(existingItem.item_code.replace('IC-', '')) || 0;
+        const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
+        const itemCompetences = competencesByItem[itemNumber] || [];
         
-        console.log(`🔄 Traitement item IC-${itemNumber}`);
+        console.log(`🔄 ${item.item_code}: ${itemCompetences.length} compétences OIC`);
         
-        // Générer du contenu unique
-        const uniqueContent = generateUniqueContent(itemNumber, existingItem.title);
+        // Générer les paroles depuis les compétences OIC RÉELLES
+        const parolesRangA = generateLyricsFromOicCompetences(item.item_code, item.title, itemCompetences, 'A');
+        const parolesRangB = generateLyricsFromOicCompetences(item.item_code, item.title, itemCompetences, 'B');
+        const parolesRangAB = generateMixedLyrics(item.item_code, item.title, itemCompetences);
         
-        // Créer le contenu structuré Rang A unique
+        // Générer aussi le contenu structuré pour tableau_rang_a/b
+        const compA = itemCompetences.filter(c => c.rang === 'A');
+        const compB = itemCompetences.filter(c => c.rang === 'B');
+        
         const tableauRangA = {
-          title: `${uniqueContent.uniqueTitle} - Rang A`,
-          sections: uniqueContent.uniqueRangA.map((competence, index) => ({
-            title: `Compétence spécialisée A.${index + 1}`,
-            content: competence,
-            keywords: competence.toLowerCase().split(' ').filter(word => word.length > 3).slice(0, 5),
-            specialty: uniqueContent.specialty,
-            itemNumber: itemNumber
+          title: `${item.title} - Rang A`,
+          sections: compA.map((comp, idx) => ({
+            title: `Objectif ${comp.objectif_id}`,
+            content: comp.intitule,
+            description: comp.description,
+            index: idx + 1
           }))
         };
         
-        // Créer le contenu structuré Rang B unique
         const tableauRangB = {
-          title: `${uniqueContent.uniqueTitle} - Rang B (Expert)`,
-          sections: uniqueContent.uniqueRangB.map((competence, index) => ({
-            title: `Expertise avancée B.${index + 1}`,
-            content: competence,
-            keywords: competence.toLowerCase().split(' ').filter(word => word.length > 3).slice(0, 5),
-            specialty: uniqueContent.specialty,
-            itemNumber: itemNumber
+          title: `${item.title} - Rang B`,
+          sections: compB.map((comp, idx) => ({
+            title: `Objectif ${comp.objectif_id}`,
+            content: comp.intitule,
+            description: comp.description,
+            index: idx + 1
           }))
         };
         
-        // Créer une scène immersive unique
-        const sceneImmersive = {
-          theme: 'medical_specialized',
-          ambiance: 'clinical_expert',
-          context: uniqueContent.context,
-          specialty: uniqueContent.specialty,
-          itemNumber: itemNumber,
-          interactions: [
-            {
-              type: 'dialogue',
-              content: `Exploration spécialisée de l'item IC-${itemNumber} en ${uniqueContent.specialty}`,
-              responses: [
-                `Découvrir les compétences Rang A (IC-${itemNumber})`,
-                `Explorer l'expertise Rang B (IC-${itemNumber})`,
-                `Scénario clinique spécialisé`
-              ],
-              specialty: uniqueContent.specialty
-            },
-            {
-              type: 'scenario',
-              content: uniqueContent.uniqueScenarios[0],
-              responses: [
-                `Analyser selon l'item IC-${itemNumber}`,
-                `Appliquer l'expertise ${uniqueContent.specialty}`,
-                `Évaluer les résultats spécialisés`
-              ],
-              clinical_focus: uniqueContent.specialty
-            }
-          ]
-        };
-        
-        // Générer des paroles structurées pour chaque rang
-        function generateStructuredLyrics(itemCode: string, title: string) {
-          const domain = getDomainForItem(itemNumber)
-          const specializedData = SPECIALIZED_CONTENT[domain] || SPECIALIZED_CONTENT["fondamentaux"]
-          
-          const parolesRangA = [
-            '[Couplet 1 - Rang A]',
-            `Item ${itemCode} je vais maîtriser`,
-            `${title.substring(0, 40)} étudier`,
-            `${specializedData.rangA[0].substring(0, 40)} développer`,
-            'Les bases solides pour réussir',
-            '',
-            '[Refrain]',
-            `EDN ${itemCode} chantons ensemble`,
-            'Compétences Rang A qui se rassemblent',
-            'Pour l\'examen on se prépare',
-            'Avec la musique tout devient plus claire',
-            '',
-            '[Couplet 2 - Rang A]',
-            'Chaque concept je vais comprendre',
-            'Les définitions bien apprendre',
-            'Diagnostic et traitement savoir',
-            'Pour mes patients tout donner',
-            '',
-            '[Refrain Final]',
-            `Item ${itemCode} Rang A validé`,
-            'Connaissances solides intégrées',
-            'Vers le rang B je vais progresser',
-            'En musique médecine et réussite mélangées'
-          ]
-          
-          const parolesRangB = [
-            '[Couplet 1 - Rang B]',
-            `Rang B de l'item ${itemCode} expert je deviens`,
-            `${title.substring(0, 40)} je maîtrise enfin`,
-            `${specializedData.rangB[0].substring(0, 40)} maîtriser`,
-            'Cas complexes je vais gérer',
-            '',
-            '[Refrain]',
-            `Expertise ${itemCode} niveau supérieur`,
-            'Compétences avancées pour aller de l\'avant',
-            'Rang B c\'est la maîtrise parfaite',
-            'Excellence clinique qui se reflète',
-            '',
-            '[Refrain Final]',
-            `Item ${itemCode} expertise atteinte`,
-            'Rang B validé, compétence certaine',
-            'Excellence clinique démontrée',
-            'Médecine et musique réconciliées'
-          ]
-          
-          const parolesRangAB = [
-            '[Couplet 1 - Fusion A+B]',
-            `Item ${itemCode} du rang A au rang B`,
-            'Parcours complet de A à Z',
-            'Des bases jusqu\'à l\'expertise',
-            'Maîtrise totale garantie',
-            '',
-            '[Refrain Final]',
-            `Item ${itemCode} maîtrise totale`,
-            'A+B fusion magistrale',
-            'Excellence complète atteinte',
-            'Succès EDN mérité'
-          ]
-          
-          return { parolesRangA, parolesRangB, parolesRangAB }
-        }
+        // Quiz basé sur les compétences réelles
+        const quizQuestions = itemCompetences.slice(0, 5).map((comp, idx) => ({
+          id: idx + 1,
+          question: `Que signifie "${cleanTextForLyrics(comp.intitule, 40)}" pour l'item ${item.item_code} ?`,
+          options: [
+            comp.description?.substring(0, 60) || 'Maîtrise de cette compétence',
+            'Application théorique simple',
+            'Protocole non spécialisé',
+            'Méthode universelle'
+          ],
+          correct: 0,
+          rang: comp.rang,
+          objectif_id: comp.objectif_id,
+          explanation: `Compétence ${comp.rang}: ${comp.intitule}`
+        }));
 
-        const structuredLyrics = generateStructuredLyrics(existingItem.item_code, existingItem.title)
-
-        // Mettre à jour l'item dans la base de données avec paroles structurées
+        // Mettre à jour l'item
         const { error: updateError } = await supabase
           .from('edn_items_immersive')
           .update({
             tableau_rang_a: tableauRangA,
             tableau_rang_b: tableauRangB,
-            paroles_musicales: structuredLyrics.parolesRangA,
-            paroles_rang_a: structuredLyrics.parolesRangA,
-            paroles_rang_b: structuredLyrics.parolesRangB,
-            paroles_rang_ab: structuredLyrics.parolesRangAB,
-            scene_immersive: sceneImmersive,
-            quiz_questions: uniqueContent.uniqueQuiz,
+            paroles_musicales: parolesRangA,
+            paroles_rang_a: parolesRangA,
+            paroles_rang_b: parolesRangB,
+            paroles_rang_ab: parolesRangAB,
+            quiz_questions: quizQuestions.length > 0 ? quizQuestions : null,
+            oic_count_a: compA.length,
+            oic_count_b: compB.length,
             updated_at: new Date().toISOString()
           })
-          .eq('id', existingItem.id);
+          .eq('id', item.id);
 
         if (updateError) {
-          throw new Error(`Erreur mise à jour item ${itemNumber}: ${updateError.message}`);
+          throw new Error(`Erreur mise à jour ${item.item_code}: ${updateError.message}`);
         }
 
         successCount++;
-        console.log(`✅ Item IC-${itemNumber} mis à jour avec contenu unique (${uniqueContent.specialty})`);
+        console.log(`✅ ${item.item_code}: paroles A(${parolesRangA.length} lignes), B(${parolesRangB.length}), AB(${parolesRangAB.length})`);
 
       } catch (error) {
         errorCount++;
         errors.push({
-          item_code: existingItem.item_code,
+          item_code: item.item_code,
           error: error instanceof Error ? error.message : 'Erreur inconnue'
         });
-        console.error(`❌ Erreur item ${existingItem.item_code}:`, error);
+        console.error(`❌ ${item.item_code}:`, error);
       }
     }
 
-    console.log(`🎉 Mise à jour terminée: ${successCount}/${processedCount} items avec contenu unique`);
+    console.log(`🎉 Terminé: ${successCount}/${processedCount} items avec paroles OIC`);
 
     return new Response(JSON.stringify({
       success: true,
-      message: 'Mise à jour avec contenus uniques terminée avec succès',
+      message: 'Génération paroles depuis OIC terminée',
       stats: {
         processed: processedCount,
         success: successCount,
-        errors: errorCount
+        errors: errorCount,
+        totalOicCompetences: allCompetences?.length || 0
       },
       errors: errors.slice(0, 10)
     }), {
@@ -726,7 +806,7 @@ serve(async (req) => {
     console.error('❌ Erreur générale:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error instanceof Error ? error.message : 'Erreur inconnue lors de la mise à jour'
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
