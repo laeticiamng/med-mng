@@ -389,9 +389,9 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl">{currentChap.title}</CardTitle>
             <div className="flex items-center gap-2">
-              {currentChap.competences > 0 && (
+              {currentChap.competences && currentChap.competences.length > 0 && (
                 <Badge variant="outline">
-                  {currentChap.competences} compétences
+                  {currentChap.competences.length} compétences
                 </Badge>
               )}
               <Badge className={getChapterColor(currentChap.type).replace('bg-', 'bg-').replace('border-', 'border-')}>
