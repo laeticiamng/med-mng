@@ -33,6 +33,7 @@ import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
 import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
+import { useEdnFavorites } from "@/hooks/useEdnFavorites";
 
 interface EdnItem {
   id: string;
@@ -86,6 +87,7 @@ export default function EdnComplete() {
   const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
   const { subscription, canGenerateMusic } = useSubscription();
+  const { isFavorite, toggleFavorite } = useEdnFavorites();
   
   // Alias pour compatibilité
   const immersiveItems = ednItems as EdnItem[];
@@ -520,6 +522,8 @@ export default function EdnComplete() {
                     item={item}
                     completionPercentage={getCompletionPercentage(item)}
                     onOpen={(tab) => openItemModal(item, tab)}
+                    isFavorite={isFavorite(item.item_code)}
+                    onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
                   />
                 ))}
               </div>
@@ -568,6 +572,8 @@ export default function EdnComplete() {
                       item={item}
                       completionPercentage={getCompletionPercentage(item)}
                       onOpen={(tab) => openItemModal(item, tab)}
+                      isFavorite={isFavorite(item.item_code)}
+                      onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
                     />
                   ))}
                 </div>
