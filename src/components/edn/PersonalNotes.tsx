@@ -137,8 +137,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentNote]);
+  }, [insertMarkdownAtCursor]);
 
   // Export to PDF
   const handleExportPDF = async () => {

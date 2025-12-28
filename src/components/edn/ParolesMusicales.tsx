@@ -16,14 +16,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+interface TableauRangData {
+  title?: string;
+  sections?: Array<{ title?: string; content?: string }>;
+}
+
 interface ParolesMusicalesProps {
   paroles?: string[];
   paroles_rang_a?: string[];
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  tableauRangA?: any;
-  tableauRangB?: any;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
 }
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
@@ -92,8 +97,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       }
     };
     loadMusicData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCode]);
+  }, [itemCode, loadStats]);
   // Debug logging disabled for production
 
   const {
@@ -255,7 +259,11 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       {(isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB) && (
         <MusicGenerationWaveform 
           isGenerating={Boolean(isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB)} 
-          progress={(generationProgress.rangA as any)?.progress || (generationProgress.rangB as any)?.progress || 50} 
+          progress={
+            (generationProgress.rangA as { progress?: number } | undefined)?.progress || 
+            (generationProgress.rangB as { progress?: number } | undefined)?.progress || 
+            50
+          } 
           className="h-24"
         />
       )}

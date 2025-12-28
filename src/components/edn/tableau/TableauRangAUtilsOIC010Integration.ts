@@ -1,9 +1,36 @@
 // Utilitaires pour l'intégration des données OIC-010-03-B
-export const processTableauRangAOIC010 = (data: any) => {
+
+interface OIC010Concept {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface OIC010TableauData {
+  tableau_rang_a?: {
+    sections?: Array<{ concepts?: OIC010Concept[] }>;
+  };
+  sections?: Array<{ concepts?: OIC010Concept[] }>;
+  item_code?: string;
+  title?: string;
+  theme?: string;
+}
+
+interface ColonneUtile {
+  nom: string;
+  description: string;
+}
+
+export const processTableauRangAOIC010 = (data: OIC010TableauData) => {
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtile[] = [
     { nom: 'Concept', description: 'Impact psychocorporel' },
     { nom: 'Définition', description: 'Cadre théorique' },
     { nom: 'Exemple', description: 'Situation clinique' },
@@ -14,7 +41,7 @@ export const processTableauRangAOIC010 = (data: any) => {
     { nom: 'Vigilance', description: 'Point de surveillance' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: OIC010Concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -35,9 +62,9 @@ export const processTableauRangAOIC010 = (data: any) => {
   };
 };
 
-export const isOIC010Item = (data: any): boolean => {
+export const isOIC010Item = (data: OIC010TableauData): boolean => {
   return data?.item_code === 'OIC-010-03-B' || 
          data?.title?.includes('impact des différentes maladies') ||
          data?.title?.includes('expérience du corps') ||
-         data?.theme?.includes('OIC-010');
+         data?.theme?.includes('OIC-010') || false;
 };

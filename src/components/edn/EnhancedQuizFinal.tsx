@@ -14,10 +14,31 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedQuizFinalProps {
   questions: {
-    qcm?: any[];
-    qru?: any[];
-    qroc?: any[];
-    zap?: any[];
+    qcm?: Array<{
+      question: string;
+      options?: string[];
+      correct?: number;
+      reponse?: string;
+      points_cles?: string[];
+      affirmation?: string;
+      justification?: string;
+    }>;
+    qru?: Array<{
+      question: string;
+      options?: string[];
+      correct?: number;
+      reponse?: string;
+    }>;
+    qroc?: Array<{
+      question: string;
+      reponse?: string;
+      points_cles?: string[];
+    }>;
+    zap?: Array<{
+      question: string;
+      affirmation?: string;
+      justification?: string;
+    }>;
     type?: string;
     title?: string;
     categories?: Array<{
@@ -60,8 +81,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   // Charger les sessions sauvegardées au montage
   useEffect(() => {
     loadSavedSessions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadSavedSessions]);
 
   const handleStartQuiz = async (config: QuizConfig) => {
     setQuizConfig(config);

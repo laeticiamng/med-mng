@@ -11,19 +11,39 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useEdnNotes } from "@/hooks/useEdnNotes";
 
+interface TableauRang {
+  title?: string;
+  sections?: Array<{ title?: string; content?: string }>;
+}
+
+interface SceneImmersive {
+  id?: string;
+  title?: string;
+  description?: string;
+}
+
+interface QuizQuestions {
+  questions?: Array<{ question: string; options: string[] }>;
+}
+
+interface AudioAmbiance {
+  url?: string;
+  title?: string;
+}
+
 interface EdnItemCardProps {
   item: {
     id: string;
     item_code: string;
     title: string;
     subtitle?: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: TableauRang;
+    tableau_rang_b?: TableauRang;
     paroles_musicales?: string[];
-    scene_immersive?: any;
-    quiz_questions?: any;
-    audio_ambiance?: any;
-    visual_ambiance?: any;
+    scene_immersive?: SceneImmersive;
+    quiz_questions?: QuizQuestions;
+    audio_ambiance?: AudioAmbiance;
+    visual_ambiance?: { url?: string };
     competences_count_rang_a?: number;
     competences_count_rang_b?: number;
   };

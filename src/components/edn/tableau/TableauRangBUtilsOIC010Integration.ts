@@ -1,11 +1,34 @@
-
 // Utilitaires pour l'affichage du Tableau Rang B OIC-010-03-B
-export const processTableauRangBOIC010 = (data: any) => {
+
+interface OIC010ConceptB {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface OIC010TableauDataB {
+  tableau_rang_b?: {
+    sections?: Array<{ concepts?: OIC010ConceptB[] }>;
+  };
+  sections?: Array<{ concepts?: OIC010ConceptB[] }>;
+}
+
+interface ColonneUtileB {
+  nom: string;
+  description: string;
+}
+
+export const processTableauRangBOIC010 = (data: OIC010TableauDataB) => {
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtileB[] = [
     { nom: 'Concept expert', description: 'Évaluation psychocorporelle' },
     { nom: 'Analyse approfondie', description: 'Impact multidimensionnel' },
     { nom: 'Cas complexe', description: 'Situation experte' },
@@ -16,7 +39,7 @@ export const processTableauRangBOIC010 = (data: any) => {
     { nom: 'Excellence', description: 'Accompagnement holistique' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: OIC010ConceptB) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -34,6 +57,6 @@ export const processTableauRangBOIC010 = (data: any) => {
     colonnesUtiles,
     theme,
     isRangB: true,
-    expertiseLevel: 'advanced'
+    expertiseLevel: 'advanced' as const
   };
 };
