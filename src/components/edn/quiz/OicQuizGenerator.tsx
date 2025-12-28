@@ -38,6 +38,11 @@ const QUESTION_TEMPLATES = [
   { template: 'rubrique', question: (comp: OicCompetence) => `Dans quelle catégorie se situe la compétence "${comp.objectif_id}" ?` },
   { template: 'identification', question: (comp: OicCompetence) => `Identifiez la compétence UNESS officielle :` },
   { template: 'association', question: (comp: OicCompetence) => `Quelle compétence est associée à l'item parent ${comp.item_parent} ?` },
+  { template: 'vrai_faux', question: (comp: OicCompetence) => `L'affirmation suivante est-elle vraie ? "${comp.intitule}"` },
+  { template: 'qcm_negatif', question: (comp: OicCompetence) => `Parmi ces affirmations, laquelle n'est PAS correcte pour ${comp.objectif_id} ?` },
+  { template: 'cas_clinique', question: (comp: OicCompetence) => `Un patient présente un tableau clinique. Quelle compétence UNESS est concernée ?` },
+  { template: 'hierarchie', question: (comp: OicCompetence) => `Quel est l'ordre de priorité pour la compétence ${comp.objectif_id} ?` },
+  { template: 'diagnostic', question: (comp: OicCompetence) => `Pour établir le diagnostic, identifiez la compétence requise :` },
 ];
 
 const generateQuestionsFromCompetences = (

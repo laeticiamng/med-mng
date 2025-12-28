@@ -45,7 +45,11 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useState(() => {
+    // Restore volume from localStorage
+    const saved = localStorage.getItem('audio-volume');
+    return saved ? parseFloat(saved) : 0.8;
+  });
   const [isMinimized, setIsMinimized] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
@@ -226,6 +230,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
 
   const changeVolume = (newVolume: number) => {
     setVolume(newVolume);
+    localStorage.setItem('audio-volume', newVolume.toString()); // Persist volume
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
       console.log('🔊 Volume changé à:', Math.round(newVolume * 100) + '%');

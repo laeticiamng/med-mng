@@ -110,6 +110,28 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
   const vignettes = generateVignettes();
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setCurrentVignette((prev) => (prev + 1) % vignettes.length);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setCurrentVignette((prev) => (prev - 1 + vignettes.length) % vignettes.length);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        setCurrentVignette(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        setCurrentVignette(vignettes.length - 1);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [vignettes.length]);
+
   const nextVignette = () => {
     setCurrentVignette((prev) => (prev + 1) % vignettes.length);
   };

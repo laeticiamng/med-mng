@@ -66,6 +66,18 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
 
   const realisticTimeRemaining = getRealisticEstimatedTime();
 
+  // Generation steps for visual feedback
+  const generationSteps = [
+    { threshold: 0, label: 'Initialisation...' },
+    { threshold: 10, label: 'Analyse des paroles...' },
+    { threshold: 25, label: 'Composition musicale...' },
+    { threshold: 50, label: 'Génération vocale...' },
+    { threshold: 75, label: 'Mixage audio...' },
+    { threshold: 90, label: 'Finalisation...' },
+  ];
+  
+  const currentStep = generationSteps.filter(s => progress >= s.threshold).pop();
+
   return (
     <Card className={`${colorStyle.border} ${colorStyle.bg} border-2`}>
       <CardContent className="p-4">
@@ -90,7 +102,7 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className={`text-sm font-medium ${colorStyle.text}`}>
-                Progression
+                {currentStep?.label || 'Progression'}
               </span>
               <span className={`text-sm font-bold ${colorStyle.text}`}>
                 {progress}%
@@ -111,6 +123,18 @@ export const MusicGenerationProgress: React.FC<MusicGenerationProgressProps> = (
                 ~{realisticTimeRemaining} min restantes
               </span>
             </div>
+          </div>
+
+          {/* Visual step indicators */}
+          <div className="flex justify-between gap-1">
+            {generationSteps.map((step, idx) => (
+              <div 
+                key={idx}
+                className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                  progress >= step.threshold ? colorStyle.progress : 'bg-muted'
+                }`}
+              />
+            ))}
           </div>
 
           <div className={`text-xs ${colorStyle.text} opacity-70 text-center`}>

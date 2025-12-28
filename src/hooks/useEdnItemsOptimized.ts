@@ -118,8 +118,16 @@ export const useEdnItemsOptimized = () => {
       });
 
       const enrichedItems = currentItems.map((item) => {
-        const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
-        const counts = countsMap.get(itemNumber) || { rangA: 0, rangB: 0 };
+        // Try multiple matching strategies for item_parent
+        const itemNumber = item.item_code.replace('IC-', '');
+        const paddedNumber = itemNumber.padStart(3, '0');
+        
+        // Try different formats: "001", "1", "IC-1"
+        const counts = countsMap.get(paddedNumber) 
+          || countsMap.get(itemNumber) 
+          || countsMap.get(item.item_code)
+          || { rangA: 0, rangB: 0 };
+        
         return {
           ...item,
           competences_count_rang_a: counts.rangA,
@@ -127,8 +135,10 @@ export const useEdnItemsOptimized = () => {
         };
       });
 
-      // Update cache and state
+      // Update cache and state atomically
       cachedItems = enrichedItems;
+      cacheTimestamp = Date.now(); // Refresh cache timestamp after enrichment
+      
       if (mountedRef.current) {
         setItems(enrichedItems);
       }
