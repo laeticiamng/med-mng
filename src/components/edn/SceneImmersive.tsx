@@ -29,7 +29,8 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       if (user) loadStats(user.id);
     };
     load();
-  }, [loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const trackView = async () => {
@@ -48,6 +49,7 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       }
     };
     trackView();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemCode]);
 
   // Contenu personnalisé basé sur les vraies données de l'item (avec cast pour permettre propriétés additionnelles)
