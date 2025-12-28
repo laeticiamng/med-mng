@@ -43,6 +43,9 @@ interface EdnItemData {
   tableau_rang_a?: unknown;
   tableau_rang_b?: unknown;
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   scene_immersive?: unknown;
   quiz_questions?: unknown;
   audio_ambiance?: { url?: string };
@@ -104,26 +107,41 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
   }, [isOpen, finalItem?.item_code, initialTab]);
 
-  // Charger les données complètes (quiz, scene, tableaux) si pas déjà présentes
+  // Charger les données complètes (quiz, scene, tableaux, paroles) si pas déjà présentes
   useEffect(() => {
     const loadCompleteData = async () => {
       if (finalItem && isOpen) {
-        // Si quiz_questions manquant, fetch depuis Supabase
-        if (!finalItem.quiz_questions) {
+        // Si quiz_questions ou paroles_musicales manquant, fetch depuis Supabase
+        if (!finalItem.quiz_questions || !finalItem.paroles_musicales) {
           try {
             const { data } = await supabase
               .from('edn_items_immersive')
-              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b')
+              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales')
               .eq('item_code', finalItem.item_code)
               .maybeSingle();
             
             if (data) {
+              // Normaliser paroles_musicales: si c'est une string, la convertir en array
+              let normalizedParoles: string[] = [];
+              if (data.paroles_musicales) {
+                if (typeof data.paroles_musicales === 'string') {
+                  // String avec sections séparées par \n\n ou [Section]
+                  normalizedParoles = (data.paroles_musicales as string)
+                    .split(/\n\n|\[.*?\]/)
+                    .map(s => s.trim())
+                    .filter(s => s.length > 0);
+                } else if (Array.isArray(data.paroles_musicales)) {
+                  normalizedParoles = data.paroles_musicales as string[];
+                }
+              }
+              
               setCompleteItemData(prev => ({
                 ...prev,
                 quiz_questions: data.quiz_questions as unknown,
                 scene_immersive: data.scene_immersive as unknown,
                 tableau_rang_a: data.tableau_rang_a as unknown,
                 tableau_rang_b: data.tableau_rang_b as unknown,
+                paroles_musicales: normalizedParoles,
                 competences_oic_rang_a: oicCompetencesA,
                 competences_oic_rang_b: oicCompetencesB,
               }));
@@ -134,6 +152,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
         } else {
           setCompleteItemData({
             quiz_questions: finalItem.quiz_questions,
+            paroles_musicales: finalItem.paroles_musicales,
             competences_oic_rang_a: oicCompetencesA,
             competences_oic_rang_b: oicCompetencesB,
             tableau_rang_a: finalItem.tableau_rang_a,
@@ -503,7 +522,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               <TabsContent value="music" className="mt-0 p-6">
                 <ParolesMusicales 
-                  paroles={finalItem.paroles_musicales}
+                  paroles={completeItemData?.paroles_musicales || finalItem.paroles_musicales}
                   paroles_rang_a={finalItem.paroles_rang_a}
                   paroles_rang_b={finalItem.paroles_rang_b}
                   paroles_rang_ab={finalItem.paroles_rang_ab}
