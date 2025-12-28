@@ -31,13 +31,11 @@ export const useAllEdnItems = () => {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<EdnItemsFilters>({});
   const [stats, setStats] = useState<EdnItemsStats | null>(null);
-  const hasFetched = useRef(false);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
-  // Fetch au montage - sans useCallback pour éviter les problèmes de référence
+  // Fetch au montage et quand fetchTrigger change
   useEffect(() => {
-    // Éviter les doubles appels en StrictMode
-    if (hasFetched.current) return;
-    hasFetched.current = true;
+    let isMounted = true;
 
     const fetchItems = async () => {
       console.log('🔍 useAllEdnItems - Début du chargement');
@@ -49,6 +47,8 @@ export const useAllEdnItems = () => {
           .from('edn_items_immersive')
           .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
           .order('item_code');
+
+        if (!isMounted) return;
 
         console.log('📡 Supabase response:', { count: data?.length, error: supabaseError?.message });
 
@@ -90,6 +90,7 @@ export const useAllEdnItems = () => {
 
         setLoading(false);
       } catch (err) {
+        if (!isMounted) return;
         console.error('❌ Exception:', err);
         setError('Erreur lors du chargement');
         setLoading(false);
@@ -97,7 +98,11 @@ export const useAllEdnItems = () => {
     };
 
     fetchItems();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchTrigger]);
 
   const filteredItems = useMemo(() => {
     let result = [...items];
@@ -149,10 +154,7 @@ export const useAllEdnItems = () => {
   }, [items]);
 
   const refreshItems = useCallback(() => {
-    hasFetched.current = false;
-    setLoading(true);
-    // Re-trigger by forcing a state update
-    setItems([]);
+    setFetchTrigger(prev => prev + 1);
   }, []);
 
   return {
