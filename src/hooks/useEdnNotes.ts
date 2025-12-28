@@ -48,8 +48,8 @@ export const useEdnNotes = (itemCode?: string) => {
       if (itemCode && notesMap[itemCode]) {
         setCurrentNote(notesMap[itemCode].content);
       }
-    } catch (error) {
-      console.error('Error fetching notes:', error);
+    } catch {
+      // Error handled silently
     } finally {
       setIsLoading(false);
     }

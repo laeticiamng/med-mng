@@ -63,7 +63,6 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
     pdf.save(`${itemCode}-${type}-${Date.now()}.pdf`);
     toast.success('PDF téléchargé avec succès !');
   } catch (error) {
-    console.error('PDF export error:', error);
     toast.error('Erreur lors de l\'export PDF');
     throw error;
   }
@@ -93,7 +92,6 @@ export const shareContent = async (options: ExportOptions): Promise<void> => {
     }
   } catch (error) {
     if ((error as Error).name !== 'AbortError') {
-      console.error('Share error:', error);
       // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`);
@@ -128,8 +126,7 @@ export const exportAsImage = async (elementId: string, filename: string): Promis
     link.click();
     
     toast.success('Image téléchargée !');
-  } catch (error) {
-    console.error('Image export error:', error);
+  } catch {
     toast.error('Erreur lors de l\'export image');
   }
 };
