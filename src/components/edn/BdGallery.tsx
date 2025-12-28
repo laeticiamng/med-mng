@@ -224,7 +224,17 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     }
   };
 
-  if (loadingA || loadingB) {
+  // Only show loading for first 3 seconds max, then show content with available data
+  const [showLoading, setShowLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    const timer = setTimeout(() => setShowLoading(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  const isStillLoading = showLoading && (loadingA || loadingB);
+  
+  if (isStillLoading && competencesA.length === 0 && competencesB.length === 0) {
     return (
       <Card className="border-2 border-accent/20">
         <CardContent className="p-8 text-center">
@@ -238,17 +248,29 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     );
   }
 
-  if (vignettes.length === 0) {
+  if (vignettes.length <= 2) {
+    // Only intro and conclusion, no real content
     return (
       <Card className="border-2 border-warning/20">
-        <CardHeader>
+        <CardHeader className="bg-gradient-to-r from-accent/10 to-primary/10">
           <CardTitle className="flex items-center gap-2">
             <Image className="h-6 w-6" />
             BD Interactive - {itemCode}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Génération de la BD en cours...</p>
+        <CardContent className="p-6 text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-accent/10 flex items-center justify-center">
+            <Image className="h-8 w-8 text-accent" />
+          </div>
+          <div>
+            <p className="font-medium text-foreground">BD en préparation</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+            </p>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            La BD sera automatiquement générée une fois les compétences disponibles.
+          </div>
         </CardContent>
       </Card>
     );

@@ -496,14 +496,63 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               {/* Stats Tab - Historique et progression */}
               <TabsContent value="stats" className="mt-0 p-6">
                 <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
+                  {/* OIC Competences Overview */}
+                  <Card className="border-2 border-primary/20">
+                    <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10">
                       <CardTitle className="flex items-center gap-2">
                         <BarChart3 className="h-5 w-5 text-primary" />
                         Statistiques - {finalItem.item_code}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 pt-6">
+                      {/* Competences Count Summary */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
+                          <div className="text-3xl font-bold text-primary">{oicCompetencesA.length}</div>
+                          <div className="text-sm text-muted-foreground">Rang A</div>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-accent/5 border border-accent/20">
+                          <div className="text-3xl font-bold text-accent-foreground">{oicCompetencesB.length}</div>
+                          <div className="text-sm text-muted-foreground">Rang B</div>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-success/5 border border-success/20">
+                          <div className="text-3xl font-bold text-success">{oicCompetencesA.length + oicCompetencesB.length}</div>
+                          <div className="text-sm text-muted-foreground">Total OIC</div>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/20">
+                          <div className="text-3xl font-bold text-warning">
+                            {finalItem.paroles_musicales?.length ? '✓' : '○'}
+                          </div>
+                          <div className="text-sm text-muted-foreground">Musique</div>
+                        </div>
+                      </div>
+                      
+                      {/* Competence Details */}
+                      {(oicCompetencesA.length > 0 || oicCompetencesB.length > 0) && (
+                        <div className="space-y-3">
+                          <h4 className="font-semibold text-sm text-muted-foreground">Détail des compétences UNESS</h4>
+                          <div className="max-h-48 overflow-y-auto space-y-2">
+                            {oicCompetencesA.slice(0, 5).map((comp, idx) => (
+                              <div key={`a-${idx}`} className="flex items-start gap-2 p-2 bg-primary/5 rounded text-sm">
+                                <span className="font-mono text-primary text-xs">{comp.objectif_id}</span>
+                                <span className="text-foreground">{comp.intitule?.substring(0, 80)}...</span>
+                              </div>
+                            ))}
+                            {oicCompetencesB.slice(0, 5).map((comp, idx) => (
+                              <div key={`b-${idx}`} className="flex items-start gap-2 p-2 bg-accent/5 rounded text-sm">
+                                <span className="font-mono text-accent-foreground text-xs">{comp.objectif_id}</span>
+                                <span className="text-foreground">{comp.intitule?.substring(0, 80)}...</span>
+                              </div>
+                            ))}
+                            {(oicCompetencesA.length > 5 || oicCompetencesB.length > 5) && (
+                              <p className="text-xs text-muted-foreground text-center pt-2">
+                                +{Math.max(0, oicCompetencesA.length - 5) + Math.max(0, oicCompetencesB.length - 5)} autres compétences
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Quiz History Summary */}
                       <QuizHistorySummary itemCode={finalItem.item_code} />
                       
