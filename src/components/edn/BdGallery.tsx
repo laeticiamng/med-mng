@@ -22,6 +22,16 @@ interface TableauRangData {
 interface OicCompetenceRef {
   objectif_id?: string;
   intitule?: string;
+  rubrique?: string;
+}
+
+interface BdPanel {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  type: 'intro' | 'rang-a' | 'rang-b' | 'conclusion';
+  competences: OicCompetenceRef[];
 }
 
 interface BdGalleryProps {
@@ -29,13 +39,15 @@ interface BdGalleryProps {
   title: string;
   tableauRangA?: TableauRangData;
   tableauRangB?: TableauRangData;
+  bdPanels?: BdPanel[];
 }
 
 export const BdGallery: React.FC<BdGalleryProps> = ({ 
   itemCode, 
   title, 
   tableauRangA, 
-  tableauRangB 
+  tableauRangB,
+  bdPanels: storedBdPanels 
 }) => {
   const [currentVignette, setCurrentVignette] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -47,9 +59,10 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
   
-  // Charger les vraies compétences OIC
-  const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
-  const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
+  // Charger les vraies compétences OIC (seulement si pas de bdPanels stockés)
+  const shouldLoadOic = !storedBdPanels || storedBdPanels.length === 0;
+  const { competences: competencesA, loading: loadingA } = useOicCompetences(shouldLoadOic ? itemCode : null, 'A');
+  const { competences: competencesB, loading: loadingB } = useOicCompetences(shouldLoadOic ? itemCode : null, 'B');
 
   useEffect(() => {
     const load = async () => {
@@ -148,7 +161,10 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     return vignettes;
   };
 
-  const vignettes = generateVignettes();
+  // Utiliser les panels stockés en priorité, sinon générer dynamiquement
+  const vignettes = storedBdPanels && storedBdPanels.length > 0 
+    ? storedBdPanels 
+    : generateVignettes();
 
   // Auto-play slideshow
   const toggleAutoPlay = React.useCallback(() => {

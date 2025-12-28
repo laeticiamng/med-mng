@@ -20,18 +20,33 @@ interface TableauRangData {
   [key: string]: unknown;
 }
 
+interface RomanChapter {
+  id: string;
+  title: string;
+  content: string;
+  type: 'intro' | 'rang-a' | 'rang-b' | 'conclusion';
+  competences: Array<{
+    objectif_id: string;
+    intitule: string;
+    description?: string;
+    rubrique?: string;
+  }>;
+}
+
 interface RomanNarratifProps {
   itemCode: string;
   title: string;
   tableauRangA?: TableauRangData;
   tableauRangB?: TableauRangData;
+  romanStory?: RomanChapter[];
 }
 
 export const RomanNarratif: React.FC<RomanNarratifProps> = ({ 
   itemCode, 
   title, 
   tableauRangA, 
-  tableauRangB 
+  tableauRangB,
+  romanStory: storedRomanStory
 }) => {
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
@@ -47,9 +62,10 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [savedProgress, setSavedProgress] = useState<number | null>(null);
 
-  // Charger les vraies compétences OIC
-  const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
-  const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
+  // Charger les vraies compétences OIC (seulement si pas de romanStory stocké)
+  const shouldLoadOic = !storedRomanStory || storedRomanStory.length === 0;
+  const { competences: competencesA, loading: loadingA } = useOicCompetences(shouldLoadOic ? itemCode : null, 'A');
+  const { competences: competencesB, loading: loadingB } = useOicCompetences(shouldLoadOic ? itemCode : null, 'B');
 
   // Load saved progress from localStorage
   useEffect(() => {
@@ -293,7 +309,10 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
     return chapters;
   };
 
-  const chapters = generateChapters();
+  // Utiliser les chapitres stockés en priorité, sinon générer dynamiquement
+  const chapters = storedRomanStory && storedRomanStory.length > 0 
+    ? storedRomanStory 
+    : generateChapters();
 
   const nextChapter = async () => {
     if (currentChapter < chapters.length - 1) {
