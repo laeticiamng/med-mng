@@ -189,12 +189,23 @@ export default function EdnComplete() {
     const searchLower = searchTerm.toLowerCase();
     
     return allItems.filter(item => {
-      // Recherche étendue : titre, code, mots-clés, spécialité
+      // Recherche étendue : titre, code, mots-clés, spécialité, objectifs OIC
       const matchesSearch = 
         item.title.toLowerCase().includes(searchLower) ||
         item.item_code.toLowerCase().includes(searchLower) ||
         (item.specialite && item.specialite.toLowerCase().includes(searchLower)) ||
-        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(searchLower)));
+        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(searchLower))) ||
+        // Recherche dans les objectifs OIC (format: "OIC-XXX" ou "objectif_id")
+        (item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) && 
+          item.competences_oic_rang_a.some((c: any) => 
+            c?.objectif_id?.toLowerCase().includes(searchLower) ||
+            c?.intitule?.toLowerCase().includes(searchLower)
+          )) ||
+        (item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) && 
+          item.competences_oic_rang_b.some((c: any) => 
+            c?.objectif_id?.toLowerCase().includes(searchLower) ||
+            c?.intitule?.toLowerCase().includes(searchLower)
+          ));
       
       // Filtre par spécialité (recherche dans titre et mots-clés)
       const matchesSpecialty = selectedSpecialty === 'all' || 
@@ -223,6 +234,8 @@ export default function EdnComplete() {
             return totalComp >= 10;
           case 'lowCompetences':
             return totalComp < 5;
+          case 'favorites':
+            return isFavorite(item.item_code);
           default:
             return true;
         }
@@ -418,7 +431,7 @@ export default function EdnComplete() {
            <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Rechercher un item (ex: IC-1, Cardiologie...)"
+              placeholder="Rechercher (IC-1, Cardiologie, OIC-XXX, compétence...)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -440,6 +453,7 @@ export default function EdnComplete() {
                   <SelectItem value="highCompetences">+10 compétences</SelectItem>
                   <SelectItem value="lowCompetences">-5 compétences</SelectItem>
                   <SelectItem value="noMusic">Sans Musique</SelectItem>
+                  <SelectItem value="favorites">⭐ Mes Favoris</SelectItem>
                 </SelectContent>
               </Select>
 

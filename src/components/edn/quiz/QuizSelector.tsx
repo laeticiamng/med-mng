@@ -127,33 +127,38 @@ export const QuizSelector: React.FC<QuizSelectorProps> = ({
           </Select>
         </div>
 
-        {/* Niveau de difficulté */}
+        {/* Niveau de difficulté avec indicateurs visuels */}
         <div className="space-y-3">
           <label className="text-sm font-medium text-primary">
             Niveau de difficulté
           </label>
-          <Select
-            value={config.difficulty}
-            onValueChange={(value: 'easy' | 'medium' | 'hard') => setConfig({
-              ...config,
-              difficulty: value
-            })}
-          >
-            <SelectTrigger className="bg-card/60 border-border">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="easy">
-                Facile - Questions directes
-              </SelectItem>
-              <SelectItem value="medium">
-                Moyen - Questions standards (Recommandé)
-              </SelectItem>
-              <SelectItem value="hard">
-                Difficile - Questions piège et cas complexes
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-3 gap-2">
+            {(['easy', 'medium', 'hard'] as const).map((diff) => (
+              <button
+                key={diff}
+                onClick={() => setConfig({ ...config, difficulty: diff })}
+                className={`p-3 rounded-lg border-2 transition-all text-center ${
+                  config.difficulty === diff
+                    ? diff === 'easy' 
+                      ? 'border-success bg-success/10 text-success'
+                      : diff === 'medium'
+                        ? 'border-warning bg-warning/10 text-warning'
+                        : 'border-destructive bg-destructive/10 text-destructive'
+                    : 'border-border bg-card/60 text-muted-foreground hover:border-primary/50'
+                }`}
+              >
+                <div className="text-lg mb-1">
+                  {diff === 'easy' ? '🟢' : diff === 'medium' ? '🟠' : '🔴'}
+                </div>
+                <div className="font-medium text-sm">
+                  {diff === 'easy' ? 'Facile' : diff === 'medium' ? 'Moyen' : 'Difficile'}
+                </div>
+                <div className="text-xs opacity-70">
+                  {diff === 'easy' ? 'Questions directes' : diff === 'medium' ? 'Recommandé' : 'Cas complexes'}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Résumé de la configuration */}
