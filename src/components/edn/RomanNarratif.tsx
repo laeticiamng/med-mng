@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   BookOpen, ChevronLeft, ChevronRight, Volume2, 
-  VolumeX, Download, Share2, Bookmark, Eye, Flame, Star
+  VolumeX, Download, Share2, Bookmark, Eye, Flame, Star, Loader2
 } from 'lucide-react';
+import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
@@ -32,6 +33,8 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   // Charger les vraies compétences OIC
   const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
@@ -285,12 +288,41 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
               <Bookmark className="h-4 w-4 mr-1" />
               Marque-page
             </Button>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={isExporting}
+              onClick={async () => {
+                setIsExporting(true);
+                const fullContent = chapters.map(c => `${c.title}\n\n${c.content}`).join('\n\n---\n\n');
+                await exportToPDF({
+                  title,
+                  content: fullContent,
+                  itemCode,
+                  type: 'roman'
+                });
+                setIsExporting(false);
+              }}
+            >
+              {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
               Télécharger
             </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4 mr-1" />
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={isSharing}
+              onClick={async () => {
+                setIsSharing(true);
+                await shareContent({
+                  title,
+                  content: currentChap.content,
+                  itemCode,
+                  type: 'roman'
+                });
+                setIsSharing(false);
+              }}
+            >
+              {isSharing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />}
               Partager
             </Button>
           </div>

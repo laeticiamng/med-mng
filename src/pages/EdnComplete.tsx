@@ -67,6 +67,7 @@ export default function EdnComplete() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
@@ -91,14 +92,23 @@ export default function EdnComplete() {
   const completeItems = ednItems as EdnItem[];
   
   // Stats calculées depuis le hook optimisé
-  const stats = {
-    total: optimizedStats.total,
-    complete: optimizedStats.complete,
-    withMusic: optimizedStats.withMusic,
-    avgScore: optimizedStats.avgScore,
-    withRangA: optimizedStats.withRangA,
-    withRangB: optimizedStats.withRangB,
-  };
+  const stats = useMemo(() => {
+    // Totaux OIC officiels (from backup_oic_competences)
+    const totalOicRangA = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
+    const totalOicRangB = ednItems.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
+    
+    return {
+      total: optimizedStats.total,
+      complete: optimizedStats.complete,
+      withMusic: optimizedStats.withMusic,
+      avgScore: optimizedStats.avgScore,
+      withRangA: optimizedStats.withRangA,
+      withRangB: optimizedStats.withRangB,
+      totalOicRangA,
+      totalOicRangB,
+      totalOicCompetences: totalOicRangA + totalOicRangB,
+    };
+  }, [optimizedStats, ednItems]);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
@@ -153,6 +163,13 @@ export default function EdnComplete() {
     return getCompletionPercentage(item) >= 80;
   };
 
+  // Liste des spécialités médicales
+  const SPECIALTIES = [
+    'Cardiologie', 'Pneumologie', 'Neurologie', 'Gastro-entérologie', 'Endocrinologie',
+    'Néphrologie', 'Rhumatologie', 'Dermatologie', 'Ophtalmologie', 'ORL', 'Pédiatrie', 
+    'Gynécologie', 'Psychiatrie', 'Urgences', 'Infectiologie', 'Hématologie', 'Oncologie', 'Gériatrie'
+  ];
+
   const filteredItems = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
     
@@ -163,6 +180,14 @@ export default function EdnComplete() {
         item.item_code.toLowerCase().includes(searchLower) ||
         (item.specialite && item.specialite.toLowerCase().includes(searchLower)) ||
         (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(searchLower)));
+      
+      // Filtre par spécialité (recherche dans titre et mots-clés)
+      const matchesSpecialty = selectedSpecialty === 'all' || 
+        item.title.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
+        (item.specialite && item.specialite.toLowerCase().includes(selectedSpecialty.toLowerCase())) ||
+        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(selectedSpecialty.toLowerCase())));
+      
+      if (!matchesSpecialty) return false;
       
       if (selectedCategory === 'all') return matchesSearch;
       
@@ -200,7 +225,7 @@ export default function EdnComplete() {
           return numA - numB;
       }
     });
-  }, [allItems, searchTerm, selectedCategory, sortBy]);
+  }, [allItems, searchTerm, selectedCategory, selectedSpecialty, sortBy]);
 
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
     // Ouvrir la modal immédiatement avec données partielles
@@ -263,7 +288,7 @@ export default function EdnComplete() {
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Avancer sur l'EDN</h1>
                   <p className="text-sm text-muted-foreground">
-                    {stats.total} items • Choisis et maîtrise un bloc
+                    {stats.total} items • {stats.totalOicCompetences > 0 ? `${stats.totalOicCompetences} compétences UNESS` : 'Choisis et maîtrise un bloc'}
                   </p>
                 </div>
                 {gamificationStats && (
@@ -377,10 +402,10 @@ export default function EdnComplete() {
             />
           </div>
 
-          <div className="flex gap-2 items-center justify-between">
-            <div className="flex gap-2">
+          <div className="flex gap-2 items-center justify-between flex-wrap">
+            <div className="flex gap-2 flex-wrap">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[150px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -395,8 +420,20 @@ export default function EdnComplete() {
                 </SelectContent>
               </Select>
 
+              <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Spécialité" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes spécialités</SelectItem>
+                  {SPECIALTIES.map(spec => (
+                    <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                <SelectTrigger className="w-[130px]">
+                <SelectTrigger className="w-[120px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
