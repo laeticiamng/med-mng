@@ -54,6 +54,8 @@ interface EdnItemData {
   roman_narratif?: string;
   competences_oic_rang_a?: OicCompetence[];
   competences_oic_rang_b?: OicCompetence[];
+  bd_panels?: unknown;
+  roman_story?: unknown;
 }
 
 interface EdnItemModalProps {
@@ -116,7 +118,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           try {
             const { data } = await supabase
               .from('edn_items_immersive')
-              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales')
+              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, bd_panels, roman_story')
               .eq('item_code', finalItem.item_code)
               .maybeSingle();
             
@@ -144,6 +146,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 paroles_musicales: normalizedParoles,
                 competences_oic_rang_a: oicCompetencesA,
                 competences_oic_rang_b: oicCompetencesB,
+                bd_panels: data.bd_panels as unknown,
+                roman_story: data.roman_story as unknown,
               }));
             }
           } catch {
@@ -700,6 +704,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   title={finalItem.title}
                   tableauRangA={finalItem.tableau_rang_a}
                   tableauRangB={finalItem.tableau_rang_b}
+                  bdPanels={finalItem.bd_panels as any}
                 />
               </TabsContent>
 
@@ -710,6 +715,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   title={finalItem.title}
                   tableauRangA={finalItem.tableau_rang_a}
                   tableauRangB={finalItem.tableau_rang_b}
+                  romanStory={finalItem.roman_story as any}
                 />
               </TabsContent>
             </div>

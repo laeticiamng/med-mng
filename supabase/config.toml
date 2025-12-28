@@ -188,3 +188,6 @@ verify_jwt = false
 
 [functions.generate-lyrics-from-oic]
 verify_jwt = false
+
+[functions.generate-bd-roman-content]
+verify_jwt = false
