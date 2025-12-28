@@ -12,13 +12,10 @@ export interface StandardTableauData {
 }
 
 export const processStandardTableauData = (data: any, isRangB: boolean = false) => {
-  console.log('🔍 Processing standard tableau data:', data);
-  
   // Extraire les données selon le format JSON de la base
   const tableauData = isRangB ? data.tableau_rang_b : data.tableau_rang_a;
   
   if (!tableauData) {
-    console.log('❌ No tableau data found');
     return null;
   }
 
@@ -26,8 +23,6 @@ export const processStandardTableauData = (data: any, isRangB: boolean = false) 
   const parsedData: StandardTableauData = typeof tableauData === 'string' 
     ? JSON.parse(tableauData) 
     : tableauData;
-
-  console.log('📊 Parsed tableau data:', parsedData);
 
   // Générer les lignes pour le tableau
   const lignes: string[][] = [];

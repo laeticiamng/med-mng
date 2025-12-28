@@ -106,7 +106,6 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
         processedData = processTableauRangBOIC010(data);
         break;
       default:
-        console.warn(`TableauRangB - Code item non supporté: ${itemCode}`);
         processedData = {
           lignesEnrichies: [],
           colonnesUtiles: [],
@@ -116,8 +115,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
         };
         break;
     }
-  } catch (error) {
-    console.error("Erreur lors du traitement des données Rang B:", error);
+  } catch {
     return <p>Erreur lors du traitement des données.</p>;
   }
 

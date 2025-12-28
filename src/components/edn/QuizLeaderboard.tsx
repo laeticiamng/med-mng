@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, TrendingUp, Users, Crown, Star } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Trophy, Medal, TrendingUp, Users, Crown, Star, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LeaderboardEntry {
@@ -21,13 +23,19 @@ interface QuizLeaderboardProps {
   limit?: number;
 }
 
+type TimePeriod = 'week' | 'month' | 'all';
+
 export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({ 
   itemCode,
   limit = 10 
 }) => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<LeaderboardEntry[]>([]);
   const [userStats, setUserStats] = useState<{ rank: number; avgScore: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -38,10 +46,22 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
         // Fetch quiz results with aggregation
         let query = supabase
           .from('quiz_results')
-          .select('user_id, score, item_code');
+          .select('user_id, score, item_code, created_at');
 
         if (itemCode) {
           query = query.eq('item_code', itemCode);
+        }
+
+        // Time period filter
+        if (timePeriod !== 'all') {
+          const now = new Date();
+          let startDate: Date;
+          if (timePeriod === 'week') {
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          } else {
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          }
+          query = query.gte('created_at', startDate.toISOString());
         }
 
         const { data: results, error } = await query;
@@ -71,38 +91,43 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
             isCurrentUser: userId === user?.id
           }))
           .sort((a, b) => b.avgScore - a.avgScore)
-          .slice(0, limit)
           .map((entry, index) => ({
             ...entry,
             rank: index + 1
           }));
 
-        setEntries(leaderboard);
+        setAllEntries(leaderboard);
+        setEntries(leaderboard.slice(0, limit));
 
         // Find current user stats
         if (user && userScores[user.id]) {
-          const allUsers = Object.entries(userScores)
-            .map(([id, data]) => ({ id, avg: data.total / data.count }))
-            .sort((a, b) => b.avg - a.avg);
-          
-          const userRank = allUsers.findIndex(u => u.id === user.id) + 1;
+          const userRank = leaderboard.findIndex(u => u.userId === user.id) + 1;
           const userData = userScores[user.id];
           
           setUserStats({
             rank: userRank,
             avgScore: Math.round(userData.total / userData.count),
-            total: allUsers.length
+            total: leaderboard.length
           });
         }
-      } catch (error) {
-        // Error handled silently
+      } catch {
+        // Silent error handling
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, [itemCode, limit]);
+  }, [itemCode, limit, timePeriod]);
+
+  // Pagination
+  const paginatedEntries = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return allEntries.slice(start, end);
+  }, [allEntries, currentPage]);
+
+  const totalPages = Math.ceil(allEntries.length / itemsPerPage);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -131,6 +156,14 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
     }
   };
 
+  const getTimePeriodLabel = (period: TimePeriod) => {
+    switch (period) {
+      case 'week': return 'Cette semaine';
+      case 'month': return 'Ce mois';
+      case 'all': return 'Tout le temps';
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -150,13 +183,28 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-warning" />
-          Classement Quiz
-        </CardTitle>
-        <CardDescription>
-          {itemCode ? `Classement pour ${itemCode}` : 'Classement global des quiz EDN'}
-        </CardDescription>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-warning" />
+              Classement Quiz
+            </CardTitle>
+            <CardDescription>
+              {itemCode ? `Classement pour ${itemCode}` : 'Classement global des quiz EDN'}
+            </CardDescription>
+          </div>
+          <Select value={timePeriod} onValueChange={(v) => { setTimePeriod(v as TimePeriod); setCurrentPage(1); }}>
+            <SelectTrigger className="w-[140px]">
+              <Calendar className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week">Cette semaine</SelectItem>
+              <SelectItem value="month">Ce mois</SelectItem>
+              <SelectItem value="all">Tout le temps</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* User position summary */}
@@ -186,16 +234,27 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           </div>
         )}
 
+        {/* Period badge */}
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            <Calendar className="h-3 w-3 mr-1" />
+            {getTimePeriodLabel(timePeriod)}
+          </Badge>
+          <Badge variant="secondary" className="text-xs">
+            {allEntries.length} participants
+          </Badge>
+        </div>
+
         {/* Leaderboard list */}
         <div className="space-y-2">
-          {entries.length === 0 ? (
+          {paginatedEntries.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>Aucun résultat de quiz disponible</p>
               <p className="text-sm">Soyez le premier à faire un quiz !</p>
             </div>
           ) : (
-            entries.map((entry) => (
+            paginatedEntries.map((entry) => (
               <div
                 key={entry.userId}
                 className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getRankBg(entry.rank, entry.isCurrentUser)}`}
@@ -229,6 +288,33 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Précédent
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} sur {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

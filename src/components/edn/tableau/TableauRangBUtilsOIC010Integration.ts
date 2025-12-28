@@ -1,8 +1,6 @@
 
 // Utilitaires pour l'affichage du Tableau Rang B OIC-010-03-B
 export const processTableauRangBOIC010 = (data: any) => {
-  console.log('🔍 Traitement avancé OIC-010-03-B Rang B');
-  
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -30,8 +28,6 @@ export const processTableauRangBOIC010 = (data: any) => {
   ]);
 
   const theme = "OIC-010-03-B Rang B - Expertise impact psychocorporel";
-
-  console.log(`✅ OIC-010-03-B Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

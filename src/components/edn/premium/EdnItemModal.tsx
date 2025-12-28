@@ -105,8 +105,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 competences_oic_rang_b: oicCompetencesB,
               }));
             }
-          } catch (e) {
-            console.warn('Failed to load complete item data:', e);
+          } catch {
+            // Silent error handling - partial data is still usable
           }
         } else {
           setCompleteItemData({
