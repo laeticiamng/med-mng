@@ -14,8 +14,9 @@ interface TableauRangAProps {
   itemCode?: string;
 }
 
-export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => {
+export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
   // TOUJOURS utiliser les vraies compétences de la base de données
   // Les fichiers *Integration.ts avec données hardcodées sont obsolètes
-  return <TableauCompetencesOICWithRealData itemCode={itemCode} rang="A" />;
+  const code = itemCode || "IC-1";
+  return <TableauCompetencesOICWithRealData itemCode={code} rang="A" />;
 };

@@ -155,7 +155,8 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         // Error handled silently
       }
     }
-  }, [masteredCompetences, itemCode, rang, logActivity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [masteredCompetences, itemCode, rang]);
 
   const resetProgress = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -262,8 +263,9 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
                 onClick={resetProgress}
                 disabled={loading}
                 className="h-6 w-6 p-0"
+                aria-label="Réinitialiser la progression"
               >
-                <RotateCcw className="h-3 w-3" />
+                <RotateCcw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             )}
           </div>

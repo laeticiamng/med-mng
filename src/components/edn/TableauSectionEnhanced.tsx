@@ -70,6 +70,7 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
       }
     };
     trackView();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section.title, rang]);
 
   const themeColors = rang === 'A' 
@@ -94,9 +95,9 @@ export const TableauSectionEnhanced: React.FC<TableauSectionEnhancedProps> = ({
             {stats && (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-background/50 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <span className="font-bold text-warning">{stats.currentStreak ?? 0}</span>
                 <Star className="h-3 w-3 text-primary ml-1" />
-                <span className="font-bold text-primary">Nv.{stats.level}</span>
+                <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
               </div>
             )}
             {section.competences && section.competences.length > 0 && (
