@@ -1,4 +1,3 @@
-import React from 'react';
 import { QuizConfig } from './QuizSelector';
 
 interface QuizQuestion {

@@ -197,7 +197,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-background/60 rounded-lg p-3 text-center">
                     <div className="text-2xl font-bold text-success">
-                      {Math.round((quizResults.score / quizResults.totalQuestions) * 100)}%
+                      {quizResults.score}%
                     </div>
                     <div className="text-sm text-muted-foreground">Score</div>
                   </div>

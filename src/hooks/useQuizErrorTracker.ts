@@ -126,8 +126,8 @@ export const useQuizErrorTracker = () => {
             session_date: new Date().toISOString().split('T')[0]
           });
       }
-    } catch {
-      // Error saving session handled silently
+    } catch (error) {
+      console.error('Erreur sauvegarde session quiz:', error);
     }
 
     
