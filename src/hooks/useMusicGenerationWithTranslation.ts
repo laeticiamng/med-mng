@@ -23,7 +23,6 @@ export const useMusicGenerationWithTranslation = () => {
       return audioUrl;
       
     } catch (error) {
-      console.error('Erreur génération musique avec traduction:', error);
       throw error;
     }
   };

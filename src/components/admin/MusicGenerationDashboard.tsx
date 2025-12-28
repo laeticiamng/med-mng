@@ -29,8 +29,7 @@ export const MusicGenerationDashboard: React.FC = () => {
     try {
       const stats = await getAdminStats(timeframe);
       setAdminStats(stats);
-    } catch (error) {
-      console.error('❌ Erreur chargement stats admin:', error);
+    } catch {
       toast.error('Erreur de chargement des statistiques');
     } finally {
       setLoading(false);

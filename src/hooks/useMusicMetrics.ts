@@ -78,7 +78,6 @@ export function useMusicMetrics() {
       setDailyStats(daily || []);
 
     } catch (err) {
-      console.error('Error loading stats:', err);
       setError(err instanceof Error ? err.message : 'Erreur de chargement');
     } finally {
       setLoading(false);

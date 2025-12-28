@@ -23,7 +23,6 @@ export const useSupabaseMusicTracks = () => {
   const loadTracks = async () => {
     try {
       setLoading(true);
-      console.log('🎵 [useSupabaseMusicTracks] Chargement des tracks depuis Supabase...');
       
       const { data, error } = await supabase
         .from('generated_music_tracks')
@@ -35,11 +34,9 @@ export const useSupabaseMusicTracks = () => {
 
       if (error) throw error;
       
-      console.log('🎵 [useSupabaseMusicTracks] Musiques chargées:', data?.length);
       setTracks(data || []);
       setError(null);
     } catch (err: any) {
-      console.error('❌ [useSupabaseMusicTracks] Erreur chargement musiques:', err);
       setError(err.message);
       toast({
         title: "Erreur de chargement",
@@ -53,7 +50,6 @@ export const useSupabaseMusicTracks = () => {
 
   // Écouter les nouveaux tracks en temps réel
   useEffect(() => {
-    console.log('🔔 [useSupabaseMusicTracks] Initialisation du hook');
     loadTracks();
 
     // Subscription aux changements en temps réel
@@ -64,7 +60,6 @@ export const useSupabaseMusicTracks = () => {
         schema: 'public',
         table: 'generated_music_tracks'
       }, (payload) => {
-        console.log('🔄 [useSupabaseMusicTracks] Track mis à jour:', payload.new);
         if (payload.new?.audio_url) {
           loadTracks(); // Recharger la liste
           toast({
@@ -79,7 +74,6 @@ export const useSupabaseMusicTracks = () => {
         schema: 'public',
         table: 'generated_music_tracks'
       }, (payload) => {
-        console.log('🆕 [useSupabaseMusicTracks] Nouveau track inséré:', payload.new);
         if (payload.new?.audio_url) {
           loadTracks();
           toast({
@@ -92,7 +86,6 @@ export const useSupabaseMusicTracks = () => {
       .subscribe();
 
     return () => {
-      console.log('🔄 [useSupabaseMusicTracks] Nettoyage de la subscription');
       subscription.unsubscribe();
     };
   }, [toast]);
@@ -100,20 +93,14 @@ export const useSupabaseMusicTracks = () => {
   // Test de connectivité amélioré
   const testDatabaseConnectivity = async () => {
     try {
-      console.log('🔧 Test de connectivité base de données...');
-      
       // Test: Utiliser la fonction debug SQL créée
-      const { data: allTracks, error: rpcError } = await supabase
+      const { data: allTracks } = await supabase
         .rpc('get_all_music_tracks');
 
-      console.log('📊 Test fonction RPC:', allTracks?.length, 'Erreur:', rpcError);
-
       // Test alternatif: Compter tous les tracks
-      const { count: totalCount, error: countError } = await supabase
+      const { count: totalCount } = await supabase
         .from('generated_music_tracks')
         .select('*', { count: 'exact', head: true });
-
-      console.log('📊 Total tracks dans DB:', totalCount, 'Erreur:', countError);
 
       toast({
         title: "Test connectivité",
@@ -121,8 +108,7 @@ export const useSupabaseMusicTracks = () => {
         duration: 3000,
       });
 
-    } catch (error) {
-      console.error('❌ Erreur test connectivité:', error);
+    } catch {
       toast({
         title: "Erreur test",
         description: "Problème de connectivité base de données",

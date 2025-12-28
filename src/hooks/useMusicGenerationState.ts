@@ -48,8 +48,6 @@ export const useMusicGenerationState = () => {
   };
 
   const setAudioUrl = (rang: 'A' | 'B' | 'AB', url: string) => {
-    console.log(`🎵 STATE - setAudioUrl appelé:`, { rang, url, urlValid: url?.startsWith('http') });
-    
     const audioKey = rang === 'A' ? 'rangA' : rang === 'B' ? 'rangB' : 'rangAB';
     
     setGeneratedAudio(prev => {
@@ -57,7 +55,6 @@ export const useMusicGenerationState = () => {
         ...prev,
         [audioKey]: url
       };
-      console.log(`🎵 STATE - Nouvel état generatedAudio:`, newState);
       return newState;
     });
   };
