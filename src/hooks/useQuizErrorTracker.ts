@@ -85,18 +85,50 @@ export const useQuizErrorTracker = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const timeSpent = Math.round((completedSession.endTime!.getTime() - completedSession.startTime.getTime()) / 1000);
+        const correctAnswers = completedSession.totalQuestions - completedSession.errors.length;
+        const scorePercentage = completedSession.totalQuestions > 0 
+          ? Math.round((correctAnswers / completedSession.totalQuestions) * 100) 
+          : 0;
+        
+        // Save to quiz_sessions for detailed tracking
         await supabase
           .from('quiz_sessions')
           .insert({
             user_id: user.id,
             item_code: completedSession.itemCode,
-            rang: 'A', // Default rang
+            rang: 'A',
             score: finalScore,
             questions_count: completedSession.totalQuestions,
-            correct_answers: completedSession.totalQuestions - completedSession.errors.length,
+            correct_answers: correctAnswers,
             time_spent_seconds: timeSpent,
             session_data: { errors: completedSession.errors, itemTitle: completedSession.itemTitle } as unknown as Json,
             completed: true
+          });
+        
+        // Also save to quiz_results for leaderboard compatibility
+        await supabase
+          .from('quiz_results')
+          .insert({
+            user_id: user.id,
+            item_code: completedSession.itemCode,
+            item_title: completedSession.itemTitle,
+            score: scorePercentage,
+            total_questions: completedSession.totalQuestions,
+            correct_answers: correctAnswers,
+            wrong_answers: completedSession.errors.length,
+            time_spent: timeSpent,
+            performance: { percentage: scorePercentage },
+            answers: completedSession.errors.map(e => ({ question: e.question, userAnswer: e.userAnswer, correct: e.correctAnswer }))
+          });
+        
+        // Also save to revision_history for RevisionDashboard
+        await supabase
+          .from('revision_history')
+          .insert({
+            user_id: user.id,
+            item_code: completedSession.itemCode,
+            score: scorePercentage,
+            session_date: new Date().toISOString().split('T')[0]
           });
       }
     } catch (error) {
