@@ -11,9 +11,28 @@ import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+interface CompetenceItem {
+  competence?: string;
+  title?: string;
+  intitule?: string;
+}
+
+interface TableauRangData {
+  competences_cles?: CompetenceItem[];
+  sections?: Array<{ title?: string }>;
+}
+
+interface EdnItem {
+  item_code?: string;
+  tableau_rang_a?: TableauRangData | CompetenceItem[];
+  tableau_rang_b?: TableauRangData | CompetenceItem[];
+  paroles_musicales?: string[];
+  quiz_questions?: unknown;
+  scene_immersive?: unknown;
+}
 
 interface CompetenceValidationProps {
-  item: any;
+  item: EdnItem;
 }
 
 interface CompetenceMastery {
@@ -67,8 +86,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.item_code]);
+  }, [item?.item_code, loadStats, logActivity, loadMasteryData]);
 
   // Toggle mastery d'une compétence
   const toggleMastery = async (objectifId: string, rang: 'A' | 'B', currentlyMastered: boolean) => {
@@ -229,12 +247,12 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     } else if (item.tableau_rang_a) {
       result.rangA.present = true;
       // Fallback: données locales
-      if (item.tableau_rang_a.competences_cles?.length > 0) {
+      if (!Array.isArray(item.tableau_rang_a) && item.tableau_rang_a.competences_cles && item.tableau_rang_a.competences_cles.length > 0) {
         result.rangA.count = item.tableau_rang_a.competences_cles.length;
-        result.rangA.competences = item.tableau_rang_a.competences_cles.map((c: any) => c.competence || c.title).filter(Boolean);
+        result.rangA.competences = item.tableau_rang_a.competences_cles.map((c: CompetenceItem) => c.competence || c.title || '').filter(Boolean);
       } else if (Array.isArray(item.tableau_rang_a) && item.tableau_rang_a.length > 0) {
         result.rangA.count = item.tableau_rang_a.length;
-        result.rangA.competences = item.tableau_rang_a.map((c: any) => c.intitule || c.title).filter(Boolean);
+        result.rangA.competences = item.tableau_rang_a.map((c: CompetenceItem) => c.intitule || c.title || '').filter(Boolean);
       }
     } else {
       result.issues.push("Tableau Rang A manquant");
@@ -247,12 +265,12 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       result.rangB.competences = oicCompetencesB.map(c => c.intitule || 'Compétence').filter(Boolean);
     } else if (item.tableau_rang_b) {
       result.rangB.present = true;
-      if (item.tableau_rang_b.competences_cles?.length > 0) {
+      if (!Array.isArray(item.tableau_rang_b) && item.tableau_rang_b.competences_cles && item.tableau_rang_b.competences_cles.length > 0) {
         result.rangB.count = item.tableau_rang_b.competences_cles.length;
-        result.rangB.competences = item.tableau_rang_b.competences_cles.map((c: any) => c.competence || c.title).filter(Boolean);
+        result.rangB.competences = item.tableau_rang_b.competences_cles.map((c: CompetenceItem) => c.competence || c.title || '').filter(Boolean);
       } else if (Array.isArray(item.tableau_rang_b) && item.tableau_rang_b.length > 0) {
         result.rangB.count = item.tableau_rang_b.length;
-        result.rangB.competences = item.tableau_rang_b.map((c: any) => c.intitule || c.title).filter(Boolean);
+        result.rangB.competences = item.tableau_rang_b.map((c: CompetenceItem) => c.intitule || c.title || '').filter(Boolean);
       }
     } else {
       result.issues.push("Tableau Rang B manquant");

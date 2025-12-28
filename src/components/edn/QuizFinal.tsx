@@ -19,6 +19,8 @@ interface QuizQuestion {
   points_cles?: string[];
   affirmation?: string;
   justification?: string;
+  type?: string;
+  id?: number;
 }
 
 interface QuizFinalProps {
@@ -174,7 +176,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     return rewards.completion || "Félicitations !";
   };
 
-  const renderQuestion = (question: any) => {
+  const renderQuestion = (question: QuizQuestion & { type: string; id: number }) => {
     switch (question.type) {
       case 'qcm':
         return (
@@ -202,7 +204,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
             <Input
               placeholder="Votre réponse..."
-              value={answers[question.id] || ''}
+              value={String(answers[question.id] ?? '')}
               onChange={(e) => handleAnswer(question.id, e.target.value)}
               className="border-warning/30 focus:border-warning"
             />
@@ -215,7 +217,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             <h3 className="text-lg font-semibold text-foreground">{question.question}</h3>
             <Input
               placeholder="Citez 2 éléments..."
-              value={answers[question.id] || ''}
+              value={String(answers[question.id] ?? '')}
               onChange={(e) => handleAnswer(question.id, e.target.value)}
               className="border-warning/30 focus:border-warning"
             />
@@ -309,7 +311,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
     
     // Calculate detailed results
-    const detailedResults = allQuestions.map((question: any) => {
+    const detailedResults = allQuestions.map((question: QuizQuestion & { type: string; id: number }) => {
       const userAnswer = answers[question.id];
       let isCorrect = false;
       let correctAnswer = '';

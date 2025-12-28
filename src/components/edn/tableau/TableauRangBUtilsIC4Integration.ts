@@ -1,9 +1,36 @@
 // Utilitaires pour l'affichage du Tableau Rang B IC-4
-export const processTableauRangBIC4Advanced = (data: any) => {
+
+interface IC4ConceptB {
+  concept?: string;
+  analyse?: string;
+  cas?: string;
+  ecueil?: string;
+  technique?: string;
+  distinction?: string;
+  maitrise?: string;
+  excellence?: string;
+}
+
+interface IC4TableauDataB {
+  tableau_rang_b?: {
+    sections?: Array<{ concepts?: IC4ConceptB[] }>;
+  };
+  sections?: Array<{ concepts?: IC4ConceptB[] }>;
+  item_code?: string;
+  title?: string;
+  slug?: string;
+}
+
+interface ColonneUtileB {
+  nom: string;
+  description: string;
+}
+
+export const processTableauRangBIC4Advanced = (data: IC4TableauDataB) => {
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtileB[] = [
     { nom: 'Concept expert', description: 'Expertise de haut niveau' },
     { nom: 'Analyse approfondie', description: 'Compréhension systémique' },
     { nom: 'Cas complexe', description: 'Situation réelle experte' },
@@ -14,7 +41,7 @@ export const processTableauRangBIC4Advanced = (data: any) => {
     { nom: 'Excellence', description: 'Leadership et innovation' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: IC4ConceptB) => [
     concept.concept || '',
     concept.analyse || '',
     concept.cas || '',
@@ -32,14 +59,14 @@ export const processTableauRangBIC4Advanced = (data: any) => {
     colonnesUtiles,
     theme,
     isRangB: true,
-    expertiseLevel: 'advanced'
+    expertiseLevel: 'advanced' as const
   };
 };
 
 export const processTableauRangBIC4 = processTableauRangBIC4Advanced;
 
-export const isIC4RangBItem = (data: any): boolean => {
+export const isIC4RangBItem = (data: IC4TableauDataB): boolean => {
   return data?.item_code === 'IC-4' || 
          data?.title?.includes('Qualité et sécurité des soins') ||
-         data?.slug === 'ic4-qualite-securite-soins';
+         data?.slug === 'ic4-qualite-securite-soins' || false;
 };

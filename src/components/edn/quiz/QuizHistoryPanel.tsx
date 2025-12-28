@@ -31,8 +31,7 @@ export const QuizHistoryPanel: React.FC<QuizHistoryPanelProps> = ({
     if (itemCode) {
       getItemStats(itemCode).then(setStats);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCode]);
+  }, [itemCode, fetchUserResults, getItemStats]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

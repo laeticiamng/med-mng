@@ -10,10 +10,22 @@ interface QuizQuestion {
   points_cles?: string[];
   affirmation?: string;
   justification?: string;
+  type?: string;
+  id?: number;
 }
 
+interface QuizQuestionsData {
+  qcm?: QuizQuestion[];
+  qru?: QuizQuestion[];
+  qroc?: QuizQuestion[];
+  zap?: QuizQuestion[];
+}
+
+type QuestionWithMeta = QuizQuestion & { type: string; id: number };
+type UserAnswer = string | number | boolean | null;
+
 export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) => {
-  const [answers, setAnswers] = useState<{ [key: number]: any }>({});
+  const [answers, setAnswers] = useState<Record<number, UserAnswer>>({});
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
@@ -21,7 +33,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
   
   const { addQuizError, endQuizSession } = useQuizErrorTracker();
 
-  const handleAnswer = useCallback((questionId: number, answer: any) => {
+  const handleAnswer = useCallback((questionId: number, answer: UserAnswer) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -31,7 +43,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
   const checkAndRecordError = useCallback((
     question: QuizQuestion, 
     questionIndex: number, 
-    userAnswer: any, 
+    userAnswer: UserAnswer, 
     questionType: string
   ) => {
     let isCorrect = false;
@@ -44,13 +56,13 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
         correctAnswer = question.options?.[question.correct || 0] || '';
         break;
       case 'qru':
-        const userAnswerText = (userAnswer || '').toLowerCase();
+        const userAnswerText = String(userAnswer || '').toLowerCase();
         const expectedAnswer = (question.reponse || '').toLowerCase();
         isCorrect = userAnswerText.includes(expectedAnswer);
         correctAnswer = question.reponse || '';
         break;
       case 'qroc':
-        const userText = (userAnswer || '').toLowerCase();
+        const userText = String(userAnswer || '').toLowerCase();
         const matchedPoints = question.points_cles?.filter(point => 
           userText.includes(point.toLowerCase())
         ) || [];
@@ -77,25 +89,25 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
     return isCorrect;
   }, [addQuizError, itemCode]);
 
-  const calculateScoreWithTracking = useCallback((questions: any) => {
+  const calculateScoreWithTracking = useCallback((questions: QuizQuestionsData) => {
     let totalScore = 0;
-    const allQuestions: any[] = [];
+    const allQuestions: QuestionWithMeta[] = [];
     
     // Construire la liste de toutes les questions
     if (questions.qcm) {
-      allQuestions.push(...questions.qcm.map((q: any, i: number) => ({ ...q, type: 'qcm', id: i })));
+      allQuestions.push(...questions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })));
     }
     if (questions.qru) {
       const startId = questions.qcm?.length || 0;
-      allQuestions.push(...questions.qru.map((q: any, i: number) => ({ ...q, type: 'qru', id: i + startId })));
+      allQuestions.push(...questions.qru.map((q, i) => ({ ...q, type: 'qru', id: i + startId })));
     }
     if (questions.qroc) {
       const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0);
-      allQuestions.push(...questions.qroc.map((q: any, i: number) => ({ ...q, type: 'qroc', id: i + startId })));
+      allQuestions.push(...questions.qroc.map((q, i) => ({ ...q, type: 'qroc', id: i + startId })));
     }
     if (questions.zap) {
       const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0) + (questions.qroc?.length || 0);
-      allQuestions.push(...questions.zap.map((q: any, i: number) => ({ ...q, type: 'zap', id: i + startId })));
+      allQuestions.push(...questions.zap.map((q, i) => ({ ...q, type: 'zap', id: i + startId })));
     }
 
     // Vérifier chaque réponse et enregistrer les erreurs
@@ -134,7 +146,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
     }
   }, [itemCode, itemTitle, startTime, answers]);
 
-  const finishQuiz = useCallback(async (questions: any) => {
+  const finishQuiz = useCallback(async (questions: QuizQuestionsData) => {
     const { totalScore, totalQuestions } = calculateScoreWithTracking(questions);
     setScore(totalScore);
     setShowResults(true);
