@@ -25,12 +25,15 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!itemCode || !itemCode.startsWith('IC-')) {
+    // Support both IC-X and just number formats
+    const cleanCode = itemCode?.trim() || '';
+    if (!cleanCode) {
       setLoading(false);
       return;
     }
 
-    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+    // Extract number from itemCode (supports "IC-1", "1", "001", etc.)
+    const itemNumber = cleanCode.replace(/^IC-?/i, '').padStart(3, '0');
 
     setLoading(true);
     setError(null);
