@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Music, AlertTriangle, Brain, Target, Flame, Star } from 'lucide-react';
+import { Music, Brain, Target, Flame, Star } from 'lucide-react';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { useToast } from '@/hooks/use-toast';
@@ -33,7 +33,8 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
       if (user) loadStats(user.id);
     };
     load();
-  }, [loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lofi Piano' },
@@ -161,11 +162,11 @@ Grâce à mes erreurs... quelle surprise !`;
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats.currentStreak}j
+                {stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats.level}
+                Niv. {stats.level ?? 1}
               </Badge>
             </div>
           )}

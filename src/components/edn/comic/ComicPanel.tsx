@@ -40,7 +40,7 @@ export const ComicPanel = ({ panel }: ComicPanelProps) => {
           {panel.isGenerated && !isPlaceholder ? (
             <img 
               src={panel.imageUrl} 
-              alt={panel.title}
+              alt={`Illustration: ${panel.title}`}
               className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
             />
           ) : (
@@ -66,7 +66,7 @@ export const ComicPanel = ({ panel }: ComicPanelProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent"></div>
           
           {/* Bulle de dialogue stylée */}
-          <div className="absolute top-2 right-2 bg-background rounded-full p-2 shadow-lg border-2 border-primary">
+          <div className="absolute top-2 right-2 bg-background rounded-full p-2 shadow-lg border-2 border-primary" aria-hidden="true">
             <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
           </div>
         </div>

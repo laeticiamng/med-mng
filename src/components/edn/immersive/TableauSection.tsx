@@ -23,7 +23,8 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
       if (user) loadStats(user.id);
     };
     load();
-  }, [loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   useEffect(() => {
     const track = async () => {
@@ -42,6 +43,7 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
       }
     };
     track();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, type, title]);
 
   if (!data) {
@@ -73,9 +75,9 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
           {stats && (
             <div className="flex items-center gap-2 px-2 py-1 bg-muted/30 rounded-full text-xs">
               <Flame className="h-3 w-3 text-warning" />
-              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <span className="font-bold text-warning">{stats.currentStreak ?? 0}</span>
               <Star className="h-3 w-3 text-primary ml-1" />
-              <span className="font-bold text-primary">Nv.{stats.level}</span>
+              <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
             </div>
           )}
         </CardTitle>
