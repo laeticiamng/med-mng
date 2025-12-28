@@ -82,17 +82,28 @@ export const useEdnItemsOptimized = () => {
         setItems(mappedItems);
         setLoading(false);
         
-        // Background OIC enrichment (via Supabase client - non bloquant)
+        // Background OIC enrichment via fetch direct
         try {
-          const { data: oicData } = await supabase
-            .from('backup_oic_competences')
-            .select('item_parent,rang')
-            .not('objectif_id', 'is', null);
+          const oicResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=item_parent,rang&objectif_id=not.is.null`,
+            {
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+              }
+            }
+          );
 
-          if (cancelled || !oicData || oicData.length === 0) return;
+          if (cancelled || !oicResponse.ok) return;
+
+          const oicData = await oicResponse.json();
+          console.log('📊 OIC data loaded:', oicData?.length, 'competences');
+
+          if (!oicData || oicData.length === 0) return;
 
           const countsMap = new Map<string, { rangA: number; rangB: number }>();
-          oicData.forEach((row) => {
+          oicData.forEach((row: any) => {
             const key = row.item_parent || '';
             const existing = countsMap.get(key) || { rangA: 0, rangB: 0 };
             if (row.rang === 'A') existing.rangA++;
@@ -101,12 +112,12 @@ export const useEdnItemsOptimized = () => {
           });
 
           setItems(prev => prev.map((item) => {
+            // item_code est "IC-1", item_parent est "001"
             const itemNumber = item.item_code.replace('IC-', '');
             const paddedNumber = itemNumber.padStart(3, '0');
             
             const counts = countsMap.get(paddedNumber) 
               || countsMap.get(itemNumber) 
-              || countsMap.get(item.item_code)
               || { rangA: 0, rangB: 0 };
             
             return {
