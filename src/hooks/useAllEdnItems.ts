@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItem {
   item_code: string;
@@ -25,9 +24,12 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
+const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+
 // Cache global persistant
 let globalCache: { items: EdnItem[]; stats: EdnItemsStats } | null = null;
-let fetchPromise: Promise<void> | null = null;
+let isFetching = false;
 
 export const useAllEdnItems = () => {
   const [items, setItems] = useState<EdnItem[]>(globalCache?.items || []);
@@ -48,43 +50,50 @@ export const useAllEdnItems = () => {
       return;
     }
 
-    // Si un fetch est déjà en cours, attendre
-    if (fetchPromise) {
-      fetchPromise.then(() => {
-        if (mountedRef.current && globalCache) {
+    // Éviter les fetch multiples
+    if (isFetching) {
+      const checkCache = setInterval(() => {
+        if (globalCache && mountedRef.current) {
           setItems(globalCache.items);
           setStats(globalCache.stats);
           setLoading(false);
+          clearInterval(checkCache);
         }
-      });
-      return;
+      }, 100);
+      return () => clearInterval(checkCache);
     }
 
-    // Lancer le fetch
+    isFetching = true;
+
+    // Utiliser fetch directement sans AbortController
     const doFetch = async () => {
       try {
-        const { data, error: supabaseError } = await supabase
-          .from('edn_items_immersive')
-          .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
-          .order('item_code');
-
-        if (supabaseError) {
-          if (mountedRef.current) {
-            setError('Erreur lors du chargement des items');
-            setLoading(false);
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            }
           }
-          return;
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        if (data) {
-          const mappedItems: EdnItem[] = data.map(d => ({
+        const data = await response.json();
+
+        if (data && Array.isArray(data)) {
+          const mappedItems: EdnItem[] = data.map((d: any) => ({
             item_code: d.item_code,
             title: d.title,
             subtitle: d.subtitle || undefined,
             category: 'EDN',
             has_music: Boolean(d.paroles_musicales),
             has_lyrics: Boolean(d.paroles_musicales),
-            competences_count: d.competences_count_total || 0
+            competences_count: 0
           }));
 
           const statsData: EdnItemsStats = {
@@ -104,16 +113,17 @@ export const useAllEdnItems = () => {
           }
         }
       } catch (err) {
+        console.error('useAllEdnItems fetch error:', err);
         if (mountedRef.current) {
           setError('Erreur lors du chargement');
           setLoading(false);
         }
+      } finally {
+        isFetching = false;
       }
     };
 
-    fetchPromise = doFetch().finally(() => {
-      fetchPromise = null;
-    });
+    doFetch();
 
     return () => {
       mountedRef.current = false;
@@ -172,7 +182,7 @@ export const useAllEdnItems = () => {
   const refreshItems = useCallback(() => {
     // Invalider le cache global et recharger
     globalCache = null;
-    fetchPromise = null;
+    isFetching = false;
     window.location.reload();
   }, []);
 
