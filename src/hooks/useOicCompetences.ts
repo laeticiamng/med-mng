@@ -40,6 +40,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [competences, setCompetences] = useState<OicCompetence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,9 +56,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     const cacheKey = `${itemCode}-${rang}`;
     
-    // Check cache first - return immediately without touching loading state
-    // Accept both populated and empty cached arrays to prevent re-fetching
-    if (competencesCache.has(cacheKey)) {
+    // Check cache first (only if not refreshing)
+    if (refreshKey === 0 && competencesCache.has(cacheKey)) {
       const cached = competencesCache.get(cacheKey)!;
       setCompetences(cached);
       setLoading(false);
@@ -73,10 +73,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     setLoading(true);
     setError(null);
 
-    // Fetch with explicit promise handling and timeout
     const doFetch = async () => {
       try {
-        // Set a 10 second timeout
         const timeoutPromise = new Promise<never>((_, reject) => {
           timeoutId = setTimeout(() => reject(new Error('Timeout')), 10000);
         });
@@ -116,7 +114,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
             item_parent: comp.item_parent || itemNumber
           })) as OicCompetence[];
 
-        // Cache results (even empty arrays to prevent re-fetching)
+        // Cache results
         competencesCache.set(cacheKey, realCompetences);
 
         if (!cancelled) {
@@ -141,15 +139,12 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       cancelled = true;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [itemCode, rang]);
+  }, [itemCode, rang, refreshKey]);
 
-  // Manual refetch function
+  // Manual refetch function that actually works
   const refetch = useCallback(() => {
     invalidateOicCache(itemCode, rang);
-    // Trigger re-render by changing loading state
-    setLoading(true);
-    setError(null);
-    setCompetences([]);
+    setRefreshKey(prev => prev + 1);
   }, [itemCode, rang]);
 
   return { competences, loading, error, refetch };
