@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useQuizErrorTracker } from './useQuizErrorTracker';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuizQuestion {
   question: string;
@@ -16,6 +17,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
+  const [startTime] = useState(Date.now());
   
   const { addQuizError, endQuizSession } = useQuizErrorTracker();
 
@@ -103,19 +105,48 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
       if (isCorrect) totalScore++;
     });
 
-    return totalScore;
+    return { totalScore, totalQuestions: allQuestions.length };
   }, [answers, checkAndRecordError]);
 
-  const finishQuiz = useCallback((questions: any) => {
-    const finalScore = calculateScoreWithTracking(questions);
-    setScore(finalScore);
+  // Sauvegarde explicite dans quiz_results
+  const saveQuizResult = useCallback(async (finalScore: number, totalQuestions: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      const percentage = totalQuestions > 0 ? Math.round((finalScore / totalQuestions) * 100) : 0;
+      
+      await supabase.from('quiz_results').insert({
+        user_id: user.id,
+        item_code: itemCode,
+        item_title: itemTitle,
+        score: percentage,
+        total_questions: totalQuestions,
+        correct_answers: finalScore,
+        wrong_answers: totalQuestions - finalScore,
+        time_spent: timeSpent,
+        answers: answers,
+        created_at: new Date().toISOString()
+      });
+    } catch {
+      // Silent error - non-critical
+    }
+  }, [itemCode, itemTitle, startTime, answers]);
+
+  const finishQuiz = useCallback(async (questions: any) => {
+    const { totalScore, totalQuestions } = calculateScoreWithTracking(questions);
+    setScore(totalScore);
     setShowResults(true);
     
-    // Terminer la session de suivi d'erreurs
-    endQuizSession(finalScore);
+    // Sauvegarder dans quiz_results
+    await saveQuizResult(totalScore, totalQuestions);
     
-    return finalScore;
-  }, [calculateScoreWithTracking, endQuizSession]);
+    // Terminer la session de suivi d'erreurs
+    endQuizSession(totalScore);
+    
+    return totalScore;
+  }, [calculateScoreWithTracking, endQuizSession, saveQuizResult]);
 
   const resetQuiz = useCallback(() => {
     setCurrentQuestion(0);

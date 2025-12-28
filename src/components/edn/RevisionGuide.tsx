@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface RevisionGuideProps {
   onStartRevision?: () => void;
+  onOpenItem?: (itemCode: string) => void;
 }
 
 interface WeakItem {
@@ -21,7 +22,7 @@ interface WeakItem {
   priority?: number;
 }
 
-export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision }) => {
+export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, onOpenItem }) => {
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
@@ -195,7 +196,14 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
           </CardHeader>
           <CardContent className="space-y-2">
             {weakItems.map((item) => (
-              <div key={item.item_code} className="flex items-center justify-between p-2 bg-background rounded-lg">
+              <div 
+                key={item.item_code} 
+                className={`flex items-center justify-between p-2 bg-background rounded-lg ${onOpenItem ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
+                onClick={() => onOpenItem?.(item.item_code)}
+                role={onOpenItem ? 'button' : undefined}
+                tabIndex={onOpenItem ? 0 : undefined}
+                onKeyDown={(e) => e.key === 'Enter' && onOpenItem?.(item.item_code)}
+              >
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-warning" />
                   <span className="font-medium">{item.item_code}</span>

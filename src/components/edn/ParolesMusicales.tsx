@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, Award, Sparkles, Flame, Star, ThumbsUp, ThumbsDown, Download } from 'lucide-react';
+import { Music, Award, Sparkles, Flame, Star, ThumbsUp, ThumbsDown, Download, Volume2, VolumeX, Pause } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -38,11 +38,31 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   const [musicCount, setMusicCount] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+  const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { addPoints, unlockBadge, stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { trackMusicGeneration } = useAnalyticsTracking();
   const { cacheAudio, isAudioCached, isCaching } = useAudioWithCache({ type: 'music' });
   const { toast } = useToast();
+
+  const toggleTTS = useCallback(() => {
+    if (!('speechSynthesis' in window)) return;
+    if (isTTSPlaying) {
+      window.speechSynthesis.cancel();
+      setIsTTSPlaying(false);
+    } else {
+      const allParoles = [...(paroles_rang_a || []), ...(paroles_rang_b || []), ...paroles].join('\n');
+      if (!allParoles.trim()) return;
+      const utterance = new SpeechSynthesisUtterance(allParoles);
+      utterance.lang = 'fr-FR';
+      utterance.rate = 0.9;
+      utterance.onend = () => setIsTTSPlaying(false);
+      speechSynthRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+      setIsTTSPlaying(true);
+    }
+  }, [isTTSPlaying, paroles, paroles_rang_a, paroles_rang_b]);
 
   // Load existing music generation count and feedback
   useEffect(() => {
@@ -240,13 +260,26 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Music className="h-6 w-6 text-warning" />
-            Génération Musicale Suno AI - {itemCode}
-          </CardTitle>
-          <CardDescription>
-            Génération de musique avec paroles chantées en {currentLanguage} via Suno AI
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Music className="h-6 w-6 text-warning" />
+                Génération Musicale Suno AI - {itemCode}
+              </CardTitle>
+              <CardDescription>
+                Génération de musique avec paroles chantées en {currentLanguage} via Suno AI
+              </CardDescription>
+            </div>
+            <Button
+              variant={isTTSPlaying ? "default" : "outline"}
+              size="sm"
+              onClick={toggleTTS}
+              className="gap-1"
+            >
+              {isTTSPlaying ? <Pause className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {isTTSPlaying ? 'Stop' : 'Lire'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">

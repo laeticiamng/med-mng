@@ -384,10 +384,34 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Compétences Rang A avec tracking */}
         {oicCompetencesA.length > 0 && (
           <div className="space-y-3">
-            <h4 className="font-semibold text-primary flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              Compétences Rang A ({oicCompetencesA.length})
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-primary flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Compétences Rang A ({oicCompetencesA.length})
+              </h4>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => bulkToggleMastery('A', true)}
+                  disabled={savingId === 'bulk'}
+                  className="text-xs"
+                >
+                  {savingId === 'bulk' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                  Tout valider
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => bulkToggleMastery('A', false)}
+                  disabled={savingId === 'bulk'}
+                  className="text-xs text-muted-foreground"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Réinitialiser
+                </Button>
+              </div>
+            </div>
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
               {oicCompetencesA.map((comp) => {
                 const mastery = masteryData.get(comp.objectif_id);
@@ -437,10 +461,34 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         {/* Compétences Rang B avec tracking */}
         {oicCompetencesB.length > 0 && (
           <div className="space-y-3">
-            <h4 className="font-semibold text-accent flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              Compétences Rang B ({oicCompetencesB.length})
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-accent flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Compétences Rang B ({oicCompetencesB.length})
+              </h4>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => bulkToggleMastery('B', true)}
+                  disabled={savingId === 'bulk'}
+                  className="text-xs"
+                >
+                  {savingId === 'bulk' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                  Tout valider
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => bulkToggleMastery('B', false)}
+                  disabled={savingId === 'bulk'}
+                  className="text-xs text-muted-foreground"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Réinitialiser
+                </Button>
+              </div>
+            </div>
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
               {oicCompetencesB.map((comp) => {
                 const mastery = masteryData.get(comp.objectif_id);
