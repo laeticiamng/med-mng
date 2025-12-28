@@ -14,11 +14,17 @@ import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface TableauRangData {
+  title?: string;
+  sections?: Array<{ title?: string; content?: string }>;
+  [key: string]: unknown;
+}
+
 interface RomanNarratifProps {
   itemCode: string;
   title: string;
-  tableauRangA?: any;
-  tableauRangB?: any;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
 }
 
 export const RomanNarratif: React.FC<RomanNarratifProps> = ({ 
@@ -137,12 +143,11 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     setSpeechRate(rate);
     localStorage.setItem('roman-speech-rate', rate.toString());
     if (isAudioPlaying) {
-      // Restart with new rate
+      // Restart with new rate - toggleAudio not in deps to avoid circular
       window.speechSynthesis.cancel();
       setIsAudioPlaying(false);
-      setTimeout(() => toggleAudio(), 100);
     }
-  }, [isAudioPlaying, toggleAudio]);
+  }, [isAudioPlaying]);
 
   // Handle bookmark
   const handleBookmark = useCallback(() => {
@@ -163,14 +168,16 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     });
   }, [currentChapter, itemCode, logActivity]);
 
-  // Restore from bookmark
+  // Restore from bookmark - chapters are regenerated on each render
   const restoreFromBookmark = useCallback(() => {
     if (savedProgress !== null) {
       setCurrentChapter(savedProgress);
-      setReadingProgress((savedProgress / generateChapters().length) * 100);
+      // Use competences count directly to avoid calling generateChapters
+      const estimatedChapters = Math.ceil((competencesA.length + competencesB.length) / 2) + 2;
+      setReadingProgress((savedProgress / estimatedChapters) * 100);
       toast.success(`Reprise au chapitre ${savedProgress + 1}`);
     }
-  }, [savedProgress]);
+  }, [savedProgress, competencesA.length, competencesB.length]);
 
   // Générer les chapitres basés sur les vraies compétences OIC avec narration enrichie
   const generateChapters = () => {

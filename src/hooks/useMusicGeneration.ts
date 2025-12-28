@@ -5,10 +5,19 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type RangType = 'A' | 'B' | 'Mix';
 
+interface TableauSection {
+  title?: string;
+  content?: string;
+}
+
+interface TableauData {
+  sections?: TableauSection[];
+}
+
 interface GenerationRequest {
   itemCode: string;
   rang: RangType;
-  tableauData?: any;
+  tableauData?: TableauData;
 }
 
 interface GenerationResponse {
@@ -105,7 +114,7 @@ export const useMusicGeneration = () => {
 };
 
 // Helper function pour construire le prompt médical structuré
-function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
+function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: TableauData): string {
   const baseStructure = `
 Structure imposée :
 [Couplet 1] - Introduction des concepts
@@ -130,9 +139,9 @@ Focus sur les nuances expertes, les cas complexes, et la maîtrise approfondie.`
   }
 
   // Ajouter le contenu du tableau si disponible
-  if (tableauData && tableauData.sections) {
+  if (tableauData?.sections) {
     const sectionsContent = tableauData.sections
-      .map((section: any) => `${section.title}: ${section.content || ''}`)
+      .map((section: TableauSection) => `${section.title || ''}: ${section.content || ''}`)
       .join('\n');
     contentPrompt += `\n\nContenu médical à intégrer:\n${sectionsContent}`;
   }

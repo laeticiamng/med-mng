@@ -38,8 +38,8 @@ export const useSunoCallbackListener = () => {
           const tracksByTaskId = new Map();
           
           recentTracks.forEach(track => {
-            const metadata = track.metadata as any;
-            const taskId = metadata?.original_task_id || track.task_id;
+            const metadata = track.metadata as Record<string, unknown> | null;
+            const taskId = (metadata?.original_task_id as string) || track.task_id;
             
             // Déterminer le rang à partir du titre ou des métadonnées
             let rang = 'A'; // par défaut
