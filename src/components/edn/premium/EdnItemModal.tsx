@@ -583,7 +583,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Quiz - Toujours affiché */}
               <TabsContent value="quiz" className="mt-0 p-6 space-y-6">
-                {(completeItemData?.quiz_questions || finalItem.quiz_questions) ? (
+                {(() => {
+                  const quizData = completeItemData?.quiz_questions || finalItem.quiz_questions;
+                  const hasQuiz = quizData && Array.isArray(quizData) && quizData.length > 0;
+                  return hasQuiz ? (
                   <>
                     <EnhancedQuizFinal 
                       questions={completeItemData?.quiz_questions || finalItem.quiz_questions}
@@ -637,7 +640,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       </p>
                     </CardContent>
                   </Card>
-                )}
+                );
+                })()}
               </TabsContent>
 
               {/* BD Gallery */}
