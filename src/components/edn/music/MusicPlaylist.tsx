@@ -207,10 +207,28 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
         <CardContent>
           <ScrollArea className="h-[400px]">
             {displayTracks.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {activeTab === 'favorites' && "Aucun favori. Cliquez sur ❤️ pour ajouter."}
-                {activeTab === 'history' && "Aucun historique d'écoute."}
-                {activeTab === 'all' && "Aucune musique disponible."}
+              <div className="text-center py-12 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
+                  {activeTab === 'favorites' ? (
+                    <Heart className="h-8 w-8 text-muted-foreground" />
+                  ) : activeTab === 'history' ? (
+                    <Clock className="h-8 w-8 text-muted-foreground" />
+                  ) : (
+                    <Music className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">
+                    {activeTab === 'favorites' && "Aucun favori"}
+                    {activeTab === 'history' && "Aucun historique"}
+                    {activeTab === 'all' && "Aucune musique disponible"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {activeTab === 'favorites' && "Cliquez sur ❤️ pour ajouter des titres à vos favoris"}
+                    {activeTab === 'history' && "Écoutez des musiques pour voir votre historique ici"}
+                    {activeTab === 'all' && "Les musiques mnémotechniques n'ont pas encore été générées pour les items"}
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-1">
