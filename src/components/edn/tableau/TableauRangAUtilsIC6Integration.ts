@@ -1,9 +1,42 @@
+
+interface TableauDataIC6 {
+  tableau_rang_a?: {
+    sections?: Array<{
+      concepts?: Array<{
+        concept?: string;
+        definition?: string;
+        exemple?: string;
+        piege?: string;
+        mnemo?: string;
+        subtilite?: string;
+        application?: string;
+        vigilance?: string;
+      }>;
+    }>;
+  };
+  item_code?: string;
+  title?: string;
+  theme?: string;
+}
+
+interface ColonneConfigIC6 {
+  nom: string;
+  description: string;
+}
+
+interface ProcessedTableauResultIC6 {
+  lignesEnrichies: string[][];
+  colonnesUtiles: ColonneConfigIC6[];
+  theme: string;
+  isRangB: boolean;
+}
+
 // Utilitaires pour l'intégration des données IC-6
-export const processTableauRangAIC6 = (data: any) => {
+export const processTableauRangAIC6 = (data: TableauDataIC6): ProcessedTableauResultIC6 => {
   const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as TableauDataIC6['tableau_rang_a'])?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneConfigIC6[] = [
     { nom: 'Concept', description: 'Notion clé organisation' },
     { nom: 'Définition', description: 'Explication précise' },
     { nom: 'Exemple', description: 'Cas concret pratique' },
@@ -14,7 +47,7 @@ export const processTableauRangAIC6 = (data: any) => {
     { nom: 'Vigilance', description: 'Point d\'attention' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -35,8 +68,9 @@ export const processTableauRangAIC6 = (data: any) => {
   };
 };
 
-export const isIC6Item = (data: any): boolean => {
-  return data?.item_code === 'IC-6' || 
-         data?.title?.includes('Organisation de l\'exercice clinique') ||
-         data?.theme?.includes('IC-6');
+export const isIC6Item = (data: TableauDataIC6 | null): boolean => {
+  if (!data) return false;
+  return data.item_code === 'IC-6' || 
+         data.title?.includes('Organisation de l\'exercice clinique') === true ||
+         data.theme?.includes('IC-6') === true;
 };

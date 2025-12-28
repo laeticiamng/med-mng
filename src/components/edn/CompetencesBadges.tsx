@@ -9,13 +9,25 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 
+interface TableauSection {
+  competences?: unknown[];
+  concepts?: unknown[];
+}
+
+interface TableauData {
+  competences_cles?: unknown[];
+  sections?: TableauSection[];
+  competences?: unknown[];
+  concepts?: unknown[];
+}
+
 interface CompetencesBadgesProps {
   item: {
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: TableauData;
+    tableau_rang_b?: TableauData;
     paroles_musicales?: string[];
-    scene_immersive?: any;
-    quiz_questions?: any;
+    scene_immersive?: Record<string, unknown>;
+    quiz_questions?: unknown[] | Record<string, unknown>;
     competences_count_rang_a?: number;
     competences_count_rang_b?: number;
   };
@@ -66,7 +78,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
     }
     // Fallback: sections
     if (tableau.sections && Array.isArray(tableau.sections)) {
-      return tableau.sections.reduce((total: number, section: any) => {
+      return tableau.sections.reduce((total: number, section: TableauSection) => {
         if (section.competences && Array.isArray(section.competences)) {
           return total + section.competences.length;
         }

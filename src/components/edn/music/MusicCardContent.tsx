@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { MusicCardHeader } from './MusicCardHeader';
 import { MissingParolesWarning } from './MissingParolesWarning';
@@ -14,13 +15,13 @@ interface MusicCardContentProps {
   children: React.ReactNode;
 }
 
-export const MusicCardContent = ({
+export const MusicCardContent: React.FC<MusicCardContentProps> = ({
   rang,
   title,
   paroles,
   isGenerating,
   children
-}: MusicCardContentProps) => {
+}) => {
   const styling = getCardStyling(rang);
   const parolesArray = formatParoles(paroles);
   const hasValidParolesData = hasValidParoles(parolesArray);
