@@ -245,7 +245,13 @@ export const useSubscription = () => {
       // Free users can generate 3 songs without account
       return true;
     }
-    return musicQuota?.can_generate || false;
+    // Si pas de quota chargé, permettre la génération par défaut
+    // (le quota sera créé au premier usage via la RPC get_music_quota)
+    if (musicQuota === null) {
+      console.log('🎵 canGenerateMusic: Pas de quota chargé, autorisation par défaut');
+      return true;
+    }
+    return musicQuota.can_generate;
   }, [user, musicQuota]);
 
   const canSaveMusic = useCallback((): boolean => {
