@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Image, ChevronLeft, ChevronRight, Maximize2, 
-  Download, Share2, Eye, BookOpen, Flame, Star
+  Download, Share2, Eye, BookOpen, Flame, Star, Loader2
 } from 'lucide-react';
+import { exportToPDF, shareContent, exportAsImage } from '@/utils/exportUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
@@ -27,6 +28,8 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 }) => {
   const [currentVignette, setCurrentVignette] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
@@ -267,12 +270,43 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             )}
             
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-1" />
+              <Button 
+                variant="outline" 
+                size="sm"
+                disabled={isExporting}
+                onClick={async () => {
+                  setIsExporting(true);
+                  const allContent = vignettes.map(v => 
+                    `${v.title}\n${v.description}\n${v.competences?.map((c: any) => `- ${c.objectif_id}: ${c.intitule}`).join('\n') || ''}`
+                  ).join('\n\n---\n\n');
+                  await exportToPDF({
+                    title,
+                    content: allContent,
+                    itemCode,
+                    type: 'bd'
+                  });
+                  setIsExporting(false);
+                }}
+              >
+                {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
                 Télécharger
               </Button>
-              <Button variant="outline" size="sm">
-                <Share2 className="h-4 w-4 mr-1" />
+              <Button 
+                variant="outline" 
+                size="sm"
+                disabled={isSharing}
+                onClick={async () => {
+                  setIsSharing(true);
+                  await shareContent({
+                    title,
+                    content: currentVig.description,
+                    itemCode,
+                    type: 'bd'
+                  });
+                  setIsSharing(false);
+                }}
+              >
+                {isSharing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />}
                 Partager
               </Button>
             </div>

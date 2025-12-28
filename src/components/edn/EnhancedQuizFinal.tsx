@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { QuizFinal } from './QuizFinal';
 import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
 import { QuizSelector, QuizConfig } from './quiz/QuizSelector';
+import { OicQuizGenerator } from './quiz/OicQuizGenerator';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings, Star } from 'lucide-react';
+import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings, Star, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedQuizFinalProps {
@@ -108,8 +109,17 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
       (questions.qroc?.length || 0) + 
       (questions.zap?.length || 0);
 
-  // Si le quiz n'est pas encore configuré, afficher le sélecteur
+  // Si le quiz n'est pas encore configuré, afficher le sélecteur ou le quiz OIC
   if (!quizStarted) {
+    // Si pas de questions prédéfinies, utiliser le quiz OIC dynamique
+    if (totalAvailableQuestions === 0) {
+      return (
+        <div className="space-y-6">
+          <OicQuizGenerator itemCode={itemCode} itemTitle={itemTitle} />
+        </div>
+      );
+    }
+    
     return (
       <div className="space-y-6">
         <QuizSelector
