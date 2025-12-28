@@ -534,7 +534,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Scene - Toujours affichée */}
               <TabsContent value="scene" className="mt-0 p-6 space-y-4">
-                {finalItem.scene_immersive ? (
+                {(completeItemData?.scene_immersive || finalItem.scene_immersive) ? (
                   <>
                     {/* Audio Ambiance Player */}
                     {finalItem.audio_ambiance && (
@@ -543,7 +543,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         itemCode={finalItem.item_code} 
                       />
                     )}
-                    <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
+                    <SceneImmersive data={completeItemData?.scene_immersive || finalItem.scene_immersive} itemCode={finalItem.item_code} />
                   </>
                 ) : (
                   <Card className="border-2 border-accent/20">
