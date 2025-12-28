@@ -176,6 +176,11 @@ export const useEdnItemsOptimized = () => {
       i.paroles_musicales && i.paroles_musicales.length > 0
     ).length;
     
+    // Calcul des totaux OIC globaux
+    const totalOicRangA = items.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
+    const totalOicRangB = items.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
+    const totalOicCompetences = totalOicRangA + totalOicRangB;
+    
     const avgScore = total > 0 ? Math.round(
       items.reduce((sum, item) => {
         let score = 0;
@@ -186,7 +191,7 @@ export const useEdnItemsOptimized = () => {
       }, 0) / total
     ) : 0;
 
-    return { total, withRangA, withRangB, complete, withMusic, avgScore };
+    return { total, withRangA, withRangB, complete, withMusic, avgScore, totalOicRangA, totalOicRangB, totalOicCompetences };
   }, [items]);
 
   const refresh = async () => {
