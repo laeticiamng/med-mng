@@ -39,7 +39,8 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       }
     };
     load();
-  }, [loadStats, logActivity, addPoints, itemData.item_code]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemData.item_code]);
 
   const handleTabChange = async (tab: string) => {
     setActiveTab(tab);

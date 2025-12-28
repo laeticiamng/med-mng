@@ -54,7 +54,8 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       }
     };
     load();
-  }, [loadStats, logActivity, addPoints, rang]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rang]);
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
       <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>
@@ -113,7 +114,7 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
 
   return (
     <Card className={cn(
-      "transition-all duration-300 border-0 shadow-sm hover:shadow-lg",
+      "transition-all duration-300 border-0 shadow-sm hover:shadow-lg relative overflow-hidden",
       isComplete 
         ? "bg-gradient-to-br from-success/5 to-success/10" 
         : "bg-gradient-to-br from-warning/5 to-warning/10",

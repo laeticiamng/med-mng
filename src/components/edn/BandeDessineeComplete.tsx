@@ -54,6 +54,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     };
     
     loadBandeDessinee();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemData.item_code]);
 
   // Images médicales Unsplash variées et valides
@@ -182,8 +183,8 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
       {/* Bande dessinée complète */}
       {isLoaded && panels.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {panels.map((panel) => (
-            <div key={panel.id} className="relative">
+          {panels.map((panel, panelIndex) => (
+            <div key={`panel-${panel.id}-${panelIndex}`} className="relative">
               <InteractiveComicPanel panel={{
                 id: panel.id,
                 title: panel.title,
