@@ -144,19 +144,32 @@ export default function EdnComplete() {
   }, [immersiveItems, completeItems]);
 
   const getCompletionPercentage = (item: EdnItem) => {
-    // Calcul basé uniquement sur les données disponibles dans le fetch initial
+    // Calcul basé sur les données OIC réelles de backup_oic_competences
     let score = 0;
+    let maxScore = 0;
     
-    // Rang A (35%) - basé sur competences_count_rang_a
-    if ((item.competences_count_rang_a || 0) > 0) score += 35;
+    // Rang A (40 points max) - basé sur competences_count_rang_a
+    const rangACount = item.competences_count_rang_a || 0;
+    maxScore += 40;
+    if (rangACount > 0) {
+      // Score proportionnel : 1-3 = 20pts, 4-7 = 30pts, 8+ = 40pts
+      score += rangACount >= 8 ? 40 : rangACount >= 4 ? 30 : 20;
+    }
     
-    // Rang B (35%) - basé sur competences_count_rang_b
-    if ((item.competences_count_rang_b || 0) > 0) score += 35;
+    // Rang B (40 points max) - basé sur competences_count_rang_b  
+    const rangBCount = item.competences_count_rang_b || 0;
+    maxScore += 40;
+    if (rangBCount > 0) {
+      score += rangBCount >= 8 ? 40 : rangBCount >= 4 ? 30 : 20;
+    }
     
-    // Paroles musicales (30%) - vérifie si présentes
-    if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 30;
+    // Paroles musicales (20 points) - vérifie si présentes
+    maxScore += 20;
+    if (item.paroles_musicales && item.paroles_musicales.length > 0) {
+      score += 20;
+    }
     
-    return score;
+    return Math.round((score / maxScore) * 100);
   };
 
   const isItemComplete = (item: EdnItem) => {
