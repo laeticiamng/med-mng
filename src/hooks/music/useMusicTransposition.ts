@@ -16,7 +16,6 @@ export const useMusicTransposition = () => {
     duration: number = 240
   ) => {
     try {
-      console.log(`🌍 Transposition vers ${targetLanguage}...`);
       const translatedLyrics = await translateLyricsIfNeeded(originalLyrics);
       
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, 'TRANSPOSE', duration, targetLanguage, false);

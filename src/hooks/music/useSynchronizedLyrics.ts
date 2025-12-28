@@ -48,7 +48,6 @@ export const useSynchronizedLyrics = ({
         setLyrics(autoSyncedLyrics);
       }
     } catch (err) {
-      console.error('Erreur lors du chargement des paroles synchronisées:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
       
       // Fallback sur synchronisation automatique
