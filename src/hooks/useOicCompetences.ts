@@ -45,8 +45,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isCancelled = false;
-    
     // Skip if no itemCode or invalid format
     if (!itemCode || !itemCode.startsWith('IC-')) {
       setCompetences([]);
@@ -74,63 +72,50 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     setLoading(true);
     setError(null);
 
-    // Direct fetch with async IIFE
-    (async () => {
-      try {
-        console.log(`⏳ OIC Query starting for ${itemNumber} ${rang}...`);
-        
-        const { data, error: queryError } = await supabase
-          .from('backup_oic_competences')
-          .select('objectif_id, intitule, description, rubrique, rang, item_parent')
-          .eq('item_parent', itemNumber)
-          .eq('rang', rang)
-          .order('objectif_id');
-
-        if (isCancelled) {
-          console.log(`🚫 OIC Query cancelled for ${itemNumber} ${rang}`);
-          return;
-        }
-
-        if (queryError) {
-          console.error('❌ OIC Error:', queryError);
-          setError(queryError.message);
-          setCompetences([]);
-          setLoading(false);
-          return;
-        }
-
-        console.log(`📊 OIC Result: ${data?.length || 0} compétences for ${itemCode} rang ${rang}`);
-
-        const realCompetences = (data || [])
-          .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
-            Boolean(comp.objectif_id && comp.intitule)
-          )
-          .map(comp => ({
-            ...comp,
-            description: comp.description || comp.intitule
-          })) as OicCompetence[];
-
-        // Cache results
-        if (realCompetences.length > 0) {
-          competencesCache.set(cacheKey, realCompetences);
-          console.log(`💾 OIC Cached: ${cacheKey} = ${realCompetences.length} compétences`);
-        }
-
-        setCompetences(realCompetences);
-        setError(null);
-        setLoading(false);
-      } catch (err) {
-        if (isCancelled) return;
-        console.error('❌ OIC Fetch exception:', err);
-        setError(String(err));
+    // Use .then() directly on the query builder
+    const query = supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description, rubrique, rang, item_parent')
+      .eq('item_parent', itemNumber)
+      .eq('rang', rang)
+      .order('objectif_id');
+    
+    console.log(`⏳ OIC Query created, executing...`);
+    
+    query.then((result) => {
+      console.log(`🔄 OIC Query completed`, result);
+      
+      const { data, error: queryError } = result;
+      
+      if (queryError) {
+        console.error('❌ OIC Error:', queryError);
+        setError(queryError.message);
         setCompetences([]);
         setLoading(false);
+        return;
       }
-    })();
 
-    return () => {
-      isCancelled = true;
-    };
+      console.log(`📊 OIC Result: ${data?.length || 0} compétences for ${itemCode} rang ${rang}`);
+
+      const realCompetences = (data || [])
+        .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
+          Boolean(comp.objectif_id && comp.intitule)
+        )
+        .map(comp => ({
+          ...comp,
+          description: comp.description || comp.intitule
+        })) as OicCompetence[];
+
+      // Cache results
+      if (realCompetences.length > 0) {
+        competencesCache.set(cacheKey, realCompetences);
+        console.log(`💾 OIC Cached: ${cacheKey} = ${realCompetences.length} compétences`);
+      }
+
+      setCompetences(realCompetences);
+      setError(null);
+      setLoading(false);
+    });
   }, [itemCode, rang]);
 
   // Manual refetch function
