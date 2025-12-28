@@ -133,10 +133,26 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
         )}
 
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
+          {(() => {
+            const isDisabled = !canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading;
+            console.log('🔘 Button state:', { 
+              canGenerate: canGenerate(), 
+              isGenerating, 
+              user: !!user, 
+              remainingFree, 
+              canGenerateMusic: user ? canGenerateMusic() : 'N/A',
+              lyricsLoading,
+              isDisabled
+            });
+            return null;
+          })()}
           <PremiumButton
             variant="primary"
             size="xl"
-            onClick={handleGenerate}
+            onClick={() => {
+              console.log('🎵 CLICK: Génération démarrée!');
+              handleGenerate();
+            }}
             disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
             className="flex-1"
           >
