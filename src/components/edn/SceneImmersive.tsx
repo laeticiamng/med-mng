@@ -50,18 +50,23 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
     trackView();
   }, [itemCode]);
 
-  // Contenu personnalisé basé sur les vraies données de l'item
+  // Contenu personnalisé basé sur les vraies données de l'item (avec cast pour permettre propriétés additionnelles)
+  const rawData = data as any;
   const sceneData = {
-    description: data.description || data.scenario || 
+    description: rawData.description || rawData.scenario || 
       `Explorez ${itemCode} à travers cette scène médicale immersive.`,
-    mots_cles: data.mots_cles || 
-      (data.characters ? data.characters.map((c) => c.role) : 
-      ["Diagnostic", "Traitement", "Patient", "Expertise"]),
-    effet: data.effet || 
-      (data.setting ? `Environnement: ${data.setting}` : 
+    mots_cles: rawData.mots_cles || 
+      (rawData.characters ? rawData.characters.map((c: any) => c.role) : 
+      rawData.keywords || ["Diagnostic", "Traitement", "Patient", "Expertise"]),
+    effet: rawData.effet || rawData.effect ||
+      (rawData.setting ? `Environnement: ${rawData.setting}` : 
       `Maîtrisez les compétences essentielles de ${itemCode}`),
-    setting: data.setting || "Cabinet médical",
-    characters: data.characters
+    setting: rawData.setting || rawData.lieu || "Cabinet médical",
+    characters: rawData.characters || rawData.personnages,
+    // Enriched data usage
+    objective: rawData.objective || rawData.objectif,
+    context: rawData.context || rawData.contexte,
+    conclusion: rawData.conclusion || rawData.resolution
   };
 
   useEffect(() => {
@@ -147,7 +152,7 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       <SceneHeader 
         theme={theme} 
         description={sceneData.description} 
-        setting={sceneData.setting} 
+        setting={sceneData.setting}
       />
 
       <SceneCentralArea

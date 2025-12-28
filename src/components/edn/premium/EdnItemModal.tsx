@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   X, BookOpen, Music, Users, Brain, Play, Pause, Volume2, 
   VolumeX, Maximize2, Minimize2, FileText, Image, 
-  CheckCircle, Star, Download, Share2
+  CheckCircle, Star, Download, Share2, BarChart3
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TableauRangA } from "@/components/edn/TableauRangA";
@@ -141,6 +141,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     
     // Quiz - toujours disponible (affiche message si vide)
     tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
+    
+    // Statistics tab - pour voir l'historique et progression
+    tabs.push({ id: 'stats', label: 'Stats', icon: BarChart3, available: true });
     
     // Musique - toujours disponible (génération possible)
     tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
@@ -448,7 +451,33 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
 
-              {/* Music - Toujours affiché */}
+              {/* Stats Tab - Historique et progression */}
+              <TabsContent value="stats" className="mt-0 p-6">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5 text-primary" />
+                        Statistiques - {finalItem.item_code}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Quiz History Summary */}
+                      <QuizHistorySummary itemCode={finalItem.item_code} />
+                      
+                      {/* Competence Progress */}
+                      <CompetenceValidation item={finalItem} />
+                      
+                      {/* Leaderboard */}
+                      <QuizLeaderboard itemCode={finalItem.item_code} limit={5} />
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Personal Notes */}
+                  <PersonalNotes itemCode={finalItem.item_code} />
+                </div>
+              </TabsContent>
+
               <TabsContent value="music" className="mt-0 p-6">
                 <ParolesMusicales 
                   paroles={finalItem.paroles_musicales}

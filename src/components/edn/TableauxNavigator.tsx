@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Progress } from "@/components/ui/progress"
 import { TableauDisplay } from './TableauDisplay'
-import { CheckCircle, AlertTriangle, Book, FileText, ArrowLeft, ArrowRight, Flame, Star } from "lucide-react"
+import { CheckCircle, AlertTriangle, Book, FileText, ArrowLeft, ArrowRight, Flame, Star, Download, Share2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useActivityTracking } from '@/hooks/useActivityTracking'
 import { useGamification } from '@/hooks/useGamification'
 import { supabase } from '@/integrations/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 interface TableauSection {
   title: string
@@ -43,16 +45,40 @@ export function TableauxNavigator({
 }: TableauxNavigatorProps) {
   const { logActivity } = useActivityTracking()
   const { stats, loadStats, addPoints } = useGamification()
+  const { toast } = useToast()
   const hasTrackedRef = useRef(false)
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a')
+  const [userProgress, setUserProgress] = useState({ rangA: 0, rangB: 0 })
+
+  // Load user progress
+  const loadUserProgress = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data } = await supabase
+      .from('user_competence_progress')
+      .select('rang')
+      .eq('user_id', user.id)
+      .eq('item_code', itemCode)
+      .eq('mastered', true)
+
+    if (data) {
+      const rangACount = data.filter(d => d.rang === 'A').length
+      const rangBCount = data.filter(d => d.rang === 'B').length
+      setUserProgress({ rangA: rangACount, rangB: rangBCount })
+    }
+  }, [itemCode])
 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) loadStats(user.id)
+      if (user) {
+        loadStats(user.id)
+        loadUserProgress()
+      }
     }
     load()
-  }, [loadStats])
+  }, [loadStats, loadUserProgress])
 
   useEffect(() => {
     if (!hasTrackedRef.current) {
