@@ -1,20 +1,23 @@
 import React, { useEffect } from 'react';
-import { AlertTriangle, Music } from 'lucide-react';
+import { AlertTriangle, Music, CheckCircle2, XCircle } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Badge } from '@/components/ui/badge';
 
 interface LyricsStatusDisplayProps {
   selectedItem: string;
   lyricsLoading: boolean;
   lyricsError: string | null;
   ednLyrics: any;
+  selectedRang?: string;
 }
 
 export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   selectedItem,
   lyricsLoading,
   lyricsError,
-  ednLyrics
+  ednLyrics,
+  selectedRang
 }) => {
   const { logActivity } = useActivityTracking();
 
@@ -30,6 +33,25 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   }, [ednLyrics, selectedItem, logActivity]);
 
   if (!selectedItem) return null;
+
+  // Vérifier disponibilité par rang
+  const hasRangA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
+  const hasRangB = ednLyrics?.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0;
+  const hasRangAB = ednLyrics?.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0;
+  const hasLegacy = ednLyrics?.paroles_musicales && ednLyrics.paroles_musicales.length > 0;
+
+  // Obtenir les paroles pour le rang sélectionné
+  const getSelectedLyrics = () => {
+    if (!ednLyrics || !selectedRang) return null;
+    switch (selectedRang) {
+      case 'A': return hasRangA ? ednLyrics.paroles_rang_a : null;
+      case 'B': return hasRangB ? ednLyrics.paroles_rang_b : null;
+      case 'AB': return hasRangAB ? ednLyrics.paroles_rang_ab : null;
+      default: return null;
+    }
+  };
+
+  const selectedLyrics = getSelectedLyrics();
 
   return (
     <div className="space-y-4">
@@ -56,18 +78,44 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
       )}
       
       {ednLyrics && (
-        <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
-          <div className="flex items-center gap-2 text-success mb-2">
+        <div className="p-4 bg-success/5 border border-success/20 rounded-lg space-y-3">
+          <div className="flex items-center gap-2 text-success">
             <Music className="h-5 w-5" />
             <span className="font-semibold">Paroles trouvées pour {ednLyrics.title}</span>
           </div>
-          <p className="text-success/90">
-            {ednLyrics.paroles_musicales?.length || 0} versions de paroles disponibles 
-            (Rang A et B)
-          </p>
-          {ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0 && (
-            <div className="mt-2 text-sm text-success/80">
-              Aperçu: {ednLyrics.paroles_musicales[0]?.substring(0, 100)}...
+          
+          {/* Badges de disponibilité par rang */}
+          <div className="flex flex-wrap gap-2">
+            <Badge variant={hasRangA ? "default" : "secondary"} className={hasRangA ? "bg-primary" : "opacity-50"}>
+              {hasRangA ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+              Rang A ({ednLyrics.paroles_rang_a?.length || 0} lignes)
+            </Badge>
+            <Badge variant={hasRangB ? "default" : "secondary"} className={hasRangB ? "bg-accent" : "opacity-50"}>
+              {hasRangB ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+              Rang B ({ednLyrics.paroles_rang_b?.length || 0} lignes)
+            </Badge>
+            <Badge variant={hasRangAB ? "default" : "secondary"} className={hasRangAB ? "bg-warning text-warning-foreground" : "opacity-50"}>
+              {hasRangAB ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+              Rang A+B ({ednLyrics.paroles_rang_ab?.length || 0} lignes)
+            </Badge>
+          </div>
+
+          {/* Preview des paroles pour le rang sélectionné */}
+          {selectedRang && selectedLyrics && (
+            <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30">
+              <p className="text-xs font-medium text-muted-foreground mb-2">
+                Aperçu Rang {selectedRang}:
+              </p>
+              <p className="text-sm text-foreground/80 italic line-clamp-3">
+                {selectedLyrics.slice(0, 3).join(' / ')}...
+              </p>
+            </div>
+          )}
+
+          {/* Fallback si le rang sélectionné n'a pas de paroles spécifiques */}
+          {selectedRang && !selectedLyrics && hasLegacy && (
+            <div className="mt-2 text-sm text-warning">
+              ⚠️ Paroles spécifiques au rang {selectedRang} non disponibles, utilisation des paroles génériques.
             </div>
           )}
         </div>

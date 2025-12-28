@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
@@ -15,6 +16,7 @@ import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
+import { GenerationHistory } from '@/components/generator/GenerationHistory';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
@@ -162,7 +164,7 @@ const Generator = () => {
     }
   }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
-  const handleAddToLibrary = useCallback(() => {
+  const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;
     if (!user) {
       toast.error('Connectez-vous pour sauvegarder vos musiques');
@@ -172,7 +174,28 @@ const Generator = () => {
       toast.error('Votre abonnement ne permet pas de sauvegarder.');
       return;
     }
-    toast.success('✨ Chanson ajoutée à votre bibliothèque !');
+
+    try {
+      const musicId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const { error } = await supabase
+        .from('user_generated_music')
+        .insert({
+          user_id: user.id,
+          title: generatedSong.title,
+          audio_url: generatedSong.audioUrl,
+          music_style: generatedSong.style,
+          rang: generatedSong.rang,
+          item_code: generatedSong.itemCode,
+          music_id: musicId
+        });
+
+      if (error) throw error;
+      toast.success('✨ Chanson ajoutée à votre bibliothèque !');
+    } catch (error) {
+      console.error('Erreur sauvegarde:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    }
   }, [generatedSong, user, canSaveMusic]);
 
   const resetForm = useCallback(() => {
@@ -248,6 +271,11 @@ const Generator = () => {
           />
 
           <GeneratorMusicPlayer generatedSong={generatedSong} onAddToLibrary={handleAddToLibrary} />
+
+          {/* Historique des générations */}
+          <div className="my-8">
+            <GenerationHistory />
+          </div>
 
           <PremiumCard variant="glass" className="p-8" role="region" aria-labelledby="help-heading">
             <h3 id="help-heading" className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
