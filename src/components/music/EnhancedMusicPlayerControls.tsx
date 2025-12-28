@@ -59,7 +59,6 @@ export const EnhancedMusicPlayerControls: React.FC<EnhancedMusicPlayerControlsPr
   // Préchargement automatique quand l'URL est disponible
   useEffect(() => {
     if (audioUrl && !isGenerating && readyToPlay === false) {
-      console.log('🎵 Préchargement automatique de l\'audio');
       preloadAudio(audioUrl);
       
       // Estimer le temps de préparation

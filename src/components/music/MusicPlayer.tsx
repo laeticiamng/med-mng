@@ -74,10 +74,9 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
       if (onNext) onNext();
     };
     const handleLoadedData = () => {
-      console.log('🎵 Audio chargé:', track.title);
+      // Audio chargé
     };
-    const handleError = (e: any) => {
-      console.error('❌ Erreur audio:', e);
+    const handleError = () => {
       setIsPlaying(false);
     };
 
@@ -115,8 +114,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         await audio.play();
         setIsPlaying(true);
       }
-    } catch (error) {
-      console.error('Erreur lecture audio:', error);
+    } catch {
       setIsPlaying(false);
     }
   };

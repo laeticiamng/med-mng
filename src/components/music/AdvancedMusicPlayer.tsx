@@ -95,8 +95,8 @@ export const AdvancedMusicPlayer: React.FC = () => {
         }
       ];
       setPlaylists(mockPlaylists);
-    } catch (error) {
-      console.error('Erreur chargement playlists:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -126,8 +126,8 @@ export const AdvancedMusicPlayer: React.FC = () => {
         }
       ];
       setRecentTracks(mockTracks);
-    } catch (error) {
-      console.error('Erreur chargement tracks récentes:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -150,8 +150,8 @@ export const AdvancedMusicPlayer: React.FC = () => {
           binauralBeats: data.binaural_enabled
         }));
       }
-    } catch (error) {
-      console.error('Erreur chargement préférences:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -176,8 +176,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
         title: "Playlist créée (simulation)",
         description: "Votre nouvelle playlist a été créée avec succès",
       });
-    } catch (error) {
-      console.error('Erreur création playlist:', error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de créer la playlist",
@@ -206,8 +205,8 @@ export const AdvancedMusicPlayer: React.FC = () => {
         title: "Paramètres sauvegardés",
         description: "Vos préférences audio ont été mises à jour",
       });
-    } catch (error) {
-      console.error('Erreur sauvegarde paramètres:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 

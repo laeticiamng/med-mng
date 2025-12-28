@@ -107,8 +107,8 @@ export const MusicAnalytics: React.FC = () => {
       const calculatedStats = calculateStats(analyticsWithSongs, playlistsData || []);
       setStats(calculatedStats);
 
-    } catch (error) {
-      console.error('Erreur chargement analytics:', error);
+    } catch {
+      // Erreur silencieuse
     } finally {
       setLoading(false);
     }

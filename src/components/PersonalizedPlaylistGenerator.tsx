@@ -33,8 +33,8 @@ export const PersonalizedPlaylistGenerator = () => {
       // Track activity
       await logActivity({ activity_type: 'music_generation', metadata: { action: 'playlist_generated' } });
       toast.success('Playlist générée avec succès !');
-    } catch (error) {
-      console.error('Erreur génération playlist:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 

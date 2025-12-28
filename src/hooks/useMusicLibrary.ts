@@ -63,7 +63,6 @@ export const useMusicLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur lors du chargement des musiques:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger votre bibliothèque musicale",
@@ -86,8 +85,8 @@ export const useMusicLibrary = () => {
       }));
       
       setTracks(convertedTracks);
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch {
+      // Erreur silencieuse
     } finally {
       setLoading(false);
     }
@@ -106,15 +105,13 @@ export const useMusicLibrary = () => {
       });
 
       if (error) {
-        console.error('Erreur chargement bibliothèque:', error);
         // Fallback vers l'ancienne méthode
         await fetchSavedMusics();
         return;
       }
 
       setTracks(data.items || []);
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch {
       // Fallback vers l'ancienne méthode
       await fetchSavedMusics();
     } finally {
@@ -148,8 +145,8 @@ export const useMusicLibrary = () => {
         title: "Supprimé",
         description: "Musique supprimée de votre bibliothèque"
       });
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -182,8 +179,8 @@ export const useMusicLibrary = () => {
           ? "Cette musique est maintenant dans vos favoris." 
           : "Musique retirée de vos favoris."
       });
-    } catch (error) {
-      console.error('Erreur lors de la modification des favoris:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -253,13 +250,11 @@ export const useMusicLibrary = () => {
       });
 
       if (error) {
-        console.error('Erreur stream URL:', error);
         return null;
       }
 
       return data.stream_url;
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch {
       return null;
     }
   };

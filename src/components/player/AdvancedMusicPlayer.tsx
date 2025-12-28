@@ -147,8 +147,8 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
       
       analyzerRef.current = analyzer;
       drawVisualizer();
-    } catch (error) {
-      console.error('Erreur initialisation visualiseur:', error);
+    } catch {
+      // Erreur silencieuse
     }
   };
 
@@ -200,8 +200,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play().catch(error => {
-        console.error('Erreur lecture:', error);
+      audio.play().catch(() => {
         toast({
           title: "Erreur",
           description: "Impossible de lire le fichier audio",
