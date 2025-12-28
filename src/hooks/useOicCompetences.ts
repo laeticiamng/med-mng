@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface OicCompetence {
@@ -40,12 +40,9 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [competences, setCompetences] = useState<OicCompetence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const fetchCountRef = useRef(0);
 
-  useEffect(() => {
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
+  const fetchData = useCallback(async (forceRefresh = false) => {
     // Skip if no itemCode or invalid format
     if (!itemCode || (!itemCode.startsWith('IC-') && !itemCode.startsWith('OIC-'))) {
       setCompetences([]);
@@ -56,8 +53,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     const cacheKey = `${itemCode}-${rang}`;
     
-    // Check cache first (only if not refreshing)
-    if (refreshKey === 0 && competencesCache.has(cacheKey)) {
+    // Check cache first (unless force refresh)
+    if (!forceRefresh && competencesCache.has(cacheKey)) {
       const cached = competencesCache.get(cacheKey)!;
       setCompetences(cached);
       setLoading(false);
@@ -65,87 +62,71 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       return;
     }
 
-    // Extract item number (IC-1 -> 001, IC-10 -> 010, OIC-XXX -> XXX)
+    // Extract item number (IC-1 -> 001, IC-10 -> 010)
     const itemNumber = itemCode.startsWith('OIC-') 
       ? itemCode.replace('OIC-', '').split('-')[0].padStart(3, '0')
       : itemCode.replace('IC-', '').padStart(3, '0');
     
     setLoading(true);
     setError(null);
+    
+    const currentFetch = ++fetchCountRef.current;
 
-    const doFetch = async () => {
-      try {
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Timeout')), 10000);
-        });
-
-        const fetchPromise = supabase
-          .from('oic_competences')
-          .select('objectif_id, intitule, description, rang, item_parent')
-          .eq('item_parent', itemNumber)
-          .eq('rang', rang)
-          .order('objectif_id');
-
-        const result = await Promise.race([fetchPromise, timeoutPromise]);
-        
-        if (timeoutId) clearTimeout(timeoutId);
-        if (cancelled) return;
-        
-        if (result.error) {
-          console.warn(`[useOicCompetences] Error fetching ${itemCode} rang ${rang}:`, result.error.message);
-          setError(result.error.message);
-          setCompetences([]);
-          setLoading(false);
-          return;
-        }
-
-        const data = result.data || [];
-
-        const realCompetences = data
-          .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
-            Boolean(comp.objectif_id && comp.intitule)
-          )
-          .map(comp => ({
-            objectif_id: comp.objectif_id,
-            intitule: comp.intitule,
-            description: comp.description || comp.intitule,
-            rubrique: '',
-            rang: comp.rang || rang,
-            item_parent: comp.item_parent || itemNumber
-          })) as OicCompetence[];
-
-        // Cache results
-        competencesCache.set(cacheKey, realCompetences);
-
-        if (!cancelled) {
-          setCompetences(realCompetences);
-          setError(null);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (timeoutId) clearTimeout(timeoutId);
-        if (cancelled) return;
-        
-        console.warn(`[useOicCompetences] Exception for ${itemCode} rang ${rang}:`, err);
-        setError(String(err));
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('oic_competences')
+        .select('objectif_id, intitule, description, rang, item_parent')
+        .eq('item_parent', itemNumber)
+        .eq('rang', rang)
+        .order('objectif_id');
+      
+      // Ignore if a newer fetch was triggered
+      if (currentFetch !== fetchCountRef.current) return;
+      
+      if (fetchError) {
+        console.warn(`[useOicCompetences] Error: ${fetchError.message}`);
+        setError(fetchError.message);
         setCompetences([]);
         setLoading(false);
+        return;
       }
-    };
 
-    doFetch();
+      const realCompetences = (data || [])
+        .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
+          Boolean(comp.objectif_id && comp.intitule)
+        )
+        .map(comp => ({
+          objectif_id: comp.objectif_id,
+          intitule: comp.intitule,
+          description: comp.description || comp.intitule,
+          rubrique: '',
+          rang: comp.rang || rang,
+          item_parent: comp.item_parent || itemNumber
+        })) as OicCompetence[];
 
-    return () => {
-      cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [itemCode, rang, refreshKey]);
+      // Cache results
+      competencesCache.set(cacheKey, realCompetences);
+      setCompetences(realCompetences);
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      if (currentFetch !== fetchCountRef.current) return;
+      console.warn(`[useOicCompetences] Exception:`, err);
+      setError(String(err));
+      setCompetences([]);
+      setLoading(false);
+    }
+  }, [itemCode, rang]);
 
-  // Manual refetch function that actually works
+  useEffect(() => {
+    fetchData(false);
+  }, [fetchData]);
+
+  // Manual refetch function
   const refetch = useCallback(() => {
     invalidateOicCache(itemCode, rang);
-    setRefreshKey(prev => prev + 1);
-  }, [itemCode, rang]);
+    fetchData(true);
+  }, [itemCode, rang, fetchData]);
 
   return { competences, loading, error, refetch };
 }
