@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { StickyNote, Loader2, Bold, Italic, List, Hash, Eye, Edit2 } from 'lucide-react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { StickyNote, Loader2, Bold, Italic, List, Hash, Eye, Edit2, Download } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEdnNotes } from '@/hooks/useEdnNotes';
+import { exportToPDF } from '@/utils/exportUtils';
+import { toast } from 'sonner';
 
 interface PersonalNotesProps {
   itemCode: string;
@@ -76,12 +78,87 @@ const formatInline = (text: string) => {
 export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
   const { currentNote, setCurrentNote, isSaving, isLoading } = useEdnNotes(itemCode);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  const [isExporting, setIsExporting] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const insertMarkdown = (syntax: string, wrap = false) => {
-    if (wrap) {
-      setCurrentNote(currentNote + syntax);
-    } else {
-      setCurrentNote(currentNote + '\n' + syntax);
+  // Insert markdown at cursor position
+  const insertMarkdownAtCursor = useCallback((prefix: string, suffix: string = '', placeholder: string = '') => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      setCurrentNote(currentNote + prefix + placeholder + suffix);
+      return;
+    }
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = currentNote.substring(start, end);
+    const textToInsert = selectedText || placeholder;
+    
+    const newText = 
+      currentNote.substring(0, start) + 
+      prefix + textToInsert + suffix + 
+      currentNote.substring(end);
+    
+    setCurrentNote(newText);
+    
+    // Set cursor position after insert
+    setTimeout(() => {
+      const newPosition = start + prefix.length + textToInsert.length + suffix.length;
+      textarea.focus();
+      textarea.setSelectionRange(
+        selectedText ? newPosition : start + prefix.length,
+        selectedText ? newPosition : start + prefix.length + placeholder.length
+      );
+    }, 0);
+  }, [currentNote, setCurrentNote]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!textareaRef.current || document.activeElement !== textareaRef.current) return;
+      
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'b':
+            e.preventDefault();
+            insertMarkdownAtCursor('**', '**', 'texte gras');
+            break;
+          case 'i':
+            e.preventDefault();
+            insertMarkdownAtCursor('*', '*', 'texte italique');
+            break;
+          case 'l':
+            e.preventDefault();
+            insertMarkdownAtCursor('\n- ', '', 'élément');
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [insertMarkdownAtCursor]);
+
+  // Export to PDF
+  const handleExportPDF = async () => {
+    if (!currentNote.trim()) {
+      toast.error('Aucune note à exporter');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      await exportToPDF({
+        title: `Notes personnelles - ${itemCode}`,
+        content: currentNote,
+        itemCode,
+        type: 'competences'
+      });
+      toast.success('Notes exportées en PDF');
+    } catch {
+      toast.error('Erreur lors de l\'export');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -101,6 +178,21 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           <span className="text-sm font-medium">Mes notes personnelles</span>
         </div>
         <div className="flex items-center gap-2">
+          {currentNote && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              className="h-7 px-2"
+            >
+              {isExporting ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Download className="h-3 w-3" />
+              )}
+            </Button>
+          )}
           {isSaving && (
             <Badge variant="outline" className="text-xs gap-1">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -121,8 +213,8 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0"
-          onClick={() => insertMarkdown('**texte**', true)}
-          title="Gras"
+          onClick={() => insertMarkdownAtCursor('**', '**', 'texte')}
+          title="Gras (Ctrl+B)"
         >
           <Bold className="h-3 w-3" />
         </Button>
@@ -130,8 +222,8 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0"
-          onClick={() => insertMarkdown('*texte*', true)}
-          title="Italique"
+          onClick={() => insertMarkdownAtCursor('*', '*', 'texte')}
+          title="Italique (Ctrl+I)"
         >
           <Italic className="h-3 w-3" />
         </Button>
@@ -139,8 +231,8 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0"
-          onClick={() => insertMarkdown('- élément')}
-          title="Liste"
+          onClick={() => insertMarkdownAtCursor('\n- ', '', 'élément')}
+          title="Liste (Ctrl+L)"
         >
           <List className="h-3 w-3" />
         </Button>
@@ -148,7 +240,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0"
-          onClick={() => insertMarkdown('## Titre')}
+          onClick={() => insertMarkdownAtCursor('\n## ', '', 'Titre')}
           title="Titre"
         >
           <Hash className="h-3 w-3" />
@@ -170,6 +262,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
 
       {viewMode === 'edit' ? (
         <Textarea
+          ref={textareaRef}
           placeholder="Ajoutez vos notes personnelles sur cet item... (Markdown supporté)"
           value={currentNote}
           onChange={(e) => setCurrentNote(e.target.value)}
@@ -188,7 +281,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
       )}
       
       <p className="text-xs text-muted-foreground">
-        💡 Markdown supporté: **gras**, *italique*, `code`, # titres, - listes
+        💡 Raccourcis: <kbd className="px-1 bg-muted rounded">Ctrl+B</kbd> gras, <kbd className="px-1 bg-muted rounded">Ctrl+I</kbd> italique, <kbd className="px-1 bg-muted rounded">Ctrl+L</kbd> liste
       </p>
     </div>
   );

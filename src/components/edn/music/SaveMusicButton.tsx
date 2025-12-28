@@ -61,7 +61,6 @@ export const SaveMusicButton = ({
         });
 
       if (error) {
-        console.error('Erreur sauvegarde:', error);
         toast({
           title: "Erreur de sauvegarde",
           description: "Impossible de sauvegarder la musique. Réessayez plus tard.",
@@ -76,8 +75,7 @@ export const SaveMusicButton = ({
         description: `"${title}" a été ajoutée à votre bibliothèque.`,
       });
 
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch {
       toast({
         title: "Erreur de sauvegarde",
         description: "Une erreur inattendue s'est produite.",

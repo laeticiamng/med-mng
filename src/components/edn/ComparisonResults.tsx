@@ -53,8 +53,7 @@ export const ComparisonResults = () => {
         title: "Comparaison terminée",
         description: `${data.summary.total_items} items analysés avec ${data.summary.average_similarity}% de similarité moyenne`
       });
-    } catch (error) {
-      console.error('Error running comparison:', error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Erreur lors de la comparaison avec le contenu officiel",

@@ -71,8 +71,8 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
         setHistory(historyTracks.slice(0, 20));
       }
 
-    } catch (error) {
-      console.error('Error loading music data:', error);
+    } catch {
+      // Silent error handling
     } finally {
       setLoading(false);
     }

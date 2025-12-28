@@ -1,8 +1,6 @@
 
 // Utilitaires pour l'intégration des données IC-9
 export const processTableauRangAIC9 = (data: any) => {
-  console.log('🔍 Traitement IC-9 - Certificats médicaux violences');
-  
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -30,8 +28,6 @@ export const processTableauRangAIC9 = (data: any) => {
   ]);
 
   const theme = "IC-9 - Certificats médicaux dans le cadre des violences";
-
-  console.log(`✅ IC-9 traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

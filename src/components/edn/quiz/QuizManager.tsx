@@ -89,15 +89,11 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleStartQuiz = (config: QuizConfig) => {
-    console.log('🎯 Configuration du quiz:', config);
-    
     // Démarrer une session de tracking des erreurs
     startQuizSession(item.item_code, item.title, config.numberOfQuestions);
     
     // Générer les questions selon la configuration
     const generatedQuestions = QuizGenerator.generateQuestions(item, config);
-    
-    console.log(`🎯 ${generatedQuestions.length} questions générées`);
     
     setQuizConfig(config);
     setQuizQuestions(generatedQuestions);
@@ -105,7 +101,6 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleQuizComplete = async (results: QuizResults) => {
-    console.log('🎯 Quiz terminé:', results);
     setQuizResults(results);
     
     // Sauvegarder le résultat dans la base de données

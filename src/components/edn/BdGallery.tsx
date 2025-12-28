@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  Image, ChevronLeft, ChevronRight, Maximize2, 
-  Download, Share2, Eye, BookOpen, Flame, Star, Loader2, Play, Pause
+  Image, ChevronLeft, ChevronRight, Maximize2, Minimize2,
+  Download, Share2, Eye, BookOpen, Flame, Star, Loader2, Play, Pause, X
 } from 'lucide-react';
 import { useRef } from 'react';
-import { exportToPDF, shareContent, exportAsImage } from '@/utils/exportUtils';
+import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
@@ -69,7 +70,6 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
     // Vignettes pour rang A (vraies compétences OIC)
     if (competencesA.length > 0) {
-      // Grouper par 3 compétences par vignette
       for (let i = 0; i < competencesA.length; i += 3) {
         const batch = competencesA.slice(i, i + 3);
         vignettes.push({
@@ -131,12 +131,14 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       } else if (e.key === ' ') {
         e.preventDefault();
         toggleAutoPlay();
+      } else if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [vignettes.length]);
+  }, [vignettes.length, isFullscreen]);
 
   // Auto-play slideshow
   const toggleAutoPlay = () => {
@@ -217,8 +219,153 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
   const currentVig = vignettes[currentVignette];
 
+  // Fullscreen vignette content
+  const VignetteContent = ({ fullscreen = false }: { fullscreen?: boolean }) => (
+    <div className={`${fullscreen ? 'h-full flex flex-col' : ''}`}>
+      <div className="relative">
+        <img 
+          src={currentVig.image} 
+          alt={currentVig.title}
+          className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} object-cover ${fullscreen ? '' : 'rounded-t-lg'}`}
+        />
+        <div className="absolute top-4 left-4">
+          <Badge className={`${getVignetteColor(currentVig.type)} border-2`}>
+            {getTypeIcon(currentVig.type)}
+            <span className="ml-1">{currentVig.type.toUpperCase()}</span>
+          </Badge>
+        </div>
+        {!fullscreen && (
+          <div className="absolute top-4 right-4 flex gap-2">
+            <Button 
+              size="sm" 
+              variant="secondary"
+              onClick={() => setIsFullscreen(true)}
+            >
+              <Maximize2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      <div className={fullscreen ? 'flex-1 overflow-auto p-6' : isMobile ? 'p-4' : 'p-6'}>
+        <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
+        <p className="text-muted-foreground mb-4">{currentVig.description}</p>
+        
+        {currentVig.competences && currentVig.competences.length > 0 && (
+          <div className="space-y-2 mb-4">
+            <h4 className="text-sm font-semibold text-muted-foreground">Compétences OIC:</h4>
+            <div className="space-y-2">
+              {currentVig.competences.map((comp: any, idx: number) => (
+                <div key={idx} className="p-2 bg-muted/50 rounded-lg text-sm">
+                  <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {!fullscreen && (
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={isExporting}
+              onClick={async () => {
+                setIsExporting(true);
+                const allContent = vignettes.map(v => 
+                  `${v.title}\n${v.description}\n${v.competences?.map((c: any) => `- ${c.objectif_id}: ${c.intitule}`).join('\n') || ''}`
+                ).join('\n\n---\n\n');
+                await exportToPDF({
+                  title,
+                  content: allContent,
+                  itemCode,
+                  type: 'bd'
+                });
+                setIsExporting(false);
+              }}
+            >
+              {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
+              Télécharger
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={isSharing}
+              onClick={async () => {
+                setIsSharing(true);
+                await shareContent({
+                  title,
+                  content: currentVig.description,
+                  itemCode,
+                  type: 'bd'
+                });
+                setIsSharing(false);
+              }}
+            >
+              {isSharing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />}
+              Partager
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
+      {/* Fullscreen Dialog */}
+      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
+          <DialogHeader className="p-4 border-b bg-gradient-to-r from-accent to-primary">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-primary-foreground flex items-center gap-2">
+                <Image className="h-5 w-5" />
+                BD Interactive - {itemCode}
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary-foreground/20 text-primary-foreground">
+                  {currentVignette + 1} / {vignettes.length}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsFullscreen(false)}
+                  className="text-primary-foreground hover:bg-primary-foreground/20"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-hidden">
+            <VignetteContent fullscreen />
+          </div>
+          
+          {/* Fullscreen navigation */}
+          <div className="p-4 border-t bg-muted/50 flex items-center justify-between">
+            <Button variant="outline" onClick={prevVignette} disabled={vignettes.length <= 1}>
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Précédent
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isAutoPlay ? "default" : "outline"}
+                onClick={toggleAutoPlay}
+                className={isAutoPlay ? "bg-success hover:bg-success/90" : ""}
+              >
+                {isAutoPlay ? <Pause className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}
+                {isAutoPlay ? "Arrêter" : "Diaporama"}
+              </Button>
+            </div>
+            <Button variant="outline" onClick={nextVignette} disabled={vignettes.length <= 1}>
+              Suivant
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header avec navigation */}
       <Card className="border-2 border-accent/20">
         <CardHeader className="bg-gradient-to-r from-accent to-primary text-primary-foreground">
@@ -284,88 +431,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       {/* Vignette principale */}
       <Card className={`border-2 ${getVignetteColor(currentVig.type)}`}>
         <CardContent className="p-0">
-          <div className="relative">
-            <img 
-              src={currentVig.image} 
-              alt={currentVig.title}
-              className={`w-full ${isMobile ? 'h-48' : 'h-96'} object-cover rounded-t-lg`}
-            />
-            <div className="absolute top-4 left-4">
-              <Badge className={`${getVignetteColor(currentVig.type)} border-2`}>
-                {getTypeIcon(currentVig.type)}
-                <span className="ml-1">{currentVig.type.toUpperCase()}</span>
-              </Badge>
-            </div>
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button 
-                size="sm" 
-                variant="secondary"
-                onClick={() => setIsFullscreen(true)}
-              >
-                <Maximize2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          
-          <div className={isMobile ? 'p-4' : 'p-6'}>
-            <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
-            <p className="text-muted-foreground mb-4">{currentVig.description}</p>
-            
-            {currentVig.competences && currentVig.competences.length > 0 && (
-              <div className="space-y-2 mb-4">
-                <h4 className="text-sm font-semibold text-muted-foreground">Compétences OIC:</h4>
-                <div className="space-y-2">
-                  {currentVig.competences.map((comp: any, idx: number) => (
-                    <div key={idx} className="p-2 bg-muted/50 rounded-lg text-sm">
-                      <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                disabled={isExporting}
-                onClick={async () => {
-                  setIsExporting(true);
-                  const allContent = vignettes.map(v => 
-                    `${v.title}\n${v.description}\n${v.competences?.map((c: any) => `- ${c.objectif_id}: ${c.intitule}`).join('\n') || ''}`
-                  ).join('\n\n---\n\n');
-                  await exportToPDF({
-                    title,
-                    content: allContent,
-                    itemCode,
-                    type: 'bd'
-                  });
-                  setIsExporting(false);
-                }}
-              >
-                {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
-                Télécharger
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                disabled={isSharing}
-                onClick={async () => {
-                  setIsSharing(true);
-                  await shareContent({
-                    title,
-                    content: currentVig.description,
-                    itemCode,
-                    type: 'bd'
-                  });
-                  setIsSharing(false);
-                }}
-              >
-                {isSharing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Share2 className="h-4 w-4 mr-1" />}
-                Partager
-              </Button>
-            </div>
-          </div>
+          <VignetteContent />
         </CardContent>
       </Card>
 

@@ -48,8 +48,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
         title: "Contenu généré !",
         description: `Le ${getFormatLabel(format)} a été généré avec succès.`,
       });
-    } catch (error) {
-      console.error(`Erreur génération ${format}:`, error);
+    } catch {
       toast({
         title: "Erreur de génération",
         description: `Impossible de générer le ${getFormatLabel(format)}.`,

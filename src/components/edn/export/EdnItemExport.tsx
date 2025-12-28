@@ -300,9 +300,8 @@ export function EdnItemExport({
         description: `PDF téléchargé avec ${totalCompetences} compétences OIC`
       });
       
-    } catch (error) {
-      console.error('Export error:', error);
-      toast({ 
+    } catch {
+      toast({
         title: 'Erreur', 
         description: 'Impossible de générer le PDF.', 
         variant: 'destructive' 
