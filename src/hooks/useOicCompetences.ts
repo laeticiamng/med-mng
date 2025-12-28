@@ -83,8 +83,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         });
 
         const fetchPromise = supabase
-          .from('backup_oic_competences')
-          .select('objectif_id, intitule, description, rubrique, rang, item_parent')
+          .from('oic_competences')
+          .select('objectif_id, intitule, description, rang, item_parent')
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
           .order('objectif_id');
@@ -112,7 +112,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
             objectif_id: comp.objectif_id,
             intitule: comp.intitule,
             description: comp.description || comp.intitule,
-            rubrique: comp.rubrique || '',
+            rubrique: '',
             rang: comp.rang || rang,
             item_parent: comp.item_parent || itemNumber
           })) as OicCompetence[];
