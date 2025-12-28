@@ -80,7 +80,13 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     }
   }, [itemCode]);
 
-  // Handle Text-to-Speech
+  // Speech rate state
+  const [speechRate, setSpeechRate] = useState(() => {
+    const saved = localStorage.getItem('roman-speech-rate');
+    return saved ? parseFloat(saved) : 0.9;
+  });
+
+  // Handle Text-to-Speech with speed control
   const toggleAudio = useCallback(() => {
     if (!('speechSynthesis' in window)) {
       toast.error('La synthèse vocale n\'est pas supportée par votre navigateur');
@@ -98,7 +104,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
       const utterance = new SpeechSynthesisUtterance(currentChap.content);
       utterance.lang = 'fr-FR';
-      utterance.rate = 0.9;
+      utterance.rate = speechRate;
       utterance.pitch = 1;
       
       // Find a French voice
@@ -123,7 +129,19 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
       setIsAudioEnabled(true);
       toast.success('Lecture audio démarrée');
     }
-  }, [isAudioPlaying, currentChapter]);
+  }, [isAudioPlaying, currentChapter, speechRate]);
+
+  // Handle speech rate change
+  const handleSpeechRateChange = useCallback((rate: number) => {
+    setSpeechRate(rate);
+    localStorage.setItem('roman-speech-rate', rate.toString());
+    if (isAudioPlaying) {
+      // Restart with new rate
+      window.speechSynthesis.cancel();
+      setIsAudioPlaying(false);
+      setTimeout(() => toggleAudio(), 100);
+    }
+  }, [isAudioPlaying, toggleAudio]);
 
   // Handle bookmark
   const handleBookmark = useCallback(() => {
@@ -294,6 +312,26 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
               <Badge className="bg-background/20 text-background">
                 Chapitre {currentChapter + 1} / {chapters.length}
               </Badge>
+              {/* Speed control */}
+              <div className="flex items-center gap-1 bg-background/20 rounded-full px-2">
+                <button 
+                  onClick={() => handleSpeechRateChange(Math.max(0.5, speechRate - 0.1))}
+                  className="text-background hover:text-background/80 text-xs font-bold px-1"
+                  disabled={speechRate <= 0.5}
+                >
+                  -
+                </button>
+                <span className="text-xs text-background font-medium min-w-[40px] text-center">
+                  {speechRate.toFixed(1)}x
+                </span>
+                <button 
+                  onClick={() => handleSpeechRateChange(Math.min(2, speechRate + 0.1))}
+                  className="text-background hover:text-background/80 text-xs font-bold px-1"
+                  disabled={speechRate >= 2}
+                >
+                  +
+                </button>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"

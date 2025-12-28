@@ -27,6 +27,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const RevisionDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('today');
+  const [revisionHistory, setRevisionHistory] = useState<any[]>([]);
   const {
     loading,
     error,
@@ -39,7 +40,7 @@ export const RevisionDashboard: React.FC = () => {
   
   const { stats: gamificationStats, loadStats } = useGamification();
 
-  // Load gamification stats
+  // Load gamification stats and revision history
   useEffect(() => {
     const loadUserStats = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -48,7 +49,31 @@ export const RevisionDashboard: React.FC = () => {
       }
     };
     loadUserStats();
+    
+    // Load revision history from localStorage
+    const savedHistory = localStorage.getItem('revision-history');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        setRevisionHistory(parsed.slice(0, 20)); // Keep last 20 entries
+      } catch (e) {
+        console.warn('Failed to parse revision history');
+      }
+    }
   }, [loadStats]);
+
+  // Track revision session completion
+  const trackRevision = (itemCode: string, score: number) => {
+    const entry = {
+      itemCode,
+      score,
+      timestamp: new Date().toISOString(),
+      date: new Date().toLocaleDateString('fr-FR')
+    };
+    const newHistory = [entry, ...revisionHistory].slice(0, 50);
+    setRevisionHistory(newHistory);
+    localStorage.setItem('revision-history', JSON.stringify(newHistory));
+  };
 
   const todayItems = getTodayRevisionItems();
   const stats = getProgressStats();
@@ -338,6 +363,37 @@ export const RevisionDashboard: React.FC = () => {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Historique de révision */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Historique des révisions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {revisionHistory.length > 0 ? (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {revisionHistory.slice(0, 10).map((entry, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg text-sm">
+                        <div>
+                          <span className="font-medium">{entry.itemCode}</span>
+                          <span className="text-muted-foreground ml-2">{entry.date}</span>
+                        </div>
+                        <Badge variant={entry.score >= 80 ? "default" : entry.score >= 50 ? "secondary" : "destructive"}>
+                          {entry.score}%
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-4">
+                    Aucun historique de révision. Commencez une session !
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
