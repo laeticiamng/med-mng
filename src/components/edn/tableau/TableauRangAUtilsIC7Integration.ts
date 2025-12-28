@@ -1,11 +1,41 @@
 
+interface IC7Concept {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface IC7Section {
+  concepts?: IC7Concept[];
+}
+
+interface IC7TableauData {
+  tableau_rang_a?: {
+    sections?: IC7Section[];
+  };
+  sections?: IC7Section[];
+  item_code?: string;
+  title?: string;
+  theme?: string;
+}
+
+interface ColonneUtile {
+  nom: string;
+  description: string;
+}
+
 // Utilitaires pour l'intégration des données IC-7
-export const processTableauRangAIC7 = (data: any) => {
+export const processTableauRangAIC7 = (data: IC7TableauData) => {
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtile[] = [
     { nom: 'Concept', description: 'Type de discrimination' },
     { nom: 'Définition', description: 'Caractérisation précise' },
     { nom: 'Exemple', description: 'Situation concrète' },
@@ -16,7 +46,7 @@ export const processTableauRangAIC7 = (data: any) => {
     { nom: 'Vigilance', description: 'Point d\'attention' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: IC7Concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -37,8 +67,8 @@ export const processTableauRangAIC7 = (data: any) => {
   };
 };
 
-export const isIC7Item = (data: any): boolean => {
+export const isIC7Item = (data: IC7TableauData | null | undefined): boolean => {
   return data?.item_code === 'IC-7' || 
          data?.title?.includes('discriminations') ||
-         data?.theme?.includes('IC-7');
+         data?.theme?.includes('IC-7') || false;
 };

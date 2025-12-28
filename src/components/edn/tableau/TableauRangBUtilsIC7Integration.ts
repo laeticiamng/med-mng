@@ -1,11 +1,38 @@
 
+interface IC7ConceptB {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface IC7SectionB {
+  concepts?: IC7ConceptB[];
+}
+
+interface IC7TableauDataB {
+  tableau_rang_b?: {
+    sections?: IC7SectionB[];
+  };
+  sections?: IC7SectionB[];
+}
+
+interface ColonneUtile {
+  nom: string;
+  description: string;
+}
+
 // Utilitaires pour l'affichage du Tableau Rang B IC-7
-export const processTableauRangBIC7 = (data: any) => {
+export const processTableauRangBIC7 = (data: IC7TableauDataB) => {
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtile[] = [
     { nom: 'Concept expert', description: 'Droits appliqués' },
     { nom: 'Analyse juridique', description: 'Cadre légal approfondi' },
     { nom: 'Cas complexe', description: 'Situation experte' },
@@ -16,7 +43,7 @@ export const processTableauRangBIC7 = (data: any) => {
     { nom: 'Excellence', description: 'Médiation parfaite' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: IC7ConceptB) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',

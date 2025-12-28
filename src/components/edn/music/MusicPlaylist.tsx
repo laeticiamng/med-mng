@@ -32,11 +32,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites' | 'history'>('all');
 
-  useEffect(() => {
-    loadMusicData();
-  }, []);
-
-  const loadMusicData = async () => {
+  const loadMusicData = React.useCallback(async () => {
     try {
       setLoading(true);
       
@@ -76,7 +72,11 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadMusicData();
+  }, [loadMusicData]);
 
   const toggleFavorite = (itemCode: string) => {
     const newFavorites = new Set(favorites);
