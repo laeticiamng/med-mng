@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface OicCompetence {
@@ -24,41 +24,49 @@ export interface OicCompetence {
 const competencesCache = new Map<string, OicCompetence[]>();
 
 export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
-  const [state, setState] = useState<{
-    competences: OicCompetence[];
-    loading: boolean;
-    error: string | null;
-  }>({
-    competences: [],
-    loading: true,
-    error: null
-  });
+  const [competences, setCompetences] = useState<OicCompetence[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    // Skip if no itemCode
+    if (!itemCode) {
+      setCompetences([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
 
-    async function fetchCompetences() {
-      if (!itemCode) {
-        setState({ competences: [], loading: false, error: null });
-        return;
-      }
+    const cacheKey = `${itemCode}-${rang}`;
+    
+    // Prevent duplicate fetches for same key
+    if (fetchedRef.current === cacheKey) {
+      return;
+    }
 
-      const cacheKey = `${itemCode}-${rang}`;
-      
-      // Check cache first
-      const cached = competencesCache.get(cacheKey);
-      if (cached && cached.length > 0) {
-        console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
-        if (!cancelled) {
-          setState({ competences: cached, loading: false, error: null });
-        }
-        return;
-      }
+    // Check cache first
+    const cached = competencesCache.get(cacheKey);
+    if (cached && cached.length > 0) {
+      console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
+      setCompetences(cached);
+      setLoading(false);
+      setError(null);
+      return;
+    }
 
-      // Extract item number (IC-1 -> 001, IC-10 -> 010)
-      const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
-      console.log(`🔍 OIC Query: item_parent=${itemNumber}, rang=${rang}`);
+    // Mark as fetching
+    fetchedRef.current = cacheKey;
 
+    // Extract item number (IC-1 -> 001, IC-10 -> 010)
+    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+    console.log(`🔍 OIC Query: item_parent=${itemNumber}, rang=${rang}`);
+
+    setLoading(true);
+    setError(null);
+
+    // Fetch data
+    const fetchData = async () => {
       try {
         const { data, error: queryError } = await supabase
           .from('backup_oic_competences')
@@ -67,11 +75,10 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           .eq('rang', rang)
           .order('objectif_id');
 
-        if (cancelled) return;
-
         if (queryError) {
           console.error('❌ Erreur récupération OIC:', queryError);
-          setState({ competences: [], loading: false, error: queryError.message });
+          setError(queryError.message);
+          setLoading(false);
           return;
         }
 
@@ -91,25 +98,17 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           competencesCache.set(cacheKey, realCompetences);
         }
 
-        setState({ competences: realCompetences, loading: false, error: null });
+        setCompetences(realCompetences);
+        setLoading(false);
       } catch (err) {
         console.error('❌ Erreur:', err);
-        if (!cancelled) {
-          setState({ 
-            competences: [], 
-            loading: false, 
-            error: err instanceof Error ? err.message : 'Erreur inconnue' 
-          });
-        }
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+        setLoading(false);
       }
-    }
-
-    fetchCompetences();
-
-    return () => {
-      cancelled = true;
     };
+
+    fetchData();
   }, [itemCode, rang]);
 
-  return state;
+  return { competences, loading, error };
 }
