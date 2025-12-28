@@ -164,8 +164,7 @@ const Generator = () => {
         loadStats(user.id);
       }
       
-    } catch (error) {
-      console.error('Erreur génération:', error);
+    } catch {
       toast.error('Échec de la génération musicale');
     }
   }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);

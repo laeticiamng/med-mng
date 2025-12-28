@@ -39,7 +39,6 @@ export const useSunoMusicGeneration = () => {
   ) => {
     
     if (isAlreadyGenerating(rang)) {
-      console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
       return;
     }
 
@@ -54,31 +53,18 @@ export const useSunoMusicGeneration = () => {
 
       const { isComposition, styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
       
-      console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
-      
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model);
 
       const response = await callSunoApi(requestBody);
 
-      console.log('🎵 RÉPONSE API SUNO REÇUE:', {
-        response,
-        callDuration: response.callDuration,
-        rang,
-        trackId: response.trackId
-      });
-
       // La génération Suno est maintenant asynchrone - on attend le callback
       if (response.trackId) {
-        console.log(`🎵 GÉNÉRATION DÉMARRÉE pour Rang ${rang}, trackId: ${response.trackId}`);
-        
         const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
         toast({
           title: "Génération démarrée",
           description: `Musique Rang ${rang} en cours de génération...`,
           variant: "default"
         });
-
-        console.log(`✅ GÉNÉRATION SUNO DÉMARRÉE pour Rang ${rang} en ${currentLanguage}`);
         
         return response.trackId;
       } else {
@@ -87,8 +73,6 @@ export const useSunoMusicGeneration = () => {
 
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
-      
       const errorMessage = error instanceof Error ? error.message : "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({

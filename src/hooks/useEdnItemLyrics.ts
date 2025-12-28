@@ -76,7 +76,6 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
 
         if (data && data.length > 0) {
           const item = data[0];
-          console.log('✅ Paroles chargées pour', itemCode, item);
           setLyrics({
             item_code: item.item_code,
             title: item.title,
@@ -87,11 +86,9 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
             paroles_rang_ab: item.paroles_rang_ab || []
           });
         } else {
-          console.warn('❌ Aucune parole trouvée pour', itemCode);
           setError('Aucune parole trouvée pour cet item');
         }
-      } catch (err) {
-        console.error('❌ Erreur useEdnItemLyrics:', err);
+      } catch {
         if (isMounted) {
           setError('Erreur lors du chargement des paroles');
         }

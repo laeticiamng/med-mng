@@ -48,8 +48,8 @@ export const GenerationHistory: React.FC = () => {
 
       if (error) throw error;
       setHistory(data || []);
-    } catch (error) {
-      console.error('Erreur chargement historique:', error);
+    } catch {
+      // Silently handle errors
     } finally {
       setLoading(false);
     }
@@ -81,8 +81,7 @@ export const GenerationHistory: React.FC = () => {
 
       setHistory(prev => prev.filter(t => t.id !== trackId));
       toast.success('Génération supprimée');
-    } catch (error) {
-      console.error('Erreur suppression:', error);
+    } catch {
       toast.error('Erreur lors de la suppression');
     }
   };
