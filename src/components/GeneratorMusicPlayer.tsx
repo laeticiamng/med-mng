@@ -135,8 +135,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           description: "Le lien audio a été copié dans votre presse-papier",
         });
       }
-    } catch (error) {
-      console.error('Erreur de partage:', error);
+    } catch {
+      // Partage silencieux en cas d'erreur
     }
   };
 
