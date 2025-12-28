@@ -19,6 +19,8 @@ import { BdGallery } from "@/components/edn/BdGallery";
 import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
+import { AudioAmbiancePlayer } from "@/components/edn/audio/AudioAmbiancePlayer";
+import { EdnItemExport } from "@/components/edn/export/EdnItemExport";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
@@ -374,6 +376,16 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   {/* Validation complète des compétences */}
                   <CompetenceValidation item={finalItem} />
                   
+                  {/* Export PDF */}
+                  <EdnItemExport 
+                    itemCode={finalItem.item_code}
+                    itemTitle={finalItem.title}
+                    tableauRangA={finalItem.tableau_rang_a}
+                    tableauRangB={finalItem.tableau_rang_b}
+                    parolesRangA={finalItem.paroles_rang_a}
+                    parolesRangB={finalItem.paroles_rang_b}
+                  />
+                  
                   {/* Badges de compétences */}
                   <CompetencesBadges item={finalItem} />
                 </div>
@@ -438,7 +450,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Scene */}
               {finalItem.scene_immersive && (
-                <TabsContent value="scene" className="mt-0 p-6">
+                <TabsContent value="scene" className="mt-0 p-6 space-y-4">
+                  {/* Audio Ambiance Player */}
+                  {finalItem.audio_ambiance && (
+                    <AudioAmbiancePlayer 
+                      audioConfig={finalItem.audio_ambiance} 
+                      itemCode={finalItem.item_code} 
+                    />
+                  )}
                   <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
                 </TabsContent>
               )}

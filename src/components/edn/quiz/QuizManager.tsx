@@ -3,12 +3,13 @@ import { QuizSelector, QuizConfig } from './QuizSelector';
 import { QuizInterface } from './QuizInterface';
 import { QuizGenerator } from './QuizGenerator';
 import { QuizErrorSongGenerator } from '../music/QuizErrorSongGenerator';
+import { QuizHistoryPanel } from './QuizHistoryPanel';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
+import { useQuizResults } from '@/hooks/useQuizResults';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RotateCcw, Music, Brain, Trophy, AlertTriangle } from 'lucide-react';
-
+import { RotateCcw, Music, Brain, Trophy, AlertTriangle, History } from 'lucide-react';
 interface QuizManagerProps {
   item: {
     id: string;
@@ -54,6 +55,8 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     startQuizSession, 
     endQuizSession 
   } = useQuizErrorTracker();
+  
+  const { saveQuizResult } = useQuizResults();
 
   // Calculer le nombre total de questions disponibles
   const calculateTotalQuestions = () => {
@@ -101,9 +104,22 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     setCurrentView('quiz');
   };
 
-  const handleQuizComplete = (results: QuizResults) => {
+  const handleQuizComplete = async (results: QuizResults) => {
     console.log('🎯 Quiz terminé:', results);
     setQuizResults(results);
+    
+    // Sauvegarder le résultat dans la base de données
+    await saveQuizResult({
+      itemCode: item.item_code,
+      itemTitle: item.title,
+      score: results.score,
+      totalQuestions: results.totalQuestions,
+      correctAnswers: results.correctAnswers,
+      wrongAnswers: results.wrongAnswers,
+      timeSpent: results.timeSpent,
+      performance: results.performance,
+      answers: results.answers
+    });
     
     // Terminer la session de tracking des erreurs
     endQuizSession(results.score);
@@ -152,14 +168,18 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     return (
       <div className="space-y-6">
         <Tabs defaultValue="results" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="results" className="flex items-center gap-2">
               <Trophy className="h-4 w-4" />
               Résultats
             </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Historique
+            </TabsTrigger>
             <TabsTrigger value="song" className="flex items-center gap-2">
               <Music className="h-4 w-4" />
-              Chanson d'Erreurs
+              Chanson
               {currentErrors.length > 0 && (
                 <span className="ml-1 px-2 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {currentErrors.length}
@@ -215,6 +235,10 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <QuizHistoryPanel itemCode={item.item_code} />
           </TabsContent>
 
           <TabsContent value="song" className="space-y-4">
