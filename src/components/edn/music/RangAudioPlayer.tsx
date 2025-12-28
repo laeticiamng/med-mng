@@ -4,11 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause } from 'lucide-react';
 import { AudioPlayer } from '../AudioPlayer';
 
+interface CurrentTrack {
+  url?: string;
+  title?: string;
+}
+
 interface RangAudioPlayerProps {
   rang: 'A' | 'B';
   generatedAudio: string;
   itemCode: string;
-  currentTrack: any;
+  currentTrack: CurrentTrack | null;
   isPlaying: boolean;
   currentTime: number;
   duration: number;

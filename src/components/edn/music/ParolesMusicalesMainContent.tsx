@@ -6,6 +6,18 @@ import { SynchronizedLyricsDisplay } from '@/components/music/SynchronizedLyrics
 import { Button } from '@/components/ui/button';
 import { useSynchronizedLyrics } from '@/hooks/music/useSynchronizedLyrics';
 
+interface CurrentTrack {
+  url?: string;
+  title?: string;
+}
+
+interface GenerationProgressItem {
+  progress: number;
+  attempts: number;
+  maxAttempts: number;
+  estimatedTimeRemaining?: number;
+}
+
 interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
   itemCode: string;
@@ -13,24 +25,14 @@ interface ParolesMusicalesMainContentProps {
   selectedStyle: string;
   isGenerating: { rangA: boolean; rangB: boolean };
   generatedAudio: { rangA?: string; rangB?: string };
-  currentTrack: any;
+  currentTrack: CurrentTrack | null;
   isPlaying: boolean;
   currentTime: number;
   duration: number;
   volume: number;
   generationProgress?: {
-    rangA?: {
-      progress: number;
-      attempts: number;
-      maxAttempts: number;
-      estimatedTimeRemaining?: number;
-    };
-    rangB?: {
-      progress: number;
-      attempts: number;
-      maxAttempts: number;
-      estimatedTimeRemaining?: number;
-    };
+    rangA?: GenerationProgressItem;
+    rangB?: GenerationProgressItem;
   };
   onGenerate: (rang: 'A' | 'B') => void;
   onGenerateMix: () => void;

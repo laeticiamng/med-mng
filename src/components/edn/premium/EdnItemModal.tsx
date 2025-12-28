@@ -30,8 +30,31 @@ import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
 
+interface OicCompetence {
+  intitule?: string;
+  objectif_id?: string;
+}
+
+interface EdnItemData {
+  id?: string;
+  item_code?: string;
+  title?: string;
+  subtitle?: string;
+  tableau_rang_a?: unknown;
+  tableau_rang_b?: unknown;
+  paroles_musicales?: string[];
+  scene_immersive?: unknown;
+  quiz_questions?: unknown;
+  audio_ambiance?: { url?: string };
+  visual_ambiance?: { url?: string };
+  bd_data?: unknown;
+  roman_narratif?: string;
+  competences_oic_rang_a?: OicCompetence[];
+  competences_oic_rang_b?: OicCompetence[];
+}
+
 interface EdnItemModalProps {
-  item: any;
+  item: EdnItemData;
   isOpen: boolean;
   onClose: () => void;
   initialTab?: string;
@@ -46,7 +69,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [activeTab, setActiveTab] = useState(initialTab || 'overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [completeItemData, setCompleteItemData] = useState<any>(null);
+  const [completeItemData, setCompleteItemData] = useState<EdnItemData | null>(null);
   const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
@@ -97,10 +120,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             if (data) {
               setCompleteItemData(prev => ({
                 ...prev,
-                quiz_questions: data.quiz_questions,
-                scene_immersive: data.scene_immersive,
-                tableau_rang_a: data.tableau_rang_a,
-                tableau_rang_b: data.tableau_rang_b,
+                quiz_questions: data.quiz_questions as unknown,
+                scene_immersive: data.scene_immersive as unknown,
+                tableau_rang_a: data.tableau_rang_a as unknown,
+                tableau_rang_b: data.tableau_rang_b as unknown,
                 competences_oic_rang_a: oicCompetencesA,
                 competences_oic_rang_b: oicCompetencesB,
               }));
