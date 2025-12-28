@@ -16,8 +16,29 @@ import { TableauRangAFooterIC9 } from './TableauRangAFooterIC9';
 import { TableauRangAFooterIC10 } from './TableauRangAFooterIC10';
 import { TableauRangAFooterOIC010 } from './TableauRangAFooterOIC010';
 
+interface TableauSection {
+  title?: string;
+  content?: string;
+  competences?: Array<{ id: string; title?: string; content?: string }>;
+  competence_id?: string;
+  keywords?: string[];
+  rubrique_oic?: string;
+  rubrique?: string;
+}
+
+interface TableauData {
+  title?: string;
+  subtitle?: string;
+  sections?: TableauSection[];
+  competences?: Array<{ intitule: string; description: string; objectif_id: string }>;
+  theme?: string;
+  colonnes?: Array<{ nom: string; description?: string }>;
+  lignes?: string[][];
+  count?: number;
+}
+
 interface TableauRangAProps {
-  data: any;
+  data: TableauData | null;
   itemCode?: string;
 }
 
@@ -26,7 +47,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
     // Si les sections contiennent des compétences détaillées, utiliser le nouveau composant
-    const hasDetailedCompetences = data.sections.some((s: any) => s.competences && s.competences.length > 0);
+    const hasDetailedCompetences = data.sections.some((s: TableauSection) => s.competences && s.competences.length > 0);
     
     if (hasDetailedCompetences) {
       return (
@@ -39,10 +60,19 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
               <p className="text-muted-foreground">{data.subtitle}</p>
             )}
           </div>
-          {data.sections.map((section: any, index: number) => (
+          {data.sections.map((section: TableauSection, index: number) => (
             <TableauSectionEnhanced 
               key={index}
-              section={section}
+              section={{
+                title: section.title || 'Section',
+                content: section.content,
+                competences: section.competences?.map(c => ({
+                  competence_id: c.id,
+                  concept: c.title || '',
+                  definition: c.content || ''
+                })),
+                keywords: section.keywords
+              }}
               rang="A"
               index={index}
             />
@@ -54,7 +84,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     // Sinon, convertir au format OIC standard
     const competencesData = {
       title: data.title || `${itemCode} Rang A - Compétences OIC`,
-      competences: data.sections.map((section: any, index: number) => {
+      competences: data.sections.map((section: TableauSection, index: number) => {
         const objectifId = section.keywords?.find((keyword: string) => keyword.startsWith('OIC-')) || 
                           section.competence_id || 
                           `OIC-${itemCode?.replace('IC-', '')}-${String(index + 1).padStart(2, '0')}-A`;
@@ -85,9 +115,15 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   // Format direct avec compétences (ancien format)
   if (data && data.competences && Array.isArray(data.competences)) {
+    const oicData = {
+      title: data.title || `${itemCode} - Compétences`,
+      competences: data.competences,
+      count: data.count ?? data.competences.length,
+      theme: data.theme ?? 'Compétences OIC'
+    };
     return (
       <TableauCompetencesOICOptimized 
-        data={data} 
+        data={oicData} 
         itemCode={itemCode || 'IC-X'} 
         rang="A" 
       />
@@ -99,14 +135,19 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
   const colonnesData = data?.colonnes || [];
   const lignesData = data?.lignes || [];
 
-  const colonnes = colonnesData.map((col: any) => ({
+  interface ColonneItem {
+    nom: string;
+    description: string;
+  }
+
+  const colonnes: ColonneItem[] = colonnesData.map((col) => ({
     nom: col.nom || 'N/A',
     description: col.description || 'N/A',
   }));
 
-  const lignes = lignesData.map((ligneData: any) => {
-    const ligne: any = {};
-    colonnesData.forEach((col: any, index: number) => {
+  const lignes = lignesData.map((ligneData) => {
+    const ligne: Record<string, string> = {};
+    colonnesData.forEach((col, index) => {
       ligne[col.nom] = ligneData[index] || '';
     });
     return ligne;
@@ -114,7 +155,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   // Transformation des données pour le nouveau format
   const colonnesUtiles = colonnes;
-  const lignesEnrichies = lignes.map((ligne: any) => Object.values(ligne));
+  const lignesEnrichies: string[][] = lignes.map((ligne) => Object.values(ligne) as string[]);
 
   const renderSpecificFooter = () => {
     const colonnesCount = colonnes.length;

@@ -89,8 +89,7 @@ export function TableauxNavigator({
         metadata: { component: 'tableaux_navigator', action: 'view', itemCode }
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCode])
+  }, [itemCode, logActivity])
 
   const getCompletenessColor = (score: number) => {
     if (score >= 80) return 'text-success'

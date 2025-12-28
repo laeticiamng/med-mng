@@ -58,8 +58,7 @@ export const AudioPlayer = ({
       if (user) loadStats(user.id);
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadStats]);
 
   // Track audio playback
   useEffect(() => {
