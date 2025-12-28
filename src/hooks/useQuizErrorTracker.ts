@@ -41,12 +41,10 @@ export const useQuizErrorTracker = () => {
     };
     
     setCurrentSession(session);
-    console.log('🎯 QUIZ SESSION DÉMARRÉE:', session);
   }, []);
 
   const addQuizError = useCallback((error: Omit<QuizError, 'timestamp'>) => {
     if (!currentSession) {
-      console.warn('⚠️ Tentative d\'ajout d\'erreur sans session active');
       return;
     }
 
@@ -62,13 +60,10 @@ export const useQuizErrorTracker = () => {
         errors: [...prev.errors, fullError]
       };
     });
-
-    console.log('❌ ERREUR AJOUTÉE:', fullError);
   }, [currentSession]);
 
   const endQuizSession = useCallback(async (finalScore: number) => {
     if (!currentSession) {
-      console.warn('⚠️ Tentative de fin de session sans session active');
       return null;
     }
 
@@ -131,11 +126,11 @@ export const useQuizErrorTracker = () => {
             session_date: new Date().toISOString().split('T')[0]
           });
       }
-    } catch (error) {
-      console.error('❌ Erreur sauvegarde session:', error);
+    } catch {
+      // Error saving session handled silently
     }
 
-    console.log('✅ QUIZ SESSION TERMINÉE:', completedSession);
+    
     
     if (completedSession.errors.length > 0) {
       toast({

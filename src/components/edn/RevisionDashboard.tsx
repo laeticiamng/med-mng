@@ -19,7 +19,7 @@ import { QuizProgressChart } from './quiz/QuizProgressChart';
 import { ProgressHeatmap } from './quiz/ProgressHeatmap';
 
 interface RevisionDashboardProps {
-  itemCode: string;
+  itemCode?: string;
   itemTitle?: string;
   onStartRevision?: () => void;
 }
@@ -52,20 +52,30 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
 
       loadStats(user.id);
 
-      // Fetch quiz results
-      const { data: quizResults } = await supabase
+      // Fetch quiz results - global or per item
+      let quizQuery = supabase
         .from('quiz_results')
         .select('score, created_at')
         .eq('user_id', user.id)
-        .eq('item_code', itemCode)
         .order('created_at', { ascending: false });
+      
+      if (itemCode) {
+        quizQuery = quizQuery.eq('item_code', itemCode);
+      }
+      
+      const { data: quizResults } = await quizQuery.limit(50);
 
-      // Fetch mastery data
-      const { data: masteryData } = await supabase
+      // Fetch mastery data - global or per item
+      let masteryQuery = supabase
         .from('user_competence_mastery')
         .select('is_mastered')
-        .eq('user_id', user.id)
-        .eq('item_code', itemCode);
+        .eq('user_id', user.id);
+      
+      if (itemCode) {
+        masteryQuery = masteryQuery.eq('item_code', itemCode);
+      }
+      
+      const { data: masteryData } = await masteryQuery;
 
       const scores = quizResults?.map(r => r.score) || [];
       const mastered = masteryData?.filter(m => m.is_mastered).length || 0;

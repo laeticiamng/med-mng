@@ -135,6 +135,75 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     });
   };
 
+  // Bulk toggle - marquer toutes les compétences d'un rang
+  const bulkToggleMastery = async (rang: 'A' | 'B', setAsMastered: boolean) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return;
+    }
+    
+    const competences = rang === 'A' ? oicCompetencesA : oicCompetencesB;
+    if (competences.length === 0) return;
+    
+    setSavingId('bulk');
+    
+    for (const comp of competences) {
+      const existing = masteryData.get(comp.objectif_id);
+      
+      if (existing) {
+        await supabase
+          .from('user_competence_mastery')
+          .update({ 
+            is_mastered: setAsMastered, 
+            mastery_level: setAsMastered ? 100 : 50,
+            review_count: existing.review_count + 1,
+            last_reviewed_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .eq('item_code', item.item_code)
+          .eq('objectif_id', comp.objectif_id);
+      } else {
+        await supabase
+          .from('user_competence_mastery')
+          .insert({
+            user_id: user.id,
+            item_code: item.item_code,
+            objectif_id: comp.objectif_id,
+            rang,
+            is_mastered: setAsMastered,
+            mastery_level: setAsMastered ? 100 : 50,
+            review_count: 1,
+            last_reviewed_at: new Date().toISOString()
+          });
+      }
+    }
+    
+    // Mettre à jour le state local
+    setMasteryData(prev => {
+      const newMap = new Map(prev);
+      competences.forEach(comp => {
+        newMap.set(comp.objectif_id, {
+          objectif_id: comp.objectif_id,
+          is_mastered: setAsMastered,
+          mastery_level: setAsMastered ? 100 : 50,
+          review_count: (prev.get(comp.objectif_id)?.review_count || 0) + 1
+        });
+      });
+      return newMap;
+    });
+    
+    if (setAsMastered) {
+      await addPoints(user.id, 'perfectExam');
+    }
+    
+    setSavingId(null);
+    toast({ 
+      title: setAsMastered ? `✅ ${competences.length} compétences maîtrisées !` : `📝 ${competences.length} compétences à revoir`,
+      description: setAsMastered ? `Rang ${rang} validé` : `Rang ${rang} réinitialisé`
+    });
+  };
+
   const validation = useMemo(() => {
     const result = {
       rangA: {
