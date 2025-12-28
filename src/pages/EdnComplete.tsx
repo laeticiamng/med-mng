@@ -192,6 +192,7 @@ export default function EdnComplete() {
       if (selectedCategory === 'all') return matchesSearch;
       
       const matchesCategory = (() => {
+        const totalComp = (item.competences_count_rang_a || 0) + (item.competences_count_rang_b || 0);
         switch (selectedCategory) {
           case 'complete':
             return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
@@ -203,10 +204,10 @@ export default function EdnComplete() {
             return (item.competences_count_rang_a || 0) > 0;
           case 'rangB':
             return (item.competences_count_rang_b || 0) > 0;
-          case 'noRangA':
-            return (item.competences_count_rang_a || 0) === 0;
-          case 'noRangB':
-            return (item.competences_count_rang_b || 0) === 0;
+          case 'highCompetences':
+            return totalComp >= 10;
+          case 'lowCompetences':
+            return totalComp < 5;
           default:
             return true;
         }
@@ -418,11 +419,11 @@ export default function EdnComplete() {
                 <SelectContent>
                   <SelectItem value="all">Tous ({stats.total})</SelectItem>
                   <SelectItem value="complete">Complets ({stats.complete})</SelectItem>
-                  <SelectItem value="rangA">Rang A ({stats.withRangA || 0})</SelectItem>
-                  <SelectItem value="rangB">Rang B ({stats.withRangB || 0})</SelectItem>
-                  <SelectItem value="withMusic">Musique ({stats.withMusic})</SelectItem>
-                  <SelectItem value="noRangA">Sans Rang A</SelectItem>
-                  <SelectItem value="noRangB">Sans Rang B</SelectItem>
+                  <SelectItem value="rangA">Avec Rang A ({stats.withRangA || 0})</SelectItem>
+                  <SelectItem value="rangB">Avec Rang B ({stats.withRangB || 0})</SelectItem>
+                  <SelectItem value="withMusic">Avec Musique ({stats.withMusic})</SelectItem>
+                  <SelectItem value="highCompetences">+10 compétences</SelectItem>
+                  <SelectItem value="lowCompetences">-5 compétences</SelectItem>
                   <SelectItem value="noMusic">Sans Musique</SelectItem>
                 </SelectContent>
               </Select>
@@ -521,11 +522,32 @@ export default function EdnComplete() {
 
           <TabsContent value="complete">
             <div className="space-y-6">
-              {/* FAQ Section */}
-              <FaqSection />
+              {/* Stats OIC rapides */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <div className="text-2xl font-bold text-primary">{stats.total}</div>
+                  <div className="text-sm text-muted-foreground">Items EDN</div>
+                </Card>
+                <Card className="p-4 bg-success/5 border-success/20">
+                  <div className="text-2xl font-bold text-success">{stats.totalOicRangA || 0}</div>
+                  <div className="text-sm text-muted-foreground">Compétences Rang A</div>
+                </Card>
+                <Card className="p-4 bg-accent/5 border-accent/20">
+                  <div className="text-2xl font-bold text-accent-foreground">{stats.totalOicRangB || 0}</div>
+                  <div className="text-sm text-muted-foreground">Compétences Rang B</div>
+                </Card>
+                <Card className="p-4 bg-warning/5 border-warning/20">
+                  <div className="text-2xl font-bold text-warning">{stats.withMusic}</div>
+                  <div className="text-sm text-muted-foreground">Avec Musique</div>
+                </Card>
+              </div>
 
-              {/* Liste des items avec EdnItemCard premium */}
-              <div className="space-y-6">
+              {/* Liste des items */}
+              {filteredItems.length === 0 && !loading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Aucun item trouvé. Modifiez vos filtres.
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredItems.map(item => (
                     <EdnItemCard
@@ -536,14 +558,13 @@ export default function EdnComplete() {
                     />
                   ))}
                 </div>
-                
-                
-                {loading && immersiveItems.length > 0 && (
-                  <div className="flex justify-center py-4">
-                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                )}
-              </div>
+              )}
+              
+              {loading && immersiveItems.length > 0 && (
+                <div className="flex justify-center py-4">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
