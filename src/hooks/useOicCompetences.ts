@@ -45,7 +45,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     let cancelled = false;
 
     // Skip if no itemCode or invalid format
-    if (!itemCode || !itemCode.startsWith('IC-')) {
+    if (!itemCode || (!itemCode.startsWith('IC-') && !itemCode.startsWith('OIC-'))) {
       setCompetences([]);
       setLoading(false);
       setError(null);
@@ -63,8 +63,10 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       return;
     }
 
-    // Extract item number (IC-1 -> 001, IC-10 -> 010)
-    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+    // Extract item number (IC-1 -> 001, IC-10 -> 010, OIC-XXX -> XXX)
+    const itemNumber = itemCode.startsWith('OIC-') 
+      ? itemCode.replace('OIC-', '').split('-')[0].padStart(3, '0')
+      : itemCode.replace('IC-', '').padStart(3, '0');
     
     setLoading(true);
     setError(null);

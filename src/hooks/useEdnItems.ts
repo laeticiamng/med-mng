@@ -91,11 +91,12 @@ export const useEdnItems = () => {
       setLoading(false);
       fetchingRef.current = false;
       
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       console.error('❌ useEdnItems - Error:', err);
       fetchingRef.current = false;
       if (!mountedRef.current) return;
-      setError(err.message || 'Erreur lors du chargement');
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -122,6 +123,7 @@ export const useEdnItems = () => {
       console.log('🔚 useEdnItems - Unmounting');
       mountedRef.current = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
