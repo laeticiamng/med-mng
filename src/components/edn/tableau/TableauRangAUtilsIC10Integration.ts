@@ -1,8 +1,6 @@
 
 // Utilitaires pour l'affichage du Tableau Rang A IC-10
 export const processTableauRangAIC10 = (data: any) => {
-  console.log('🔍 Traitement IC-10 Rang A');
-  
   // Extraire les données des concepts
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -30,8 +28,6 @@ export const processTableauRangAIC10 = (data: any) => {
   ]);
 
   const theme = "IC-10 Rang A - Approches transversales du corps";
-
-  console.log(`✅ IC-10 Rang A traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

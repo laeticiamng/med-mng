@@ -1,8 +1,6 @@
 
 // Utilitaires pour l'affichage du Tableau Rang B IC-7
 export const processTableauRangBIC7 = (data: any) => {
-  console.log('🔍 Traitement avancé IC-7 Rang B');
-  
   // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -30,8 +28,6 @@ export const processTableauRangBIC7 = (data: any) => {
   ]);
 
   const theme = "IC-7 Rang B - Expertise application des droits";
-
-  console.log(`✅ IC-7 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

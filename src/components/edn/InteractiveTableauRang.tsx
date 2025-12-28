@@ -75,7 +75,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
             setMasteredCompetences(new Set(JSON.parse(saved)));
           }
         } catch (e) {
-          console.error('Error loading from localStorage:', e);
+          // Error handled silently
         }
         return;
       }
@@ -144,7 +144,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
             }, { onConflict: 'user_id,item_code,rang,competence_id' });
         }
       } catch (e) {
-        console.error('Error saving to Supabase:', e);
+        // Error handled silently
       }
     } else {
       // Fallback localStorage pour utilisateurs non connectés
@@ -152,7 +152,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         const key = `tableau_progress_${itemCode}_${rang}`;
         localStorage.setItem(key, JSON.stringify(Array.from(newMastered)));
       } catch (e) {
-        console.error('Error saving to localStorage:', e);
+        // Error handled silently
       }
     }
   }, [masteredCompetences, itemCode, rang, logActivity]);
@@ -179,7 +179,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
       setMasteredCompetences(new Set());
       toast({ title: 'Progression réinitialisée' });
     } catch (e) {
-      console.error('Error resetting:', e);
+      // Error handled silently
       toast({ title: 'Erreur lors de la réinitialisation', variant: 'destructive' });
     } finally {
       setLoading(false);
