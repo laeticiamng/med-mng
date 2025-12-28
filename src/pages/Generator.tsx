@@ -197,8 +197,7 @@ const Generator = () => {
 
       if (error) throw error;
       toast.success('✨ Chanson ajoutée à votre bibliothèque !');
-    } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+    } catch {
       toast.error('Erreur lors de la sauvegarde');
     }
   }, [generatedSong, user, canSaveMusic]);
