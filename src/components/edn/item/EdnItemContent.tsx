@@ -15,6 +15,23 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
+interface TableauRangData {
+  sections?: Array<{ title?: string; content?: string }>;
+  [key: string]: unknown;
+}
+
+interface SceneData {
+  description?: string;
+  mots_cles?: string[];
+  [key: string]: unknown;
+}
+
+interface QuizData {
+  qcm?: Array<{ question: string; options?: string[]; correct?: number }>;
+  qru?: Array<{ question: string; reponse?: string }>;
+  [key: string]: unknown;
+}
+
 interface EdnItemData {
   id: string;
   item_code: string;
@@ -22,10 +39,10 @@ interface EdnItemData {
   subtitle?: string;
   slug: string;
   paroles_musicales?: string[];
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
-  scene_immersive?: any;
-  quiz_questions?: any;
+  tableau_rang_a?: TableauRangData;
+  tableau_rang_b?: TableauRangData;
+  scene_immersive?: SceneData;
+  quiz_questions?: QuizData;
   created_at: string;
   updated_at: string;
 }

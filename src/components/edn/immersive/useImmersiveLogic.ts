@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 interface EdnItemImmersive {
   id: string;
@@ -10,15 +11,15 @@ interface EdnItemImmersive {
   subtitle: string;
   item_code: string;
   pitch_intro: string;
-  visual_ambiance: any;
-  audio_ambiance: any;
-  tableau_rang_a: any;
-  tableau_rang_b: any;
-  scene_immersive: any;
+  visual_ambiance: Json;
+  audio_ambiance: Json;
+  tableau_rang_a: Json;
+  tableau_rang_b: Json;
+  scene_immersive: Json;
   paroles_musicales: string[];
-  interaction_config: any;
-  quiz_questions: any;
-  reward_messages: any;
+  interaction_config: Json;
+  quiz_questions: Json;
+  reward_messages: Json;
 }
 
 export const useImmersiveLogic = () => {

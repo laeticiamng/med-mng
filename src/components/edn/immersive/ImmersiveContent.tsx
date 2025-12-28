@@ -9,12 +9,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Flame, Star, Trophy } from 'lucide-react';
-
-interface SceneCharacter {
-  name: string;
-  role: string;
-  description: string;
-}
+import { Json } from '@/integrations/supabase/types';
 
 interface ImmersiveItem {
   item_code: string;
@@ -22,16 +17,12 @@ interface ImmersiveItem {
   title: string;
   subtitle?: string;
   pitch_intro?: string;
-  scene_immersive?: {
-    setting?: string;
-    scenario?: string;
-    characters?: SceneCharacter[];
-  };
-  tableau_rang_a?: Record<string, unknown>;
-  tableau_rang_b?: Record<string, unknown>;
+  scene_immersive?: Json;
+  tableau_rang_a?: Json;
+  tableau_rang_b?: Json;
   paroles_musicales?: string[];
-  interaction_config?: Record<string, unknown>;
-  quiz_questions?: unknown[];
+  interaction_config?: Json;
+  quiz_questions?: Json;
 }
 
 interface ImmersiveContentProps {
@@ -107,19 +98,20 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 1: // Scène immersive
+        const sceneData = item.scene_immersive as { setting?: string; scenario?: string; characters?: Array<{ name: string; role: string; description: string }> } | null;
         return (
           <div className="prose max-w-none">
             <h2 className="text-2xl font-bold mb-4">Scène immersive</h2>
-            {item.scene_immersive ? (
+            {sceneData ? (
               <div className="p-6 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg">
                 <h3 className="text-xl font-semibold mb-3">Contexte</h3>
-                <p className="text-muted-foreground mb-4">{item.scene_immersive.setting || 'Contexte médical professionnel'}</p>
+                <p className="text-muted-foreground mb-4">{sceneData.setting || 'Contexte médical professionnel'}</p>
                 
-                {item.scene_immersive.characters && (
+                {sceneData.characters && (
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Personnages :</h4>
                     <div className="space-y-2">
-                      {item.scene_immersive.characters.map((char, idx) => (
+                      {sceneData.characters.map((char, idx) => (
                         <div key={idx} className="flex items-center gap-2">
                           <Badge variant="outline">{char.role}</Badge>
                           <span>{char.name} - {char.description}</span>
@@ -129,10 +121,10 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
                   </div>
                 )}
                 
-                {item.scene_immersive.scenario && (
+                {sceneData.scenario && (
                   <div>
                     <h4 className="font-semibold mb-2">Scénario :</h4>
-                    <p className="text-muted-foreground">{item.scene_immersive.scenario}</p>
+                    <p className="text-muted-foreground">{sceneData.scenario}</p>
                   </div>
                 )}
               </div>
@@ -148,7 +140,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         return (
           <TableauSection
             key={`rang-a-${item.slug}-${currentSection}`}
-            data={item.tableau_rang_a}
+            data={item.tableau_rang_a as { sections?: Array<{ title?: string; concepts?: unknown[] }>; title?: string } | null}
             title="Fondamentaux - Rang A"
             type="rang_a"
           />
@@ -158,7 +150,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         return (
           <TableauSection
             key={`rang-b-${item.slug}-${currentSection}`}
-            data={item.tableau_rang_b}
+            data={item.tableau_rang_b as { sections?: Array<{ title?: string; concepts?: unknown[] }>; title?: string } | null}
             title="Approfondissements - Rang B"
             type="rang_b"
           />
@@ -171,8 +163,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
             <ParolesMusicales
               paroles={item.paroles_musicales || []}
               itemCode={item.item_code}
-              tableauRangA={item.tableau_rang_a}
-              tableauRangB={item.tableau_rang_b}
+              tableauRangA={item.tableau_rang_a as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
+              tableauRangB={item.tableau_rang_b as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
             />
             
             {/* Afficher un avertissement si les paroles sont insuffisantes */}
@@ -197,8 +189,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
               subtitle: item.subtitle || '',
               slug: item.slug,
               item_code: item.item_code,
-              tableau_rang_a: item.tableau_rang_a,
-              tableau_rang_b: item.tableau_rang_b
+              tableau_rang_a: item.tableau_rang_a as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined,
+              tableau_rang_b: item.tableau_rang_b as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined
             }}
           />
         );
@@ -206,7 +198,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       case 6: // Interaction
         return (
           <InteractionSection
-            interactionConfig={item.interaction_config}
+            interactionConfig={item.interaction_config as Parameters<typeof InteractionSection>[0]['interactionConfig']}
             itemCode={item.item_code}
           />
         );
@@ -214,7 +206,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       case 7: // Quiz final
         return (
           <QuizSection
-            quizData={item.quiz_questions}
+            quizData={item.quiz_questions as Parameters<typeof QuizSection>[0]['quizData']}
             itemCode={item.item_code}
           />
         );
