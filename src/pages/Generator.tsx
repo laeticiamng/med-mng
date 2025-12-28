@@ -47,7 +47,14 @@ const Generator = () => {
 
   const canGenerate = useCallback(() => {
     if (contentType === 'edn') {
-      return !!(selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales);
+      // Vérifier les paroles par rang ou le legacy paroles_musicales
+      const hasLyrics = ednLyrics && (
+        (selectedRang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) ||
+        (selectedRang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) ||
+        (selectedRang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) ||
+        (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0)
+      );
+      return !!(selectedItem && selectedRang && selectedStyle && hasLyrics);
     }
     if (contentType === 'ecos') {
       return !!(selectedSituation && selectedStyle);
@@ -81,8 +88,18 @@ const Generator = () => {
       let lyricsToUse: string[] = [];
       let titlePrefix = '';
 
-      if (contentType === 'edn' && ednLyrics?.paroles_musicales) {
-        lyricsToUse = ednLyrics.paroles_musicales;
+      if (contentType === 'edn' && ednLyrics) {
+        // Utiliser les paroles par rang en priorité
+        if (selectedRang === 'A' && ednLyrics.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_a;
+        } else if (selectedRang === 'B' && ednLyrics.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_b;
+        } else if (selectedRang === 'AB' && ednLyrics.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0) {
+          lyricsToUse = ednLyrics.paroles_rang_ab;
+        } else if (ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0) {
+          // Fallback vers legacy paroles_musicales
+          lyricsToUse = ednLyrics.paroles_musicales;
+        }
         titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
       } else if (contentType === 'ecos') {
         lyricsToUse = [

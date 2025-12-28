@@ -1,9 +1,11 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItemLyrics {
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   item_code: string;
   title: string;
   subtitle?: string;
@@ -13,9 +15,12 @@ interface LyricsStats {
   totalVerses: number;
   totalLines: number;
   averageLinesPerVerse: number;
-  estimatedDuration: number; // en secondes
+  estimatedDuration: number;
   hasChorus: boolean;
   verseTitles: string[];
+  hasRangA: boolean;
+  hasRangB: boolean;
+  hasRangAB: boolean;
 }
 
 interface ParsedLyrics {
@@ -25,6 +30,9 @@ interface ParsedLyrics {
     isChorus: boolean;
   }>;
   raw: string[];
+  rangA: string[];
+  rangB: string[];
+  rangAB: string[];
 }
 
 export const useEdnItemLyrics = (itemCode: string | null) => {
@@ -44,7 +52,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     try {
       const { data, error: supabaseError } = await supabase
         .from('edn_items_immersive')
-        .select('item_code, title, subtitle, paroles_musicales')
+        .select('item_code, title, subtitle, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
         .eq('item_code', itemCode)
         .maybeSingle();
 
@@ -58,7 +66,10 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
           item_code: data.item_code,
           title: data.title,
           subtitle: data.subtitle,
-          paroles_musicales: data.paroles_musicales || []
+          paroles_musicales: data.paroles_musicales || [],
+          paroles_rang_a: data.paroles_rang_a || [],
+          paroles_rang_b: data.paroles_rang_b || [],
+          paroles_rang_ab: data.paroles_rang_ab || []
         });
       } else {
         setError('Aucune donnée trouvée');
@@ -74,21 +85,30 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     fetchLyrics();
   }, [fetchLyrics]);
 
-  // Parser les paroles en structure utilisable
+  // Parser les paroles en structure utilisable - prioriser rang A/B/AB
   const parsedLyrics = useMemo((): ParsedLyrics | null => {
-    if (!lyrics?.paroles_musicales || lyrics.paroles_musicales.length === 0) {
-      return null;
-    }
+    if (!lyrics) return null;
+
+    const rangA = lyrics.paroles_rang_a || [];
+    const rangB = lyrics.paroles_rang_b || [];
+    const rangAB = lyrics.paroles_rang_ab || [];
+    const legacy = lyrics.paroles_musicales || [];
+
+    // Utiliser les paroles rang AB en priorité, sinon rang A + rang B, sinon legacy
+    const allParoles = rangAB.length > 0 ? rangAB : 
+                       (rangA.length > 0 || rangB.length > 0) ? [...rangA, ...rangB] : 
+                       legacy;
+
+    if (allParoles.length === 0) return null;
 
     const verses: ParsedLyrics['verses'] = [];
     let currentVerse: { title: string; lines: string[]; isChorus: boolean } | null = null;
 
-    lyrics.paroles_musicales.forEach(line => {
+    allParoles.forEach(line => {
       const trimmedLine = line.trim();
 
-      // Détecter les titres de couplets/refrains
       if (trimmedLine.match(/^\[(.*)\]$/) || trimmedLine.match(/^(Couplet|Refrain|Verse|Chorus|Pont|Bridge|Intro|Outro)/i)) {
-        if (currentVerse) {
+        if (currentVerse && currentVerse.lines.length > 0) {
           verses.push(currentVerse);
         }
         const title = trimmedLine.replace(/[\[\]]/g, '');
@@ -100,7 +120,6 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       } else if (trimmedLine && currentVerse) {
         currentVerse.lines.push(trimmedLine);
       } else if (trimmedLine && !currentVerse) {
-        // Première ligne sans titre de section
         currentVerse = {
           title: 'Couplet 1',
           lines: [trimmedLine],
@@ -115,23 +134,22 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
 
     return {
       verses,
-      raw: lyrics.paroles_musicales
+      raw: allParoles,
+      rangA,
+      rangB,
+      rangAB
     };
   }, [lyrics]);
 
   // Statistiques sur les paroles
   const stats = useMemo((): LyricsStats | null => {
-    if (!parsedLyrics) {
-      return null;
-    }
+    if (!parsedLyrics) return null;
 
     const totalVerses = parsedLyrics.verses.length;
     const totalLines = parsedLyrics.verses.reduce((sum, v) => sum + v.lines.length, 0);
     const averageLinesPerVerse = totalVerses > 0 ? Math.round(totalLines / totalVerses) : 0;
     const hasChorus = parsedLyrics.verses.some(v => v.isChorus);
     const verseTitles = parsedLyrics.verses.map(v => v.title);
-
-    // Estimation de durée: ~3 secondes par ligne
     const estimatedDuration = totalLines * 3;
 
     return {
@@ -140,28 +158,28 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
       averageLinesPerVerse,
       estimatedDuration,
       hasChorus,
-      verseTitles
+      verseTitles,
+      hasRangA: parsedLyrics.rangA.length > 0,
+      hasRangB: parsedLyrics.rangB.length > 0,
+      hasRangAB: parsedLyrics.rangAB.length > 0
     };
   }, [parsedLyrics]);
 
-  // Formater la durée estimée
   const formatDuration = useCallback((seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  // Rechercher dans les paroles
   const searchInLyrics = useCallback((query: string): string[] => {
-    if (!lyrics?.paroles_musicales || !query.trim()) return [];
+    if (!parsedLyrics || !query.trim()) return [];
 
     const queryLower = query.toLowerCase();
-    return lyrics.paroles_musicales.filter(line =>
+    return parsedLyrics.raw.filter(line =>
       line.toLowerCase().includes(queryLower)
     );
-  }, [lyrics]);
+  }, [parsedLyrics]);
 
-  // Obtenir un couplet spécifique
   const getVerse = useCallback((index: number) => {
     if (!parsedLyrics || index < 0 || index >= parsedLyrics.verses.length) {
       return null;
@@ -169,13 +187,23 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     return parsedLyrics.verses[index];
   }, [parsedLyrics]);
 
-  // Obtenir le texte complet formaté
   const getFormattedText = useCallback((): string => {
-    if (!lyrics?.paroles_musicales) return '';
-    return lyrics.paroles_musicales.join('\n');
-  }, [lyrics]);
+    if (!parsedLyrics) return '';
+    return parsedLyrics.raw.join('\n');
+  }, [parsedLyrics]);
 
-  // Refetch manuel
+  const getRangAText = useCallback((): string => {
+    return parsedLyrics?.rangA.join('\n') || '';
+  }, [parsedLyrics]);
+
+  const getRangBText = useCallback((): string => {
+    return parsedLyrics?.rangB.join('\n') || '';
+  }, [parsedLyrics]);
+
+  const getRangABText = useCallback((): string => {
+    return parsedLyrics?.rangAB.join('\n') || '';
+  }, [parsedLyrics]);
+
   const refetch = useCallback(() => {
     fetchLyrics();
   }, [fetchLyrics]);
@@ -190,6 +218,9 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     searchInLyrics,
     getVerse,
     getFormattedText,
+    getRangAText,
+    getRangBText,
+    getRangABText,
     refetch
   };
 };
