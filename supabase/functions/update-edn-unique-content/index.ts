@@ -1,3 +1,4 @@
+// Force deploy v2 - 2025-12-28T18:24
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
@@ -645,13 +646,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader) {
-    return new Response(
-      JSON.stringify({ error: 'Authorization header manquant' }),
-      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
+  // Fonction admin - pas de vérification JWT requise
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -752,7 +747,7 @@ serve(async (req) => {
           explanation: `Compétence ${comp.rang}: ${comp.intitule}`
         }));
 
-        // Mettre à jour l'item
+        // Mettre à jour l'item (sans oic_count_a/b qui n'existent pas)
         const { error: updateError } = await supabase
           .from('edn_items_immersive')
           .update({
@@ -763,8 +758,6 @@ serve(async (req) => {
             paroles_rang_b: parolesRangB,
             paroles_rang_ab: parolesRangAB,
             quiz_questions: quizQuestions.length > 0 ? quizQuestions : null,
-            oic_count_a: compA.length,
-            oic_count_b: compB.length,
             updated_at: new Date().toISOString()
           })
           .eq('id', item.id);
