@@ -37,7 +37,8 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
       
       // Vérifier le cache d'abord
       const cached = competencesCache.get(cacheKey);
-      if (cached) {
+      if (cached && cached.length > 0) {
+        console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
         setCompetences(cached);
         setLoading(false);
         return;
@@ -49,6 +50,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         
         // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
         const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+        console.log(`🔍 OIC Query: item_parent=${itemNumber}, rang=${rang}`);
         
         const { data, error: queryError } = await supabase
           .from('backup_oic_competences')
@@ -73,6 +75,8 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           return;
         }
 
+        console.log(`📊 OIC Results: ${data?.length || 0} compétences pour ${itemCode} rang ${rang}`);
+
         // Garder toutes les compétences avec objectif_id et intitule
         const realCompetences = (data || [])
           .filter(comp => comp.objectif_id && comp.intitule)
@@ -81,8 +85,10 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
             description: comp.description || comp.intitule
           })) as OicCompetence[];
 
-        // Mettre en cache
-        competencesCache.set(cacheKey, realCompetences);
+        // Mettre en cache seulement si on a des résultats
+        if (realCompetences.length > 0) {
+          competencesCache.set(cacheKey, realCompetences);
+        }
         
         if (mountedRef.current) {
           setCompetences(realCompetences);
