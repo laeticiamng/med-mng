@@ -134,10 +134,9 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
           performance: quizResults.performance,
           answers: quizResults.answers
         });
-        console.log('✅ Quiz results saved to database');
       }
     } catch (err) {
-      console.warn('Failed to save quiz results:', err);
+      // Silent fail - results saved locally
     }
     
     toast({

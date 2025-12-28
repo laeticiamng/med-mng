@@ -38,7 +38,6 @@ interface EdnItemContentProps {
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
   const { logActivity } = useActivityTracking();
 
-  // Log activity when viewing content
   useEffect(() => {
     const trackView = async () => {
       await logActivity({
@@ -54,15 +53,9 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
     trackView();
   }, [activeSection, item.item_code, logActivity]);
 
-  console.log('🔍 EdnItemContent - Active section:', activeSection);
-  console.log('📊 EdnItemContent - Item data:', item);
-  
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
-        console.log('📋 Rendering Tableau Rang A for:', item.item_code);
-        console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
-        console.log('📊 Item complet:', JSON.stringify(item, null, 2));
         return item.tableau_rang_a ? (
           <TableauRangA data={item.tableau_rang_a} itemCode={item.item_code} />
         ) : (
@@ -72,9 +65,6 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'tableau-b':
-        console.log('📋 Rendering Tableau Rang B for:', item.item_code);
-        console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
-        
         return (
           <TableauRangB 
             data={item.tableau_rang_b}

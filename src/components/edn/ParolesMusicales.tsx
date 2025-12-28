@@ -201,10 +201,6 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     }
   }, [generatedAudio, itemCode, duration, cacheAudio, toast]);
 
-  if (ENABLE_DEBUG) {
-    console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
-    console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
-  }
 
   return (
     <div className="space-y-6">

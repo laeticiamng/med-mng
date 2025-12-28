@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, Twitter, Facebook, Linkedin, Link, Check, Award, Trophy } from 'lucide-react';
+import { Share2, Twitter, Facebook, Linkedin, Link, Check, Award, Trophy, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -53,6 +53,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     twitter: `https://twitter.com/intent/tweet?text=${encodedText}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    whatsapp: `https://wa.me/?text=${encodedText}`,
   };
 
   const handleNativeShare = async () => {
@@ -175,6 +176,15 @@ export const SocialShare: React.FC<SocialShareProps> = ({
           >
             <Linkedin className="h-4 w-4" />
             LinkedIn
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={() => window.open(shareLinks.whatsapp, '_blank')}
+            className="gap-2 hover:bg-[#25D366]/10 hover:text-[#25D366] hover:border-[#25D366]"
+          >
+            <MessageCircle className="h-4 w-4" />
+            WhatsApp
           </Button>
           
           <Button

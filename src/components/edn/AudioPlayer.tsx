@@ -150,7 +150,6 @@ export const AudioPlayer = ({
             readyToPlay={bufferingState.readyToPlay}
             estimatedLoadTime={bufferingState.estimatedLoadTime}
             onRetry={() => {
-              console.log('🔄 Retry audio loading...');
               onStop();
               setTimeout(() => onPlayPause(), 500);
             }}

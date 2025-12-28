@@ -23,8 +23,6 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    console.log('TableauRangBIC4 - Données reçues:', data);
-    
     const tableauData = data.tableau_rang_b;
     
     if (tableauData && tableauData.sections) {
