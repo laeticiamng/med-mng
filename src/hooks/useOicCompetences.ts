@@ -44,7 +44,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCompetences = useCallback(async (code: string, r: 'A' | 'B') => {
+  const fetchCompetences = useCallback(async (code: string, r: 'A' | 'B'): Promise<{ data: OicCompetence[] | null; error: string | null }> => {
     const cacheKey = `${code}-${r}`;
     
     // Check cache first
@@ -58,35 +58,41 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     const itemNumber = code.replace('IC-', '').padStart(3, '0');
     console.log(`🔍 OIC Fetching: item_parent=${itemNumber}, rang=${r}`);
 
-    const { data, error: queryError } = await supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule, description, rubrique, rang, item_parent')
-      .eq('item_parent', itemNumber)
-      .eq('rang', r)
-      .order('objectif_id');
+    try {
+      const { data, error: queryError } = await supabase
+        .from('backup_oic_competences')
+        .select('objectif_id, intitule, description, rubrique, rang, item_parent')
+        .eq('item_parent', itemNumber)
+        .eq('rang', r)
+        .order('objectif_id');
 
-    if (queryError) {
-      console.error('❌ OIC Error:', queryError);
-      return { data: null, error: queryError.message };
+      if (queryError) {
+        console.error('❌ OIC Error:', queryError);
+        return { data: null, error: queryError.message };
+      }
+
+      console.log(`📊 OIC Result: ${data?.length || 0} compétences for ${code} rang ${r}`, data?.slice(0, 2));
+
+      const realCompetences = (data || [])
+        .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
+          Boolean(comp.objectif_id && comp.intitule)
+        )
+        .map(comp => ({
+          ...comp,
+          description: comp.description || comp.intitule
+        })) as OicCompetence[];
+
+      // Cache only if we have results
+      if (realCompetences.length > 0) {
+        competencesCache.set(cacheKey, realCompetences);
+        console.log(`💾 OIC Cached: ${cacheKey} = ${realCompetences.length} compétences`);
+      }
+
+      return { data: realCompetences, error: null };
+    } catch (err) {
+      console.error('❌ OIC Fetch exception:', err);
+      return { data: null, error: String(err) };
     }
-
-    console.log(`📊 OIC Result: ${data?.length || 0} compétences for ${code} rang ${r}`);
-
-    const realCompetences = (data || [])
-      .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
-        Boolean(comp.objectif_id && comp.intitule)
-      )
-      .map(comp => ({
-        ...comp,
-        description: comp.description || comp.intitule
-      })) as OicCompetence[];
-
-    // Cache only if we have results
-    if (realCompetences.length > 0) {
-      competencesCache.set(cacheKey, realCompetences);
-    }
-
-    return { data: realCompetences, error: null };
   }, []);
 
   useEffect(() => {
