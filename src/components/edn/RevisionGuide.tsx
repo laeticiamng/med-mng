@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Music, Brain, Play, CheckCircle, Clock, Flame, Star } from 'lucide-react';
+import { BookOpen, Music, Brain, Play, CheckCircle, Clock, Flame, Star, AlertTriangle, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,15 +12,58 @@ interface RevisionGuideProps {
   onStartRevision?: () => void;
 }
 
+interface WeakItem {
+  item_code: string;
+  avg_score: number;
+  attempts: number;
+}
+
 export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision }) => {
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
+  const [weakItems, setWeakItems] = useState<WeakItem[]>([]);
+  const [totalQuizzes, setTotalQuizzes] = useState(0);
 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadStats(user.id);
+      if (user) {
+        loadStats(user.id);
+        
+        // Fetch weak items (lowest scores)
+        const { data: quizData } = await supabase
+          .from('quiz_results')
+          .select('item_code, score')
+          .eq('user_id', user.id);
+        
+        if (quizData && quizData.length > 0) {
+          setTotalQuizzes(quizData.length);
+          
+          // Group by item and calculate averages
+          const itemScores: Record<string, { total: number; count: number }> = {};
+          quizData.forEach(q => {
+            if (!itemScores[q.item_code]) {
+              itemScores[q.item_code] = { total: 0, count: 0 };
+            }
+            itemScores[q.item_code].total += q.score;
+            itemScores[q.item_code].count += 1;
+          });
+          
+          // Find items with avg < 70%
+          const weak = Object.entries(itemScores)
+            .map(([item_code, data]) => ({
+              item_code,
+              avg_score: Math.round(data.total / data.count),
+              attempts: data.count
+            }))
+            .filter(item => item.avg_score < 70)
+            .sort((a, b) => a.avg_score - b.avg_score)
+            .slice(0, 3);
+          
+          setWeakItems(weak);
+        }
+      }
     };
     load();
   }, [loadStats]);
@@ -33,7 +77,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
         metadata: { component: 'revision_guide', action: 'view' }
       });
     }
-  }, []);
+  }, [logActivity]);
 
   const handleStartRevision = async () => {
     logActivity({
@@ -121,6 +165,37 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision })
           Méthode recommandée pour réviser efficacement chaque item
         </p>
       </div>
+
+      {/* Personalized Weak Items Alert */}
+      {weakItems.length > 0 && (
+        <Card className="border-warning/30 bg-warning/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-warning">
+              <AlertTriangle className="h-4 w-4" />
+              Items à réviser en priorité
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {weakItems.map((item) => (
+              <div key={item.item_code} className="flex items-center justify-between p-2 bg-background rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-warning" />
+                  <span className="font-medium">{item.item_code}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={item.avg_score} className="w-20 h-2" />
+                  <Badge variant="outline" className="text-xs">
+                    {item.avg_score}%
+                  </Badge>
+                </div>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-1">
+              Basé sur vos {totalQuizzes} quiz effectués
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Modes de révision */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

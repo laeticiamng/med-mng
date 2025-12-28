@@ -37,8 +37,6 @@ interface ExtractionStats {
 }
 
 export const EdnObjectifsExtraction: React.FC = () => {
-  console.log('🔍 DEBUG: EdnObjectifsExtraction component loaded');
-  
   const [extractor] = useState(() => new EdnObjectifsExtractor());
   const [status, setStatus] = useState<ExtractionStatus | null>(null);
   const [stats, setStats] = useState<ExtractionStats | null>(null);
@@ -58,22 +56,14 @@ export const EdnObjectifsExtraction: React.FC = () => {
   }, [logActivity]);
 
   const handleStartExtraction = async () => {
-    console.log('🔍 DEBUG: handleStartExtraction called');
-    
     try {
-      console.log('🔍 DEBUG: Setting states...');
       setError(null);
       setIsExtracting(true);
       
-      console.log('🔍 DEBUG: Calling extractor.startExtraction()...');
       const result = await extractor.startExtraction();
       
-      console.log('🔍 DEBUG: Extraction started successfully:', result);
-      
       // Démarre le polling du statut
-      console.log('🔍 DEBUG: Starting status polling...');
       extractor.startStatusPolling((newStatus) => {
-        console.log('🔍 DEBUG: Status update received:', newStatus);
         setStatus(newStatus);
         
         if (newStatus.status === 'termine' || newStatus.status === 'erreur') {

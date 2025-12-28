@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 
@@ -32,12 +31,10 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     }
 
     const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
-    console.log(`🔍 TableauOIC: Fetching for ${itemNumber} ${rang}`);
 
     setLoading(true);
     setError(null);
 
-    // Use direct fetch instead of Supabase client
     const url = `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${itemNumber}&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
@@ -47,25 +44,17 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
         'Content-Type': 'application/json'
       }
     })
-      .then(response => {
-        console.log(`📡 TableauOIC Response status: ${response.status}`);
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        console.log(`📊 TableauOIC Result:`, data);
-        
         if (Array.isArray(data)) {
           const filtered = data.filter((c: any) => c.objectif_id && c.intitule) as OicCompetence[];
-          console.log(`✅ TableauOIC: ${filtered.length} compétences loaded`);
           setCompetences(filtered);
         } else {
-          console.error('❌ TableauOIC: Unexpected response format', data);
           setError('Format de réponse inattendu');
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error('❌ TableauOIC Fetch error:', err);
         setError(err.message);
         setLoading(false);
       });

@@ -27,9 +27,6 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
 
   useEffect(() => {
     const loadBandeDessinee = async () => {
-      console.log('🎨 Chargement bande dessinée pour:', itemData.item_code);
-      console.log('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
-      
       // Track BD view
       logActivity({
         activity_type: 'study',
@@ -41,7 +38,6 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
       const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
       
       if (bandeDessinee) {
-        console.log('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
         setPanels(bandeDessinee.vignettes);
         setIsLoaded(true);
         
@@ -51,9 +47,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
           await addPoints(user.id, 'itemReviewed');
         }
       } else {
-        console.log('🔧 Création de vignettes par défaut...');
         const defaultPanels = createDefaultPanels(itemData);
-        console.log('📝 Vignettes créées:', defaultPanels.length);
         setPanels(defaultPanels);
         setIsLoaded(true);
       }
@@ -75,8 +69,6 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
   ];
 
   const createDefaultPanels = (data: any): VignettePregenere[] => {
-    console.log('🔍 Analyse des données pour création de vignettes:', data);
-    
     const itemCode = data.item_code || 'IC-1';
     const itemNumber = itemCode.replace('IC-', '');
     const panels: VignettePregenere[] = [];

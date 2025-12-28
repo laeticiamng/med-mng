@@ -61,8 +61,6 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   const renderSection = () => {
     const sectionName = sections[currentSection];
     
-    console.log('🎵 Rendu section:', currentSection, 'paroles_musicales:', item.paroles_musicales);
-    
     switch (currentSection) {
       case 0: // Pitch d'introduction
         return (
@@ -137,12 +135,6 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 4: // Paroles musicales
-        console.log('🎵 Affichage section Paroles musicales, données:', {
-          paroles: item.paroles_musicales,
-          length: item.paroles_musicales?.length,
-          item_code: item.item_code
-        });
-        
         return (
           <div>
             {/* Toujours afficher la section, même si les paroles sont incomplètes */}
@@ -212,12 +204,12 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         <div className="flex items-center gap-3 mb-4 p-2 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-1">
             <Flame className="h-4 w-4 text-warning" />
-            <span className="font-bold text-warning">{stats.currentStreak}j</span>
+            <span className="font-bold text-warning">{stats.currentStreak ?? 0}j</span>
           </div>
           <div className="w-px h-4 bg-border" />
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-primary" />
-            <span className="font-bold text-primary">Nv.{stats.level}</span>
+            <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
           </div>
           <div className="w-px h-4 bg-border" />
           <div className="flex items-center gap-1">
