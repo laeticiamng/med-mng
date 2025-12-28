@@ -7,8 +7,6 @@ export const isIC4Item = (data: any): boolean => {
 };
 
 export const processTableauRangAIC4 = (data: any) => {
-  console.log('🔍 Traitement IC-4 Qualité et sécurité des soins');
-  
   // Extraire les données des concepts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -35,8 +33,6 @@ export const processTableauRangAIC4 = (data: any) => {
 
   const theme = "IC-4 Rang A - Qualité et sécurité des soins (13 concepts)";
 
-  console.log(`✅ IC-4 traité: ${lignesEnrichies.length} concepts`);
-
   return {
     lignesEnrichies,
     colonnesUtiles,
@@ -46,8 +42,6 @@ export const processTableauRangAIC4 = (data: any) => {
 };
 
 export const processTableauRangBIC4 = (data: any) => {
-  console.log('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
-  
   // Extraire les données des concepts experts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
@@ -73,8 +67,6 @@ export const processTableauRangBIC4 = (data: any) => {
   ]);
 
   const theme = "IC-4 Rang B - Expertise qualité et sécurité (22 concepts)";
-
-  console.log(`✅ IC-4 Rang B traité: ${lignesEnrichies.length} concepts experts`);
 
   return {
     lignesEnrichies,

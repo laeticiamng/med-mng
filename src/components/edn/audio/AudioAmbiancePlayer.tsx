@@ -85,8 +85,8 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch(err => {
-        console.log('Audio play blocked:', err);
+      audioRef.current.play().catch(() => {
+        // Audio play blocked - handled silently
       });
     }
     setIsPlaying(!isPlaying);

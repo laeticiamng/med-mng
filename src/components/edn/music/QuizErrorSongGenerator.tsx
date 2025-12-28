@@ -103,7 +103,6 @@ Grâce à mes erreurs... quelle surprise !`;
 
     try {
       const lyrics = generateLyricsFromErrors();
-      console.log('🎵 Génération chanson d\'erreurs:', { lyrics, style: selectedStyle });
       
       await generateMusic({
         item_code: itemCode,
@@ -126,7 +125,6 @@ Grâce à mes erreurs... quelle surprise !`;
       });
       
     } catch (error) {
-      console.error('❌ Erreur génération chanson erreurs:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer la chanson d'erreurs",

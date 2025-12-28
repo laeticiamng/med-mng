@@ -95,7 +95,7 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           });
         }
       } catch (error) {
-        console.error('Error fetching leaderboard:', error);
+        // Error handled silently
       } finally {
         setIsLoading(false);
       }

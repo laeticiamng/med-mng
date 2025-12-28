@@ -25,12 +25,7 @@ interface TableauRangAProps {
 }
 
 export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) => {
-  console.log('🔍 TableauRangA - données reçues:', { data, itemCode });
-  console.log('🔍 TableauRangA - structure complète:', JSON.stringify(data, null, 2));
-
   // Si des données sont déjà fournies, les utiliser directement sans faire d'appel externe
-  console.log('✅ Utilisation des données fournies directement pour', itemCode);
-
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
     console.log('✅ Format avec sections détecté:', data.sections.length, 'sections');

@@ -10,8 +10,6 @@ export function determinerColonnesUtilesIC1(lignes: string[][]): any[] {
 
 // Fonction pour générer les lignes enrichies spécifiquement pour IC-1
 export function generateLignesRangAIC1(data: any): string[][] {
-  console.log('IC-1 Génération : 15 connaissances selon E-LiSA exactement');
-  
   const lignes: string[][] = [];
   
   // Utiliser uniquement les 15 concepts Rang A définis selon E-LiSA
@@ -29,6 +27,5 @@ export function generateLignesRangAIC1(data: any): string[][] {
     lignes.push(ligne);
   });
 
-  console.log(`IC-1: ${lignes.length}/15 connaissances E-LiSA générées`);
   return lignes;
 }
