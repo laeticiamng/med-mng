@@ -75,8 +75,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
       setIsExtracting(false);
     }
   };
@@ -104,8 +104,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
       setIsExtracting(false);
     }
   };
@@ -120,8 +120,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
       setError(null);
       const rapport = await extractor.generateRapport();
       setStats(rapport);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
     }
   };
 

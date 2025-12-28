@@ -43,7 +43,7 @@ export const VirtualizedGrid = <T extends GridItem>({
 
   const rowCount = Math.ceil(items.length / columnCount);
 
-  const Cell = ({ columnIndex, rowIndex, style }: any) => {
+  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const itemIndex = rowIndex * columnCount + columnIndex;
     const item = items[itemIndex];
     
@@ -53,7 +53,7 @@ export const VirtualizedGrid = <T extends GridItem>({
       <div
         style={{
           ...style,
-          left: style.left + (columnIndex * gap),
+          left: typeof style.left === 'number' ? style.left + (columnIndex * gap) : style.left,
           width: itemWidth,
           padding: '12px'
         }}

@@ -5,9 +5,20 @@ import {
   TrendingUp, Target, Award 
 } from "lucide-react";
 
+interface EdnItem {
+  id: string;
+  item_code: string;
+  title: string;
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+  paroles_musicales?: string[];
+  scene_immersive?: Record<string, unknown>;
+  quiz_questions?: Record<string, unknown>;
+}
+
 interface EdnStatsBarProps {
-  items: any[];
-  filteredItems: any[];
+  items: EdnItem[];
+  filteredItems: EdnItem[];
 }
 
 export const EdnStatsBar: React.FC<EdnStatsBarProps> = ({ items, filteredItems }) => {

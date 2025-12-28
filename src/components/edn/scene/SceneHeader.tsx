@@ -1,9 +1,14 @@
 import { SceneTheme } from './sceneTypes';
 
+interface SceneCharacter {
+  name?: string;
+  role?: string;
+}
+
 interface SceneHeaderProps {
   theme: SceneTheme;
   description: string;
-  setting?: string | { location?: string; atmosphere?: string; characters?: any[] };
+  setting?: string | { location?: string; atmosphere?: string; characters?: SceneCharacter[] };
 }
 
 export const SceneHeader = ({ theme, description, setting }: SceneHeaderProps) => {

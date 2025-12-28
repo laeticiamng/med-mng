@@ -8,11 +8,33 @@ import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+interface TableauSection {
+  titre?: string;
+  title?: string;
+  concepts?: Array<{
+    nom?: string;
+    name?: string;
+    definition?: string;
+    description?: string;
+  }>;
+}
+
+interface TableauRangData {
+  sections?: TableauSection[];
+  [key: string]: unknown;
+}
+
+interface OicCompetence {
+  objectif_id: string;
+  intitule: string;
+  description: string;
+}
+
 interface EdnItemExportProps {
   itemCode: string;
   itemTitle: string;
-  tableauRangA?: any;
-  tableauRangB?: any;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
   parolesRangA?: string[];
   parolesRangB?: string[];
 }
@@ -67,8 +89,8 @@ export function EdnItemExport({
       yPos = 45;
 
       // Charger les compétences OIC si demandé
-      let oicCompetencesA: any[] = [];
-      let oicCompetencesB: any[] = [];
+      let oicCompetencesA: OicCompetence[] = [];
+      let oicCompetencesB: OicCompetence[] = [];
       
       if (options.includeOicCompetences) {
         const { data: compA } = await supabase
@@ -116,10 +138,10 @@ export function EdnItemExport({
             },
             margin: { left: 20, right: 20 }
           });
-          yPos = (doc as any).lastAutoTable.finalY + 15;
+          yPos = (doc as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? yPos + 15;
         } else if (tableauRangA?.sections) {
           // Fallback: utiliser les sections du tableau
-          tableauRangA.sections.forEach((section: any, idx: number) => {
+          tableauRangA.sections.forEach((section, idx) => {
             if (yPos > 270) {
               doc.addPage();
               yPos = 20;
@@ -131,14 +153,14 @@ export function EdnItemExport({
             yPos += 6;
             
             if (section.concepts) {
-              section.concepts.forEach((concept: any) => {
+              section.concepts.forEach((concept) => {
                 if (yPos > 270) {
                   doc.addPage();
                   yPos = 20;
                 }
                 doc.setFontSize(9);
                 doc.setFont('helvetica', 'normal');
-                const text = `• ${concept.nom || concept.name || concept}: ${concept.definition || concept.description || ''}`;
+                const text = `• ${concept.nom || concept.name || String(concept)}: ${concept.definition || concept.description || ''}`;
                 const lines = doc.splitTextToSize(text, pageWidth - 45);
                 doc.text(lines, 25, yPos);
                 yPos += lines.length * 5 + 2;
@@ -186,9 +208,9 @@ export function EdnItemExport({
             },
             margin: { left: 20, right: 20 }
           });
-          yPos = (doc as any).lastAutoTable.finalY + 15;
+          yPos = (doc as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? yPos + 15;
         } else if (tableauRangB?.sections) {
-          tableauRangB.sections.forEach((section: any, idx: number) => {
+          tableauRangB.sections.forEach((section, idx) => {
             if (yPos > 270) {
               doc.addPage();
               yPos = 20;
@@ -200,14 +222,14 @@ export function EdnItemExport({
             yPos += 6;
             
             if (section.concepts) {
-              section.concepts.forEach((concept: any) => {
+              section.concepts.forEach((concept) => {
                 if (yPos > 270) {
                   doc.addPage();
                   yPos = 20;
                 }
                 doc.setFontSize(9);
                 doc.setFont('helvetica', 'normal');
-                const text = `• ${concept.nom || concept.name || concept}: ${concept.definition || concept.description || ''}`;
+                const text = `• ${concept.nom || concept.name || String(concept)}: ${concept.definition || concept.description || ''}`;
                 const lines = doc.splitTextToSize(text, pageWidth - 45);
                 doc.text(lines, 25, yPos);
                 yPos += lines.length * 5 + 2;
