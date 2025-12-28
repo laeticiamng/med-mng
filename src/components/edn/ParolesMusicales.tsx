@@ -332,7 +332,9 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                     ? [paroles_rang_a]
                     : paroles_rang_b
                       ? [paroles_rang_b]
-                      : []
+                      : paroles && paroles.length > 0
+                        ? [paroles]
+                        : []
               }
               itemCode={itemCode}
               musicDuration={musicDuration}
