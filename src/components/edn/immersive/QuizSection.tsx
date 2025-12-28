@@ -22,7 +22,7 @@ interface QuizSectionProps {
 
 export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints, unlockBadge } = useGamification();
+  const { addPoints } = useGamification();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);

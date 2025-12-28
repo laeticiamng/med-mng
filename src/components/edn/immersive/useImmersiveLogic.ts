@@ -74,7 +74,7 @@ export const useImmersiveLogic = () => {
   useEffect(() => {
     const newProgress = ((currentSection + 1) / sections.length) * 100;
     setProgress(newProgress);
-  }, [currentSection]);
+  }, [currentSection, sections.length]);
 
   const toggleAudio = () => {
     setIsAudioPlaying(!isAudioPlaying);

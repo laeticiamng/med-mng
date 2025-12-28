@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Download, FileText, Loader2, CheckCircle } from 'lucide-react';
+import { Download, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
@@ -300,10 +299,11 @@ export function EdnItemExport({
         description: `PDF téléchargé avec ${totalCompetences} compétences OIC`
       });
       
-    } catch {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       toast({
-        title: 'Erreur', 
-        description: 'Impossible de générer le PDF.', 
+        title: 'Erreur d\'export', 
+        description: `Impossible de générer le PDF: ${errorMessage}`, 
         variant: 'destructive' 
       });
     } finally {

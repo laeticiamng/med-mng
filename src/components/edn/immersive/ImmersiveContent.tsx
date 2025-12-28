@@ -25,13 +25,19 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
 
+  // Reset tracking when item changes
+  useEffect(() => {
+    hasTrackedRef.current = false;
+  }, [item.item_code]);
+
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) loadStats(user.id);
     };
     load();
-  }, [loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     logActivity({
@@ -56,6 +62,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       }
     };
     awardPoints();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSection, item.item_code]);
 
   const renderSection = () => {
