@@ -10,11 +10,27 @@ import { processTableauRangBIC8 } from './TableauRangBUtilsIC8Integration';
 import { processTableauRangBIC9 } from './TableauRangBUtilsIC9Integration';
 import { processTableauRangBIC10 } from './TableauRangBUtilsIC10Integration';
 import { processTableauRangBOIC010 } from './TableauRangBUtilsOIC010Integration';
+interface TableauSection {
+  title?: string;
+  content?: string;
+  objectif_id?: string;
+  rubrique?: string;
+  keywords?: string[];
+}
 
 interface TableauRangBProps {
-  data: any;
+  data: Record<string, unknown> | null;
   itemCode: string;
 }
+
+// Type guards
+const hasValidSections = (data: Record<string, unknown>): data is { sections: TableauSection[]; title?: string; subtitle?: string; competences_count?: number } => {
+  return Boolean(data.sections && Array.isArray(data.sections) && data.sections.length > 0);
+};
+
+const hasValidCompetences = (data: Record<string, unknown>): data is { competences: Array<{ intitule?: string; description?: string }>; title?: string; theme?: string; count?: number } => {
+  return Boolean(data.competences && Array.isArray(data.competences));
+};
 
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
   // Utiliser les vraies données OIC si itemCode est fourni
@@ -29,19 +45,18 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   }
 
   // Nouveau format avec sections OIC (après migration)
-  if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
+  if (hasValidSections(data)) {
     
     // Convertir le format sections vers le format competences attendu avec toutes les informations
     const competencesData = {
-      title: data.title || `${itemCode} Rang B - Compétences OIC avancées`,
-      competences: data.sections.map((section: any) => {
+      title: String(data.title || `${itemCode} Rang B - Compétences OIC avancées`),
+      competences: data.sections.map((section: TableauSection) => {
         return {
           intitule: section.title || 'Compétence non définie',
           description: section.content || 'Description non disponible',
           objectif_id: section.objectif_id || 'Non défini',
           rubrique: section.rubrique || 'Non spécifiée',
           keywords: section.keywords || [],
-          // Données enrichies niveau LiSA
           titre_complet: null,
           sommaire: null,
           mecanismes: null,
@@ -54,8 +69,8 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
           ordre_affichage: null
         };
       }),
-      count: data.competences_count || data.sections.length,
-      theme: data.subtitle || 'Compétences OIC avancées'
+      count: Number(data.competences_count || data.sections.length),
+      theme: String(data.subtitle || 'Compétences OIC avancées')
     };
     
     return (
@@ -68,10 +83,32 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   }
 
   // Format direct avec compétences (ancien format)
-  if (data.competences && Array.isArray(data.competences)) {
+  if (hasValidCompetences(data)) {
+    const formattedData = {
+      title: String(data.title || `${itemCode} Rang B`),
+      competences: data.competences.map(c => ({
+        intitule: c.intitule || '',
+        description: c.description || '',
+        objectif_id: '',
+        rubrique: '',
+        keywords: [] as string[],
+        titre_complet: null,
+        sommaire: null,
+        mecanismes: null,
+        indications: null,
+        effets_indesirables: null,
+        interactions: null,
+        modalites_surveillance: null,
+        causes_echec: null,
+        contributeurs: null,
+        ordre_affichage: null
+      })),
+      count: Number(data.count || data.competences.length),
+      theme: String(data.theme || 'Compétences OIC avancées')
+    };
     return (
       <TableauCompetencesOICOptimized 
-        data={data} 
+        data={formattedData} 
         itemCode={itemCode} 
         rang="B" 
       />
