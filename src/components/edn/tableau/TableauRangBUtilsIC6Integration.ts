@@ -1,9 +1,5 @@
-
 // Utilitaires pour l'affichage du Tableau Rang B IC-6
 export const processTableauRangBIC6 = (data: any) => {
-  console.log('🔍 Traitement avancé IC-6 Rang B');
-  
-  // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
@@ -30,8 +26,6 @@ export const processTableauRangBIC6 = (data: any) => {
   ]);
 
   const theme = "IC-6 Rang B - Expertise organisation et coordination";
-
-  console.log(`✅ IC-6 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

@@ -1,9 +1,5 @@
-
 // Utilitaires pour l'affichage du Tableau Rang B IC-8
 export const processTableauRangBIC8 = (data: any) => {
-  console.log('🔍 Traitement avancé IC-8 Rang B');
-  
-  // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
@@ -30,8 +26,6 @@ export const processTableauRangBIC8 = (data: any) => {
   ]);
 
   const theme = "IC-8 Rang B - Expertise lutte contre les discriminations";
-
-  console.log(`✅ IC-8 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

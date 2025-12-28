@@ -1,9 +1,5 @@
-
 // Utilitaires pour l'affichage du Tableau Rang B IC-4
 export const processTableauRangBIC4Advanced = (data: any) => {
-  console.log('🔍 Traitement avancé IC-4 Rang B');
-  
-  // Extraire les données des concepts experts
   const tableauData = data.tableau_rang_b || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
@@ -30,8 +26,6 @@ export const processTableauRangBIC4Advanced = (data: any) => {
   ]);
 
   const theme = "IC-4 Rang B - Expertise qualité et sécurité des soins";
-
-  console.log(`✅ IC-4 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,

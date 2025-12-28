@@ -60,8 +60,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
         title: "Image générée !",
         description: "L'illustration de la vignette a été créée avec succès.",
       });
-    } catch (error) {
-      console.error('Erreur génération image:', error);
+    } catch {
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer l'image. Veuillez réessayer.",

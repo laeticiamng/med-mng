@@ -401,8 +401,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
         variant: "default"
       });
       
-    } catch (error) {
-      console.error('Erreur génération contenu:', error);
+    } catch {
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer le contenu",

@@ -64,18 +64,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     };
     loadMusicData();
   }, [loadStats, itemCode]);
-
-  if (ENABLE_DEBUG) {
-    console.log('🎵 ParolesMusicales - Rendu avec props:', { 
-      paroles: paroles?.length,
-      paroles_rang_a: paroles_rang_a?.length,
-      paroles_rang_b: paroles_rang_b?.length,
-      paroles_rang_ab: paroles_rang_ab?.length,
-      itemCode, 
-      hasTableauA: !!tableauRangA, 
-      hasTableauB: !!tableauRangB 
-    });
-  }
+  // Debug logging disabled for production
 
   const {
     selectedStyle,
@@ -179,8 +168,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         title: feedback === 'like' ? '👍 Merci !' : '📝 Feedback enregistré',
         description: 'Votre avis nous aide à améliorer la génération musicale'
       });
-    } catch (e) {
-      console.error('Feedback error:', e);
+    } catch {
+      // Silent error handling
     }
   }, [itemCode, selectedStyle, generatedAudio, toast]);
 

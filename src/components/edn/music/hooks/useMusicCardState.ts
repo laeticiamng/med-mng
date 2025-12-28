@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 export const useMusicCardState = (isGenerating: boolean) => {
@@ -8,13 +7,9 @@ export const useMusicCardState = (isGenerating: boolean) => {
     rang: 'A' | 'B',
     onGenerateMusic: () => void
   ) => {
-    if (isClicked || isGenerating) {
-      console.log(`⚠️ Clic ignoré - isClicked: ${isClicked}, isGenerating: ${isGenerating}`);
-      return;
-    }
+    if (isClicked || isGenerating) return;
     
     setIsClicked(true);
-    console.log(`🎵 Clic génération Rang ${rang}`);
     
     try {
       await onGenerateMusic();

@@ -1,9 +1,5 @@
-
 // Utilitaires pour l'intégration des données OIC-010-03-B
 export const processTableauRangAOIC010 = (data: any) => {
-  console.log('🔍 Traitement OIC-010-03-B - Impact des maladies sur l\'expérience du corps');
-  
-  // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
@@ -30,8 +26,6 @@ export const processTableauRangAOIC010 = (data: any) => {
   ]);
 
   const theme = "OIC-010-03-B - Impact des maladies sur l'expérience du corps";
-
-  console.log(`✅ OIC-010-03-B traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,
