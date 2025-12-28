@@ -1,6 +1,20 @@
 import { conceptsRangAIC4, conceptsRangBIC4, colonnesConfigIC4 } from './TableauRangADataIC4';
 
-export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
+interface IC4TableauData {
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  rang?: 'A' | 'B';
+}
+
+interface ColonneConfig {
+  nom: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+}
+
+export const generateLignesRangAIntelligentIC4 = (_data: IC4TableauData | null | undefined): string[][] => {
   const lignes: string[][] = [];
   
   conceptsRangAIC4.forEach(concept => {
@@ -20,7 +34,7 @@ export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
+export const generateLignesRangBIntelligentIC4 = (_data: IC4TableauData | null | undefined): string[][] => {
   const lignes: string[][] = [];
   
   conceptsRangBIC4.forEach(concept => {
@@ -40,6 +54,6 @@ export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
   return lignes;
 };
 
-export const determinerColonnesUtilesIC4 = (lignes: string[][]): any[] => {
+export const determinerColonnesUtilesIC4 = (_lignes: string[][]): ColonneConfig[] => {
   return colonnesConfigIC4;
 };

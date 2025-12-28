@@ -52,8 +52,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCode]);
+  }, [itemCode, loadStats, logActivity, addPoints]);
 
   // Générer des vignettes basées sur les vraies compétences OIC avec images pertinentes
   const generateVignettes = () => {
@@ -142,6 +141,19 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 
   const vignettes = generateVignettes();
 
+  // Auto-play slideshow
+  const toggleAutoPlay = React.useCallback(() => {
+    if (isAutoPlay) {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+      setIsAutoPlay(false);
+    } else {
+      setIsAutoPlay(true);
+      autoPlayRef.current = setInterval(() => {
+        setCurrentVignette(prev => (prev + 1) % vignettes.length);
+      }, 4000);
+    }
+  }, [isAutoPlay, vignettes.length]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,21 +179,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vignettes.length, isFullscreen]);
-
-  // Auto-play slideshow
-  const toggleAutoPlay = () => {
-    if (isAutoPlay) {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-      setIsAutoPlay(false);
-    } else {
-      setIsAutoPlay(true);
-      autoPlayRef.current = setInterval(() => {
-        setCurrentVignette(prev => (prev + 1) % vignettes.length);
-      }, 4000);
-    }
-  };
+  }, [vignettes.length, isFullscreen, toggleAutoPlay]);
 
   useEffect(() => {
     return () => {

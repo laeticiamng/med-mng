@@ -15,10 +15,26 @@ interface QuizQuestion {
   rang: 'A' | 'B';
 }
 
+interface QuizData {
+  questions?: QuizQuestion[];
+}
+
 interface QuizSectionProps {
-  quizData: any;
+  quizData: QuizData | QuizQuestion[] | unknown[] | null | undefined;
   itemCode: string;
 }
+
+// Type guard to check if data is QuizQuestion array
+const isQuizQuestionArray = (data: unknown): data is QuizQuestion[] => {
+  return Array.isArray(data) && data.length > 0 && 
+    typeof (data[0] as QuizQuestion)?.question === 'string';
+};
+
+// Type guard to check if data has questions property
+const isQuizData = (data: unknown): data is QuizData => {
+  return typeof data === 'object' && data !== null && 
+    'questions' in data && Array.isArray((data as QuizData).questions);
+};
 
 export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) => {
   const { logActivity } = useActivityTracking();
@@ -31,9 +47,18 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
 
   // Répartition 70% Rang A / 30% Rang B
   const questions: QuizQuestion[] = useMemo(() => {
-    if (!quizData?.questions) return [];
+    if (!quizData) return [];
     
-    const allQuestions = quizData.questions;
+    let allQuestions: QuizQuestion[] = [];
+    
+    if (isQuizQuestionArray(quizData)) {
+      allQuestions = quizData;
+    } else if (isQuizData(quizData) && quizData.questions) {
+      allQuestions = quizData.questions;
+    } else {
+      return [];
+    }
+    
     const rangAQuestions = allQuestions.filter((q: QuizQuestion) => q.rang === 'A');
     const rangBQuestions = allQuestions.filter((q: QuizQuestion) => q.rang === 'B');
     

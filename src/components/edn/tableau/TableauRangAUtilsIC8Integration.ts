@@ -1,9 +1,39 @@
+interface IC8Concept {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface IC8Section {
+  concepts?: IC8Concept[];
+}
+
+interface IC8TableauData {
+  tableau_rang_a?: {
+    sections?: IC8Section[];
+  };
+  sections?: IC8Section[];
+  item_code?: string;
+  title?: string;
+  theme?: string;
+}
+
+interface ColonneUtile {
+  nom: string;
+  description: string;
+}
+
 // Utilitaires pour l'intégration des données IC-8
-export const processTableauRangAIC8 = (data: any) => {
+export const processTableauRangAIC8 = (data: IC8TableauData) => {
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtile[] = [
     { nom: 'Concept', description: 'Élément médico-légal' },
     { nom: 'Définition', description: 'Cadre juridique précis' },
     { nom: 'Exemple', description: 'Cas pratique type' },
@@ -14,7 +44,7 @@ export const processTableauRangAIC8 = (data: any) => {
     { nom: 'Vigilance', description: 'Point déontologique' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: IC8Concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -35,9 +65,9 @@ export const processTableauRangAIC8 = (data: any) => {
   };
 };
 
-export const isIC8Item = (data: any): boolean => {
+export const isIC8Item = (data: IC8TableauData | null | undefined): boolean => {
   return data?.item_code === 'IC-8' || 
          data?.title?.includes('Certificats médicaux') ||
          data?.title?.includes('violences') ||
-         data?.theme?.includes('IC-8');
+         data?.theme?.includes('IC-8') || false;
 };

@@ -1,8 +1,22 @@
 
 import { conceptsRangAIC5, conceptsRangBIC5, colonnesConfigIC5 } from './TableauRangADataIC5';
 
+interface IC5TableauData {
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  rang?: 'A' | 'B';
+}
+
+interface ColonneConfig {
+  nom: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+}
+
 // Fonction pour détecter si c'est l'item IC-5 (vérification exacte)
-export const isIC5Item = (data: any): boolean => {
+export const isIC5Item = (data: IC5TableauData | null | undefined): boolean => {
   if (!data) return false;
   
   // Vérification exacte du code
@@ -18,7 +32,7 @@ export const isIC5Item = (data: any): boolean => {
 };
 
 // Fonction pour détecter si c'est le rang B selon les données
-export const isRangBIC5 = (data: any): boolean => {
+export const isRangBIC5 = (data: IC5TableauData | null | undefined): boolean => {
   if (!data) return false;
   
   // Forcer le rang B pour IC-5 quand le thème contient "Rang B"
@@ -28,7 +42,7 @@ export const isRangBIC5 = (data: any): boolean => {
   return isExplicitRangB;
 };
 
-export const generateLignesRangAIntelligentIC5 = (data: any): string[][] => {
+export const generateLignesRangAIntelligentIC5 = (_data: IC5TableauData | null | undefined): string[][] => {
   const lignes: string[][] = [];
   
   // Utiliser les 4 premiers concepts Rang A définis
@@ -49,7 +63,7 @@ export const generateLignesRangAIntelligentIC5 = (data: any): string[][] => {
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC5 = (data: any): string[][] => {
+export const generateLignesRangBIntelligentIC5 = (_data: IC5TableauData | null | undefined): string[][] => {
   const lignes: string[][] = [];
   
   // Utiliser les 4 concepts Rang B définis
@@ -70,13 +84,13 @@ export const generateLignesRangBIntelligentIC5 = (data: any): string[][] => {
   return lignes;
 };
 
-export const determinerColonnesUtilesIC5 = (lignes: string[][]): any[] => {
+export const determinerColonnesUtilesIC5 = (_lignes: string[][]): ColonneConfig[] => {
   // Toutes les colonnes sont pertinentes
   return colonnesConfigIC5;
 };
 
 // Fonction principale pour traiter les données IC-5
-export function processTableauRangAIC5(data: any) {
+export function processTableauRangAIC5(data: IC5TableauData | null | undefined) {
   const isRangB = isRangBIC5(data);
   
   // Générer les lignes selon le rang

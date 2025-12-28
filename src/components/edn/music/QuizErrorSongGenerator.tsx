@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,14 +27,13 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) loadStats(user.id);
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadStats]);
 
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lofi Piano' },

@@ -2,8 +2,15 @@
 import { conceptsRangAIC3, conceptsRangBIC3 } from './TableauRangADataIC3Concepts';
 import { colonnesConfigIC3 } from './TableauRangADataIC3Config';
 
+interface IC3TableauData {
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  rang?: 'A' | 'B';
+}
+
 // Fonction pour détecter si c'est l'item IC-3 (vérification exacte)
-export const isIC3Item = (data: any): boolean => {
+export const isIC3Item = (data: IC3TableauData | null | undefined): boolean => {
   if (!data) return false;
   
   // Vérification exacte du code
@@ -18,7 +25,7 @@ export const isIC3Item = (data: any): boolean => {
   return /\bIC-3\b/i.test(theme);
 };
 
-export const processTableauRangAIC3 = (data: any) => {
+export const processTableauRangAIC3 = (data: IC3TableauData | null | undefined) => {
   const isRangB = data?.rang === 'B' || data?.theme?.includes('Rang B');
   const concepts = isRangB ? conceptsRangBIC3 : conceptsRangAIC3;
   
