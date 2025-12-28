@@ -61,8 +61,8 @@ export const useQuizHistory = (itemCode?: string) => {
       } else {
         setSummary(null);
       }
-    } catch (err) {
-      console.error('Error fetching quiz history:', err);
+    } catch {
+      // Error handled silently
     } finally {
       setLoading(false);
     }

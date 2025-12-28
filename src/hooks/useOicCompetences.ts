@@ -28,14 +28,11 @@ export function invalidateOicCache(itemCode?: string, rang?: 'A' | 'B') {
   if (itemCode && rang) {
     const cacheKey = `${itemCode}-${rang}`;
     competencesCache.delete(cacheKey);
-    console.log(`🗑️ OIC Cache invalidated: ${cacheKey}`);
   } else if (itemCode) {
     competencesCache.delete(`${itemCode}-A`);
     competencesCache.delete(`${itemCode}-B`);
-    console.log(`🗑️ OIC Cache invalidated: ${itemCode} (both rangs)`);
   } else {
     competencesCache.clear();
-    console.log(`🗑️ OIC Cache fully cleared`);
   }
 }
 
@@ -60,7 +57,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     // Check cache first
     const cached = competencesCache.get(cacheKey);
     if (cached && cached.length > 0) {
-      console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
       setCompetences(cached);
       setLoading(false);
       setError(null);
@@ -75,8 +71,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     // Fetch with explicit promise handling
     const doFetch = async () => {
-      console.log(`🔍 OIC Fetching: item_parent=${itemNumber}, rang=${rang}`);
-      
       try {
         const result = await supabase
           .from('backup_oic_competences')
@@ -87,12 +81,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         
         if (cancelled) return;
         
-        console.log(`🔄 OIC Query result:`, { 
-          hasError: !!result.error, 
-          dataLength: result.data?.length,
-          error: result.error
-        });
-        
         if (result.error) {
           setError(result.error.message);
           setCompetences([]);
@@ -101,7 +89,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         }
 
         const data = result.data || [];
-        console.log(`📊 OIC Result: ${data.length} compétences for ${itemCode} rang ${rang}`);
 
         const realCompetences = data
           .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
@@ -119,7 +106,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         // Cache results
         if (realCompetences.length > 0) {
           competencesCache.set(cacheKey, realCompetences);
-          console.log(`💾 OIC Cached: ${cacheKey} = ${realCompetences.length} compétences`);
         }
 
         setCompetences(realCompetences);
@@ -127,7 +113,6 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
-        console.error('❌ OIC Fetch exception:', err);
         setError(String(err));
         setCompetences([]);
         setLoading(false);
