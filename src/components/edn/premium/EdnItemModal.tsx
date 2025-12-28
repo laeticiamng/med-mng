@@ -109,51 +109,49 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
   }, [isOpen, finalItem?.item_code, initialTab]);
 
-  // Charger les données complètes (quiz, scene, tableaux, paroles) si pas déjà présentes
+  // Charger les données complètes (quiz, scene, tableaux, paroles, bd, roman) 
   useEffect(() => {
     const loadCompleteData = async () => {
       if (finalItem && isOpen) {
-        // Si quiz_questions ou paroles_musicales manquant, fetch depuis Supabase
-        if (!finalItem.quiz_questions || !finalItem.paroles_musicales) {
-          try {
-            const { data } = await supabase
-              .from('edn_items_immersive')
-              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, bd_panels, roman_story')
-              .eq('item_code', finalItem.item_code)
-              .maybeSingle();
-            
-            if (data) {
-              // Normaliser paroles_musicales: si c'est une string, la convertir en array
-              let normalizedParoles: string[] = [];
-              if (data.paroles_musicales) {
-                if (typeof data.paroles_musicales === 'string') {
-                  // String avec sections séparées par \n\n ou [Section]
-                  normalizedParoles = (data.paroles_musicales as string)
-                    .split(/\n\n|\[.*?\]/)
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0);
-                } else if (Array.isArray(data.paroles_musicales)) {
-                  normalizedParoles = data.paroles_musicales as string[];
-                }
+        try {
+          // Toujours fetch les données complètes depuis Supabase pour avoir bd_panels et roman_story
+          const { data } = await supabase
+            .from('edn_items_immersive')
+            .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab, bd_panels, roman_story')
+            .eq('item_code', finalItem.item_code)
+            .maybeSingle();
+          
+          if (data) {
+            // Normaliser paroles_musicales: si c'est une string, la convertir en array
+            let normalizedParoles: string[] = [];
+            if (data.paroles_musicales) {
+              if (typeof data.paroles_musicales === 'string') {
+                normalizedParoles = (data.paroles_musicales as string)
+                  .split(/\n\n|\[.*?\]/)
+                  .map(s => s.trim())
+                  .filter(s => s.length > 0);
+              } else if (Array.isArray(data.paroles_musicales)) {
+                normalizedParoles = data.paroles_musicales as string[];
               }
-              
-              setCompleteItemData(prev => ({
-                ...prev,
-                quiz_questions: data.quiz_questions as unknown,
-                scene_immersive: data.scene_immersive as unknown,
-                tableau_rang_a: data.tableau_rang_a as unknown,
-                tableau_rang_b: data.tableau_rang_b as unknown,
-                paroles_musicales: normalizedParoles,
-                competences_oic_rang_a: oicCompetencesA,
-                competences_oic_rang_b: oicCompetencesB,
-                bd_panels: data.bd_panels as unknown,
-                roman_story: data.roman_story as unknown,
-              }));
             }
-          } catch {
-            // Silent error handling - partial data is still usable
+            
+            setCompleteItemData({
+              quiz_questions: data.quiz_questions as unknown,
+              scene_immersive: data.scene_immersive as unknown,
+              tableau_rang_a: data.tableau_rang_a as unknown,
+              tableau_rang_b: data.tableau_rang_b as unknown,
+              paroles_musicales: normalizedParoles,
+              paroles_rang_a: data.paroles_rang_a as string[],
+              paroles_rang_b: data.paroles_rang_b as string[],
+              paroles_rang_ab: data.paroles_rang_ab as string[],
+              competences_oic_rang_a: oicCompetencesA,
+              competences_oic_rang_b: oicCompetencesB,
+              bd_panels: data.bd_panels as unknown,
+              roman_story: data.roman_story as unknown,
+            });
           }
-        } else {
+        } catch {
+          // Silent error handling - use existing data
           setCompleteItemData({
             quiz_questions: finalItem.quiz_questions,
             paroles_musicales: finalItem.paroles_musicales,
@@ -702,9 +700,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <BdGallery 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
-                  bdPanels={finalItem.bd_panels as any}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  bdPanels={completeItemData?.bd_panels as any || finalItem.bd_panels as any}
                 />
               </TabsContent>
 
@@ -713,9 +711,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <RomanNarratif 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
-                  romanStory={finalItem.roman_story as any}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  romanStory={completeItemData?.roman_story as any || finalItem.roman_story as any}
                 />
               </TabsContent>
             </div>
