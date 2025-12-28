@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItem {
@@ -25,20 +25,29 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
+// Cache global pour éviter les re-fetch en StrictMode
+let cachedItems: EdnItem[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export const useAllEdnItems = () => {
-  const [items, setItems] = useState<EdnItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<EdnItem[]>(cachedItems || []);
+  const [loading, setLoading] = useState(!cachedItems);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<EdnItemsFilters>({});
   const [stats, setStats] = useState<EdnItemsStats | null>(null);
-  const [fetchTrigger, setFetchTrigger] = useState(0);
 
-  // Fetch au montage et quand fetchTrigger change
   useEffect(() => {
-    let isMounted = true;
+    // Utiliser le cache si disponible et récent
+    if (cachedItems && Date.now() - cacheTimestamp < CACHE_DURATION) {
+      setItems(cachedItems);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
 
     const fetchItems = async () => {
-      console.log('🔍 useAllEdnItems - Début du chargement');
       setLoading(true);
       setError(null);
 
@@ -46,14 +55,12 @@ export const useAllEdnItems = () => {
         const { data, error: supabaseError } = await supabase
           .from('edn_items_immersive')
           .select('item_code, title, subtitle, paroles_musicales, competences_count_total')
-          .order('item_code');
+          .order('item_code')
+          .abortSignal(controller.signal);
 
-        if (!isMounted) return;
-
-        console.log('📡 Supabase response:', { count: data?.length, error: supabaseError?.message });
+        if (controller.signal.aborted) return;
 
         if (supabaseError) {
-          console.error('❌ Erreur Supabase:', supabaseError);
           setError('Erreur lors du chargement des items');
           setLoading(false);
           return;
@@ -70,7 +77,10 @@ export const useAllEdnItems = () => {
             competences_count: d.competences_count_total || 0
           }));
 
-          console.log('✅ Items chargés:', mappedItems.length);
+          // Mettre en cache
+          cachedItems = mappedItems;
+          cacheTimestamp = Date.now();
+
           setItems(mappedItems);
 
           const statsData: EdnItemsStats = {
@@ -89,9 +99,8 @@ export const useAllEdnItems = () => {
         }
 
         setLoading(false);
-      } catch (err) {
-        if (!isMounted) return;
-        console.error('❌ Exception:', err);
+      } catch (err: any) {
+        if (err.name === 'AbortError' || controller.signal.aborted) return;
         setError('Erreur lors du chargement');
         setLoading(false);
       }
@@ -100,9 +109,9 @@ export const useAllEdnItems = () => {
     fetchItems();
 
     return () => {
-      isMounted = false;
+      controller.abort();
     };
-  }, [fetchTrigger]);
+  }, []);
 
   const filteredItems = useMemo(() => {
     let result = [...items];
@@ -154,7 +163,10 @@ export const useAllEdnItems = () => {
   }, [items]);
 
   const refreshItems = useCallback(() => {
-    setFetchTrigger(prev => prev + 1);
+    // Invalider le cache et recharger
+    cachedItems = null;
+    cacheTimestamp = 0;
+    window.location.reload();
   }, []);
 
   return {
