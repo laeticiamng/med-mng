@@ -37,21 +37,13 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
     if (trackIdForPolling && !isPolling) {
-      console.log('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
       startPolling();
     }
   }, [trackIdForPolling, isPolling, startPolling]);
 
-  // Notification quand l'audio est prêt et auto-update du song avec animation
+  // Notification quand l'audio est prêt avec animation
   useEffect(() => {
     if (audioUrl && audioUrl.startsWith('http') && isGenerating) {
-      console.log('🎉 Audio disponible ! Mise à jour automatique:', audioUrl);
-      
-      // Mettre à jour le generatedSong avec le nouveau audioUrl
-      if (generatedSong && typeof generatedSong === 'object') {
-        generatedSong.audioUrl = audioUrl;
-      }
-      
       // Animation de succès
       setShowSuccessAnimation(true);
       setTimeout(() => setShowSuccessAnimation(false), 2000);
@@ -62,7 +54,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         description: "Votre musique a été générée avec succès",
       });
     }
-  }, [audioUrl, isGenerating, generatedSong, toast]);
+  }, [audioUrl, isGenerating, toast]);
 
 
   if (!generatedSong) return null;
@@ -87,8 +79,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     if (!finalAudioUrl || 
         finalAudioUrl === '' || 
         finalAudioUrl === 'undefined' ||
-        finalAudioUrl === null) {
-      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
+        finalAudioUrl === null ||
+        !finalAudioUrl.startsWith('http')) {
       toast({
         title: "Erreur",
         description: "URL audio manquante ou invalide. Veuillez regénérer la musique.",
@@ -99,7 +91,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
     if (isCurrentTrack) {
       if (isPlaying) {
-        console.log('⏸️ Pause audio en cours');
         // Track listening duration on pause
         if (playStartTimeRef.current) {
           const listenDuration = Math.floor((Date.now() - playStartTimeRef.current) / 1000);
@@ -108,12 +99,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         }
         pause();
       } else {
-        console.log('▶️ Reprise audio');
         playStartTimeRef.current = Date.now();
         resume();
       }
     } else {
-      console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
       playStartTimeRef.current = Date.now();
       logActivity({ activity_type: 'music_generation', metadata: { action: 'music_play' } });
       play({

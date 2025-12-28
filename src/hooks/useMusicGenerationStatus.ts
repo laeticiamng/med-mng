@@ -10,38 +10,24 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     if (!taskId) return;
 
     try {
-      console.log('🔍 Vérification statut pour taskId:', taskId);
-      
-      // Vérifier d'abord en base de données - Récupérer TOUS les tracks
+      // Vérifier d'abord en base de données
       const { data: dbTracks, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
 
       if (dbTracks && dbTracks.length > 0 && !dbError) {
-        console.log(`✅ ${dbTracks.length} track(s) trouvé(s) en BDD`);
-        
-        // Prioriser les tracks avec audio_url valide (URL HTTP, pas un taskId)
+        // Prioriser les tracks avec audio_url valide
         const completedTrack = dbTracks.find(t => 
           t.audio_url && 
           t.audio_url !== '' && 
           t.audio_url !== taskId && 
           t.audio_url.startsWith('http')
         );
-        const dbTrack = completedTrack || dbTracks[0]; // Sinon prendre le premier
-        
-        console.log('📀 Track sélectionné:', {
-          id: dbTrack.id,
-          has_audio: !!dbTrack.audio_url,
-          is_valid_url: dbTrack.audio_url?.startsWith('http'),
-          is_task_id: dbTrack.audio_url === taskId,
-          status: dbTrack.generation_status,
-          audio_url_preview: dbTrack.audio_url?.substring(0, 60)
-        });
+        const dbTrack = completedTrack || dbTracks[0];
         
         const metadata = dbTrack.metadata as MusicGenerationMetadata | null;
         
-        // Si on a trouvé un track avec audio valide, marquer comme complété
         const hasValidAudio = dbTrack.audio_url && 
                              dbTrack.audio_url !== '' && 
                              dbTrack.audio_url !== taskId && 
@@ -63,24 +49,19 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
         setStatus(statusData);
 
-        // Arrêter le polling si terminé
         if (finalStatus === 'completed' || finalStatus === 'failed') {
           setIsPolling(false);
-          console.log('🏁 Génération terminée, arrêt du polling');
         }
 
         return statusData;
       }
 
-      // Si pas trouvé en BDD ou pas complété, vérifier via l'API de statut
-      console.log('📡 Vérification via API de statut...');
+      // Si pas trouvé en BDD, vérifier via l'API de statut
       const { data, error } = await supabase.functions.invoke('music-status', {
         body: { taskId }
       });
 
       if (data && !error) {
-        console.log('📊 Statut reçu via API:', data);
-        
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
           status: data.status,
@@ -95,45 +76,34 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         
         if (data.status === 'completed' || data.status === 'failed') {
           setIsPolling(false);
-          console.log('🏁 Génération terminée via API, arrêt du polling');
         }
         
         return statusData;
-      } else {
-        console.error('❌ Erreur lors de l\'appel API de statut:', error);
-        // Continuer le polling même en cas d'erreur temporaire
       }
 
     } catch (error) {
-      console.error('❌ Erreur vérification statut:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       setStatus({
         taskId: taskId,
         status: 'failed',
-        error: error.message,
+        error: errorMessage,
         progress: 0
       });
       setIsPolling(false);
     }
   }, [taskId]);
 
-  // Démarrer le polling
   const startPolling = useCallback(() => {
     if (!taskId) return;
-    
-    console.log('🔄 Démarrage polling pour taskId:', taskId);
     setIsPolling(true);
-    
-    // Vérification immédiate
     checkStatus();
   }, [taskId, checkStatus]);
 
-  // Arrêter le polling
   const stopPolling = useCallback(() => {
-    console.log('⏹️ Arrêt du polling');
     setIsPolling(false);
   }, []);
 
-  // Effect pour le polling automatique avec fréquence adaptative (setTimeout récursif)
+  // Effect pour le polling automatique avec fréquence adaptative
   useEffect(() => {
     if (!isPolling || !taskId) return;
 
@@ -145,7 +115,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     const doPoll = async () => {
       if (isCancelled) return;
 
-      console.log('⏰ Polling check automatique...');
       await checkStatus();
 
       if (isCancelled) return;
@@ -154,20 +123,17 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       const elapsed = Date.now() - startTime;
       const pollInterval = elapsed > 30000 ? 8000 : 3000;
       
-      console.log(`⏱️ Prochain polling dans ${pollInterval/1000}s`);
       timeoutId = setTimeout(doPoll, pollInterval);
     };
 
-    // Premier check immédiat
     doPoll();
 
     // Timeout de sécurité : arrêter après 5 minutes
     safetyTimeoutId = setTimeout(() => {
-      console.warn('⏱️ Timeout polling après 5 minutes');
       isCancelled = true;
       setIsPolling(false);
       setStatus(prev => prev ? { ...prev, status: 'failed', error: 'Timeout de génération' } : null);
-    }, 300000); // 5 minutes
+    }, 300000);
 
     return () => {
       isCancelled = true;
@@ -176,7 +142,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     };
   }, [isPolling, taskId, checkStatus]);
 
-  // Nettoyage au démontage
   useEffect(() => {
     return () => {
       setIsPolling(false);
@@ -189,7 +154,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     startPolling,
     stopPolling,
     checkStatus,
-    // Helpers
     isGenerating: status?.status === 'generating' || status?.status === 'text_complete',
     isCompleted: status?.status === 'completed',
     isFailed: status?.status === 'failed',
@@ -200,7 +164,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
   };
 };
 
-// Helper pour calculer le progrès selon le statut
 function getProgressFromStatus(status: string, metadataProgress?: number): number {
   if (metadataProgress) return metadataProgress;
   
