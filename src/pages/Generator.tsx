@@ -48,8 +48,6 @@ const Generator = () => {
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
   const canGenerate = useCallback(() => {
-    console.log('🔍 canGenerate check:', { contentType, selectedItem, selectedRang, selectedStyle, ednLyrics: !!ednLyrics });
-    
     if (contentType === 'edn') {
       // Vérifier les paroles par rang ou le legacy paroles_musicales
       const hasLyricsA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
@@ -64,7 +62,6 @@ const Generator = () => {
         hasLegacy
       );
       
-      console.log('🔍 EDN lyrics check:', { hasLyricsA, hasLyricsB, hasLyricsAB, hasLegacy, hasLyrics, selectedRang });
       return !!(selectedItem && selectedRang && selectedStyle && hasLyrics);
     }
     if (contentType === 'ecos') {

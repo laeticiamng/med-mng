@@ -94,14 +94,14 @@ export function EdnItemExport({
       
       if (options.includeOicCompetences) {
         const { data: compA } = await supabase
-          .from('backup_oic_competences')
+          .from('oic_competences')
           .select('*')
           .eq('item_parent', itemCode)
           .eq('rang', 'A')
           .limit(100);
         
         const { data: compB } = await supabase
-          .from('backup_oic_competences')
+          .from('oic_competences')
           .select('*')
           .eq('item_parent', itemCode)
           .eq('rang', 'B')

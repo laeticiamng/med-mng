@@ -644,11 +644,22 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               <TabsContent value="quiz" className="mt-0 p-6 space-y-6">
                 {(() => {
                   const quizData = completeItemData?.quiz_questions || finalItem.quiz_questions;
-                  const hasQuiz = quizData && Array.isArray(quizData) && quizData.length > 0;
-                  return hasQuiz ? (
+                  // Détection améliorée: quiz peut être un array OU un objet avec sous-clés (qcm, qru, qroc, zap)
+                  const hasQuiz = quizData && (
+                    (Array.isArray(quizData) && quizData.length > 0) ||
+                    (typeof quizData === 'object' && !Array.isArray(quizData) && (
+                      (Array.isArray((quizData as any).qcm) && (quizData as any).qcm.length > 0) ||
+                      (Array.isArray((quizData as any).qru) && (quizData as any).qru.length > 0) ||
+                      (Array.isArray((quizData as any).qroc) && (quizData as any).qroc.length > 0) ||
+                      (Array.isArray((quizData as any).zap) && (quizData as any).zap.length > 0)
+                    ))
+                  );
+                  
+                  // Toujours afficher EnhancedQuizFinal qui gère aussi la génération OIC si pas de questions
+                  return (
                   <>
                     <EnhancedQuizFinal 
-                      questions={completeItemData?.quiz_questions || finalItem.quiz_questions}
+                      questions={quizData || {}}
                       itemCode={finalItem.item_code}
                       itemTitle={finalItem.title}
                     />
@@ -666,39 +677,6 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       />
                     </div>
                   </>
-                ) : (
-                  <Card className="border-2 border-primary/20">
-                    <CardHeader className="text-center">
-                      <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                        <Brain className="h-8 w-8 text-primary" />
-                      </div>
-                      <CardTitle>Quiz en préparation</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center space-y-4">
-                      <p className="text-muted-foreground">
-                        Les questions de quiz pour <strong>{finalItem.item_code}</strong> sont en cours de création.
-                      </p>
-                      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
-                        <button 
-                          onClick={() => setActiveTab('rang-a')}
-                          className="p-4 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
-                        >
-                          <div className="font-semibold text-primary mb-1">📚 Rang A</div>
-                          <div className="text-xs text-muted-foreground">Compétences fondamentales</div>
-                        </button>
-                        <button 
-                          onClick={() => setActiveTab('rang-b')}
-                          className="p-4 rounded-lg border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-left"
-                        >
-                          <div className="font-semibold text-accent-foreground mb-1">🎯 Rang B</div>
-                          <div className="text-xs text-muted-foreground">Compétences avancées</div>
-                        </button>
-                      </div>
-                      <p className="text-xs text-muted-foreground pt-2">
-                        En attendant, révisez les compétences pour préparer vos révisions.
-                      </p>
-                    </CardContent>
-                  </Card>
                 );
                 })()}
               </TabsContent>
