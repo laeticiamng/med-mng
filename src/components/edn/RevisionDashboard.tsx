@@ -115,7 +115,8 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
     };
 
     fetchStats();
-  }, [itemCode, loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemCode]);
 
   const getMasteryLevel = () => {
     if (!stats || stats.totalCompetences === 0) return 'Débutant';

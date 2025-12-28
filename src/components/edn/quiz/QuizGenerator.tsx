@@ -172,7 +172,6 @@ export class QuizGenerator {
   }
 
   private static generateOptions(item: EdnItem, template: any, rang: 'A' | 'B', difficulty: string) {
-    const itemCode = item.item_code;
     const topic = item.title;
     
     // Options correctes selon le type de template

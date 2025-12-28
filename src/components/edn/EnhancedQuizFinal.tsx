@@ -60,7 +60,8 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   // Charger les sessions sauvegardées au montage
   useEffect(() => {
     loadSavedSessions();
-  }, [loadSavedSessions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStartQuiz = async (config: QuizConfig) => {
     setQuizConfig(config);

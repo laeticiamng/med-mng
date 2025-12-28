@@ -85,10 +85,12 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.src = '';
         audioRef.current = null;
       }
     };
-  }, [ambianceUrl, ambianceData.fallback]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ambianceUrl]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -177,6 +179,7 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
               size="icon"
               onClick={togglePlay}
               className="h-10 w-10 rounded-full bg-primary/10 hover:bg-primary/20"
+              aria-label={isPlaying ? "Mettre en pause" : "Lecture"}
             >
               {isPlaying ? (
                 <Pause className="h-5 w-5 text-primary" />
@@ -190,6 +193,7 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
               size="icon"
               onClick={toggleMute}
               className="h-8 w-8"
+              aria-label={isMuted || volume === 0 ? "Activer le son" : "Couper le son"}
             >
               {isMuted || volume === 0 ? (
                 <VolumeX className="h-4 w-4 text-muted-foreground" />

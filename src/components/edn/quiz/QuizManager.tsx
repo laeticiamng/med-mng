@@ -9,7 +9,7 @@ import { useQuizResults } from '@/hooks/useQuizResults';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RotateCcw, Music, Brain, Trophy, AlertTriangle, History } from 'lucide-react';
+import { RotateCcw, Music, Brain, Trophy, History } from 'lucide-react';
 interface QuizManagerProps {
   item: {
     id: string;
@@ -19,7 +19,6 @@ interface QuizManagerProps {
     tableau_rang_b?: any;
     quiz_questions?: any;
   };
-  onClose?: () => void;
 }
 
 interface QuizResults {
@@ -43,7 +42,7 @@ interface QuizResults {
   };
 }
 
-export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
+export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
   const [currentView, setCurrentView] = useState<'config' | 'quiz' | 'results'>('config');
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);

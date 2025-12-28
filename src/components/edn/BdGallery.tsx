@@ -52,7 +52,8 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       }
     };
     load();
-  }, [loadStats, logActivity, addPoints, itemCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemCode]);
 
   // Générer des vignettes basées sur les vraies compétences OIC avec images pertinentes
   const generateVignettes = () => {
@@ -166,6 +167,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vignettes.length, isFullscreen]);
 
   // Auto-play slideshow

@@ -53,10 +53,11 @@ export const ComparisonResults = () => {
         title: "Comparaison terminée",
         description: `${data.summary.total_items} items analysés avec ${data.summary.average_similarity}% de similarité moyenne`
       });
-    } catch {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       toast({
         title: "Erreur",
-        description: "Erreur lors de la comparaison avec le contenu officiel",
+        description: `Erreur lors de la comparaison: ${errorMessage}`,
         variant: "destructive"
       });
     } finally {

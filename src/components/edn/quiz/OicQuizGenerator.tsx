@@ -328,7 +328,20 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
 
   // Écran de quiz
   const currentQ = questions[currentQuestion];
-  if (!currentQ) return null;
+  if (!currentQ) {
+    return (
+      <Card className="border-2 border-warning/20">
+        <CardContent className="p-8 text-center">
+          <Brain className="h-12 w-12 text-warning mx-auto mb-4" />
+          <p className="text-muted-foreground">Aucune question générée. Veuillez recommencer.</p>
+          <Button onClick={handleReset} className="mt-4" variant="outline">
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Recommencer
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
