@@ -1,15 +1,23 @@
 // Interactive Tableau Rang with clickable sections and progress tracking
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Play, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Play, RotateCcw, Search, SortAsc, SortDesc, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 interface Competence {
   competence_id: string;
   concept?: string;
@@ -35,6 +43,9 @@ interface InteractiveTableauRangProps {
   onStartRevision?: (section: Section) => void;
 }
 
+type SortType = 'default' | 'alpha' | 'mastered' | 'unmastered';
+type FilterType = 'all' | 'mastered' | 'unmastered';
+
 export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
   rang,
   sections,
@@ -45,6 +56,9 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]));
   const [masteredCompetences, setMasteredCompetences] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortType, setSortType] = useState<SortType>('default');
+  const [filterType, setFilterType] = useState<FilterType>('all');
   const { logActivity } = useActivityTracking();
   const { toast } = useToast();
 
@@ -177,11 +191,55 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
     onCompetenceClick?.(competence);
   };
 
+  // Filter and sort sections with competences
+  const processedSections = useMemo(() => {
+    return sections.map(section => {
+      let competences = section.competences || [];
+      
+      // Apply search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        competences = competences.filter(c => 
+          c.competence_id.toLowerCase().includes(query) ||
+          (c.concept || '').toLowerCase().includes(query) ||
+          (c.title || '').toLowerCase().includes(query) ||
+          (c.definition || '').toLowerCase().includes(query)
+        );
+      }
+      
+      // Apply mastery filter
+      if (filterType === 'mastered') {
+        competences = competences.filter(c => masteredCompetences.has(c.competence_id));
+      } else if (filterType === 'unmastered') {
+        competences = competences.filter(c => !masteredCompetences.has(c.competence_id));
+      }
+      
+      // Apply sorting
+      if (sortType === 'alpha') {
+        competences = [...competences].sort((a, b) => 
+          (a.concept || a.title || '').localeCompare(b.concept || b.title || '')
+        );
+      } else if (sortType === 'mastered') {
+        competences = [...competences].sort((a, b) => {
+          const aMastered = masteredCompetences.has(a.competence_id) ? 1 : 0;
+          const bMastered = masteredCompetences.has(b.competence_id) ? 1 : 0;
+          return bMastered - aMastered;
+        });
+      } else if (sortType === 'unmastered') {
+        competences = [...competences].sort((a, b) => {
+          const aMastered = masteredCompetences.has(a.competence_id) ? 1 : 0;
+          const bMastered = masteredCompetences.has(b.competence_id) ? 1 : 0;
+          return aMastered - bMastered;
+        });
+      }
+      
+      return { ...section, competences };
+    });
+  }, [sections, searchQuery, filterType, sortType, masteredCompetences]);
+
   const totalCompetences = sections.reduce((sum, s) => sum + (s.competences?.length || 0), 0);
   const masteredCount = masteredCompetences.size;
   const progressPercentage = totalCompetences > 0 ? (masteredCount / totalCompetences) * 100 : 0;
-
-  const rangColor = rang === 'A' ? 'primary' : 'warning';
 
   return (
     <Card className={cn("border-2", rang === 'A' ? 'border-primary/30' : 'border-warning/30')}>
@@ -220,8 +278,52 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        {sections.map((section, sectionIndex) => {
+      {/* Search and Filter Bar */}
+      <CardContent className="pb-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une compétence..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 h-8 text-sm"
+            />
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1 h-8">
+                {sortType === 'alpha' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />}
+                Trier
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setSortType('default')}>Par défaut</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortType('alpha')}>Alphabétique</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortType('mastered')}>Maîtrisées d'abord</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortType('unmastered')}>À revoir d'abord</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1 h-8">
+                <Filter className="h-3 w-3" />
+                {filterType === 'all' ? 'Toutes' : filterType === 'mastered' ? 'Maîtrisées' : 'À revoir'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setFilterType('all')}>Toutes</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterType('mastered')}>Maîtrisées seulement</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterType('unmastered')}>À revoir seulement</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardContent>
+
+      <CardContent className="space-y-3 pt-4">
+        {processedSections.map((section, sectionIndex) => {
           const isExpanded = expandedSections.has(sectionIndex);
           const sectionMasteredCount = section.competences?.filter(c => 
             masteredCompetences.has(c.competence_id)

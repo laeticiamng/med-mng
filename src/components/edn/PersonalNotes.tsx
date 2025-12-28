@@ -1,15 +1,89 @@
-import React from 'react';
-import { StickyNote, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { StickyNote, Loader2, Bold, Italic, List, Hash, Eye, Edit2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEdnNotes } from '@/hooks/useEdnNotes';
 
 interface PersonalNotesProps {
   itemCode: string;
 }
 
+// Simple markdown renderer
+const renderMarkdown = (text: string) => {
+  if (!text) return null;
+  
+  return text.split('\n').map((line, i) => {
+    // Headers
+    if (line.startsWith('### ')) return <h4 key={i} className="font-bold text-sm mt-2">{line.slice(4)}</h4>;
+    if (line.startsWith('## ')) return <h3 key={i} className="font-bold text-base mt-3">{line.slice(3)}</h3>;
+    if (line.startsWith('# ')) return <h2 key={i} className="font-bold text-lg mt-3">{line.slice(2)}</h2>;
+    
+    // Lists
+    if (line.startsWith('- ')) return <li key={i} className="ml-4 list-disc text-sm">{formatInline(line.slice(2))}</li>;
+    if (line.match(/^\d+\. /)) return <li key={i} className="ml-4 list-decimal text-sm">{formatInline(line.replace(/^\d+\. /, ''))}</li>;
+    
+    // Empty lines
+    if (!line.trim()) return <br key={i} />;
+    
+    // Regular paragraphs
+    return <p key={i} className="text-sm">{formatInline(line)}</p>;
+  });
+};
+
+// Format inline: **bold**, *italic*, `code`
+const formatInline = (text: string) => {
+  const parts = [];
+  let remaining = text;
+  let key = 0;
+  
+  while (remaining) {
+    // Bold
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    if (boldMatch && boldMatch.index !== undefined) {
+      if (boldMatch.index > 0) parts.push(remaining.slice(0, boldMatch.index));
+      parts.push(<strong key={key++} className="font-bold">{boldMatch[1]}</strong>);
+      remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
+      continue;
+    }
+    
+    // Italic
+    const italicMatch = remaining.match(/\*(.+?)\*/);
+    if (italicMatch && italicMatch.index !== undefined) {
+      if (italicMatch.index > 0) parts.push(remaining.slice(0, italicMatch.index));
+      parts.push(<em key={key++} className="italic">{italicMatch[1]}</em>);
+      remaining = remaining.slice(italicMatch.index + italicMatch[0].length);
+      continue;
+    }
+    
+    // Code
+    const codeMatch = remaining.match(/`(.+?)`/);
+    if (codeMatch && codeMatch.index !== undefined) {
+      if (codeMatch.index > 0) parts.push(remaining.slice(0, codeMatch.index));
+      parts.push(<code key={key++} className="bg-muted px-1 rounded text-xs font-mono">{codeMatch[1]}</code>);
+      remaining = remaining.slice(codeMatch.index + codeMatch[0].length);
+      continue;
+    }
+    
+    parts.push(remaining);
+    break;
+  }
+  
+  return parts.length > 0 ? parts : text;
+};
+
 export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
   const { currentNote, setCurrentNote, isSaving, isLoading } = useEdnNotes(itemCode);
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+
+  const insertMarkdown = (syntax: string, wrap = false) => {
+    if (wrap) {
+      setCurrentNote(currentNote + syntax);
+    } else {
+      setCurrentNote(currentNote + '\n' + syntax);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -26,28 +100,95 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
           <StickyNote className="h-4 w-4 text-warning" />
           <span className="text-sm font-medium">Mes notes personnelles</span>
         </div>
-        {isSaving && (
-          <Badge variant="outline" className="text-xs gap-1">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            Sauvegarde...
-          </Badge>
-        )}
-        {!isSaving && currentNote && (
-          <Badge variant="secondary" className="text-xs">
-            Sauvegardé
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <Badge variant="outline" className="text-xs gap-1">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Sauvegarde...
+            </Badge>
+          )}
+          {!isSaving && currentNote && (
+            <Badge variant="secondary" className="text-xs">
+              Sauvegardé
+            </Badge>
+          )}
+        </div>
       </div>
-      
-      <Textarea
-        placeholder="Ajoutez vos notes personnelles sur cet item... (sauvegarde automatique)"
-        value={currentNote}
-        onChange={(e) => setCurrentNote(e.target.value)}
-        className="min-h-[120px] resize-none bg-muted/50 border-muted-foreground/20 focus:border-warning/50"
-      />
+
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 flex-wrap">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={() => insertMarkdown('**texte**', true)}
+          title="Gras"
+        >
+          <Bold className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={() => insertMarkdown('*texte*', true)}
+          title="Italique"
+        >
+          <Italic className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={() => insertMarkdown('- élément')}
+          title="Liste"
+        >
+          <List className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={() => insertMarkdown('## Titre')}
+          title="Titre"
+        >
+          <Hash className="h-3 w-3" />
+        </Button>
+        <div className="flex-1" />
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'edit' | 'preview')} className="h-7">
+          <TabsList className="h-7">
+            <TabsTrigger value="edit" className="h-6 px-2 text-xs gap-1">
+              <Edit2 className="h-3 w-3" />
+              Éditer
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="h-6 px-2 text-xs gap-1">
+              <Eye className="h-3 w-3" />
+              Aperçu
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {viewMode === 'edit' ? (
+        <Textarea
+          placeholder="Ajoutez vos notes personnelles sur cet item... (Markdown supporté)"
+          value={currentNote}
+          onChange={(e) => setCurrentNote(e.target.value)}
+          className="min-h-[120px] resize-none bg-muted/50 border-muted-foreground/20 focus:border-warning/50 font-mono text-sm"
+        />
+      ) : (
+        <div className="min-h-[120px] p-3 rounded-md bg-muted/50 border border-muted-foreground/20 overflow-auto">
+          {currentNote ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none">
+              {renderMarkdown(currentNote)}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm italic">Aucune note à afficher</p>
+          )}
+        </div>
+      )}
       
       <p className="text-xs text-muted-foreground">
-        💡 Vos notes sont privées et sauvegardées automatiquement
+        💡 Markdown supporté: **gras**, *italique*, `code`, # titres, - listes
       </p>
     </div>
   );
