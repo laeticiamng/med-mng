@@ -135,8 +135,8 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
           answers: JSON.stringify(quizResults.answers)
         });
       }
-    } catch (err) {
-      // Silent fail - results saved locally
+    } catch (error) {
+      console.error('Erreur sauvegarde quiz:', error);
     }
     
     toast({
@@ -183,7 +183,7 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
     });
 
     return {
-      score: Math.round((correctAnswers / questions.length) * 100),
+      score: questions.length > 0 ? Math.round((correctAnswers / questions.length) * 100) : 0,
       totalQuestions: questions.length,
       timeSpent,
       correctAnswers,

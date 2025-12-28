@@ -295,14 +295,14 @@ export function useGamification() {
     const aiResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'ai_question');
     const examResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'exam');
     const musicResult = await supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('activity_type', 'music_generation');
-    const flashcardResult = await supabase.from('flashcards').select('id', { count: 'exact', head: true });
+    const flashcardResult = await (supabase.from('flashcards').select('id', { count: 'exact', head: true }) as any).eq('user_id', userId);
     
     const totalReviews = reviewsResult.count || 0;
     const clinicalCount = clinicalResult.count || 0;
     const aiCount = aiResult.count || 0;
     const examCount = examResult.count || 0;
     const musicCount = musicResult.count || 0;
-    const flashcardCount = flashcardResult.count || 0;
+    const flashcardCount = flashcardResult?.count || 0;
 
     // Items mastery badges
     if (totalReviews >= 1) await unlockBadge(userId, 'first_item');
@@ -364,9 +364,6 @@ export function useGamification() {
 
     if (stats.currentStreak >= 100) return 3.0;
     if (stats.currentStreak >= 30) return 2.0;
-    if (stats.currentStreak >= 14) return 1.5;
-    if (stats.currentStreak >= 7) return 1.25;
-    if (stats.currentStreak >= 3) return 1.1;
     if (stats.currentStreak >= 14) return 1.5;
     if (stats.currentStreak >= 7) return 1.25;
     if (stats.currentStreak >= 3) return 1.1;

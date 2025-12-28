@@ -115,7 +115,8 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
         };
         break;
     }
-  } catch {
+  } catch (error) {
+    console.error('Erreur traitement TableauRangB:', error);
     return <p>Erreur lors du traitement des données.</p>;
   }
 

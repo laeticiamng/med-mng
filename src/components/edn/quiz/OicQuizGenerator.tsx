@@ -150,8 +150,8 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
           wrong_answers: questions.length - score,
           time_spent: 0
         });
-      } catch {
-        // Silent error handling
+      } catch (error) {
+        console.error('Erreur sauvegarde quiz OIC:', error);
       }
 
       await addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');

@@ -1,12 +1,9 @@
-
 import React from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 import { TableauSectionEnhanced } from '../TableauSectionEnhanced';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
-import { useOicCompetences } from '@/hooks/useOicCompetences';
-import { TableauCompetencesOICWithRealData } from './TableauCompetencesOICWithRealData';
 import { TableauRangAFooterIC1 } from './TableauRangAFooterIC1';
 import { TableauRangAFooterIC2 } from './TableauRangAFooterIC2';
 import { TableauRangAFooterIC3 } from './TableauRangAFooterIC3';

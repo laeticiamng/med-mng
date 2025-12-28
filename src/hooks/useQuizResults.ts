@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 export interface QuizResult {
   id: string;
@@ -24,7 +23,6 @@ export interface QuizResult {
 export const useQuizResults = () => {
   const [results, setResults] = useState<QuizResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   const saveQuizResult = useCallback(async (result: {
     itemCode: string;
