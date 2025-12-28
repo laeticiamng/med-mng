@@ -22,17 +22,35 @@ export const useEdnItemsOptimized = () => {
 
   useEffect(() => {
     let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const fetchItems = async () => {
       try {
-        const { data, error: fetchError } = await supabase
+        // Timeout de 10 secondes pour éviter blocage infini
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Timeout: chargement trop long')), 10000);
+        });
+
+        const fetchPromise = supabase
           .from('edn_items_immersive')
           .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
           .order('item_code');
-        
+
+        const result = await Promise.race([fetchPromise, timeoutPromise]) as { data: any; error: any } | null;
+        clearTimeout(timeoutId);
+
         if (cancelled) return;
 
+        if (!result) {
+          setError('Erreur de chargement - veuillez réessayer');
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = result;
+
         if (fetchError) {
+          console.error('Erreur Supabase EDN:', fetchError);
           setError(fetchError.message);
           setLoading(false);
           return;
@@ -105,6 +123,7 @@ export const useEdnItemsOptimized = () => {
 
     return () => {
       cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
