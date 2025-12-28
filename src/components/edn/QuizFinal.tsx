@@ -42,9 +42,10 @@ interface QuizFinalProps {
   };
   itemCode?: string;
   itemTitle?: string;
+  onQuizFinished?: (score: number, totalQuestions: number) => void;
 }
 
-export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN' }: QuizFinalProps) => {
+export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN', onQuizFinished }: QuizFinalProps) => {
   const { addPoints, unlockBadge, stats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { toast } = useToast();
@@ -296,9 +297,12 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         });
       }
       
+      // Notify parent component
+      onQuizFinished?.(score, allQuestions.length);
+      
       setPointsAwarded(true);
     }
-  }, [showResults, pointsAwarded, score, allQuestions.length, userId]);
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId, onQuizFinished]);
 
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
