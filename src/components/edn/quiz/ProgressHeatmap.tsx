@@ -31,23 +31,49 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      let query = supabase
+      // Fetch quiz results
+      let quizQuery = supabase
         .from('quiz_results')
         .select('created_at')
         .eq('user_id', user.id)
         .gte('created_at', startDate.toISOString());
 
       if (itemCode) {
-        query = query.eq('item_code', itemCode);
+        quizQuery = quizQuery.eq('item_code', itemCode);
       }
 
-      const { data } = await query;
+      const { data: quizData } = await quizQuery;
 
-      // Aggregate by day
+      // Fetch study activities
+      const { data: activityData } = await supabase
+        .from('user_activities')
+        .select('created_at, activity_type')
+        .eq('user_id', user.id)
+        .gte('created_at', startDate.toISOString());
+
+      // Fetch mastery updates
+      const { data: masteryData } = await supabase
+        .from('user_competence_mastery')
+        .select('updated_at')
+        .eq('user_id', user.id)
+        .gte('updated_at', startDate.toISOString());
+
+      // Aggregate all activities by day
       const dayMap: Record<string, number> = {};
-      data?.forEach(result => {
+      
+      quizData?.forEach(result => {
         const day = new Date(result.created_at).toISOString().split('T')[0];
-        dayMap[day] = (dayMap[day] || 0) + 1;
+        dayMap[day] = (dayMap[day] || 0) + 2; // Quiz = 2 points
+      });
+
+      activityData?.forEach(activity => {
+        const day = new Date(activity.created_at).toISOString().split('T')[0];
+        dayMap[day] = (dayMap[day] || 0) + 1; // Activity = 1 point
+      });
+
+      masteryData?.forEach(mastery => {
+        const day = new Date(mastery.updated_at).toISOString().split('T')[0];
+        dayMap[day] = (dayMap[day] || 0) + 1; // Mastery update = 1 point
       });
 
       const activity: ActivityDay[] = [];

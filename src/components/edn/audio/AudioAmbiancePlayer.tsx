@@ -16,31 +16,37 @@ interface AudioAmbianceProps {
   itemCode: string;
 }
 
-// Audio ambiances étendues basées sur le mood médical
-const AMBIANCE_SOUNDS: Record<string, { url: string; label: string }> = {
+// Audio ambiances avec URLs fiables et fallbacks
+const AMBIANCE_SOUNDS: Record<string, { url: string; label: string; fallback: string }> = {
   calme: { 
     url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8cb85e3f41.mp3', 
-    label: 'Ambiance calme' 
+    label: 'Ambiance calme',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   },
   concentration: { 
     url: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0ef9b37c2.mp3', 
-    label: 'Concentration profonde' 
+    label: 'Concentration profonde',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   },
   urgence: { 
     url: 'https://cdn.pixabay.com/audio/2022/10/25/audio_12ef79e8e3.mp3', 
-    label: 'Rythme dynamique' 
+    label: 'Rythme dynamique',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   },
   meditation: { 
     url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3', 
-    label: 'Méditation' 
+    label: 'Méditation',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   },
   nature: { 
     url: 'https://cdn.pixabay.com/audio/2022/06/07/audio_b9bd4170e4.mp3', 
-    label: 'Sons de la nature' 
+    label: 'Sons de la nature',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   },
   default: { 
     url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', 
-    label: 'Ambiance par défaut' 
+    label: 'Ambiance par défaut',
+    fallback: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvuz5BJDxJQqeli'
   }
 };
 
@@ -60,10 +66,21 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
   const ambianceUrl = ambianceData.url;
 
   useEffect(() => {
-    // Créer l'élément audio
-    audioRef.current = new Audio(ambianceUrl);
-    audioRef.current.loop = true;
-    audioRef.current.volume = volume;
+    // Créer l'élément audio avec fallback
+    const audio = new Audio();
+    audio.loop = true;
+    audio.volume = volume;
+    
+    // Try main URL, fallback if error
+    audio.src = ambianceUrl;
+    audio.onerror = () => {
+      const fallbackUrl = ambianceData.fallback;
+      if (fallbackUrl && audio.src !== fallbackUrl) {
+        audio.src = fallbackUrl;
+      }
+    };
+    
+    audioRef.current = audio;
 
     return () => {
       if (audioRef.current) {
@@ -71,7 +88,7 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
         audioRef.current = null;
       }
     };
-  }, [ambianceUrl]);
+  }, [ambianceUrl, ambianceData.fallback]);
 
   useEffect(() => {
     if (audioRef.current) {
