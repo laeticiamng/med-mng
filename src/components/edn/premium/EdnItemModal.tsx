@@ -74,16 +74,45 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
   }, [isOpen, finalItem?.item_code, initialTab]);
 
-  // Les données OIC sont maintenant chargées via useOicCompetences
+  // Charger les données complètes (quiz, scene, tableaux) si pas déjà présentes
   useEffect(() => {
-    if (finalItem && isOpen) {
-      setCompleteItemData({
-        competences_oic_rang_a: oicCompetencesA,
-        competences_oic_rang_b: oicCompetencesB,
-        tableau_rang_a: finalItem.tableau_rang_a,
-        tableau_rang_b: finalItem.tableau_rang_b
-      });
-    }
+    const loadCompleteData = async () => {
+      if (finalItem && isOpen) {
+        // Si quiz_questions manquant, fetch depuis Supabase
+        if (!finalItem.quiz_questions) {
+          try {
+            const { data } = await supabase
+              .from('edn_items_immersive')
+              .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b')
+              .eq('item_code', finalItem.item_code)
+              .maybeSingle();
+            
+            if (data) {
+              setCompleteItemData(prev => ({
+                ...prev,
+                quiz_questions: data.quiz_questions,
+                scene_immersive: data.scene_immersive,
+                tableau_rang_a: data.tableau_rang_a,
+                tableau_rang_b: data.tableau_rang_b,
+                competences_oic_rang_a: oicCompetencesA,
+                competences_oic_rang_b: oicCompetencesB,
+              }));
+            }
+          } catch (e) {
+            console.warn('Failed to load complete item data:', e);
+          }
+        } else {
+          setCompleteItemData({
+            quiz_questions: finalItem.quiz_questions,
+            competences_oic_rang_a: oicCompetencesA,
+            competences_oic_rang_b: oicCompetencesB,
+            tableau_rang_a: finalItem.tableau_rang_a,
+            tableau_rang_b: finalItem.tableau_rang_b
+          });
+        }
+      }
+    };
+    loadCompleteData();
   }, [finalItem, isOpen, oicCompetencesA, oicCompetencesB]);
 
   if (!finalItem) return null;
@@ -417,9 +446,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               {/* Quiz */}
               {/* Quiz - Toujours affiché */}
               <TabsContent value="quiz" className="mt-0 p-6">
-                {finalItem.quiz_questions ? (
+                {(completeItemData?.quiz_questions || finalItem.quiz_questions) ? (
                   <EnhancedQuizFinal 
-                    questions={finalItem.quiz_questions}
+                    questions={completeItemData?.quiz_questions || finalItem.quiz_questions}
                     itemCode={finalItem.item_code}
                     itemTitle={finalItem.title}
                   />
