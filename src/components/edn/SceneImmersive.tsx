@@ -47,11 +47,17 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
     trackView();
   }, [itemCode]);
 
+  // Contenu personnalisé basé sur les vraies données de l'item
   const sceneData = {
-    description: data.description || data.scenario || "Plongez dans cette scène médicale immersive...",
-    mots_cles: data.mots_cles || (data.characters ? data.characters.map(c => c.role) : ["Diagnostic", "Traitement", "Patient", "Expertise"]),
-    effet: data.effet || (data.setting ? `Environnement: ${data.setting}` : "Une expérience immersive unique"),
-    setting: data.setting,
+    description: data.description || data.scenario || 
+      `Explorez ${itemCode} à travers cette scène médicale immersive.`,
+    mots_cles: data.mots_cles || 
+      (data.characters ? data.characters.map((c) => c.role) : 
+      ["Diagnostic", "Traitement", "Patient", "Expertise"]),
+    effet: data.effet || 
+      (data.setting ? `Environnement: ${data.setting}` : 
+      `Maîtrisez les compétences essentielles de ${itemCode}`),
+    setting: data.setting || "Cabinet médical",
     characters: data.characters
   };
 

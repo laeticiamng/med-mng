@@ -1,26 +1,61 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle, Info, Flame, Star, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle, AlertTriangle, Info, Flame, Star, Loader2, Check, X, RotateCcw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface CompetenceValidationProps {
   item: any;
 }
 
+interface CompetenceMastery {
+  objectif_id: string;
+  is_mastered: boolean;
+  mastery_level: number;
+  review_count: number;
+}
+
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
+  const { toast } = useToast();
+  
+  const [masteryData, setMasteryData] = useState<Map<string, CompetenceMastery>>(new Map());
+  const [loadingMastery, setLoadingMastery] = useState(false);
+  const [savingId, setSavingId] = useState<string | null>(null);
   
   // Utiliser les vraies compétences OIC depuis la base de données
   const { competences: oicCompetencesA, loading: loadingA } = useOicCompetences(item?.item_code || '', 'A');
   const { competences: oicCompetencesB, loading: loadingB } = useOicCompetences(item?.item_code || '', 'B');
+
+  // Charger les données de maîtrise de l'utilisateur
+  const loadMasteryData = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !item?.item_code) return;
+    
+    setLoadingMastery(true);
+    const { data } = await supabase
+      .from('user_competence_mastery')
+      .select('objectif_id, is_mastered, mastery_level, review_count')
+      .eq('user_id', user.id)
+      .eq('item_code', item.item_code);
+    
+    if (data) {
+      const map = new Map<string, CompetenceMastery>();
+      data.forEach(d => map.set(d.objectif_id, d as CompetenceMastery));
+      setMasteryData(map);
+    }
+    setLoadingMastery(false);
+  }, [item?.item_code]);
 
   useEffect(() => {
     const load = async () => {
@@ -28,10 +63,77 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_competence_validation', itemCode: item?.item_code } });
+        loadMasteryData();
       }
     };
     load();
-  }, [loadStats, logActivity, item?.item_code]);
+  }, [loadStats, logActivity, item?.item_code, loadMasteryData]);
+
+  // Toggle mastery d'une compétence
+  const toggleMastery = async (objectifId: string, rang: 'A' | 'B', currentlyMastered: boolean) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Connexion requise", description: "Connectez-vous pour suivre votre progression", variant: "destructive" });
+      return;
+    }
+    
+    setSavingId(objectifId);
+    
+    const newMastered = !currentlyMastered;
+    const existing = masteryData.get(objectifId);
+    
+    if (existing) {
+      // Update
+      await supabase
+        .from('user_competence_mastery')
+        .update({ 
+          is_mastered: newMastered, 
+          mastery_level: newMastered ? 100 : 50,
+          review_count: existing.review_count + 1,
+          last_reviewed_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .eq('item_code', item.item_code)
+        .eq('objectif_id', objectifId);
+    } else {
+      // Insert
+      await supabase
+        .from('user_competence_mastery')
+        .insert({
+          user_id: user.id,
+          item_code: item.item_code,
+          objectif_id: objectifId,
+          rang,
+          is_mastered: newMastered,
+          mastery_level: newMastered ? 100 : 50,
+          review_count: 1,
+          last_reviewed_at: new Date().toISOString()
+        });
+    }
+    
+    // Ajouter des points si maîtrisé
+    if (newMastered) {
+      await addPoints(user.id, 'itemReviewed');
+    }
+    
+    // Mettre à jour le state local
+    setMasteryData(prev => {
+      const newMap = new Map(prev);
+      newMap.set(objectifId, {
+        objectif_id: objectifId,
+        is_mastered: newMastered,
+        mastery_level: newMastered ? 100 : 50,
+        review_count: (existing?.review_count || 0) + 1
+      });
+      return newMap;
+    });
+    
+    setSavingId(null);
+    toast({ 
+      title: newMastered ? "✅ Compétence maîtrisée !" : "📝 Marquée à revoir",
+      description: newMastered ? "+10 XP" : "Continuez à réviser"
+    });
+  };
 
   const validation = useMemo(() => {
     const result = {
@@ -155,6 +257,22 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         </div>
       </CardHeader>
       <CardContent className={`space-y-4 ${isMobile ? 'p-4' : ''}`}>
+        {/* Barre de progression de maîtrise */}
+        {(oicCompetencesA.length > 0 || oicCompetencesB.length > 0) && (
+          <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-4 rounded-lg border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-sm">Votre progression sur cet item</span>
+              <span className="text-sm font-bold text-primary">
+                {Array.from(masteryData.values()).filter(m => m.is_mastered).length} / {oicCompetencesA.length + oicCompetencesB.length} maîtrisées
+              </span>
+            </div>
+            <Progress 
+              value={(Array.from(masteryData.values()).filter(m => m.is_mastered).length / Math.max(1, oicCompetencesA.length + oicCompetencesB.length)) * 100} 
+              className="h-2"
+            />
+          </div>
+        )}
+
         {/* Résumé */}
         <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4`}>
           <div className="text-center p-3 rounded-lg bg-background border">
@@ -194,44 +312,117 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
           </div>
         </div>
 
-        {/* Détails des compétences */}
-        {validation.rangA.competences.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-primary mb-2 flex items-center gap-2">
+        {/* Compétences Rang A avec tracking */}
+        {oicCompetencesA.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-primary flex items-center gap-2">
               <Info className="h-4 w-4" />
-              Compétences Rang A ({validation.rangA.count})
+              Compétences Rang A ({oicCompetencesA.length})
             </h4>
-            <div className="flex flex-wrap gap-1">
-              {validation.rangA.competences.slice(0, 5).map((competence, index) => (
-                <Badge key={index} variant="outline" className="text-xs bg-primary/5 text-primary border-primary/30">
-                  {competence}
-                </Badge>
-              ))}
-              {validation.rangA.competences.length > 5 && (
-                <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
-                  +{validation.rangA.competences.length - 5} autres
-                </Badge>
+            <div className="space-y-2">
+              {oicCompetencesA.slice(0, 8).map((comp) => {
+                const mastery = masteryData.get(comp.objectif_id);
+                const isMastered = mastery?.is_mastered || false;
+                const isSaving = savingId === comp.objectif_id;
+                
+                return (
+                  <div 
+                    key={comp.objectif_id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                      isMastered ? 'bg-success/10 border-success/30' : 'bg-muted/50 border-border'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs shrink-0">{comp.objectif_id}</Badge>
+                        <span className="text-sm font-medium truncate">{comp.intitule}</span>
+                      </div>
+                      {mastery?.review_count && mastery.review_count > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          Révisée {mastery.review_count} fois
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isMastered ? "default" : "outline"}
+                      className={`shrink-0 ml-2 ${isMastered ? 'bg-success hover:bg-success/90' : ''}`}
+                      onClick={() => toggleMastery(comp.objectif_id, 'A', isMastered)}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isMastered ? (
+                        <><Check className="h-4 w-4 mr-1" /> Maîtrisée</>
+                      ) : (
+                        <><RotateCcw className="h-4 w-4 mr-1" /> À revoir</>
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+              {oicCompetencesA.length > 8 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  +{oicCompetencesA.length - 8} autres compétences
+                </p>
               )}
             </div>
           </div>
         )}
 
-        {validation.rangB.competences.length > 0 && (
-          <div>
-            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
+        {/* Compétences Rang B avec tracking */}
+        {oicCompetencesB.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-accent flex items-center gap-2">
               <Info className="h-4 w-4" />
-              Compétences Rang B ({validation.rangB.count})
+              Compétences Rang B ({oicCompetencesB.length})
             </h4>
-            <div className="flex flex-wrap gap-1">
-              {validation.rangB.competences.slice(0, 5).map((competence, index) => (
-                <Badge key={index} variant="outline" className="text-xs bg-accent/5 text-accent border-accent/30">
-                  {competence}
-                </Badge>
-              ))}
-              {validation.rangB.competences.length > 5 && (
-                <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
-                  +{validation.rangB.competences.length - 5} autres
-                </Badge>
+            <div className="space-y-2">
+              {oicCompetencesB.slice(0, 8).map((comp) => {
+                const mastery = masteryData.get(comp.objectif_id);
+                const isMastered = mastery?.is_mastered || false;
+                const isSaving = savingId === comp.objectif_id;
+                
+                return (
+                  <div 
+                    key={comp.objectif_id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                      isMastered ? 'bg-success/10 border-success/30' : 'bg-muted/50 border-border'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs shrink-0">{comp.objectif_id}</Badge>
+                        <span className="text-sm font-medium truncate">{comp.intitule}</span>
+                      </div>
+                      {mastery?.review_count && mastery.review_count > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          Révisée {mastery.review_count} fois
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isMastered ? "default" : "outline"}
+                      className={`shrink-0 ml-2 ${isMastered ? 'bg-success hover:bg-success/90' : ''}`}
+                      onClick={() => toggleMastery(comp.objectif_id, 'B', isMastered)}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isMastered ? (
+                        <><Check className="h-4 w-4 mr-1" /> Maîtrisée</>
+                      ) : (
+                        <><RotateCcw className="h-4 w-4 mr-1" /> À revoir</>
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+              {oicCompetencesB.length > 8 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  +{oicCompetencesB.length - 8} autres compétences
+                </p>
               )}
             </div>
           </div>

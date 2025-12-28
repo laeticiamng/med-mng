@@ -23,6 +23,7 @@ import { RevisionPlanCreator } from './RevisionPlanCreator';
 import { TodayRevisionSession } from './TodayRevisionSession';
 import { ProgressAnalytics } from './ProgressAnalytics';
 import { ProgressHeatmap } from './ProgressHeatmap';
+import { QuizProgressChart } from './QuizProgressChart';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -359,7 +360,10 @@ export const RevisionDashboard: React.FC = () => {
           />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Graphiques de progression des quiz */}
+          <QuizProgressChart />
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Répartition par difficulté */}
             <Card>
