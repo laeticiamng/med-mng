@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface OicCompetence {
@@ -23,80 +23,121 @@ export interface OicCompetence {
 // Cache global pour éviter les re-fetches
 const competencesCache = new Map<string, OicCompetence[]>();
 
+// Function to invalidate cache
+export function invalidateOicCache(itemCode?: string, rang?: 'A' | 'B') {
+  if (itemCode && rang) {
+    const cacheKey = `${itemCode}-${rang}`;
+    competencesCache.delete(cacheKey);
+    console.log(`🗑️ OIC Cache invalidated: ${cacheKey}`);
+  } else if (itemCode) {
+    competencesCache.delete(`${itemCode}-A`);
+    competencesCache.delete(`${itemCode}-B`);
+    console.log(`🗑️ OIC Cache invalidated: ${itemCode} (both rangs)`);
+  } else {
+    competencesCache.clear();
+    console.log(`🗑️ OIC Cache fully cleared`);
+  }
+}
+
 export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [competences, setCompetences] = useState<OicCompetence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchCompetences = useCallback(async (code: string, r: 'A' | 'B') => {
+    const cacheKey = `${code}-${r}`;
+    
+    // Check cache first
+    const cached = competencesCache.get(cacheKey);
+    if (cached && cached.length > 0) {
+      console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
+      return { data: cached, error: null };
+    }
+
+    // Extract item number (IC-1 -> 001, IC-10 -> 010)
+    const itemNumber = code.replace('IC-', '').padStart(3, '0');
+    console.log(`🔍 OIC Fetching: item_parent=${itemNumber}, rang=${r}`);
+
+    const { data, error: queryError } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description, rubrique, rang, item_parent')
+      .eq('item_parent', itemNumber)
+      .eq('rang', r)
+      .order('objectif_id');
+
+    if (queryError) {
+      console.error('❌ OIC Error:', queryError);
+      return { data: null, error: queryError.message };
+    }
+
+    console.log(`📊 OIC Result: ${data?.length || 0} compétences for ${code} rang ${r}`);
+
+    const realCompetences = (data || [])
+      .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
+        Boolean(comp.objectif_id && comp.intitule)
+      )
+      .map(comp => ({
+        ...comp,
+        description: comp.description || comp.intitule
+      })) as OicCompetence[];
+
+    // Cache only if we have results
+    if (realCompetences.length > 0) {
+      competencesCache.set(cacheKey, realCompetences);
+    }
+
+    return { data: realCompetences, error: null };
+  }, []);
+
   useEffect(() => {
-    // Skip if no itemCode
-    if (!itemCode) {
+    // Skip if no itemCode or invalid format
+    if (!itemCode || !itemCode.startsWith('IC-')) {
       setCompetences([]);
       setLoading(false);
       setError(null);
       return;
     }
 
-    const cacheKey = `${itemCode}-${rang}`;
+    let cancelled = false;
     
-    // Check cache first
-    const cached = competencesCache.get(cacheKey);
-    if (cached && cached.length > 0) {
-      console.log(`✅ OIC Cache hit: ${cacheKey} = ${cached.length} compétences`);
-      setCompetences(cached);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    // Extract item number (IC-1 -> 001, IC-10 -> 010)
-    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
-    console.log(`🔍 OIC Query START: item_parent=${itemNumber}, rang=${rang}`);
-
     setLoading(true);
     setError(null);
 
-    // Direct fetch without async wrapper
-    supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule, description, rubrique, rang, item_parent')
-      .eq('item_parent', itemNumber)
-      .eq('rang', rang)
-      .order('objectif_id')
-      .then((result) => {
-        const { data, error: queryError } = result;
-        
-        console.log(`📊 OIC Query DONE: ${data?.length || 0} results, error=${queryError?.message || 'none'}`);
-
-        if (queryError) {
-          console.error('❌ Erreur récupération OIC:', queryError);
-          setError(queryError.message);
-          setCompetences([]);
-          setLoading(false);
-          return;
-        }
-
-        const realCompetences = (data || [])
-          .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
-            Boolean(comp.objectif_id && comp.intitule)
-          )
-          .map(comp => ({
-            ...comp,
-            description: comp.description || comp.intitule
-          })) as OicCompetence[];
-
-        // Cache only if we have results
-        if (realCompetences.length > 0) {
-          competencesCache.set(cacheKey, realCompetences);
-        }
-
-        setCompetences(realCompetences);
-        setLoading(false);
+    fetchCompetences(itemCode, rang).then(result => {
+      if (cancelled) return;
+      
+      if (result.error) {
+        setError(result.error);
+        setCompetences([]);
+      } else {
+        setCompetences(result.data || []);
         setError(null);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [itemCode, rang, fetchCompetences]);
+
+  // Manual refetch function
+  const refetch = useCallback(() => {
+    if (itemCode && itemCode.startsWith('IC-')) {
+      invalidateOicCache(itemCode, rang);
+      setLoading(true);
+      fetchCompetences(itemCode, rang).then(result => {
+        if (result.error) {
+          setError(result.error);
+          setCompetences([]);
+        } else {
+          setCompetences(result.data || []);
+          setError(null);
+        }
+        setLoading(false);
       });
+    }
+  }, [itemCode, rang, fetchCompetences]);
 
-    // No cleanup needed - state updates after unmount are harmless in React 18+
-  }, [itemCode, rang]);
-
-  return { competences, loading, error };
+  return { competences, loading, error, refetch };
 }

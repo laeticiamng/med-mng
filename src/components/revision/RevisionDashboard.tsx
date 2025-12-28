@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,6 +22,7 @@ import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { RevisionPlanCreator } from './RevisionPlanCreator';
 import { TodayRevisionSession } from './TodayRevisionSession';
 import { ProgressAnalytics } from './ProgressAnalytics';
+import { ProgressHeatmap } from './ProgressHeatmap';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -334,6 +335,24 @@ export const RevisionDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="progress" className="space-y-4">
+          {/* Heatmap de progression */}
+          <ProgressHeatmap 
+            data={revisionHistory.map(entry => ({
+              date: entry.timestamp?.split('T')[0] || new Date().toISOString().split('T')[0],
+              count: 1,
+              score: entry.score
+            })).reduce((acc, curr) => {
+              const existing = acc.find(a => a.date === curr.date);
+              if (existing) {
+                existing.count += 1;
+                existing.score = Math.round((existing.score + curr.score) / 2);
+              } else {
+                acc.push(curr);
+              }
+              return acc;
+            }, [] as Array<{date: string; count: number; score: number}>)}
+          />
+          
           <ProgressAnalytics 
             revisionItems={revisionItems}
             stats={stats}
