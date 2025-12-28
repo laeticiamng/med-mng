@@ -32,8 +32,11 @@ export const useEdnItemsOptimized = () => {
     // Check cache validity
     const now = Date.now();
     if (!force && cachedItems.length > 0 && now - cacheTimestamp < CACHE_TTL) {
-      setItems(cachedItems);
-      setLoading(false);
+      if (mountedRef.current) {
+        setItems(cachedItems);
+        setLoading(false);
+        setError(null);
+      }
       return;
     }
 
@@ -41,8 +44,10 @@ export const useEdnItemsOptimized = () => {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     
-    setLoading(cachedItems.length === 0);
-    setError(null);
+    if (mountedRef.current) {
+      setLoading(true);
+      setError(null);
+    }
     
     try {
       // Fast initial fetch - minimal columns only
@@ -51,7 +56,10 @@ export const useEdnItemsOptimized = () => {
         .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
         .order('item_code');
       
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        fetchingRef.current = false;
+        return;
+      }
       
       if (fetchError) throw new Error(fetchError.message);
       if (!data || data.length === 0) throw new Error('Aucun item EDN trouvé');
@@ -75,6 +83,7 @@ export const useEdnItemsOptimized = () => {
       if (mountedRef.current) {
         setItems(mappedItems);
         setLoading(false);
+        setError(null);
       }
       
       // Async OIC enrichment (background, non-blocking)
