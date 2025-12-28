@@ -75,7 +75,6 @@ export const EdnObjectifsExtraction: React.FC = () => {
       });
       
     } catch (err: any) {
-      console.error('❌ DEBUG: Error in handleStartExtraction:', err);
       setError(err.message);
       setIsExtracting(false);
     }
