@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItem {
   item_code: string;
@@ -18,13 +17,28 @@ interface EdnItemsStats {
   byCategory: Record<string, number>;
 }
 
+const SUPABASE_URL = "https://yaincoxihiqdksxgrsrk.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU";
+
+// Cache simple en mémoire
+let cachedItems: EdnItem[] | null = null;
+let cachedStats: EdnItemsStats | null = null;
+
 export const useAllEdnItems = () => {
-  const [items, setItems] = useState<EdnItem[]>([]);
-  const [stats, setStats] = useState<EdnItemsStats>({ total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<EdnItem[]>(cachedItems || []);
+  const [stats, setStats] = useState<EdnItemsStats>(cachedStats || { total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
+  const [loading, setLoading] = useState(!cachedItems);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Si on a des données en cache, ne pas refetch
+    if (cachedItems && cachedItems.length > 0) {
+      setItems(cachedItems);
+      setStats(cachedStats!);
+      setLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     const fetchItems = async () => {
@@ -32,22 +46,33 @@ export const useAllEdnItems = () => {
         setLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await supabase
-          .from('edn_items_immersive')
-          .select('item_code, title, subtitle, paroles_musicales')
-          .order('item_code');
+        // Utiliser fetch direct pour éviter les conflits avec d'autres hooks Supabase
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+            }
+          }
+        );
 
         if (!isMounted) return;
 
-        if (fetchError) {
-          console.error('Supabase error:', fetchError);
+        if (!response.ok) {
+          console.error('HTTP error:', response.status);
           setError('Erreur lors du chargement');
           setLoading(false);
           return;
         }
 
-        if (data) {
-          const mappedItems: EdnItem[] = data.map(d => ({
+        const data = await response.json();
+
+        if (!isMounted) return;
+
+        if (data && Array.isArray(data)) {
+          const mappedItems: EdnItem[] = data.map((d: any) => ({
             item_code: d.item_code,
             title: d.title,
             subtitle: d.subtitle || undefined,
@@ -63,6 +88,10 @@ export const useAllEdnItems = () => {
             withLyrics: mappedItems.filter(i => i.has_lyrics).length,
             byCategory: { EDN: mappedItems.length }
           };
+
+          // Mettre en cache
+          cachedItems = mappedItems;
+          cachedStats = statsData;
 
           setItems(mappedItems);
           setStats(statsData);
@@ -106,6 +135,8 @@ export const useAllEdnItems = () => {
   const itemsWithLyrics = useMemo(() => items.filter(i => i.has_lyrics), [items]);
 
   const refreshItems = useCallback(() => {
+    cachedItems = null;
+    cachedStats = null;
     window.location.reload();
   }, []);
 
