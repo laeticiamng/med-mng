@@ -10,8 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 
 export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => {
   const [loading, setLoading] = useState(false);
+  const [lyricsLoading, setLyricsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
+  const [lyricsResult, setLyricsResult] = useState<any>(null);
   const { toast } = useToast();
 
   const handleSync = async () => {
@@ -67,6 +69,58 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Générer les paroles manquantes via update-edn-unique-content
+  const handleGenerateLyrics = async () => {
+    try {
+      setLyricsLoading(true);
+      setLyricsResult(null);
+
+      toast({
+        title: "🎵 Génération des paroles",
+        description: "Création des paroles Rang A, B et A+B depuis les compétences OIC...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+        body: {}
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setLyricsResult({
+        success: true,
+        updated: data?.successCount || data?.updated || 0,
+        processed: data?.processedCount || data?.total_processed || 0,
+        errors: data?.errors || []
+      });
+
+      toast({
+        title: "✅ Paroles générées !",
+        description: `${data?.successCount || data?.updated || 0} items mis à jour avec paroles`,
+      });
+
+      if (onComplete) {
+        onComplete();
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur génération paroles:', error);
+      setLyricsResult({
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
+      });
+
+      toast({
+        title: "❌ Erreur",
+        description: "La génération des paroles a échoué",
+        variant: "destructive"
+      });
+    } finally {
+      setLyricsLoading(false);
     }
   };
 
@@ -154,16 +208,50 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
           </Alert>
         )}
 
-        <Button 
-          onClick={handleSync}
-          disabled={loading}
-          className="w-full"
-          size="lg"
-          variant="default"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          {loading ? 'Synchronisation en cours...' : 'Synchroniser les tables EDN'}
-        </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Button 
+            onClick={handleSync}
+            disabled={loading || lyricsLoading}
+            className="w-full"
+            size="lg"
+            variant="default"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Synchronisation...' : 'Synchroniser tables'}
+          </Button>
+          
+          <Button 
+            onClick={handleGenerateLyrics}
+            disabled={loading || lyricsLoading}
+            className="w-full"
+            size="lg"
+            variant="secondary"
+          >
+            <Zap className={`h-4 w-4 mr-2 ${lyricsLoading ? 'animate-pulse' : ''}`} />
+            {lyricsLoading ? 'Génération paroles...' : 'Générer paroles OIC'}
+          </Button>
+        </div>
+
+        {lyricsResult && (
+          <Alert variant={lyricsResult.success ? "default" : "destructive"}>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              {lyricsResult.success ? (
+                <div className="space-y-1">
+                  <p className="font-medium">🎵 Paroles générées !</p>
+                  <p className="text-sm">
+                    {lyricsResult.updated}/{lyricsResult.processed} items avec paroles A/B/AB
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="font-medium">❌ Échec génération paroles</p>
+                  <p className="text-sm">{lyricsResult.error}</p>
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-2 gap-2 text-center text-sm">
           <div className="p-2 bg-success/10 rounded border border-success/20">
