@@ -139,6 +139,7 @@ export const useEdnItemsOptimized = () => {
 
   useEffect(() => {
     mountedRef.current = true;
+    fetchingRef.current = false; // Reset on mount to prevent HMR lock
     fetchItems();
     return () => { mountedRef.current = false; };
   }, [fetchItems]);
