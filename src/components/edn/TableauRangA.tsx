@@ -2,6 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauCompetencesOICWithRealData } from './tableau/TableauCompetencesOICWithRealData';
 
+interface TableauSection {
+  title?: string;
+  content?: string;
+  keywords?: string[];
+  concepts?: unknown[];
+  competences?: unknown[];
+}
+
 interface TableauRangAProps {
   data: {
     theme?: string;
@@ -9,7 +17,7 @@ interface TableauRangAProps {
     subtitle?: string;
     colonnes?: string[];
     lignes?: string[][];
-    sections?: any[];
+    sections?: TableauSection[];
   };
   itemCode?: string;
 }
