@@ -302,7 +302,8 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       setPointsAwarded(true);
     }
-  }, [showResults, pointsAwarded, score, allQuestions.length, userId, onQuizFinished]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId]);
 
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
@@ -355,11 +356,11 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
           <div className="flex justify-center gap-4">
             <Badge variant="outline" className="gap-1 text-sm">
               <Flame className="h-4 w-4 text-orange-500" />
-              Série: {stats.currentStreak} jours
+              Série: {stats.currentStreak ?? 0} jours
             </Badge>
             <Badge variant="outline" className="gap-1 text-sm">
               <Star className="h-4 w-4 text-yellow-500" />
-              Niveau {stats.level}
+              Niveau {stats.level ?? 1}
             </Badge>
           </div>
         )}

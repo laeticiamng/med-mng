@@ -92,7 +92,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       }
     };
     loadMusicData();
-  }, [loadStats, itemCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemCode]);
   // Debug logging disabled for production
 
   const {

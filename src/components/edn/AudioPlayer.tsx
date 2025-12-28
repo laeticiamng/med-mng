@@ -58,7 +58,8 @@ export const AudioPlayer = ({
       if (user) loadStats(user.id);
     };
     load();
-  }, [loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Track audio playback
   useEffect(() => {
@@ -124,11 +125,11 @@ export const AudioPlayer = ({
             <>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats.currentStreak}j
+                {stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats.level}
+                Niv. {stats.level ?? 1}
               </Badge>
             </>
           )}
