@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 interface EdnItemLyrics {
   paroles_musicales?: string[];
@@ -40,56 +42,72 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLyrics = useCallback(async () => {
+  useEffect(() => {
     if (!itemCode) {
       setLyrics(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    let isMounted = true;
+    
+    const fetchLyrics = async () => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Utiliser .single() au lieu de .maybeSingle() pour avoir une erreur explicite si pas de résultat
-      const { data, error: supabaseError } = await supabase
-        .from('edn_items_immersive')
-        .select('item_code, title, subtitle, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
-        .eq('item_code', itemCode)
-        .limit(1)
-        .maybeSingle();
-
-      if (supabaseError) {
-        console.error('Erreur Supabase useEdnItemLyrics:', supabaseError);
-        setError(`Erreur: ${supabaseError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      if (data) {
-        setLyrics({
-          item_code: data.item_code,
-          title: data.title,
-          subtitle: data.subtitle,
-          paroles_musicales: data.paroles_musicales || [],
-          paroles_rang_a: data.paroles_rang_a || [],
-          paroles_rang_b: data.paroles_rang_b || [],
-          paroles_rang_ab: data.paroles_rang_ab || []
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
+        
+        const response = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Accept': 'application/json'
+          }
         });
-      } else {
-        setError('Aucune parole trouvée pour cet item');
-      }
-    } catch (err) {
-      console.error('Erreur useEdnItemLyrics catch:', err);
-      setError('Erreur lors du chargement des paroles');
-    } finally {
-      setLoading(false);
-    }
-  }, [itemCode]);
 
-  useEffect(() => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!isMounted) return;
+
+        if (data && data.length > 0) {
+          const item = data[0];
+          console.log('✅ Paroles chargées pour', itemCode, item);
+          setLyrics({
+            item_code: item.item_code,
+            title: item.title,
+            subtitle: item.subtitle,
+            paroles_musicales: item.paroles_musicales || [],
+            paroles_rang_a: item.paroles_rang_a || [],
+            paroles_rang_b: item.paroles_rang_b || [],
+            paroles_rang_ab: item.paroles_rang_ab || []
+          });
+        } else {
+          console.warn('❌ Aucune parole trouvée pour', itemCode);
+          setError('Aucune parole trouvée pour cet item');
+        }
+      } catch (err) {
+        console.error('❌ Erreur useEdnItemLyrics:', err);
+        if (isMounted) {
+          setError('Erreur lors du chargement des paroles');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchLyrics();
-  }, [fetchLyrics]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [itemCode]);
 
   // Parser les paroles en structure utilisable - prioriser rang A/B/AB
   const parsedLyrics = useMemo((): ParsedLyrics | null => {
@@ -210,9 +228,11 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     return parsedLyrics?.rangAB.join('\n') || '';
   }, [parsedLyrics]);
 
+  // refetch réinitialise le state pour forcer un rechargement
   const refetch = useCallback(() => {
-    fetchLyrics();
-  }, [fetchLyrics]);
+    setLyrics(null);
+    setError(null);
+  }, []);
 
   return {
     lyrics,
