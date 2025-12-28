@@ -319,8 +319,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
               <Info className="h-4 w-4" />
               Compétences Rang A ({oicCompetencesA.length})
             </h4>
-            <div className="space-y-2">
-              {oicCompetencesA.slice(0, 8).map((comp) => {
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+              {oicCompetencesA.map((comp) => {
                 const mastery = masteryData.get(comp.objectif_id);
                 const isMastered = mastery?.is_mastered || false;
                 const isSaving = savingId === comp.objectif_id;
@@ -361,11 +361,6 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
                   </div>
                 );
               })}
-              {oicCompetencesA.length > 8 && (
-                <p className="text-sm text-muted-foreground text-center">
-                  +{oicCompetencesA.length - 8} autres compétences
-                </p>
-              )}
             </div>
           </div>
         )}
@@ -377,8 +372,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
               <Info className="h-4 w-4" />
               Compétences Rang B ({oicCompetencesB.length})
             </h4>
-            <div className="space-y-2">
-              {oicCompetencesB.slice(0, 8).map((comp) => {
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+              {oicCompetencesB.map((comp) => {
                 const mastery = masteryData.get(comp.objectif_id);
                 const isMastered = mastery?.is_mastered || false;
                 const isSaving = savingId === comp.objectif_id;
@@ -419,11 +414,6 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
                   </div>
                 );
               })}
-              {oicCompetencesB.length > 8 && (
-                <p className="text-sm text-muted-foreground text-center">
-                  +{oicCompetencesB.length - 8} autres compétences
-                </p>
-              )}
             </div>
           </div>
         )}

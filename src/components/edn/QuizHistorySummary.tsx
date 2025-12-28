@@ -1,8 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Trophy, Target, Clock, Loader2 } from 'lucide-react';
+import { TrendingUp, Trophy, Target, Clock, Loader2, TrendingDown, Minus } from 'lucide-react';
 import { useQuizHistory } from '@/hooks/useQuizHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -90,18 +89,35 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
           </div>
         </div>
 
+        {/* Mini chart de progression */}
         {summary.recentScores.length > 1 && (
-          <div className="space-y-1">
-            <div className="text-xs text-muted-foreground">Derniers scores:</div>
-            <div className="flex gap-1 flex-wrap">
-              {summary.recentScores.map((score, idx) => (
-                <Badge 
+          <div className="space-y-2 pt-2 border-t">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Progression récente</span>
+              {(() => {
+                const recent = summary.recentScores.slice(0, 3);
+                const older = summary.recentScores.slice(3);
+                if (older.length === 0) return null;
+                const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+                const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
+                const diff = recentAvg - olderAvg;
+                if (diff > 5) return <span className="flex items-center text-success"><TrendingUp className="h-3 w-3 mr-1" />+{Math.round(diff)}%</span>;
+                if (diff < -5) return <span className="flex items-center text-destructive"><TrendingDown className="h-3 w-3 mr-1" />{Math.round(diff)}%</span>;
+                return <span className="flex items-center text-muted-foreground"><Minus className="h-3 w-3 mr-1" />Stable</span>;
+              })()}
+            </div>
+            <div className="flex items-end gap-1 h-12">
+              {summary.recentScores.slice(0, 10).reverse().map((score, idx) => (
+                <div 
                   key={idx} 
-                  variant="outline" 
-                  className={`text-xs ${getScoreBadgeVariant(score)}`}
-                >
-                  {Math.round(score)}%
-                </Badge>
+                  className="flex-1 rounded-t transition-all"
+                  style={{ 
+                    height: `${Math.max(10, score)}%`,
+                    backgroundColor: score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
+                    opacity: 0.3 + (idx / 10) * 0.7
+                  }}
+                  title={`${Math.round(score)}%`}
+                />
               ))}
             </div>
           </div>
