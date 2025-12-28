@@ -45,6 +45,8 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isCancelled = false;
+    
     // Skip if no itemCode or invalid format
     if (!itemCode || !itemCode.startsWith('IC-')) {
       setCompetences([]);
@@ -72,15 +74,22 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     setLoading(true);
     setError(null);
 
-    // Direct fetch
-    const fetchData = async () => {
+    // Direct fetch with async IIFE
+    (async () => {
       try {
+        console.log(`⏳ OIC Query starting for ${itemNumber} ${rang}...`);
+        
         const { data, error: queryError } = await supabase
           .from('backup_oic_competences')
           .select('objectif_id, intitule, description, rubrique, rang, item_parent')
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
           .order('objectif_id');
+
+        if (isCancelled) {
+          console.log(`🚫 OIC Query cancelled for ${itemNumber} ${rang}`);
+          return;
+        }
 
         if (queryError) {
           console.error('❌ OIC Error:', queryError);
@@ -111,14 +120,17 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         setError(null);
         setLoading(false);
       } catch (err) {
+        if (isCancelled) return;
         console.error('❌ OIC Fetch exception:', err);
         setError(String(err));
         setCompetences([]);
         setLoading(false);
       }
-    };
+    })();
 
-    fetchData();
+    return () => {
+      isCancelled = true;
+    };
   }, [itemCode, rang]);
 
   // Manual refetch function
