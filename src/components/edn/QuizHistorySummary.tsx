@@ -5,6 +5,7 @@ import { TrendingUp, Trophy, Target, Clock, Loader2, TrendingDown, Minus } from 
 import { useQuizHistory } from '@/hooks/useQuizHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface QuizHistorySummaryProps {
   itemCode: string;
@@ -89,7 +90,7 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
           </div>
         </div>
 
-        {/* Mini chart de progression */}
+        {/* Graphe Recharts enrichi */}
         {summary.recentScores.length > 1 && (
           <div className="space-y-2 pt-2 border-t">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -106,19 +107,36 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
                 return <span className="flex items-center text-muted-foreground"><Minus className="h-3 w-3 mr-1" />Stable</span>;
               })()}
             </div>
-            <div className="flex items-end gap-1 h-12">
-              {summary.recentScores.slice(0, 10).reverse().map((score, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex-1 rounded-t transition-all"
-                  style={{ 
-                    height: `${Math.max(10, score)}%`,
-                    backgroundColor: score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
-                    opacity: 0.3 + (idx / 10) * 0.7
-                  }}
-                  title={`${Math.round(score)}%`}
-                />
-              ))}
+            <div className="h-24">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={summary.recentScores.slice(0, 10).reverse().map((score, idx) => ({
+                  attempt: idx + 1,
+                  score: Math.round(score)
+                }))}>
+                  <XAxis dataKey="attempt" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={25} />
+                  <Tooltip 
+                    formatter={(value: number) => [`${value}%`, 'Score']}
+                    labelFormatter={(label) => `Essai ${label}`}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <ReferenceLine y={80} stroke="hsl(var(--success))" strokeDasharray="3 3" strokeOpacity={0.5} />
+                  <ReferenceLine y={60} stroke="hsl(var(--warning))" strokeDasharray="3 3" strokeOpacity={0.3} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))', r: 3 }}
+                    activeDot={{ r: 5, fill: 'hsl(var(--primary))' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}

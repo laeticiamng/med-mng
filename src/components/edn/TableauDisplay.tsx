@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, AlertTriangle, XCircle, Book, FileText, Flame, Star } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { CheckCircle, AlertTriangle, XCircle, Book, FileText, Flame, Star, ChevronDown, ChevronUp, LayoutList, LayoutGrid } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useActivityTracking } from '@/hooks/useActivityTracking'
 import { useGamification } from '@/hooks/useGamification'
@@ -29,6 +30,19 @@ interface TableauDisplayProps {
 export function TableauDisplay({ tableau, rang, isComplete, className }: TableauDisplayProps) {
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
+  const [isAccordionMode, setIsAccordionMode] = useState(false);
+  const [openSections, setOpenSections] = useState<number[]>([0]);
+  const [showAllKeywords, setShowAllKeywords] = useState<Record<number, boolean>>({});
+
+  const toggleSection = (index: number) => {
+    setOpenSections(prev => 
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+    );
+  };
+
+  const toggleKeywords = (index: number) => {
+    setShowAllKeywords(prev => ({ ...prev, [index]: !prev[index] }));
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -145,6 +159,15 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
                 </Badge>
               </>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAccordionMode(!isAccordionMode)}
+              className="h-8 px-2"
+              title={isAccordionMode ? "Vue liste" : "Vue accordéon"}
+            >
+              {isAccordionMode ? <LayoutGrid className="h-4 w-4" /> : <LayoutList className="h-4 w-4" />}
+            </Button>
             {statusBadge}
           </div>
         </div>
@@ -152,43 +175,112 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       
       <CardContent className="pt-0">
         <div className="space-y-4">
-          {tableau.sections.map((section, index) => (
-            <div key={index} className="bg-background/60 rounded-xl p-4 border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-primary">{index + 1}</span>
-                </div>
-                <h4 className="font-bold text-foreground leading-tight">
-                  {section.title}
-                </h4>
-              </div>
-              
-              <div className="pl-9">
-                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                  {section.content}
-                </p>
-                
-                {section.keywords && section.keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {section.keywords.slice(0, 5).map((keyword, keywordIndex) => (
-                      <Badge 
-                        key={keywordIndex} 
-                        variant="outline" 
-                        className="text-xs px-2 py-1 bg-primary/5 border-primary/20 text-primary font-medium"
-                      >
-                        {keyword}
-                      </Badge>
-                    ))}
-                    {section.keywords.length > 5 && (
-                      <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/50">
-                        +{section.keywords.length - 5} autres
-                      </Badge>
-                    )}
+          {tableau.sections.map((section, index) => {
+            const keywordsToShow = showAllKeywords[index] ? section.keywords : section.keywords?.slice(0, 5);
+            const hasMoreKeywords = section.keywords && section.keywords.length > 5;
+            
+            if (isAccordionMode) {
+              return (
+                <Collapsible key={index} open={openSections.includes(index)}>
+                  <CollapsibleTrigger asChild>
+                    <div 
+                      className="bg-background/60 rounded-xl p-4 border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors cursor-pointer"
+                      onClick={() => toggleSection(index)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-primary">{index + 1}</span>
+                          </div>
+                          <h4 className="font-bold text-foreground leading-tight">
+                            {section.title}
+                          </h4>
+                        </div>
+                        {openSections.includes(index) ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="pl-9 pr-4 pb-4 pt-2 bg-background/40 rounded-b-xl -mt-2 border-l-4 border-l-primary/20">
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                        {section.content}
+                      </p>
+                      {section.keywords && section.keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-2 items-center">
+                          {keywordsToShow?.map((keyword, keywordIndex) => (
+                            <Badge 
+                              key={keywordIndex} 
+                              variant="outline" 
+                              className="text-xs px-2 py-1 bg-primary/5 border-primary/20 text-primary font-medium"
+                            >
+                              {keyword}
+                            </Badge>
+                          ))}
+                          {hasMoreKeywords && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); toggleKeywords(index); }}
+                              className="h-6 text-xs text-muted-foreground"
+                            >
+                              {showAllKeywords[index] ? 'Moins' : `+${section.keywords!.length - 5}`}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              );
+            }
+            
+            return (
+              <div key={index} className="bg-background/60 rounded-xl p-4 border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-primary">{index + 1}</span>
                   </div>
-                )}
+                  <h4 className="font-bold text-foreground leading-tight">
+                    {section.title}
+                  </h4>
+                </div>
+                
+                <div className="pl-9">
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                    {section.content}
+                  </p>
+                  
+                  {section.keywords && section.keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 items-center">
+                      {keywordsToShow?.map((keyword, keywordIndex) => (
+                        <Badge 
+                          key={keywordIndex} 
+                          variant="outline" 
+                          className="text-xs px-2 py-1 bg-primary/5 border-primary/20 text-primary font-medium"
+                        >
+                          {keyword}
+                        </Badge>
+                      ))}
+                      {hasMoreKeywords && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleKeywords(index)}
+                          className="h-6 text-xs text-muted-foreground"
+                        >
+                          {showAllKeywords[index] ? 'Moins' : `+${section.keywords!.length - 5}`}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* Résumé */}
