@@ -69,14 +69,14 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
     // Créer l'élément audio avec fallback
     const audio = new Audio();
     audio.loop = true;
-    audio.volume = volume;
+    
+    const currentFallback = ambianceData.fallback;
     
     // Try main URL, fallback if error
     audio.src = ambianceUrl;
     audio.onerror = () => {
-      const fallbackUrl = ambianceData.fallback;
-      if (fallbackUrl && audio.src !== fallbackUrl) {
-        audio.src = fallbackUrl;
+      if (currentFallback && audio.src !== currentFallback) {
+        audio.src = currentFallback;
       }
     };
     
@@ -89,7 +89,7 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
         audioRef.current = null;
       }
     };
-  }, [ambianceUrl, ambianceData.fallback, volume]);
+  }, [ambianceUrl, ambianceData.fallback]);
 
   useEffect(() => {
     if (audioRef.current) {

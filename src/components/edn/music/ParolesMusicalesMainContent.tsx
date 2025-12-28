@@ -23,8 +23,8 @@ interface ParolesMusicalesMainContentProps {
   itemCode: string;
   musicDuration: number;
   selectedStyle: string;
-  isGenerating: { rangA: boolean; rangB: boolean };
-  generatedAudio: { rangA?: string; rangB?: string };
+  isGenerating: { rangA: boolean; rangB: boolean; rangAB?: boolean };
+  generatedAudio: { rangA?: string; rangB?: string; rangAB?: string };
   currentTrack: CurrentTrack | null;
   isPlaying: boolean;
   currentTime: number;
@@ -33,6 +33,7 @@ interface ParolesMusicalesMainContentProps {
   generationProgress?: {
     rangA?: GenerationProgressItem;
     rangB?: GenerationProgressItem;
+    rangAB?: GenerationProgressItem;
   };
   onGenerate: (rang: 'A' | 'B') => void;
   onGenerateMix: () => void;

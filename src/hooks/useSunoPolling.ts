@@ -107,8 +107,8 @@ export const useSunoPolling = () => {
         if (recentTracks && recentTracks.length > 0) {
           console.log(`🔍 ${recentTracks.length} tracks récents trouvés, recherche de correspondance pour ${track.rang}`);
           const matchingTrack = recentTracks.find(t => {
-            const metadata = t.metadata as any;
-            return metadata?.rang === track.rang || metadata?.title?.includes(`Rang ${track.rang}`);
+            const metadata = t.metadata as Record<string, unknown> | null;
+            return (metadata?.rang as string) === track.rang || (metadata?.title as string)?.includes(`Rang ${track.rang}`);
           });
           
           if (matchingTrack) {

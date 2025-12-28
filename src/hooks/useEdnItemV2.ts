@@ -6,7 +6,7 @@ import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;
-  rawItem: ItemEDNV2 | any | null;
+  rawItem: ItemEDNV2 | Record<string, unknown> | null;
   loading: boolean;
   error: string | null;
   isV2Format: boolean;
@@ -19,7 +19,7 @@ interface UseEdnItemV2Result {
  */
 export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
   const [item, setItem] = useState<ParsedEDNItem | null>(null);
-  const [rawItem, setRawItem] = useState<ItemEDNV2 | any | null>(null);
+  const [rawItem, setRawItem] = useState<ItemEDNV2 | Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isV2Format, setIsV2Format] = useState(false);

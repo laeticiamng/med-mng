@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEdnItemV2Process } from './useEdnItemV2Process';
 
+import { Json } from '@/integrations/supabase/types';
+
 interface EdnItemData {
   id: string;
   item_code: string;
@@ -10,13 +12,13 @@ interface EdnItemData {
   subtitle?: string;
   slug: string;
   paroles_musicales?: string[];
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
-  scene_immersive?: any;
-  quiz_questions?: any;
+  tableau_rang_a?: Json;
+  tableau_rang_b?: Json;
+  scene_immersive?: Json;
+  quiz_questions?: Json;
   created_at: string;
   updated_at: string;
-  payload_v2?: any;
+  payload_v2?: Json;
   category?: string;
   has_music?: boolean;
   has_lyrics?: boolean;
@@ -43,15 +45,15 @@ export const useEdnItem = (slug: string | undefined) => {
   const item = useEdnItemV2Process(rawItem);
 
   const calculateStats = useCallback((data: EdnItemData): EdnItemStats => {
-    const hasRangA = Boolean(data.tableau_rang_a && Object.keys(data.tableau_rang_a).length > 0);
-    const hasRangB = Boolean(data.tableau_rang_b && Object.keys(data.tableau_rang_b).length > 0);
-    const hasScene = Boolean(data.scene_immersive && Object.keys(data.scene_immersive).length > 0);
+    const hasRangA = Boolean(data.tableau_rang_a && typeof data.tableau_rang_a === 'object' && !Array.isArray(data.tableau_rang_a) && Object.keys(data.tableau_rang_a).length > 0);
+    const hasRangB = Boolean(data.tableau_rang_b && typeof data.tableau_rang_b === 'object' && !Array.isArray(data.tableau_rang_b) && Object.keys(data.tableau_rang_b).length > 0);
+    const hasScene = Boolean(data.scene_immersive && typeof data.scene_immersive === 'object' && !Array.isArray(data.scene_immersive) && Object.keys(data.scene_immersive).length > 0);
     const hasQuiz = Boolean(data.quiz_questions && Array.isArray(data.quiz_questions) && data.quiz_questions.length > 0);
     const hasLyrics = Boolean(data.paroles_musicales && data.paroles_musicales.length > 0);
 
     const completedFeatures = [hasRangA, hasRangB, hasScene, hasQuiz, hasLyrics].filter(Boolean).length;
     const completenessScore = Math.round((completedFeatures / 5) * 100);
-    const quizQuestionsCount = data.quiz_questions?.length || 0;
+    const quizQuestionsCount = Array.isArray(data.quiz_questions) ? data.quiz_questions.length : 0;
 
     return {
       hasRangA,
@@ -99,7 +101,7 @@ export const useEdnItem = (slug: string | undefined) => {
           quiz_questions: data.quiz_questions,
           created_at: data.created_at,
           updated_at: data.updated_at,
-          payload_v2: 'payload_v2' in data ? (data as Record<string, unknown>).payload_v2 : undefined,
+          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
           // Computed fields from existing data
           category: 'EDN',
           has_music: Boolean(data.paroles_musicales),
@@ -151,7 +153,7 @@ export const useEdnItem = (slug: string | undefined) => {
           quiz_questions: data.quiz_questions,
           created_at: data.created_at,
           updated_at: data.updated_at,
-          payload_v2: 'payload_v2' in data ? (data as Record<string, unknown>).payload_v2 : undefined,
+          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
           category: 'EDN',
           has_music: Boolean(data.paroles_musicales),
           has_lyrics: Boolean(data.paroles_musicales),
