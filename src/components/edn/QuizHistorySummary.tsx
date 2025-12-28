@@ -24,15 +24,22 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
 
   if (!summary) {
     return (
-      <Card className="border-muted">
-        <CardContent className="p-4 text-center">
-          <Target className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Aucun quiz complété pour cet item
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Faites le quiz pour voir vos statistiques ici
-          </p>
+      <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+        <CardContent className="py-6">
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+              <Target className="h-7 w-7 text-primary/60" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Prêt à tester vos connaissances ?</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Faites votre premier quiz pour voir vos statistiques
+              </p>
+            </div>
+            <Badge variant="outline" className="text-primary border-primary/30">
+              🎯 Objectif : Score {'>'} 80%
+            </Badge>
+          </div>
         </CardContent>
       </Card>
     );

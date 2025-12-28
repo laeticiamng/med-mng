@@ -140,6 +140,10 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
         rewards={rewards}
         itemCode={itemCode}
         itemTitle={itemTitle}
+        onQuizFinished={(score, totalQuestions) => {
+          const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+          handleQuizFinished(percentage);
+        }}
       />
     );
   };
