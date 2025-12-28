@@ -333,17 +333,29 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
     }
   };
 
-  if (chapters.length === 0) {
+  // Only show placeholder if chapters have just intro+epilogue (no competences)
+  if (chapters.length <= 2 || (competencesA.length === 0 && competencesB.length === 0)) {
     return (
       <Card className="border-2 border-warning/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="bg-gradient-to-r from-success/10 to-accent/10">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <BookOpen className="h-6 w-6" />
             Roman Narratif - {itemCode}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Génération du roman en cours...</p>
+        <CardContent className="p-6 text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
+            <BookOpen className="h-8 w-8 text-success" />
+          </div>
+          <div>
+            <p className="font-medium text-foreground">Roman en préparation</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+            </p>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Le roman narratif sera automatiquement généré une fois les compétences disponibles.
+          </div>
         </CardContent>
       </Card>
     );

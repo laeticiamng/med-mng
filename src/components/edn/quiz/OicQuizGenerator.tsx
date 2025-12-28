@@ -235,15 +235,18 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
                 </Button>
               </div>
 
-              {totalCompetencesA === 0 && totalCompetencesB === 0 && (
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
-                    <Brain className="h-8 w-8 text-muted-foreground" />
+              {totalCompetencesA === 0 && totalCompetencesB === 0 && !isLoading && (
+                <div className="text-center py-6 space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-warning/10 flex items-center justify-center">
+                    <Brain className="h-8 w-8 text-warning" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Aucune compétence OIC disponible</p>
+                    <p className="font-medium text-foreground">Quiz en préparation</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Les compétences officielles UNESS pour cet item n'ont pas encore été importées.
+                      Les compétences OIC pour <strong>{itemCode}</strong> n'ont pas encore été importées.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Le quiz sera automatiquement disponible une fois les compétences chargées.
                     </p>
                   </div>
                   <Badge variant="outline" className="text-muted-foreground">

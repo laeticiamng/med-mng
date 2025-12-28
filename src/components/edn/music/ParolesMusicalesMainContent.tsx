@@ -94,16 +94,35 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
     });
   };
 
-  if (!normalizedParoles || normalizedParoles.length === 0) {
+  if (!normalizedParoles || normalizedParoles.length === 0 || normalizedParoles.every(p => !p || p.trim() === '')) {
     return (
-      <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
-        <div className="flex items-center gap-2 text-warning">
-          <AlertTriangle className="h-5 w-5" />
-          <span className="font-semibold">Aucune parole disponible</span>
+      <div className="p-6 bg-gradient-to-br from-warning/5 to-accent/5 border border-warning/20 rounded-lg space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
+            <Music className="h-6 w-6 text-warning" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Paroles à générer</h3>
+            <p className="text-sm text-muted-foreground">
+              Les paroles musicales pour <strong>{itemCode}</strong> n'ont pas encore été créées.
+            </p>
+          </div>
         </div>
-        <p className="text-warning/80 mt-2">
-          Cet item ne contient pas encore de paroles musicales pour Suno.
-        </p>
+        
+        <div className="bg-background/50 rounded-lg p-4 space-y-3">
+          <h4 className="font-medium text-sm text-muted-foreground">Comment ça fonctionne :</h4>
+          <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+            <li>Les paroles sont générées à partir des compétences OIC de l'item</li>
+            <li>Suno AI transforme les paroles en musique chantée</li>
+            <li>Vous pouvez écouter et télécharger le résultat</li>
+          </ol>
+        </div>
+        
+        <div className="flex items-center gap-2 pt-2">
+          <span className="text-xs text-muted-foreground">
+            💡 Revenez plus tard ou consultez les onglets Rang A/B pour voir les compétences disponibles.
+          </span>
+        </div>
       </div>
     );
   }
