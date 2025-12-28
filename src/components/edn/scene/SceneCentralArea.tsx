@@ -16,6 +16,7 @@ interface SceneCentralAreaProps {
   currentWordIndex: number;
   isAnimating: boolean;
   effet: string;
+  context?: string;
 }
 
 export const SceneCentralArea = ({ 
@@ -25,10 +26,21 @@ export const SceneCentralArea = ({
   motsCles, 
   currentWordIndex, 
   isAnimating, 
-  effet 
+  effet,
+  context
 }: SceneCentralAreaProps) => {
   return (
-    <div className={`relative bg-gradient-to-br ${theme.secondary} rounded-3xl mx-8 p-20 min-h-[700px] flex items-center justify-center ${theme.glowColor} shadow-2xl border-4 border-white/40`}>{/* Removed overflow-hidden */}
+    <div className={`relative bg-gradient-to-br ${theme.secondary} rounded-3xl mx-8 p-20 min-h-[700px] flex flex-col items-center justify-center ${theme.glowColor} shadow-2xl border-4 border-white/40`}>
+      
+      {/* Contexte en haut si disponible */}
+      {context && (
+        <div className="absolute top-6 left-6 right-6 z-20">
+          <div className="bg-card/90 backdrop-blur-sm px-6 py-4 rounded-xl border border-border/50 shadow-lg">
+            <h4 className={`text-sm font-semibold ${theme.accent} mb-1`}>📌 Contexte clinique</h4>
+            <p className="text-sm text-muted-foreground">{context}</p>
+          </div>
+        </div>
+      )}
       
       {/* Effet de profondeur avec anneaux concentriques animés */}
       <div className="absolute inset-0">

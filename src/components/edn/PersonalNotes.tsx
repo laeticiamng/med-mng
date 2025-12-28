@@ -245,6 +245,38 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
         >
           <Hash className="h-3 w-3" />
         </Button>
+        
+        {/* Templates de notes */}
+        <div className="border-l border-border ml-1 pl-1 flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => setCurrentNote(currentNote + '\n\n## Points clés\n- \n- \n- \n\n## À retenir\n\n## Questions')}
+            title="Template Structure"
+          >
+            📋 Structure
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => setCurrentNote(currentNote + '\n\n## Mécanisme\n\n## Indications\n\n## Effets indésirables\n\n## Contre-indications')}
+            title="Template Médicament"
+          >
+            💊 Médicament
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => setCurrentNote(currentNote + '\n\n## Définition\n\n## Physiopathologie\n\n## Diagnostic\n\n## Traitement')}
+            title="Template Pathologie"
+          >
+            🏥 Pathologie
+          </Button>
+        </div>
+        
         <div className="flex-1" />
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'edit' | 'preview')} className="h-7">
           <TabsList className="h-7">
