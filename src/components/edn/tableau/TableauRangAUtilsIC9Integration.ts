@@ -1,11 +1,40 @@
+interface IC9Concept {
+  concept?: string;
+  definition?: string;
+  exemple?: string;
+  piege?: string;
+  mnemo?: string;
+  subtilite?: string;
+  application?: string;
+  vigilance?: string;
+}
+
+interface IC9Section {
+  concepts?: IC9Concept[];
+}
+
+interface IC9TableauData {
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  tableau_rang_a?: {
+    sections?: IC9Section[];
+  };
+  sections?: IC9Section[];
+}
+
+interface ColonneUtile {
+  nom: string;
+  description: string;
+}
 
 // Utilitaires pour l'intégration des données IC-9
-export const processTableauRangAIC9 = (data: any) => {
+export const processTableauRangAIC9 = (data: IC9TableauData) => {
   // Extraire les données du tableau
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  const colonnesUtiles = [
+  const colonnesUtiles: ColonneUtile[] = [
     { nom: 'Concept', description: 'Élément médico-légal' },
     { nom: 'Définition', description: 'Cadre juridique précis' },
     { nom: 'Exemple', description: 'Cas pratique type' },
@@ -16,7 +45,7 @@ export const processTableauRangAIC9 = (data: any) => {
     { nom: 'Vigilance', description: 'Point déontologique' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: IC9Concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -37,9 +66,9 @@ export const processTableauRangAIC9 = (data: any) => {
   };
 };
 
-export const isIC9Item = (data: any): boolean => {
+export const isIC9Item = (data: IC9TableauData): boolean => {
   return data?.item_code === 'IC-9' || 
          data?.title?.includes('Certificats médicaux') ||
          data?.title?.includes('violences') ||
-         data?.theme?.includes('IC-9');
+         data?.theme?.includes('IC-9') || false;
 };

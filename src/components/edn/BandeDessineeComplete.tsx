@@ -8,14 +8,37 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 
+interface RangASection {
+  title?: string;
+  content?: string;
+  description?: string;
+  keywords?: string[];
+  concepts?: Array<{ title?: string } | string>;
+}
+
+interface RangACompetence {
+  competence?: string;
+  title?: string;
+  description?: string;
+  intitule?: string;
+  content?: string;
+}
+
+interface TableauRangData {
+  sections?: RangASection[];
+  competences_cles?: RangACompetence[];
+  lignes?: string[][];
+  data?: unknown[];
+}
+
 interface BandeDessineeCompleteProps {
   itemData: {
     title: string;
     subtitle: string;
     slug?: string;
     item_code?: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: TableauRangData | RangACompetence[];
+    tableau_rang_b?: TableauRangData;
   };
 }
 
@@ -75,7 +98,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&h=300&fit=crop', // Doctor portrait
   ];
 
-  const createDefaultPanels = (data: any): VignettePregenere[] => {
+  const createDefaultPanels = (data: BandeDessineeCompleteProps['itemData']): VignettePregenere[] => {
     const itemCode = data.item_code || 'IC-1';
     const itemNumber = itemCode.replace('IC-', '');
     const panels: VignettePregenere[] = [];
@@ -83,11 +106,23 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     const getImage = (idx: number) => MEDICAL_IMAGES[idx % MEDICAL_IMAGES.length];
     
     // Extraire les compétences du tableau rang A
-    const rangA = data.tableau_rang_a;
-    if (rangA) {
-      // Format competences_cles (OIC)
-      if (rangA.competences_cles && Array.isArray(rangA.competences_cles)) {
-        rangA.competences_cles.slice(0, 4).forEach((comp: any, idx: number) => {
+    const rangAData = data.tableau_rang_a;
+    if (rangAData) {
+      // Format array direct
+      if (Array.isArray(rangAData)) {
+        rangAData.slice(0, 4).forEach((item: RangACompetence, idx: number) => {
+          panels.push({
+            id: panels.length + 1,
+            title: item.intitule || item.title || `Élément ${idx + 1}`,
+            text: item.description || item.content || `Description de l'élément ${idx + 1}`,
+            imageUrl: getImage(idx),
+            competences: [item.intitule || `Compétence ${idx + 1}`]
+          });
+        });
+      }
+      // Format object avec competences_cles (OIC)
+      else if (rangAData.competences_cles && Array.isArray(rangAData.competences_cles)) {
+        rangAData.competences_cles.slice(0, 4).forEach((comp: RangACompetence, idx: number) => {
           panels.push({
             id: panels.length + 1,
             title: comp.competence || comp.title || `Compétence ${idx + 1}`,
@@ -98,26 +133,14 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
         });
       }
       // Format sections
-      else if (rangA.sections && Array.isArray(rangA.sections)) {
-        rangA.sections.slice(0, 4).forEach((section: any, idx: number) => {
+      else if (rangAData.sections && Array.isArray(rangAData.sections)) {
+        rangAData.sections.slice(0, 4).forEach((section: RangASection, idx: number) => {
           panels.push({
             id: panels.length + 1,
             title: section.title || `Section ${idx + 1}`,
             text: section.content || section.description || `Contenu de la section ${idx + 1}`,
             imageUrl: getImage(idx),
-            competences: section.keywords || section.concepts?.map((c: any) => c.title || c) || [`Section ${idx + 1}`]
-          });
-        });
-      }
-      // Format tableau direct (array)
-      else if (Array.isArray(rangA) && rangA.length > 0) {
-        rangA.slice(0, 4).forEach((item: any, idx: number) => {
-          panels.push({
-            id: panels.length + 1,
-            title: item.intitule || item.title || `Élément ${idx + 1}`,
-            text: item.description || item.content || `Description de l'élément ${idx + 1}`,
-            imageUrl: getImage(idx),
-            competences: [item.intitule || `Compétence ${idx + 1}`]
+            competences: section.keywords || section.concepts?.map((c) => typeof c === 'string' ? c : c.title || 'Concept') || [`Section ${idx + 1}`]
           });
         });
       }
@@ -137,11 +160,18 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     return panels;
   };
 
-  const totalCompetences = itemData.tableau_rang_a?.lignes?.length || 
-                           itemData.tableau_rang_a?.data?.length || 
-                           itemData.tableau_rang_a?.sections?.length ||
-                           itemData.tableau_rang_a?.competences_cles?.length ||
-                           (Array.isArray(itemData.tableau_rang_a) ? itemData.tableau_rang_a.length : panels.length);
+  const rangA = itemData.tableau_rang_a;
+  const totalCompetences = (() => {
+    if (Array.isArray(rangA)) return rangA.length;
+    if (rangA && typeof rangA === 'object') {
+      return rangA.lignes?.length || 
+             rangA.data?.length || 
+             rangA.sections?.length ||
+             rangA.competences_cles?.length ||
+             panels.length;
+    }
+    return panels.length;
+  })();
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-8 rounded-xl">

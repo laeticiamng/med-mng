@@ -3,8 +3,16 @@ import { Card } from '@/components/ui/card';
 import { getColumnIcon } from './TableauRangAIcons';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+interface ColonneConfig {
+  nom: string;
+  couleur?: string;
+  couleurCellule?: string;
+  couleurTexte?: string;
+  description?: string;
+}
+
 interface TableauRangAGridProps {
-  colonnesUtiles: any[];
+  colonnesUtiles: ColonneConfig[];
   lignesEnrichies: string[][];
 }
 
@@ -55,7 +63,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
               return (
                 <Card
                   key={celluleIndex}
-                  className={`p-4 sm:p-6 border-2 transition-all duration-300 hover:shadow-lg group ${colonne.couleurCellule} ${
+                  className={`p-4 sm:p-6 border-2 transition-all duration-300 hover:shadow-lg group ${colonne.couleurCellule || 'bg-muted/50 border-muted/30'} ${
                     isMobile ? 'mx-1' : 'hover:scale-[1.02] hover:-translate-y-1'
                   } relative overflow-hidden`}
                 >
@@ -64,7 +72,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
                   </div>
                   
                   <div className="mb-3 sm:mb-4">
-                    <div className={`inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground ${colonne.couleur} max-w-full shadow-sm`}>
+                    <div className={`inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground ${colonne.couleur || 'bg-primary'} max-w-full shadow-sm`}>
                       <span className="flex-shrink-0 mr-2">
                         {getColumnIcon(colonne.nom)}
                       </span>
@@ -72,7 +80,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
                     </div>
                   </div>
                   
-                  <div className={`text-sm sm:text-base leading-relaxed ${colonne.couleurTexte} group-hover:text-opacity-90`}>
+                  <div className={`text-sm sm:text-base leading-relaxed ${colonne.couleurTexte || 'text-foreground'} group-hover:text-opacity-90`}>
                     <div className="space-y-2 sm:space-y-3">
                       {cellule.split('\n').map((ligne, index) => (
                         <div key={index} className="leading-relaxed break-words font-medium">

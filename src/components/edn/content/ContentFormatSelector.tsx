@@ -15,12 +15,18 @@ interface ContentFormat {
   example: string;
 }
 
+interface TableauRangData {
+  sections?: Array<{ title?: string; content?: string; keywords?: string[] }>;
+  competences_cles?: Array<{ competence?: string; title?: string; description?: string }>;
+  lignes?: string[][];
+}
+
 interface ContentFormatSelectorProps {
   itemData: {
     title: string;
     item_code: string;
-    tableau_rang_a?: Record<string, unknown>;
-    tableau_rang_b?: Record<string, unknown>;
+    tableau_rang_a?: TableauRangData;
+    tableau_rang_b?: TableauRangData;
   };
   onFormatSelect: (format: ContentFormat) => void;
   selectedFormat: string | null;
