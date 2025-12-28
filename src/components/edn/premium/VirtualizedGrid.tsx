@@ -1,19 +1,24 @@
 import React, { useMemo } from 'react';
 import { useWindowSize } from '@/hooks/useWindowSize';
 
-interface VirtualizedGridProps {
-  items: any[];
-  renderItem: (item: any) => React.ReactNode;
+interface GridItem {
+  id?: string | number;
+  [key: string]: unknown;
+}
+
+interface VirtualizedGridProps<T extends GridItem> {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
   itemHeight: number;
   gap: number;
 }
 
-export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
+export const VirtualizedGrid = <T extends GridItem>({
   items,
   renderItem,
   itemHeight,
   gap
-}) => {
+}: VirtualizedGridProps<T>) => {
   const { width: windowWidth } = useWindowSize();
   
   const { columnCount, itemWidth, gridWidth } = useMemo(() => {

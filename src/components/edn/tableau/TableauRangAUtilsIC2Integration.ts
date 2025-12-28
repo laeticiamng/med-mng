@@ -5,9 +5,15 @@ import {
   determinerColonnesUtilesIC2, 
   enrichirDonneesIC2 
 } from './TableauRangAUtilsIC2';
+interface IC2ItemData {
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  [key: string]: unknown;
+}
 
 // Fonction pour détecter si c'est l'item IC-2 selon E-LiSA (et pas IC-20, IC-21, etc.)
-export const isIC2Item = (data: any): boolean => {
+export const isIC2Item = (data: IC2ItemData | null): boolean => {
   if (!data) return false;
   
   // Vérifier le code d'item directement
@@ -28,7 +34,7 @@ export const isIC2Item = (data: any): boolean => {
 };
 
 // Fonction pour détecter si c'est le rang B selon E-LiSA
-export const isRangBIC2 = (data: any): boolean => {
+export const isRangBIC2 = (data: IC2ItemData | null): boolean => {
   if (!data) return false;
   
   // Forcer le rang B pour IC-2 quand le thème contient "Rang B"
@@ -39,7 +45,7 @@ export const isRangBIC2 = (data: any): boolean => {
 };
 
 // Fonction principale pour traiter les données IC-2 selon E-LiSA officielle
-export function processTableauRangAIC2(data: any) {
+export function processTableauRangAIC2(data: IC2ItemData) {
   const isRangB = isRangBIC2(data);
   
   // Enrichir les données selon E-LiSA

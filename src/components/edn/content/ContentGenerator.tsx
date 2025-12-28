@@ -17,12 +17,18 @@ interface ContentFormat {
   example: string;
 }
 
+interface TableauRangData {
+  sections?: Array<{ title?: string; content?: string; keywords?: string[] }>;
+  competences_cles?: Array<{ competence?: string; title?: string; description?: string }>;
+  lignes?: string[][];
+}
+
 interface ContentGeneratorProps {
   itemData: {
     title: string;
     item_code: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: TableauRangData;
+    tableau_rang_b?: TableauRangData;
   };
 }
 
@@ -59,7 +65,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ itemData }) 
     }
   };
 
-  const generateBandeDessinee = (rangA: any, rangB: any): string => {
+  const generateBandeDessinee = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `BANDE DESSINÉE - ${itemData.title}
 
 🎨 VIGNETTE 1 - Introduction
@@ -97,7 +103,7 @@ NARRATION: "${itemData.title} : Maîtrisé de A à B !"
 DR. MARTIN: "N'hésitez pas à revenir si vous avez des questions !"`;
   };
 
-  const generateRoman = (rangA: any, rangB: any): string => {
+  const generateRoman = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `ROMAN MÉDICAL - ${itemData.title}
 
 CHAPITRE 1 : L'ÉVEIL DES COMPÉTENCES
@@ -125,7 +131,7 @@ Dr. Sophie Durand était devenue une experte de ${itemData.title}. Ses patients 
 "De novice à experte," pensa-t-elle avec fierté, "le voyage en valait la peine."`;
   };
 
-  const generatePoesie = (rangA: any, rangB: any): string => {
+  const generatePoesie = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `POÉSIE MÉDICALE - ${itemData.title}
 
 🎼 STROPHE I - L'APPEL DU SAVOIR
@@ -172,7 +178,7 @@ Compétents et bienveillants !
 Détient la clé de la réussite ! 🎵`;
   };
 
-  const generateNouvelle = (rangA: any, rangB: any): string => {
+  const generateNouvelle = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `NOUVELLE MÉDICALE - ${itemData.title}
 
 LA RÉVÉLATION DU DR. LAMBERT
@@ -192,7 +198,7 @@ En retournant vers sa chambre de garde, il sourit. Cette nuit, il n'a pas seulem
 Demain, il enseignera à son tour cette leçon si précieuse : l'excellence naît de l'union parfaite des fondamentaux et de l'expertise.`;
   };
 
-  const generateFable = (rangA: any, rangB: any): string => {
+  const generateFable = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `FABLE MÉDICALE - ${itemData.title}
 
 LE JEUNE MÉDECIN ET LE MAÎTRE
@@ -218,7 +224,7 @@ Le jeune médecin comprit alors sa leçon.
 MORALE : Il n'y a pas d'expertise sans maîtrise des fondamentaux. Dans ${itemData.title}, Rang A et Rang B sont indissociables pour atteindre l'excellence.`;
   };
 
-  const generateConte = (rangA: any, rangB: any): string => {
+  const generateConte = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `CONTE MÉDICAL - ${itemData.title}
 
 LE ROYAUME DE LA CONNAISSANCE
@@ -248,7 +254,7 @@ FIN
 Morale : La véritable maîtrise naît de l'alliance parfaite entre les fondamentaux et l'expertise.`;
   };
 
-  const generateRap = (rangA: any, rangB: any): string => {
+  const generateRap = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `RAP MÉDICAL - ${itemData.title}
 
 [Intro]
@@ -306,7 +312,7 @@ C'est ça l'expertise, c'est ça le rap !
 Peace ! ✋`;
   };
 
-  const generateTheatre = (rangA: any, rangB: any): string => {
+  const generateTheatre = (_rangA: TableauRangData, _rangB: TableauRangData): string => {
     return `PIÈCE DE THÉÂTRE - ${itemData.title}
 
 ACTE I - LA DÉCOUVERTE

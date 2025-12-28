@@ -11,7 +11,7 @@ export interface StandardTableauData {
   sections: StandardSection[];
 }
 
-export const processStandardTableauData = (data: any, isRangB: boolean = false) => {
+export const processStandardTableauData = (data: Record<string, unknown>, isRangB: boolean = false) => {
   // Extraire les données selon le format JSON de la base
   const tableauData = isRangB ? data.tableau_rang_b : data.tableau_rang_a;
   

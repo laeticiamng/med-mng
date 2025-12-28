@@ -85,7 +85,7 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Voix:</label>
-            <Select value={selectedVoice} onValueChange={(value: any) => setSelectedVoice(value)}>
+            <Select value={selectedVoice} onValueChange={(value: 'all' | 'male' | 'female') => setSelectedVoice(value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -99,7 +99,7 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
           
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Énergie:</label>
-            <Select value={selectedEnergy} onValueChange={(value: any) => setSelectedEnergy(value)}>
+            <Select value={selectedEnergy} onValueChange={(value: 'all' | 'low' | 'medium' | 'high') => setSelectedEnergy(value)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>

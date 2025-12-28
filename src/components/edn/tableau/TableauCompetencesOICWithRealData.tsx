@@ -50,7 +50,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const filtered = data.filter((c: any) => c.objectif_id && c.intitule) as OicCompetence[];
+          const filtered = data.filter((c: OicCompetence) => c.objectif_id && c.intitule);
           setCompetences(filtered);
         } else {
           setError('Format de réponse inattendu');
