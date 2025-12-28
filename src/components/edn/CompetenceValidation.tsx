@@ -56,23 +56,40 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
   const { competences: oicCompetencesA, loading: loadingA } = useOicCompetences(item?.item_code || '', 'A');
   const { competences: oicCompetencesB, loading: loadingB } = useOicCompetences(item?.item_code || '', 'B');
 
-  // Charger les données de maîtrise de l'utilisateur
+  // Charger les données de maîtrise de l'utilisateur + sync avec quiz
   const loadMasteryData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !item?.item_code) return;
     
     setLoadingMastery(true);
-    const { data } = await supabase
+    
+    // Charger les données de maîtrise existantes
+    const { data: masteryResults } = await supabase
       .from('user_competence_mastery')
       .select('objectif_id, is_mastered, mastery_level, review_count')
       .eq('user_id', user.id)
       .eq('item_code', item.item_code);
     
-    if (data) {
-      const map = new Map<string, CompetenceMastery>();
-      data.forEach(d => map.set(d.objectif_id, d as CompetenceMastery));
-      setMasteryData(map);
+    // Charger les résultats de quiz pour auto-valider les compétences
+    const { data: quizResults } = await supabase
+      .from('quiz_results')
+      .select('score, total_questions')
+      .eq('user_id', user.id)
+      .eq('item_code', item.item_code)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    
+    // Si score moyen > 80%, marquer comme partiellement maîtrisé
+    const quizBasedMastery = quizResults && quizResults.length > 0 
+      ? (quizResults.reduce((sum, q) => sum + (q.score / q.total_questions) * 100, 0) / quizResults.length) >= 80
+      : false;
+    
+    const map = new Map<string, CompetenceMastery>();
+    if (masteryResults) {
+      masteryResults.forEach(d => map.set(d.objectif_id, d as CompetenceMastery));
     }
+    
+    setMasteryData(map);
     setLoadingMastery(false);
   }, [item?.item_code]);
 
