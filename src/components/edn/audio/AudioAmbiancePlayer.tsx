@@ -16,12 +16,32 @@ interface AudioAmbianceProps {
   itemCode: string;
 }
 
-// Audio ambiances génériques basées sur le mood médical
-const AMBIANCE_SOUNDS: Record<string, string> = {
-  calme: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8cb85e3f41.mp3',
-  concentration: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0ef9b37c2.mp3',
-  urgence: 'https://cdn.pixabay.com/audio/2022/10/25/audio_12ef79e8e3.mp3',
-  default: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3'
+// Audio ambiances étendues basées sur le mood médical
+const AMBIANCE_SOUNDS: Record<string, { url: string; label: string }> = {
+  calme: { 
+    url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8cb85e3f41.mp3', 
+    label: 'Ambiance calme' 
+  },
+  concentration: { 
+    url: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0ef9b37c2.mp3', 
+    label: 'Concentration profonde' 
+  },
+  urgence: { 
+    url: 'https://cdn.pixabay.com/audio/2022/10/25/audio_12ef79e8e3.mp3', 
+    label: 'Rythme dynamique' 
+  },
+  meditation: { 
+    url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3', 
+    label: 'Méditation' 
+  },
+  nature: { 
+    url: 'https://cdn.pixabay.com/audio/2022/06/07/audio_b9bd4170e4.mp3', 
+    label: 'Sons de la nature' 
+  },
+  default: { 
+    url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', 
+    label: 'Ambiance par défaut' 
+  }
 };
 
 export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({ 
@@ -31,11 +51,13 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const [isMuted, setIsMuted] = useState(false);
+  const [currentMood, setCurrentMood] = useState<string>('default');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Déterminer l'ambiance basée sur la config
   const mood = audioConfig?.mood?.toLowerCase() || 'default';
-  const ambianceUrl = AMBIANCE_SOUNDS[mood] || AMBIANCE_SOUNDS.default;
+  const ambianceData = AMBIANCE_SOUNDS[mood] || AMBIANCE_SOUNDS[currentMood] || AMBIANCE_SOUNDS.default;
+  const ambianceUrl = ambianceData.url;
 
   useEffect(() => {
     // Créer l'élément audio
@@ -81,8 +103,27 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
     }
   };
 
+  // Afficher un fallback si pas de config audio
   if (!audioConfig) {
-    return null;
+    return (
+      <Card className="bg-gradient-to-r from-muted/30 to-muted/10 border-muted-foreground/20">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
+              <Music2 className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-muted-foreground text-sm">
+                Ambiance audio
+              </h4>
+              <p className="text-xs text-muted-foreground/70">
+                Aucune ambiance disponible pour cet item
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -165,6 +206,30 @@ export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
             ))}
           </div>
         )}
+
+        {/* Mood selector */}
+        <div className="mt-3 flex flex-wrap gap-1">
+          {Object.entries(AMBIANCE_SOUNDS).map(([key, data]) => (
+            <button
+              key={key}
+              onClick={() => {
+                setCurrentMood(key);
+                if (isPlaying && audioRef.current) {
+                  audioRef.current.pause();
+                  audioRef.current.src = data.url;
+                  audioRef.current.play().catch(() => {});
+                }
+              }}
+              className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
+                (mood === key || currentMood === key)
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {data.label}
+            </button>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

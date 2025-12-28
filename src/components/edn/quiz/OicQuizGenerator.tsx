@@ -220,9 +220,20 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
               </div>
 
               {totalCompetencesA === 0 && totalCompetencesB === 0 && (
-                <p className="text-center text-muted-foreground text-sm">
-                  Aucune compétence OIC disponible pour cet item.
-                </p>
+                <div className="text-center py-6 space-y-3">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
+                    <Brain className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Aucune compétence OIC disponible</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Les compétences officielles UNESS pour cet item n'ont pas encore été importées.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-muted-foreground">
+                    Item: {itemCode}
+                  </Badge>
+                </div>
               )}
             </>
           )}

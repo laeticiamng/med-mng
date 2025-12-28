@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Image, ChevronLeft, ChevronRight, Maximize2, 
-  Download, Share2, Eye, BookOpen, Flame, Star, Loader2
+  Download, Share2, Eye, BookOpen, Flame, Star, Loader2, Play, Pause
 } from 'lucide-react';
+import { useRef } from 'react';
 import { exportToPDF, shareContent, exportAsImage } from '@/utils/exportUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -30,6 +31,8 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
@@ -125,12 +128,34 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       } else if (e.key === 'End') {
         e.preventDefault();
         setCurrentVignette(vignettes.length - 1);
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        toggleAutoPlay();
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [vignettes.length]);
+
+  // Auto-play slideshow
+  const toggleAutoPlay = () => {
+    if (isAutoPlay) {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+      setIsAutoPlay(false);
+    } else {
+      setIsAutoPlay(true);
+      autoPlayRef.current = setInterval(() => {
+        setCurrentVignette(prev => (prev + 1) % vignettes.length);
+      }, 4000);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, []);
 
   const nextVignette = () => {
     setCurrentVignette((prev) => (prev + 1) % vignettes.length);
@@ -232,8 +257,16 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               <ChevronLeft className="h-4 w-4 mr-1" />
               Précédent
             </Button>
-            <div className="text-sm text-muted-foreground">
-              {currentVig.title}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isAutoPlay ? "default" : "outline"}
+                size="sm"
+                onClick={toggleAutoPlay}
+                className={isAutoPlay ? "bg-success hover:bg-success/90" : ""}
+              >
+                {isAutoPlay ? <Pause className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}
+                {isAutoPlay ? "Arrêter" : "Diaporama"}
+              </Button>
             </div>
             <Button 
               variant="outline" 
