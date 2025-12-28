@@ -43,6 +43,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
   const fetchLyrics = useCallback(async () => {
     if (!itemCode) {
       setLyrics(null);
+      setLoading(false);
       return;
     }
 
@@ -50,14 +51,18 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     setError(null);
 
     try {
+      // Utiliser .single() au lieu de .maybeSingle() pour avoir une erreur explicite si pas de résultat
       const { data, error: supabaseError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, subtitle, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
         .eq('item_code', itemCode)
+        .limit(1)
         .maybeSingle();
 
       if (supabaseError) {
-        setError('Item non trouvé');
+        console.error('Erreur Supabase useEdnItemLyrics:', supabaseError);
+        setError(`Erreur: ${supabaseError.message}`);
+        setLoading(false);
         return;
       }
 
@@ -72,10 +77,11 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
           paroles_rang_ab: data.paroles_rang_ab || []
         });
       } else {
-        setError('Aucune donnée trouvée');
+        setError('Aucune parole trouvée pour cet item');
       }
     } catch (err) {
-      setError('Erreur lors du chargement');
+      console.error('Erreur useEdnItemLyrics catch:', err);
+      setError('Erreur lors du chargement des paroles');
     } finally {
       setLoading(false);
     }
