@@ -279,53 +279,65 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
         <CardContent className="pt-0 pb-8 px-8">
           <Separator className="mb-8" />
           
-          {availableSectionsCount > 0 ? (
-            <div className="space-y-6 max-w-4xl">
-              {sections.map((section, idx) => (
-                <CompetenceSection
-                  key={section.key}
-                  title={section.title}
-                  content={section.content!}
-                  icon={section.icon}
-                  colorClass={section.colorClass}
-                />
-              ))}
-              
-              {/* Métadonnées */}
-              {(competence.contributeurs || competence.rubrique) && (
-                <div className="mt-6 pt-4 border-t border-border/30">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Users className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground">Informations complémentaires</span>
-                  </div>
-                  <div className="space-y-2 pl-6">
-                    {competence.contributeurs && (
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Contributeurs:</span> {competence.contributeurs}
-                      </p>
-                    )}
-                    {competence.rubrique && competence.rubrique !== 'Non spécifiée' && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Rubrique:</span>
-                        <Badge variant="outline" className="text-xs">
-                          {competence.rubrique}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
+          <div className="space-y-6 max-w-4xl">
+            {/* Description complète */}
+            {competence.description && (
+              <CompetenceSection
+                title="Description complète"
+                content={competence.description}
+                icon={<Book className="w-4 h-4 text-primary" />}
+                colorClass="border-l-primary bg-primary/5"
+              />
+            )}
+            
+            {/* Autres sections */}
+            {sections.map((section, idx) => (
+              <CompetenceSection
+                key={section.key}
+                title={section.title}
+                content={section.content!}
+                icon={section.icon}
+                colorClass={section.colorClass}
+              />
+            ))}
+            
+            {/* Métadonnées */}
+            {(competence.contributeurs || competence.rubrique) && (
+              <div className="mt-6 pt-4 border-t border-border/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">Informations complémentaires</span>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-muted-foreground" />
+                <div className="space-y-2 pl-6">
+                  {competence.contributeurs && (
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium">Contributeurs:</span> {competence.contributeurs}
+                    </p>
+                  )}
+                  {competence.rubrique && competence.rubrique !== 'Non spécifiée' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground">Rubrique:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {competence.rubrique}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-muted-foreground text-sm">
-                Contenu détaillé en cours d'enrichissement
-              </p>
-            </div>
-          )}
+            )}
+            
+            {/* Message si aucun contenu */}
+            {!competence.description && availableSectionsCount === 0 && (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Contenu détaillé en cours d'enrichissement
+                </p>
+              </div>
+            )}
+          </div>
         </CardContent>
       )}
     </Card>
