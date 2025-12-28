@@ -82,28 +82,44 @@ export const useEdnItemsOptimized = () => {
         setItems(mappedItems);
         setLoading(false);
         
-        // Background OIC enrichment via fetch direct
+        // Background OIC enrichment - charger TOUTES les compétences (pagination pour dépasser limite 1000)
         try {
-          const oicResponse = await fetch(
-            `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=item_parent,rang&objectif_id=not.is.null`,
-            {
-              headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json',
+          let allOicData: any[] = [];
+          let offset = 0;
+          const limit = 1000;
+          let hasMore = true;
+          
+          while (hasMore) {
+            const oicResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/backup_oic_competences?select=item_parent,rang&objectif_id=not.is.null&limit=${limit}&offset=${offset}`,
+              {
+                headers: {
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': `Bearer ${SUPABASE_KEY}`,
+                  'Content-Type': 'application/json',
+                  'Prefer': 'count=exact'
+                }
               }
+            );
+
+            if (cancelled || !oicResponse.ok) break;
+
+            const batch = await oicResponse.json();
+            if (batch && batch.length > 0) {
+              allOicData = [...allOicData, ...batch];
+              offset += limit;
+              hasMore = batch.length === limit;
+            } else {
+              hasMore = false;
             }
-          );
+          }
+          
+          console.log('📊 OIC data loaded:', allOicData.length, 'competences (toutes)');
 
-          if (cancelled || !oicResponse.ok) return;
-
-          const oicData = await oicResponse.json();
-          console.log('📊 OIC data loaded:', oicData?.length, 'competences');
-
-          if (!oicData || oicData.length === 0) return;
+          if (allOicData.length === 0) return;
 
           const countsMap = new Map<string, { rangA: number; rangB: number }>();
-          oicData.forEach((row: any) => {
+          allOicData.forEach((row: any) => {
             const key = row.item_parent || '';
             const existing = countsMap.get(key) || { rangA: 0, rangB: 0 };
             if (row.rang === 'A') existing.rangA++;
