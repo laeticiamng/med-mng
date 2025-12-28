@@ -304,9 +304,9 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
               {stats && (
                 <div className="flex items-center gap-1 px-2 py-0.5 bg-background/20 rounded-full text-xs text-background">
                   <Flame className="h-3 w-3" />
-                  <span className="font-bold">{stats.currentStreak}j</span>
+                  <span className="font-bold">{stats.currentStreak ?? 0}j</span>
                   <Star className="h-3 w-3 ml-1" />
-                  <span className="font-bold">Nv.{stats.level}</span>
+                  <span className="font-bold">Nv.{stats.level ?? 1}</span>
                 </div>
               )}
               <Badge className="bg-background/20 text-background">

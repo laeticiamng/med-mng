@@ -232,11 +232,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
                 <>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Flame className="h-3 w-3" />
-                    {stats.currentStreak}j
+                    {stats.currentStreak ?? 0}j
                   </Badge>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Star className="h-3 w-3" />
-                    Niv. {stats.level}
+                    Niv. {stats.level ?? 1}
                   </Badge>
                 </>
               )}
