@@ -19,11 +19,14 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
   console.log(`🎵 Génération paroles complètes pour ${itemCode} Rang ${rang}`);
   
   try {
+    // Normaliser le code item (IC-8 -> 008, IC-12 -> 012, etc.)
+    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+    
     // 1. Récupérer TOUTES les compétences pour cet item
     const { data: competences, error } = await supabase
       .from('oic_competences')
       .select('*')
-      .eq('item_parent', itemCode.replace('IC-', '').padStart(3, '0'))
+      .eq('item_parent', itemNumber)
       .eq('rang', rang)
       .order('ordre');
 
@@ -39,8 +42,8 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
 
     console.log(`✅ ${competences.length} compétences trouvées pour ${itemCode} Rang ${rang}`);
 
-    // 2. Générer des paroles musicales avec assonances
-    const lyricsSection = generateMusicalLyrics(itemCode, competences, rang);
+    // 2. Générer des paroles musicales BASÉES sur le contenu réel
+    const lyricsSection = generateMusicalLyricsFromContent(itemCode, competences, rang);
     
     return lyricsSection.content;
     
@@ -50,142 +53,168 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
   }
 }
 
-function generateMusicalLyrics(itemCode: string, competences: CompetenceOIC[], rang: 'A' | 'B'): LyricsSection {
+/**
+ * Génère des paroles musicales basées sur le VRAI contenu des compétences OIC
+ */
+function generateMusicalLyricsFromContent(itemCode: string, competences: CompetenceOIC[], rang: 'A' | 'B'): LyricsSection {
   const verses: string[] = [];
+  const rangText = rang === 'A' ? 'fondamental' : 'expert';
   
-  // Traiter chaque compétence avec du contenu médical dense
+  // Intro basée sur le premier intitulé (souvent le titre du thème)
+  const mainTopic = competences[0]?.intitule || itemCode;
+  verses.push(`[Intro]`);
+  verses.push(`${itemCode} ${mainTopic}`);
+  verses.push(`Niveau ${rangText} à maîtriser`);
+  verses.push(``);
+  
+  // Traiter chaque compétence avec son VRAI contenu
   competences.forEach((comp, index) => {
-    const competenceTitle = comp.intitule || `Objectif ${comp.objectif_id}`;
+    const intitule = comp.intitule || `Objectif ${comp.objectif_id}`;
     const description = comp.description || '';
     
-    // Couplet avec contenu médical réel (assonances en -é/-er)
+    // Couplet basé sur le contenu réel
+    verses.push(`[Couplet ${index + 1}]`);
+    
+    // Utiliser l'intitulé comme première ligne
+    const cleanIntitule = cleanTextForLyrics(intitule, 60);
+    verses.push(cleanIntitule);
+    
+    // Extraire les points clés de la description
     if (description.length > 20) {
-      // Extraire les points médicaux clés de la description
-      const medicalFacts = extractMedicalFacts(description, competenceTitle);
-      verses.push(...medicalFacts);
-    } else {
-      // Couplet basé sur l'intitulé avec contenu médical
-      const titleFacts = generateMedicalContent(competenceTitle, itemCode, rang);
-      verses.push(...titleFacts);
+      const keyPoints = extractKeyPointsFromDescription(description);
+      keyPoints.forEach(point => {
+        verses.push(point);
+      });
     }
     
-    // Refrain avec diagnostic/traitement (assonances en -ir/-ain)
-    if (index % 2 === 0) {
-      verses.push(`Diagnostic précis à bien définir`);
-      verses.push(`Traitement adapté pour guérir`);
-    } else {
-      verses.push(`Signes cliniques à observer, pronostic certain`);
-      verses.push(`Prise en charge optimale, résultat sain`);
-    }
-    
-    // Séparateur rythmique entre compétences
-    if (index < competences.length - 1) {
-      verses.push(`---`);
+    // Refrain court entre les compétences (pas après la dernière)
+    if (index < competences.length - 1 && index % 2 === 1) {
+      verses.push(``);
+      verses.push(`[Refrain]`);
+      verses.push(`${mainTopic} bien compris`);
+      verses.push(`${itemCode} maîtrisé`);
+      verses.push(``);
     }
   });
   
-  // Coda finale avec assonances forte (éviter les mots interdits)
-  verses.push(`${itemCode} maîtrisé, savoir consolidé`);
-  verses.push(`Diagnostic affiné, traitement validé`);
-  verses.push(`EDN réussie, objectifs atteints`);
-  verses.push(`Excellence médicale, succès certains`);
+  // Coda finale
+  verses.push(``);
+  verses.push(`[Outro]`);
+  verses.push(`${itemCode} ${mainTopic}`);
+  verses.push(`Compétences ${rangText}es acquises`);
+  verses.push(`Formation validée avec succès`);
 
   return {
-    title: `${itemCode} Rang ${rang} - Contenus Médicaux`,
+    title: `${itemCode} Rang ${rang} - ${mainTopic}`,
     content: verses,
-    assonances: ['é', 'er', 'ir', 'ain', 'ée', 'ise']
+    assonances: ['é', 'er', 'is', 'ée']
   };
 }
 
-// Extraire les faits médicaux de la description
-function extractMedicalFacts(description: string, title: string): string[] {
-  const facts: string[] = [];
-  const cleanDesc = description.replace(/[.,!?;:]/g, ' ').trim();
+/**
+ * Nettoie le texte pour les paroles (limite la longueur, retire les caractères spéciaux)
+ */
+function cleanTextForLyrics(text: string, maxLength: number = 60): string {
+  // Retirer les caractères spéciaux et formater
+  let clean = text
+    .replace(/[.,!?;:]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   
-  // Diviser en segments de 40-60 caractères avec assonances
-  const words = cleanDesc.split(' ').filter(w => w.length > 0);
-  let currentLine = '';
-  
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
-    if (currentLine.length + word.length + 1 <= 50) {
-      currentLine += (currentLine ? ' ' : '') + word;
-    } else {
-      if (currentLine) {
-        // Ajouter assonance selon le contenu
-        if (currentLine.includes('diagnostic') || currentLine.includes('symptôme')) {
-          facts.push(`${currentLine} à identifier`);
-        } else if (currentLine.includes('traitement') || currentLine.includes('thérapie')) {
-          facts.push(`${currentLine} à maîtriser`);
-        } else {
-          facts.push(`${currentLine} essentiel`);
-        }
+  // Limiter la longueur
+  if (clean.length > maxLength) {
+    const words = clean.split(' ');
+    clean = '';
+    for (const word of words) {
+      if ((clean + ' ' + word).length <= maxLength) {
+        clean = clean ? clean + ' ' + word : word;
+      } else {
+        break;
       }
-      currentLine = word;
     }
   }
   
-  // Dernière ligne
-  if (currentLine) {
-    facts.push(`${currentLine} médical`);
+  return clean;
+}
+
+/**
+ * Extrait les points clés d'une description médicale pour en faire des vers
+ */
+function extractKeyPointsFromDescription(description: string): string[] {
+  const points: string[] = [];
+  
+  // Nettoyer la description
+  const cleanDesc = description
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  // Diviser en phrases
+  const sentences = cleanDesc.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  
+  // Prendre les 2-3 premières phrases significatives
+  const maxPoints = Math.min(3, sentences.length);
+  
+  for (let i = 0; i < maxPoints; i++) {
+    const sentence = sentences[i].trim();
+    if (sentence.length > 10) {
+      // Formater comme vers (max 60 caractères)
+      const verse = cleanTextForLyrics(sentence, 60);
+      if (verse.length > 10) {
+        points.push(verse);
+      }
+    }
   }
   
   // S'assurer d'avoir au moins 2 lignes
-  if (facts.length < 2) {
-    facts.push(`${title.substring(0, 40)} fondamental`);
-    facts.push(`Savoir médical spécialisé`);
+  if (points.length < 2) {
+    // Découper la description en segments
+    const words = cleanDesc.split(' ').filter(w => w.length > 0);
+    let currentLine = '';
+    
+    for (const word of words) {
+      if (currentLine.length + word.length + 1 <= 50) {
+        currentLine = currentLine ? currentLine + ' ' + word : word;
+      } else if (currentLine) {
+        points.push(currentLine);
+        currentLine = word;
+        if (points.length >= 3) break;
+      }
+    }
+    
+    if (currentLine && points.length < 3) {
+      points.push(currentLine);
+    }
   }
   
-  return facts;
-}
-
-// Générer du contenu médical à partir du titre
-function generateMedicalContent(title: string, itemCode: string, rang: 'A' | 'B'): string[] {
-  const content: string[] = [];
-  const cleanTitle = title.substring(0, 45);
-  
-  // Premier vers : définition/concept principal
-  content.push(`${cleanTitle} bien défini`);
-  
-  // Deuxième vers : aspect clinique avec assonance
-  if (rang === 'A') {
-    content.push(`Signes cliniques à bien cerner`);
-    content.push(`Diagnostic différentiel établi`);
-    content.push(`Prise en charge à bien mener`);
-  } else {
-    content.push(`Expertise clinique approfondie`);
-    content.push(`Cas complexes à analyser`);
-    content.push(`Techniques avancées maîtrisées`);
-  }
-  
-  return content;
+  return points;
 }
 
 function generateFallbackLyrics(itemCode: string, rang: 'A' | 'B'): string[] {
-  const isRangA = rang === 'A';
+  const rangText = rang === 'A' ? 'fondamental' : 'expert';
   
   return [
-    // Contenu médical dense sans mots interdits
-    `${itemCode} pathologies multiples`,
-    `Signes cliniques spécifiques à reconnaître`,
-    `Diagnostic différentiel méthodique`,
-    `Examens paracliniques orientés`,
-    `---`,
-    `Thérapeutiques ciblées efficaces`,
-    `Posologie adaptée au terrain`,
-    `Surveillance clinique rapprochée`,
-    `Effets secondaires à prévenir`,
-    `---`,
-    `Pronostic vital engagé parfois`,
-    `Évolution favorable attendue`,
-    `Complications rares mais graves`,
-    `Prévention primaire essentielle`,
-    `---`,
-    // Conclusion avec assonances fortes
-    `${itemCode} pathologie maîtrisée`,
-    `Diagnostic affiné, traitement validé`,
-    `Excellence médicale démontrée`,
-    `Réussite clinique assurée`
+    `[Intro]`,
+    `${itemCode} formation médicale`,
+    `Niveau ${rangText} à maîtriser`,
+    ``,
+    `[Couplet 1]`,
+    `Connaissances essentielles`,
+    `Compétences professionnelles`,
+    `Savoir médical approfondi`,
+    ``,
+    `[Refrain]`,
+    `${itemCode} bien compris`,
+    `Formation validée aujourd'hui`,
+    ``,
+    `[Couplet 2]`,
+    `Pratique clinique rigoureuse`,
+    `Diagnostic méthodique`,
+    `Prise en charge adaptée`,
+    ``,
+    `[Outro]`,
+    `${itemCode} maîtrisé`,
+    `Compétences acquises avec succès`,
+    `Excellence médicale atteinte`
   ];
 }
 
@@ -196,39 +225,38 @@ export async function generateMixedLyrics(itemCode: string): Promise<string[]> {
   const lyricsA = await generateComprehensiveLyrics(itemCode, 'A');
   const lyricsB = await generateComprehensiveLyrics(itemCode, 'B');
   
-  // Entrelacer les paroles A et B pour créer un mix cohérent
+  // Combiner les paroles A et B intelligemment
   const mixedLyrics: string[] = [];
   
   // Introduction commune
-  mixedLyrics.push(`${itemCode} complet, A et B maîtrisés`);
-  mixedLyrics.push(`Fondamentaux et expertise, tout dominé`);
+  mixedLyrics.push(`[Intro]`);
+  mixedLyrics.push(`${itemCode} complet A et B`);
+  mixedLyrics.push(`Maîtrise totale`);
+  mixedLyrics.push(``);
   
-  // Alterner entre A et B
-  const maxLength = Math.max(lyricsA.length, lyricsB.length);
-  for (let i = 0; i < maxLength; i += 4) {
-    // 2 vers de A
-    if (i < lyricsA.length) {
-      mixedLyrics.push(lyricsA[i]);
-      if (i + 1 < lyricsA.length) mixedLyrics.push(lyricsA[i + 1]);
-    }
-    
-    // 2 vers de B  
-    if (i < lyricsB.length) {
-      mixedLyrics.push(lyricsB[i]);
-      if (i + 1 < lyricsB.length) mixedLyrics.push(lyricsB[i + 1]);
-    }
-    
-    // Séparateur si pas la fin
-    if (i + 4 < maxLength) {
-      mixedLyrics.push(`---`);
-    }
-  }
+  // Alterner entre A et B (sans les intros/outros)
+  const aContent = lyricsA.filter(l => !l.startsWith('[Intro]') && !l.startsWith('[Outro]') && l.trim());
+  const bContent = lyricsB.filter(l => !l.startsWith('[Intro]') && !l.startsWith('[Outro]') && l.trim());
+  
+  // Partie A
+  mixedLyrics.push(`[Partie Rang A - Fondamentaux]`);
+  aContent.slice(0, 8).forEach(line => {
+    if (!line.startsWith('[')) mixedLyrics.push(line);
+  });
+  mixedLyrics.push(``);
+  
+  // Partie B
+  mixedLyrics.push(`[Partie Rang B - Expert]`);
+  bContent.slice(0, 8).forEach(line => {
+    if (!line.startsWith('[')) mixedLyrics.push(line);
+  });
+  mixedLyrics.push(``);
   
   // Conclusion puissante
-  mixedLyrics.push(`${itemCode} intégral, perfection atteinte`);
-  mixedLyrics.push(`A et B unis, excellence certaine`);
-  mixedLyrics.push(`EDN dominée, vingt sur vingt assuré`);
-  mixedLyrics.push(`Médecin accompli, avenir radieux !`);
+  mixedLyrics.push(`[Outro]`);
+  mixedLyrics.push(`${itemCode} intégral maîtrisé`);
+  mixedLyrics.push(`Rang A et B validés`);
+  mixedLyrics.push(`Excellence médicale certifiée`);
   
   return mixedLyrics;
 }
