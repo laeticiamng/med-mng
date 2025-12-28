@@ -2,82 +2,63 @@ import React, { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Stethoscope } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EcosSelectorProps {
   selectedSituation: string;
   setSelectedSituation: (situation: string) => void;
-  onEnrichWithAI?: (situationId: string) => void;
 }
 
-interface EcosSituation {
-  sd_id: number;
-  intitule_sd: string;
-  competences_associees?: string[];
+interface EcosScenario {
+  id: string;
+  scenario_code: string;
+  title: string;
+  speciality: string;
+  clinical_case: string;
+  difficulty_level: string;
 }
 
 export const EcosSelector: React.FC<EcosSelectorProps> = ({
   selectedSituation,
-  setSelectedSituation,
-  onEnrichWithAI
+  setSelectedSituation
 }) => {
-  const [situations, setSituations] = useState<EcosSituation[]>([]);
+  const [scenarios, setScenarios] = useState<EcosScenario[]>([]);
   const [loading, setLoading] = useState(true);
-  const [enriching, setEnriching] = useState<string | null>(null);
 
   useEffect(() => {
-    loadSituations();
+    loadScenarios();
   }, []);
 
-  const loadSituations = async () => {
+  const loadScenarios = async () => {
     try {
       setLoading(true);
       
       const { data, error } = await supabase
-        .from('ecos_situations_uness')
-        .select('sd_id, intitule_sd, competences_associees')
-        .order('sd_id')
-        .limit(50); // Charger les 50 premières situations
+        .from('ecos_scenarios')
+        .select('id, scenario_code, title, speciality, clinical_case, difficulty_level')
+        .eq('is_active', true)
+        .order('scenario_code')
+        .limit(50);
 
       if (error) throw error;
 
-      setSituations(data || []);
+      setScenarios(data || []);
     } catch (error) {
-      console.error('Erreur chargement situations ECOS:', error);
-      toast.error('Erreur lors du chargement des situations ECOS');
+      console.error('Erreur chargement scénarios ECOS:', error);
+      toast.error('Erreur lors du chargement des scénarios ECOS');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEnrichWithAI = async (sdId: number) => {
-    try {
-      setEnriching(sdId.toString());
-      toast.info('Enrichissement IA en cours... Cela peut prendre 30-60 secondes.');
-
-      const { data, error } = await supabase.functions.invoke('ecos-enrich-ai', {
-        body: { 
-          situation_id: sdId,
-          enrich_type: 'complet'
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Situation enrichie avec succès !');
-      await loadSituations(); // Recharger pour afficher l'icône enrichie
-      
-      if (onEnrichWithAI) {
-        onEnrichWithAI(sdId.toString());
-      }
-    } catch (error: any) {
-      console.error('Erreur enrichissement IA:', error);
-      toast.error(`Erreur: ${error.message || 'Échec de l\'enrichissement IA'}`);
-    } finally {
-      setEnriching(null);
+  const getDifficultyColor = (level: string) => {
+    switch (level) {
+      case 'facile': return 'bg-success text-success-foreground';
+      case 'moyen': return 'bg-warning text-warning-foreground';
+      case 'difficile': return 'bg-destructive text-destructive-foreground';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -85,11 +66,11 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
     return (
       <div className="space-y-4">
         <label className="text-lg font-semibold text-foreground">
-          <TranslatedText text="Situation ECOS" />
+          <TranslatedText text="Scénario ECOS" />
         </label>
         <div className="flex items-center justify-center h-14 bg-card/50 backdrop-blur-sm border border-border/30 rounded-lg">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          <span className="ml-2 text-sm text-muted-foreground">Chargement des situations...</span>
+          <span className="ml-2 text-sm text-muted-foreground">Chargement des scénarios...</span>
         </div>
       </div>
     );
@@ -99,86 +80,69 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="text-lg font-semibold text-foreground">
-          <TranslatedText text="Situation ECOS" />
+          <TranslatedText text="Scénario ECOS" />
         </label>
         <Badge variant="secondary" className="text-xs">
-          {situations.length} situations disponibles
+          {scenarios.length} scénarios disponibles
         </Badge>
       </div>
       
       <Select value={selectedSituation} onValueChange={setSelectedSituation}>
         <SelectTrigger className="h-14 text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
-          <SelectValue placeholder="Sélectionnez une situation ECOS officielle" />
+          <SelectValue placeholder="Sélectionnez un scénario ECOS" />
         </SelectTrigger>
         <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-[400px]">
-          {situations.map((situation) => (
-            <SelectItem 
-              key={situation.sd_id} 
-              value={situation.sd_id.toString()} 
-              className="text-base py-3"
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="flex-1">
-                  <span className="font-semibold">SD{situation.sd_id}</span> - {situation.intitule_sd}
-                </span>
-              </div>
-            </SelectItem>
-          ))}
+          {scenarios.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground">
+              Aucun scénario disponible
+            </div>
+          ) : (
+            scenarios.map((scenario) => (
+              <SelectItem 
+                key={scenario.id} 
+                value={scenario.scenario_code} 
+                className="text-base py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">{scenario.scenario_code}</span>
+                  <span>-</span>
+                  <span>{scenario.title}</span>
+                </div>
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
 
       {selectedSituation && (
         <div className="mt-4 p-4 bg-card/30 backdrop-blur-sm rounded-lg border border-border/20">
           {(() => {
-            const selected = situations.find(s => s.sd_id.toString() === selectedSituation);
+            const selected = scenarios.find(s => s.scenario_code === selectedSituation);
             if (!selected) return null;
 
             return (
               <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Situation sélectionnée:</p>
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5 text-primary" />
                   <p className="text-base font-semibold text-foreground">
-                    SD{selected.sd_id} - {selected.intitule_sd}
+                    {selected.scenario_code} - {selected.title}
                   </p>
                 </div>
 
-                {selected.competences_associees && selected.competences_associees.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Compétences:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {selected.competences_associees.slice(0, 3).map((comp, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
-                          {comp}
-                        </Badge>
-                      ))}
-                      {selected.competences_associees.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{selected.competences_associees.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {selected.speciality}
+                  </Badge>
+                  <Badge className={`text-xs ${getDifficultyColor(selected.difficulty_level)}`}>
+                    {selected.difficulty_level}
+                  </Badge>
+                </div>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleEnrichWithAI(selected.sd_id)}
-                  disabled={!!enriching}
-                >
-                  {enriching === selected.sd_id.toString() ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Enrichissement IA en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Enrichir avec l'IA OpenAI
-                    </>
-                  )}
-                </Button>
+                {selected.clinical_case && (
+                  <p className="text-sm text-muted-foreground italic">
+                    "{selected.clinical_case}"
+                  </p>
+                )}
               </div>
             );
           })()}
