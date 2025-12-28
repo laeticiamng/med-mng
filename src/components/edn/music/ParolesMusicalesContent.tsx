@@ -6,11 +6,16 @@ import { MusicDurationSelector } from './MusicDurationSelector';
 import { MissingParolesWarning } from './MissingParolesWarning';
 import { ParolesMusicalesRangTab } from './ParolesMusicalesRangTab';
 
+interface TableauRangData {
+  sections?: Array<{ concepts?: Array<{ concept?: string; definition?: string }> }>;
+  competences_cles?: Array<{ competence?: string; description?: string }>;
+}
+
 interface ParolesMusicalesContentProps {
   paroles: string[];
   hasParoles: boolean;
-  tableauRangA: any;
-  tableauRangB: any;
+  tableauRangA: TableauRangData | null;
+  tableauRangB: TableauRangData | null;
   selectedStyle: string;
   selectedDuration: number;
   activeTab: 'rang-a' | 'rang-b';
