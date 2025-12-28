@@ -1,7 +1,14 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
-import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { supabase } from '@/integrations/supabase/client';
+
+interface OicCompetence {
+  objectif_id: string;
+  intitule: string;
+  description: string;
+  rubrique: string;
+}
 
 interface TableauCompetencesOICWithRealDataProps {
   itemCode: string;
@@ -12,7 +19,43 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   itemCode, 
   rang 
 }) => {
-  const { competences, loading, error } = useOicCompetences(itemCode, rang);
+  const [competences, setCompetences] = useState<OicCompetence[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!itemCode || !itemCode.startsWith('IC-')) {
+      setLoading(false);
+      return;
+    }
+
+    const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+    console.log(`🔍 TableauOIC: Fetching for ${itemNumber} ${rang}`);
+
+    setLoading(true);
+    setError(null);
+
+    supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description, rubrique')
+      .eq('item_parent', itemNumber)
+      .eq('rang', rang)
+      .order('objectif_id')
+      .then(result => {
+        console.log(`📊 TableauOIC Result:`, result);
+        
+        if (result.error) {
+          setError(result.error.message);
+          setLoading(false);
+          return;
+        }
+
+        const data = (result.data || []).filter(c => c.objectif_id && c.intitule) as OicCompetence[];
+        console.log(`✅ TableauOIC: ${data.length} compétences loaded`);
+        setCompetences(data);
+        setLoading(false);
+      });
+  }, [itemCode, rang]);
 
   if (loading) {
     return (
@@ -23,7 +66,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
           <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
         </div>
         <p className="text-muted-foreground mt-4">
-          Recherche des compétences OIC authentiques pour {itemCode} rang {rang}...
+          Chargement des compétences OIC pour {itemCode} rang {rang}...
         </p>
       </div>
     );
@@ -34,18 +77,15 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       <div className="w-full p-8 text-center">
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
           <h3 className="text-destructive font-semibold mb-2">
-            Erreur de chargement des compétences OIC
+            Erreur de chargement
           </h3>
-          <p className="text-destructive/80 text-sm">
-            {error}
-          </p>
+          <p className="text-destructive/80 text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
-  // Si aucune compétence OIC authentique n'est trouvée
-  if (!competences || competences.length === 0) {
+  if (competences.length === 0) {
     return (
       <div className="w-full p-8 text-center">
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
@@ -55,31 +95,25 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
           <h3 className="text-foreground font-semibold mb-2">
             Compétences OIC {itemCode} Rang {rang}
           </h3>
-          <p className="text-muted-foreground text-sm mb-4">
-            Les compétences officielles OIC pour cet item sont en cours d'extraction depuis le site UNESS. 
-            En attendant, vous pouvez consulter les autres formats pédagogiques disponibles.
+          <p className="text-muted-foreground text-sm">
+            Aucune compétence OIC trouvée pour cet item.
           </p>
-          <div className="bg-warning/10 border border-warning/30 rounded p-3 text-sm text-warning">
-            <strong>📋 Conseil d'apprentissage :</strong> Consultez la scène immersive, la bande dessinée ou 
-            les paroles musicales pour découvrir le contenu de cet item de manière interactive.
-          </div>
         </div>
       </div>
     );
   }
 
-  // Convertir les données OIC authentiques au format attendu
   const competencesData = {
     title: `${itemCode} Rang ${rang} - Compétences OIC officielles UNESS`,
     competences: competences.map(comp => ({
       intitule: comp.intitule,
-      description: comp.description,
+      description: comp.description || comp.intitule,
       objectif_id: comp.objectif_id,
       rubrique: comp.rubrique,
       keywords: []
     })),
     count: competences.length,
-    theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Données authentiques UNESS`
+    theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'}`
   };
 
   return (
