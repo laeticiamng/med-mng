@@ -210,7 +210,7 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
               Classement Quiz
             </CardTitle>
             <CardDescription>
-              {itemCode ? `Classement pour ${itemCode}` : 'Classement global des quiz EDN'}
+              {itemCode ? `Classement pour ${itemCode}` : 'Classement global de tous les items EDN'}
             </CardDescription>
           </div>
           <Select value={timePeriod} onValueChange={(v) => { setTimePeriod(v as TimePeriod); setCurrentPage(1); }}>

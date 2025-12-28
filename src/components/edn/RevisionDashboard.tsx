@@ -31,6 +31,9 @@ interface DashboardStats {
   masteredCompetences: number;
   totalCompetences: number;
   lastActivity: string | null;
+  // Comparaison temporelle
+  prevWeekQuizzes?: number;
+  prevWeekAvgScore?: number;
 }
 
 export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
@@ -63,7 +66,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         quizQuery = quizQuery.eq('item_code', itemCode);
       }
       
-      const { data: quizResults } = await quizQuery.limit(50);
+      const { data: quizResults } = await quizQuery.limit(100);
 
       // Fetch mastery data - global or per item
       let masteryQuery = supabase
@@ -77,6 +80,20 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
       
       const { data: masteryData } = await masteryQuery;
 
+      // Calcul comparaison temporelle (semaine actuelle vs précédente)
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+      const currentWeekResults = quizResults?.filter(r => new Date(r.created_at) >= oneWeekAgo) || [];
+      const prevWeekResults = quizResults?.filter(r => {
+        const date = new Date(r.created_at);
+        return date >= twoWeeksAgo && date < oneWeekAgo;
+      }) || [];
+
+      const currentWeekScores = currentWeekResults.map(r => r.score);
+      const prevWeekScores = prevWeekResults.map(r => r.score);
+
       const scores = quizResults?.map(r => r.score) || [];
       const mastered = masteryData?.filter(m => m.is_mastered).length || 0;
       const total = masteryData?.length || 0;
@@ -87,7 +104,11 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         bestScore: scores.length > 0 ? Math.max(...scores) : 0,
         masteredCompetences: mastered,
         totalCompetences: total,
-        lastActivity: quizResults?.[0]?.created_at || null
+        lastActivity: quizResults?.[0]?.created_at || null,
+        prevWeekQuizzes: prevWeekResults.length,
+        prevWeekAvgScore: prevWeekScores.length > 0 
+          ? prevWeekScores.reduce((a, b) => a + b, 0) / prevWeekScores.length 
+          : undefined
       });
 
       setLoading(false);
@@ -168,6 +189,14 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
               <TrendingUp className="h-5 w-5 mx-auto mb-1 text-success" />
               <div className="text-2xl font-bold">{Math.round(stats?.avgScore || 0)}%</div>
               <div className="text-xs text-muted-foreground">Score moyen</div>
+              {stats?.prevWeekAvgScore !== undefined && (
+                <div className={`text-xs mt-1 ${
+                  (stats.avgScore || 0) >= stats.prevWeekAvgScore ? 'text-success' : 'text-destructive'
+                }`}>
+                  {(stats.avgScore || 0) >= stats.prevWeekAvgScore ? '↑' : '↓'} 
+                  vs sem. préc. ({Math.round(stats.prevWeekAvgScore)}%)
+                </div>
+              )}
             </div>
             <div className="text-center p-3 bg-background/50 rounded-lg">
               <Trophy className="h-5 w-5 mx-auto mb-1 text-warning" />
