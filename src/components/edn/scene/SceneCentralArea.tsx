@@ -47,7 +47,7 @@ export const SceneCentralArea = ({
         {Array.from({ length: 7 }).map((_, i) => (
           <div
             key={i}
-            className={`absolute rounded-full border-3 ${theme.accent.replace('text-', 'border-')}/20 animate-pulse`}
+            className={`absolute rounded-full border-2 border-primary/20 animate-pulse`}
             style={{
               width: `${150 + (i * 80)}px`,
               height: `${150 + (i * 80)}px`,

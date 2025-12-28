@@ -167,9 +167,9 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   const getRewardMessage = () => {
     if (!rewards) return "Quiz terminé !";
     
-    const percentage = (score / allQuestions.length) * 10;
-    if (rewards['10'] && percentage === 10) return rewards['10'];
-    if (rewards['8-9'] && percentage >= 8) return rewards['8-9'];
+    const percentage = (score / allQuestions.length) * 100;
+    if (rewards['10'] && percentage === 100) return rewards['10'];
+    if (rewards['8-9'] && percentage >= 80) return rewards['8-9'];
     if (rewards['< 8']) return rewards['< 8'];
     return rewards.completion || "Félicitations !";
   };

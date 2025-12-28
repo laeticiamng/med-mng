@@ -133,11 +133,20 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
     }
   }, [config.type, logActivity]);
 
-  const phrases = config.exemples.map(ex => ex.phrase);
-  const concepts = config.exemples.map(ex => ex.concept);
+  const phrases = config.exemples?.map(ex => ex.phrase) || [];
+  const concepts = config.exemples?.map(ex => ex.concept) || [];
 
   // Memoized shuffled concepts (shuffle only once)
   const [shuffledConcepts] = useState(() => [...concepts].sort(() => Math.random() - 0.5));
+  
+  // Early return if no exemples
+  if (!config.exemples || config.exemples.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Aucun exercice disponible pour cette interaction.
+      </div>
+    );
+  }
 
   const usedConcepts = new Set(Object.values(matches));
 

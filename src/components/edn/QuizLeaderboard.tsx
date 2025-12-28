@@ -111,9 +111,10 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
             isCurrentUser: userId === user?.id
           }))
           .sort((a, b) => {
-            // Tri par score moyen, puis par nombre de quiz
+            // Tri stable: score moyen > nombre de quiz > ID utilisateur
             if (b.avgScore !== a.avgScore) return b.avgScore - a.avgScore;
-            return b.quizCount - a.quizCount;
+            if (b.quizCount !== a.quizCount) return b.quizCount - a.quizCount;
+            return a.userId.localeCompare(b.userId); // Stabilité par ID
           })
           .map((entry, index) => ({
             ...entry,
