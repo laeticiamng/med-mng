@@ -1,6 +1,21 @@
+
 import { conceptsRangAIC2, conceptsRangBIC2, colonnesConfigIC2 } from './TableauRangADataIC2';
 
-export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
+interface ColonneConfig {
+  nom: string;
+  couleur: string;
+  couleurCellule: string;
+  couleurTexte: string;
+}
+
+interface EnrichedData {
+  theme: string;
+  objectifs: string[];
+  competences: string[];
+  [key: string]: unknown;
+}
+
+export const generateLignesRangAIntelligentIC2 = (_data: unknown): string[][] => {
   const lignes: string[][] = [];
   
   conceptsRangAIC2.forEach((concept) => {
@@ -20,7 +35,7 @@ export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
+export const generateLignesRangBIntelligentIC2 = (_data: unknown): string[][] => {
   const lignes: string[][] = [];
   
   conceptsRangBIC2.forEach((concept) => {
@@ -40,12 +55,12 @@ export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
   return lignes;
 };
 
-export const determinerColonnesUtilesIC2 = (lignes: string[][]): any[] => {
+export const determinerColonnesUtilesIC2 = (_lignes: string[][]): ColonneConfig[] => {
   return colonnesConfigIC2;
 };
 
 // Fonction pour enrichir les données IC-2 selon E-LiSA officielle
-export const enrichirDonneesIC2 = (data: any) => {
+export const enrichirDonneesIC2 = (data: Record<string, unknown>): EnrichedData => {
   return {
     ...data,
     theme: "IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé",

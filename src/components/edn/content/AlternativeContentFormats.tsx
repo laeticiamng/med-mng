@@ -6,20 +6,22 @@ import { BookOpen, FileText, Headphones, Video, Download, Loader2 } from 'lucide
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface ItemData {
+  title: string;
+  subtitle: string;
+  item_code: string;
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+}
+
 interface AlternativeContentFormatsProps {
-  itemData: {
-    title: string;
-    subtitle: string;
-    item_code: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
-  };
+  itemData: ItemData;
 }
 
 export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps> = ({ itemData }) => {
   const [activeFormat, setActiveFormat] = useState('novel');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<any>({});
+  const [generatedContent, setGeneratedContent] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
   const generateContent = async (format: string) => {
@@ -59,7 +61,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
     }
   };
 
-  const createPromptForFormat = (format: string, item: any) => {
+  const createPromptForFormat = (format: string, item: ItemData): string => {
     const baseContent = `Titre: ${item.title}\nCode: ${item.item_code}`;
     
     switch (format) {
