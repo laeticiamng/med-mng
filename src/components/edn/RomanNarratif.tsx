@@ -171,60 +171,113 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
     }
   }, [savedProgress]);
 
-  // Générer les chapitres basés sur les vraies compétences OIC
+  // Générer les chapitres basés sur les vraies compétences OIC avec narration enrichie
   const generateChapters = () => {
     const chapters = [];
     
-    // Chapitre d'introduction
+    // Noms de scénarios variés pour plus d'immersion
+    const scenarios = [
+      { lieu: 'aux urgences', action: 'un patient arrive en détresse' },
+      { lieu: 'en consultation', action: 'un diagnostic complexe se présente' },
+      { lieu: 'au bloc opératoire', action: 'une intervention délicate commence' },
+      { lieu: 'en réunion de service', action: 'un cas difficile est discuté' }
+    ];
+    
+    // Chapitre d'introduction avec contexte enrichi
     chapters.push({
       id: 'intro',
       title: 'Prologue : L\'Art Médical',
-      content: `Dans l'univers complexe de la médecine moderne, ${title} représente un défi majeur pour tout praticien. Cette histoire vous plongera au cœur des compétences essentielles de l'${itemCode}, où chaque décision peut changer une vie.\n\nNotre protagoniste, Dr. Sarah Martin, jeune interne passionnée, découvre l'importance cruciale de maîtriser parfaitement ces concepts médicaux. Son parcours vous guidera à travers les nuances de cette spécialité.\n\n"La médecine, c'est avant tout comprendre l'humain dans sa complexité", se répète-t-elle en consultant le dossier du prochain patient.`,
+      content: `Dans l'univers complexe de la médecine moderne, ${title} représente un défi majeur pour tout praticien. Cette histoire vous plongera au cœur des ${competencesA.length + competencesB.length} compétences essentielles de l'${itemCode}, où chaque décision peut changer une vie.
+
+Notre protagoniste, Dr. Sarah Martin, jeune interne passionnée, découvre l'importance cruciale de maîtriser parfaitement ces concepts médicaux. Son parcours vous guidera à travers les nuances de cette spécialité.
+
+"La médecine, c'est avant tout comprendre l'humain dans sa complexité", se répète-t-elle en consultant le dossier du prochain patient.
+
+Ce roman narratif couvre ${competencesA.length} compétences de Rang A (fondamentales) et ${competencesB.length} compétences de Rang B (expertes).`,
       type: 'intro',
       competences: []
     });
 
-    // Chapitres pour rang A (vraies compétences OIC)
+    // Chapitres pour rang A (vraies compétences OIC) avec narration enrichie
     if (competencesA.length > 0) {
       for (let i = 0; i < competencesA.length; i += 2) {
         const batch = competencesA.slice(i, i + 2);
-        const chapterContent = batch.map((comp, idx) => 
-          `"${comp.intitule}" explique le chef de service. "${comp.description?.substring(0, 250) || 'Cette compétence fondamentale est essentielle pour la prise en charge des patients.'}..."\n\nLe Dr. Martin note scrupuleusement: ${comp.objectif_id}.`
-        ).join('\n\n');
+        const scenario = scenarios[Math.floor(i / 2) % scenarios.length];
+        
+        const chapterContent = batch.map((comp, idx) => {
+          const rubrique = comp.rubrique ? `[${comp.rubrique}]` : '';
+          const description = comp.description?.substring(0, 350) || 'Cette compétence fondamentale est essentielle pour la prise en charge des patients.';
+          return `${rubrique}
+
+"${comp.intitule}", explique le chef de service en pointant le dossier médical.
+
+${description}
+
+Le Dr. Martin note scrupuleusement dans son carnet: « ${comp.objectif_id} - À maîtriser absolument. »`;
+        }).join('\n\n---\n\n');
         
         chapters.push({
           id: `rang-a-${i}`,
           title: `Chapitre ${chapters.length} : Les Fondements`,
-          content: `Dr. Martin fait face à un cas complexe nécessitant la maîtrise des compétences de Rang A.\n\n${chapterContent}\n\nL'apprentissage se poursuit, chaque détail compte dans cette spécialité exigeante.`,
+          content: `Ce matin-là, ${scenario.lieu}, ${scenario.action}. Dr. Martin fait face à un cas complexe nécessitant la maîtrise des compétences de Rang A.
+
+${chapterContent}
+
+L'apprentissage se poursuit, chaque détail compte dans cette spécialité exigeante. Les compétences de Rang A forment le socle sur lequel repose toute expertise médicale.`,
           type: 'rang-a',
           competences: batch
         });
       }
     }
 
-    // Chapitres pour rang B (vraies compétences OIC)
+    // Chapitres pour rang B (vraies compétences OIC) avec narration enrichie
     if (competencesB.length > 0) {
       for (let i = 0; i < competencesB.length; i += 2) {
         const batch = competencesB.slice(i, i + 2);
-        const chapterContent = batch.map((comp, idx) => 
-          `Face à "${comp.intitule}", elle mobilise toute son expertise. "${comp.description?.substring(0, 250) || 'L\'analyse experte révèle des nuances importantes pour la pratique clinique avancée.'}..."\n\nRéférence: ${comp.objectif_id}.`
-        ).join('\n\n');
+        const scenario = scenarios[(Math.floor(i / 2) + 2) % scenarios.length];
+        
+        const chapterContent = batch.map((comp, idx) => {
+          const rubrique = comp.rubrique ? `[${comp.rubrique}]` : '';
+          const description = comp.description?.substring(0, 350) || 'L\'analyse experte révèle des nuances importantes pour la pratique clinique avancée.';
+          return `${rubrique}
+
+Face à "${comp.intitule}", elle mobilise toute son expertise acquise.
+
+${description}
+
+Référence clinique: ${comp.objectif_id} - Niveau expert requis.`;
+        }).join('\n\n---\n\n');
         
         chapters.push({
           id: `rang-b-${i}`,
           title: `Chapitre ${chapters.length} : L'Expertise`,
-          content: `L'expertise de Dr. Martin est maintenant mise à l'épreuve avec les compétences de Rang B.\n\n${chapterContent}\n\nChaque décision experte façonne l'issue de ce cas délicat.`,
+          content: `${scenario.lieu.charAt(0).toUpperCase() + scenario.lieu.slice(1)}, l'expertise de Dr. Martin est maintenant mise à l'épreuve avec les compétences de Rang B.
+
+${chapterContent}
+
+Chaque décision experte façonne l'issue de ce cas délicat. Le Rang B représente le niveau d'excellence attendu des praticiens confirmés.`,
           type: 'rang-b',
           competences: batch
         });
       }
     }
 
-    // Chapitre de conclusion
+    // Chapitre de conclusion enrichi
     chapters.push({
       id: 'epilogue',
       title: 'Épilogue : La Maîtrise Accomplie',
-      content: `Plusieurs mois plus tard, Dr. Martin reflète sur son parcours d'apprentissage de l'${itemCode}. Les ${competencesA.length} compétences de Rang A et ${competencesB.length} compétences de Rang B ont contribué à faire d'elle une praticienne accomplie.\n\n"De la compréhension des fondements jusqu'à l'expertise avancée, chaque étape était nécessaire", se dit-elle en observant ses collègues internes débuter leur propre apprentissage.\n\nLe cycle de transmission des connaissances continue, perpétuant l'excellence médicale dans cette spécialité exigeante.\n\n${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis les plus complexes de sa spécialité.`,
+      content: `Plusieurs mois plus tard, Dr. Martin reflète sur son parcours d'apprentissage de l'${itemCode}.
+
+Bilan de formation:
+• ${competencesA.length} compétences de Rang A maîtrisées (fondamentaux)
+• ${competencesB.length} compétences de Rang B acquises (expertise)
+• ${competencesA.length + competencesB.length} objectifs pédagogiques atteints au total
+
+"De la compréhension des fondements jusqu'à l'expertise avancée, chaque étape était nécessaire", se dit-elle en observant ses collègues internes débuter leur propre apprentissage.
+
+Le cycle de transmission des connaissances continue, perpétuant l'excellence médicale dans cette spécialité exigeante.
+
+${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis les plus complexes de sa spécialité, armée de ses ${competencesA.length + competencesB.length} compétences OIC.`,
       type: 'conclusion',
       competences: []
     });

@@ -54,16 +54,44 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
     load();
   }, [loadStats, logActivity, addPoints, itemCode]);
 
-  // Générer des vignettes basées sur les vraies compétences OIC
+  // Générer des vignettes basées sur les vraies compétences OIC avec images pertinentes
   const generateVignettes = () => {
     const vignettes = [];
+    
+    // Images médicales thématiques basées sur le type d'item
+    const getMedicalImage = (type: string, index: number = 0) => {
+      const medicalImages = {
+        intro: [
+          'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop', // médecin
+          'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=800&h=600&fit=crop' // hôpital
+        ],
+        'rang-a': [
+          'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=600&fit=crop', // stethoscope
+          'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=600&fit=crop', // médecin consultation
+          'https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&h=600&fit=crop', // examen
+          'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=800&h=600&fit=crop'  // laboratoire
+        ],
+        'rang-b': [
+          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop', // chirurgie
+          'https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=800&h=600&fit=crop', // IRM
+          'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&h=600&fit=crop', // recherche
+          'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800&h=600&fit=crop'  // équipe médicale
+        ],
+        conclusion: [
+          'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=800&h=600&fit=crop', // diplôme
+          'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=600&fit=crop'  // succès
+        ]
+      };
+      const images = medicalImages[type as keyof typeof medicalImages] || medicalImages.intro;
+      return images[index % images.length];
+    };
     
     // Vignette d'introduction
     vignettes.push({
       id: 'intro',
       title: `${itemCode} - Introduction`,
       description: `Découvrez l'univers médical de ${title}`,
-      image: `https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop`,
+      image: getMedicalImage('intro', 0),
       type: 'intro',
       competences: []
     });
@@ -76,7 +104,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           id: `rang-a-${i}`,
           title: `Rang A - Compétences ${i + 1}-${Math.min(i + 3, competencesA.length)}`,
           description: batch.map(c => c.intitule).join(' • '),
-          image: `https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800&h=600&fit=crop`,
+          image: getMedicalImage('rang-a', Math.floor(i / 3)),
           type: 'rang-a',
           competences: batch
         });
@@ -91,7 +119,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
           id: `rang-b-${i}`,
           title: `Rang B - Compétences ${i + 1}-${Math.min(i + 3, competencesB.length)}`,
           description: batch.map(c => c.intitule).join(' • '),
-          image: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop`,
+          image: getMedicalImage('rang-b', Math.floor(i / 3)),
           type: 'rang-b',
           competences: batch
         });
@@ -103,7 +131,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       id: 'conclusion',
       title: `${itemCode} - Synthèse`,
       description: `${competencesA.length + competencesB.length} compétences OIC maîtrisées`,
-      image: `https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=800&h=600&fit=crop`,
+      image: getMedicalImage('conclusion', 0),
       type: 'conclusion',
       competences: []
     });

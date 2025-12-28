@@ -165,7 +165,11 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
         effet={sceneData.effet}
       />
 
-      <SceneConclusion theme={theme} />
+      <SceneConclusion 
+        theme={theme} 
+        conclusion={sceneData.conclusion}
+        objective={sceneData.objective}
+      />
     </div>
   );
 };
