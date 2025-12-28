@@ -29,8 +29,6 @@ export const useEdnItemsOptimized = () => {
 
     const fetchItems = async () => {
       try {
-        console.log('📚 Début chargement EDN items via fetch...');
-        
         // Utiliser fetch direct avec timeout pour éviter blocage
         const timeoutId = setTimeout(() => controller.abort(), 15000);
         
@@ -59,7 +57,6 @@ export const useEdnItemsOptimized = () => {
         }
         
         const data = await response.json();
-        console.log('📚 Réponse reçue:', { count: data?.length });
         
         if (!data || data.length === 0) {
           setError('Aucun item EDN trouvé');
@@ -113,8 +110,6 @@ export const useEdnItemsOptimized = () => {
               hasMore = false;
             }
           }
-          
-          console.log('📊 OIC data loaded from oic_competences:', allOicData.length, 'competences');
 
           if (allOicData.length === 0) return;
 
