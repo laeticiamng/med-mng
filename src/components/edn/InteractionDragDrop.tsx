@@ -180,6 +180,8 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
     setShowResults(true);
     
     const scorePercentage = Math.round((correctCount / config.exemples.length) * 100);
+    
+    // Log activity avec score persisté
     logActivity({
       activity_type: 'study',
       count: 1,
@@ -188,17 +190,35 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
         component: 'interaction_drag_drop', 
         action: 'check_answers',
         correct: correctCount,
-        total: config.exemples.length
+        total: config.exemples.length,
+        matches: matches
       }
     });
     
+    // Sauvegarder dans user_activities pour persistance
     const { data: { user } } = await supabase.auth.getUser();
-    if (user && correctCount === config.exemples.length) {
-      await addPoints(user.id, 'perfectExam');
-    } else if (user && correctCount > 0) {
-      await addPoints(user.id, 'itemReviewed');
+    if (user) {
+      await supabase.from('user_activities').insert({
+        user_id: user.id,
+        activity_type: 'drag_drop_quiz',
+        count: 1,
+        score: scorePercentage,
+        duration_seconds: 0,
+        metadata: {
+          correct: correctCount,
+          total: config.exemples.length,
+          type: config.type,
+          matches: matches
+        }
+      });
+      
+      if (correctCount === config.exemples.length) {
+        await addPoints(user.id, 'perfectExam');
+      } else if (correctCount > 0) {
+        await addPoints(user.id, 'itemReviewed');
+      }
     }
-  }, [matches, config.exemples, logActivity, addPoints]);
+  }, [matches, config.exemples, config.type, logActivity, addPoints]);
 
   const resetGame = useCallback(() => {
     setMatches({});

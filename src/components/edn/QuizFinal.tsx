@@ -307,6 +307,36 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
     
+    // Calculate detailed results
+    const detailedResults = allQuestions.map((question: any) => {
+      const userAnswer = answers[question.id];
+      let isCorrect = false;
+      let correctAnswer = '';
+      
+      switch (question.type) {
+        case 'qcm':
+          isCorrect = userAnswer === question.correct;
+          correctAnswer = question.options?.[question.correct || 0] || '';
+          break;
+        case 'zap':
+          isCorrect = userAnswer === question.correct;
+          correctAnswer = question.correct ? 'Vrai' : 'Faux';
+          break;
+        default:
+          isCorrect = false;
+          correctAnswer = question.reponse || question.points_cles?.join(', ') || '';
+      }
+      
+      return {
+        question: question.question || question.affirmation,
+        userAnswer: typeof userAnswer === 'boolean' ? (userAnswer ? 'Vrai' : 'Faux') : 
+                    question.type === 'qcm' ? question.options?.[userAnswer] : String(userAnswer || 'Non répondu'),
+        correctAnswer,
+        isCorrect,
+        justification: question.justification
+      };
+    });
+    
     return (
       <div className="space-y-8">
         <div className="text-center">
@@ -333,6 +363,51 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             </Badge>
           </div>
         )}
+
+        {/* Detailed Results per Question */}
+        <Card className="p-4 border-border">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            📋 Correction détaillée
+          </h3>
+          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+            {detailedResults.map((result, idx) => (
+              <div 
+                key={idx} 
+                className={`p-3 rounded-lg border ${
+                  result.isCorrect 
+                    ? 'bg-success/5 border-success/20' 
+                    : 'bg-destructive/5 border-destructive/20'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{idx + 1}. {result.question}</p>
+                    <div className="mt-2 text-xs space-y-1">
+                      <div className={result.isCorrect ? 'text-success' : 'text-destructive'}>
+                        Votre réponse: {result.userAnswer}
+                      </div>
+                      {!result.isCorrect && (
+                        <div className="text-success">
+                          Bonne réponse: {result.correctAnswer}
+                        </div>
+                      )}
+                      {result.justification && (
+                        <div className="text-muted-foreground italic mt-1">
+                          💡 {result.justification}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {result.isCorrect ? (
+                    <CheckCircle className="h-5 w-5 text-success shrink-0" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-destructive shrink-0" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
 
         <Card className="p-8 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
           <div className="text-center">
