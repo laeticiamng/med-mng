@@ -314,7 +314,7 @@ export default function EdnComplete() {
                     {stats.total} items • {stats.totalOicCompetences > 0 ? `${stats.totalOicCompetences} compétences UNESS` : 'Choisis et maîtrise un bloc'}
                   </p>
                 </div>
-                {gamificationStats && (
+                {gamificationStats && gamificationStats.currentStreak !== undefined && (
                   <div className="hidden md:flex items-center gap-2 ml-4">
                     <Badge variant="outline" className="gap-1 text-xs">
                       <Flame className="h-3 w-3 text-orange-500" />
@@ -322,7 +322,7 @@ export default function EdnComplete() {
                     </Badge>
                     <Badge variant="outline" className="gap-1 text-xs">
                       <Star className="h-3 w-3 text-yellow-500" />
-                      Niv. {gamificationStats.level}
+                      Niv. {gamificationStats.level ?? 1}
                     </Badge>
                   </div>
                 )}

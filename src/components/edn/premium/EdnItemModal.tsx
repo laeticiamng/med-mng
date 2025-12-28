@@ -23,7 +23,9 @@ import { AudioAmbiancePlayer } from "@/components/edn/audio/AudioAmbiancePlayer"
 import { EdnItemExport } from "@/components/edn/export/EdnItemExport";
 import { PersonalNotes } from "@/components/edn/PersonalNotes";
 import { QuizLeaderboard } from "@/components/edn/QuizLeaderboard";
+import { QuizHistorySummary } from "@/components/edn/QuizHistorySummary";
 import { SocialShare } from "@/components/social/SocialShare";
+import { FaqSection } from "@/components/help/FaqSection";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
@@ -390,6 +392,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   
                   {/* Personal Notes */}
                   <PersonalNotes itemCode={finalItem.item_code} />
+                  
+                  {/* Quiz History Summary */}
+                  <QuizHistorySummary itemCode={finalItem.item_code} />
+                  
+                  {/* FAQ Section */}
+                  <FaqSection />
                   
                   {/* Badges de compétences */}
                   <CompetencesBadges item={finalItem} />
