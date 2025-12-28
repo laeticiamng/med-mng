@@ -4,14 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Search, Music, CheckCircle, XCircle, Clock, 
-  Eye, BarChart3
+  Eye, BarChart3, ListMusic, Heart
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { MusicPlaylist } from '@/components/edn/music/MusicPlaylist';
 
 interface EdnItemLyrics {
   id: string;
@@ -147,7 +149,23 @@ export const LyricsCompletionStatus: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <Tabs defaultValue="playlist" className="space-y-4">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="playlist" className="flex items-center gap-2">
+          <ListMusic className="h-4 w-4" />
+          Playlist
+        </TabsTrigger>
+        <TabsTrigger value="status" className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Statut des paroles
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="playlist">
+        <MusicPlaylist />
+      </TabsContent>
+
+      <TabsContent value="status" className="space-y-4">
       {/* Statistiques compactes */}
       <Card>
         <CardContent className="p-4">
@@ -264,6 +282,7 @@ export const LyricsCompletionStatus: React.FC = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 };

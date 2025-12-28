@@ -140,9 +140,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     // Musique - toujours disponible (génération possible)
     tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
     
-    if (finalItem.scene_immersive) {
-      tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
-    }
+    // Scène - toujours visible (avec message si pas de données)
+    tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
     
     // BD et Roman - disponibles pour génération à la demande
     tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
@@ -448,19 +447,54 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 />
               </TabsContent>
 
-              {/* Scene */}
-              {finalItem.scene_immersive && (
-                <TabsContent value="scene" className="mt-0 p-6 space-y-4">
-                  {/* Audio Ambiance Player */}
-                  {finalItem.audio_ambiance && (
-                    <AudioAmbiancePlayer 
-                      audioConfig={finalItem.audio_ambiance} 
-                      itemCode={finalItem.item_code} 
-                    />
-                  )}
-                  <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
-                </TabsContent>
-              )}
+              {/* Scene - Toujours affichée */}
+              <TabsContent value="scene" className="mt-0 p-6 space-y-4">
+                {finalItem.scene_immersive ? (
+                  <>
+                    {/* Audio Ambiance Player */}
+                    {finalItem.audio_ambiance && (
+                      <AudioAmbiancePlayer 
+                        audioConfig={finalItem.audio_ambiance} 
+                        itemCode={finalItem.item_code} 
+                      />
+                    )}
+                    <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
+                  </>
+                ) : (
+                  <Card className="border-2 border-accent/20">
+                    <CardHeader className="text-center">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-accent/10 flex items-center justify-center mb-4">
+                        <Users className="h-8 w-8 text-accent" />
+                      </div>
+                      <CardTitle>Scène immersive en préparation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-4">
+                      <p className="text-muted-foreground">
+                        La scène immersive pour <strong>{finalItem.item_code}</strong> est en cours de création.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                        <button 
+                          onClick={() => setActiveTab('rang-a')}
+                          className="p-4 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-primary mb-1">📚 Rang A</div>
+                          <div className="text-xs text-muted-foreground">Compétences fondamentales</div>
+                        </button>
+                        <button 
+                          onClick={() => setActiveTab('music')}
+                          className="p-4 rounded-lg border border-success/30 bg-success/5 hover:bg-success/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-success mb-1">🎵 Musique</div>
+                          <div className="text-xs text-muted-foreground">Mémorisation musicale</div>
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-2">
+                        En attendant, explorez les autres formats pédagogiques disponibles.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
 
               {/* Quiz */}
               {/* Quiz - Toujours affiché */}
