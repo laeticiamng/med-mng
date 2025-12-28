@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+// @refresh reset
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface EdnItemOptimized {
@@ -15,32 +16,45 @@ export interface EdnItemOptimized {
   mots_cles?: string[];
 }
 
-export const useEdnItemsOptimized = () => {
-  const [items, setItems] = useState<EdnItemOptimized[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Module-level cache for persistence across HMR
+let cachedItems: EdnItemOptimized[] = [];
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true);
+export const useEdnItemsOptimized = () => {
+  const [items, setItems] = useState<EdnItemOptimized[]>(cachedItems);
+  const [loading, setLoading] = useState(cachedItems.length === 0);
+  const [error, setError] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+  const fetchingRef = useRef(false);
+
+  const fetchItems = useCallback(async (force = false) => {
+    // Check cache validity
+    const now = Date.now();
+    if (!force && cachedItems.length > 0 && now - cacheTimestamp < CACHE_TTL) {
+      setItems(cachedItems);
+      setLoading(false);
+      return;
+    }
+
+    // Prevent concurrent fetches
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+    
+    setLoading(cachedItems.length === 0);
     setError(null);
     
     try {
-      console.log('[EDN] Fetching items from Supabase...');
-      
+      // Fast initial fetch - minimal columns only
       const { data, error: fetchError } = await supabase
         .from('edn_items_immersive')
         .select('id,item_code,title,subtitle,slug,updated_at,paroles_musicales')
         .order('item_code');
       
-      console.log('[EDN] Fetch complete:', { count: data?.length, error: fetchError?.message });
+      if (!mountedRef.current) return;
       
-      if (fetchError) {
-        throw new Error(fetchError.message);
-      }
-      
-      if (!data || data.length === 0) {
-        throw new Error('Aucun item EDN trouvé');
-      }
+      if (fetchError) throw new Error(fetchError.message);
+      if (!data || data.length === 0) throw new Error('Aucun item EDN trouvé');
       
       const mappedItems: EdnItemOptimized[] = data.map((item) => ({
         id: item.id,
@@ -54,16 +68,25 @@ export const useEdnItemsOptimized = () => {
         competences_count_rang_b: 0,
       }));
       
-      setItems(mappedItems);
-      setLoading(false);
+      // Update cache and state immediately
+      cachedItems = mappedItems;
+      cacheTimestamp = now;
       
-      // Background OIC enrichment
+      if (mountedRef.current) {
+        setItems(mappedItems);
+        setLoading(false);
+      }
+      
+      // Async OIC enrichment (background, non-blocking)
       enrichWithOic(mappedItems);
       
     } catch (err) {
-      console.error('[EDN] Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      setLoading(false);
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+        setLoading(false);
+      }
+    } finally {
+      fetchingRef.current = false;
     }
   }, []);
 
@@ -74,7 +97,7 @@ export const useEdnItemsOptimized = () => {
         .select('item_parent,rang')
         .not('objectif_id', 'is', null);
 
-      if (!oicData) return;
+      if (!oicData || !mountedRef.current) return;
 
       const countsMap = new Map<string, { rangA: number; rangB: number }>();
       oicData.forEach((row) => {
@@ -85,7 +108,7 @@ export const useEdnItemsOptimized = () => {
         countsMap.set(key, existing);
       });
 
-      setItems(currentItems.map((item) => {
+      const enrichedItems = currentItems.map((item) => {
         const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
         const counts = countsMap.get(itemNumber) || { rangA: 0, rangB: 0 };
         return {
@@ -93,18 +116,27 @@ export const useEdnItemsOptimized = () => {
           competences_count_rang_a: counts.rangA,
           competences_count_rang_b: counts.rangB,
         };
-      }));
+      });
+
+      // Update cache and state
+      cachedItems = enrichedItems;
+      if (mountedRef.current) {
+        setItems(enrichedItems);
+      }
     } catch (err) {
       console.warn('[EDN] OIC enrichment failed:', err);
     }
   };
 
   useEffect(() => {
+    mountedRef.current = true;
     fetchItems();
+    return () => { mountedRef.current = false; };
   }, [fetchItems]);
 
   const refresh = useCallback(() => {
-    fetchItems();
+    cacheTimestamp = 0;
+    fetchItems(true);
   }, [fetchItems]);
 
   const stats = useMemo(() => {
@@ -135,5 +167,6 @@ export const useEdnItemsOptimized = () => {
 };
 
 export const invalidateEdnCache = () => {
-  // No-op, kept for compatibility
+  cachedItems = [];
+  cacheTimestamp = 0;
 };
