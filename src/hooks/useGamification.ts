@@ -155,7 +155,7 @@ export function useGamification() {
         .gte('activity_date', weekStart.toISOString().split('T')[0]);
 
       // Récupérer le longest streak depuis Supabase
-      const { data: gamificationData } = await (supabase as any)
+      const { data: gamificationData } = await supabase
         .from('user_gamification_stats')
         .select('longest_streak')
         .eq('user_id', userId)

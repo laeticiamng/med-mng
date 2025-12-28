@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface QuizError {
   questionId: string;
@@ -79,20 +80,23 @@ export const useQuizErrorTracker = () => {
 
     setAllSessions(prev => [...prev, completedSession]);
     
-    // Save to Supabase
+    // Save to Supabase with correct column names
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await (supabase as any)
+        const timeSpent = Math.round((completedSession.endTime!.getTime() - completedSession.startTime.getTime()) / 1000);
+        await supabase
           .from('quiz_sessions')
           .insert({
             user_id: user.id,
             item_code: completedSession.itemCode,
-            errors: completedSession.errors,
-            total_questions: completedSession.totalQuestions,
+            rang: 'A', // Default rang
+            score: finalScore,
+            questions_count: completedSession.totalQuestions,
             correct_answers: completedSession.totalQuestions - completedSession.errors.length,
-            duration_seconds: Math.round((completedSession.endTime!.getTime() - completedSession.startTime.getTime()) / 1000),
-            completed_at: completedSession.endTime?.toISOString()
+            time_spent_seconds: timeSpent,
+            session_data: { errors: completedSession.errors, itemTitle: completedSession.itemTitle } as unknown as Json,
+            completed: true
           });
       }
     } catch (error) {
@@ -141,24 +145,28 @@ export const useQuizErrorTracker = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('quiz_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
+        .eq('completed', true)
+        .order('created_at', { ascending: false })
         .limit(100);
 
       if (data) {
-        const sessions: QuizSession[] = data.map((s: any) => ({
-          id: s.id,
-          itemCode: s.item_code,
-          itemTitle: s.item_code,
-          startTime: new Date(s.created_at),
-          endTime: s.completed_at ? new Date(s.completed_at) : undefined,
-          errors: s.errors || [],
-          totalQuestions: s.total_questions,
-          score: s.correct_answers
-        }));
+        const sessions: QuizSession[] = data.map((s) => {
+          const sessionData = s.session_data as { errors?: QuizError[]; itemTitle?: string } | null;
+          return {
+            id: s.id,
+            itemCode: s.item_code || '',
+            itemTitle: sessionData?.itemTitle || s.item_code || '',
+            startTime: new Date(s.created_at),
+            endTime: s.updated_at ? new Date(s.updated_at) : undefined,
+            errors: sessionData?.errors || [],
+            totalQuestions: s.questions_count || 0,
+            score: s.score || 0
+          };
+        });
         setAllSessions(sessions);
         console.log('📚 SESSIONS CHARGÉES:', sessions.length);
       }

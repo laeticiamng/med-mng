@@ -62,12 +62,26 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     loadBandeDessinee();
   }, [itemData.item_code]);
 
+  // Images médicales Unsplash variées et valides
+  const MEDICAL_IMAGES = [
+    'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop', // Doctor
+    'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500&h=300&fit=crop', // Medical equipment
+    'https://images.unsplash.com/photo-1551076805-e1869033e561?w=500&h=300&fit=crop', // Hospital
+    'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=500&h=300&fit=crop', // Stethoscope
+    'https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=500&h=300&fit=crop', // Healthcare
+    'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500&h=300&fit=crop', // Medical research
+    'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=500&h=300&fit=crop', // Consultation
+    'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&h=300&fit=crop', // Doctor portrait
+  ];
+
   const createDefaultPanels = (data: any): VignettePregenere[] => {
     console.log('🔍 Analyse des données pour création de vignettes:', data);
     
     const itemCode = data.item_code || 'IC-1';
     const itemNumber = itemCode.replace('IC-', '');
     const panels: VignettePregenere[] = [];
+    
+    const getImage = (idx: number) => MEDICAL_IMAGES[idx % MEDICAL_IMAGES.length];
     
     // Extraire les compétences du tableau rang A
     const rangA = data.tableau_rang_a;
@@ -79,7 +93,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
             id: panels.length + 1,
             title: comp.competence || comp.title || `Compétence ${idx + 1}`,
             text: comp.description || `Maîtrisez cette compétence essentielle de l'item ${itemNumber}`,
-            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            imageUrl: getImage(idx),
             competences: [comp.competence || `Rang A - ${idx + 1}`]
           });
         });
@@ -91,7 +105,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
             id: panels.length + 1,
             title: section.title || `Section ${idx + 1}`,
             text: section.content || section.description || `Contenu de la section ${idx + 1}`,
-            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            imageUrl: getImage(idx),
             competences: section.keywords || section.concepts?.map((c: any) => c.title || c) || [`Section ${idx + 1}`]
           });
         });
@@ -103,7 +117,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
             id: panels.length + 1,
             title: item.intitule || item.title || `Élément ${idx + 1}`,
             text: item.description || item.content || `Description de l'élément ${idx + 1}`,
-            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            imageUrl: getImage(idx),
             competences: [item.intitule || `Compétence ${idx + 1}`]
           });
         });
@@ -116,7 +130,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
         id: 1,
         title: `Introduction - ${data.title || itemCode}`,
         text: `Découvrez les concepts essentiels de l'item ${itemNumber}: ${data.title}. Cette bande dessinée vous guide à travers les compétences clés.`,
-        imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+        imageUrl: getImage(0),
         competences: ['Introduction', 'Vue d\'ensemble']
       });
     }
