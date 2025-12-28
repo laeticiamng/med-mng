@@ -51,7 +51,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       if (user) {
         loadStats(user.id);
         // Load previous feedback for this item
-        const { data } = await (supabase as any)
+        const { data } = await supabase
           .from('music_feedback')
           .select('rating')
           .eq('user_id', user.id)
@@ -166,12 +166,12 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     setUserFeedback(feedback);
 
     try {
-      await (supabase as any).from('music_feedback').upsert({
+      await supabase.from('music_feedback').upsert({
         user_id: user.id,
         item_code: itemCode,
         style: selectedStyle,
         rating,
-        audio_url: generatedAudio,
+        audio_url: typeof generatedAudio === 'string' ? generatedAudio : null,
         created_at: new Date().toISOString()
       }, { onConflict: 'user_id,item_code' });
 

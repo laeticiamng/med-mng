@@ -40,30 +40,50 @@ export const RevisionDashboard: React.FC = () => {
   
   const { stats: gamificationStats, loadStats } = useGamification();
 
-  // Load gamification stats and revision history
+  // Load gamification stats and revision history from DB
   useEffect(() => {
     const loadUserStats = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         loadStats(user.id);
+        
+        // Load revision history from Supabase
+        const { data: historyData } = await supabase
+          .from('revision_history')
+          .select('item_code, score, session_date, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        
+        if (historyData && historyData.length > 0) {
+          const formatted = historyData.map(h => ({
+            itemCode: h.item_code,
+            score: h.score,
+            timestamp: h.created_at,
+            date: new Date(h.session_date).toLocaleDateString('fr-FR')
+          }));
+          setRevisionHistory(formatted);
+        } else {
+          // Fallback: try localStorage for existing data
+          const savedHistory = localStorage.getItem('revision-history');
+          if (savedHistory) {
+            try {
+              const parsed = JSON.parse(savedHistory);
+              setRevisionHistory(parsed.slice(0, 20));
+            } catch (e) {
+              console.warn('Failed to parse revision history');
+            }
+          }
+        }
       }
     };
     loadUserStats();
-    
-    // Load revision history from localStorage
-    const savedHistory = localStorage.getItem('revision-history');
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory);
-        setRevisionHistory(parsed.slice(0, 20)); // Keep last 20 entries
-      } catch (e) {
-        console.warn('Failed to parse revision history');
-      }
-    }
   }, [loadStats]);
 
-  // Track revision session completion
-  const trackRevision = (itemCode: string, score: number) => {
+  // Track revision session completion - save to DB
+  const trackRevision = async (itemCode: string, score: number) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const entry = {
       itemCode,
       score,
@@ -72,7 +92,19 @@ export const RevisionDashboard: React.FC = () => {
     };
     const newHistory = [entry, ...revisionHistory].slice(0, 50);
     setRevisionHistory(newHistory);
-    localStorage.setItem('revision-history', JSON.stringify(newHistory));
+    
+    // Save to DB if user is logged in
+    if (user) {
+      await supabase.from('revision_history').insert({
+        user_id: user.id,
+        item_code: itemCode,
+        score,
+        session_date: new Date().toISOString().split('T')[0]
+      });
+    } else {
+      // Fallback to localStorage for non-authenticated users
+      localStorage.setItem('revision-history', JSON.stringify(newHistory));
+    }
   };
 
   const todayItems = getTodayRevisionItems();

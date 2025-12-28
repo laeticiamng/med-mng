@@ -83,13 +83,12 @@ export const LyricsCompletionStatus: React.FC = () => {
   const getLyricsStatus = (item: EdnItemLyrics) => {
     const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
     const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
-    const hasRangAB = item.paroles_rang_ab && item.paroles_rang_ab.length > 0;
     const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
 
-    const completedRangs = [hasRangA, hasRangB, hasRangAB].filter(Boolean).length;
-    
-    if (completedRangs === 3 && hasMusic) return 'complete';
-    if (completedRangs > 0 || hasMusic) return 'partial';
+    // Un item est complet s'il a des paroles musicales (prêt pour génération Suno)
+    if (hasMusic) return 'complete';
+    // Partiel s'il a au moins rang A ou B
+    if (hasRangA || hasRangB) return 'partial';
     return 'missing';
   };
 
@@ -115,8 +114,10 @@ export const LyricsCompletionStatus: React.FC = () => {
       if (item.paroles_rang_a?.length) stats.withRangA++;
       if (item.paroles_rang_b?.length) stats.withRangB++;
       if (item.paroles_rang_ab?.length) stats.withRangAB++;
-      if (item.paroles_musicales?.length) stats.withMusic++;
-      if (getLyricsStatus(item) === 'complete') stats.complete++;
+      if (item.paroles_musicales?.length) {
+        stats.withMusic++;
+        stats.complete++; // Un item avec paroles_musicales est complet
+      }
       return stats;
     }, { total: 0, withRangA: 0, withRangB: 0, withRangAB: 0, complete: 0, withMusic: 0 });
   };
