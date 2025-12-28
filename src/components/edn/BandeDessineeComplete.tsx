@@ -65,30 +65,63 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
   const createDefaultPanels = (data: any): VignettePregenere[] => {
     console.log('🔍 Analyse des données pour création de vignettes:', data);
     
-    // Créer des vignettes basées sur le tableau rang A
-    const sections = data.tableau_rang_a?.sections || [];
     const itemCode = data.item_code || 'IC-1';
     const itemNumber = itemCode.replace('IC-', '');
+    const panels: VignettePregenere[] = [];
     
-    if (sections.length === 0) {
-      // Créer une vignette par défaut si pas de sections
-      return [{
-        id: 1,
-        title: `Introduction ${itemCode}`,
-        text: `Découvrez les concepts essentiels de l'item ${itemNumber}: ${data.title}`,
-        imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
-        competences: ['Compréhension générale']
-      }];
+    // Extraire les compétences du tableau rang A
+    const rangA = data.tableau_rang_a;
+    if (rangA) {
+      // Format competences_cles (OIC)
+      if (rangA.competences_cles && Array.isArray(rangA.competences_cles)) {
+        rangA.competences_cles.slice(0, 4).forEach((comp: any, idx: number) => {
+          panels.push({
+            id: panels.length + 1,
+            title: comp.competence || comp.title || `Compétence ${idx + 1}`,
+            text: comp.description || `Maîtrisez cette compétence essentielle de l'item ${itemNumber}`,
+            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            competences: [comp.competence || `Rang A - ${idx + 1}`]
+          });
+        });
+      }
+      // Format sections
+      else if (rangA.sections && Array.isArray(rangA.sections)) {
+        rangA.sections.slice(0, 4).forEach((section: any, idx: number) => {
+          panels.push({
+            id: panels.length + 1,
+            title: section.title || `Section ${idx + 1}`,
+            text: section.content || section.description || `Contenu de la section ${idx + 1}`,
+            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            competences: section.keywords || section.concepts?.map((c: any) => c.title || c) || [`Section ${idx + 1}`]
+          });
+        });
+      }
+      // Format tableau direct (array)
+      else if (Array.isArray(rangA) && rangA.length > 0) {
+        rangA.slice(0, 4).forEach((item: any, idx: number) => {
+          panels.push({
+            id: panels.length + 1,
+            title: item.intitule || item.title || `Élément ${idx + 1}`,
+            text: item.description || item.content || `Description de l'élément ${idx + 1}`,
+            imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+            competences: [item.intitule || `Compétence ${idx + 1}`]
+          });
+        });
+      }
     }
     
-    // Créer une vignette pour chaque section du rang A
-    return sections.map((section: any, index: number) => ({
-      id: index + 1,
-      title: section.title || `Étape ${index + 1}`,
-      text: section.content || `Contenu de la section ${index + 1} pour l'item ${itemNumber}`,
-      imageUrl: `https://images.unsplash.com/photo-${1576091160399 + index}?w=500&h=300&fit=crop&crop=center`,
-      competences: section.keywords || [`Compétence ${index + 1}`]
-    }));
+    // Toujours créer au moins une vignette d'introduction
+    if (panels.length === 0) {
+      panels.push({
+        id: 1,
+        title: `Introduction - ${data.title || itemCode}`,
+        text: `Découvrez les concepts essentiels de l'item ${itemNumber}: ${data.title}. Cette bande dessinée vous guide à travers les compétences clés.`,
+        imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+        competences: ['Introduction', 'Vue d\'ensemble']
+      });
+    }
+    
+    return panels;
   };
 
   const totalCompetences = (itemData.tableau_rang_a?.lignes?.length || 

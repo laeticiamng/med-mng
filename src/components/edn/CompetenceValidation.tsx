@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle, Info, XCircle, Flame, Star } from "lucide-react";
+import { CheckCircle, AlertTriangle, Info, Flame, Star, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CompetenceValidationProps {
@@ -16,6 +17,10 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats } = useGamification();
+  
+  // Utiliser les vraies compétences OIC depuis la base de données
+  const { competences: oicCompetencesA, loading: loadingA } = useOicCompetences(item?.item_code || '', 'A');
+  const { competences: oicCompetencesB, loading: loadingB } = useOicCompetences(item?.item_code || '', 'B');
 
   useEffect(() => {
     const load = async () => {
@@ -28,118 +33,81 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     load();
   }, [loadStats, logActivity, item?.item_code]);
 
-  const validateCompetences = () => {
-    const validation = {
+  const validation = useMemo(() => {
+    const result = {
       rangA: {
         present: false,
         count: 0,
-        competences: []
+        competences: [] as string[]
       },
       rangB: {
         present: false,
         count: 0,
-        competences: []
+        competences: [] as string[]
       },
       complete: false,
-      issues: []
+      issues: [] as string[]
     };
 
-    // Validation Rang A - logique améliorée pour supporter competences_cles
-    if (item.tableau_rang_a) {
-      validation.rangA.present = true;
-      
-      // Chercher dans competences_cles (format OIC)
-      if (item.tableau_rang_a.competences_cles && Array.isArray(item.tableau_rang_a.competences_cles)) {
-        validation.rangA.count = item.tableau_rang_a.competences_cles.length;
-        validation.rangA.competences = item.tableau_rang_a.competences_cles.map((c: any) => 
-          c.competence || c.competence_id || c.title || 'Compétence'
-        ).filter(Boolean);
-      }
-      // Fallback: sections
-      else if (item.tableau_rang_a.sections && Array.isArray(item.tableau_rang_a.sections)) {
-        const concepts = item.tableau_rang_a.sections.flatMap((section: any) => 
-          section.concepts || section.competences || []
-        );
-        validation.rangA.count = concepts.length;
-        validation.rangA.competences = concepts.map((c: any) => 
-          c.competence_id || c.concept || c.title || 'Compétence'
-        ).filter(Boolean);
-      } 
-      // Fallback: competences
-      else if (item.tableau_rang_a.competences && Array.isArray(item.tableau_rang_a.competences)) {
-        validation.rangA.count = item.tableau_rang_a.competences.length;
-        validation.rangA.competences = item.tableau_rang_a.competences.map((c: any) => 
-          c.competence_id || c.concept || c.title || 'Compétence'
-        );
-      }
-      // Fallback: utiliser competences_count_rang_a si disponible
-      else if (item.competences_count_rang_a && item.competences_count_rang_a > 0) {
-        validation.rangA.count = item.competences_count_rang_a;
+    // Utiliser les compétences OIC réelles si disponibles
+    if (oicCompetencesA.length > 0) {
+      result.rangA.present = true;
+      result.rangA.count = oicCompetencesA.length;
+      result.rangA.competences = oicCompetencesA.map(c => c.intitule || 'Compétence').filter(Boolean);
+    } else if (item.tableau_rang_a) {
+      result.rangA.present = true;
+      // Fallback: données locales
+      if (item.tableau_rang_a.competences_cles?.length > 0) {
+        result.rangA.count = item.tableau_rang_a.competences_cles.length;
+        result.rangA.competences = item.tableau_rang_a.competences_cles.map((c: any) => c.competence || c.title).filter(Boolean);
+      } else if (Array.isArray(item.tableau_rang_a) && item.tableau_rang_a.length > 0) {
+        result.rangA.count = item.tableau_rang_a.length;
+        result.rangA.competences = item.tableau_rang_a.map((c: any) => c.intitule || c.title).filter(Boolean);
       }
     } else {
-      validation.issues.push("Tableau Rang A manquant");
+      result.issues.push("Tableau Rang A manquant");
     }
 
-    // Validation Rang B - logique améliorée pour supporter competences_cles
-    if (item.tableau_rang_b) {
-      validation.rangB.present = true;
-      
-      // Chercher dans competences_cles (format OIC)
-      if (item.tableau_rang_b.competences_cles && Array.isArray(item.tableau_rang_b.competences_cles)) {
-        validation.rangB.count = item.tableau_rang_b.competences_cles.length;
-        validation.rangB.competences = item.tableau_rang_b.competences_cles.map((c: any) => 
-          c.competence || c.competence_id || c.title || 'Compétence'
-        ).filter(Boolean);
-      }
-      // Fallback: sections
-      else if (item.tableau_rang_b.sections && Array.isArray(item.tableau_rang_b.sections)) {
-        const concepts = item.tableau_rang_b.sections.flatMap((section: any) => 
-          section.concepts || section.competences || []
-        );
-        validation.rangB.count = concepts.length;
-        validation.rangB.competences = concepts.map((c: any) => 
-          c.competence_id || c.concept || c.title || 'Compétence'
-        ).filter(Boolean);
-      } 
-      // Fallback: competences
-      else if (item.tableau_rang_b.competences && Array.isArray(item.tableau_rang_b.competences)) {
-        validation.rangB.count = item.tableau_rang_b.competences.length;
-        validation.rangB.competences = item.tableau_rang_b.competences.map((c: any) => 
-          c.competence_id || c.concept || c.title || 'Compétence'
-        );
-      }
-      // Fallback: utiliser competences_count_rang_b si disponible
-      else if (item.competences_count_rang_b && item.competences_count_rang_b > 0) {
-        validation.rangB.count = item.competences_count_rang_b;
+    // Rang B
+    if (oicCompetencesB.length > 0) {
+      result.rangB.present = true;
+      result.rangB.count = oicCompetencesB.length;
+      result.rangB.competences = oicCompetencesB.map(c => c.intitule || 'Compétence').filter(Boolean);
+    } else if (item.tableau_rang_b) {
+      result.rangB.present = true;
+      if (item.tableau_rang_b.competences_cles?.length > 0) {
+        result.rangB.count = item.tableau_rang_b.competences_cles.length;
+        result.rangB.competences = item.tableau_rang_b.competences_cles.map((c: any) => c.competence || c.title).filter(Boolean);
+      } else if (Array.isArray(item.tableau_rang_b) && item.tableau_rang_b.length > 0) {
+        result.rangB.count = item.tableau_rang_b.length;
+        result.rangB.competences = item.tableau_rang_b.map((c: any) => c.intitule || c.title).filter(Boolean);
       }
     } else {
-      validation.issues.push("Tableau Rang B manquant");
+      result.issues.push("Tableau Rang B manquant");
     }
 
     // Vérification des contenus complémentaires
     if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
-      validation.issues.push("Paroles musicales manquantes");
+      result.issues.push("Paroles musicales manquantes");
     }
-
     if (!item.quiz_questions) {
-      validation.issues.push("Quiz manquant");
+      result.issues.push("Quiz manquant");
     }
-
     if (!item.scene_immersive) {
-      validation.issues.push("Scène immersive manquante");
+      result.issues.push("Scène immersive manquante");
     }
 
     // Déterminer si l'item est complet
-    validation.complete = validation.rangA.present && 
-                        validation.rangB.present && 
-                        validation.rangA.count > 0 && 
-                        validation.rangB.count > 0 &&
-                        validation.issues.length === 0;
+    result.complete = result.rangA.present && 
+                      result.rangB.present && 
+                      result.rangA.count > 0 && 
+                      result.rangB.count > 0 &&
+                      result.issues.length === 0;
 
-    return validation;
-  };
+    return result;
+  }, [item, oicCompetencesA, oicCompetencesB]);
 
-  const validation = validateCompetences();
+  const isLoading = loadingA || loadingB;
 
   const getStatusColor = () => {
     if (validation.complete) return "border-success bg-success/5";
@@ -152,6 +120,17 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     if (validation.issues.length < 3) return <AlertTriangle className="h-5 w-5 text-warning" />;
     return <AlertTriangle className="h-5 w-5 text-destructive" />;
   };
+
+  if (isLoading) {
+    return (
+      <Card className="border-2 border-muted">
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+          <span className="text-muted-foreground">Chargement des compétences OIC...</span>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={`border-2 ${getStatusColor()}`}>
