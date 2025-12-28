@@ -23,19 +23,21 @@ interface QuizQuestion {
   id?: number;
 }
 
+interface QuizQuestionsObject {
+  qcm?: QuizQuestion[];
+  qru?: QuizQuestion[];
+  qroc?: QuizQuestion[];
+  zap?: QuizQuestion[];
+  type?: string;
+  title?: string;
+  categories?: Array<{
+    name: string;
+    items: string[];
+  }>;
+}
+
 interface QuizFinalProps {
-  questions: {
-    qcm?: QuizQuestion[];
-    qru?: QuizQuestion[];
-    qroc?: QuizQuestion[];
-    zap?: QuizQuestion[];
-    type?: string;
-    title?: string;
-    categories?: Array<{
-      name: string;
-      items: string[];
-    }>;
-  };
+  questions: QuizQuestionsObject | QuizQuestion[];
   rewards?: {
     [key: string]: string;
     completion?: string;
@@ -74,8 +76,19 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
     setCurrentQuestion
   } = useQuizWithErrorTracking(itemCode, itemTitle);
 
-  // Gestion du cas où les questions sont dans un format différent
-  if (!questions) {
+  // Normaliser le format des questions : tableau direct ou objet avec catégories
+  const normalizedQuestions = Array.isArray(questions)
+    ? { qcm: questions.map((q, i) => ({ ...q, type: 'qcm', id: q.id ?? i })) }
+    : questions;
+
+  // Gestion du cas où les questions sont vides
+  if (!normalizedQuestions || (
+    !normalizedQuestions.qcm?.length && 
+    !normalizedQuestions.qru?.length && 
+    !normalizedQuestions.qroc?.length && 
+    !normalizedQuestions.zap?.length &&
+    !normalizedQuestions.categories
+  )) {
     return (
       <div className="space-y-8">
         <div className="text-center">
@@ -87,12 +100,12 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   }
 
   // Si c'est un quiz de classification
-  if (questions.type === 'classification' && questions.categories) {
+  if (normalizedQuestions.type === 'classification' && normalizedQuestions.categories) {
     return (
       <div className="space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-serif text-foreground mb-4">
-            {questions.title || 'Quiz de Classification'}
+            {normalizedQuestions.title || 'Quiz de Classification'}
           </h2>
           <p className="text-muted-foreground mb-6">
             Associez chaque élément à la bonne catégorie
@@ -100,7 +113,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         </div>
 
         <div className="grid gap-6">
-          {questions.categories.map((category, categoryIndex) => (
+          {normalizedQuestions.categories.map((category, categoryIndex) => (
             <Card key={categoryIndex} className="p-6 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
               <h3 className="text-xl font-bold text-foreground mb-4 text-center">
                 {category.name}
@@ -135,22 +148,22 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   }
 
   // Questions traditionnelles QCM/QRU/etc.
-  const allQuestions = [];
+  const allQuestions: Array<QuizQuestion & { type: string; id: number }> = [];
   
-  if (questions.qcm) {
-    allQuestions.push(...questions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })));
+  if (normalizedQuestions.qcm) {
+    allQuestions.push(...normalizedQuestions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })));
   }
-  if (questions.qru) {
-    const startId = questions.qcm?.length || 0;
-    allQuestions.push(...questions.qru.map((q, i) => ({ ...q, type: 'qru', id: i + startId })));
+  if (normalizedQuestions.qru) {
+    const startId = normalizedQuestions.qcm?.length || 0;
+    allQuestions.push(...normalizedQuestions.qru.map((q, i) => ({ ...q, type: 'qru', id: i + startId })));
   }
-  if (questions.qroc) {
-    const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0);
-    allQuestions.push(...questions.qroc.map((q, i) => ({ ...q, type: 'qroc', id: i + startId })));
+  if (normalizedQuestions.qroc) {
+    const startId = (normalizedQuestions.qcm?.length || 0) + (normalizedQuestions.qru?.length || 0);
+    allQuestions.push(...normalizedQuestions.qroc.map((q, i) => ({ ...q, type: 'qroc', id: i + startId })));
   }
-  if (questions.zap) {
-    const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0) + (questions.qroc?.length || 0);
-    allQuestions.push(...questions.zap.map((q, i) => ({ ...q, type: 'zap', id: i + startId })));
+  if (normalizedQuestions.zap) {
+    const startId = (normalizedQuestions.qcm?.length || 0) + (normalizedQuestions.qru?.length || 0) + (normalizedQuestions.qroc?.length || 0);
+    allQuestions.push(...normalizedQuestions.zap.map((q, i) => ({ ...q, type: 'zap', id: i + startId })));
   }
 
   if (allQuestions.length === 0) {
@@ -509,7 +522,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
 
           {currentQuestion === allQuestions.length - 1 ? (
             <Button
-              onClick={() => finishQuiz(questions)}
+              onClick={() => finishQuiz(normalizedQuestions)}
               className="bg-success hover:bg-success/90 text-primary-foreground flex-1 md:flex-none"
             >
               Terminer le quiz

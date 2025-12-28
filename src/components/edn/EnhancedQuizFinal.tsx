@@ -123,12 +123,14 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   };
 
   // Calculer le nombre total de questions disponibles
+  // Format 1: Tableau direct [{question, options, correct}, ...]
+  // Format 2: Objet avec catégories {qcm: [...], qru: [...], ...}
   const totalAvailableQuestions = Array.isArray(questions) 
     ? questions.length 
-    : (questions.qcm?.length || 0) + 
-      (questions.qru?.length || 0) + 
-      (questions.qroc?.length || 0) + 
-      (questions.zap?.length || 0);
+    : (Array.isArray(questions?.qcm) ? questions.qcm.length : 0) + 
+      (Array.isArray(questions?.qru) ? questions.qru.length : 0) + 
+      (Array.isArray(questions?.qroc) ? questions.qroc.length : 0) + 
+      (Array.isArray(questions?.zap) ? questions.zap.length : 0);
 
   // Si le quiz n'est pas encore configuré, afficher le sélecteur ou le quiz OIC
   if (!quizStarted) {
