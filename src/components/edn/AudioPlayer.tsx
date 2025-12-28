@@ -22,6 +22,8 @@ interface AudioPlayerProps {
   onStop: () => void;
   onClose?: () => void;
   audioElement?: HTMLAudioElement | null;
+  playbackRate?: number;
+  onPlaybackRateChange?: (rate: number) => void;
 }
 
 export const AudioPlayer = ({ 
@@ -36,7 +38,9 @@ export const AudioPlayer = ({
   onVolumeChange,
   onStop,
   onClose,
-  audioElement 
+  audioElement,
+  playbackRate = 1,
+  onPlaybackRateChange
 }: AudioPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(volume);
@@ -209,8 +213,8 @@ export const AudioPlayer = ({
         </Button>
       </div>
 
-      {/* Volume uniquement */}
-      <div className="flex items-center justify-center">
+      {/* Volume et vitesse */}
+      <div className="flex items-center justify-center gap-6">
         <div className="flex items-center gap-2">
           <Button
             onClick={toggleMute}
@@ -225,10 +229,27 @@ export const AudioPlayer = ({
             max={100}
             step={1}
             onValueChange={handleVolumeChange}
-            className="w-32"
+            className="w-24"
           />
           <span className="text-xs text-warning w-8">{Math.round(volume * 100)}%</span>
         </div>
+        
+        {/* Vitesse de lecture */}
+        {onPlaybackRateChange && (
+          <div className="flex items-center gap-1">
+            {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
+              <Button
+                key={rate}
+                variant={playbackRate === rate ? "default" : "ghost"}
+                size="sm"
+                onClick={() => onPlaybackRateChange(rate)}
+                className={`h-6 px-2 text-xs ${playbackRate === rate ? 'bg-warning text-warning-foreground' : 'text-warning hover:bg-warning/10'}`}
+              >
+                {rate}x
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

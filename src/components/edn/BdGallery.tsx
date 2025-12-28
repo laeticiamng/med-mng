@@ -254,6 +254,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
         <img 
           src={currentVig.image} 
           alt={currentVig.title}
+          loading="lazy"
           className={`w-full ${fullscreen ? 'h-[60vh]' : isMobile ? 'h-48' : 'h-96'} object-cover ${fullscreen ? '' : 'rounded-t-lg'}`}
         />
         <div className="absolute top-4 left-4">

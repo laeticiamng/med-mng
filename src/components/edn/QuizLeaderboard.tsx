@@ -110,7 +110,11 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
             rank: 0,
             isCurrentUser: userId === user?.id
           }))
-          .sort((a, b) => b.avgScore - a.avgScore)
+          .sort((a, b) => {
+            // Tri par score moyen, puis par nombre de quiz
+            if (b.avgScore !== a.avgScore) return b.avgScore - a.avgScore;
+            return b.quizCount - a.quizCount;
+          })
           .map((entry, index) => ({
             ...entry,
             rank: index + 1

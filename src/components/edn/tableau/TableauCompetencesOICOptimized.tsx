@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CompetenceCardOptimized } from './CompetenceCardOptimized';
-import { Book, Search, Grid, List } from 'lucide-react';
+import { CompetenceFlashcard } from './CompetenceFlashcard';
+import { Book, Search, Grid, List, Layers } from 'lucide-react';
 
 interface CompetenceOIC {
   intitule: string;
@@ -85,6 +87,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
   rang 
 }) => {
   const [viewMode, setViewMode] = useState<'cards' | 'compact'>('cards');
+  const [showFlashcards, setShowFlashcards] = useState(false);
   
   if (!data || !data.competences || data.competences.length === 0 || data.count === 0) {
     return (
@@ -161,16 +164,41 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
                   variant={viewMode === 'compact' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('compact')}
-                  className="rounded-l-none"
+                  className="rounded-l-none rounded-r-none border-l"
                 >
                   <List className="w-4 h-4 mr-2" />
                   Compact
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFlashcards(true)}
+                  className="rounded-l-none border-l"
+                  title="Mode Flashcards"
+                >
+                  <Layers className="w-4 h-4 mr-2" />
+                  Flashcards
                 </Button>
               </div>
             </div>
           </div>
         </CardHeader>
       </Card>
+
+      {/* Flashcard Dialog */}
+      <Dialog open={showFlashcards} onOpenChange={setShowFlashcards}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Flashcards - {itemCode} Rang {rang}</DialogTitle>
+          </DialogHeader>
+          <CompetenceFlashcard 
+            competences={competences} 
+            rang={rang} 
+            itemCode={itemCode}
+            onClose={() => setShowFlashcards(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Contenu principal */}
       <div className={viewMode === 'cards' ? 'space-y-6' : 'space-y-3'}>

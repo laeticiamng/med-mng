@@ -138,6 +138,22 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       const score = questions.filter(q => answers[q.id] === q.correctIndex).length;
       const percentage = (score / questions.length) * 100;
 
+      // Sauvegarder en base de données
+      try {
+        await supabase.from('quiz_results').insert({
+          user_id: user.id,
+          item_code: itemCode,
+          item_title: itemTitle,
+          score: percentage,
+          total_questions: questions.length,
+          correct_answers: score,
+          wrong_answers: questions.length - score,
+          time_spent: 0
+        });
+      } catch {
+        // Silent error handling
+      }
+
       await addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
       await logActivity({
         activity_type: 'exam',
