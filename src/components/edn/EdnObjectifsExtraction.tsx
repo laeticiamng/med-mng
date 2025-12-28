@@ -53,7 +53,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
       count: 1,
       metadata: { type: 'view_edn_extraction' }
     });
-  }, [logActivity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStartExtraction = async () => {
     try {

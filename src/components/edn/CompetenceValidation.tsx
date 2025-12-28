@@ -67,7 +67,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       }
     };
     load();
-  }, [loadStats, logActivity, item?.item_code, loadMasteryData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.item_code]);
 
   // Toggle mastery d'une compétence
   const toggleMastery = async (objectifId: string, rang: 'A' | 'B', currentlyMastered: boolean) => {

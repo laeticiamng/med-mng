@@ -23,7 +23,10 @@ export const useQuizHistory = (itemCode?: string) => {
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = useCallback(async () => {
-    if (!itemCode) {
+    // Return early with empty state if no itemCode
+    if (!itemCode || itemCode.trim() === '') {
+      setHistory([]);
+      setSummary(null);
       setLoading(false);
       return;
     }
