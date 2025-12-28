@@ -27,26 +27,33 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
 
   useEffect(() => {
     const loadBandeDessinee = async () => {
-      // Track BD view
-      logActivity({
-        activity_type: 'study',
-        count: 1,
-        metadata: { component: 'bande_dessinee', itemCode: itemData.item_code }
-      });
-      
-      // Charger immédiatement les données pré-générées
-      const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
-      
-      if (bandeDessinee) {
-        setPanels(bandeDessinee.vignettes);
-        setIsLoaded(true);
+      try {
+        // Track BD view
+        logActivity({
+          activity_type: 'study',
+          count: 1,
+          metadata: { component: 'bande_dessinee', itemCode: itemData.item_code }
+        });
         
-        // Award points for viewing complete BD
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await addPoints(user.id, 'itemReviewed');
+        // Charger immédiatement les données pré-générées
+        const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
+        
+        if (bandeDessinee) {
+          setPanels(bandeDessinee.vignettes);
+          setIsLoaded(true);
+          
+          // Award points for viewing complete BD
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await addPoints(user.id, 'itemReviewed');
+          }
+        } else {
+          const defaultPanels = createDefaultPanels(itemData);
+          setPanels(defaultPanels);
+          setIsLoaded(true);
         }
-      } else {
+      } catch (error) {
+        console.error('Erreur chargement bande dessinée:', error);
         const defaultPanels = createDefaultPanels(itemData);
         setPanels(defaultPanels);
         setIsLoaded(true);
@@ -131,9 +138,11 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     return panels;
   };
 
-  const totalCompetences = (itemData.tableau_rang_a?.lignes?.length || 
+  const totalCompetences = itemData.tableau_rang_a?.lignes?.length || 
                            itemData.tableau_rang_a?.data?.length || 
-                           (Array.isArray(itemData.tableau_rang_a) ? itemData.tableau_rang_a.length : 0));
+                           itemData.tableau_rang_a?.sections?.length ||
+                           itemData.tableau_rang_a?.competences_cles?.length ||
+                           (Array.isArray(itemData.tableau_rang_a) ? itemData.tableau_rang_a.length : panels.length);
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-8 rounded-xl">

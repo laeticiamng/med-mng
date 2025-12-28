@@ -9,7 +9,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings, Star, Sparkles } from 'lucide-react';
+import { Trophy, Music, BookOpen, RotateCcw, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EnhancedQuizFinalProps {
@@ -220,7 +220,9 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
                 </div>
                 <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
                   <div className="text-lg font-bold text-success">
-                    {currentSession ? ((currentSession.totalQuestions - currentErrors.length) / currentSession.totalQuestions * 100).toFixed(0) : 0}%
+                    {currentSession && currentSession.totalQuestions > 0 
+                      ? ((currentSession.totalQuestions - currentErrors.length) / currentSession.totalQuestions * 100).toFixed(0) 
+                      : 0}%
                   </div>
                   <div className="text-xs text-success">Score actuel</div>
                 </div>

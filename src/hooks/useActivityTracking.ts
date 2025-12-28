@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export type ActivityType = 'srs_review' | 'exam' | 'flashcard' | 'clinical_case' | 'study' | 'ai_question' | 'music_generation' | 'ecos';
+export type ActivityType = 'srs_review' | 'exam' | 'flashcard' | 'clinical_case' | 'study' | 'ai_question' | 'music_generation' | 'ecos' | 'review' | 'clinical';
 
 interface ActivityLog {
   activity_type: ActivityType;
@@ -81,7 +81,9 @@ export const useActivityTracking = () => {
               study: 0,
               ai_question: 0,
               music_generation: 0,
-              ecos: 0
+              ecos: 0,
+              review: 0,
+              clinical: 0
             }
           };
         }
@@ -99,7 +101,7 @@ export const useActivityTracking = () => {
         result.push(byDate[dateStr] || {
           date: dateStr,
           count: 0,
-          activities: { srs_review: 0, exam: 0, flashcard: 0, clinical_case: 0, study: 0, ai_question: 0, music_generation: 0, ecos: 0 }
+          activities: { srs_review: 0, exam: 0, flashcard: 0, clinical_case: 0, study: 0, ai_question: 0, music_generation: 0, ecos: 0, review: 0, clinical: 0 }
         });
         current.setDate(current.getDate() + 1);
       }
@@ -252,7 +254,9 @@ export const useActivityTracking = () => {
         study: 0,
         ai_question: 0,
         music_generation: 0,
-        ecos: 0
+        ecos: 0,
+        review: 0,
+        clinical: 0
       };
 
       currentWeek?.forEach(d => {
@@ -319,7 +323,8 @@ export const useActivityTracking = () => {
 
       const byType: Record<ActivityType, number> = {
         srs_review: 0, exam: 0, flashcard: 0, clinical_case: 0,
-        study: 0, ai_question: 0, music_generation: 0, ecos: 0
+        study: 0, ai_question: 0, music_generation: 0, ecos: 0,
+        review: 0, clinical: 0
       };
 
       data.forEach(d => {
