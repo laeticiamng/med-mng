@@ -11,6 +11,8 @@ import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { CookieBanner } from "@/components/common/CookieBanner";
+import { PWAPrompt } from "@/components/pwa/PWAPrompt";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { Bell } from 'lucide-react';
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
@@ -314,6 +316,10 @@ const App = () => {
                             
                             {/* Tuteur IA */}
                             <EnhancedAITutor />
+                            
+                            {/* PWA Notifications */}
+                            <PWAPrompt />
+                            <OfflineIndicator />
                           </div>
                           <Toaster />
                           <Sonner />
