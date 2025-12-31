@@ -47,16 +47,15 @@ export const useMusicGenerationState = () => {
     }
   };
 
-  const setAudioUrl = (rang: 'A' | 'B' | 'AB', url: string) => {
-    const audioKey = rang === 'A' ? 'rangA' : rang === 'B' ? 'rangB' : 'rangAB';
+  const setAudioUrl = (rang: 'A' | 'B' | 'AB', url: string, variant?: 'v1' | 'v2') => {
+    // Support pour les variantes V1/V2 de Suno V4.5
+    const baseKey = rang === 'A' ? 'rangA' : rang === 'B' ? 'rangB' : 'rangAB';
+    const audioKey = variant ? `${baseKey}_${variant}` : baseKey;
     
-    setGeneratedAudio(prev => {
-      const newState = {
-        ...prev,
-        [audioKey]: url
-      };
-      return newState;
-    });
+    setGeneratedAudio(prev => ({
+      ...prev,
+      [audioKey]: url
+    }));
   };
 
   const updateGenerationProgress = (rang: 'A' | 'B' | 'AB', progress: GenerationProgress) => {
