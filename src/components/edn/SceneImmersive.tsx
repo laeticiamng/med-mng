@@ -51,26 +51,87 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
     trackView();
   }, [itemCode, logActivity, addPoints]);
 
-  // Contenu personnalisé basé sur les vraies données de l'item
+  // Contenu personnalisé basé sur les vraies données de l'item (format DB)
+  // Structure DB: { theme, context, setting: {location, atmosphere, characters}, interactions, case_presentation, learning_outcomes }
+  const dbData = data as any;
+  
   const getMotsCles = (): string[] => {
+    // Priorité: keywords explicites > personnages de setting > characters > fallback
     if (data.mots_cles && data.mots_cles.length > 0) return data.mots_cles;
+    if (data.keywords && data.keywords.length > 0) return data.keywords;
+    if (dbData.setting?.characters && Array.isArray(dbData.setting.characters)) {
+      return dbData.setting.characters;
+    }
+    if (dbData.learning_outcomes && Array.isArray(dbData.learning_outcomes)) {
+      return dbData.learning_outcomes.slice(0, 4);
+    }
     if (data.characters) return data.characters.map((c: SceneCharacter) => c.role);
-    if (data.keywords) return data.keywords;
     return ["Diagnostic", "Traitement", "Patient", "Expertise"];
   };
 
+  // Extraire la description depuis plusieurs sources possibles
+  const getDescription = (): string => {
+    if (data.description) return data.description;
+    if (data.scenario) return data.scenario;
+    if (dbData.context) return dbData.context;
+    if (dbData.case_presentation?.clinical_challenge) return dbData.case_presentation.clinical_challenge;
+    return `Explorez ${itemCode} à travers cette scène médicale immersive.`;
+  };
+
+  // Extraire le setting depuis la structure imbriquée
+  const getSetting = (): string => {
+    if (typeof data.setting === 'string') return data.setting;
+    if (dbData.setting?.location) return dbData.setting.location;
+    if (dbData.setting?.atmosphere) return dbData.setting.atmosphere;
+    if (data.lieu) return data.lieu;
+    return "Environnement médical";
+  };
+
+  // Extraire les personnages depuis plusieurs formats
+  const getCharacters = (): SceneCharacter[] | undefined => {
+    if (data.characters) return data.characters;
+    if (data.personnages) return data.personnages;
+    if (dbData.setting?.characters && Array.isArray(dbData.setting.characters)) {
+      return dbData.setting.characters.map((name: string) => ({
+        name,
+        role: name,
+        description: `Participant dans le cas clinique ${itemCode}`
+      }));
+    }
+    return undefined;
+  };
+
+  // Extraire l'objectif depuis interactions ou learning_objectives
+  const getObjective = (): string | undefined => {
+    if (data.objective) return data.objective;
+    if (data.objectif) return data.objectif;
+    if (dbData.interactions?.[0]?.learning_objectives?.rang_a) {
+      return dbData.interactions[0].learning_objectives.rang_a;
+    }
+    return undefined;
+  };
+
+  // Extraire la conclusion depuis learning_outcomes
+  const getConclusion = (): string | undefined => {
+    if (data.conclusion) return data.conclusion;
+    if (data.resolution) return data.resolution;
+    if (dbData.learning_outcomes && Array.isArray(dbData.learning_outcomes)) {
+      return dbData.learning_outcomes.join(' • ');
+    }
+    return undefined;
+  };
+
   const sceneData = {
-    description: data.description || data.scenario || 
-      `Explorez ${itemCode} à travers cette scène médicale immersive.`,
+    description: getDescription(),
     mots_cles: getMotsCles(),
-    effet: data.effet || data.effect ||
-      (data.setting ? `Environnement: ${data.setting}` : 
+    effet: data.effet || data.effect || 
+      (dbData.setting?.atmosphere ? `Atmosphère: ${dbData.setting.atmosphere}` : 
       `Maîtrisez les compétences essentielles de ${itemCode}`),
-    setting: data.setting || data.lieu || "Cabinet médical",
-    characters: data.characters || data.personnages,
-    objective: data.objective || data.objectif,
-    context: data.context || data.contexte,
-    conclusion: data.conclusion || data.resolution
+    setting: getSetting(),
+    characters: getCharacters(),
+    objective: getObjective(),
+    context: dbData.context || data.context || data.contexte || getDescription(),
+    conclusion: getConclusion()
   };
 
   useEffect(() => {
