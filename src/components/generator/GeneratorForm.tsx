@@ -9,6 +9,7 @@ import { EcosSelector } from './EcosSelector';
 import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
+import { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
 
 interface GeneratorFormProps {
   contentType: string;
@@ -27,6 +28,10 @@ interface GeneratorFormProps {
   ednLyrics: any;
   lyricsLoading: boolean;
   lyricsError: string | null;
+  // ECOS lyrics props
+  ecosLyrics?: any;
+  ecosLyricsLoading?: boolean;
+  ecosLyricsError?: string | null;
   canGenerate: () => boolean;
   handleGenerate: () => void;
   resetForm: () => void;
@@ -53,6 +58,9 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   ednLyrics,
   lyricsLoading,
   lyricsError,
+  ecosLyrics,
+  ecosLyricsLoading,
+  ecosLyricsError,
   canGenerate,
   handleGenerate,
   resetForm,
@@ -119,10 +127,19 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
         )}
 
         {contentType === 'ecos' && (
-          <EcosSelector
-            selectedSituation={selectedSituation}
-            setSelectedSituation={setSelectedSituation}
-          />
+          <>
+            <EcosSelector
+              selectedSituation={selectedSituation}
+              setSelectedSituation={setSelectedSituation}
+            />
+            
+            <EcosLyricsStatusDisplay
+              selectedSituation={selectedSituation}
+              ecosLyrics={ecosLyrics}
+              loading={ecosLyricsLoading || false}
+              error={ecosLyricsError || null}
+            />
+          </>
         )}
 
         {contentType && (
