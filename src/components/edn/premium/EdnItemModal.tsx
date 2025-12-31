@@ -111,6 +111,37 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
   }, [isOpen, finalItem?.item_code, initialTab]);
 
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tabIds = ['overview', 'rang-a', 'rang-b', 'quiz', 'stats', 'music', 'scene', 'bd', 'roman'];
+      const currentIndex = tabIds.indexOf(activeTab);
+      
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          setActiveTab(tabIds[currentIndex - 1]);
+        }
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (currentIndex < tabIds.length - 1) {
+          setActiveTab(tabIds[currentIndex + 1]);
+        }
+      } else if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!e.ctrlKey && !e.metaKey) {
+          setIsFullscreen(prev => !prev);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, activeTab, onClose]);
+
   // Charger les données complètes (quiz, scene, tableaux, paroles, bd, roman) 
   useEffect(() => {
     const loadCompleteData = async () => {
