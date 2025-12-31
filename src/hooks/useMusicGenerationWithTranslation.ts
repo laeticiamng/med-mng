@@ -11,15 +11,14 @@ export const useMusicGenerationWithTranslation = () => {
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240
-  ) => {
+  ): Promise<string> => {
     try {
       // Récupérer le modèle selon l'abonnement
       const model = getSunoModel();
       
-      // ✅ CORRECTION : Utiliser le rang exact sans transformation avec le bon modèle
+      // Générer la musique et attendre l'URL audio (polling intégré)
       const audioUrl = await sunoGeneration.generateMusicInLanguage(rang, paroles, selectedStyle, duration, model);
       
-      // Retourner l'URL audio pour le lecteur
       return audioUrl;
       
     } catch (error) {
@@ -32,3 +31,4 @@ export const useMusicGenerationWithTranslation = () => {
     generateMusicInLanguage
   };
 };
+
