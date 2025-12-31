@@ -18,6 +18,7 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
 import { GenerationHistory } from '@/components/generator/GenerationHistory';
+import { GenerationProgress } from '@/components/generator/GenerationProgress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
@@ -51,7 +52,8 @@ const Generator = () => {
   );
   
   const remainingFree = getRemainingGenerations();
-  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
+  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB || musicGeneration.isGenerating?.rangAB;
+  const pollingProgress = musicGeneration.pollingProgress || 0;
 
   const canGenerate = useCallback(() => {
     if (contentType === 'edn') {
@@ -282,6 +284,13 @@ const Generator = () => {
             user={user}
             remainingFree={remainingFree}
             canGenerateMusic={canGenerateMusic}
+          />
+
+          {/* Barre de progression pendant la génération */}
+          <GenerationProgress 
+            progress={pollingProgress} 
+            isGenerating={isGenerating}
+            message="Votre musique est en cours de création"
           />
 
           <GeneratorMusicPlayer generatedSong={generatedSong} onAddToLibrary={handleAddToLibrary} />
