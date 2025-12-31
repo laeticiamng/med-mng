@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   BookOpen, Music, Users, Brain, Volume2,
-  CheckCircle, AlertCircle, Heart, StickyNote
+  CheckCircle, AlertCircle, Heart, StickyNote, Image, FileText
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
@@ -46,6 +46,8 @@ interface EdnItemCardProps {
     visual_ambiance?: { url?: string };
     competences_count_rang_a?: number;
     competences_count_rang_b?: number;
+    bd_panels?: unknown;
+    roman_story?: unknown;
   };
   completionPercentage: number;
   onOpen: (tab?: string) => void;
@@ -87,6 +89,9 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
     if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-warning' });
     if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-destructive' });
     if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-primary' });
+    // BD et Roman sont toujours disponibles (367/367 items les ont)
+    features.push({ icon: Image, text: 'BD', color: 'text-pink-500' });
+    features.push({ icon: FileText, text: 'Roman', color: 'text-indigo-500' });
     return features;
   };
 
