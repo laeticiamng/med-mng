@@ -354,6 +354,309 @@ export type Database = {
           },
         ]
       }
+      activities: {
+        Row: {
+          audio_url: string | null
+          benefits: string[] | null
+          category: string
+          created_at: string
+          description: string
+          difficulty: string
+          duration_minutes: number
+          icon: string | null
+          id: string
+          image_url: string | null
+          instructions: string[] | null
+          is_premium: boolean | null
+          popularity_score: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          benefits?: string[] | null
+          category: string
+          created_at?: string
+          description: string
+          difficulty: string
+          duration_minutes?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string[] | null
+          is_premium?: boolean | null
+          popularity_score?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          benefits?: string[] | null
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration_minutes?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string[] | null
+          is_premium?: boolean | null
+          popularity_score?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      activity_badges: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          rarity: string | null
+          requirement_category: string | null
+          requirement_type: string
+          requirement_value: number
+          xp_reward: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          rarity?: string | null
+          requirement_category?: string | null
+          requirement_type: string
+          requirement_value: number
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          rarity?: string | null
+          requirement_category?: string | null
+          requirement_type?: string
+          requirement_value?: number
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
+      activity_recommendations: {
+        Row: {
+          activity_id: string
+          based_on: string | null
+          clicked: boolean | null
+          completed: boolean | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          reason: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          based_on?: string | null
+          clicked?: boolean | null
+          completed?: boolean | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reason: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          based_on?: string | null
+          clicked?: boolean | null
+          completed?: boolean | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reason?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_recommendations_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_reminders: {
+        Row: {
+          activity_id: string | null
+          created_at: string
+          days_of_week: number[] | null
+          id: string
+          is_active: boolean | null
+          last_sent_at: string | null
+          message: string | null
+          reminder_time: string
+          user_id: string
+        }
+        Insert: {
+          activity_id?: string | null
+          created_at?: string
+          days_of_week?: number[] | null
+          id?: string
+          is_active?: boolean | null
+          last_sent_at?: string | null
+          message?: string | null
+          reminder_time: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string | null
+          created_at?: string
+          days_of_week?: number[] | null
+          id?: string
+          is_active?: boolean | null
+          last_sent_at?: string | null
+          message?: string | null
+          reminder_time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_reminders_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_sessions: {
+        Row: {
+          activity_id: string | null
+          completed: boolean | null
+          completed_at: string | null
+          duration_seconds: number | null
+          energy_after: number | null
+          energy_before: number | null
+          id: string
+          metadata: Json | null
+          mood_after: number | null
+          mood_before: number | null
+          notes: string | null
+          rating: number | null
+          started_at: string
+          user_id: string
+          was_guided: boolean | null
+          xp_earned: number | null
+        }
+        Insert: {
+          activity_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          duration_seconds?: number | null
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          rating?: number | null
+          started_at?: string
+          user_id: string
+          was_guided?: boolean | null
+          xp_earned?: number | null
+        }
+        Update: {
+          activity_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          duration_seconds?: number | null
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          rating?: number | null
+          started_at?: string
+          user_id?: string
+          was_guided?: boolean | null
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_sessions_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          total_activities: number | null
+          total_minutes: number | null
+          updated_at: string
+          user_id: string
+          weekly_goal: number | null
+          weekly_progress: number | null
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          total_activities?: number | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id: string
+          weekly_goal?: number | null
+          weekly_progress?: number | null
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          total_activities?: number | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+          weekly_goal?: number | null
+          weekly_progress?: number | null
+        }
+        Relationships: []
+      }
       admin_changelog: {
         Row: {
           action_type: string
@@ -1968,6 +2271,48 @@ export type Database = {
         }
         Relationships: []
       }
+      b2b_audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          id: string
+          ip_address: unknown
+          org_id: string
+          user_agent: string | null
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          ip_address?: unknown
+          org_id: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          ip_address?: unknown
+          org_id?: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       b2b_music_aggregates: {
         Row: {
           cohort_size: number
@@ -1995,6 +2340,78 @@ export type Database = {
           org_id?: string
           text_summary?: string
           week_start?: string
+        }
+        Relationships: []
+      }
+      b2b_reports: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          metrics: Json | null
+          narrative: string | null
+          org_id: string
+          period: string
+          report_type: string | null
+          title: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          metrics?: Json | null
+          narrative?: string | null
+          org_id: string
+          period: string
+          report_type?: string | null
+          title?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          metrics?: Json | null
+          narrative?: string | null
+          org_id?: string
+          period?: string
+          report_type?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      b2b_user_roles: {
+        Row: {
+          expires_at: string | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          org_id: string
+          role: Database["public"]["Enums"]["b2b_role"]
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          org_id: string
+          role?: Database["public"]["Enums"]["b2b_role"]
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["b2b_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -2327,6 +2744,53 @@ export type Database = {
           },
         ]
       }
+      breath_session_feedback: {
+        Row: {
+          created_at: string
+          felt_calm: boolean | null
+          felt_focused: boolean | null
+          felt_relaxed: boolean | null
+          id: string
+          notes: string | null
+          rating: number
+          session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          felt_calm?: boolean | null
+          felt_focused?: boolean | null
+          felt_relaxed?: boolean | null
+          id?: string
+          notes?: string | null
+          rating: number
+          session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          felt_calm?: boolean | null
+          felt_focused?: boolean | null
+          felt_relaxed?: boolean | null
+          id?: string
+          notes?: string | null
+          rating?: number
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "breath_session_feedback_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "breathing_vr_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       breath_weekly_metrics: {
         Row: {
           coherence_avg: number | null
@@ -2519,6 +2983,400 @@ export type Database = {
           date?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      buddy_activities: {
+        Row: {
+          activity_type: string
+          completed_at: string | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          match_id: string | null
+          outcome_notes: string | null
+          participants_mood_after: Json | null
+          participants_mood_before: Json | null
+          scheduled_at: string | null
+          status: string | null
+          title: string
+          xp_reward: number | null
+        }
+        Insert: {
+          activity_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          match_id?: string | null
+          outcome_notes?: string | null
+          participants_mood_after?: Json | null
+          participants_mood_before?: Json | null
+          scheduled_at?: string | null
+          status?: string | null
+          title: string
+          xp_reward?: number | null
+        }
+        Update: {
+          activity_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          match_id?: string | null
+          outcome_notes?: string | null
+          participants_mood_after?: Json | null
+          participants_mood_before?: Json | null
+          scheduled_at?: string | null
+          status?: string | null
+          title?: string
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_activities_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "buddy_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buddy_matches: {
+        Row: {
+          compatibility_score: number | null
+          created_at: string | null
+          id: string
+          initiated_by: string | null
+          interaction_count: number | null
+          last_interaction_at: string | null
+          match_reason: string | null
+          matched_at: string | null
+          mutual_interests: string[] | null
+          status: string | null
+          user_id_1: string
+          user_id_2: string
+        }
+        Insert: {
+          compatibility_score?: number | null
+          created_at?: string | null
+          id?: string
+          initiated_by?: string | null
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          match_reason?: string | null
+          matched_at?: string | null
+          mutual_interests?: string[] | null
+          status?: string | null
+          user_id_1: string
+          user_id_2: string
+        }
+        Update: {
+          compatibility_score?: number | null
+          created_at?: string | null
+          id?: string
+          initiated_by?: string | null
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          match_reason?: string | null
+          matched_at?: string | null
+          mutual_interests?: string[] | null
+          status?: string | null
+          user_id_1?: string
+          user_id_2?: string
+        }
+        Relationships: []
+      }
+      buddy_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          match_id: string | null
+          message_type: string | null
+          metadata: Json | null
+          read_at: string | null
+          receiver_id: string
+          reply_to_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          match_id?: string | null
+          message_type?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          receiver_id: string
+          reply_to_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          match_id?: string | null
+          message_type?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          receiver_id?: string
+          reply_to_id?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_messages_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "buddy_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buddy_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "buddy_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buddy_profiles: {
+        Row: {
+          age_range: string | null
+          availability_schedule: Json | null
+          availability_status: string | null
+          avatar_url: string | null
+          badges: string[] | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          experience_level: string | null
+          goals: string[] | null
+          id: string
+          interests: string[] | null
+          is_premium: boolean | null
+          is_verified: boolean | null
+          is_visible: boolean | null
+          languages: string[] | null
+          last_active_at: string | null
+          location: string | null
+          looking_for: string[] | null
+          mood_preference: string | null
+          response_rate: number | null
+          support_score: number | null
+          timezone: string | null
+          updated_at: string | null
+          user_id: string
+          xp_points: number | null
+        }
+        Insert: {
+          age_range?: string | null
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          avatar_url?: string | null
+          badges?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id?: string
+          interests?: string[] | null
+          is_premium?: boolean | null
+          is_verified?: boolean | null
+          is_visible?: boolean | null
+          languages?: string[] | null
+          last_active_at?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          mood_preference?: string | null
+          response_rate?: number | null
+          support_score?: number | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id: string
+          xp_points?: number | null
+        }
+        Update: {
+          age_range?: string | null
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          avatar_url?: string | null
+          badges?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          experience_level?: string | null
+          goals?: string[] | null
+          id?: string
+          interests?: string[] | null
+          is_premium?: boolean | null
+          is_verified?: boolean | null
+          is_visible?: boolean | null
+          languages?: string[] | null
+          last_active_at?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          mood_preference?: string | null
+          response_rate?: number | null
+          support_score?: number | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id?: string
+          xp_points?: number | null
+        }
+        Relationships: []
+      }
+      buddy_requests: {
+        Row: {
+          compatibility_score: number | null
+          created_at: string | null
+          expires_at: string | null
+          from_user_id: string
+          id: string
+          message: string | null
+          responded_at: string | null
+          status: string | null
+          to_user_id: string
+        }
+        Insert: {
+          compatibility_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          from_user_id: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string | null
+          to_user_id: string
+        }
+        Update: {
+          compatibility_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          from_user_id?: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string | null
+          to_user_id?: string
+        }
+        Relationships: []
+      }
+      buddy_sessions: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          match_id: string | null
+          metadata: Json | null
+          notes: string | null
+          quality_rating: number | null
+          session_type: string
+          started_at: string | null
+          started_by: string
+          xp_earned: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          match_id?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          quality_rating?: number | null
+          session_type: string
+          started_at?: string | null
+          started_by: string
+          xp_earned?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          match_id?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          quality_rating?: number | null
+          session_type?: string
+          started_at?: string | null
+          started_by?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_sessions_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "buddy_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buddy_stats: {
+        Row: {
+          average_response_time_minutes: number | null
+          created_at: string | null
+          current_streak_days: number | null
+          id: string
+          last_activity_at: string | null
+          longest_streak_days: number | null
+          total_activities_completed: number | null
+          total_buddies: number | null
+          total_messages_received: number | null
+          total_messages_sent: number | null
+          total_session_minutes: number | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string
+          xp_from_buddies: number | null
+        }
+        Insert: {
+          average_response_time_minutes?: number | null
+          created_at?: string | null
+          current_streak_days?: number | null
+          id?: string
+          last_activity_at?: string | null
+          longest_streak_days?: number | null
+          total_activities_completed?: number | null
+          total_buddies?: number | null
+          total_messages_received?: number | null
+          total_messages_sent?: number | null
+          total_session_minutes?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id: string
+          xp_from_buddies?: number | null
+        }
+        Update: {
+          average_response_time_minutes?: number | null
+          created_at?: string | null
+          current_streak_days?: number | null
+          id?: string
+          last_activity_at?: string | null
+          longest_streak_days?: number | null
+          total_activities_completed?: number | null
+          total_buddies?: number | null
+          total_messages_received?: number | null
+          total_messages_sent?: number | null
+          total_session_minutes?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string
+          xp_from_buddies?: number | null
         }
         Relationships: []
       }
@@ -3538,6 +4396,44 @@ export type Database = {
           },
         ]
       }
+      community_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string | null
+          last_activity_at: string | null
+          role: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string | null
+          last_activity_at?: string | null
+          role?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string | null
+          last_activity_at?: string | null
+          role?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_groups: {
         Row: {
           created_at: string | null
@@ -3598,48 +4494,123 @@ export type Database = {
         }
         Relationships: []
       }
+      community_mentions: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          mentioned_by: string
+          mentioned_user_id: string
+          post_id: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          mentioned_by: string
+          mentioned_user_id: string
+          post_id?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          mentioned_by?: string
+          mentioned_user_id?: string
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_mentions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mentions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_posts: {
         Row: {
           author_id: string
+          category: string | null
           comments_count: number | null
           content: string
           created_at: string | null
           group_id: string | null
           has_empathy_response: boolean | null
           id: string
+          is_anonymous: boolean | null
+          is_featured: boolean | null
           likes_count: number | null
+          location: string | null
+          media_urls: string[] | null
+          moderation_status: string | null
           mood_halo: string | null
           reply_count: number | null
+          shares_count: number | null
+          tags: string[] | null
           title: string
           updated_at: string | null
+          user_id: string | null
+          views_count: number | null
         }
         Insert: {
           author_id: string
+          category?: string | null
           comments_count?: number | null
           content: string
           created_at?: string | null
           group_id?: string | null
           has_empathy_response?: boolean | null
           id?: string
+          is_anonymous?: boolean | null
+          is_featured?: boolean | null
           likes_count?: number | null
+          location?: string | null
+          media_urls?: string[] | null
+          moderation_status?: string | null
           mood_halo?: string | null
           reply_count?: number | null
+          shares_count?: number | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
+          user_id?: string | null
+          views_count?: number | null
         }
         Update: {
           author_id?: string
+          category?: string | null
           comments_count?: number | null
           content?: string
           created_at?: string | null
           group_id?: string | null
           has_empathy_response?: boolean | null
           id?: string
+          is_anonymous?: boolean | null
+          is_featured?: boolean | null
           likes_count?: number | null
+          location?: string | null
+          media_urls?: string[] | null
+          moderation_status?: string | null
           mood_halo?: string | null
           reply_count?: number | null
+          shares_count?: number | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
+          user_id?: string | null
+          views_count?: number | null
         }
         Relationships: [
           {
@@ -3647,6 +4618,69 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_reports: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          post_id: string | null
+          reason: string
+          reported_user_id: string | null
+          reporter_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason: string
+          reported_user_id?: string | null
+          reporter_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -3725,6 +4759,59 @@ export type Database = {
           scheduled_at?: string | null
           started_at?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      community_saved_posts: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_trending_tags: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_used_at: string | null
+          tag: string
+          usage_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          tag: string
+          usage_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          tag?: string
+          usage_count?: number | null
         }
         Relationships: []
       }
@@ -4094,9 +5181,13 @@ export type Database = {
         Row: {
           change_type: string
           channel_id: string
+          consent_type: string | null
+          consent_version: string | null
           created_at: string
+          granted: boolean | null
           id: string
           ip_address: unknown
+          metadata: Json | null
           new_consent: boolean
           notes: string | null
           previous_consent: boolean | null
@@ -4108,9 +5199,13 @@ export type Database = {
         Insert: {
           change_type: string
           channel_id: string
+          consent_type?: string | null
+          consent_version?: string | null
           created_at?: string
+          granted?: boolean | null
           id?: string
           ip_address?: unknown
+          metadata?: Json | null
           new_consent: boolean
           notes?: string | null
           previous_consent?: boolean | null
@@ -4122,9 +5217,13 @@ export type Database = {
         Update: {
           change_type?: string
           channel_id?: string
+          consent_type?: string | null
+          consent_version?: string | null
           created_at?: string
+          granted?: boolean | null
           id?: string
           ip_address?: unknown
+          metadata?: Json | null
           new_consent?: boolean
           notes?: string | null
           previous_consent?: boolean | null
@@ -4180,6 +5279,57 @@ export type Database = {
           legal_basis?: string | null
           purpose_code?: string
           purpose_name?: string
+        }
+        Relationships: []
+      }
+      consent_records: {
+        Row: {
+          analytics_consent: boolean | null
+          audio_consent: boolean | null
+          consent_version: string
+          created_at: string | null
+          data_sharing_consent: boolean | null
+          data_storage_consent: boolean | null
+          emotion_analysis_consent: boolean | null
+          id: string
+          ip_address: string | null
+          marketing_consent: boolean | null
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+          video_consent: boolean | null
+        }
+        Insert: {
+          analytics_consent?: boolean | null
+          audio_consent?: boolean | null
+          consent_version?: string
+          created_at?: string | null
+          data_sharing_consent?: boolean | null
+          data_storage_consent?: boolean | null
+          emotion_analysis_consent?: boolean | null
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+          video_consent?: boolean | null
+        }
+        Update: {
+          analytics_consent?: boolean | null
+          audio_consent?: boolean | null
+          consent_version?: string
+          created_at?: string | null
+          data_sharing_consent?: boolean | null
+          data_storage_consent?: boolean | null
+          emotion_analysis_consent?: boolean | null
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+          video_consent?: boolean | null
         }
         Relationships: []
       }
@@ -4432,6 +5582,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_mood_heatmap: {
+        Row: {
+          activity_count: number | null
+          created_at: string
+          date: string
+          dominant_emotion: string | null
+          hour: number | null
+          id: string
+          mood_score: number | null
+          user_id: string
+        }
+        Insert: {
+          activity_count?: number | null
+          created_at?: string
+          date: string
+          dominant_emotion?: string | null
+          hour?: number | null
+          id?: string
+          mood_score?: number | null
+          user_id: string
+        }
+        Update: {
+          activity_count?: number | null
+          created_at?: string
+          date?: string
+          dominant_emotion?: string | null
+          hour?: number | null
+          id?: string
+          mood_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       data_archives: {
         Row: {
           archived_at: string
@@ -4497,8 +5680,10 @@ export type Database = {
           completed_at: string | null
           expires_at: string | null
           export_type: string
+          file_size_bytes: number | null
           file_url: string | null
           id: string
+          metadata: Json | null
           requested_at: string
           status: string
           user_id: string
@@ -4507,8 +5692,10 @@ export type Database = {
           completed_at?: string | null
           expires_at?: string | null
           export_type?: string
+          file_size_bytes?: number | null
           file_url?: string | null
           id?: string
+          metadata?: Json | null
           requested_at?: string
           status?: string
           user_id: string
@@ -4517,8 +5704,10 @@ export type Database = {
           completed_at?: string | null
           expires_at?: string | null
           export_type?: string
+          file_size_bytes?: number | null
           file_url?: string | null
           id?: string
+          metadata?: Json | null
           requested_at?: string
           status?: string
           user_id?: string
@@ -8205,6 +9394,297 @@ export type Database = {
           },
         ]
       }
+      group_session_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          label: string
+          name: string
+          order_index: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label: string
+          name: string
+          order_index?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          name?: string
+          order_index?: number | null
+        }
+        Relationships: []
+      }
+      group_session_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_hidden: boolean | null
+          is_pinned: boolean | null
+          message_type: string | null
+          metadata: Json | null
+          reply_to_id: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_hidden?: boolean | null
+          is_pinned?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          reply_to_id?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_hidden?: boolean | null
+          is_pinned?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          reply_to_id?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_session_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "group_session_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_session_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_session_participants: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          mood_after: number | null
+          mood_before: number | null
+          rating: number | null
+          role: string | null
+          session_id: string
+          status: string | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          mood_after?: number | null
+          mood_before?: number | null
+          rating?: number | null
+          role?: string | null
+          session_id: string
+          status?: string | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          mood_after?: number | null
+          mood_before?: number | null
+          rating?: number | null
+          role?: string | null
+          session_id?: string
+          status?: string | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_session_reactions: {
+        Row: {
+          created_at: string | null
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_session_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "group_session_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_session_resources: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          download_count: number | null
+          id: string
+          resource_type: string
+          session_id: string
+          title: string
+          uploaded_by: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          id?: string
+          resource_type: string
+          session_id: string
+          title: string
+          uploaded_by: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          id?: string
+          resource_type?: string
+          session_id?: string
+          title?: string
+          uploaded_by?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_session_resources_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_sessions: {
+        Row: {
+          category: string
+          cover_image: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          host_id: string
+          id: string
+          is_recurring: boolean | null
+          max_participants: number | null
+          meeting_url: string | null
+          metadata: Json | null
+          recording_url: string | null
+          recurrence_rule: string | null
+          scheduled_at: string
+          session_type: string
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          category?: string
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          host_id: string
+          id?: string
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          recording_url?: string | null
+          recurrence_rule?: string | null
+          scheduled_at: string
+          session_type?: string
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          host_id?: string
+          id?: string
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          recording_url?: string | null
+          recurrence_rule?: string | null
+          scheduled_at?: string
+          session_type?: string
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           id: string
@@ -8859,6 +10339,71 @@ export type Database = {
           title?: string
           updated_at?: string | null
           users_affected?: number | null
+        }
+        Relationships: []
+      }
+      insight_feedback: {
+        Row: {
+          action_taken: string | null
+          created_at: string | null
+          feedback_text: string | null
+          id: string
+          insight_id: string
+          rating: number
+          user_id: string
+          was_helpful: boolean | null
+        }
+        Insert: {
+          action_taken?: string | null
+          created_at?: string | null
+          feedback_text?: string | null
+          id?: string
+          insight_id: string
+          rating: number
+          user_id: string
+          was_helpful?: boolean | null
+        }
+        Update: {
+          action_taken?: string | null
+          created_at?: string | null
+          feedback_text?: string | null
+          id?: string
+          insight_id?: string
+          rating?: number
+          user_id?: string
+          was_helpful?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insight_feedback_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "user_insights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insight_stats_cache: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          stats_data: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          stats_data: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          stats_data?: Json
+          user_id?: string
         }
         Relationships: []
       }
@@ -11174,46 +12719,61 @@ export type Database = {
       }
       meditation_sessions: {
         Row: {
+          completed: boolean | null
           completed_at: string | null
+          completed_duration: number | null
           config: Json | null
           created_at: string
           duration: number
           id: string
           mood_after: number | null
           mood_before: number | null
+          mood_delta: number | null
           notes: string | null
           started_at: string
           technique: string
           updated_at: string
           user_id: string
+          with_guidance: boolean | null
+          with_music: boolean | null
         }
         Insert: {
+          completed?: boolean | null
           completed_at?: string | null
+          completed_duration?: number | null
           config?: Json | null
           created_at?: string
           duration: number
           id?: string
           mood_after?: number | null
           mood_before?: number | null
+          mood_delta?: number | null
           notes?: string | null
           started_at?: string
           technique: string
           updated_at?: string
           user_id: string
+          with_guidance?: boolean | null
+          with_music?: boolean | null
         }
         Update: {
+          completed?: boolean | null
           completed_at?: string | null
+          completed_duration?: number | null
           config?: Json | null
           created_at?: string
           duration?: number
           id?: string
           mood_after?: number | null
           mood_before?: number | null
+          mood_delta?: number | null
           notes?: string | null
           started_at?: string
           technique?: string
           updated_at?: string
           user_id?: string
+          with_guidance?: boolean | null
+          with_music?: boolean | null
         }
         Relationships: []
       }
@@ -11543,6 +13103,36 @@ export type Database = {
           predicted_at?: string
           prediction_data?: Json
           prediction_type?: string
+        }
+        Relationships: []
+      }
+      module_connections: {
+        Row: {
+          connection_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          source_module: string
+          target_module: string
+          weight: number | null
+        }
+        Insert: {
+          connection_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source_module: string
+          target_module: string
+          weight?: number | null
+        }
+        Update: {
+          connection_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source_module?: string
+          target_module?: string
+          weight?: number | null
         }
         Relationships: []
       }
@@ -12581,6 +14171,45 @@ export type Database = {
         }
         Relationships: []
       }
+      music_listening_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          emotion_after: string | null
+          emotion_before: string | null
+          id: string
+          metadata: Json | null
+          session_type: string | null
+          track_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion_after?: string | null
+          emotion_before?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type?: string | null
+          track_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion_after?: string | null
+          emotion_before?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type?: string | null
+          track_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       music_notifications: {
         Row: {
           created_at: string
@@ -12976,6 +14605,36 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+          source: string | null
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       notification_filter_templates: {
         Row: {
           created_at: string | null
@@ -13184,6 +14843,7 @@ export type Database = {
         Row: {
           action_link: string | null
           action_text: string | null
+          action_url: string | null
           category: string | null
           channel: string | null
           clicked_at: string | null
@@ -13195,6 +14855,7 @@ export type Database = {
           icon: string | null
           id: string
           image: string | null
+          is_read: boolean | null
           message: string
           metadata: Json | null
           priority: string | null
@@ -13209,6 +14870,7 @@ export type Database = {
         Insert: {
           action_link?: string | null
           action_text?: string | null
+          action_url?: string | null
           category?: string | null
           channel?: string | null
           clicked_at?: string | null
@@ -13220,6 +14882,7 @@ export type Database = {
           icon?: string | null
           id?: string
           image?: string | null
+          is_read?: boolean | null
           message: string
           metadata?: Json | null
           priority?: string | null
@@ -13234,6 +14897,7 @@ export type Database = {
         Update: {
           action_link?: string | null
           action_text?: string | null
+          action_url?: string | null
           category?: string | null
           channel?: string | null
           clicked_at?: string | null
@@ -13245,6 +14909,7 @@ export type Database = {
           icon?: string | null
           id?: string
           image?: string | null
+          is_read?: boolean | null
           message?: string
           metadata?: Json | null
           priority?: string | null
@@ -14653,6 +16318,48 @@ export type Database = {
           },
         ]
       }
+      post_reactions: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string
+          post_id: string | null
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string
@@ -15464,6 +17171,36 @@ export type Database = {
         }
         Relationships: []
       }
+      quiet_hours_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          end_utc: string | null
+          id: string
+          start_utc: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          end_utc?: string | null
+          id?: string
+          start_utc?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          end_utc?: string | null
+          id?: string
+          start_utc?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       quiz_results: {
         Row: {
           answers: Json | null
@@ -16063,6 +17800,47 @@ export type Database = {
         }
         Relationships: []
       }
+      room_members: {
+        Row: {
+          display_name: string | null
+          id: string
+          joined_at: string
+          member_id: string | null
+          preferences: Json | null
+          role: string | null
+          room_id: string
+          user_id: string | null
+        }
+        Insert: {
+          display_name?: string | null
+          id?: string
+          joined_at?: string
+          member_id?: string | null
+          preferences?: Json | null
+          role?: string | null
+          room_id: string
+          user_id?: string | null
+        }
+        Update: {
+          display_name?: string | null
+          id?: string
+          joined_at?: string
+          member_id?: string | null
+          preferences?: Json | null
+          role?: string | null
+          room_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "social_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       route_metadata: {
         Row: {
           category: string
@@ -16222,6 +18000,111 @@ export type Database = {
           recipients?: string[]
           report_type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      score_comparisons: {
+        Row: {
+          comparison_data: Json
+          created_at: string
+          id: string
+          period_a_end: string
+          period_a_start: string
+          period_b_end: string
+          period_b_start: string
+          user_id: string
+        }
+        Insert: {
+          comparison_data: Json
+          created_at?: string
+          id?: string
+          period_a_end: string
+          period_a_start: string
+          period_b_end: string
+          period_b_start: string
+          user_id: string
+        }
+        Update: {
+          comparison_data?: Json
+          created_at?: string
+          id?: string
+          period_a_end?: string
+          period_a_start?: string
+          period_b_end?: string
+          period_b_start?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      score_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          deadline: string | null
+          goal_type: string
+          id: string
+          reward_claimed: boolean | null
+          status: string | null
+          target_value: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          goal_type: string
+          id?: string
+          reward_claimed?: boolean | null
+          status?: string | null
+          target_value: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          goal_type?: string
+          id?: string
+          reward_claimed?: boolean | null
+          status?: string | null
+          target_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      score_milestones: {
+        Row: {
+          id: string
+          metadata: Json | null
+          milestone_type: string
+          milestone_value: number
+          notified: boolean | null
+          reached_at: string
+          shared: boolean | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          milestone_type: string
+          milestone_value: number
+          notified?: boolean | null
+          reached_at?: string
+          shared?: boolean | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          milestone_type?: string
+          milestone_value?: number
+          notified?: boolean | null
+          reached_at?: string
+          shared?: boolean | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -16760,6 +18643,60 @@ export type Database = {
         }
         Relationships: []
       }
+      sessions: {
+        Row: {
+          achievements_unlocked: string[] | null
+          created_at: string
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          mood_after: number | null
+          mood_before: number | null
+          mood_delta: number | null
+          session_type: string
+          source_id: string | null
+          started_at: string
+          updated_at: string
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          achievements_unlocked?: string[] | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          mood_delta?: number | null
+          session_type: string
+          source_id?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          achievements_unlocked?: string[] | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          mood_delta?: number | null
+          session_type?: string
+          source_id?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       settings_alerts: {
         Row: {
           alert_type: string
@@ -17085,6 +19022,161 @@ export type Database = {
         }
         Relationships: []
       }
+      social_room_breaks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delivery_channel: string | null
+          duration_minutes: number | null
+          id: string
+          invitees: Json | null
+          remind_at: string | null
+          room_id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delivery_channel?: string | null
+          duration_minutes?: number | null
+          id?: string
+          invitees?: Json | null
+          remind_at?: string | null
+          room_id: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delivery_channel?: string | null
+          duration_minutes?: number | null
+          id?: string
+          invitees?: Json | null
+          remind_at?: string | null
+          room_id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_room_breaks_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "social_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_room_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          role: string | null
+          room_ref: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          role?: string | null
+          room_ref: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          role?: string | null
+          room_ref?: string
+        }
+        Relationships: []
+      }
+      social_rooms: {
+        Row: {
+          allow_audio: boolean | null
+          created_at: string
+          description: string | null
+          host_display_name: string | null
+          host_id: string | null
+          id: string
+          invite_code: string | null
+          is_private: boolean | null
+          metadata: Json | null
+          name: string
+          soft_mode_enabled: boolean | null
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          allow_audio?: boolean | null
+          created_at?: string
+          description?: string | null
+          host_display_name?: string | null
+          host_id?: string | null
+          id?: string
+          invite_code?: string | null
+          is_private?: boolean | null
+          metadata?: Json | null
+          name: string
+          soft_mode_enabled?: boolean | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allow_audio?: boolean | null
+          created_at?: string
+          description?: string | null
+          host_display_name?: string | null
+          host_id?: string | null
+          id?: string
+          invite_code?: string | null
+          is_private?: boolean | null
+          metadata?: Json | null
+          name?: string
+          soft_mode_enabled?: boolean | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      special_badges: {
+        Row: {
+          category: string
+          condition_type: string
+          condition_value: number
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          rarity: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          category: string
+          condition_type: string
+          condition_value: number
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          rarity?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string
+          condition_type?: string
+          condition_value?: number
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          rarity?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       srs_card_data: {
         Row: {
           card_id: string
@@ -17381,8 +19473,14 @@ export type Database = {
           duration_seconds: number | null
           emotion_tags: string[] | null
           id: string
+          is_favorite: boolean | null
+          reading_duration_seconds: number | null
           story_content: string | null
           story_theme: string | null
+          theme: string | null
+          tone: string | null
+          updated_at: string | null
+          user_context: string | null
           user_id: string
         }
         Insert: {
@@ -17392,8 +19490,14 @@ export type Database = {
           duration_seconds?: number | null
           emotion_tags?: string[] | null
           id?: string
+          is_favorite?: boolean | null
+          reading_duration_seconds?: number | null
           story_content?: string | null
           story_theme?: string | null
+          theme?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_context?: string | null
           user_id: string
         }
         Update: {
@@ -17403,8 +19507,14 @@ export type Database = {
           duration_seconds?: number | null
           emotion_tags?: string[] | null
           id?: string
+          is_favorite?: boolean | null
+          reading_duration_seconds?: number | null
           story_content?: string | null
           story_theme?: string | null
+          theme?: string | null
+          tone?: string | null
+          updated_at?: string | null
+          user_context?: string | null
           user_id?: string
         }
         Relationships: []
@@ -19200,6 +21310,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_badges: {
+        Row: {
+          badge_id: string
+          id: string
+          shared: boolean | null
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          id?: string
+          shared?: boolean | null
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          id?: string
+          shared?: boolean | null
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "activity_badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_activity_log: {
         Row: {
           activity_date: string
@@ -19925,6 +22067,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorite_activities: {
+        Row: {
+          activity_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_activities_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorite_flashcards: {
         Row: {
           created_at: string | null
@@ -20021,6 +22192,27 @@ export type Database = {
           last_used_at?: string
           usage_count?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -20246,37 +22438,64 @@ export type Database = {
       user_insights: {
         Row: {
           action_items: Json | null
+          applied_at: string | null
+          category: string | null
+          confidence: number | null
           created_at: string | null
           description: string
+          dismissed_at: string | null
           expires_at: string | null
+          feedback_rating: number | null
+          feedback_text: string | null
           id: string
+          impact_score: number | null
           insight_type: string
           is_read: boolean | null
           priority: string
+          reminded_at: string | null
+          source_data: Json | null
           title: string
           user_id: string
         }
         Insert: {
           action_items?: Json | null
+          applied_at?: string | null
+          category?: string | null
+          confidence?: number | null
           created_at?: string | null
           description: string
+          dismissed_at?: string | null
           expires_at?: string | null
+          feedback_rating?: number | null
+          feedback_text?: string | null
           id?: string
+          impact_score?: number | null
           insight_type: string
           is_read?: boolean | null
           priority?: string
+          reminded_at?: string | null
+          source_data?: Json | null
           title: string
           user_id: string
         }
         Update: {
           action_items?: Json | null
+          applied_at?: string | null
+          category?: string | null
+          confidence?: number | null
           created_at?: string | null
           description?: string
+          dismissed_at?: string | null
           expires_at?: string | null
+          feedback_rating?: number | null
+          feedback_text?: string | null
           id?: string
+          impact_score?: number | null
           insight_type?: string
           is_read?: boolean | null
           priority?: string
+          reminded_at?: string | null
+          source_data?: Json | null
           title?: string
           user_id?: string
         }
@@ -21444,6 +23663,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scores: {
+        Row: {
+          components: Json | null
+          created_at: string
+          emotional_score: number
+          engagement_score: number
+          id: string
+          insights: Json | null
+          resilience_score: number | null
+          updated_at: string
+          user_id: string
+          week_number: number
+          wellbeing_score: number
+          year: number
+        }
+        Insert: {
+          components?: Json | null
+          created_at?: string
+          emotional_score?: number
+          engagement_score?: number
+          id?: string
+          insights?: Json | null
+          resilience_score?: number | null
+          updated_at?: string
+          user_id: string
+          week_number: number
+          wellbeing_score?: number
+          year: number
+        }
+        Update: {
+          components?: Json | null
+          created_at?: string
+          emotional_score?: number
+          engagement_score?: number
+          id?: string
+          insights?: Json | null
+          resilience_score?: number | null
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+          wellbeing_score?: number
+          year?: number
+        }
+        Relationships: []
+      }
       user_search_history: {
         Row: {
           id: string
@@ -21660,6 +23924,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_special_badges: {
+        Row: {
+          badge_id: string | null
+          earned_at: string
+          id: string
+          shared: boolean | null
+          user_id: string
+        }
+        Insert: {
+          badge_id?: string | null
+          earned_at?: string
+          id?: string
+          shared?: boolean | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string | null
+          earned_at?: string
+          id?: string
+          shared?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_special_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "special_badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_stats: {
         Row: {
           completed_challenges: number | null
@@ -21806,6 +24102,42 @@ export type Database = {
           shopify_order_id?: string
           unlocked_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_vibes: {
+        Row: {
+          contributing_factors: Json | null
+          created_at: string
+          duration_hours: number | null
+          id: string
+          intensity: number
+          recent_activities: string[] | null
+          recommended_modules: string[] | null
+          user_id: string
+          vibe_type: string
+        }
+        Insert: {
+          contributing_factors?: Json | null
+          created_at?: string
+          duration_hours?: number | null
+          id?: string
+          intensity?: number
+          recent_activities?: string[] | null
+          recommended_modules?: string[] | null
+          user_id: string
+          vibe_type?: string
+        }
+        Update: {
+          contributing_factors?: Json | null
+          created_at?: string
+          duration_hours?: number | null
+          id?: string
+          intensity?: number
+          recent_activities?: string[] | null
+          recommended_modules?: string[] | null
+          user_id?: string
+          vibe_type?: string
         }
         Relationships: []
       }
@@ -22119,49 +24451,64 @@ export type Database = {
       }
       vr_nebula_sessions: {
         Row: {
+          breathing_pattern: string | null
           client: string | null
           coherence_score: number | null
           created_at: string
+          cycles_completed: number | null
           duration_s: number
           hrv_post: number | null
           hrv_pre: number | null
           id: string
           resp_rate_avg: number | null
           rmssd_delta: number | null
+          scene: string | null
           ts_finish: string | null
           ts_start: string
+          updated_at: string | null
           user_id: string
           user_id_hash: string | null
+          vr_mode: boolean | null
         }
         Insert: {
+          breathing_pattern?: string | null
           client?: string | null
           coherence_score?: number | null
           created_at?: string
+          cycles_completed?: number | null
           duration_s: number
           hrv_post?: number | null
           hrv_pre?: number | null
           id?: string
           resp_rate_avg?: number | null
           rmssd_delta?: number | null
+          scene?: string | null
           ts_finish?: string | null
           ts_start?: string
+          updated_at?: string | null
           user_id: string
           user_id_hash?: string | null
+          vr_mode?: boolean | null
         }
         Update: {
+          breathing_pattern?: string | null
           client?: string | null
           coherence_score?: number | null
           created_at?: string
+          cycles_completed?: number | null
           duration_s?: number
           hrv_post?: number | null
           hrv_pre?: number | null
           id?: string
           resp_rate_avg?: number | null
           rmssd_delta?: number | null
+          scene?: string | null
           ts_finish?: string | null
           ts_start?: string
+          updated_at?: string | null
           user_id?: string
           user_id_hash?: string | null
+          vr_mode?: boolean | null
         }
         Relationships: []
       }
@@ -22854,6 +25201,21 @@ export type Database = {
         }
         Relationships: []
       }
+      user_session_stats: {
+        Row: {
+          avg_duration: number | null
+          avg_mood_impact: number | null
+          last_session_at: string | null
+          session_type: string | null
+          sessions_last_30_days: number | null
+          sessions_last_7_days: number | null
+          total_duration: number | null
+          total_sessions: number | null
+          total_xp: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       user_weekly_dashboard: {
         Row: {
           assessments_count: number | null
@@ -22922,6 +25284,10 @@ export type Database = {
       audit_user_rights_compliance: { Args: never; Returns: Json }
       auto_security_maintenance: { Args: never; Returns: Json }
       backup_critical_data: { Args: never; Returns: undefined }
+      calculate_buddy_compatibility: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: number
+      }
       calculate_completeness_score:
         | { Args: { item_data: Json }; Returns: number }
         | { Args: { item_id: string }; Returns: number }
@@ -23105,10 +25471,16 @@ export type Database = {
             Returns: string
           }
         | { Args: { session_data: Json }; Returns: string }
+      decrement_group_members: {
+        Args: { group_id: string }
+        Returns: undefined
+      }
       decrement_participant_count: {
         Args: { session_id: string }
         Returns: undefined
       }
+      decrement_post_comments: { Args: { post_id: string }; Returns: undefined }
+      decrement_post_likes: { Args: { post_id: string }; Returns: undefined }
       decrypt_sensitive_data: {
         Args: { p_ciphertext: string; p_key_name?: string }
         Returns: string
@@ -23448,6 +25820,10 @@ export type Database = {
           schedule: string
         }[]
       }
+      get_highest_b2b_role: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["b2b_role"]
+      }
       get_latest_compliance_audit: {
         Args: never
         Returns: {
@@ -23747,13 +26123,13 @@ export type Database = {
       }
       get_user_ia_stats: { Args: { p_period_days?: number }; Returns: Json }
       get_user_listening_stats: {
-        Args: { p_user_id?: string }
+        Args: { p_user_id: string }
         Returns: {
-          avg_completion_rate: number
-          last_played_at: string
+          streak_days: number
           top_emotion: string
           total_duration_seconds: number
           total_listens: number
+          unique_tracks: number
         }[]
       }
       get_user_medical_stats: { Args: { p_user_id?: string }; Returns: Json }
@@ -23855,6 +26231,18 @@ export type Database = {
         }[]
       }
       get_weekly_summary: { Args: { user_uuid: string }; Returns: Json }
+      has_any_b2b_role: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_b2b_role: {
+        Args: {
+          _org_id: string
+          _role: Database["public"]["Enums"]["b2b_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_org_role: {
         Args: { _org_id: string; _role: string; _user_id: string }
         Returns: boolean
@@ -23880,6 +26268,14 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      increment_comment_likes: {
+        Args: { comment_id: string }
+        Returns: undefined
+      }
+      increment_group_members: {
+        Args: { group_id: string }
+        Returns: undefined
+      }
       increment_house_light: {
         Args: { p_acts?: number; p_user_id: string }
         Returns: undefined
@@ -23889,6 +26285,8 @@ export type Database = {
         Args: { session_id: string }
         Returns: undefined
       }
+      increment_post_comments: { Args: { post_id: string }; Returns: undefined }
+      increment_post_likes: { Args: { post_id: string }; Returns: undefined }
       increment_rate_limit_counter: {
         Args: {
           p_identifier: string
@@ -24422,6 +26820,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user" | "b2c"
       app_user_role: "user_b2c" | "user_b2b" | "manager_b2b" | "admin"
+      b2b_role: "b2b_admin" | "b2b_manager" | "b2b_member" | "b2b_viewer"
       invitation_status: "pending" | "accepted" | "expired"
       share_permission: "viewer" | "editor" | "admin"
     }
@@ -24553,6 +26952,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user", "b2c"],
       app_user_role: ["user_b2c", "user_b2b", "manager_b2b", "admin"],
+      b2b_role: ["b2b_admin", "b2b_manager", "b2b_member", "b2b_viewer"],
       invitation_status: ["pending", "accepted", "expired"],
       share_permission: ["viewer", "editor", "admin"],
     },
