@@ -1,8 +1,7 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock } from 'lucide-react';
+import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock, Heart } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
@@ -10,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { ENABLE_DEBUG } from '@/config/env';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -21,11 +22,15 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   onAddToLibrary
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
+  const { user } = useAuth();
   const [showDebug, setShowDebug] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
   const playStartTimeRef = useRef<number | null>(null);
+  const notificationSoundRef = useRef<HTMLAudioElement | null>(null);
 
   // Détecter si c'est une génération en cours (trackId sans audioUrl)
   const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
@@ -41,6 +46,30 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [trackIdForPolling, isPolling, startPolling]);
 
+  // Jouer son de notification quand l'audio est prêt
+  const playNotificationSound = useCallback(() => {
+    try {
+      if (!notificationSoundRef.current) {
+        notificationSoundRef.current = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' + 
+          'tvT19' + 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      }
+      // Simple bell sound
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.frequency.value = 880;
+      oscillator.type = 'sine';
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.5);
+    } catch {
+      // Silently fail if audio context is not available
+    }
+  }, []);
+
   // Notification quand l'audio est prêt avec animation
   useEffect(() => {
     if (audioUrl && audioUrl.startsWith('http') && isGenerating) {
@@ -48,13 +77,59 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       setShowSuccessAnimation(true);
       setTimeout(() => setShowSuccessAnimation(false), 2000);
       
+      // Jouer le son de notification
+      playNotificationSound();
+      
       // Notification toast
       toast({
         title: "🎵 Musique prête !",
         description: "Votre musique a été générée avec succès",
       });
     }
-  }, [audioUrl, isGenerating, toast]);
+  }, [audioUrl, isGenerating, toast, playNotificationSound]);
+
+  // Gérer les favoris
+  const handleToggleFavorite = useCallback(async () => {
+    if (!user || !generatedSong) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour ajouter aux favoris",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        // Retirer des favoris
+        await supabase
+          .from('user_generated_music')
+          .update({ is_favorite: false } as any)
+          .eq('user_id', user.id)
+          .eq('audio_url', generatedSong.audioUrl);
+        setIsFavorite(false);
+        toast({ title: "💔 Retiré des favoris" });
+      } else {
+        // Ajouter aux favoris
+        await supabase
+          .from('user_generated_music')
+          .update({ is_favorite: true } as any)
+          .eq('user_id', user.id)
+          .eq('audio_url', generatedSong.audioUrl);
+        setIsFavorite(true);
+        toast({ title: "❤️ Ajouté aux favoris !" });
+      }
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier les favoris",
+        variant: "destructive"
+      });
+    } finally {
+      setFavoriteLoading(false);
+    }
+  }, [user, generatedSong, isFavorite, toast]);
 
 
   if (!generatedSong) return null;
@@ -263,6 +338,20 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Library className="h-4 w-4 mr-2" />
             Ajouter à la bibliothèque
           </Button>
+          
+          {/* Bouton Favori */}
+          {user && finalAudioUrl && finalAudioUrl.startsWith('http') && (
+            <Button
+              onClick={handleToggleFavorite}
+              variant="outline"
+              className={`border-success/30 hover:bg-success/10 ${isFavorite ? 'text-destructive' : 'text-success'}`}
+              size="lg"
+              title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+              disabled={favoriteLoading}
+            >
+              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </Button>
+          )}
           
           {/* Bouton de partage */}
           {finalAudioUrl && finalAudioUrl.startsWith('http') && (
