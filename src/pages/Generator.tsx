@@ -131,11 +131,10 @@ const Generator = () => {
       }
 
       const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
-      const actualRang: 'A' | 'B' = rang === 'AB' ? 'A' : rang as 'A' | 'B';
       const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
       
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
-      const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
+      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
       toast.dismiss(loadingToast);
       
       if (user) {
