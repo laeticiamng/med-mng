@@ -13,6 +13,7 @@ import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
+import { useEcosLyrics } from '@/hooks/useEcosLyrics';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
@@ -44,6 +45,11 @@ const Generator = () => {
     contentType === 'edn' ? selectedItem : null
   );
   
+  // Hook pour les paroles ECOS
+  const { lyrics: ecosLyrics, loading: ecosLyricsLoading, error: ecosLyricsError } = useEcosLyrics(
+    contentType === 'ecos' ? selectedSituation : null
+  );
+  
   const remainingFree = getRemainingGenerations();
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
@@ -65,10 +71,12 @@ const Generator = () => {
       return !!(selectedItem && selectedRang && selectedStyle && hasLyrics);
     }
     if (contentType === 'ecos') {
-      return !!(selectedSituation && selectedStyle);
+      // Vérifier que les paroles ECOS sont disponibles
+      const hasEcosLyrics = ecosLyrics?.paroles && ecosLyrics.paroles.length > 0;
+      return !!(selectedSituation && selectedStyle && hasEcosLyrics);
     }
     return false;
-  }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation]);
+  }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation, ecosLyrics]);
 
   const handleGenerate = useCallback(async () => {
     if (!canGenerate()) {
@@ -109,12 +117,10 @@ const Generator = () => {
           lyricsToUse = ednLyrics.paroles_musicales;
         }
         titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
-      } else if (contentType === 'ecos') {
-        lyricsToUse = [
-          `Paroles pour ${selectedSituation} - Situation clinique`,
-          `Paroles avancées pour ${selectedSituation} - Expertise médicale`
-        ];
-        titlePrefix = selectedSituation;
+      } else if (contentType === 'ecos' && ecosLyrics) {
+        // Utiliser les paroles générées à partir du scénario ECOS
+        lyricsToUse = ecosLyrics.paroles;
+        titlePrefix = `${ecosLyrics.scenario.scenario_code} - ${ecosLyrics.scenario.title}`;
       }
 
       if (lyricsToUse.length === 0) {
@@ -167,7 +173,7 @@ const Generator = () => {
     } catch {
       toast.error('Échec de la génération musicale');
     }
-  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;
@@ -192,8 +198,9 @@ const Generator = () => {
           music_style: generatedSong.style,
           rang: generatedSong.rang,
           item_code: generatedSong.itemCode,
-          music_id: musicId
-        });
+          music_id: musicId,
+          is_favorite: false
+        } as any);
 
       if (error) throw error;
       toast.success('✨ Chanson ajoutée à votre bibliothèque !');
@@ -265,6 +272,9 @@ const Generator = () => {
             ednLyrics={ednLyrics}
             lyricsLoading={lyricsLoading}
             lyricsError={lyricsError}
+            ecosLyrics={ecosLyrics}
+            ecosLyricsLoading={ecosLyricsLoading}
+            ecosLyricsError={ecosLyricsError}
             canGenerate={canGenerate}
             handleGenerate={handleGenerate}
             resetForm={resetForm}
