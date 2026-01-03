@@ -69,7 +69,7 @@ export const createRequestBody = (
   adjustedDuration: number,
   currentLanguage: string,
   isComposition: boolean,
-  model: "V3_5" | "V4" | "V4_5" = "V3_5",
+  model: "V3_5" | "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL",
   itemCode?: string
 ) => {
   // ✅ CORRECTION 3: Améliorer la structure pour l'API Suno

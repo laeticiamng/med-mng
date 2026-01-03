@@ -109,6 +109,27 @@ export const GenerationHistory: React.FC = () => {
     }
   };
 
+  const handleToggleFavorite = async (trackId: string, currentFavorite: boolean) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_generated_music')
+        .update({ is_favorite: !currentFavorite })
+        .eq('id', trackId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setHistory(prev => prev.map(t => 
+        t.id === trackId ? { ...t, is_favorite: !currentFavorite } : t
+      ));
+      toast.success(currentFavorite ? 'Retiré des favoris' : 'Ajouté aux favoris');
+    } catch {
+      toast.error('Erreur lors de la mise à jour');
+    }
+  };
+
   if (!user) {
     return (
       <PremiumCard variant="glass" className="p-6 text-center">
@@ -225,6 +246,15 @@ export const GenerationHistory: React.FC = () => {
                     ) : (
                       <Play className="h-4 w-4" />
                     )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleToggleFavorite(track.id, track.is_favorite || false)}
+                    className={`h-8 w-8 p-0 ${track.is_favorite ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'}`}
+                    aria-label={track.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  >
+                    <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
                   </Button>
                   <Button
                     size="sm"
