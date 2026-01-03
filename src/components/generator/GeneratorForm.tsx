@@ -154,13 +154,18 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
             variant="primary"
             size="xl"
             onClick={handleGenerate}
-            disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
+            disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading || ecosLyricsLoading}
             className="flex-1"
           >
             {isGenerating ? (
               <>
                 <div className="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full" />
                 <TranslatedText text="Génération en cours..." />
+              </>
+            ) : lyricsLoading || ecosLyricsLoading ? (
+              <>
+                <div className="animate-spin h-5 w-5 mr-3 border-2 border-current border-t-transparent rounded-full" />
+                <TranslatedText text="Chargement des paroles..." />
               </>
             ) : (
               <>
