@@ -122,7 +122,7 @@ export const useSunoMusicGeneration = () => {
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240,
-    model: "V3_5" | "V4" | "V4_5" = "V3_5"
+    model: "V3_5" | "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL"
   ): Promise<string> => {
     
     if (isAlreadyGenerating(rang)) {
