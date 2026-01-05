@@ -104,17 +104,33 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
     setFavoriteLoading(true);
     try {
-      // Utiliser une requête plus fiable basée sur item_code et music_style
       const finalUrl = audioUrl || generatedSong.audioUrl;
       
-      // D'abord, trouver le record par correspondance plus large
-      const { data: existingRecords } = await supabase
-        .from('user_generated_music')
-        .select('id, is_favorite')
-        .eq('user_id', user.id)
-        .or(`audio_url.eq.${finalUrl},item_code.eq.${generatedSong.itemCode}`)
-        .order('created_at', { ascending: false })
-        .limit(1);
+      // Stratégie 1: Recherche par audio_url exacte
+      let existingRecords: { id: string; is_favorite: boolean | null }[] | null = null;
+      
+      if (finalUrl && finalUrl.startsWith('http')) {
+        const { data } = await supabase
+          .from('user_generated_music')
+          .select('id, is_favorite')
+          .eq('user_id', user.id)
+          .eq('audio_url', finalUrl)
+          .limit(1);
+        existingRecords = data;
+      }
+      
+      // Stratégie 2: Si pas trouvé, chercher par item_code + style
+      if (!existingRecords || existingRecords.length === 0) {
+        const { data } = await supabase
+          .from('user_generated_music')
+          .select('id, is_favorite')
+          .eq('user_id', user.id)
+          .eq('item_code', generatedSong.itemCode)
+          .eq('music_style', generatedSong.style)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        existingRecords = data;
+      }
 
       if (existingRecords && existingRecords.length > 0) {
         const record = existingRecords[0];

@@ -39,6 +39,8 @@ serve(async (req) => {
 
     console.log('🔍 Vérification statut pour taskId:', taskId);
 
+    // Définir un timeout pour cette requête
+    const startTime = Date.now();
     // Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
     const { data: dbTrack, error: dbError } = await supabase
       .from('generated_music_tracks')
@@ -47,6 +49,9 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
+    
+    const dbQueryTime = Date.now() - startTime;
+    console.log(`📊 Requête BDD: ${dbQueryTime}ms`);
 
     if (dbError) {
       console.error('⚠️ Erreur lecture BDD:', dbError);

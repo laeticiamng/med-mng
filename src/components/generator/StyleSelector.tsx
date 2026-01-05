@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { getStylesByGenre } from '@/components/edn/music/MusicStylesData';
 import { Badge } from '@/components/ui/badge';
-import { Palette, Music2, Sparkles } from 'lucide-react';
+import { Palette, Music2, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface StyleSelectorProps {
   selectedStyle: string;
@@ -15,6 +16,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
   setSelectedStyle
 }) => {
   const stylesByGenre = getStylesByGenre();
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
 
   // Trouver le style sélectionné pour l'aperçu
   const selectedStyleData = useMemo(() => {
@@ -73,19 +75,32 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
         </SelectContent>
       </Select>
       
-      {/* Aperçu du style sélectionné */}
+      {/* Aperçu du style sélectionné avec info enrichie */}
       {selectedStyleData && (
         <div className="p-4 bg-accent/5 border border-accent/20 rounded-lg animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-accent" />
+            <div className="w-12 h-12 bg-gradient-to-br from-accent/30 to-accent/10 rounded-xl flex items-center justify-center shadow-inner">
+              <Sparkles className="h-6 w-6 text-accent" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground">{selectedStyleData.label}</span>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold text-foreground text-lg">{selectedStyleData.label}</span>
                 <Badge variant="outline" className="text-xs">{selectedStyleData.genre}</Badge>
               </div>
               <p className="text-sm text-muted-foreground">{selectedStyleData.description}</p>
+            </div>
+            
+            {/* Indicateur visuel de qualité */}
+            <div className="flex flex-col items-center gap-1 px-3 py-2 bg-background/50 rounded-lg border border-border/30">
+              <span className="text-xs text-muted-foreground">Qualité</span>
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <div 
+                    key={star} 
+                    className={`w-2 h-2 rounded-full ${star <= 4 ? 'bg-warning' : 'bg-muted'}`} 
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

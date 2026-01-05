@@ -76,22 +76,42 @@ export const EcosLyricsStatusDisplay: React.FC<EcosLyricsStatusDisplayProps> = (
             </Badge>
           </div>
 
-          {/* Preview des paroles */}
-          <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30 max-h-32 overflow-y-auto">
-            <p className="text-xs font-medium text-muted-foreground mb-2">
-              Aperçu des paroles :
+          {/* Preview complet des paroles avec scroll */}
+          <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30 max-h-48 overflow-y-auto">
+            <p className="text-xs font-medium text-muted-foreground mb-2 sticky top-0 bg-background/80 py-1">
+              📝 Paroles générées ({ecosLyrics.paroles.filter(l => l.trim()).length} lignes) :
             </p>
-            <div className="text-sm text-foreground/80 italic space-y-1">
-              {ecosLyrics.paroles.slice(0, 8).map((line, idx) => (
-                <p key={idx} className={line.startsWith('[') ? 'font-semibold text-primary not-italic' : ''}>
+            <div className="text-sm text-foreground/80 space-y-1">
+              {ecosLyrics.paroles.slice(0, 16).map((line, idx) => (
+                <p 
+                  key={idx} 
+                  className={
+                    line.startsWith('[') 
+                      ? 'font-semibold text-primary not-italic mt-2' 
+                      : line.trim() === '' 
+                        ? 'h-2' 
+                        : 'italic'
+                  }
+                >
                   {line}
                 </p>
               ))}
-              {ecosLyrics.paroles.length > 8 && (
-                <p className="text-muted-foreground">... et {ecosLyrics.paroles.length - 8} lignes de plus</p>
+              {ecosLyrics.paroles.length > 16 && (
+                <p className="text-muted-foreground text-xs mt-2 font-medium">
+                  ... et {ecosLyrics.paroles.length - 16} lignes supplémentaires
+                </p>
               )}
             </div>
           </div>
+          
+          {/* Cas clinique source */}
+          {ecosLyrics.scenario.clinical_case && (
+            <div className="mt-2 p-2 bg-muted/30 rounded-lg border border-border/20">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium">📋 Cas source:</span> {ecosLyrics.scenario.clinical_case}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

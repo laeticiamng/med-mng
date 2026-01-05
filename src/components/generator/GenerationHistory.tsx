@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface GeneratedTrack {
   id: string;
@@ -183,6 +184,35 @@ export const GenerationHistory: React.FC = () => {
     }
   }, []);
 
+  // Exporter l'historique en JSON
+  const handleExportHistory = useCallback(() => {
+    try {
+      const exportData = filteredHistory.map(track => ({
+        title: track.title || `${track.item_code} - ${track.rang}`,
+        item_code: track.item_code,
+        rang: track.rang,
+        style: track.music_style,
+        created_at: track.created_at,
+        is_favorite: track.is_favorite || false,
+        audio_url: track.audio_url
+      }));
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `med-mng-music-history-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`${exportData.length} générations exportées`);
+    } catch {
+      toast.error('Erreur lors de l\'export');
+    }
+  }, [filteredHistory]);
+
   if (!user) {
     return (
       <PremiumCard variant="glass" className="p-6 text-center">
@@ -248,9 +278,30 @@ export const GenerationHistory: React.FC = () => {
               <SelectItem value="favorites">❤️ Favoris</SelectItem>
               <SelectItem value="rang_a">Rang A</SelectItem>
               <SelectItem value="rang_b">Rang B</SelectItem>
-              <SelectItem value="rang_ab">Rang A+B</SelectItem>
+            <SelectItem value="rang_ab">Rang A+B</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Bouton Export */}
+          {filteredHistory.length > 0 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleExportHistory}
+                    className="h-8 w-8 p-0"
+                  >
+                    <FileDown className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Exporter l'historique (JSON)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
 

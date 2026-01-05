@@ -15,7 +15,8 @@ const contentTypes = [
   {
     value: 'edn',
     title: 'EDN',
-    description: 'Items à Choix Multiples',
+    subtitle: 'Connaissances théoriques',
+    description: '367 items pour les ECNi',
     icon: BookOpen,
     iconColor: 'text-primary',
     selectedRing: 'ring-warning shadow-warning/20',
@@ -24,7 +25,8 @@ const contentTypes = [
   {
     value: 'ecos',
     title: 'ECOS',
-    description: 'Situations de départ',
+    subtitle: 'Pratique clinique',
+    description: 'Scénarios de situations cliniques',
     icon: Users,
     iconColor: 'text-success',
     selectedRing: 'ring-warning shadow-warning/20',
@@ -75,9 +77,10 @@ export const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
               )}
               
               <div className="relative z-10">
-                <Icon className={`h-12 w-12 mx-auto mb-4 ${type.iconColor} ${isSelected ? 'animate-bounce' : ''}`} />
-                <h3 className="text-xl font-bold text-foreground mb-2">{type.title}</h3>
-                <p className="text-muted-foreground mb-3">{type.description}</p>
+                <Icon className={`h-12 w-12 mx-auto mb-3 ${type.iconColor} ${isSelected ? 'animate-bounce' : ''}`} />
+                <h3 className="text-xl font-bold text-foreground mb-0.5">{type.title}</h3>
+                <p className="text-xs font-medium text-primary mb-1">{type.subtitle}</p>
+                <p className="text-muted-foreground text-sm mb-3">{type.description}</p>
                 <Badge 
                   variant={isSelected ? "default" : "secondary"} 
                   className={`text-sm font-semibold ${isSelected ? 'bg-success text-success-foreground' : ''}`}

@@ -103,8 +103,8 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
         </p>
       </div>
       
-      {/* Message d'erreur timeout */}
-      {progress >= 90 && estimatedTimeRemaining && estimatedTimeRemaining.includes('m') && parseInt(estimatedTimeRemaining) > 3 && (
+      {/* Message d'erreur timeout - s'affiche après 3 minutes */}
+      {startTime && (Date.now() - startTime) > 180000 && progress < 95 && (
         <p className="text-xs text-warning mt-2 animate-pulse">
           ⚠️ La génération prend plus de temps que prévu. Vous pouvez annuler et réessayer.
         </p>

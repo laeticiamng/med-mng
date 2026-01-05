@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EcosScenario {
@@ -17,55 +17,75 @@ interface EcosLyrics {
 
 /**
  * Hook pour générer des paroles à partir des scénarios ECOS
- * Transforme le cas clinique en paroles chantables
+ * Transforme le cas clinique en paroles chantables avec cache
  */
 export const useEcosLyrics = (scenarioCode: string | null) => {
   const [lyrics, setLyrics] = useState<EcosLyrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cacheRef = useRef<Map<string, EcosLyrics>>(new Map());
+
+  const fetchAndGenerateLyrics = useCallback(async (code: string) => {
+    // Vérifier le cache d'abord
+    if (cacheRef.current.has(code)) {
+      setLyrics(cacheRef.current.get(code)!);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Récupérer le scénario ECOS
+      const { data, error: dbError } = await supabase
+        .from('ecos_scenarios')
+        .select('scenario_code, title, speciality, clinical_case, difficulty_level')
+        .eq('scenario_code', code)
+        .single();
+
+      if (dbError) throw dbError;
+      if (!data) throw new Error('Scénario non trouvé');
+
+      // Générer les paroles basées sur le cas clinique
+      const generatedLyrics = generateEcosLyrics(data);
+
+      const result: EcosLyrics = {
+        scenario: data,
+        paroles: generatedLyrics,
+        isGenerated: true
+      };
+
+      // Mettre en cache
+      cacheRef.current.set(code, result);
+      setLyrics(result);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erreur inconnue';
+      setError(message);
+      setLyrics(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!scenarioCode) {
       setLyrics(null);
+      setError(null);
       return;
     }
 
-    const fetchAndGenerateLyrics = async () => {
-      setLoading(true);
-      setError(null);
+    fetchAndGenerateLyrics(scenarioCode);
+  }, [scenarioCode, fetchAndGenerateLyrics]);
 
-      try {
-        // Récupérer le scénario ECOS
-        const { data, error: dbError } = await supabase
-          .from('ecos_scenarios')
-          .select('scenario_code, title, speciality, clinical_case, difficulty_level')
-          .eq('scenario_code', scenarioCode)
-          .single();
+  // Fonction pour forcer le refresh
+  const refresh = useCallback(() => {
+    if (scenarioCode) {
+      cacheRef.current.delete(scenarioCode);
+      fetchAndGenerateLyrics(scenarioCode);
+    }
+  }, [scenarioCode, fetchAndGenerateLyrics]);
 
-        if (dbError) throw dbError;
-        if (!data) throw new Error('Scénario non trouvé');
-
-        // Générer les paroles basées sur le cas clinique
-        const generatedLyrics = generateEcosLyrics(data);
-
-        setLyrics({
-          scenario: data,
-          paroles: generatedLyrics,
-          isGenerated: true
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erreur inconnue';
-        setError(message);
-        setLyrics(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAndGenerateLyrics();
-  }, [scenarioCode]);
-
-  return { lyrics, loading, error };
+  return { lyrics, loading, error, refresh };
 };
 
 /**
