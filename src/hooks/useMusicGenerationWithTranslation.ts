@@ -26,9 +26,15 @@ export const useMusicGenerationWithTranslation = () => {
     }
   };
 
+  // Expose cancelGeneration avec le bon type
+  const cancelGeneration = (rang?: 'A' | 'B' | 'AB') => {
+    sunoGeneration.cancelGeneration(rang);
+  };
+
   return {
     ...sunoGeneration,
-    generateMusicInLanguage
+    generateMusicInLanguage,
+    cancelGeneration
   };
 };
 

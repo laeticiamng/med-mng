@@ -91,7 +91,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [audioUrl, isGenerating, toast, playNotificationSound]);
 
-  // Gérer les favoris
+  // Gérer les favoris - Correction: utiliser item_code + music_style pour identifier la chanson
   const handleToggleFavorite = useCallback(async () => {
     if (!user || !generatedSong) {
       toast({
@@ -104,24 +104,47 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
     setFavoriteLoading(true);
     try {
-      if (isFavorite) {
-        // Retirer des favoris
+      // Utiliser une requête plus fiable basée sur item_code et music_style
+      const finalUrl = audioUrl || generatedSong.audioUrl;
+      
+      // D'abord, trouver le record par correspondance plus large
+      const { data: existingRecords } = await supabase
+        .from('user_generated_music')
+        .select('id, is_favorite')
+        .eq('user_id', user.id)
+        .or(`audio_url.eq.${finalUrl},item_code.eq.${generatedSong.itemCode}`)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (existingRecords && existingRecords.length > 0) {
+        const record = existingRecords[0];
+        const newFavoriteState = !(record.is_favorite || false);
+        
         await supabase
           .from('user_generated_music')
-          .update({ is_favorite: false } as any)
-          .eq('user_id', user.id)
-          .eq('audio_url', generatedSong.audioUrl);
-        setIsFavorite(false);
-        toast({ title: "💔 Retiré des favoris" });
+          .update({ is_favorite: newFavoriteState } as any)
+          .eq('id', record.id);
+          
+        setIsFavorite(newFavoriteState);
+        toast({ title: newFavoriteState ? "❤️ Ajouté aux favoris !" : "💔 Retiré des favoris" });
       } else {
-        // Ajouter aux favoris
-        await supabase
+        // Aucun record trouvé, créer un nouveau avec le favori
+        const { error } = await supabase
           .from('user_generated_music')
-          .update({ is_favorite: true } as any)
-          .eq('user_id', user.id)
-          .eq('audio_url', generatedSong.audioUrl);
-        setIsFavorite(true);
-        toast({ title: "❤️ Ajouté aux favoris !" });
+          .insert({
+            user_id: user.id,
+            title: generatedSong.title,
+            audio_url: finalUrl,
+            music_style: generatedSong.style,
+            rang: generatedSong.rang,
+            item_code: generatedSong.itemCode,
+            is_favorite: true
+          } as any);
+          
+        if (!error) {
+          setIsFavorite(true);
+          toast({ title: "❤️ Ajouté aux favoris et à la bibliothèque !" });
+        }
       }
     } catch {
       toast({
@@ -132,7 +155,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     } finally {
       setFavoriteLoading(false);
     }
-  }, [user, generatedSong, isFavorite, toast]);
+  }, [user, generatedSong, audioUrl, toast]);
 
 
   if (!generatedSong) return null;
@@ -420,16 +443,17 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             </Button>
           )}
           
-          {/* Bouton Retry */}
-          {onRetry && status?.status === 'failed' && (
+          {/* Bouton Retry - Affiché en cas d'échec OU si pas d'audio après polling */}
+          {onRetry && (status?.status === 'failed' || (isGenerating && progress >= 95 && !audioUrl)) && (
             <Button
               onClick={onRetry}
               variant="outline"
               className="border-warning/30 text-warning hover:bg-warning/10"
               size="lg"
-              title="Réessayer"
+              title="Réessayer la génération"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Réessayer
             </Button>
           )}
           
