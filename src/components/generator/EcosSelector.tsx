@@ -103,9 +103,16 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
                 className="text-base py-3"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">{scenario.scenario_code}</span>
-                  <span>-</span>
-                  <span>{scenario.title}</span>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-xs shrink-0 ${getDifficultyColor(scenario.difficulty_level)}`}
+                  >
+                    {scenario.scenario_code}
+                  </Badge>
+                  <span className="truncate">{scenario.title}</span>
+                  <Badge variant="secondary" className="text-xs ml-auto shrink-0">
+                    {scenario.speciality}
+                  </Badge>
                 </div>
               </SelectItem>
             ))

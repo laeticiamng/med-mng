@@ -263,6 +263,12 @@ const Generator = () => {
             maxFreeGenerations={maxFreeGenerations}
             musicQuota={musicQuota}
             getUsageDisplay={getUsageDisplay}
+            onRefresh={async () => {
+              // Force refresh du quota en réinitialisant le state
+              if (user) {
+                await loadStats(user.id);
+              }
+            }}
           />
 
           <GeneratorForm

@@ -18,7 +18,8 @@ const rangConfig = [
   {
     value: 'A',
     title: 'Rang A',
-    description: 'Compétences fondamentales à maîtriser en priorité',
+    subtitle: 'Essentiel',
+    description: 'Notions fondamentales - incontournables pour l\'examen',
     icon: Star,
     colorClass: 'ring-primary shadow-primary/20',
     iconColor: 'text-primary',
@@ -27,7 +28,8 @@ const rangConfig = [
   {
     value: 'B',
     title: 'Rang B',
-    description: 'Compétences approfondies pour aller plus loin',
+    subtitle: 'Approfondissement',
+    description: 'Connaissances avancées pour différencier les meilleurs',
     icon: Zap,
     colorClass: 'ring-accent shadow-accent/20',
     iconColor: 'text-accent',
@@ -36,7 +38,8 @@ const rangConfig = [
   {
     value: 'AB',
     title: 'Rang A+B',
-    description: 'Maîtrise complète - combine les deux niveaux',
+    subtitle: 'Complet',
+    description: 'Maîtrise totale - combine A et B pour une préparation optimale',
     icon: Crown,
     colorClass: 'ring-warning shadow-warning/20',
     iconColor: 'text-warning',
@@ -92,7 +95,8 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
               )}
               
               <Icon className={`h-8 w-8 mx-auto mb-2 ${rang.iconColor} ${isSelected ? 'animate-pulse' : ''}`} />
-              <h3 className="text-xl font-bold text-foreground mb-1">{rang.title}</h3>
+              <h3 className="text-xl font-bold text-foreground mb-0.5">{rang.title}</h3>
+              <p className="text-xs font-medium text-primary mb-1">{rang.subtitle}</p>
               <p className="text-muted-foreground text-xs leading-relaxed">{rang.description}</p>
               
               {/* Badge disponibilité */}
