@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Music } from 'lucide-react';
+import { Music, RefreshCw, Zap, Crown } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 interface QuotaDisplayProps {
   user: any;
@@ -10,6 +12,7 @@ interface QuotaDisplayProps {
   maxFreeGenerations: number;
   musicQuota: any;
   getUsageDisplay: () => string;
+  onRefresh?: () => void;
 }
 
 export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
@@ -17,9 +20,11 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   remainingFree,
   maxFreeGenerations,
   musicQuota,
-  getUsageDisplay
+  getUsageDisplay,
+  onRefresh
 }) => {
   const { logActivity } = useActivityTracking();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Track quota view
   useEffect(() => {
@@ -31,31 +36,117 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
       });
     }
   }, [logActivity, user, remainingFree]);
+
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      setIsRefreshing(true);
+      await onRefresh();
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
+  };
+
+  // Calculer le pourcentage utilisé
+  const getUsagePercentage = () => {
+    if (!user && remainingFree >= 0) {
+      return ((maxFreeGenerations - remainingFree) / maxFreeGenerations) * 100;
+    }
+    if (musicQuota) {
+      return (musicQuota.used / musicQuota.limit) * 100;
+    }
+    return 0;
+  };
+
+  const usagePercentage = getUsagePercentage();
+
   if (!user && remainingFree > 0) {
     return (
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-success/10 to-success/5 px-8 py-4 rounded-2xl border border-success/20 shadow-lg shadow-success/10">
-          <Music className="h-6 w-6 text-success" />
-          <span className="text-success font-bold text-lg">
-            <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
-          </span>
+      <div className="mb-12">
+        <div className="bg-gradient-to-r from-success/10 to-success/5 p-6 rounded-2xl border border-success/20 shadow-lg shadow-success/10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-success/20 rounded-xl flex items-center justify-center">
+                <Zap className="h-5 w-5 text-success" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">
+                  <TranslatedText text="Essai gratuit" />
+                </h4>
+                <span className="text-success font-bold text-lg">
+                  {remainingFree}/{maxFreeGenerations} <TranslatedText text="générations restantes" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <Progress value={100 - usagePercentage} className="h-2" />
+          <p className="text-xs text-muted-foreground mt-2">
+            <TranslatedText text="Connectez-vous pour sauvegarder vos créations" />
+          </p>
         </div>
       </div>
     );
   }
 
   if (user && musicQuota) {
+    const isLow = usagePercentage >= 80;
+    const isExhausted = !musicQuota.can_generate;
+    
     return (
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-primary/5 px-8 py-4 rounded-2xl border border-primary/20 shadow-lg shadow-primary/10">
-          <Music className="h-6 w-6 text-primary" />
-          <span className="text-primary font-bold text-lg">
-            {getUsageDisplay()}
-          </span>
-          {!musicQuota.can_generate && (
-            <Badge variant="secondary" className="bg-destructive/10 text-destructive">
-              Quota atteint
-            </Badge>
+      <div className="mb-12">
+        <div className={`p-6 rounded-2xl border shadow-lg ${
+          isExhausted 
+            ? 'bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20 shadow-destructive/10'
+            : isLow
+              ? 'bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20 shadow-warning/10'
+              : 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 shadow-primary/10'
+        }`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                isExhausted ? 'bg-destructive/20' : isLow ? 'bg-warning/20' : 'bg-primary/20'
+              }`}>
+                <Crown className={`h-5 w-5 ${
+                  isExhausted ? 'text-destructive' : isLow ? 'text-warning' : 'text-primary'
+                }`} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <TranslatedText text="Quota mensuel" />
+                  {isExhausted && (
+                    <Badge variant="destructive" className="text-xs animate-pulse">
+                      <TranslatedText text="Épuisé" />
+                    </Badge>
+                  )}
+                </h4>
+                <span className={`font-bold text-lg ${
+                  isExhausted ? 'text-destructive' : isLow ? 'text-warning' : 'text-primary'
+                }`}>
+                  {getUsageDisplay()}
+                </span>
+              </div>
+            </div>
+            
+            {onRefresh && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            )}
+          </div>
+          
+          <Progress 
+            value={100 - usagePercentage} 
+            className={`h-2 ${isExhausted || isLow ? '[&>div]:bg-warning' : ''}`} 
+          />
+          
+          {isExhausted && (
+            <p className="text-xs text-destructive mt-2 font-medium">
+              <TranslatedText text="Améliorez votre abonnement pour continuer à générer" />
+            </p>
           )}
         </div>
       </div>

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { getStylesByGenre } from '@/components/edn/music/MusicStylesData';
+import { Badge } from '@/components/ui/badge';
+import { Palette, Music2, Sparkles } from 'lucide-react';
 
 interface StyleSelectorProps {
   selectedStyle: string;
@@ -14,30 +16,80 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
 }) => {
   const stylesByGenre = getStylesByGenre();
 
+  // Trouver le style sélectionné pour l'aperçu
+  const selectedStyleData = useMemo(() => {
+    for (const [genre, styles] of Object.entries(stylesByGenre)) {
+      const found = (styles as any[]).find(s => s.value === selectedStyle);
+      if (found) return { ...found, genre };
+    }
+    return null;
+  }, [stylesByGenre, selectedStyle]);
+
+  // Compter le nombre total de styles
+  const totalStyles = useMemo(() => {
+    return Object.values(stylesByGenre).reduce((acc, styles) => acc + (styles as any[]).length, 0);
+  }, [stylesByGenre]);
+
   return (
     <div className="space-y-4">
-      <label className="text-lg font-semibold text-foreground">
-        <TranslatedText text="Style musical" />
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <Palette className="h-5 w-5 text-accent" />
+          <TranslatedText text="Style musical" />
+        </label>
+        <Badge variant="secondary" className="text-xs">
+          {totalStyles} styles
+        </Badge>
+      </div>
+      
       <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-        <SelectTrigger className="h-14 text-base bg-background/50 backdrop-blur-sm border-border/30 shadow-lg">
+        <SelectTrigger className="h-14 text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
           <SelectValue placeholder="Choisissez un style musical" />
         </SelectTrigger>
-        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-80 overflow-y-auto">
+        <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-80 overflow-y-auto">
           {Object.entries(stylesByGenre).map(([genre, styles]: [string, any[]]) => (
             <div key={genre}>
-              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground bg-muted">
+              <div className="px-3 py-2 text-xs font-bold text-primary bg-primary/10 sticky top-0 flex items-center gap-2">
+                <Music2 className="h-3 w-3" />
                 {genre}
+                <Badge variant="outline" className="text-xs ml-auto">
+                  {styles.length}
+                </Badge>
               </div>
               {styles.map((style) => (
-                <SelectItem key={style.value} value={style.value} className="text-base py-3 pl-4">
-                  {style.label} - {style.description}
+                <SelectItem 
+                  key={style.value} 
+                  value={style.value} 
+                  className="text-base py-3 pl-4 hover:bg-accent/10"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{style.label}</span>
+                    <span className="text-muted-foreground text-sm">- {style.description}</span>
+                  </div>
                 </SelectItem>
               ))}
             </div>
           ))}
         </SelectContent>
       </Select>
+      
+      {/* Aperçu du style sélectionné */}
+      {selectedStyleData && (
+        <div className="p-4 bg-accent/5 border border-accent/20 rounded-lg animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-accent" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground">{selectedStyleData.label}</span>
+                <Badge variant="outline" className="text-xs">{selectedStyleData.genre}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{selectedStyleData.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

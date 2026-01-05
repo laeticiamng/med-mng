@@ -38,6 +38,7 @@ const Generator = () => {
   const [selectedSituation, setSelectedSituation] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
   
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
@@ -133,9 +134,15 @@ const Generator = () => {
       const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
       const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
       
+      // Marquer le début de la génération
+      setGenerationStartTime(Date.now());
+      
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
       const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
       toast.dismiss(loadingToast);
+      
+      // Réinitialiser le temps de génération
+      setGenerationStartTime(null);
       
       if (user) {
         await incrementMusicUsage();
@@ -171,8 +178,10 @@ const Generator = () => {
         loadStats(user.id);
       }
       
-    } catch {
-      toast.error('Échec de la génération musicale');
+    } catch (error) {
+      console.error('Erreur génération:', error);
+      setGenerationStartTime(null);
+      toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
   }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
@@ -290,9 +299,15 @@ const Generator = () => {
             progress={pollingProgress} 
             isGenerating={isGenerating}
             message="Votre musique est en cours de création"
+            onCancel={musicGeneration.cancelGeneration}
+            startTime={generationStartTime || undefined}
           />
 
-          <GeneratorMusicPlayer generatedSong={generatedSong} onAddToLibrary={handleAddToLibrary} />
+          <GeneratorMusicPlayer 
+            generatedSong={generatedSong} 
+            onAddToLibrary={handleAddToLibrary}
+            onRetry={handleGenerate}
+          />
 
           {/* Historique des générations */}
           <div className="my-8">
