@@ -122,6 +122,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
             <RangSelector
               selectedRang={selectedRang}
               setSelectedRang={setSelectedRang}
+              lyricsAvailability={{
+                hasA: !!(ednLyrics?.paroles_rang_a?.length > 0 || ednLyrics?.paroles_musicales?.length > 0),
+                hasB: !!(ednLyrics?.paroles_rang_b?.length > 0 || ednLyrics?.paroles_musicales?.length > 0),
+                hasAB: !!(ednLyrics?.paroles_rang_ab?.length > 0 || ednLyrics?.paroles_musicales?.length > 0)
+              }}
             />
           </>
         )}

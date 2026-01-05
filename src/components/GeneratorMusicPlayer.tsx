@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock, Heart } from 'lucide-react';
+import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock, Heart, Download, RefreshCw } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
@@ -11,15 +11,18 @@ import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { TranslatedText } from '@/components/TranslatedText';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
   onAddToLibrary: () => void;
+  onRetry?: () => void;
 }
 
 export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   generatedSong,
-  onAddToLibrary
+  onAddToLibrary,
+  onRetry
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const { user } = useAuth();
@@ -215,6 +218,44 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   };
 
+  // Télécharger l'audio
+  const handleDownload = async () => {
+    if (!finalAudioUrl || !finalAudioUrl.startsWith('http')) {
+      toast({
+        title: "Erreur",
+        description: "Aucun fichier audio disponible",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(finalAudioUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${generatedSong.title || 'musique-generee'}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Téléchargement lancé !",
+        description: "Le fichier audio est en cours de téléchargement",
+      });
+      
+      logActivity({ activity_type: 'music_generation', metadata: { action: 'download' } });
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible de télécharger le fichier",
+        variant: "destructive"
+      });
+    }
+  };
+
   const formatDuration = (seconds?: number) => {
     if (!seconds) return null;
     const mins = Math.floor(seconds / 60);
@@ -353,6 +394,19 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             </Button>
           )}
           
+          {/* Bouton Téléchargement */}
+          {finalAudioUrl && finalAudioUrl.startsWith('http') && (
+            <Button
+              onClick={handleDownload}
+              variant="outline"
+              className="border-success/30 text-success hover:bg-success/10"
+              size="lg"
+              title="Télécharger"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
+          
           {/* Bouton de partage */}
           {finalAudioUrl && finalAudioUrl.startsWith('http') && (
             <Button
@@ -363,6 +417,19 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               title="Partager"
             >
               <Share2 className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {/* Bouton Retry */}
+          {onRetry && status?.status === 'failed' && (
+            <Button
+              onClick={onRetry}
+              variant="outline"
+              className="border-warning/30 text-warning hover:bg-warning/10"
+              size="lg"
+              title="Réessayer"
+            >
+              <RefreshCw className="h-4 w-4" />
             </Button>
           )}
           
