@@ -39,13 +39,20 @@ serve(async (req) => {
 
     console.log('🔍 Vérification statut pour taskId:', taskId);
 
-    // Vérifier d'abord en BDD
-    const { data: dbTrack } = await supabase
+    // Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
+    const { data: dbTrack, error: dbError } = await supabase
       .from('generated_music_tracks')
       .select('*')
       .eq('task_id', taskId)
-      .single();
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
+    if (dbError) {
+      console.error('⚠️ Erreur lecture BDD:', dbError);
+    }
+
+    // Vérifier si on a un track complété en BDD
     if (dbTrack?.generation_status === 'completed' && dbTrack?.audio_url) {
       console.log('✅ Statut trouvé en BDD - Complété');
       
@@ -54,8 +61,25 @@ serve(async (req) => {
         status: 'completed',
         taskId: taskId,
         audioUrl: dbTrack.audio_url,
-        streamUrl: dbTrack.metadata?.stream_url,
-        imageUrl: dbTrack.metadata?.image_url,
+        streamUrl: dbTrack.stream_url || dbTrack.metadata?.stream_url,
+        imageUrl: dbTrack.image_url || dbTrack.metadata?.image_url,
+        metadata: {
+          ...dbTrack.metadata,
+          duration: dbTrack.duration
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Si le statut est 'failed', le retourner immédiatement
+    if (dbTrack?.generation_status === 'failed') {
+      console.log('❌ Statut trouvé en BDD - Échoué');
+      return new Response(JSON.stringify({
+        success: true,
+        status: 'failed',
+        taskId: taskId,
+        error: dbTrack.metadata?.error || 'Génération échouée',
         metadata: dbTrack.metadata
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

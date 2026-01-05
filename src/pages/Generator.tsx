@@ -297,9 +297,17 @@ const Generator = () => {
           {/* Barre de progression pendant la génération */}
           <GenerationProgress 
             progress={pollingProgress} 
-            isGenerating={isGenerating}
+            isGenerating={!!isGenerating}
             message="Votre musique est en cours de création"
-            onCancel={musicGeneration.cancelGeneration}
+            onCancel={() => {
+              // Déterminer quel rang est en cours de génération
+              const activeRang = musicGeneration.isGenerating?.rangA ? 'A' 
+                : musicGeneration.isGenerating?.rangB ? 'B' 
+                : musicGeneration.isGenerating?.rangAB ? 'AB' 
+                : undefined;
+              musicGeneration.cancelGeneration(activeRang);
+              setGenerationStartTime(null);
+            }}
             startTime={generationStartTime || undefined}
           />
 

@@ -92,11 +92,23 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
       <div className="flex items-center justify-between mt-3">
         <p className="text-xs text-muted-foreground">
           ⏱️ <TranslatedText text="Durée estimée: 2-3 minutes" />
+          {progress >= 95 && (
+            <span className="ml-2 text-success font-medium animate-pulse">
+              ✨ Presque terminé !
+            </span>
+          )}
         </p>
         <p className="text-xs text-warning">
           ⚠️ <TranslatedText text="Ne fermez pas cette page" />
         </p>
       </div>
+      
+      {/* Message d'erreur timeout */}
+      {progress >= 90 && estimatedTimeRemaining && estimatedTimeRemaining.includes('m') && parseInt(estimatedTimeRemaining) > 3 && (
+        <p className="text-xs text-warning mt-2 animate-pulse">
+          ⚠️ La génération prend plus de temps que prévu. Vous pouvez annuler et réessayer.
+        </p>
+      )}
     </PremiumCard>
   );
 };

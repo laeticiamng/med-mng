@@ -100,15 +100,24 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
             </Badge>
           </div>
 
-          {/* Preview des paroles pour le rang sélectionné */}
+          {/* Preview complet des paroles pour le rang sélectionné */}
           {selectedRang && selectedLyrics && (
-            <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Aperçu Rang {selectedRang}:
+            <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30 max-h-40 overflow-y-auto">
+              <p className="text-xs font-medium text-muted-foreground mb-2 sticky top-0 bg-background/80 py-1">
+                📝 Paroles Rang {selectedRang} ({selectedLyrics.length} lignes):
               </p>
-              <p className="text-sm text-foreground/80 italic line-clamp-3">
-                {selectedLyrics.slice(0, 3).join(' / ')}...
-              </p>
+              <div className="text-sm text-foreground/80 space-y-1">
+                {selectedLyrics.slice(0, 12).map((line: string, idx: number) => (
+                  <p key={idx} className={line.startsWith('[') ? 'font-semibold text-primary not-italic' : 'italic'}>
+                    {line}
+                  </p>
+                ))}
+                {selectedLyrics.length > 12 && (
+                  <p className="text-muted-foreground text-xs">
+                    ... et {selectedLyrics.length - 12} lignes de plus
+                  </p>
+                )}
+              </div>
             </div>
           )}
 

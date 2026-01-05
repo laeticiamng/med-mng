@@ -193,14 +193,29 @@ export const useSunoMusicGeneration = () => {
     }
   };
 
-  // Arrêter le polling en cours
-  const cancelGeneration = useCallback(() => {
+  // Arrêter le polling en cours et réinitialiser tous les états
+  const cancelGeneration = useCallback((rang?: 'A' | 'B' | 'AB') => {
+    // Arrêter le polling
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
     setPollingProgress(0);
-  }, []);
+    
+    // Réinitialiser l'état de génération pour le rang spécifié ou tous les rangs
+    if (rang) {
+      unmarkAsGenerating(rang);
+      setGeneratingState(rang, false);
+    } else {
+      // Annuler tous les rangs
+      ['A', 'B', 'AB'].forEach((r) => {
+        unmarkAsGenerating(r as 'A' | 'B' | 'AB');
+        setGeneratingState(r as 'A' | 'B' | 'AB', false);
+      });
+    }
+    
+    setLastError('Génération annulée par l\'utilisateur');
+  }, [unmarkAsGenerating, setGeneratingState, setLastError]);
 
   return {
     isGenerating,
