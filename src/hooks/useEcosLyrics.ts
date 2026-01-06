@@ -85,7 +85,12 @@ export const useEcosLyrics = (scenarioCode: string | null) => {
     }
   }, [scenarioCode, fetchAndGenerateLyrics]);
 
-  return { lyrics, loading, error, refresh };
+  // Vider le cache complet
+  const clearCache = useCallback(() => {
+    cacheRef.current.clear();
+  }, []);
+
+  return { lyrics, loading, error, refresh, clearCache };
 };
 
 /**

@@ -31,10 +31,16 @@ export const useMusicGenerationWithTranslation = () => {
     sunoGeneration.cancelGeneration(rang);
   };
 
+  // État de génération calculé
+  const isGeneratingAny = sunoGeneration.isGenerating?.rangA || 
+                          sunoGeneration.isGenerating?.rangB || 
+                          sunoGeneration.isGenerating?.rangAB;
+
   return {
     ...sunoGeneration,
     generateMusicInLanguage,
-    cancelGeneration
+    cancelGeneration,
+    isGeneratingAny
   };
 };
 

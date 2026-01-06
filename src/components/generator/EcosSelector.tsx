@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Stethoscope } from 'lucide-react';
+import { Loader2, Stethoscope, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EcosSelectorProps {
@@ -26,6 +27,18 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
 }) => {
   const [scenarios, setScenarios] = useState<EcosScenario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filtrer les scénarios par recherche
+  const filteredScenarios = useMemo(() => {
+    if (!searchQuery.trim()) return scenarios;
+    const query = searchQuery.toLowerCase();
+    return scenarios.filter(s => 
+      s.scenario_code.toLowerCase().includes(query) ||
+      s.title.toLowerCase().includes(query) ||
+      s.speciality.toLowerCase().includes(query)
+    );
+  }, [scenarios, searchQuery]);
 
   useEffect(() => {
     loadScenarios();
@@ -86,17 +99,28 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
         </Badge>
       </div>
       
+      {/* Barre de recherche */}
+      <div className="relative mb-2">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Rechercher un scénario..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 h-10 bg-card/50"
+        />
+      </div>
+      
       <Select value={selectedSituation} onValueChange={setSelectedSituation}>
         <SelectTrigger className="h-14 text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
           <SelectValue placeholder="Sélectionnez un scénario ECOS" />
         </SelectTrigger>
         <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-[400px]">
-          {scenarios.length === 0 ? (
+          {filteredScenarios.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
               Aucun scénario disponible
             </div>
           ) : (
-            scenarios.map((scenario) => (
+            filteredScenarios.map((scenario) => (
               <SelectItem 
                 key={scenario.id} 
                 value={scenario.scenario_code} 

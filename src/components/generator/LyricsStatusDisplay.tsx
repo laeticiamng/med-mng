@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
-import { AlertTriangle, Music, CheckCircle2, XCircle } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { AlertTriangle, Music, CheckCircle2, XCircle, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface LyricsStatusDisplayProps {
   selectedItem: string;
@@ -20,6 +22,8 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   selectedRang
 }) => {
   const { logActivity } = useActivityTracking();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Track lyrics found
   useEffect(() => {
@@ -52,6 +56,19 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   };
 
   const selectedLyrics = getSelectedLyrics();
+
+  // Copier les paroles dans le presse-papier
+  const handleCopyLyrics = useCallback(async () => {
+    if (!selectedLyrics) return;
+    try {
+      await navigator.clipboard.writeText(selectedLyrics.join('\n'));
+      setCopied(true);
+      toast.success('Paroles copiées !');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Erreur lors de la copie');
+    }
+  }, [selectedLyrics]);
 
   return (
     <div className="space-y-4">
@@ -100,21 +117,43 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
             </Badge>
           </div>
 
-          {/* Preview complet des paroles pour le rang sélectionné */}
+          {/* Preview des paroles pour le rang sélectionné avec expand/collapse */}
           {selectedRang && selectedLyrics && (
-            <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30 max-h-40 overflow-y-auto">
-              <p className="text-xs font-medium text-muted-foreground mb-2 sticky top-0 bg-background/80 py-1">
-                📝 Paroles Rang {selectedRang} ({selectedLyrics.length} lignes):
-              </p>
-              <div className="text-sm text-foreground/80 space-y-1">
-                {selectedLyrics.slice(0, 12).map((line: string, idx: number) => (
+            <div className="mt-3 p-3 bg-background/50 rounded-lg border border-border/30">
+              <div className="flex items-center justify-between mb-2 sticky top-0 bg-background/80 py-1 z-10">
+                <p className="text-xs font-medium text-muted-foreground">
+                  📝 Paroles Rang {selectedRang} ({selectedLyrics.length} lignes)
+                </p>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={handleCopyLyrics}
+                    title="Copier les paroles"
+                  >
+                    {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    <span className="text-xs ml-1">{isExpanded ? 'Réduire' : 'Voir tout'}</span>
+                  </Button>
+                </div>
+              </div>
+              <div className={`text-sm text-foreground/80 space-y-1 ${isExpanded ? 'max-h-[400px]' : 'max-h-32'} overflow-y-auto transition-all`}>
+                {(isExpanded ? selectedLyrics : selectedLyrics.slice(0, 8)).map((line: string, idx: number) => (
                   <p key={idx} className={line.startsWith('[') ? 'font-semibold text-primary not-italic' : 'italic'}>
                     {line}
                   </p>
                 ))}
-                {selectedLyrics.length > 12 && (
-                  <p className="text-muted-foreground text-xs">
-                    ... et {selectedLyrics.length - 12} lignes de plus
+                {!isExpanded && selectedLyrics.length > 8 && (
+                  <p className="text-muted-foreground text-xs cursor-pointer hover:text-primary" onClick={() => setIsExpanded(true)}>
+                    ... et {selectedLyrics.length - 8} lignes de plus (cliquez pour voir)
                   </p>
                 )}
               </div>

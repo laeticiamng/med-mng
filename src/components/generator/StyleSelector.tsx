@@ -1,10 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { getStylesByGenre } from '@/components/edn/music/MusicStylesData';
 import { Badge } from '@/components/ui/badge';
-import { Palette, Music2, Sparkles, Volume2, VolumeX } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Palette, Music2, Sparkles, Headphones, Zap } from 'lucide-react';
 
 interface StyleSelectorProps {
   selectedStyle: string;
@@ -16,7 +15,6 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
   setSelectedStyle
 }) => {
   const stylesByGenre = getStylesByGenre();
-  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
 
   // Trouver le style sélectionné pour l'aperçu
   const selectedStyleData = useMemo(() => {
@@ -90,16 +88,15 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
               <p className="text-sm text-muted-foreground">{selectedStyleData.description}</p>
             </div>
             
-            {/* Indicateur visuel de qualité */}
-            <div className="flex flex-col items-center gap-1 px-3 py-2 bg-background/50 rounded-lg border border-border/30">
-              <span className="text-xs text-muted-foreground">Qualité</span>
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <div 
-                    key={star} 
-                    className={`w-2 h-2 rounded-full ${star <= 4 ? 'bg-warning' : 'bg-muted'}`} 
-                  />
-                ))}
+            {/* Indicateurs visuels */}
+            <div className="flex gap-2">
+              <div className="flex flex-col items-center gap-1 px-3 py-2 bg-background/50 rounded-lg border border-border/30">
+                <Headphones className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">HD</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 px-3 py-2 bg-primary/10 rounded-lg border border-primary/20">
+                <Zap className="h-4 w-4 text-primary" />
+                <span className="text-xs text-primary font-medium">IA</span>
               </div>
             </div>
           </div>

@@ -103,11 +103,25 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
         </p>
       </div>
       
-      {/* Message d'erreur timeout - s'affiche après 3 minutes */}
-      {startTime && (Date.now() - startTime) > 180000 && progress < 95 && (
-        <p className="text-xs text-warning mt-2 animate-pulse">
-          ⚠️ La génération prend plus de temps que prévu. Vous pouvez annuler et réessayer.
-        </p>
+      {/* Message d'avertissement timeout - s'affiche après 2 minutes */}
+      {startTime && (Date.now() - startTime) > 120000 && progress < 90 && (
+        <div className="mt-3 p-2 bg-warning/10 border border-warning/20 rounded-lg">
+          <p className="text-xs text-warning font-medium">
+            ⚠️ La génération prend plus de temps que prévu ({Math.floor((Date.now() - startTime) / 60000)}+ min).
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Vous pouvez annuler et réessayer ou patienter encore un peu.
+          </p>
+        </div>
+      )}
+      
+      {/* Message d'erreur timeout critique - après 4 minutes */}
+      {startTime && (Date.now() - startTime) > 240000 && progress < 95 && (
+        <div className="mt-3 p-2 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <p className="text-xs text-destructive font-medium">
+            ❌ Délai dépassé. Il est recommandé d'annuler et de réessayer.
+          </p>
+        </div>
       )}
     </PremiumCard>
   );
