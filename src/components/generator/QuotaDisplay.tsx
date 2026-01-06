@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Music, RefreshCw, Zap, Crown } from 'lucide-react';
+import { RefreshCw, Zap, Crown, TrendingUp } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface QuotaDisplayProps {
   user: any;
@@ -57,6 +58,13 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   };
 
   const usagePercentage = getUsagePercentage();
+  
+  // Couleur dynamique de la barre de progression
+  const progressColor = useMemo(() => {
+    if (usagePercentage >= 90) return '[&>div]:bg-destructive';
+    if (usagePercentage >= 70) return '[&>div]:bg-warning';
+    return '';
+  }, [usagePercentage]);
 
   if (!user && remainingFree > 0) {
     return (
@@ -77,10 +85,22 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
               </div>
             </div>
           </div>
-          <Progress value={100 - usagePercentage} className="h-2" />
-          <p className="text-xs text-muted-foreground mt-2">
-            <TranslatedText text="Connectez-vous pour sauvegarder vos créations" />
-          </p>
+          <Progress value={100 - usagePercentage} className={`h-2 ${progressColor}`} />
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-muted-foreground">
+              <TranslatedText text="Connectez-vous pour sauvegarder vos créations" />
+            </p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TrendingUp className="h-4 w-4 text-success cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Créez un compte pour des quotas illimités</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </div>
     );

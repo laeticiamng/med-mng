@@ -20,6 +20,7 @@ const rangConfig = [
     title: 'Rang A',
     subtitle: 'Essentiel',
     description: 'Notions fondamentales - incontournables pour l\'examen',
+    tip: '80% des questions de l\'examen',
     icon: Star,
     colorClass: 'ring-primary shadow-primary/20',
     iconColor: 'text-primary',
@@ -30,6 +31,7 @@ const rangConfig = [
     title: 'Rang B',
     subtitle: 'Approfondissement',
     description: 'Connaissances avancées pour différencier les meilleurs',
+    tip: 'Pour viser l\'excellence',
     icon: Zap,
     colorClass: 'ring-accent shadow-accent/20',
     iconColor: 'text-accent',
@@ -40,6 +42,7 @@ const rangConfig = [
     title: 'Rang A+B',
     subtitle: 'Complet',
     description: 'Maîtrise totale - combine A et B pour une préparation optimale',
+    tip: 'Recommandé pour révisions finales',
     icon: Crown,
     colorClass: 'ring-warning shadow-warning/20',
     iconColor: 'text-warning',
@@ -98,6 +101,7 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
               <h3 className="text-xl font-bold text-foreground mb-0.5">{rang.title}</h3>
               <p className="text-xs font-medium text-primary mb-1">{rang.subtitle}</p>
               <p className="text-muted-foreground text-xs leading-relaxed">{rang.description}</p>
+              <p className="text-xs text-primary/80 mt-1 font-medium">💡 {rang.tip}</p>
               
               {/* Badge disponibilité */}
               {lyricsAvailability && (

@@ -39,8 +39,9 @@ serve(async (req) => {
 
     console.log('🔍 Vérification statut pour taskId:', taskId);
 
-    // Définir un timeout pour cette requête
+    // Mesurer le temps de requête pour le monitoring
     const startTime = Date.now();
+    
     // Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
     const { data: dbTrack, error: dbError } = await supabase
       .from('generated_music_tracks')
@@ -170,6 +171,9 @@ serve(async (req) => {
       }
     }
 
+    const totalTime = Date.now() - startTime;
+    console.log(`📊 Temps total requête status: ${totalTime}ms, status: ${mappedStatus}`);
+
     return new Response(JSON.stringify({
       success: true,
       status: mappedStatus,
@@ -177,7 +181,8 @@ serve(async (req) => {
       audioUrl: audioUrl,
       streamUrl: streamUrl,
       imageUrl: imageUrl,
-      metadata: sunoData.data
+      metadata: sunoData.data,
+      responseTime: totalTime
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

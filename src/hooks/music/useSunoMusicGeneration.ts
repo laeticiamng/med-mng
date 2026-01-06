@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const MAX_POLL_ATTEMPTS = 60; // 5 minutes max (60 * 5s)
 const POLL_INTERVAL = 5000; // 5 secondes
+const FAST_POLL_INTERVAL = 3000; // 3 secondes pour les premières tentatives
 
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
@@ -109,11 +110,18 @@ export const useSunoMusicGeneration = () => {
         }
       };
 
-      // Lancer le polling
-      pollingRef.current = setInterval(checkStatus, POLL_INTERVAL);
+      // Lancer le polling avec intervalle adaptatif
+      let pollCount = 0;
+      const adaptivePoll = () => {
+        pollCount++;
+        checkStatus();
+        // Utiliser un intervalle plus court pour les 10 premières tentatives
+        const interval = pollCount < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
+        pollingRef.current = setTimeout(adaptivePoll, interval) as unknown as NodeJS.Timeout;
+      };
       
       // Premier check immédiat après 2 secondes
-      setTimeout(checkStatus, 2000);
+      setTimeout(adaptivePoll, 2000);
     });
   }, [setAudioUrl]);
 
