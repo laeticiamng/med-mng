@@ -50,15 +50,52 @@ export const GenerationHistory: React.FC = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('user_generated_music')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      // Charger depuis les deux sources en parallèle
+      const [userMusicResult, generatedTracksResult] = await Promise.all([
+        supabase
+          .from('user_generated_music')
+          .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase
+          .from('generated_music_tracks')
+          .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at')
+          .eq('user_id', user.id)
+          .eq('generation_status', 'completed')
+          .not('audio_url', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(50)
+      ]);
 
-      if (error) throw error;
-      setHistory(data || []);
+      // Combiner les résultats en évitant les doublons par audio_url
+      const userMusic = userMusicResult.data || [];
+      const generatedTracks = (generatedTracksResult.data || []).map((track: any) => ({
+        id: track.id,
+        item_code: track.metadata?.itemCode || 'GEN',
+        rang: track.metadata?.rang || 'A',
+        music_style: track.metadata?.style || 'Generated',
+        audio_url: track.audio_url,
+        created_at: track.created_at,
+        title: track.title,
+        is_favorite: false
+      }));
+
+      // Fusionner en évitant les doublons
+      const seenUrls = new Set<string>();
+      const combined: GeneratedTrack[] = [];
+      
+      for (const track of [...userMusic, ...generatedTracks]) {
+        if (track.audio_url && !seenUrls.has(track.audio_url)) {
+          seenUrls.add(track.audio_url);
+          combined.push(track);
+        }
+      }
+
+      // Trier par date décroissante
+      combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setHistory(combined.slice(0, 50));
     } catch (err) {
       console.error('Erreur chargement historique:', err);
     } finally {
