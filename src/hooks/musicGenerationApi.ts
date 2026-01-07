@@ -42,34 +42,55 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     // Gestion d'erreurs selon documentation officielle Suno API
     if (error) {
       let errorMessage = 'Erreur lors de la génération musicale';
+      let shouldRetry = false;
+      let retryAfter = 0;
       
       if (error.message?.includes('Failed to send') || error.message?.includes('fetch')) {
         errorMessage = '🔧 Problème de connexion. Vérifiez votre réseau et réessayez.';
+        shouldRetry = true;
+        retryAfter = 3000;
       } else if (error.message?.includes('timeout') || error.message?.includes('408')) {
         errorMessage = '⏰ La génération prend plus de temps que prévu. Réessayez dans quelques minutes.';
+        shouldRetry = true;
+        retryAfter = 60000;
       } else if (error.message?.includes('503') || error.message?.includes('455')) {
         // 455 = Maintenance système selon doc Suno
         errorMessage = '🚫 Service en maintenance. Réessayez dans quelques minutes.';
+        shouldRetry = true;
+        retryAfter = 120000;
       } else if (error.message?.includes('429')) {
+        // 429 = Crédits insuffisants
         errorMessage = '💳 Crédits Suno insuffisants. Veuillez recharger votre compte.';
+        shouldRetry = false;
       } else if (error.message?.includes('430')) {
-        // 430 = Fréquence d'appel trop élevée selon doc Suno
-        errorMessage = '⏳ Trop de requêtes en cours. Attendez quelques secondes avant de réessayer.';
+        // 430 = Fréquence d'appel trop élevée selon doc Suno - BACKOFF EXPONENTIEL
+        errorMessage = '⏳ Trop de requêtes en cours. Réessai automatique dans 10 secondes...';
+        shouldRetry = true;
+        retryAfter = 10000; // Backoff de 10 secondes
       } else if (error.message?.includes('413')) {
         // 413 = Prompt ou thème trop long selon doc Suno
         errorMessage = '📝 Le texte est trop long. Réduisez les paroles ou le style.';
+        shouldRetry = false;
       } else if (error.message?.includes('405')) {
         // 405 = Limite de taux dépassée selon doc Suno
-        errorMessage = '🚦 Limite de taux dépassée. Attendez avant de réessayer.';
+        errorMessage = '🚦 Limite de taux dépassée. Attendez 30 secondes avant de réessayer.';
+        shouldRetry = true;
+        retryAfter = 30000;
       } else if (error.message?.includes('401') || error.message?.includes('Authorization')) {
         errorMessage = '🔑 Problème d\'authentification avec l\'API Suno.';
+        shouldRetry = false;
       } else if (error.message?.includes('404')) {
         errorMessage = '🔗 Endpoint API Suno introuvable. Contactez le support.';
+        shouldRetry = false;
       } else {
         errorMessage = `Erreur Suno: ${error.message || 'Erreur inconnue'}`;
       }
       
-      throw new Error(errorMessage);
+      // Ajouter les infos de retry au message si applicable
+      const errorWithRetryInfo = new Error(errorMessage);
+      (errorWithRetryInfo as any).shouldRetry = shouldRetry;
+      (errorWithRetryInfo as any).retryAfter = retryAfter;
+      throw errorWithRetryInfo;
     }
 
     if (!data) {

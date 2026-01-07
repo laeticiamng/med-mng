@@ -52,8 +52,8 @@ serve(async (req) => {
 
     if (action === 'extract_vocals') {
       // ✅ CORRECTION: Endpoint correct selon documentation Suno
-      // POST /api/v1/separate-vocals
-      const response = await fetch(`${SUNO_API_BASE}/separate-vocals`, {
+      // POST /api/v1/vocal-removal/generate (pas /separate-vocals)
+      const response = await fetch(`${SUNO_API_BASE}/vocal-removal/generate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SUNO_API_KEY}`,
@@ -73,8 +73,11 @@ serve(async (req) => {
         const errorMessages: Record<number, string> = {
           400: 'URL audio invalide',
           401: 'Clé API non autorisée',
+          405: 'Limite de taux dépassée',
+          413: 'Fichier audio trop volumineux',
           429: 'Crédits insuffisants',
-          430: 'Fréquence d\'appel trop élevée',
+          430: 'Fréquence d\'appel trop élevée - attendez avant de réessayer',
+          455: 'Système en maintenance',
           500: 'Erreur serveur Suno'
         };
         
@@ -112,8 +115,8 @@ serve(async (req) => {
 
     if (action === 'convert_wav') {
       // ✅ CORRECTION: Endpoint correct selon documentation Suno
-      // POST /api/v1/audio/wav
-      const response = await fetch(`${SUNO_API_BASE}/audio/wav`, {
+      // POST /api/v1/audio/convert-wav (selon doc officielle)
+      const response = await fetch(`${SUNO_API_BASE}/audio/convert-wav`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SUNO_API_KEY}`,
@@ -132,8 +135,11 @@ serve(async (req) => {
         const errorMessages: Record<number, string> = {
           400: 'URL audio invalide',
           401: 'Clé API non autorisée',
+          405: 'Limite de taux dépassée',
+          413: 'Fichier audio trop volumineux',
           429: 'Crédits insuffisants',
-          430: 'Fréquence d\'appel trop élevée',
+          430: 'Fréquence d\'appel trop élevée - attendez avant de réessayer',
+          455: 'Système en maintenance',
           500: 'Erreur serveur Suno'
         };
         

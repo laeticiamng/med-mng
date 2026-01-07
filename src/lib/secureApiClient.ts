@@ -115,7 +115,7 @@ export class SecureSunoClient {
   }
 
   // Vocal extraction - removes vocals from a track
-  async extractVocals(audioUrl: string): Promise<{ vocalsUrl: string; instrumentalUrl: string }> {
+  async extractVocals(audioUrl: string): Promise<{ vocalsUrl: string; instrumentalUrl: string; taskId?: string }> {
     const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
       body: { action: 'extract_vocals', audioUrl }
     });
@@ -128,13 +128,58 @@ export class SecureSunoClient {
   }
 
   // WAV conversion - converts audio to WAV format
-  async convertToWav(audioUrl: string): Promise<{ wavUrl: string }> {
+  async convertToWav(audioUrl: string): Promise<{ wavUrl: string; taskId?: string }> {
     const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
       body: { action: 'convert_wav', audioUrl }
     });
 
     if (error) {
       throw new Error(`WAV Conversion Error: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  // ✅ NOUVEAU: Vérifier les crédits Suno restants
+  async getRemainingCredits(): Promise<{ credits: number; plan?: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-credits', {
+      body: {}
+    });
+
+    if (error) {
+      console.warn('Credits check not available:', error.message);
+      return { credits: -1 }; // -1 = inconnu
+    }
+
+    return data;
+  }
+
+  // ✅ NOUVEAU: Étendre une musique existante
+  async extendMusic(audioId: string, options: {
+    prompt?: string;
+    continueAt?: number;
+    model?: SunoModel;
+    defaultParamFlag?: boolean;
+  }): Promise<{ taskId: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-extend-music', {
+      body: { audioId, ...options }
+    });
+
+    if (error) {
+      throw new Error(`Music Extension Error: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  // ✅ NOUVEAU: Générer des paroles avec Suno AI
+  async generateLyrics(prompt: string): Promise<{ taskId: string; lyrics?: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-generate-lyrics', {
+      body: { prompt }
+    });
+
+    if (error) {
+      throw new Error(`Lyrics Generation Error: ${error.message}`);
     }
 
     return data;
