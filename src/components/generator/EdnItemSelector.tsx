@@ -125,13 +125,16 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
         </SelectContent>
       </Select>
       
-      {/* Affichage de l'item sélectionné */}
+      {/* Affichage de l'item sélectionné enrichi */}
       {selectedItemData && (
-        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-          <div className="flex items-center gap-2">
+        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
+          <div className="flex items-center gap-2 mb-1">
             <Badge className="bg-primary text-primary-foreground">{selectedItemData.item_code}</Badge>
             <span className="text-sm font-medium text-foreground">{selectedItemData.title}</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            ✅ Item sélectionné - Les paroles seront chargées automatiquement
+          </p>
         </div>
       )}
     </div>

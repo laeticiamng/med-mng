@@ -88,9 +88,14 @@ export const useEcosLyrics = (scenarioCode: string | null) => {
   // Vider le cache complet
   const clearCache = useCallback(() => {
     cacheRef.current.clear();
+    setLyrics(null);
+    setError(null);
   }, []);
 
-  return { lyrics, loading, error, refresh, clearCache };
+  // Obtenir la taille du cache
+  const getCacheSize = useCallback(() => cacheRef.current.size, []);
+
+  return { lyrics, loading, error, refresh, clearCache, getCacheSize };
 };
 
 /**

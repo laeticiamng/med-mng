@@ -185,7 +185,7 @@ export const GenerationHistory: React.FC = () => {
   }, []);
 
   // Exporter l'historique en JSON
-  const handleExportHistory = useCallback(() => {
+  const handleExportHistory = useCallback((format: 'json' | 'csv' = 'json') => {
     try {
       const exportData = filteredHistory.map(track => ({
         title: track.title || `${track.item_code} - ${track.rang}`,
@@ -197,17 +197,43 @@ export const GenerationHistory: React.FC = () => {
         audio_url: track.audio_url
       }));
       
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      let content: string;
+      let mimeType: string;
+      let extension: string;
+      
+      if (format === 'csv') {
+        // Export CSV
+        const headers = ['Titre', 'Code Item', 'Rang', 'Style', 'Date', 'Favori', 'URL Audio'];
+        const rows = exportData.map(d => [
+          `"${d.title}"`,
+          d.item_code,
+          d.rang,
+          d.style,
+          new Date(d.created_at).toLocaleDateString('fr-FR'),
+          d.is_favorite ? 'Oui' : 'Non',
+          d.audio_url
+        ]);
+        content = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+        mimeType = 'text/csv;charset=utf-8';
+        extension = 'csv';
+      } else {
+        // Export JSON
+        content = JSON.stringify(exportData, null, 2);
+        mimeType = 'application/json';
+        extension = 'json';
+      }
+      
+      const blob = new Blob([content], { type: mimeType });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `med-mng-music-history-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `med-mng-music-history-${new Date().toISOString().split('T')[0]}.${extension}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      toast.success(`${exportData.length} générations exportées`);
+      toast.success(`${exportData.length} générations exportées (${extension.toUpperCase()})`);
     } catch {
       toast.error('Erreur lors de l\'export');
     }
@@ -282,25 +308,46 @@ export const GenerationHistory: React.FC = () => {
             </SelectContent>
           </Select>
           
-          {/* Bouton Export */}
+          {/* Boutons Export JSON + CSV */}
           {filteredHistory.length > 0 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleExportHistory}
-                    className="h-8 w-8 p-0"
-                  >
-                    <FileDown className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Exporter l'historique (JSON)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleExportHistory('json')}
+                      className="h-8 px-2 text-xs"
+                    >
+                      <FileDown className="h-3 w-3 mr-1" />
+                      JSON
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Exporter en JSON</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleExportHistory('csv')}
+                      className="h-8 px-2 text-xs"
+                    >
+                      <FileDown className="h-3 w-3 mr-1" />
+                      CSV
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Exporter en CSV (Excel)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           )}
         </div>
       </div>
