@@ -88,7 +88,8 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
         } else {
           setError('Aucune parole trouvée pour cet item');
         }
-      } catch {
+      } catch (err) {
+        console.error('[useEdnItemLyrics] Erreur chargement paroles:', err);
         if (isMounted) {
           setError('Erreur lors du chargement des paroles');
         }

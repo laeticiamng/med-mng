@@ -65,7 +65,8 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
       setCopied(true);
       toast.success('Paroles copiées !');
       setTimeout(() => setCopied(false), 2000);
-    } catch {
+    } catch (err) {
+      console.error('Erreur copie paroles:', err);
       toast.error('Erreur lors de la copie');
     }
   }, [selectedLyrics]);
