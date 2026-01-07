@@ -141,8 +141,9 @@ export class SecureSunoClient {
     return data;
   }
 
-  // ✅ NOUVEAU: Vérifier les crédits Suno restants
-  async getRemainingCredits(): Promise<{ credits: number; plan?: string }> {
+  // ✅ Vérifier les crédits Suno restants
+  // Endpoint: GET /api/v1/get-credits
+  async getRemainingCredits(): Promise<{ credits: number; plan?: string; used?: number; total?: number; remaining?: number }> {
     const { data, error } = await supabase.functions.invoke('suno-credits', {
       body: {}
     });
