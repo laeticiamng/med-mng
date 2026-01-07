@@ -58,8 +58,8 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
       if (error) throw error;
 
       setScenarios(data || []);
-    } catch {
-      toast.error('Erreur lors du chargement des scénarios ECOS');
+    } catch (err) {
+      console.error('Erreur chargement ECOS:', err);
     } finally {
       setLoading(false);
     }
