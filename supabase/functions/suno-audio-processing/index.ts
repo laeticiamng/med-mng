@@ -13,9 +13,9 @@ import { corsHeaders } from '../_shared/cors.ts';
 
 interface AudioProcessingRequest {
   action: 'extract_vocals' | 'convert_wav';
-  audioUrl: string;
-  taskId?: string;  // Requis pour vocal-removal selon doc
-  audioId?: string; // Requis pour vocal-removal selon doc
+  audioUrl: string;     // Requis pour convert_wav
+  taskId?: string;      // Requis pour extract_vocals selon doc Suno
+  audioId?: string;     // Requis pour extract_vocals selon doc Suno
 }
 
 const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';

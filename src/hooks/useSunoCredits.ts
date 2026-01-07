@@ -32,11 +32,12 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     try {
       const result = await secureSunoClient.getRemainingCredits();
       
+      // L'API Suno retourne: { credits: number, plan?: string, used?: number, total?: number }
       setState({
-        credits: result.credits ?? -1,
-        plan: result.plan ?? 'unknown',
-        used: 0, // L'API ne retourne pas toujours ces infos
-        total: 0,
+        credits: result.credits ?? (result.remaining !== undefined ? result.remaining : -1),
+        plan: result.plan ?? 'standard',
+        used: result.used ?? 0,
+        total: result.total ?? result.credits ?? 0,
         loading: false,
         error: null,
         lastUpdated: new Date()
