@@ -115,9 +115,10 @@ export class SecureSunoClient {
   }
 
   // Vocal extraction - removes vocals from a track
-  async extractVocals(audioUrl: string): Promise<{ vocalsUrl: string; instrumentalUrl: string; taskId?: string }> {
+  // Selon doc Suno: requiert taskId + audioId (pas juste audioUrl)
+  async extractVocals(taskId: string, audioId: string): Promise<{ vocalsUrl: string; instrumentalUrl: string; taskId?: string }> {
     const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
-      body: { action: 'extract_vocals', audioUrl }
+      body: { action: 'extract_vocals', taskId, audioId }
     });
 
     if (error) {
@@ -180,6 +181,25 @@ export class SecureSunoClient {
 
     if (error) {
       throw new Error(`Lyrics Generation Error: ${error.message}`);
+    }
+
+    return data;
+  }
+  // ✅ NOUVEAU: Upload & Cover - Transformer un audio avec un nouveau style
+  async uploadAndCover(options: {
+    uploadUrl: string;
+    style: string;
+    title: string;
+    prompt?: string;
+    instrumental?: boolean;
+    model?: SunoModel;
+  }): Promise<{ taskId: string }> {
+    const { data, error } = await supabase.functions.invoke('suno-upload-cover', {
+      body: options
+    });
+
+    if (error) {
+      throw new Error(`Upload & Cover Error: ${error.message}`);
     }
 
     return data;
