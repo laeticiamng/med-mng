@@ -48,9 +48,7 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
     return () => clearInterval(interval);
   }, [isGenerating, startTime]);
 
-  if (!isGenerating) return null;
-
-  // Trouver la phase actuelle
+  // Trouver la phase actuelle - TOUJOURS calculer même si !isGenerating
   const currentPhase = useMemo(() => {
     for (let i = GENERATION_PHASES.length - 1; i >= 0; i--) {
       if (progress >= GENERATION_PHASES[i].threshold) {
@@ -60,7 +58,7 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
     return GENERATION_PHASES[0];
   }, [progress]);
 
-  // Calcul temps restant estimé
+  // Calcul temps restant estimé - TOUJOURS calculer
   const estimatedTimeRemaining = useMemo(() => {
     if (!startTime || progress <= 0) return null;
     
@@ -76,12 +74,16 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
     return `~${mins}m ${secs}s`;
   }, [startTime, progress, elapsedSeconds]);
 
+  // Return early APRÈS tous les hooks
   // Formatage du temps écoulé
   const formatElapsed = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   };
+
+  // Return early APRÈS tous les hooks
+  if (!isGenerating) return null;
 
   // Détection des seuils de timeout
   const isWarningTimeout = elapsedSeconds > 120 && progress < 90;

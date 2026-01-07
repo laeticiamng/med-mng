@@ -87,7 +87,7 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
               </div>
             </div>
           </div>
-          <Progress value={100 - usagePercentage} className={`h-2 ${progressColor}`} />
+          <Progress value={usagePercentage} className={`h-2 ${progressColor}`} />
           <div className="flex items-center justify-between mt-2">
             <p className="text-xs text-muted-foreground">
               <TranslatedText text="Connectez-vous pour sauvegarder vos créations" />
@@ -161,8 +161,8 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
           </div>
           
           <Progress 
-            value={100 - usagePercentage} 
-            className={`h-2 ${isExhausted || isLow ? '[&>div]:bg-warning' : ''}`} 
+            value={usagePercentage} 
+            className={`h-2 ${progressColor}`} 
           />
           
           {isExhausted && (
