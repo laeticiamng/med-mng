@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Zap, Crown, TrendingUp, ExternalLink } from 'lucide-react';
+import { RefreshCw, Zap, Crown, TrendingUp, ExternalLink, Music } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Progress } from '@/components/ui/progress';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useSunoCredits } from '@/hooks/useSunoCredits';
 
 interface QuotaDisplayProps {
   user: any;
@@ -28,6 +29,9 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
 }) => {
   const { logActivity } = useActivityTracking();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Crédits Suno réels
+  const { credits: sunoCredits, loading: sunoLoading, fetchCredits, hasLowCredits, creditsUnknown, displayCredits } = useSunoCredits();
 
   // Track quota view
   useEffect(() => {
@@ -40,10 +44,22 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
     }
   }, [logActivity, user, remainingFree]);
 
+  // Charger les crédits Suno au montage si utilisateur connecté
+  useEffect(() => {
+    if (user && creditsUnknown) {
+      fetchCredits();
+    }
+  }, [user, creditsUnknown, fetchCredits]);
+
   const handleRefresh = async () => {
-    if (onRefresh) {
-      setIsRefreshing(true);
-      await onRefresh();
+    setIsRefreshing(true);
+    try {
+      // Rafraîchir les crédits Suno en parallèle
+      await Promise.all([
+        fetchCredits(),
+        onRefresh?.()
+      ]);
+    } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
   };
@@ -147,23 +163,42 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
               </div>
             </div>
             
-            {onRefresh && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing || sunoLoading}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing || sunoLoading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
           
           <Progress 
             value={usagePercentage} 
             className={`h-2 ${progressColor}`} 
           />
+          
+          {/* Crédits Suno réels */}
+          {!creditsUnknown && (
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/20">
+              <div className="flex items-center gap-2">
+                <Music className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">
+                  Crédits Suno API:
+                </span>
+                <Badge 
+                  variant={hasLowCredits ? "destructive" : "secondary"} 
+                  className="text-xs"
+                >
+                  {displayCredits}
+                </Badge>
+              </div>
+              {hasLowCredits && (
+                <span className="text-xs text-warning">⚠️ Crédits faibles</span>
+              )}
+            </div>
+          )}
           
           {isExhausted && (
             <div className="flex items-center justify-between mt-2">
