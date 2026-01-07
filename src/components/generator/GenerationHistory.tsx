@@ -39,8 +39,11 @@ export const GenerationHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // Charger l'historique même sans utilisateur (pour voir les générations récentes)
-    loadHistory();
+    if (user) {
+      loadHistory();
+    } else {
+      setLoading(false);
+    }
   }, [user]);
 
   const loadHistory = async () => {
@@ -309,7 +312,17 @@ export const GenerationHistory: React.FC = () => {
     }
   }, [filteredHistory]);
 
-  // Afficher les musiques récentes même sans connexion
+  // Historique réservé aux utilisateurs connectés
+  if (!user) {
+    return (
+      <PremiumCard variant="glass" className="p-6 text-center">
+        <Music className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+        <p className="text-muted-foreground">
+          <TranslatedText text="Connectez-vous pour voir votre historique de générations" />
+        </p>
+      </PremiumCard>
+    );
+  }
 
   if (loading) {
     return (
