@@ -5,7 +5,7 @@
  * Documentation: https://docs.sunoapi.org/suno-api/quickstart
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 
 const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';
