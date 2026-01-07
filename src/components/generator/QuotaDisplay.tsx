@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Zap, Crown, TrendingUp } from 'lucide-react';
+import { RefreshCw, Zap, Crown, TrendingUp, ExternalLink } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface QuotaDisplayProps {
   user: any;
@@ -164,9 +166,17 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
           />
           
           {isExhausted && (
-            <p className="text-xs text-destructive mt-2 font-medium">
-              <TranslatedText text="Améliorez votre abonnement pour continuer à générer" />
-            </p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-xs text-destructive font-medium">
+                <TranslatedText text="Améliorez votre abonnement pour continuer" />
+              </p>
+              <Link to={ROUTE_PATHS.medMngPricing}>
+                <Button size="sm" variant="destructive" className="h-6 text-xs gap-1">
+                  <ExternalLink className="h-3 w-3" />
+                  <TranslatedText text="Voir les offres" />
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
