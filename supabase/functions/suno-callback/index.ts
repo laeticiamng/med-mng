@@ -215,14 +215,16 @@ serve(async (req) => {
               console.log(`📝 Track individuel ${track.id} mis à jour`);
             } else if (!existingTrack) {
               // Créer un nouveau record pour ce track individuel
+              // IMPORTANT: Préserver le user_id du track principal pour que l'utilisateur voie ses musiques
               const insertData: any = {
                 task_id: task_id,
                 suno_track_id: track.id,
                 title: track.title || 'Musique générée',
                 generation_status: callbackType === 'complete' ? 'completed' : 'generating',
                 duration: track.duration || 240,
-                user_id: null,
+                user_id: mainTrack?.user_id || null, // ✅ Hériter du track principal
                 metadata: {
+                  ...(typeof mainTrack?.metadata === 'object' && mainTrack?.metadata !== null ? mainTrack.metadata : {}),
                   model_name: track.model_name,
                   tags: track.tags,
                   prompt: track.prompt,

@@ -47,61 +47,36 @@ export const GenerationHistory: React.FC = () => {
   }, [user]);
 
   const loadHistory = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
     try {
-      // Charger depuis les deux sources en parallèle
-      // Pour user_generated_music, filtrer par user_id si connecté
-      // Pour generated_music_tracks, charger les récentes (même sans user_id) + celles de l'utilisateur
-      const queries = [];
-      
-      if (user) {
-        queries.push(
-          supabase
-            .from('user_generated_music')
-            .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(50)
-        );
+      // Charger uniquement les musiques de l'utilisateur connecté
+      const [userMusicResult, generatedTracksResult] = await Promise.all([
+        // Source 1: user_generated_music - musiques associées à l'utilisateur
+        supabase
+          .from('user_generated_music')
+          .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50),
         
-        // Charger les tracks de l'utilisateur OU les récentes (pour associer les générations anonymes)
-        queries.push(
-          supabase
-            .from('generated_music_tracks')
-            .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at, user_id')
-            .eq('generation_status', 'completed')
-            .not('audio_url', 'is', null)
-            .order('created_at', { ascending: false })
-            .limit(50)
-        );
-      } else {
-        // Utilisateur non connecté : charger les 10 dernières générations
-        queries.push(Promise.resolve({ data: [], error: null }));
-        queries.push(
-          supabase
-            .from('generated_music_tracks')
-            .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at')
-            .eq('generation_status', 'completed')
-            .not('audio_url', 'is', null)
-            .order('created_at', { ascending: false })
-            .limit(10)
-        );
-      }
-      
-      const [userMusicResult, generatedTracksResult] = await Promise.all(queries);
+        // Source 2: generated_music_tracks - uniquement celles de l'utilisateur
+        supabase
+          .from('generated_music_tracks')
+          .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at, user_id')
+          .eq('user_id', user.id)
+          .eq('generation_status', 'completed')
+          .not('audio_url', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(50)
+      ]);
 
       // Combiner les résultats en évitant les doublons par audio_url
-      const userMusic = (userMusicResult as any).data || [];
-      const generatedTracks = ((generatedTracksResult as any).data || [])
-        .filter((track: any) => {
-          // Si connecté, montrer ses tracks + les récentes sans user_id (dans les 24h)
-          if (user) {
-            const isOwned = track.user_id === user.id;
-            const isRecent = new Date(track.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
-            const isAnonymous = !track.user_id;
-            return isOwned || (isAnonymous && isRecent);
-          }
-          return true;
-        })
+      const userMusic = userMusicResult.data || [];
+      const generatedTracks = (generatedTracksResult.data || [])
         .map((track: any) => ({
           id: track.id,
           item_code: track.metadata?.itemCode || 'GEN',
