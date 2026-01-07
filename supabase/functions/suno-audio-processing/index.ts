@@ -6,6 +6,8 @@ interface AudioProcessingRequest {
   audioUrl: string;
 }
 
+const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
