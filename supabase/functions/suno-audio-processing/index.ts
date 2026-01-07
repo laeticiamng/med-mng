@@ -1,3 +1,13 @@
+/**
+ * 🎵 Suno Audio Processing - Traitement audio avancé
+ * 
+ * Endpoints utilisés selon la documentation officielle Suno API:
+ * - Séparation vocale: POST /api/v1/separate-vocals
+ * - Conversion WAV: POST /api/v1/audio/wav
+ * 
+ * Documentation: https://docs.sunoapi.org/suno-api/separate-vocals-from-music
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 
@@ -38,60 +48,39 @@ serve(async (req) => {
       });
     }
 
+    console.log(`🎵 Audio processing: ${action} for ${audioUrl}`);
+
     if (action === 'extract_vocals') {
-      // Call Suno API for vocal extraction
-      const response = await fetch('https://api.sunoapi.org/api/v1/audio/extract-vocals', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUNO_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ audio_url: audioUrl })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Suno vocal extraction error:', errorText);
-        return new Response(JSON.stringify({
-          success: false,
-          error: `Vocal extraction failed: ${response.status}`
-        }), {
-          status: response.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      const data = await response.json();
-      
-      return new Response(JSON.stringify({
-        success: true,
-        vocalsUrl: data.vocals_url || data.data?.vocals_url,
-        instrumentalUrl: data.instrumental_url || data.data?.instrumental_url
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (action === 'convert_wav') {
-      // Call Suno API for WAV conversion
-      const response = await fetch('https://api.sunoapi.org/api/v1/audio/convert', {
+      // ✅ CORRECTION: Endpoint correct selon documentation Suno
+      // POST /api/v1/separate-vocals
+      const response = await fetch(`${SUNO_API_BASE}/separate-vocals`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SUNO_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          audio_url: audioUrl,
-          format: 'wav'
+          audioUrl: audioUrl,
+          callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Suno WAV conversion error:', errorText);
+        console.error('❌ Suno vocal extraction error:', response.status, errorText);
+        
+        // Mapper les codes d'erreur selon documentation
+        const errorMessages: Record<number, string> = {
+          400: 'URL audio invalide',
+          401: 'Clé API non autorisée',
+          429: 'Crédits insuffisants',
+          430: 'Fréquence d\'appel trop élevée',
+          500: 'Erreur serveur Suno'
+        };
+        
         return new Response(JSON.stringify({
           success: false,
-          error: `WAV conversion failed: ${response.status}`
+          error: errorMessages[response.status] || `Vocal extraction failed: ${response.status}`
         }), {
           status: response.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -99,10 +88,81 @@ serve(async (req) => {
       }
 
       const data = await response.json();
+      console.log('✅ Vocal extraction response:', data);
+      
+      // Structure de réponse selon documentation Suno
+      if (data.code === 200 && data.data?.taskId) {
+        return new Response(JSON.stringify({
+          success: true,
+          taskId: data.data.taskId,
+          message: 'Vocal extraction started. Results will be sent to callback URL.'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       
       return new Response(JSON.stringify({
         success: true,
-        wavUrl: data.converted_url || data.data?.converted_url
+        vocalsUrl: data.data?.vocalsUrl || data.vocals_url,
+        instrumentalUrl: data.data?.instrumentalUrl || data.instrumental_url
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'convert_wav') {
+      // ✅ CORRECTION: Endpoint correct selon documentation Suno
+      // POST /api/v1/audio/wav
+      const response = await fetch(`${SUNO_API_BASE}/audio/wav`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          audioUrl: audioUrl,
+          callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Suno WAV conversion error:', response.status, errorText);
+        
+        const errorMessages: Record<number, string> = {
+          400: 'URL audio invalide',
+          401: 'Clé API non autorisée',
+          429: 'Crédits insuffisants',
+          430: 'Fréquence d\'appel trop élevée',
+          500: 'Erreur serveur Suno'
+        };
+        
+        return new Response(JSON.stringify({
+          success: false,
+          error: errorMessages[response.status] || `WAV conversion failed: ${response.status}`
+        }), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const data = await response.json();
+      console.log('✅ WAV conversion response:', data);
+      
+      // Structure de réponse selon documentation Suno
+      if (data.code === 200 && data.data?.taskId) {
+        return new Response(JSON.stringify({
+          success: true,
+          taskId: data.data.taskId,
+          message: 'WAV conversion started. Results will be sent to callback URL.'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      return new Response(JSON.stringify({
+        success: true,
+        wavUrl: data.data?.wavUrl || data.wav_url || data.converted_url
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -117,7 +177,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Audio processing error:', error);
+    console.error('❌ Audio processing error:', error);
     
     return new Response(JSON.stringify({
       success: false,

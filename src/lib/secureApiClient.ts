@@ -33,12 +33,32 @@ export interface ImageGenerationRequest {
   n?: number;
 }
 
+// Types Suno selon documentation officielle 2024
+export type SunoModel = 'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5';
+export type VocalGender = 'm' | 'f';
+
 export interface SunoGenerationRequest {
-  prompt?: string;
-  title?: string;
+  // Paramètres requis
+  customMode: boolean;
+  instrumental: boolean;
+  model: SunoModel;
+  
+  // Paramètres conditionnels
+  prompt?: string;      // Paroles si customMode=true + instrumental=false
+  style?: string;       // Requis si customMode=true (max 200/1000 chars selon modèle)
+  title?: string;       // Requis si customMode=true (max 80/100 chars selon modèle)
+  
+  // Nouveaux paramètres V4.5+ optionnels
+  personaId?: string;           // ID de persona pour style personnalisé
+  negativeTags?: string;        // Styles à éviter
+  vocalGender?: VocalGender;    // Genre vocal préféré
+  styleWeight?: number;         // Poids du style (0.00-1.00)
+  weirdnessConstraint?: number; // Contrainte de créativité (0.00-1.00)
+  audioWeight?: number;         // Poids de l'audio d'entrée (0.00-1.00)
+  
+  // Legacy (gardés pour compatibilité)
   tags?: string;
   wait_audio?: boolean;
-  [key: string]: any; // Allow additional properties for different request types
 }
 
 // Secure OpenAI API client using edge functions
