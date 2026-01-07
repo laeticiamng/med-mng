@@ -59,8 +59,8 @@ export const GenerationHistory: React.FC = () => {
 
       if (error) throw error;
       setHistory(data || []);
-    } catch {
-      // Silently handle errors
+    } catch (err) {
+      console.error('Erreur chargement historique:', err);
     } finally {
       setLoading(false);
     }
@@ -139,7 +139,8 @@ export const GenerationHistory: React.FC = () => {
 
       setHistory(prev => prev.filter(t => t.id !== trackId));
       toast.success('Génération supprimée');
-    } catch {
+    } catch (err) {
+      console.error('Erreur suppression:', err);
       toast.error('Erreur lors de la suppression');
     }
   };
@@ -160,7 +161,8 @@ export const GenerationHistory: React.FC = () => {
         t.id === trackId ? { ...t, is_favorite: !currentFavorite } : t
       ));
       toast.success(currentFavorite ? 'Retiré des favoris' : 'Ajouté aux favoris');
-    } catch {
+    } catch (err) {
+      console.error('Erreur toggle favori:', err);
       toast.error('Erreur lors de la mise à jour');
     }
   };
@@ -179,7 +181,8 @@ export const GenerationHistory: React.FC = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Téléchargement lancé');
-    } catch {
+    } catch (err) {
+      console.error('Erreur téléchargement:', err);
       toast.error('Erreur de téléchargement');
     }
   }, []);
@@ -234,7 +237,8 @@ export const GenerationHistory: React.FC = () => {
       document.body.removeChild(a);
       
       toast.success(`${exportData.length} générations exportées (${extension.toUpperCase()})`);
-    } catch {
+    } catch (err) {
+      console.error('Erreur export:', err);
       toast.error('Erreur lors de l\'export');
     }
   }, [filteredHistory]);

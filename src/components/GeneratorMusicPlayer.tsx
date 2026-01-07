@@ -68,8 +68,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.5);
-    } catch {
-      // Silently fail if audio context is not available
+    } catch (err) {
+      console.warn('AudioContext non disponible:', err);
     }
   }, []);
 
@@ -162,7 +162,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           toast({ title: "❤️ Ajouté aux favoris et à la bibliothèque !" });
         }
       }
-    } catch {
+    } catch (err) {
+      console.error('Erreur toggle favori:', err);
       toast({
         title: "Erreur",
         description: "Impossible de modifier les favoris",
@@ -252,8 +253,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           description: "Le lien audio a été copié dans votre presse-papier",
         });
       }
-    } catch {
-      // Partage silencieux en cas d'erreur
+    } catch (err) {
+      console.warn('Erreur partage:', err);
     }
   };
 
@@ -286,7 +287,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       });
       
       logActivity({ activity_type: 'music_generation', metadata: { action: 'download' } });
-    } catch {
+    } catch (err) {
+      console.error('Erreur téléchargement:', err);
       toast({
         title: "Erreur",
         description: "Impossible de télécharger le fichier",
