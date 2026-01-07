@@ -39,47 +39,76 @@ export const GenerationHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    if (user) {
-      loadHistory();
-    } else {
-      setLoading(false);
-    }
+    // Charger l'historique même sans utilisateur (pour voir les générations récentes)
+    loadHistory();
   }, [user]);
 
   const loadHistory = async () => {
-    if (!user) return;
-
     try {
       // Charger depuis les deux sources en parallèle
-      const [userMusicResult, generatedTracksResult] = await Promise.all([
-        supabase
-          .from('user_generated_music')
-          .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(50),
-        supabase
-          .from('generated_music_tracks')
-          .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at')
-          .eq('user_id', user.id)
-          .eq('generation_status', 'completed')
-          .not('audio_url', 'is', null)
-          .order('created_at', { ascending: false })
-          .limit(50)
-      ]);
+      // Pour user_generated_music, filtrer par user_id si connecté
+      // Pour generated_music_tracks, charger les récentes (même sans user_id) + celles de l'utilisateur
+      const queries = [];
+      
+      if (user) {
+        queries.push(
+          supabase
+            .from('user_generated_music')
+            .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(50)
+        );
+        
+        // Charger les tracks de l'utilisateur OU les récentes (pour associer les générations anonymes)
+        queries.push(
+          supabase
+            .from('generated_music_tracks')
+            .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at, user_id')
+            .eq('generation_status', 'completed')
+            .not('audio_url', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(50)
+        );
+      } else {
+        // Utilisateur non connecté : charger les 10 dernières générations
+        queries.push(Promise.resolve({ data: [], error: null }));
+        queries.push(
+          supabase
+            .from('generated_music_tracks')
+            .select('id, task_id, title, audio_url, duration, generation_status, metadata, created_at')
+            .eq('generation_status', 'completed')
+            .not('audio_url', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(10)
+        );
+      }
+      
+      const [userMusicResult, generatedTracksResult] = await Promise.all(queries);
 
       // Combiner les résultats en évitant les doublons par audio_url
-      const userMusic = userMusicResult.data || [];
-      const generatedTracks = (generatedTracksResult.data || []).map((track: any) => ({
-        id: track.id,
-        item_code: track.metadata?.itemCode || 'GEN',
-        rang: track.metadata?.rang || 'A',
-        music_style: track.metadata?.style || 'Generated',
-        audio_url: track.audio_url,
-        created_at: track.created_at,
-        title: track.title,
-        is_favorite: false
-      }));
+      const userMusic = (userMusicResult as any).data || [];
+      const generatedTracks = ((generatedTracksResult as any).data || [])
+        .filter((track: any) => {
+          // Si connecté, montrer ses tracks + les récentes sans user_id (dans les 24h)
+          if (user) {
+            const isOwned = track.user_id === user.id;
+            const isRecent = new Date(track.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const isAnonymous = !track.user_id;
+            return isOwned || (isAnonymous && isRecent);
+          }
+          return true;
+        })
+        .map((track: any) => ({
+          id: track.id,
+          item_code: track.metadata?.itemCode || 'GEN',
+          rang: track.metadata?.rang || 'A',
+          music_style: track.metadata?.style || 'Generated',
+          audio_url: track.audio_url,
+          created_at: track.created_at,
+          title: track.title,
+          is_favorite: false
+        }));
 
       // Fusionner en évitant les doublons
       const seenUrls = new Set<string>();
@@ -280,16 +309,7 @@ export const GenerationHistory: React.FC = () => {
     }
   }, [filteredHistory]);
 
-  if (!user) {
-    return (
-      <PremiumCard variant="glass" className="p-6 text-center">
-        <Clock className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">
-          <TranslatedText text="Connectez-vous pour voir votre historique de générations" />
-        </p>
-      </PremiumCard>
-    );
-  }
+  // Afficher les musiques récentes même sans connexion
 
   if (loading) {
     return (
