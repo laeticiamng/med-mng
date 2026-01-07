@@ -25,17 +25,18 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Track lyrics found
+  // Track lyrics found - DOIT être avant tout return conditionnel
   useEffect(() => {
     if (ednLyrics && selectedItem) {
       logActivity({
         activity_type: 'study',
         count: 1,
         metadata: { type: 'lyrics_found', itemCode: selectedItem }
-      });
+      }).catch(err => console.error('Erreur tracking activité:', err));
     }
   }, [ednLyrics, selectedItem, logActivity]);
 
+  // Return conditionnel APRÈS tous les hooks
   if (!selectedItem) return null;
 
   // Vérifier disponibilité par rang
