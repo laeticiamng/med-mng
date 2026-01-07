@@ -1,7 +1,8 @@
 import { secureSunoClient } from "../lib/secureApiClient";
 
 // Modèles Suno disponibles (selon API officielle 2024)
-type Model = "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5";
+// Type aligné avec src/lib/secureApiClient.ts et supabase/functions/_shared/suno-api-client.ts
+export type Model = "V4" | "V4_5" | "V4_5PLUS" | "V4_5ALL" | "V5";
 
 export interface GenerateMusicPayload {
   prompt?: string;

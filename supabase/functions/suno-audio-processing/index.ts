@@ -14,6 +14,8 @@ import { corsHeaders } from '../_shared/cors.ts';
 interface AudioProcessingRequest {
   action: 'extract_vocals' | 'convert_wav';
   audioUrl: string;
+  taskId?: string;  // Requis pour vocal-removal selon doc
+  audioId?: string; // Requis pour vocal-removal selon doc
 }
 
 const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';
@@ -24,7 +26,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, audioUrl } = await req.json() as AudioProcessingRequest;
+    const { action, audioUrl, taskId, audioId } = await req.json() as AudioProcessingRequest;
 
     if (!audioUrl) {
       return new Response(JSON.stringify({
@@ -51,8 +53,20 @@ serve(async (req) => {
     console.log(`🎵 Audio processing: ${action} for ${audioUrl}`);
 
     if (action === 'extract_vocals') {
-      // ✅ CORRECTION: Endpoint correct selon documentation Suno
-      // POST /api/v1/vocal-removal/generate (pas /separate-vocals)
+      // ✅ CORRECTION selon doc officielle Suno:
+      // POST /api/v1/vocal-removal/generate requiert taskId + audioId (pas audioUrl)
+      // https://docs.sunoapi.org/suno-api/quickstart#separate-vocals
+      
+      if (!taskId || !audioId) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'taskId et audioId sont requis pour la séparation vocale'
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const response = await fetch(`${SUNO_API_BASE}/vocal-removal/generate`, {
         method: 'POST',
         headers: {
@@ -60,7 +74,8 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          audioUrl: audioUrl,
+          taskId: taskId,
+          audioId: audioId,
           callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
         })
       });
