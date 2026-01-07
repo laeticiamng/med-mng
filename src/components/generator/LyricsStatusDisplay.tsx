@@ -25,6 +25,37 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Vérifier disponibilité par rang (avant useCallback car utilisé dedans)
+  const hasRangA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
+  const hasRangB = ednLyrics?.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0;
+  const hasRangAB = ednLyrics?.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0;
+  const hasLegacy = ednLyrics?.paroles_musicales && ednLyrics.paroles_musicales.length > 0;
+
+  // Obtenir les paroles pour le rang sélectionné
+  const selectedLyrics = React.useMemo(() => {
+    if (!ednLyrics || !selectedRang) return null;
+    switch (selectedRang) {
+      case 'A': return hasRangA ? ednLyrics.paroles_rang_a : null;
+      case 'B': return hasRangB ? ednLyrics.paroles_rang_b : null;
+      case 'AB': return hasRangAB ? ednLyrics.paroles_rang_ab : null;
+      default: return null;
+    }
+  }, [ednLyrics, selectedRang, hasRangA, hasRangB, hasRangAB]);
+
+  // Copier les paroles - DOIT être AVANT tout return conditionnel
+  const handleCopyLyrics = useCallback(async () => {
+    if (!selectedLyrics) return;
+    try {
+      await navigator.clipboard.writeText(selectedLyrics.join('\n'));
+      setCopied(true);
+      toast.success('Paroles copiées !');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Erreur copie paroles:', err);
+      toast.error('Erreur lors de la copie');
+    }
+  }, [selectedLyrics]);
+
   // Track lyrics found - DOIT être avant tout return conditionnel
   useEffect(() => {
     if (ednLyrics && selectedItem) {
@@ -38,39 +69,6 @@ export const LyricsStatusDisplay: React.FC<LyricsStatusDisplayProps> = ({
 
   // Return conditionnel APRÈS tous les hooks
   if (!selectedItem) return null;
-
-  // Vérifier disponibilité par rang
-  const hasRangA = ednLyrics?.paroles_rang_a && ednLyrics.paroles_rang_a.length > 0;
-  const hasRangB = ednLyrics?.paroles_rang_b && ednLyrics.paroles_rang_b.length > 0;
-  const hasRangAB = ednLyrics?.paroles_rang_ab && ednLyrics.paroles_rang_ab.length > 0;
-  const hasLegacy = ednLyrics?.paroles_musicales && ednLyrics.paroles_musicales.length > 0;
-
-  // Obtenir les paroles pour le rang sélectionné
-  const getSelectedLyrics = () => {
-    if (!ednLyrics || !selectedRang) return null;
-    switch (selectedRang) {
-      case 'A': return hasRangA ? ednLyrics.paroles_rang_a : null;
-      case 'B': return hasRangB ? ednLyrics.paroles_rang_b : null;
-      case 'AB': return hasRangAB ? ednLyrics.paroles_rang_ab : null;
-      default: return null;
-    }
-  };
-
-  const selectedLyrics = getSelectedLyrics();
-
-  // Copier les paroles dans le presse-papier
-  const handleCopyLyrics = useCallback(async () => {
-    if (!selectedLyrics) return;
-    try {
-      await navigator.clipboard.writeText(selectedLyrics.join('\n'));
-      setCopied(true);
-      toast.success('Paroles copiées !');
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Erreur copie paroles:', err);
-      toast.error('Erreur lors de la copie');
-    }
-  }, [selectedLyrics]);
 
   return (
     <div className="space-y-4">
