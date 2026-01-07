@@ -194,3 +194,12 @@ verify_jwt = false
 
 [functions.suno-audio-processing]
 verify_jwt = false
+
+[functions.suno-credits]
+verify_jwt = true
+
+[functions.suno-extend-music]
+verify_jwt = true
+
+[functions.suno-generate-lyrics]
+verify_jwt = true
