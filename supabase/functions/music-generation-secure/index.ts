@@ -91,14 +91,15 @@ serve(async (req) => {
 
     console.log('🎵 Génération avec:', { item_code, type, creditsRequired, title });
 
-    // Configuration Suno sécurisée
+    // ✅ CORRECTION: Configuration Suno selon documentation officielle 2024
     const sunoPayload = {
+      customMode: true,
+      instrumental: false,
+      model: 'V4_5ALL', // Meilleure structure de chanson
       prompt: prompt,
-      make_instrumental: false,
-      wait_audio: false,
-      model: 'chirp-v3-0',
-      tags: `${style}, medical education, ${type}`,
-      title: title
+      style: `${style}, educational, medical training`,
+      title: title.substring(0, 80), // V4_5ALL: max 80 chars pour titre
+      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
     };
 
     // Appel API Suno avec gestion d'erreur
@@ -107,7 +108,8 @@ serve(async (req) => {
       throw new Error('Suno API key not configured');
     }
 
-    const sunoResponse = await fetch('https://api.suno.ai/generate', {
+    // ✅ CORRECTION: Utiliser l'URL API Suno officielle (sunoapi.org)
+    const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${sunoApiKey}`,
@@ -120,12 +122,24 @@ serve(async (req) => {
       const errorText = await sunoResponse.text();
       console.error(`Suno API Error: ${sunoResponse.status} - ${errorText}`);
       
+      // ✅ Mapper les codes d'erreur selon documentation officielle Suno
+      const errorMessages: Record<number, string> = {
+        400: 'Paramètres invalides',
+        401: 'Accès non autorisé - vérifiez la clé API',
+        405: 'Limite de taux dépassée',
+        413: 'Prompt ou style trop long',
+        429: 'Crédits insuffisants',
+        430: 'Fréquence d\'appel trop élevée - attendez avant de réessayer',
+        455: 'Système en maintenance',
+        500: 'Erreur serveur Suno'
+      };
+      
       // Rollback du quota en cas d'erreur Suno
       await supabase.rpc('med_mng_increment_quota', {
         credits_to_add: creditsRequired
       });
 
-      throw new Error(`Suno generation failed: ${sunoResponse.status}`);
+      throw new Error(errorMessages[sunoResponse.status] || `Suno generation failed: ${sunoResponse.status}`);
     }
 
     const sunoData = await sunoResponse.json();
