@@ -263,24 +263,28 @@ export const useSubscription = () => {
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;
   }, [musicQuota]);
 
-  const getSunoModel = useCallback((): "V3_5" | "V4" | "V4_5" => {
-    if (!subscription) return "V4_5"; // Plan gratuit = modèle premium pour découverte
+  const getSunoModel = useCallback((): "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" => {
+    if (!subscription) return "V4_5ALL"; // Plan gratuit = modèle premium pour découverte
     
     switch (subscription.plan_name) {
       case 'Plan Standard':
       case 'Basic':
       case 'basic':
-        return "V3_5"; // 19€ = V3.5
+        return "V4"; // 19€ = V4
       case 'Plan Pro':
       case 'Pro':
       case 'pro':
-        return "V4"; // 29€ = V4
+        return "V4_5"; // 29€ = V4.5
       case 'Plan Premium':
       case 'Premium':
       case 'premium':
-        return "V4_5"; // 39€ = V4.5
+        return "V4_5ALL"; // 39€ = V4.5 ALL
+      case 'Plan Elite':
+      case 'Elite':
+      case 'elite':
+        return "V5"; // Premium max = V5
       default:
-        return "V3_5";
+        return "V4";
     }
   }, [subscription]);
 
