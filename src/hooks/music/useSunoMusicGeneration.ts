@@ -214,9 +214,10 @@ export const useSunoMusicGeneration = () => {
       });
       throw error;
     } finally {
-      // Nettoyage
+      // Nettoyage - utiliser clearTimeout car on utilise setTimeout dans le polling
       if (pollingRef.current) {
-        clearInterval(pollingRef.current);
+        clearTimeout(pollingRef.current);
+        pollingRef.current = null;
       }
       unmarkAsGenerating(rang);
       setGeneratingState(rang, false);
