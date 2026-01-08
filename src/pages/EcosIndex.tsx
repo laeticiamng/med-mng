@@ -91,28 +91,28 @@ const EcosIndex = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Gamification Stats Banner */}
         {user && stats && (
-          <Card className="p-4 mb-6 bg-card/80 backdrop-blur-sm border-border">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <Flame className="h-5 w-5 text-warning" />
-                  <span className="font-medium">{stats.currentStreak} jours</span>
+          <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-card/80 backdrop-blur-sm border-border">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+                  <span className="font-medium text-sm sm:text-base">{stats.currentStreak} jours</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-primary" />
-                  <span className="font-medium">Niveau {stats.level}</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="font-medium text-sm sm:text-base">Niveau {stats.level}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-accent" />
-                  <span className="font-medium">{stats.totalPoints} XP</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+                  <span className="font-medium text-sm sm:text-base">{stats.totalPoints} XP</span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {stats.badges.slice(0, 3).map(badge => (
-                  <Badge key={badge.id} variant="secondary" className="bg-accent/20">
+                  <Badge key={badge.id} variant="secondary" className="bg-accent/20 text-xs sm:text-sm">
                     {badge.icon} {badge.name}
                   </Badge>
                 ))}
@@ -122,20 +122,20 @@ const EcosIndex = () => {
         )}
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Stethoscope className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+        <div className="text-center mb-8 sm:mb-12 px-2">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Stethoscope className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
               Simuler un ECOS
             </h1>
           </div>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
             Mets-toi en situation. C'est le meilleur moyen d'être prêt le jour J.
           </p>
         </div>
 
         {/* Search */}
-        <div className="max-w-md mx-auto mb-8">
+        <div className="max-w-md mx-auto mb-6 sm:mb-8 px-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -149,13 +149,13 @@ const EcosIndex = () => {
         </div>
 
         {/* Stats */}
-        <div className="flex justify-center gap-8 mb-8">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4" />
+        <div className="flex justify-center gap-4 sm:gap-8 mb-6 sm:mb-8 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-sm sm:text-base">
+            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>{ecosScenarios.length} situations</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="h-4 w-4" />
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-sm sm:text-base">
+            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>~15 min/situation</span>
           </div>
         </div>
@@ -180,17 +180,17 @@ const EcosIndex = () => {
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredScenarios.map((scenario) => (
               <Link 
                 key={scenario.sd_id}
                 to={`${ROUTE_PATHS.ecosScenario}/${scenario.sd_id}`}
                 onClick={() => handleScenarioClick(scenario)}
               >
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Stethoscope className="h-5 w-5 text-primary" />
+                <Card className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col">
+                  <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 shrink-0">
+                      <Stethoscope className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground line-clamp-2">

@@ -233,21 +233,21 @@ const Generator = () => {
     <PremiumBackground variant="amber">
       {/* Header premium */}
       <div className="bg-card/70 backdrop-blur-xl border-b border-border shadow-lg" role="banner">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-6">
-            <PremiumButton variant="glass" size="md" onClick={() => navigate(ROUTE_PATHS.home)} aria-label="Retourner à l'accueil">
-              <ArrowLeft className="h-5 w-5 mr-2" aria-hidden="true" />
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+            <PremiumButton variant="glass" size="md" onClick={() => navigate(ROUTE_PATHS.home)} aria-label="Retourner à l'accueil" className="shrink-0">
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" aria-hidden="true" />
               <TranslatedText text="Retour" />
             </PremiumButton>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-warning to-warning/80 rounded-xl shadow-lg flex items-center justify-center" aria-hidden="true">
-                <Music className="h-7 w-7 text-warning-foreground" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-warning to-warning/80 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center shrink-0" aria-hidden="true">
+                <Music className="h-5 w-5 sm:h-7 sm:w-7 text-warning-foreground" />
               </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">
                   <TranslatedText text="Générateur Musical" />
                 </h1>
-                <p className="text-sm md:text-base text-muted-foreground font-medium" role="doc-subtitle">
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium truncate" role="doc-subtitle">
                   <TranslatedText text="Transformez vos cours en musique" />
                 </p>
               </div>
@@ -329,14 +329,14 @@ const Generator = () => {
             <GenerationHistory />
           </div>
 
-          <PremiumCard variant="glass" className="p-8" role="region" aria-labelledby="help-heading">
-            <h3 id="help-heading" className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center" aria-hidden="true">
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <PremiumCard variant="glass" className="p-4 sm:p-6 md:p-8" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-accent rounded-lg sm:rounded-xl flex items-center justify-center shrink-0" aria-hidden="true">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
               </div>
-              <TranslatedText text="Comment utiliser le générateur ?" />
+              <span className="break-word"><TranslatedText text="Comment utiliser le générateur ?" /></span>
             </h3>
-            <div className="grid md:grid-cols-2 gap-6 text-muted-foreground">
+            <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 text-muted-foreground text-sm sm:text-base">
               <div className="space-y-4">
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
