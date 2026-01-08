@@ -13,15 +13,17 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 import { supabase } from '@/integrations/supabase/client';
 
-const MAX_POLL_ATTEMPTS = 60; // 5 minutes max (60 * 5s)
+const MAX_POLL_ATTEMPTS = 40; // ~3 minutes max (40 * 5s)
 const POLL_INTERVAL = 5000; // 5 secondes
 const FAST_POLL_INTERVAL = 3000; // 3 secondes pour les premières tentatives
 const RETRY_POLL_ATTEMPTS = 3; // Nombre de retries en cas d'erreur réseau
+const ABSOLUTE_TIMEOUT = 180000; // 3 minutes en ms - timeout absolu
 
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
   const [pollingProgress, setPollingProgress] = useState<number>(0);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const abortRef = useRef<boolean>(false); // Flag pour arrêter le polling
   
   const {
     isGenerating,
@@ -47,8 +49,22 @@ export const useSunoMusicGeneration = () => {
     return new Promise((resolve, reject) => {
       let attempts = 0;
       let networkRetries = 0;
+      abortRef.current = false; // Reset le flag d'arrêt
+      
+      // Timeout absolu de sécurité (3 minutes max)
+      const absoluteTimeout = setTimeout(() => {
+        abortRef.current = true;
+        if (pollingRef.current) clearTimeout(pollingRef.current);
+        reject(new Error('Timeout: génération trop longue (3 min max). Réessayez.'));
+      }, ABSOLUTE_TIMEOUT);
 
       const checkStatus = async () => {
+        // Vérifier si annulé
+        if (abortRef.current) {
+          clearTimeout(absoluteTimeout);
+          return;
+        }
+        
         attempts++;
         setPollingProgress(Math.min((attempts / MAX_POLL_ATTEMPTS) * 100, 95));
 
@@ -63,6 +79,7 @@ export const useSunoMusicGeneration = () => {
           if (dbTrack?.audio_url && dbTrack.generation_status === 'completed') {
             console.log('✅ Audio trouvé en BDD:', dbTrack.audio_url);
             setPollingProgress(100);
+            clearTimeout(absoluteTimeout);
             if (pollingRef.current) clearTimeout(pollingRef.current);
             setAudioUrl(rang, dbTrack.audio_url);
             resolve(dbTrack.audio_url);
@@ -71,6 +88,7 @@ export const useSunoMusicGeneration = () => {
           
           // Si le statut est 'failed' en BDD, arrêter immédiatement
           if (dbTrack?.generation_status === 'failed') {
+            clearTimeout(absoluteTimeout);
             if (pollingRef.current) clearTimeout(pollingRef.current);
             const errorMsg = (dbTrack.metadata as any)?.error || 'Génération échouée';
             reject(new Error(errorMsg));
@@ -86,65 +104,72 @@ export const useSunoMusicGeneration = () => {
             console.error('Erreur polling:', error);
             networkRetries++;
             
-            // Retry en cas d'erreur réseau (max 3 fois consécutives)
             if (networkRetries >= RETRY_POLL_ATTEMPTS) {
               console.warn('⚠️ Trop d\'erreurs réseau, continue le polling');
-              networkRetries = 0; // Reset pour continuer
+              networkRetries = 0;
             }
             
             if (attempts >= MAX_POLL_ATTEMPTS) {
+              clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
               reject(new Error('Timeout: génération trop longue'));
+              return;
             }
+          } else {
+            networkRetries = 0;
+
+            if (data?.status === 'completed' && data.audioUrl) {
+              console.log('✅ Audio récupéré via polling:', data.audioUrl);
+              setPollingProgress(100);
+              clearTimeout(absoluteTimeout);
+              if (pollingRef.current) clearTimeout(pollingRef.current);
+              setAudioUrl(rang, data.audioUrl);
+              resolve(data.audioUrl);
+              return;
+            }
+
+            if (data?.status === 'failed') {
+              clearTimeout(absoluteTimeout);
+              if (pollingRef.current) clearTimeout(pollingRef.current);
+              reject(new Error(data.error || 'Génération échouée'));
+              return;
+            }
+          }
+
+          // Vérifier si on a dépassé le max d'attempts
+          if (attempts >= MAX_POLL_ATTEMPTS) {
+            clearTimeout(absoluteTimeout);
+            if (pollingRef.current) clearTimeout(pollingRef.current);
+            reject(new Error('Timeout: génération trop longue (3 min max). Réessayez.'));
             return;
           }
           
-          // Reset network retries on success
-          networkRetries = 0;
-
-          if (data?.status === 'completed' && data.audioUrl) {
-            console.log('✅ Audio récupéré via polling:', data.audioUrl);
-            setPollingProgress(100);
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            setAudioUrl(rang, data.audioUrl);
-            resolve(data.audioUrl);
-            return;
-          }
-
-          if (data?.status === 'failed') {
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            reject(new Error(data.error || 'Génération échouée'));
-            return;
-          }
-
-          // Continuer le polling
-          if (attempts >= MAX_POLL_ATTEMPTS) {
-            if (pollingRef.current) clearTimeout(pollingRef.current);
-            reject(new Error('Timeout: génération trop longue (5 min max)'));
+          // Continuer le polling seulement si pas annulé
+          if (!abortRef.current) {
+            const interval = attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
+            pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         } catch (err) {
           console.error('Erreur pendant le polling:', err);
           networkRetries++;
           
-          if (attempts >= MAX_POLL_ATTEMPTS) {
+          if (attempts >= MAX_POLL_ATTEMPTS || abortRef.current) {
+            clearTimeout(absoluteTimeout);
             if (pollingRef.current) clearTimeout(pollingRef.current);
             reject(err);
+            return;
+          }
+          
+          // Réessayer si pas annulé
+          if (!abortRef.current) {
+            const interval = attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
+            pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         }
       };
-
-      // Lancer le polling avec intervalle adaptatif
-      let pollCount = 0;
-      const adaptivePoll = () => {
-        pollCount++;
-        checkStatus();
-        // Utiliser un intervalle plus court pour les 10 premières tentatives
-        const interval = pollCount < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
-        pollingRef.current = setTimeout(adaptivePoll, interval) as unknown as NodeJS.Timeout;
-      };
       
-      // Premier check immédiat après 2 secondes
-      setTimeout(adaptivePoll, 2000);
+      // Premier check après 2 secondes
+      pollingRef.current = setTimeout(checkStatus, 2000) as unknown as NodeJS.Timeout;
     });
   }, [setAudioUrl]);
 
@@ -229,6 +254,9 @@ export const useSunoMusicGeneration = () => {
   const cancelGeneration = useCallback((rang?: 'A' | 'B' | 'AB') => {
     console.log('[cancelGeneration] Annulation demandée pour rang:', rang || 'tous');
     
+    // Forcer l'arrêt du polling via le flag
+    abortRef.current = true;
+    
     // Arrêter le polling
     if (pollingRef.current) {
       clearTimeout(pollingRef.current);
@@ -248,7 +276,7 @@ export const useSunoMusicGeneration = () => {
       });
     }
     
-    setLastError('Génération annulée par l\'utilisateur');
+    setLastError('Génération annulée');
   }, [unmarkAsGenerating, setGeneratingState, setLastError]);
 
   return {
