@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { LibraryStats } from '@/components/library/LibraryStats';
 import { ContinuousPlayer } from '@/components/library/ContinuousPlayer';
 import { PlaylistQuickAdd } from '@/components/library/PlaylistQuickAdd';
+import { useLibraryRealtime } from '@/hooks/useLibraryRealtime';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
@@ -104,6 +105,12 @@ const MedMngLibraryComponent = () => {
         return { remaining_credits: 0 };
       }
     },
+  });
+
+  // Hook temps réel pour les mises à jour automatiques
+  useLibraryRealtime({
+    userId: user?.id,
+    refetch,
   });
 
   // Effet pour initialiser les chansons filtrées

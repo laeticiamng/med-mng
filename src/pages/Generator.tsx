@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -22,6 +22,7 @@ import { GenerationProgress } from '@/components/generator/GenerationProgress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
+import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -31,7 +32,9 @@ const Generator = () => {
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
   const { addPoints, unlockBadge, loadStats } = useGamification();
+  const { preferences, savePreferences } = useGeneratorPreferences();
   
+  // État avec restauration des préférences
   const [contentType, setContentType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const [selectedRang, setSelectedRang] = useState('');
@@ -39,6 +42,28 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
+  
+  // Restaurer les préférences au montage
+  useEffect(() => {
+    if (preferences) {
+      if (preferences.contentType) setContentType(preferences.contentType);
+      if (preferences.selectedItem) setSelectedItem(preferences.selectedItem);
+      if (preferences.selectedRang) setSelectedRang(preferences.selectedRang);
+      if (preferences.selectedStyle) setSelectedStyle(preferences.selectedStyle);
+    }
+  }, [preferences]);
+  
+  // Sauvegarder les préférences quand elles changent
+  useEffect(() => {
+    if (contentType || selectedItem || selectedRang || selectedStyle) {
+      savePreferences({
+        contentType,
+        selectedItem,
+        selectedRang,
+        selectedStyle,
+      });
+    }
+  }, [contentType, selectedItem, selectedRang, selectedStyle, savePreferences]);
   
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();

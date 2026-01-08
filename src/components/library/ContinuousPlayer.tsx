@@ -43,15 +43,22 @@ export const ContinuousPlayer: React.FC<ContinuousPlayerProps> = ({
   const [showQueue, setShowQueue] = useState(false);
 
   const currentTrack = tracks[currentIndex];
+  const hasAutoStarted = useRef(false);
 
   // Charger la piste actuelle
   useEffect(() => {
     if (audioRef.current && currentTrack) {
       audioRef.current.src = currentTrack.audioUrl;
       audioRef.current.load();
-      if (isPlaying) {
+      
+      // Auto-play au premier chargement ou quand on change de piste
+      const shouldPlay = isPlaying || !hasAutoStarted.current;
+      if (shouldPlay) {
+        hasAutoStarted.current = true;
         audioRef.current.play().catch(console.error);
+        setIsPlaying(true);
       }
+      
       onTrackChange?.(currentTrack, currentIndex);
     }
   }, [currentIndex, currentTrack]);
