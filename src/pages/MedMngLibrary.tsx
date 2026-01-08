@@ -5,7 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle } from 'lucide-react';
+import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle, BarChart3 } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -21,6 +21,9 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { toast } from 'sonner';
+import { LibraryStats } from '@/components/library/LibraryStats';
+import { ContinuousPlayer } from '@/components/library/ContinuousPlayer';
+import { PlaylistQuickAdd } from '@/components/library/PlaylistQuickAdd';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
@@ -34,6 +37,11 @@ const MedMngLibraryComponent = () => {
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'style'>('date');
   const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
   const [isPlayingAll, setIsPlayingAll] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [playlistAddOpen, setPlaylistAddOpen] = useState(false);
+  const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState<{id: string, title: string} | null>(null);
+  const [showContinuousPlayer, setShowContinuousPlayer] = useState(false);
+  const [continuousPlayerIndex, setContinuousPlayerIndex] = useState(0);
   
   const { stats: gamificationStats, loadStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
@@ -59,43 +67,6 @@ const MedMngLibraryComponent = () => {
     navigate(`/med-mng/player/${song.id}`);
   }, [logActivity, navigate]);
 
-  // Mode lecture continue - jouer toutes les chansons
-  const handlePlayAll = useCallback(() => {
-    if (filteredSongs.length === 0) {
-      toast.error('Aucune chanson à jouer');
-      return;
-    }
-    
-    const firstSong = filteredSongs[0];
-    if (firstSong?.suno_audio_id || firstSong?.meta?.audio_url) {
-      const audioUrl = firstSong.meta?.audio_url || `https://cdn1.suno.ai/${firstSong.suno_audio_id}.mp3`;
-      play({
-        url: audioUrl,
-        title: firstSong.title || 'Chanson',
-        rang: 'A'
-      });
-      setIsPlayingAll(true);
-      toast.success(`Lecture: ${firstSong.title}`);
-    }
-  }, [filteredSongs, play]);
-
-  // Tri des chansons
-  const sortedSongs = useMemo(() => {
-    const songs = [...filteredSongs];
-    switch (sortBy) {
-      case 'title':
-        return songs.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-      case 'style':
-        return songs.sort((a, b) => (a.meta?.style || '').localeCompare(b.meta?.style || ''));
-      case 'date':
-      default:
-        return songs.sort((a, b) => 
-          new Date(b.added_to_library_at || b.created_at).getTime() - 
-          new Date(a.added_to_library_at || a.created_at).getTime()
-        );
-    }
-  }, [filteredSongs, sortBy]);
-
   const { data: library, isLoading, error, refetch } = useQuery({
     queryKey: ['med-mng-library', currentPage],
     queryFn: async () => {
@@ -106,7 +77,6 @@ const MedMngLibraryComponent = () => {
         return result;
       } catch (err) {
         console.error('❌ Erreur chargement bibliothèque:', err);
-        // Retourner un tableau vide plutôt que de lancer l'erreur
         return [];
       }
     },
@@ -139,7 +109,6 @@ const MedMngLibraryComponent = () => {
   // Effet pour initialiser les chansons filtrées
   React.useEffect(() => {
     if (library) {
-      // Filtrer selon l'onglet actif
       let filtered = library;
       if (activeTab === 'favorites') {
         filtered = library.filter(song => song.is_liked);
@@ -147,6 +116,81 @@ const MedMngLibraryComponent = () => {
       setFilteredSongs(filtered);
     }
   }, [library, activeTab]);
+
+  // Tri des chansons
+  const sortedSongs = useMemo(() => {
+    const songs = [...filteredSongs];
+    switch (sortBy) {
+      case 'title':
+        return songs.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      case 'style':
+        return songs.sort((a, b) => (a.meta?.style || '').localeCompare(b.meta?.style || ''));
+      case 'date':
+      default:
+        return songs.sort((a, b) => 
+          new Date(b.added_to_library_at || b.created_at).getTime() - 
+          new Date(a.added_to_library_at || a.created_at).getTime()
+        );
+    }
+  }, [filteredSongs, sortBy]);
+
+  // Mode lecture continue - jouer toutes les chansons avec ContinuousPlayer
+  const handlePlayAll = useCallback(() => {
+    if (sortedSongs.length === 0) {
+      toast.error('Aucune chanson à jouer');
+      return;
+    }
+    
+    setContinuousPlayerIndex(0);
+    setShowContinuousPlayer(true);
+    setIsPlayingAll(true);
+    toast.success(`Lecture continue: ${sortedSongs.length} chansons`);
+  }, [sortedSongs]);
+
+  // Convertir les chansons pour le ContinuousPlayer
+  const continuousPlayerTracks = useMemo(() => {
+    return sortedSongs.map(song => ({
+      id: song.id,
+      title: song.title || 'Chanson',
+      audioUrl: song.meta?.audio_url || `https://cdn1.suno.ai/${song.suno_audio_id}.mp3`,
+      style: song.meta?.style,
+      rang: song.meta?.rang,
+      duration: song.meta?.duration
+    }));
+  }, [sortedSongs]);
+
+  // Ouvrir le dialog playlist pour une chanson
+  const handleAddToPlaylist = useCallback((song: any) => {
+    setSelectedSongForPlaylist({ id: song.id, title: song.title });
+    setPlaylistAddOpen(true);
+  }, []);
+
+  // Calculer les stats de la bibliothèque
+  const libraryStats = useMemo(() => {
+    if (!library || library.length === 0) return null;
+    
+    const favoritesCount = library.filter(s => s.is_liked).length;
+    const totalDuration = library.reduce((acc, s) => acc + (s.meta?.duration || 240), 0);
+    const lastAdded = library.reduce((latest, s) => {
+      const date = new Date(s.added_to_library_at || s.created_at);
+      return date > latest ? date : latest;
+    }, new Date(0));
+    
+    const styleCounts: Record<string, number> = {};
+    library.forEach(s => {
+      const style = s.meta?.style || 'Unknown';
+      styleCounts[style] = (styleCounts[style] || 0) + 1;
+    });
+    const mostPlayedStyle = Object.entries(styleCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+    
+    return {
+      totalSongs: library.length,
+      favoritesCount,
+      totalDurationMinutes: Math.round(totalDuration / 60),
+      lastAddedDate: lastAdded.toISOString(),
+      mostPlayedStyle
+    };
+  }, [library]);
 
   if (isLoading) {
     return (
@@ -288,6 +332,16 @@ const MedMngLibraryComponent = () => {
             <span className="hidden sm:inline">Playlists</span>
           </Button>
           
+          {/* Bouton Stats */}
+          <Button 
+            variant={showStats ? "default" : "outline"}
+            onClick={() => setShowStats(!showStats)}
+            className="flex items-center gap-1.5 min-h-[44px] text-xs sm:text-sm"
+          >
+            <BarChart3 className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">Stats</span>
+          </Button>
+          
           {/* Spacer */}
           <div className="flex-1" />
           
@@ -324,6 +378,35 @@ const MedMngLibraryComponent = () => {
             </Button>
           </div>
         </div>
+
+        {/* LibraryStats - affiché conditionnellement */}
+        {showStats && libraryStats && (
+          <div className="mb-4 sm:mb-6">
+            <LibraryStats
+              totalSongs={libraryStats.totalSongs}
+              favoritesCount={libraryStats.favoritesCount}
+              totalDurationMinutes={libraryStats.totalDurationMinutes}
+              lastAddedDate={libraryStats.lastAddedDate}
+              mostPlayedStyle={libraryStats.mostPlayedStyle}
+            />
+          </div>
+        )}
+
+        {/* ContinuousPlayer - affiché en mode lecture continue */}
+        {showContinuousPlayer && continuousPlayerTracks.length > 0 && (
+          <div className="mb-4 sm:mb-6">
+            <ContinuousPlayer
+              tracks={continuousPlayerTracks}
+              initialTrackIndex={continuousPlayerIndex}
+              onTrackChange={(track, index) => setContinuousPlayerIndex(index)}
+              onPlaybackEnd={() => {
+                setShowContinuousPlayer(false);
+                setIsPlayingAll(false);
+                toast.success('Lecture terminée');
+              }}
+            />
+          </div>
+        )}
 
         {/* Tabs responsive */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4 sm:mb-6">
@@ -386,6 +469,20 @@ const MedMngLibraryComponent = () => {
               </Button>
             </div>
           </div>
+        )}
+
+        {/* PlaylistQuickAdd Dialog */}
+        {selectedSongForPlaylist && (
+          <PlaylistQuickAdd
+            open={playlistAddOpen}
+            onOpenChange={setPlaylistAddOpen}
+            songId={selectedSongForPlaylist.id}
+            songTitle={selectedSongForPlaylist.title}
+            onSuccess={() => {
+              refetch();
+              setSelectedSongForPlaylist(null);
+            }}
+          />
         )}
       </div>
     </MedMngLayout>
