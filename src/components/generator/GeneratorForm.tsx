@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Wand2 } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
@@ -10,7 +10,7 @@ import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
 import { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
-
+import { LyricsPreview } from './LyricsPreview';
 interface GeneratorFormProps {
   contentType: string;
   setContentType: (type: string) => void;
@@ -78,6 +78,24 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       setSelectedRang('');
     }
   };
+
+  // Calculer les paroles à afficher pour la preview
+  const previewLyrics = useMemo(() => {
+    if (contentType === 'edn' && ednLyrics && selectedRang) {
+      if (selectedRang === 'A' && ednLyrics.paroles_rang_a?.length > 0) {
+        return ednLyrics.paroles_rang_a;
+      } else if (selectedRang === 'B' && ednLyrics.paroles_rang_b?.length > 0) {
+        return ednLyrics.paroles_rang_b;
+      } else if (selectedRang === 'AB' && ednLyrics.paroles_rang_ab?.length > 0) {
+        return ednLyrics.paroles_rang_ab;
+      } else if (ednLyrics.paroles_musicales?.length > 0) {
+        return ednLyrics.paroles_musicales;
+      }
+    } else if (contentType === 'ecos' && ecosLyrics?.paroles?.length > 0) {
+      return ecosLyrics.paroles;
+    }
+    return null;
+  }, [contentType, ednLyrics, ecosLyrics, selectedRang]);
 
   return (
     <PremiumCard variant="glass" className="mb-6 sm:mb-12 p-4 sm:p-6 md:p-8">
@@ -153,6 +171,16 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           <StyleSelector
             selectedStyle={selectedStyle}
             setSelectedStyle={setSelectedStyle}
+          />
+        )}
+
+        {/* Preview des paroles avant génération */}
+        {previewLyrics && selectedStyle && (
+          <LyricsPreview
+            lyrics={previewLyrics}
+            title={contentType === 'edn' ? ednLyrics?.title : ecosLyrics?.scenario?.title}
+            rang={contentType === 'edn' ? selectedRang : undefined}
+            className="mt-4"
           />
         )}
 
