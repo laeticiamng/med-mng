@@ -5,8 +5,8 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy } from 'lucide-react';
-import { useState } from 'react';
+import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -18,15 +18,22 @@ import { Badge } from '@/components/ui/badge';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { toast } from 'sonner';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { play } = useGlobalAudio();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [sortBy, setSortBy] = useState<'date' | 'title' | 'style'>('date');
+  const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
+  const [isPlayingAll, setIsPlayingAll] = useState(false);
   
   const { stats: gamificationStats, loadStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
@@ -44,14 +51,50 @@ const MedMngLibraryComponent = () => {
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
-  const handleSongPlay = async (song: any) => {
-    // Log activity for playing music
+  const handleSongPlay = useCallback(async (song: any) => {
     await logActivity({
       activity_type: 'study',
       metadata: { action: 'music_play', song_id: song.id, song_title: song.title }
     });
     navigate(`/med-mng/player/${song.id}`);
-  };
+  }, [logActivity, navigate]);
+
+  // Mode lecture continue - jouer toutes les chansons
+  const handlePlayAll = useCallback(() => {
+    if (filteredSongs.length === 0) {
+      toast.error('Aucune chanson à jouer');
+      return;
+    }
+    
+    const firstSong = filteredSongs[0];
+    if (firstSong?.suno_audio_id || firstSong?.meta?.audio_url) {
+      const audioUrl = firstSong.meta?.audio_url || `https://cdn1.suno.ai/${firstSong.suno_audio_id}.mp3`;
+      play({
+        url: audioUrl,
+        title: firstSong.title || 'Chanson',
+        rang: 'A'
+      });
+      setIsPlayingAll(true);
+      toast.success(`Lecture: ${firstSong.title}`);
+    }
+  }, [filteredSongs, play]);
+
+  // Tri des chansons
+  const sortedSongs = useMemo(() => {
+    const songs = [...filteredSongs];
+    switch (sortBy) {
+      case 'title':
+        return songs.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      case 'style':
+        return songs.sort((a, b) => (a.meta?.style || '').localeCompare(b.meta?.style || ''));
+      case 'date':
+      default:
+        return songs.sort((a, b) => 
+          new Date(b.added_to_library_at || b.created_at).getTime() - 
+          new Date(a.added_to_library_at || a.created_at).getTime()
+        );
+    }
+  }, [filteredSongs, sortBy]);
 
   const { data: library, isLoading, error, refetch } = useQuery({
     queryKey: ['med-mng-library', currentPage],
@@ -214,25 +257,72 @@ const MedMngLibraryComponent = () => {
           />
         </div>
 
-        {/* Actions - responsive buttons */}
-        <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6">
+        {/* Actions - responsive buttons + tri + vue */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Button 
             onClick={() => navigate(ROUTE_PATHS.medMngCreate)}
-            className="flex items-center gap-1.5 sm:gap-2 min-h-[44px] flex-1 sm:flex-none text-xs sm:text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 min-h-[44px] text-xs sm:text-sm"
           >
             <Plus className="h-4 w-4 shrink-0" />
-            <span className="hidden sm:inline"><TranslatedText text="Créer une chanson" /></span>
-            <span className="sm:hidden">Créer</span>
+            <span className="hidden sm:inline">Créer</span>
           </Button>
+          
+          {/* Lecture continue */}
+          {sortedSongs.length > 0 && (
+            <Button 
+              variant="outline"
+              onClick={handlePlayAll}
+              className="flex items-center gap-1.5 min-h-[44px] text-xs sm:text-sm border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <PlayCircle className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Tout jouer</span>
+            </Button>
+          )}
+          
           <Button 
             variant="outline"
             onClick={() => navigate(ROUTE_PATHS.medMngPlaylists)}
-            className="flex items-center gap-1.5 sm:gap-2 min-h-[44px] flex-1 sm:flex-none text-xs sm:text-sm"
+            className="flex items-center gap-1.5 min-h-[44px] text-xs sm:text-sm"
           >
             <ListMusic className="h-4 w-4 shrink-0" />
-            <span className="hidden sm:inline"><TranslatedText text="Playlists" /></span>
-            <span className="sm:hidden">Lists</span>
+            <span className="hidden sm:inline">Playlists</span>
           </Button>
+          
+          {/* Spacer */}
+          <div className="flex-1" />
+          
+          {/* Tri */}
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'date' | 'title' | 'style')}>
+            <SelectTrigger className="w-auto min-w-[100px] sm:min-w-[130px] h-10 text-xs sm:text-sm">
+              <ArrowUpDown className="h-3 w-3 mr-1.5 shrink-0" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="title">Titre</SelectItem>
+              <SelectItem value="style">Style</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {/* Vue grille/compact */}
+          <div className="hidden sm:flex border rounded-lg overflow-hidden">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="rounded-none h-10 px-3"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'compact' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('compact')}
+              className="rounded-none h-10 px-3"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Tabs responsive */}
@@ -302,7 +392,10 @@ const MedMngLibraryComponent = () => {
   );
 
   function renderSongGrid() {
-    return filteredSongs.length === 0 ? (
+    // Utiliser sortedSongs au lieu de filteredSongs pour le tri
+    const songsToRender = sortedSongs;
+    
+    return songsToRender.length === 0 ? (
       <div className="text-center py-8 sm:py-16">
         <Music className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
         <TranslatedText 
@@ -325,9 +418,41 @@ const MedMngLibraryComponent = () => {
           </Button>
         )}
       </div>
+    ) : viewMode === 'compact' ? (
+      // Vue compacte (liste)
+      <div className="space-y-2 animate-fade-in">
+        {songsToRender.map((song) => (
+          <div 
+            key={song.id}
+            className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border/30 hover:bg-card/80 transition-colors"
+          >
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shrink-0">
+              <Music className="h-5 w-5 text-primary-foreground/80" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-foreground truncate text-sm">{song.title}</h4>
+              <p className="text-xs text-muted-foreground truncate">
+                {song.meta?.style || 'Style'} • {new Date(song.added_to_library_at || song.created_at).toLocaleDateString('fr-FR')}
+              </p>
+            </div>
+            <div className="flex items-center gap-1">
+              {song.is_liked && <Heart className="h-3 w-3 text-destructive fill-destructive" />}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleSongPlay(song)}
+                className="min-h-[36px] min-w-[36px] p-0"
+              >
+                <PlayCircle className="h-5 w-5 text-primary" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
     ) : (
+      // Vue grille (par défaut)
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 animate-fade-in">
-        {filteredSongs.map((song) => (
+        {songsToRender.map((song) => (
           <SongCard 
             key={song.id} 
             song={song}
