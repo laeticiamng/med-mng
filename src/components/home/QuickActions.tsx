@@ -73,20 +73,20 @@ export const QuickActions: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 px-4">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-4">
       {/* Section header - Studieux */}
       <div className="text-center mb-2">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground">
           Accès rapides
         </h2>
       </div>
       
       {/* Grid de cards - Espaces généreux, mobile-first */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto">
         {actions.map((action) => (
           <Card 
             key={action.id}
-            className={`p-5 cursor-pointer transition-all hover:shadow-md border-border/40 bg-card/60 backdrop-blur-sm rounded-xl ${
+            className={`p-4 sm:p-5 cursor-pointer transition-all hover:shadow-md border-border/40 bg-card/60 backdrop-blur-sm rounded-lg sm:rounded-xl ${
               action.highlight ? 'border-primary/20' : ''
             }`}
             onClick={() => navigate(action.path)}
