@@ -305,27 +305,27 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   };
 
   return (
-    <Card className={`mt-6 bg-gradient-to-br from-success/10 to-success/5 border-success/20 transition-all duration-500 ${
+    <Card className={`mt-4 sm:mt-6 bg-gradient-to-br from-success/10 to-success/5 border-success/20 transition-all duration-500 ${
       showSuccessAnimation ? 'animate-scale-in ring-4 ring-success/50' : ''
     }`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-success">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="flex items-center gap-2 text-success text-base sm:text-lg">
           {isGenerating && !audioUrl ? (
             <>
-              <Loader2 className="h-6 w-6 animate-spin" />
-              Génération en cours...
+              <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin shrink-0" />
+              <span className="truncate">Génération en cours...</span>
             </>
           ) : (
             <>
-              <Music className="h-6 w-6" />
-              Musique générée avec succès !
+              <Music className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
+              <span className="truncate">Musique générée !</span>
             </>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Image de couverture dynamique */}
-        <div className={`relative aspect-square bg-gradient-success rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto overflow-hidden transition-all duration-500 ${
+      <CardContent className="space-y-3 sm:space-y-4 pt-0">
+        {/* Image de couverture - plus petite sur mobile */}
+        <div className={`relative aspect-square bg-gradient-success rounded-lg flex items-center justify-center max-w-[150px] sm:max-w-xs mx-auto overflow-hidden transition-all duration-500 ${
           showSuccessAnimation ? 'scale-105' : ''
         }`}>
           {imageUrl ? (
@@ -335,9 +335,9 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               className="w-full h-full object-cover"
             />
           ) : isGenerating && !audioUrl ? (
-            <Loader2 className="h-16 w-16 text-primary-foreground/80 animate-spin" />
+            <Loader2 className="h-12 w-12 sm:h-16 sm:w-16 text-primary-foreground/80 animate-spin" />
           ) : (
-            <Music className="h-16 w-16 text-primary-foreground/80" />
+            <Music className="h-12 w-12 sm:h-16 sm:w-16 text-primary-foreground/80" />
           )}
           {showSuccessAnimation && (
             <div className="absolute inset-0 bg-success/30 animate-pulse" />
@@ -345,38 +345,38 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         </div>
         
         <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <h3 className="text-xl font-semibold text-foreground">
+          <div className="flex items-center justify-center gap-2 mb-1 sm:mb-2">
+            <h3 className="text-base sm:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
               {generatedSong.title}
             </h3>
             {status?.metadata?.duration && (
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground shrink-0">
                 <Clock className="h-3 w-3" />
                 {formatDuration(status.metadata.duration)}
               </span>
             )}
           </div>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm text-muted-foreground mb-3 sm:mb-4">
             Style: {generatedSong.style || 'Personnalisé'}
           </p>
           
           {/* Barre de progression si génération en cours */}
           {isGenerating && !audioUrl && (
             <div className="space-y-2">
-              <Progress value={progress} className="w-full" />
-              <p className="text-sm text-primary">
-                Génération en cours... {progress}% complété
+              <Progress value={progress} className="w-full h-2" />
+              <p className="text-xs sm:text-sm text-primary">
+                Génération... {progress}%
               </p>
             </div>
           )}
         </div>
 
-        {/* Lecteur audio natif avec contrôles */}
+        {/* Lecteur audio natif */}
         {finalAudioUrl && finalAudioUrl.startsWith('http') && (
-          <div className="bg-card rounded-lg p-4 border border-success/20">
+          <div className="bg-card rounded-lg p-2 sm:p-4 border border-success/20">
             <audio 
               controls 
-              className="w-full"
+              className="w-full h-10 sm:h-auto"
               src={finalAudioUrl}
               preload="metadata"
             >
@@ -385,27 +385,27 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           </div>
         )}
 
-        <div className="flex gap-2">
+        {/* Boutons d'action - responsive grid */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           <Button
             onClick={handlePlay}
-            className="flex-1 bg-success hover:bg-success/90"
-            size="lg"
+            className="bg-success hover:bg-success/90 min-h-[44px] text-xs sm:text-sm"
             disabled={isGenerating && !audioUrl}
           >
             {isGenerating && !audioUrl ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                En cours...
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                <span className="hidden sm:inline">En cours</span>
               </>
             ) : isCurrentlyPlaying ? (
               <>
-                <Pause className="h-4 w-4 mr-2" />
-                Pause
+                <Pause className="h-4 w-4 mr-1.5" />
+                <span className="hidden sm:inline">Pause</span>
               </>
             ) : (
               <>
-                <Play className="h-4 w-4 mr-2" />
-                Écouter
+                <Play className="h-4 w-4 mr-1.5" />
+                <span className="hidden sm:inline">Écouter</span>
               </>
             )}
           </Button>
@@ -413,21 +413,20 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           <Button
             onClick={onAddToLibrary}
             variant="outline"
-            className="flex-1 border-success/30 text-success hover:bg-success/10"
-            size="lg"
+            className="border-success/30 text-success hover:bg-success/10 min-h-[44px] text-xs sm:text-sm"
             disabled={isGenerating && !audioUrl}
           >
-            <Library className="h-4 w-4 mr-2" />
-            Ajouter à la bibliothèque
+            <Library className="h-4 w-4 mr-1.5" />
+            <span className="hidden sm:inline">Bibliothèque</span>
+            <span className="sm:hidden">+ Lib</span>
           </Button>
           
-          {/* Bouton Favori */}
+          {/* Boutons icônes - 2ème ligne sur mobile */}
           {user && finalAudioUrl && finalAudioUrl.startsWith('http') && (
             <Button
               onClick={handleToggleFavorite}
               variant="outline"
-              className={`border-success/30 hover:bg-success/10 ${isFavorite ? 'text-destructive' : 'text-success'}`}
-              size="lg"
+              className={`border-success/30 hover:bg-success/10 min-h-[44px] ${isFavorite ? 'text-destructive' : 'text-success'}`}
               title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
               disabled={favoriteLoading}
             >
@@ -435,43 +434,37 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             </Button>
           )}
           
-          {/* Bouton Téléchargement */}
           {finalAudioUrl && finalAudioUrl.startsWith('http') && (
             <Button
               onClick={handleDownload}
               variant="outline"
-              className="border-success/30 text-success hover:bg-success/10"
-              size="lg"
+              className="border-success/30 text-success hover:bg-success/10 min-h-[44px]"
               title="Télécharger"
             >
               <Download className="h-4 w-4" />
             </Button>
           )}
           
-          {/* Bouton de partage */}
           {finalAudioUrl && finalAudioUrl.startsWith('http') && (
             <Button
               onClick={handleShare}
               variant="outline"
-              className="border-success/30 text-success hover:bg-success/10"
-              size="lg"
+              className="border-success/30 text-success hover:bg-success/10 min-h-[44px]"
               title="Partager"
             >
               <Share2 className="h-4 w-4" />
             </Button>
           )}
           
-          {/* Bouton Retry - Affiché en cas d'échec OU si pas d'audio après polling */}
           {onRetry && (status?.status === 'failed' || (isGenerating && progress >= 95 && !audioUrl)) && (
             <Button
               onClick={onRetry}
               variant="outline"
-              className="border-warning/30 text-warning hover:bg-warning/10"
-              size="lg"
-              title="Réessayer la génération"
+              className="border-warning/30 text-warning hover:bg-warning/10 min-h-[44px] col-span-2 sm:col-span-1"
+              title="Réessayer"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Réessayer
+              <RefreshCw className="h-4 w-4 mr-1.5" />
+              <span>Réessayer</span>
             </Button>
           )}
           
@@ -479,9 +472,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Button
               onClick={() => setShowDebug(!showDebug)}
               variant="ghost"
-              size="lg"
-              className="text-muted-foreground hover:text-foreground"
-              title="Debug audio"
+              className="text-muted-foreground hover:text-foreground min-h-[44px]"
+              title="Debug"
             >
               <Bug className="h-4 w-4" />
             </Button>

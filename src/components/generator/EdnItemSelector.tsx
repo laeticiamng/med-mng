@@ -38,10 +38,10 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
   }, [allEdnItems, selectedItem]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <label className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
+        <label className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
+          <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           <TranslatedText text="Item EDN" />
         </label>
         <Badge variant="secondary" className="text-xs">
@@ -68,49 +68,47 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
         value={selectedItem} 
         onValueChange={(value) => {
           setSelectedItem(value);
-          setSearchQuery(''); // Reset search on selection
+          setSearchQuery('');
         }}
       >
-        <SelectTrigger className="h-14 text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
-          <SelectValue placeholder="Sélectionnez un item EDN" />
+        <SelectTrigger className="h-12 sm:h-14 text-sm sm:text-base bg-card/50 backdrop-blur-sm border-border/30 shadow-lg">
+          <SelectValue placeholder="Sélectionnez un item" />
         </SelectTrigger>
-        <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-96 overflow-hidden">
-          {/* Barre de recherche intégrée dans le dropdown */}
+        <SelectContent className="bg-card/95 backdrop-blur-xl border-border/30 shadow-2xl max-h-80 sm:max-h-96 overflow-hidden">
           <div className="p-2 border-b border-border/30 sticky top-0 bg-card/95 backdrop-blur-xl z-10">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Filtrer les items..."
+                placeholder="Filtrer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-7 h-8 text-sm bg-background/50"
+                className="pl-8 h-9 text-sm bg-background/50"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
           </div>
-          
-          <div className="max-h-72 overflow-y-auto">
+          <div className="max-h-60 sm:max-h-72 overflow-y-auto">
             {itemsLoading ? (
               <div className="px-2 py-3 text-center text-muted-foreground flex items-center justify-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Chargement des items...
+                <span className="text-sm">Chargement...</span>
               </div>
             ) : itemsError ? (
-              <div className="px-2 py-3 text-center text-destructive">Erreur: {itemsError}</div>
+              <div className="px-2 py-3 text-center text-destructive text-sm">Erreur: {itemsError}</div>
             ) : filteredItems.length === 0 ? (
-              <div className="px-2 py-3 text-center text-muted-foreground">
-                Aucun item trouvé pour "{searchQuery}"
+              <div className="px-2 py-3 text-center text-muted-foreground text-sm">
+                Aucun item trouvé
               </div>
             ) : (
               filteredItems.slice(0, 100).map((item) => (
-                <SelectItem key={item.item_code} value={item.item_code} className="text-base py-3">
+                <SelectItem key={item.item_code} value={item.item_code} className="text-sm sm:text-base py-2.5 sm:py-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs font-mono shrink-0">
                       {item.item_code}
                     </Badge>
-                    <span className="truncate">
-                      {item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title}
+                    <span className="truncate text-sm">
+                      {item.title.length > 35 ? item.title.substring(0, 35) + '...' : item.title}
                     </span>
                   </div>
                 </SelectItem>
@@ -118,22 +116,22 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
             )}
             {filteredItems.length > 100 && (
               <div className="px-2 py-2 text-center text-xs text-muted-foreground border-t">
-                Affinez votre recherche ({filteredItems.length - 100} items masqués)
+                Affinez la recherche ({filteredItems.length - 100}+ masqués)
               </div>
             )}
           </div>
         </SelectContent>
       </Select>
       
-      {/* Affichage de l'item sélectionné enrichi */}
+      {/* Affichage de l'item sélectionné - compact */}
       {selectedItemData && (
-        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
+        <div className="p-2.5 sm:p-3 bg-primary/5 border border-primary/20 rounded-lg animate-fade-in">
           <div className="flex items-center gap-2 mb-1">
-            <Badge className="bg-primary text-primary-foreground">{selectedItemData.item_code}</Badge>
-            <span className="text-sm font-medium text-foreground">{selectedItemData.title}</span>
+            <Badge className="bg-primary text-primary-foreground text-xs">{selectedItemData.item_code}</Badge>
+            <span className="text-xs sm:text-sm font-medium text-foreground truncate">{selectedItemData.title}</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            ✅ Item sélectionné - Les paroles seront chargées automatiquement
+          <p className="text-xs text-muted-foreground">
+            ✅ Paroles chargées automatiquement
           </p>
         </div>
       )}
