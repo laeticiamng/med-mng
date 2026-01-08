@@ -313,103 +313,113 @@ export default function EdnComplete() {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       {/* Wrapper Tabs Principal */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="min-h-screen">
-        {/* Header simplifié */}
+        {/* Header simplifié - responsive */}
         <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-primary-foreground" />
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+            {/* Mobile: Stack layout / Desktop: Row layout */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">
+              {/* Left section: Title + Stats */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
+                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">Avancer sur l'EDN</h1>
-                  <p className="text-sm text-muted-foreground">
-                    {stats.total} items • {(stats.totalOicRangA || 0) + (stats.totalOicRangB || 0)} compétences UNESS
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">Avancer sur l'EDN</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {stats.total} items • {(stats.totalOicRangA || 0) + (stats.totalOicRangB || 0)} compétences
                   </p>
                 </div>
                 {gamificationStats && gamificationStats.currentStreak !== undefined && (
-                  <div className="hidden md:flex items-center gap-2 ml-4">
-                    <Badge variant="outline" className="gap-1 text-xs">
-                      <Flame className="h-3 w-3 text-orange-500" />
+                  <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 ml-2 sm:ml-4">
+                    <Badge variant="outline" className="gap-1 text-[10px] sm:text-xs py-0.5">
+                      <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-orange-500" />
                       {gamificationStats.currentStreak}j
                     </Badge>
-                    <Badge variant="outline" className="gap-1 text-xs">
-                      <Star className="h-3 w-3 text-yellow-500" />
+                    <Badge variant="outline" className="gap-1 text-[10px] sm:text-xs py-0.5">
+                      <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-yellow-500" />
                       Niv. {gamificationStats.level ?? 1}
                     </Badge>
                   </div>
                 )}
               </div>
               
-              <div className="flex items-center gap-2 flex-wrap">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.srsReview)}
-                  className="gap-1.5 border-primary/30 hover:bg-primary/10"
-                >
-                  <Brain className="h-4 w-4" />
-                  <span className="hidden lg:inline">SRS</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.examMode)}
-                  className="gap-1.5 border-accent/30 hover:bg-accent/10"
-                >
-                  <Target className="h-4 w-4" />
-                  <span className="hidden lg:inline">Examen</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.clinicalCases)}
-                  className="gap-1.5 border-success/30 hover:bg-success/10"
-                >
-                  <Gamepad2 className="h-4 w-4" />
-                  <span className="hidden lg:inline">Cas</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.flashcards)}
-                  className="gap-1.5 border-warning/30 hover:bg-warning/10"
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span className="hidden lg:inline">Flash</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
-                  className="gap-1.5"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  <span className="hidden xl:inline">Stats</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
-                  className="gap-1.5"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  <span className="hidden xl:inline">Planning IA</span>
-                </Button>
-                <QuotaIndicator compact />
-                <TabsList className="bg-muted">
-                  <TabsTrigger value="revision" className="text-xs">📊 Mon suivi</TabsTrigger>
-                  <TabsTrigger value="complete" className="text-xs">📚 Choisir un item</TabsTrigger>
-                  <TabsTrigger value="immersive" className="text-xs">🎯 Approfondir</TabsTrigger>
-                  <TabsTrigger value="music" className="text-xs">🎵 Écouter</TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-xs">⭐ Premium</TabsTrigger>
-                </TabsList>
+              {/* Right section: Actions + Tabs */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                {/* Quick actions - scrollable on mobile */}
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar w-full sm:w-auto">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.srsReview)}
+                    className="gap-1 sm:gap-1.5 border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">SRS</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.examMode)}
+                    className="gap-1 sm:gap-1.5 border-accent/30 hover:bg-accent/10 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Examen</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.clinicalCases)}
+                    className="gap-1 sm:gap-1.5 border-success/30 hover:bg-success/10 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden lg:inline">Cas</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.flashcards)}
+                    className="gap-1 sm:gap-1.5 border-warning/30 hover:bg-warning/10 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden lg:inline">Flash</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.progressDashboard)}
+                    className="gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden xl:inline">Stats</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate(ROUTE_PATHS.smartStudyPlanner)}
+                    className="gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 text-xs shrink-0"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="hidden xl:inline">Planning IA</span>
+                  </Button>
+                  <QuotaIndicator compact />
+                </div>
+                
+                {/* Tabs - scrollable on mobile */}
+                <div className="overflow-x-auto w-full sm:w-auto hide-scrollbar">
+                  <TabsList className="bg-muted inline-flex w-auto">
+                    <TabsTrigger value="revision" className="text-[10px] sm:text-xs px-2 sm:px-3">📊 Suivi</TabsTrigger>
+                    <TabsTrigger value="complete" className="text-[10px] sm:text-xs px-2 sm:px-3">📚 Items</TabsTrigger>
+                    <TabsTrigger value="immersive" className="text-[10px] sm:text-xs px-2 sm:px-3">🎯 Approfondir</TabsTrigger>
+                    <TabsTrigger value="music" className="text-[10px] sm:text-xs px-2 sm:px-3">🎵 Écouter</TabsTrigger>
+                    <TabsTrigger value="subscription" className="text-[10px] sm:text-xs px-2 sm:px-3">⭐ Premium</TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
         {/* Bannière informative sur l'accès gratuit */}
         <Alert className="mb-4 bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
           <Sparkles className="h-4 w-4 text-primary" />
