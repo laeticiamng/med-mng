@@ -80,15 +80,17 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   };
 
   return (
-    <PremiumCard variant="glass" className="mb-12 p-8">
-      <div className="flex items-center gap-4 mb-8">
-        <Wand2 className="h-8 w-8 text-warning" />
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            <TranslatedText text="Configuration de génération" />
+    <PremiumCard variant="glass" className="mb-6 sm:mb-12 p-4 sm:p-6 md:p-8">
+      <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-warning to-warning/80 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
+          <Wand2 className="h-5 w-5 sm:h-6 sm:w-6 text-warning-foreground" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">
+            <TranslatedText text="Configuration" />
           </h2>
-          <p className="text-muted-foreground">
-            <TranslatedText text="Sélectionnez le type de contenu, l'item et le style musical" />
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+            <TranslatedText text="Type, item et style musical" />
           </p>
         </div>
       </div>
@@ -154,38 +156,39 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
           <PremiumButton
             variant="primary"
-            size="xl"
+            size="lg"
             onClick={handleGenerate}
             disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading || ecosLyricsLoading}
-            className="flex-1"
+            className="flex-1 min-h-[48px] text-sm sm:text-base"
           >
             {isGenerating ? (
               <>
-                <div className="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full" />
-                <TranslatedText text="Génération en cours..." />
+                <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-white border-t-transparent rounded-full" />
+                <span className="truncate"><TranslatedText text="Génération..." /></span>
               </>
             ) : lyricsLoading || ecosLyricsLoading ? (
               <>
-                <div className="animate-spin h-5 w-5 mr-3 border-2 border-current border-t-transparent rounded-full" />
-                <TranslatedText text="Chargement des paroles..." />
+                <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
+                <span className="truncate"><TranslatedText text="Chargement..." /></span>
               </>
             ) : (
               <>
-                <Wand2 className="h-5 w-5 mr-3" />
-                <TranslatedText text="Générer la musique" />
+                <Wand2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                <span className="truncate"><TranslatedText text="Générer" /></span>
               </>
             )}
           </PremiumButton>
           
           <PremiumButton
             variant="secondary"
-            size="xl"
+            size="lg"
             onClick={resetForm}
+            className="min-h-[48px] text-sm sm:text-base sm:w-auto"
           >
-            <TranslatedText text="Réinitialiser" />
+            <TranslatedText text="Reset" />
           </PremiumButton>
         </div>
       </div>
