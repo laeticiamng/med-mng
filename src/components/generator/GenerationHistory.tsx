@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,48 @@ export const GenerationHistory: React.FC = () => {
     } else {
       setLoading(false);
     }
+  }, [user]);
+
+  // Réaltime : écouter les nouvelles générations
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('history-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_generated_music',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('📥 Nouvelle génération détectée:', payload);
+          loadHistory();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'generated_music_tracks',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new?.generation_status === 'completed' && payload.new?.audio_url) {
+            console.log('✅ Génération terminée:', payload);
+            loadHistory();
+            toast.success('🎵 Nouvelle musique disponible !');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const loadHistory = async () => {
@@ -331,47 +373,72 @@ export const GenerationHistory: React.FC = () => {
             <Badge variant="secondary" className="text-xs shrink-0">{filteredHistory.length}</Badge>
           </h3>
           
-          {/* Export buttons - desktop only inline */}
-          {filteredHistory.length > 0 && (
-            <div className="hidden sm:flex items-center gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleExportHistory('json')}
-                      className="h-8 px-2 text-xs"
-                    >
-                      <FileDown className="h-3 w-3 mr-1" />
-                      JSON
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Exporter en JSON</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleExportHistory('csv')}
-                      className="h-8 px-2 text-xs"
-                    >
-                      <FileDown className="h-3 w-3 mr-1" />
-                      CSV
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Exporter en CSV</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            {/* Bouton rafraîchir */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setLoading(true);
+                      loadHistory();
+                    }}
+                    disabled={loading}
+                    className="h-8 w-8 p-0"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Rafraîchir</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            {/* Export buttons - desktop only inline */}
+            {filteredHistory.length > 0 && (
+              <div className="hidden sm:flex items-center gap-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleExportHistory('json')}
+                        className="h-8 px-2 text-xs"
+                      >
+                        <FileDown className="h-3 w-3 mr-1" />
+                        JSON
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Exporter en JSON</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleExportHistory('csv')}
+                        className="h-8 px-2 text-xs"
+                      >
+                        <FileDown className="h-3 w-3 mr-1" />
+                        CSV
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Exporter en CSV</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Search and filter row */}
