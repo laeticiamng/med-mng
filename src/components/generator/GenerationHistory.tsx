@@ -322,44 +322,18 @@ export const GenerationHistory: React.FC = () => {
   }
 
   return (
-    <PremiumCard variant="glass" className="p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <Clock className="h-5 w-5 text-primary" />
-          <TranslatedText text="Historique des générations" />
-          <Badge variant="secondary">{filteredHistory.length}</Badge>
-        </h3>
-        
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Recherche */}
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 w-40 text-sm"
-            />
-          </div>
+    <PremiumCard variant="glass" className="p-4 sm:p-6">
+      <div className="flex flex-col gap-3 sm:gap-4 mb-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
+            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+            <span className="truncate"><TranslatedText text="Historique" /></span>
+            <Badge variant="secondary" className="text-xs shrink-0">{filteredHistory.length}</Badge>
+          </h3>
           
-          {/* Filtre */}
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={filter} onValueChange={(v) => setFilter(v as FilterType)}>
-            <SelectTrigger className="w-32 h-8 text-xs">
-              <SelectValue placeholder="Filtrer" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="favorites">❤️ Favoris</SelectItem>
-              <SelectItem value="rang_a">Rang A</SelectItem>
-              <SelectItem value="rang_b">Rang B</SelectItem>
-            <SelectItem value="rang_ab">Rang A+B</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Boutons Export JSON + CSV */}
+          {/* Export buttons - desktop only inline */}
           {filteredHistory.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -392,10 +366,65 @@ export const GenerationHistory: React.FC = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Exporter en CSV (Excel)</p>
+                    <p>Exporter en CSV</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+            </div>
+          )}
+        </div>
+        
+        {/* Search and filter row */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {/* Recherche */}
+          <div className="relative flex-1 sm:flex-none sm:w-40">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 h-10 sm:h-8 text-sm w-full"
+            />
+          </div>
+          
+          {/* Filtre */}
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            <Select value={filter} onValueChange={(v) => setFilter(v as FilterType)}>
+              <SelectTrigger className="flex-1 sm:w-32 h-10 sm:h-8 text-xs">
+                <SelectValue placeholder="Filtrer" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="favorites">❤️ Favoris</SelectItem>
+                <SelectItem value="rang_a">Rang A</SelectItem>
+                <SelectItem value="rang_b">Rang B</SelectItem>
+                <SelectItem value="rang_ab">Rang A+B</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Mobile export buttons */}
+          {filteredHistory.length > 0 && (
+            <div className="flex sm:hidden gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleExportHistory('json')}
+                className="flex-1 h-10 text-xs"
+              >
+                <FileDown className="h-3 w-3 mr-1" />
+                JSON
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleExportHistory('csv')}
+                className="flex-1 h-10 text-xs"
+              >
+                <FileDown className="h-3 w-3 mr-1" />
+                CSV
+              </Button>
             </div>
           )}
         </div>
