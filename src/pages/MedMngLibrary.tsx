@@ -5,7 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle, BarChart3 } from 'lucide-react';
+import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle, BarChart3, CheckSquare, FileDown } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -25,6 +25,7 @@ import { LibraryStats } from '@/components/library/LibraryStats';
 import { ContinuousPlayer } from '@/components/library/ContinuousPlayer';
 import { PlaylistQuickAdd } from '@/components/library/PlaylistQuickAdd';
 import { useLibraryRealtime } from '@/hooks/useLibraryRealtime';
+import { BatchActions } from '@/components/library/BatchActions';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
@@ -43,6 +44,9 @@ const MedMngLibraryComponent = () => {
   const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState<{id: string, title: string} | null>(null);
   const [showContinuousPlayer, setShowContinuousPlayer] = useState(false);
   const [continuousPlayerIndex, setContinuousPlayerIndex] = useState(0);
+  // Mode sélection batch
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
   
   const { stats: gamificationStats, loadStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
@@ -171,6 +175,76 @@ const MedMngLibraryComponent = () => {
     setSelectedSongForPlaylist({ id: song.id, title: song.title });
     setPlaylistAddOpen(true);
   }, []);
+
+  // Toggle sélection d'une chanson pour batch actions
+  const toggleSongSelection = useCallback((songId: string) => {
+    setSelectedSongIds(prev => 
+      prev.includes(songId) 
+        ? prev.filter(id => id !== songId)
+        : [...prev, songId]
+    );
+  }, []);
+
+  // Sélectionner/Désélectionner tout
+  const toggleSelectAll = useCallback(() => {
+    if (selectedSongIds.length === sortedSongs.length) {
+      setSelectedSongIds([]);
+    } else {
+      setSelectedSongIds(sortedSongs.map(s => s.id));
+    }
+  }, [selectedSongIds.length, sortedSongs]);
+
+  // Export CSV/JSON de la bibliothèque
+  const handleExportLibrary = useCallback((format: 'json' | 'csv') => {
+    try {
+      const exportData = sortedSongs.map(song => ({
+        title: song.title,
+        style: song.meta?.style || '',
+        rang: song.meta?.rang || '',
+        is_favorite: song.is_liked || false,
+        added_at: song.added_to_library_at || song.created_at,
+        audio_url: song.meta?.audio_url || `https://cdn1.suno.ai/${song.suno_audio_id}.mp3`
+      }));
+      
+      let content: string;
+      let mimeType: string;
+      let extension: string;
+      
+      if (format === 'csv') {
+        const headers = ['Titre', 'Style', 'Rang', 'Favori', 'Date', 'URL Audio'];
+        const rows = exportData.map(d => [
+          `"${d.title}"`,
+          d.style,
+          d.rang,
+          d.is_favorite ? 'Oui' : 'Non',
+          new Date(d.added_at).toLocaleDateString('fr-FR'),
+          d.audio_url
+        ]);
+        content = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+        mimeType = 'text/csv;charset=utf-8';
+        extension = 'csv';
+      } else {
+        content = JSON.stringify(exportData, null, 2);
+        mimeType = 'application/json';
+        extension = 'json';
+      }
+      
+      const blob = new Blob([content], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ma-bibliotheque-${new Date().toISOString().split('T')[0]}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`${exportData.length} chansons exportées (${extension.toUpperCase()})`);
+    } catch (err) {
+      console.error('Erreur export:', err);
+      toast.error('Erreur lors de l\'export');
+    }
+  }, [sortedSongs]);
 
   // Calculer les stats de la bibliothèque
   const libraryStats = useMemo(() => {
@@ -349,6 +423,41 @@ const MedMngLibraryComponent = () => {
             <span className="hidden sm:inline">Stats</span>
           </Button>
           
+          {/* Mode sélection */}
+          <Button 
+            variant={selectionMode ? "default" : "outline"}
+            onClick={() => {
+              setSelectionMode(!selectionMode);
+              if (selectionMode) setSelectedSongIds([]);
+            }}
+            className="flex items-center gap-1.5 min-h-[44px] text-xs sm:text-sm"
+          >
+            <CheckSquare className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:inline">Sélection</span>
+          </Button>
+          
+          {/* Export */}
+          <div className="hidden sm:flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleExportLibrary('json')}
+              className="h-10 px-2 text-xs"
+            >
+              <FileDown className="h-3 w-3 mr-1" />
+              JSON
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleExportLibrary('csv')}
+              className="h-10 px-2 text-xs"
+            >
+              <FileDown className="h-3 w-3 mr-1" />
+              CSV
+            </Button>
+          </div>
+          
           {/* Spacer */}
           <div className="flex-1" />
           
@@ -491,6 +600,19 @@ const MedMngLibraryComponent = () => {
             }}
           />
         )}
+
+        {/* BatchActions - affiché quand des chansons sont sélectionnées */}
+        {selectionMode && (
+          <BatchActions
+            selectedIds={selectedSongIds}
+            songs={sortedSongs}
+            onClearSelection={() => {
+              setSelectedSongIds([]);
+              setSelectionMode(false);
+            }}
+            onActionComplete={() => refetch()}
+          />
+        )}
       </div>
     </MedMngLayout>
   );
@@ -523,49 +645,105 @@ const MedMngLibraryComponent = () => {
         )}
       </div>
     ) : viewMode === 'compact' ? (
-      // Vue compacte (liste)
+      // Vue compacte (liste) - avec sélection
       <div className="space-y-2 animate-fade-in">
-        {songsToRender.map((song) => (
-          <div 
-            key={song.id}
-            className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border/30 hover:bg-card/80 transition-colors"
-          >
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shrink-0">
-              <Music className="h-5 w-5 text-primary-foreground/80" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-foreground truncate text-sm">{song.title}</h4>
-              <p className="text-xs text-muted-foreground truncate">
-                {song.meta?.style || 'Style'} • {new Date(song.added_to_library_at || song.created_at).toLocaleDateString('fr-FR')}
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              {song.is_liked && <Heart className="h-3 w-3 text-destructive fill-destructive" />}
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleSongPlay(song)}
-                className="min-h-[36px] min-w-[36px] p-0"
-              >
-                <PlayCircle className="h-5 w-5 text-primary" />
-              </Button>
-            </div>
+        {/* En-tête de sélection */}
+        {selectionMode && (
+          <div className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg mb-2">
+            <span className="text-xs text-muted-foreground">
+              {selectedSongIds.length}/{songsToRender.length} sélectionnée(s)
+            </span>
+            <Button variant="ghost" size="sm" onClick={toggleSelectAll} className="h-7 text-xs">
+              {selectedSongIds.length === songsToRender.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+            </Button>
           </div>
-        ))}
+        )}
+        {songsToRender.map((song) => {
+          const isSelected = selectedSongIds.includes(song.id);
+          return (
+            <div 
+              key={song.id}
+              onClick={selectionMode ? () => toggleSongSelection(song.id) : undefined}
+              className={`flex items-center gap-3 p-3 bg-card rounded-lg border transition-colors cursor-pointer ${
+                isSelected 
+                  ? 'border-primary bg-primary/10' 
+                  : 'border-border/30 hover:bg-card/80'
+              }`}
+            >
+              {selectionMode && (
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
+                  isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'
+                }`}>
+                  {isSelected && <CheckSquare className="h-3 w-3 text-primary-foreground" />}
+                </div>
+              )}
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shrink-0">
+                <Music className="h-5 w-5 text-primary-foreground/80" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-foreground truncate text-sm">{song.title}</h4>
+                <p className="text-xs text-muted-foreground truncate">
+                  {song.meta?.style || 'Style'} • {new Date(song.added_to_library_at || song.created_at).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+              <div className="flex items-center gap-1">
+                {song.is_liked && <Heart className="h-3 w-3 text-destructive fill-destructive" />}
+                {!selectionMode && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => { e.stopPropagation(); handleSongPlay(song); }}
+                    className="min-h-[36px] min-w-[36px] p-0"
+                  >
+                    <PlayCircle className="h-5 w-5 text-primary" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     ) : (
-      // Vue grille (par défaut)
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 animate-fade-in">
-        {songsToRender.map((song) => (
-          <SongCard 
-            key={song.id} 
-            song={song}
-            onPlay={() => handleSongPlay(song)}
-            onRemove={() => refetch()}
-            onToggleLike={() => refetch()}
-          />
-        ))}
-      </div>
+      // Vue grille (par défaut) - avec sélection
+      <>
+        {/* En-tête de sélection pour mode grille */}
+        {selectionMode && (
+          <div className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg mb-4">
+            <span className="text-xs text-muted-foreground">
+              {selectedSongIds.length}/{songsToRender.length} sélectionnée(s)
+            </span>
+            <Button variant="ghost" size="sm" onClick={toggleSelectAll} className="h-7 text-xs">
+              {selectedSongIds.length === songsToRender.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+            </Button>
+          </div>
+        )}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 animate-fade-in">
+          {songsToRender.map((song) => {
+            const isSelected = selectedSongIds.includes(song.id);
+            return (
+              <div 
+                key={song.id} 
+                className={`relative ${isSelected ? 'ring-2 ring-primary rounded-xl' : ''}`}
+                onClick={selectionMode ? () => toggleSongSelection(song.id) : undefined}
+              >
+                {selectionMode && (
+                  <div className={`absolute top-2 left-2 z-10 w-6 h-6 rounded-full flex items-center justify-center ${
+                    isSelected ? 'bg-primary text-primary-foreground' : 'bg-background/80 border-2 border-muted-foreground'
+                  }`}>
+                    {isSelected && <CheckSquare className="h-3 w-3" />}
+                  </div>
+                )}
+                <SongCard 
+                  song={song}
+                  onPlay={() => !selectionMode && handleSongPlay(song)}
+                  onRemove={() => refetch()}
+                  onToggleLike={() => refetch()}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </>
     );
   }
 
