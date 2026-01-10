@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Square, CheckSquare } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,12 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Checkbox } from '@/components/ui/checkbox';
 import { BatchActionsBar } from './BatchActionsBar';
 import { GenerationStats } from './GenerationStats';
 import { MusicListSkeleton } from '@/components/ui/skeleton-loader';
+import { ShareMusicDialog } from './ShareMusicDialog';
+import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
+import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 
 interface GeneratedTrack {
   id: string;
@@ -44,6 +46,18 @@ export const GenerationHistory: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBatchDeleting, setIsBatchDeleting] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [trackToDelete, setTrackToDelete] = useState<string | null>(null);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
+
+  // Realtime subscription pour les nouvelles générations
+  const { isConnected: realtimeConnected } = useRealtimeGeneration({
+    userId: user?.id,
+    onGenerationComplete: (track) => {
+      loadHistory();
+    },
+    enabled: !!user
+  });
 
   useEffect(() => {
     if (user) {
@@ -216,23 +230,30 @@ export const GenerationHistory: React.FC = () => {
     }
   };
 
-  const handleDelete = async (trackId: string) => {
-    if (!user) return;
+  const handleDeleteClick = (trackId: string) => {
+    setTrackToDelete(trackId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!user || !trackToDelete) return;
 
     try {
       const { error } = await supabase
         .from('user_generated_music')
         .delete()
-        .eq('id', trackId)
+        .eq('id', trackToDelete)
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      setHistory(prev => prev.filter(t => t.id !== trackId));
+      setHistory(prev => prev.filter(t => t.id !== trackToDelete));
       toast.success('Génération supprimée');
     } catch (err) {
       console.error('Erreur suppression:', err);
       toast.error('Erreur lors de la suppression');
+    } finally {
+      setTrackToDelete(null);
     }
   };
 
@@ -355,7 +376,13 @@ export const GenerationHistory: React.FC = () => {
     setSelectedIds(new Set());
   }, []);
 
-  const handleBatchDelete = useCallback(async () => {
+  const handleBatchDeleteClick = useCallback(() => {
+    if (selectedIds.size > 0) {
+      setBatchDeleteDialogOpen(true);
+    }
+  }, [selectedIds.size]);
+
+  const handleConfirmBatchDelete = useCallback(async () => {
     if (!user || selectedIds.size === 0) return;
     
     setIsBatchDeleting(true);
@@ -688,7 +715,7 @@ export const GenerationHistory: React.FC = () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleDelete(track.id)}
+                      onClick={() => handleDeleteClick(track.id)}
                       className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                       aria-label="Supprimer"
                     >
@@ -734,13 +761,32 @@ export const GenerationHistory: React.FC = () => {
       {/* Barre d'actions batch */}
       <BatchActionsBar
         selectedCount={selectedIds.size}
-        onDeleteSelected={handleBatchDelete}
+        onDeleteSelected={handleBatchDeleteClick}
         onFavoriteSelected={handleBatchFavorite}
         onDownloadSelected={handleBatchDownload}
         onClearSelection={clearSelection}
         onSelectAll={selectAll}
         totalCount={filteredHistory.length}
         isDeleting={isBatchDeleting}
+      />
+
+      {/* Dialog confirmation suppression individuelle */}
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Supprimer cette génération ?"
+        itemCount={1}
+      />
+
+      {/* Dialog confirmation suppression batch */}
+      <ConfirmDeleteDialog
+        open={batchDeleteDialogOpen}
+        onOpenChange={setBatchDeleteDialogOpen}
+        onConfirm={handleConfirmBatchDelete}
+        title="Supprimer les générations sélectionnées ?"
+        itemCount={selectedIds.size}
+        isLoading={isBatchDeleting}
       />
     </PremiumCard>
   );
