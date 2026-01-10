@@ -2271,6 +2271,57 @@ export type Database = {
         }
         Relationships: []
       }
+      b2b_anonymous_sessions: {
+        Row: {
+          access_code_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          org_id: string
+          session_hash: string
+          session_type: string
+          started_at: string
+        }
+        Insert: {
+          access_code_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          org_id: string
+          session_hash: string
+          session_type?: string
+          started_at?: string
+        }
+        Update: {
+          access_code_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          org_id?: string
+          session_hash?: string
+          session_type?: string
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_anonymous_sessions_access_code_id_fkey"
+            columns: ["access_code_id"]
+            isOneToOne: false
+            referencedRelation: "org_access_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_anonymous_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       b2b_audit_logs: {
         Row: {
           action: string
@@ -13786,6 +13837,7 @@ export type Database = {
           created_at: string
           emotion: string
           error_message: string | null
+          generation_status: string | null
           id: string
           intensity: number
           max_retries: number
@@ -13803,6 +13855,7 @@ export type Database = {
           created_at?: string
           emotion: string
           error_message?: string | null
+          generation_status?: string | null
           id?: string
           intensity?: number
           max_retries?: number
@@ -13820,6 +13873,7 @@ export type Database = {
           created_at?: string
           emotion?: string
           error_message?: string | null
+          generation_status?: string | null
           id?: string
           intensity?: number
           max_retries?: number
@@ -15280,6 +15334,56 @@ export type Database = {
         }
         Relationships: []
       }
+      org_access_codes: {
+        Row: {
+          code: string
+          code_type: string
+          created_at: string
+          created_by: string | null
+          current_uses: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          code_type?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          code_type?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_access_codes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_aggregates: {
         Row: {
           created_at: string | null
@@ -15343,6 +15447,94 @@ export type Database = {
         }
         Relationships: []
       }
+      org_daily_aggregates: {
+        Row: {
+          avg_duration_seconds: number | null
+          created_at: string
+          date: string
+          id: string
+          org_id: string
+          sessions_by_hour: Json | null
+          sessions_by_type: Json | null
+          team_id: string | null
+          total_sessions: number | null
+          unique_users_hash_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_duration_seconds?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          org_id: string
+          sessions_by_hour?: Json | null
+          sessions_by_type?: Json | null
+          team_id?: string | null
+          total_sessions?: number | null
+          unique_users_hash_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_duration_seconds?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          org_id?: string
+          sessions_by_hour?: Json | null
+          sessions_by_type?: Json | null
+          team_id?: string | null
+          total_sessions?: number | null
+          unique_users_hash_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_daily_aggregates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_ethical_disclaimers: {
+        Row: {
+          accepted_at: string
+          accepted_by: string | null
+          created_at: string
+          disclaimer_version: string
+          id: string
+          ip_address: string | null
+          org_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          accepted_by?: string | null
+          created_at?: string
+          disclaimer_version?: string
+          id?: string
+          ip_address?: string | null
+          org_id: string
+        }
+        Update: {
+          accepted_at?: string
+          accepted_by?: string | null
+          created_at?: string
+          disclaimer_version?: string
+          id?: string
+          ip_address?: string | null
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_ethical_disclaimers_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_memberships: {
         Row: {
           created_at: string
@@ -15371,6 +15563,318 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "org_memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_monthly_reports: {
+        Row: {
+          created_at: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          month: number
+          org_id: string
+          report_data: Json
+          status: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          month: number
+          org_id: string
+          report_data?: Json
+          status?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          month?: number
+          org_id?: string
+          report_data?: Json
+          status?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_monthly_reports_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_teams: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          manager_id: string | null
+          name: string
+          org_id: string
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          manager_id?: string | null
+          name: string
+          org_id: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          manager_id?: string | null
+          name?: string
+          org_id?: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_teams_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_time_aggregates: {
+        Row: {
+          aggregation_type: string | null
+          block_distribution: Json | null
+          cohort_size: number | null
+          created_at: string | null
+          department: string | null
+          id: string
+          metrics: Json
+          org_id: string | null
+          period_end: string
+          period_start: string
+          recommendations: Json | null
+          risk_zones: Json | null
+          team_id: string | null
+        }
+        Insert: {
+          aggregation_type?: string | null
+          block_distribution?: Json | null
+          cohort_size?: number | null
+          created_at?: string | null
+          department?: string | null
+          id?: string
+          metrics?: Json
+          org_id?: string | null
+          period_end: string
+          period_start: string
+          recommendations?: Json | null
+          risk_zones?: Json | null
+          team_id?: string | null
+        }
+        Update: {
+          aggregation_type?: string | null
+          block_distribution?: Json | null
+          cohort_size?: number | null
+          created_at?: string | null
+          department?: string | null
+          id?: string
+          metrics?: Json
+          org_id?: string | null
+          period_end?: string
+          period_start?: string
+          recommendations?: Json | null
+          risk_zones?: Json | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_time_aggregates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_time_scenarios: {
+        Row: {
+          configuration: Json
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          impact_analysis: Json | null
+          is_active: boolean | null
+          name: string
+          org_id: string | null
+          scenario_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          configuration?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          impact_analysis?: Json | null
+          is_active?: boolean | null
+          name: string
+          org_id?: string | null
+          scenario_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          impact_analysis?: Json | null
+          is_active?: boolean | null
+          name?: string
+          org_id?: string | null
+          scenario_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_time_scenarios_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_weekly_aggregates: {
+        Row: {
+          adoption_rate: number | null
+          created_at: string
+          id: string
+          most_used_features: Json | null
+          org_id: string
+          peak_usage_hours: Json | null
+          sessions_by_type: Json | null
+          team_id: string | null
+          total_sessions: number | null
+          trend_vs_previous_week: number | null
+          unique_users_hash_count: number | null
+          updated_at: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          adoption_rate?: number | null
+          created_at?: string
+          id?: string
+          most_used_features?: Json | null
+          org_id: string
+          peak_usage_hours?: Json | null
+          sessions_by_type?: Json | null
+          team_id?: string | null
+          total_sessions?: number | null
+          trend_vs_previous_week?: number | null
+          unique_users_hash_count?: number | null
+          updated_at?: string
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          adoption_rate?: number | null
+          created_at?: string
+          id?: string
+          most_used_features?: Json | null
+          org_id?: string
+          peak_usage_hours?: Json | null
+          sessions_by_type?: Json | null
+          team_id?: string | null
+          total_sessions?: number | null
+          trend_vs_previous_week?: number | null
+          unique_users_hash_count?: number | null
+          updated_at?: string
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_weekly_aggregates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_wellness_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_participants: number | null
+          description: string | null
+          duration_minutes: number | null
+          event_date: string
+          event_type: string
+          id: string
+          is_recurring: boolean | null
+          max_participants: number | null
+          org_id: string
+          recurrence_rule: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          duration_minutes?: number | null
+          event_date: string
+          event_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          org_id: string
+          recurrence_rule?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          duration_minutes?: number | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          org_id?: string
+          recurrence_rule?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_wellness_events_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -15426,27 +15930,60 @@ export type Database = {
       }
       organizations: {
         Row: {
+          access_code: string | null
           created_at: string
+          description: string | null
           domain: string | null
+          ethical_charter_accepted: boolean | null
+          ethical_charter_accepted_at: string | null
           id: string
+          industry: string | null
+          logo_url: string | null
+          max_users: number | null
           name: string
+          org_type: string | null
+          privacy_settings: Json | null
           settings: Json | null
+          size_category: string | null
+          subscription_plan: string | null
           updated_at: string
         }
         Insert: {
+          access_code?: string | null
           created_at?: string
+          description?: string | null
           domain?: string | null
+          ethical_charter_accepted?: boolean | null
+          ethical_charter_accepted_at?: string | null
           id?: string
+          industry?: string | null
+          logo_url?: string | null
+          max_users?: number | null
           name: string
+          org_type?: string | null
+          privacy_settings?: Json | null
           settings?: Json | null
+          size_category?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Update: {
+          access_code?: string | null
           created_at?: string
+          description?: string | null
           domain?: string | null
+          ethical_charter_accepted?: boolean | null
+          ethical_charter_accepted_at?: string | null
           id?: string
+          industry?: string | null
+          logo_url?: string | null
+          max_users?: number | null
           name?: string
+          org_type?: string | null
+          privacy_settings?: Json | null
           settings?: Json | null
+          size_category?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -18643,6 +19180,48 @@ export type Database = {
         }
         Relationships: []
       }
+      session_emotions: {
+        Row: {
+          arousal: number | null
+          context: Json | null
+          created_at: string | null
+          detected_at: string | null
+          emotion: string
+          id: string
+          intensity: number | null
+          session_id: string | null
+          source: string | null
+          user_id: string | null
+          valence: number | null
+        }
+        Insert: {
+          arousal?: number | null
+          context?: Json | null
+          created_at?: string | null
+          detected_at?: string | null
+          emotion: string
+          id?: string
+          intensity?: number | null
+          session_id?: string | null
+          source?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Update: {
+          arousal?: number | null
+          context?: Json | null
+          created_at?: string | null
+          detected_at?: string | null
+          emotion?: string
+          id?: string
+          intensity?: number | null
+          session_id?: string | null
+          source?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           achievements_unlocked: string[] | null
@@ -20528,6 +21107,60 @@ export type Database = {
         }
         Relationships: []
       }
+      time_blocks: {
+        Row: {
+          block_type: Database["public"]["Enums"]["time_block_type"]
+          created_at: string | null
+          day_of_week: number | null
+          duration_hours: number | null
+          emotional_charge: number | null
+          energy_level: number | null
+          id: string
+          is_ideal: boolean | null
+          label: string | null
+          metadata: Json | null
+          notes: string | null
+          start_hour: number | null
+          updated_at: string | null
+          user_id: string
+          version_id: string | null
+        }
+        Insert: {
+          block_type: Database["public"]["Enums"]["time_block_type"]
+          created_at?: string | null
+          day_of_week?: number | null
+          duration_hours?: number | null
+          emotional_charge?: number | null
+          energy_level?: number | null
+          id?: string
+          is_ideal?: boolean | null
+          label?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          start_hour?: number | null
+          updated_at?: string | null
+          user_id: string
+          version_id?: string | null
+        }
+        Update: {
+          block_type?: Database["public"]["Enums"]["time_block_type"]
+          created_at?: string | null
+          day_of_week?: number | null
+          duration_hours?: number | null
+          emotional_charge?: number | null
+          energy_level?: number | null
+          id?: string
+          is_ideal?: boolean | null
+          label?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          start_hour?: number | null
+          updated_at?: string | null
+          user_id?: string
+          version_id?: string | null
+        }
+        Relationships: []
+      }
       time_exchanges: {
         Row: {
           completed_at: string | null
@@ -20587,6 +21220,50 @@ export type Database = {
             columns: ["offer_id"]
             isOneToOne: false
             referencedRelation: "time_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_insights: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          insight_type: string
+          is_dismissed: boolean | null
+          message: string
+          severity: string | null
+          user_id: string
+          version_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          insight_type: string
+          is_dismissed?: boolean | null
+          message: string
+          severity?: string | null
+          user_id: string
+          version_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          insight_type?: string
+          is_dismissed?: boolean | null
+          message?: string
+          severity?: string | null
+          user_id?: string
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_insights_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "time_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -20663,6 +21340,45 @@ export type Database = {
           time_value?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      time_versions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          insights: Json | null
+          is_active: boolean | null
+          name: string
+          snapshot_data: Json | null
+          updated_at: string | null
+          user_id: string
+          version_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insights?: Json | null
+          is_active?: boolean | null
+          name: string
+          snapshot_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+          version_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          insights?: Json | null
+          is_active?: boolean | null
+          name?: string
+          snapshot_data?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          version_type?: string | null
         }
         Relationships: []
       }
@@ -23458,6 +24174,7 @@ export type Database = {
           current_progress: number
           id: string
           quest_id: string
+          started_at: string | null
           updated_at: string
           user_id: string
         }
@@ -23470,6 +24187,7 @@ export type Database = {
           current_progress?: number
           id?: string
           quest_id: string
+          started_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -23482,6 +24200,7 @@ export type Database = {
           current_progress?: number
           id?: string
           quest_id?: string
+          started_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -26371,6 +27090,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_manager_of_org: { Args: { p_org_id: string }; Returns: boolean }
+      is_org_admin: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_org_admin_or_manager: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -26877,6 +27600,17 @@ export type Database = {
       b2b_role: "b2b_admin" | "b2b_manager" | "b2b_member" | "b2b_viewer"
       invitation_status: "pending" | "accepted" | "expired"
       share_permission: "viewer" | "editor" | "admin"
+      time_block_type:
+        | "creation"
+        | "recovery"
+        | "constraint"
+        | "emotional"
+        | "chosen"
+        | "imposed"
+        | "decision"
+        | "urgency"
+        | "routine"
+        | "exposure"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -27009,6 +27743,18 @@ export const Constants = {
       b2b_role: ["b2b_admin", "b2b_manager", "b2b_member", "b2b_viewer"],
       invitation_status: ["pending", "accepted", "expired"],
       share_permission: ["viewer", "editor", "admin"],
+      time_block_type: [
+        "creation",
+        "recovery",
+        "constraint",
+        "emotional",
+        "chosen",
+        "imposed",
+        "decision",
+        "urgency",
+        "routine",
+        "exposure",
+      ],
     },
   },
 } as const
