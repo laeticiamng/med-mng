@@ -9,10 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { PollingProgress } from '@/types/music';
 
 // Intervalles adaptatifs selon la phase de génération
-const FAST_POLL_INTERVAL = 3000;   // 3s - Début (0-30s)
-const NORMAL_POLL_INTERVAL = 5000; // 5s - Milieu (30s-2min)
-const SLOW_POLL_INTERVAL = 8000;   // 8s - Fin (2min+)
-const MAX_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes max
+const FAST_POLL_INTERVAL = 2000;   // 2s - Début (0-30s) - plus rapide pour détecter les callbacks
+const NORMAL_POLL_INTERVAL = 4000; // 4s - Milieu (30s-2min)
+const SLOW_POLL_INTERVAL = 6000;   // 6s - Fin (2min+)
+const MAX_TIMEOUT_MS = 8 * 60 * 1000; // 8 minutes max (Suno peut être lent parfois)
 
 interface PollingConfig {
   taskId: string;
@@ -79,12 +79,16 @@ export const useMusicPolling = () => {
   };
 
   // ✅ Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
-  const checkDatabaseFirst = async (taskId: string): Promise<{ found: boolean; audioUrl?: string; status?: string; error?: string }> => {
+  const checkDatabaseFirst = async (taskId: string): Promise<{ found: boolean; audioUrl?: string; streamUrl?: string; status?: string; error?: string }> => {
     try {
+      // ✅ CORRECTION: Chercher explicitement un track COMPLÉTÉ avec audio_url
+      // Ordonner par updated_at DESC pour avoir la version la plus récente
       const { data, error } = await supabase
         .from('generated_music_tracks')
-        .select('audio_url, generation_status, metadata')
+        .select('audio_url, stream_url, generation_status, metadata, updated_at')
         .eq('task_id', taskId)
+        .order('updated_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {
@@ -92,21 +96,37 @@ export const useMusicPolling = () => {
         return { found: false };
       }
 
-      if (data?.generation_status === 'completed' && data?.audio_url) {
-        return { found: true, audioUrl: data.audio_url, status: 'completed' };
+      if (!data) {
+        return { found: false };
       }
 
-      if (data?.generation_status === 'failed') {
+      console.log('[useMusicPolling] Données BDD:', { 
+        status: data.generation_status, 
+        hasAudioUrl: !!data.audio_url,
+        audioUrl: data.audio_url?.substring(0, 50)
+      });
+
+      if (data.generation_status === 'completed' && data.audio_url) {
+        return { 
+          found: true, 
+          audioUrl: data.audio_url, 
+          streamUrl: data.stream_url,
+          status: 'completed' 
+        };
+      }
+
+      if (data.generation_status === 'failed') {
         const errorMsg = typeof data.metadata === 'object' && data.metadata 
           ? (data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
           : 'Génération échouée';
         return { found: true, status: 'failed', error: errorMsg };
       }
 
-      if (data?.generation_status === 'cancelled') {
+      if (data.generation_status === 'cancelled') {
         return { found: true, status: 'cancelled', error: 'Génération annulée' };
       }
 
+      // Statut "generating" - pas encore terminé
       return { found: false };
     } catch (err) {
       console.warn('[useMusicPolling] Exception BDD:', err);
