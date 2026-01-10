@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 const MAX_POLL_ATTEMPTS = 60; // ~5 minutes max (60 * 5s)
 const POLL_INTERVAL = 5000; // 5 secondes
 const FAST_POLL_INTERVAL = 3000; // 3 secondes pour les premières tentatives
+const SLOW_POLL_INTERVAL = 8000; // 8 secondes si connexion lente ou après 2 minutes
 const RETRY_POLL_ATTEMPTS = 3; // Nombre de retries en cas d'erreur réseau
 const ABSOLUTE_TIMEOUT = 300000; // 5 minutes en ms - timeout absolu (aligné avec l'UI)
 
@@ -155,8 +156,21 @@ export const useSunoMusicGeneration = () => {
           }
           
           // Continuer le polling seulement si pas annulé
+          // ✅ Polling adaptatif: ralentir après 2 minutes ou si erreurs fréquentes
           if (!abortRef.current) {
-            const interval = attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
+            let interval: number;
+            const elapsedTime = attempts * POLL_INTERVAL;
+            
+            if (attempts < 6) {
+              // Premières 18 secondes: polling rapide
+              interval = FAST_POLL_INTERVAL;
+            } else if (elapsedTime > 120000 || networkRetries > 1) {
+              // Après 2 min ou si erreurs réseau: polling lent
+              interval = SLOW_POLL_INTERVAL;
+            } else {
+              interval = POLL_INTERVAL;
+            }
+            
             pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         } catch (err) {
@@ -169,9 +183,9 @@ export const useSunoMusicGeneration = () => {
             return;
           }
           
-          // Réessayer si pas annulé
+          // Réessayer si pas annulé avec polling adaptatif
           if (!abortRef.current) {
-            const interval = attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL;
+            const interval = networkRetries > 1 ? SLOW_POLL_INTERVAL : POLL_INTERVAL;
             pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         }
