@@ -151,6 +151,28 @@ serve(async (req) => {
                     } else {
                       console.log('✅ Chanson ajoutée à la bibliothèque utilisateur');
                     }
+                    
+                    // ✅ NOUVEAU: Ajouter aussi à user_generated_music pour l'historique Generator
+                    const { error: userMusicError } = await supabase
+                      .from('user_generated_music')
+                      .upsert({
+                        user_id: mainTrack.user_id,
+                        title: trackWithAudio.title || mainTrack.title || 'Musique générée',
+                        audio_url: trackWithAudio.audio_url || trackWithAudio.source_audio_url,
+                        music_style: (mainTrack.metadata as any)?.style || 'Generated',
+                        rang: (mainTrack.metadata as any)?.rang || 'A',
+                        item_code: (mainTrack.metadata as any)?.itemCode || 'GEN',
+                        music_id: `suno_${trackWithAudio.id}`,
+                        is_favorite: false
+                      }, {
+                        onConflict: 'music_id'
+                      });
+                    
+                    if (userMusicError && userMusicError.code !== '23505') {
+                      console.error('❌ Erreur ajout user_generated_music:', userMusicError);
+                    } else {
+                      console.log('✅ Track ajouté à user_generated_music pour historique');
+                    }
                   }
                 }
               } catch (songCreationError) {
