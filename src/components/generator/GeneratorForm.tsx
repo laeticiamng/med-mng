@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Wand2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Wand2, Keyboard } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -11,6 +11,12 @@ import { StyleSelector } from './StyleSelector';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
 import { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
 import { LyricsPreview } from './LyricsPreview';
+import { AdvancedParamsToggle } from './AdvancedParamsToggle';
+import { useKeyboardShortcuts, KeyboardShortcutsHelp } from './KeyboardShortcuts';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
+
 interface GeneratorFormProps {
   contentType: string;
   setContentType: (type: string) => void;
@@ -69,6 +75,10 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   remainingFree,
   canGenerateMusic
 }) => {
+  // État local pour les paramètres avancés
+  const [advancedParams, setAdvancedParams] = useState<Partial<AdvancedSunoParams> | undefined>(undefined);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+
   const handleContentTypeChange = (type: string) => {
     setContentType(type);
     if (type === 'edn') {
@@ -78,6 +88,15 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
       setSelectedRang('');
     }
   };
+
+  // ✅ Raccourcis clavier intégrés
+  useKeyboardShortcuts({
+    onGenerate: handleGenerate,
+    onReset: resetForm,
+    canGenerate: canGenerate(),
+    isGenerating,
+    enabled: true
+  });
 
   // Calculer les paroles à afficher pour la preview
   const previewLyrics = useMemo(() => {
@@ -174,6 +193,14 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
+        {/* ✅ Paramètres avancés Suno */}
+        {contentType && selectedStyle && (
+          <AdvancedParamsToggle
+            onParamsChange={setAdvancedParams}
+            disabled={isGenerating}
+          />
+        )}
+
         {/* Preview des paroles avant génération */}
         {previewLyrics && selectedStyle && (
           <LyricsPreview
@@ -218,6 +245,25 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           >
             <TranslatedText text="Reset" />
           </PremiumButton>
+          
+          {/* ✅ Aide raccourcis clavier */}
+          <TooltipProvider>
+            <Tooltip open={showShortcutsHelp} onOpenChange={setShowShortcutsHelp}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-12"
+                  onClick={() => setShowShortcutsHelp(!showShortcutsHelp)}
+                >
+                  <Keyboard className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="p-3">
+                <KeyboardShortcutsHelp />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
     </PremiumCard>

@@ -148,6 +148,22 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   // ✅ Calcul du pourcentage utilisé
   const usagePercentage = state.total > 0 ? Math.round((state.used / state.total) * 100) : 0;
 
+  // ✅ Invalider le cache (à appeler après une génération)
+  const invalidateCache = useCallback(() => {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch {}
+    // Rafraîchir immédiatement
+    fetchCredits();
+  }, [fetchCredits]);
+
+  // ✅ Rafraîchir après génération (délai pour laisser l'API se mettre à jour)
+  const refreshAfterGeneration = useCallback(() => {
+    setTimeout(() => {
+      invalidateCache();
+    }, 2000);
+  }, [invalidateCache]);
+
   return {
     ...state,
     fetchCredits,
@@ -156,6 +172,8 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     hasNoCredits,
     creditsUnknown,
     usagePercentage,
+    invalidateCache,
+    refreshAfterGeneration,
     // Helper pour affichage
     displayCredits: state.credits < 0 ? '—' : state.credits.toString(),
     // ✅ Helper pour formater le temps depuis dernière mise à jour
