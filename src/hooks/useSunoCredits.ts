@@ -66,6 +66,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   const retryCountRef = useRef(0);
   const maxRetries = 3;
 
+  // ✅ TOUS LES HOOKS DÉCLARÉS EN PREMIER (ordre fixe)
   const fetchCredits = useCallback(async (isRetry = false) => {
     if (!isRetry) {
       retryCountRef.current = 0;
@@ -82,7 +83,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       const total = result.total ?? result.credits ?? 0;
       const now = new Date();
       
-      // ✅ Sauvegarder en cache
+      // Sauvegarder en cache
       const cacheData: CachedCredits = {
         credits,
         plan,
@@ -107,7 +108,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     } catch (err) {
       console.error('[useSunoCredits] Erreur:', err);
       
-      // ✅ Retry automatique avec backoff exponentiel
+      // Retry automatique avec backoff exponentiel
       if (retryCountRef.current < maxRetries) {
         retryCountRef.current++;
         const delay = Math.pow(2, retryCountRef.current) * 1000;
@@ -125,15 +126,29 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     }
   }, []);
 
-  // ✅ Appeler au montage (correction critique)
+  // ✅ Invalider le cache (déclaré AVANT useEffect qui pourrait l'utiliser)
+  const invalidateCache = useCallback(() => {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch {}
+    fetchCredits();
+  }, [fetchCredits]);
+
+  // ✅ Rafraîchir après génération
+  const refreshAfterGeneration = useCallback(() => {
+    setTimeout(() => {
+      invalidateCache();
+    }, 2000);
+  }, [invalidateCache]);
+
+  // ✅ EFFETS APRÈS TOUS LES useCallback
   useEffect(() => {
-    // Si les données sont du cache, rafraîchir en arrière-plan
     if (state.isFromCache || state.credits < 0) {
       fetchCredits();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Auto-refresh optionnel (toutes les 5 minutes)
   useEffect(() => {
     if (autoRefresh) {
       const interval = setInterval(fetchCredits, 5 * 60 * 1000);
@@ -141,28 +156,11 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     }
   }, [autoRefresh, fetchCredits]);
 
+  // ✅ Variables dérivées (pas des hooks)
   const hasLowCredits = state.credits >= 0 && state.credits < 10;
   const hasNoCredits = state.credits === 0;
   const creditsUnknown = state.credits < 0;
-  
-  // ✅ Calcul du pourcentage utilisé
   const usagePercentage = state.total > 0 ? Math.round((state.used / state.total) * 100) : 0;
-
-  // ✅ Invalider le cache (à appeler après une génération)
-  const invalidateCache = useCallback(() => {
-    try {
-      localStorage.removeItem(CACHE_KEY);
-    } catch {}
-    // Rafraîchir immédiatement
-    fetchCredits();
-  }, [fetchCredits]);
-
-  // ✅ Rafraîchir après génération (délai pour laisser l'API se mettre à jour)
-  const refreshAfterGeneration = useCallback(() => {
-    setTimeout(() => {
-      invalidateCache();
-    }, 2000);
-  }, [invalidateCache]);
 
   return {
     ...state,
