@@ -19,10 +19,12 @@ import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
 import { GenerationHistory } from '@/components/generator/GenerationHistory';
 import { GenerationProgress } from '@/components/generator/GenerationProgress';
+import { GeneratorStatusBar } from '@/components/generator/GeneratorStatusBar';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
+import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -42,6 +44,22 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
+  
+  // Hook temps réel pour les mises à jour automatiques
+  const { isConnected: realtimeConnected } = useRealtimeGeneration({
+    userId: user?.id,
+    onGenerationComplete: (track) => {
+      // Notification navigateur quand génération terminée
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('🎵 Musique prête !', {
+          body: `Votre musique "${track.title || 'Génération'}" est disponible`,
+          icon: '/favicon.ico'
+        });
+      }
+      toast.success('🎵 Nouvelle musique disponible !');
+    },
+    enabled: !!user
+  });
   
   // Restaurer les préférences au montage
   useEffect(() => {
@@ -65,6 +83,13 @@ const Generator = () => {
     }
   }, [contentType, selectedItem, selectedRang, selectedStyle, savePreferences]);
   
+  // Demander permission notifications au montage
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
   
@@ -283,6 +308,13 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
+          {/* Barre de statut globale (réseau, temps réel, crédits) */}
+          <GeneratorStatusBar 
+            isConnected={realtimeConnected}
+            musicQuota={musicQuota}
+            className="mb-4"
+          />
+
           <QuotaDisplay
             user={user}
             remainingFree={remainingFree}
