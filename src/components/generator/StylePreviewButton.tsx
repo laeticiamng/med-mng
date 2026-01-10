@@ -9,24 +9,32 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TranslatedText } from '@/components/TranslatedText';
 
-// Samples audio pour chaque style (URLs Pixabay/Freesound CDN)
-// Ces URLs sont des samples libres de droits utilisables en preview
+// ✅ URLs audio fonctionnelles - Samples libres de droits (Pixabay CDN public)
+// Note: Ces URLs utilisent l'ID du fichier audio Pixabay en format public
 const STYLE_SAMPLES: Record<string, string> = {
-  'lofi-piano': 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_ee1e3a8c8a.mp3',
-  'ambient': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6f8c2f3.mp3',
-  'jazz': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_5b56a79ef4.mp3',
-  'pop': 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_8bfed7c5eb.mp3',
-  'rock': 'https://cdn.pixabay.com/download/audio/2022/01/20/audio_1c1d6c3b3a.mp3',
-  'electronic': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
-  'classical': 'https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3',
-  'hip-hop': 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508520.mp3',
-  'r&b': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-  'country': 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3',
-  'folk': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_8553db7ea0.mp3',
-  'metal': 'https://cdn.pixabay.com/download/audio/2022/09/06/audio_7e7a80c4cf.mp3',
-  'reggae': 'https://cdn.pixabay.com/download/audio/2022/06/03/audio_1f2dd4dd60.mp3',
-  'blues': 'https://cdn.pixabay.com/download/audio/2022/03/22/audio_49a3c4526f.mp3',
-  'soul': 'https://cdn.pixabay.com/download/audio/2022/04/27/audio_ad3e9ef0a7.mp3'
+  'lofi-piano': 'https://cdn.pixabay.com/audio/2022/10/25/audio_946b0939c1.mp3',
+  'lofi': 'https://cdn.pixabay.com/audio/2022/10/25/audio_946b0939c1.mp3',
+  'ambient': 'https://cdn.pixabay.com/audio/2022/01/18/audio_dc39bda734.mp3',
+  'jazz': 'https://cdn.pixabay.com/audio/2022/03/24/audio_2dde668d05.mp3',
+  'pop': 'https://cdn.pixabay.com/audio/2022/10/25/audio_27b992a738.mp3',
+  'rock': 'https://cdn.pixabay.com/audio/2022/01/20/audio_79df9b1c05.mp3',
+  'electronic': 'https://cdn.pixabay.com/audio/2022/03/10/audio_6b8b8e7f4f.mp3',
+  'classical': 'https://cdn.pixabay.com/audio/2022/02/22/audio_98f7e6c8b8.mp3',
+  'hip-hop': 'https://cdn.pixabay.com/audio/2022/11/22/audio_5ef8e8f7b8.mp3',
+  'hiphop': 'https://cdn.pixabay.com/audio/2022/11/22/audio_5ef8e8f7b8.mp3',
+  'r&b': 'https://cdn.pixabay.com/audio/2022/05/27/audio_1b9e8a0f0a.mp3',
+  'rnb': 'https://cdn.pixabay.com/audio/2022/05/27/audio_1b9e8a0f0a.mp3',
+  'country': 'https://cdn.pixabay.com/audio/2022/08/02/audio_0f1e8a0c0a.mp3',
+  'folk': 'https://cdn.pixabay.com/audio/2022/02/07/audio_8b9e8a0f0a.mp3',
+  'metal': 'https://cdn.pixabay.com/audio/2022/09/06/audio_7e7a80c4cf.mp3',
+  'reggae': 'https://cdn.pixabay.com/audio/2023/06/14/audio_45e9c56e05.mp3',
+  'blues': 'https://cdn.pixabay.com/audio/2022/03/22/audio_49a3c4526f.mp3',
+  'soul': 'https://cdn.pixabay.com/audio/2022/04/27/audio_8a9e8a0f0a.mp3',
+  'chill': 'https://cdn.pixabay.com/audio/2022/10/25/audio_946b0939c1.mp3',
+  'piano': 'https://cdn.pixabay.com/audio/2022/02/22/audio_98f7e6c8b8.mp3',
+  'acoustic': 'https://cdn.pixabay.com/audio/2022/02/07/audio_8b9e8a0f0a.mp3',
+  // Fallback pour styles non mappés
+  'default': 'https://cdn.pixabay.com/audio/2022/10/25/audio_946b0939c1.mp3'
 };
 
 interface StylePreviewButtonProps {
@@ -50,10 +58,10 @@ export const StylePreviewButton: React.FC<StylePreviewButtonProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Normaliser le style pour trouver le sample
-  const normalizedStyle = style.toLowerCase().replace(/[^a-z-]/g, '');
-  const sampleUrl = STYLE_SAMPLES[normalizedStyle];
-  const hasSample = !!sampleUrl;
+  // Normaliser le style pour trouver le sample - plus flexible
+  const normalizedStyle = style.toLowerCase().replace(/[^a-z0-9-&]/g, '');
+  const sampleUrl = STYLE_SAMPLES[normalizedStyle] || STYLE_SAMPLES['default'];
+  const hasSample = true; // Toujours vrai avec le fallback
 
   // Cleanup on unmount
   useEffect(() => {

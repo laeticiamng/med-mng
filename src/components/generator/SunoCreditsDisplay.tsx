@@ -29,12 +29,7 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
     plan
   } = useSunoCredits(autoRefresh);
 
-  // Charger les crédits au montage si pas en auto-refresh
-  useEffect(() => {
-    if (!autoRefresh && credits < 0 && !loading) {
-      fetchCredits();
-    }
-  }, [autoRefresh, credits, loading, fetchCredits]);
+  // ✅ Supprimé: Le hook gère maintenant l'appel au montage automatiquement
 
   const getBadgeVariant = () => {
     if (hasNoCredits) return 'destructive';
@@ -90,11 +85,12 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
             variant="ghost"
             size="icon"
             className="h-6 w-6"
-            onClick={fetchCredits}
+            onClick={() => fetchCredits()}
             disabled={loading}
             title="Rafraîchir les crédits"
+            aria-label="Rafraîchir les crédits Suno"
           >
-            <RefreshCw className={cn('h-3 w-3', loading && 'animate-spin')} />
+            <RefreshCw className={cn('h-3 w-3', loading && 'animate-spin')} aria-hidden="true" />
           </Button>
         )}
       </div>
