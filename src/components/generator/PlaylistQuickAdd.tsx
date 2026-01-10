@@ -8,6 +8,7 @@ import { ListMusic, Plus, Check, Loader2, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -29,10 +30,11 @@ interface Playlist {
 interface PlaylistQuickAddProps {
   trackId: string;
   trackTitle: string;
-  audioUrl: string;
+  audioUrl?: string;
   onAdded?: (playlistName: string) => void;
   variant?: 'icon' | 'button';
   size?: 'sm' | 'default';
+  className?: string;
 }
 
 export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
@@ -40,8 +42,9 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
   trackTitle,
   audioUrl,
   onAdded,
-  variant = 'icon',
-  size = 'default'
+  variant = 'button',
+  size = 'default',
+  className
 }) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -160,15 +163,15 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
           <Button
             variant="ghost"
             size={size}
-            className="text-muted-foreground hover:text-primary"
+            className={cn("text-muted-foreground hover:text-primary", className)}
             title="Ajouter à une playlist"
           >
             <ListMusic className="h-4 w-4" />
           </Button>
         ) : (
-          <Button variant="outline" size={size}>
+          <Button variant="outline" size={size} className={className}>
             <ListMusic className="h-4 w-4 mr-2" />
-            Playlist
+            Ajouter à playlist
           </Button>
         )}
       </DialogTrigger>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Wand2, Keyboard } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
@@ -39,7 +39,7 @@ interface GeneratorFormProps {
   ecosLyricsLoading?: boolean;
   ecosLyricsError?: string | null;
   canGenerate: () => boolean;
-  handleGenerate: () => void;
+  handleGenerate: (advancedParams?: Partial<AdvancedSunoParams>) => void;
   resetForm: () => void;
   isGenerating: boolean;
   user: any;
@@ -75,7 +75,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   remainingFree,
   canGenerateMusic
 }) => {
-  // État local pour les paramètres avancés
+  // ✅ État local pour les paramètres avancés (reçus du composant enfant)
   const [advancedParams, setAdvancedParams] = useState<Partial<AdvancedSunoParams> | undefined>(undefined);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
@@ -89,9 +89,14 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
     }
   };
 
+  // ✅ Handler de génération avec paramètres avancés
+  const handleGenerateWithParams = useCallback(() => {
+    handleGenerate(advancedParams);
+  }, [handleGenerate, advancedParams]);
+
   // ✅ Raccourcis clavier intégrés
   useKeyboardShortcuts({
-    onGenerate: handleGenerate,
+    onGenerate: handleGenerateWithParams,
     onReset: resetForm,
     canGenerate: canGenerate(),
     isGenerating,
@@ -193,7 +198,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
-        {/* ✅ Paramètres avancés Suno */}
+        {/* ✅ Paramètres avancés Suno - Maintenant connectés */}
         {contentType && selectedStyle && (
           <AdvancedParamsToggle
             onParamsChange={setAdvancedParams}
@@ -215,7 +220,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           <PremiumButton
             variant="primary"
             size="lg"
-            onClick={handleGenerate}
+            onClick={handleGenerateWithParams}
             disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading || ecosLyricsLoading}
             className="flex-1 min-h-[48px] text-sm sm:text-base"
           >
