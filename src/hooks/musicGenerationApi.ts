@@ -19,6 +19,13 @@ interface GenerateMusicRequest {
   instrumental?: boolean;
   model?: string;
   title?: string;
+  // ✅ Paramètres avancés Suno V4.5+
+  advancedParams?: {
+    vocalGender?: 'male' | 'female' | 'mixed';
+    negativeTags?: string;
+    styleWeight?: number;
+    weirdnessConstraint?: number;
+  };
 }
 
 export const callSunoApi = async (requestBody: GenerateMusicRequest) => {

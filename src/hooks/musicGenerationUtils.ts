@@ -70,10 +70,16 @@ export const createRequestBody = (
   currentLanguage: string,
   isComposition: boolean,
   model: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL",
-  itemCode?: string
+  itemCode?: string,
+  advancedParams?: {
+    vocalGender?: 'male' | 'female' | 'mixed';
+    negativeTags?: string;
+    styleWeight?: number;
+    weirdnessConstraint?: number;
+  }
 ) => {
-  // ✅ CORRECTION 3: Améliorer la structure pour l'API Suno
-  const baseRequest = {
+  // ✅ CORRECTION: Structure complète avec paramètres avancés pour l'API Suno
+  const baseRequest: any = {
     lyrics: parolesText,
     style: selectedStyle,
     rang: rang,
@@ -84,7 +90,7 @@ export const createRequestBody = (
     // Paramètres Suno optimisés
     customMode: true,
     instrumental: false, // Car on a des paroles
-    model: model, // ✅ Utilisation du modèle selon l'abonnement
+    model: model,
     title: `${rang === 'AB' ? 'Mix A+B' : `Rang ${rang}`} - ${itemCode || 'EDN'} - ${selectedStyle}`,
     composition: isComposition ? {
       styles: selectedStyle.split('+'),
@@ -92,6 +98,22 @@ export const createRequestBody = (
       enhanced_duration: true as const
     } : undefined
   };
+
+  // ✅ Ajouter les paramètres avancés si fournis
+  if (advancedParams) {
+    if (advancedParams.vocalGender) {
+      baseRequest.vocalGender = advancedParams.vocalGender;
+    }
+    if (advancedParams.negativeTags) {
+      baseRequest.negativeTags = advancedParams.negativeTags;
+    }
+    if (advancedParams.styleWeight !== undefined && advancedParams.styleWeight !== 50) {
+      baseRequest.styleWeight = advancedParams.styleWeight;
+    }
+    if (advancedParams.weirdnessConstraint !== undefined && advancedParams.weirdnessConstraint !== 30) {
+      baseRequest.weirdnessConstraint = advancedParams.weirdnessConstraint;
+    }
+  }
 
   return baseRequest;
 };
