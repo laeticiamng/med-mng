@@ -4,13 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useMusicPolling } from './useMusicPolling';
 
 interface GenerationConfig {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   translatedLyrics: string;
   selectedStyle: string;
   duration: number;
   currentLanguage: string;
-  onProgress: (rang: 'A' | 'B', progress: any) => void;
-  onSuccess: (rang: 'A' | 'B', audioUrl: string) => void;
+  onProgress: (rang: 'A' | 'B' | 'AB', progress: any) => void;
+  onSuccess: (rang: 'A' | 'B' | 'AB', audioUrl: string) => void;
   onError: (error: Error) => void;
   validateAndNormalizeAudioUrl: (url: string) => string;
 }
@@ -31,8 +31,6 @@ export const useMusicGenerationOrchestrator = () => {
     validateAndNormalizeAudioUrl
   }: GenerationConfig) => {
     try {
-      // Démarrage génération Suno
-      
       const requestBody = {
         lyrics: translatedLyrics,
         style: selectedStyle,
@@ -64,16 +62,22 @@ export const useMusicGenerationOrchestrator = () => {
         return validatedAudioUrl;
       }
 
+      // ✅ CORRECTION: Utiliser le trackId pour le polling
+      const taskId = initialData?.trackId;
+      if (!taskId) {
+        throw new Error('Aucun trackId reçu de l\'API - impossible de suivre la génération');
+      }
+
       // Afficher un message informatif à l'utilisateur
       toast({
         title: "Génération démarrée",
-        description: `Suno AI traite votre demande pour le Rang ${rang}. Cela peut prendre quelques minutes...`,
+        description: `Suno AI traite votre demande pour le Rang ${rang}. Cela peut prendre 2-3 minutes...`,
       });
 
-      // Commencer le polling avec progression visuelle améliorée
+      // ✅ CORRECTION: Commencer le polling avec taskId au lieu de requestBody
       startPolling({
+        taskId,
         rang,
-        requestBody,
         onProgress,
         onSuccess: (rangPolling, audioUrl) => {
           const validatedAudioUrl = validateAndNormalizeAudioUrl(audioUrl);
@@ -90,11 +94,11 @@ export const useMusicGenerationOrchestrator = () => {
           let toastTitle = "Erreur de génération Suno";
           
           // Messages plus informatifs selon le type d'erreur
-          if (errorMessage.includes('Délai d\'attente dépassé')) {
-            toastTitle = "Génération en cours...";
-            errorMessage = "La génération prend plus de temps que prévu. L'API Suno est peut-être occupée. Vous pouvez réessayer dans quelques minutes.";
-          } else if (errorMessage.includes('Trop d\'erreurs consécutives')) {
-            errorMessage = "Problème de connexion avec l'API Suno. Veuillez vérifier votre connexion internet et réessayer.";
+          if (errorMessage.includes('Timeout')) {
+            toastTitle = "Génération trop longue";
+            errorMessage = "L'API Suno est peut-être occupée. Réessayez dans quelques minutes.";
+          } else if (errorMessage.includes('réseau') || errorMessage.includes('consécutives')) {
+            errorMessage = "Problème de connexion avec l'API Suno. Vérifiez votre connexion et réessayez.";
           }
           
           toast({
@@ -106,11 +110,13 @@ export const useMusicGenerationOrchestrator = () => {
           onError(error);
         }
       });
+
+      return taskId;
       
     } catch (error) {
-      const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
+      const errorMessage = (error as Error).message || "Impossible de générer la musique. Veuillez réessayer.";
       toast({
-        title: "Erreur de génération Suno",
+        title: "Erreur de génération",
         description: errorMessage,
         variant: "destructive"
       });

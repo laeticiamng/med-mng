@@ -13,11 +13,11 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 import { supabase } from '@/integrations/supabase/client';
 
-const MAX_POLL_ATTEMPTS = 40; // ~3 minutes max (40 * 5s)
+const MAX_POLL_ATTEMPTS = 60; // ~5 minutes max (60 * 5s)
 const POLL_INTERVAL = 5000; // 5 secondes
 const FAST_POLL_INTERVAL = 3000; // 3 secondes pour les premières tentatives
 const RETRY_POLL_ATTEMPTS = 3; // Nombre de retries en cas d'erreur réseau
-const ABSOLUTE_TIMEOUT = 180000; // 3 minutes en ms - timeout absolu
+const ABSOLUTE_TIMEOUT = 300000; // 5 minutes en ms - timeout absolu (aligné avec l'UI)
 
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
@@ -66,7 +66,21 @@ export const useSunoMusicGeneration = () => {
         }
         
         attempts++;
-        setPollingProgress(Math.min((attempts / MAX_POLL_ATTEMPTS) * 100, 95));
+        
+        // Calculer une progression plus réaliste basée sur le temps écoulé
+        // Phase 1 (0-30s): 0-30%, Phase 2 (30-60s): 30-50%, Phase 3 (60-120s): 50-80%, Phase 4 (120s+): 80-95%
+        const elapsedMs = attempts * (attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL);
+        let estimatedProgress: number;
+        if (elapsedMs < 30000) {
+          estimatedProgress = (elapsedMs / 30000) * 30; // 0-30%
+        } else if (elapsedMs < 60000) {
+          estimatedProgress = 30 + ((elapsedMs - 30000) / 30000) * 20; // 30-50%
+        } else if (elapsedMs < 120000) {
+          estimatedProgress = 50 + ((elapsedMs - 60000) / 60000) * 30; // 50-80%
+        } else {
+          estimatedProgress = 80 + Math.min(((elapsedMs - 120000) / 180000) * 15, 15); // 80-95%
+        }
+        setPollingProgress(Math.min(Math.round(estimatedProgress), 95));
 
         try {
           // 1. Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
