@@ -45,8 +45,11 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
   const handleStyleSelect = async (style: MusicStyle) => {
     setMusicStyle(style);
     
-    // Log the onboarding completion
-    await logActivity({
+    // Fermer immédiatement la modale pour une meilleure UX
+    onComplete();
+    
+    // Log the onboarding completion en arrière-plan
+    logActivity({
       activity_type: 'study',
       count: 1,
       metadata: { 
@@ -56,21 +59,23 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       }
     });
 
-    // Store preferences in Supabase for logged-in users
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await (supabase as any).from('user_onboarding').upsert({
-        user_id: user.id,
-        onboarding_completed: true,
-        revision_type: revisionType,
-        music_style: style,
-        completed_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-    } else {
-      sessionStorage.setItem('med-mng-onboarding-seen', 'true');
-    }
+    // Store preferences in Supabase for logged-in users en arrière-plan
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (user) {
+        await (supabase as any).from('user_onboarding').upsert({
+          user_id: user.id,
+          onboarding_completed: true,
+          revision_type: revisionType,
+          music_style: style,
+          completed_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      } else {
+        sessionStorage.setItem('med-mng-onboarding-seen', 'true');
+      }
+    });
     
-    setStep('action');
+    // Naviguer vers le générateur
+    navigate(ROUTE_PATHS.generator);
   };
 
   const handleStartAction = () => {
