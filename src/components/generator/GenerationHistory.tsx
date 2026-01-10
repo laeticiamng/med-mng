@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2 } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2, CheckSquare, Square } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { toast } from 'sonner';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -19,6 +20,7 @@ import { MusicListSkeleton } from '@/components/ui/skeleton-loader';
 import { ShareMusicDialog } from './ShareMusicDialog';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
+import { GenerationFilters, type FilterType, type SortType, type DateRangeType } from './GenerationFilters';
 
 interface GeneratedTrack {
   id: string;
@@ -31,7 +33,7 @@ interface GeneratedTrack {
   is_favorite?: boolean;
 }
 
-type FilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
+type FilterTypeSimple = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -41,6 +43,9 @@ export const GenerationHistory: React.FC = () => {
   const [history, setHistory] = useState<GeneratedTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [sortBy, setSortBy] = useState<SortType>('date_desc');
+  const [dateRange, setDateRange] = useState<DateRangeType>('all');
+  const [styleFilter, setStyleFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -49,6 +54,7 @@ export const GenerationHistory: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [trackToDelete, setTrackToDelete] = useState<string | null>(null);
   const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
+  const [shareTrack, setShareTrack] = useState<GeneratedTrack | null>(null);
 
   // Realtime subscription pour les nouvelles générations
   const { isConnected: realtimeConnected } = useRealtimeGeneration({
@@ -171,10 +177,38 @@ export const GenerationHistory: React.FC = () => {
     }
   };
 
-  // Filtrer et rechercher dans l'historique
+  // Extraire les styles uniques pour le filtre
+  const availableStyles = useMemo(() => {
+    const styles = new Set<string>();
+    history.forEach(track => {
+      if (track.music_style) styles.add(track.music_style);
+    });
+    return Array.from(styles).sort();
+  }, [history]);
+
+  // Calculer le nombre de filtres actifs
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filter !== 'all') count++;
+    if (dateRange !== 'all') count++;
+    if (styleFilter && styleFilter !== 'all') count++;
+    if (sortBy !== 'date_desc') count++;
+    return count;
+  }, [filter, dateRange, styleFilter, sortBy]);
+
+  // Réinitialiser les filtres
+  const clearFilters = useCallback(() => {
+    setFilter('all');
+    setSortBy('date_desc');
+    setDateRange('all');
+    setStyleFilter('all');
+    setSearchQuery('');
+  }, []);
+
+  // Filtrer et rechercher dans l'historique avec tous les filtres
   const filteredHistory = useMemo(() => {
     let filtered = history.filter(track => {
-      // Filtre par type
+      // Filtre par type/rang
       switch (filter) {
         case 'favorites':
           if (track.is_favorite !== true) return false;
@@ -189,6 +223,27 @@ export const GenerationHistory: React.FC = () => {
           if (track.rang !== 'AB') return false;
           break;
       }
+
+      // Filtre par période
+      if (dateRange !== 'all') {
+        const trackDate = new Date(track.created_at);
+        switch (dateRange) {
+          case 'today':
+            if (!isToday(trackDate)) return false;
+            break;
+          case 'week':
+            if (!isThisWeek(trackDate, { locale: fr })) return false;
+            break;
+          case 'month':
+            if (!isThisMonth(trackDate)) return false;
+            break;
+        }
+      }
+
+      // Filtre par style
+      if (styleFilter && styleFilter !== 'all') {
+        if (track.music_style !== styleFilter) return false;
+      }
       
       // Filtre par recherche
       if (searchQuery.trim()) {
@@ -202,9 +257,24 @@ export const GenerationHistory: React.FC = () => {
       
       return true;
     });
+
+    // Tri
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'date_asc':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'title_asc':
+          return (a.title || a.item_code).localeCompare(b.title || b.item_code);
+        case 'title_desc':
+          return (b.title || b.item_code).localeCompare(a.title || a.item_code);
+        case 'date_desc':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
     
     return filtered;
-  }, [history, filter, searchQuery]);
+  }, [history, filter, searchQuery, dateRange, styleFilter, sortBy]);
 
   // Pagination
   const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
@@ -213,10 +283,10 @@ export const GenerationHistory: React.FC = () => {
     return filteredHistory.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredHistory, currentPage]);
 
-  // Reset page when filter changes
+  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, dateRange, styleFilter, sortBy]);
 
   const handlePlay = (track: GeneratedTrack) => {
     if (currentTrack?.url === track.audio_url && isPlaying) {
@@ -580,7 +650,7 @@ export const GenerationHistory: React.FC = () => {
           <GenerationStats tracks={history} className="mb-2" />
         )}
         
-        {/* Search and filter row */}
+        {/* Filtres avancés intégrés */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {/* Recherche */}
           <div className="relative flex-1 sm:flex-none sm:w-40">
@@ -593,22 +663,21 @@ export const GenerationHistory: React.FC = () => {
             />
           </div>
           
-          {/* Filtre */}
-          <div className="flex items-center gap-2 flex-1 sm:flex-none">
-            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-            <Select value={filter} onValueChange={(v) => setFilter(v as FilterType)}>
-              <SelectTrigger className="flex-1 sm:w-32 h-10 sm:h-8 text-xs">
-                <SelectValue placeholder="Filtrer" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="favorites">❤️ Favoris</SelectItem>
-                <SelectItem value="rang_a">Rang A</SelectItem>
-                <SelectItem value="rang_b">Rang B</SelectItem>
-                <SelectItem value="rang_ab">Rang A+B</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Composant de filtres avancés */}
+          <GenerationFilters
+            filter={filter}
+            setFilter={setFilter}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            styleFilter={styleFilter}
+            setStyleFilter={setStyleFilter}
+            availableStyles={availableStyles}
+            activeFiltersCount={activeFiltersCount}
+            onClearFilters={clearFilters}
+            className="flex-1"
+          />
           
           {/* Mobile export buttons */}
           {filteredHistory.length > 0 && (
@@ -649,12 +718,22 @@ export const GenerationHistory: React.FC = () => {
               return (
                 <div 
                   key={track.id}
-                  className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                    isCurrentlyPlaying 
-                      ? 'bg-primary/10 border-primary/30' 
-                      : 'bg-card/50 border-border/30 hover:bg-card/80'
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                    selectedIds.has(track.id) 
+                      ? 'bg-primary/5 border-primary/40' 
+                      : isCurrentlyPlaying 
+                        ? 'bg-primary/10 border-primary/30' 
+                        : 'bg-card/50 border-border/30 hover:bg-card/80'
                   }`}
                 >
+                  {/* Checkbox de sélection */}
+                  <Checkbox
+                    checked={selectedIds.has(track.id)}
+                    onCheckedChange={() => toggleSelection(track.id)}
+                    className="shrink-0"
+                    aria-label={`Sélectionner ${track.title || track.item_code}`}
+                  />
+                  
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       {track.is_favorite && (
@@ -664,7 +743,7 @@ export const GenerationHistory: React.FC = () => {
                         {track.title || `${track.item_code} - Rang ${track.rang}`}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                       <Badge variant="outline" className="text-xs">
                         {track.music_style}
                       </Badge>
@@ -711,6 +790,16 @@ export const GenerationHistory: React.FC = () => {
                       aria-label={track.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
                     >
                       <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
+                    </Button>
+                    {/* Bouton partage */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShareTrack(track)}
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                      aria-label="Partager"
+                    >
+                      <Share2 className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -788,6 +877,17 @@ export const GenerationHistory: React.FC = () => {
         itemCount={selectedIds.size}
         isLoading={isBatchDeleting}
       />
+
+      {/* Dialog de partage */}
+      {shareTrack && (
+        <ShareMusicDialog
+          trackTitle={shareTrack.title || `${shareTrack.item_code} - Rang ${shareTrack.rang}`}
+          trackId={shareTrack.id}
+          audioUrl={shareTrack.audio_url}
+          open={!!shareTrack}
+          onOpenChange={(open) => !open && setShareTrack(null)}
+        />
+      )}
     </PremiumCard>
   );
 };
