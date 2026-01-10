@@ -3,85 +3,85 @@
  * S'affiche automatiquement quand le quota est faible
  */
 
+/**
+ * Bannière d'avertissement quota/crédits
+ */
+
 import React from 'react';
-import { AlertTriangle, Crown, ArrowRight, X } from 'lucide-react';
+import { AlertTriangle, ExternalLink, X } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
-import { TranslatedText } from '@/components/TranslatedText';
+import { cn } from '@/lib/utils';
 
 interface QuotaWarningBannerProps {
-  remaining: number;
-  total: number;
+  usagePercentage: number;
+  hasNoCredits: boolean;
+  hasLowCredits: boolean;
   onDismiss?: () => void;
-  showUpgradeLink?: boolean;
+  className?: string;
 }
 
 export const QuotaWarningBanner: React.FC<QuotaWarningBannerProps> = ({
-  remaining,
-  total,
+  usagePercentage,
+  hasNoCredits,
+  hasLowCredits,
   onDismiss,
-  showUpgradeLink = true
+  className
 }) => {
-  // Ne pas afficher si quota > 20%
-  const percentage = (remaining / total) * 100;
-  if (percentage > 20) return null;
-
-  const isVeryLow = remaining <= 1;
-  const isCritical = remaining === 0;
+  // Déterminer le niveau d'alerte
+  const isCritical = hasNoCredits || usagePercentage >= 95;
+  const isWarning = hasLowCredits || usagePercentage >= 80;
+  
+  if (!isWarning && !isCritical) return null;
 
   return (
-    <div 
-      className={`relative p-3 rounded-lg border flex items-center gap-3 animate-fade-in ${
+    <Alert 
+      variant={isCritical ? "destructive" : "default"}
+      className={cn(
+        "relative",
         isCritical 
-          ? 'bg-destructive/10 border-destructive/30' 
-          : isVeryLow
-            ? 'bg-warning/10 border-warning/30'
-            : 'bg-accent/10 border-accent/30'
-      }`}
+          ? "bg-destructive/10 border-destructive/30" 
+          : "bg-warning/10 border-warning/30",
+        className
+      )}
     >
-      <AlertTriangle className={`h-5 w-5 shrink-0 ${
-        isCritical ? 'text-destructive' : isVeryLow ? 'text-warning' : 'text-accent'
-      }`} />
+      <AlertTriangle className={cn(
+        "h-4 w-4",
+        isCritical ? "text-destructive" : "text-warning"
+      )} />
       
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${
-          isCritical ? 'text-destructive' : isVeryLow ? 'text-warning' : 'text-accent-foreground'
-        }`}>
-          {isCritical ? (
-            <TranslatedText text="Quota épuisé ! Vous ne pouvez plus générer de musique." />
-          ) : isVeryLow ? (
-            <TranslatedText text={`Attention : plus que ${remaining} génération${remaining > 1 ? 's' : ''} !`} />
-          ) : (
-            <TranslatedText text={`Quota faible : ${remaining}/${total} générations restantes`} />
-          )}
-        </p>
-      </div>
-
-      {showUpgradeLink && (
-        <Link to={ROUTE_PATHS.medMngPricing}>
-          <Button 
-            size="sm" 
-            variant={isCritical ? 'destructive' : 'default'}
-            className="gap-1.5 shrink-0"
-          >
-            <Crown className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline"><TranslatedText text="Améliorer" /></span>
-            <ArrowRight className="h-3.5 w-3.5" />
+      <AlertTitle className={cn(
+        "text-sm font-semibold",
+        isCritical ? "text-destructive" : "text-warning"
+      )}>
+        {isCritical ? "Quota épuisé" : "Quota presque atteint"}
+      </AlertTitle>
+      
+      <AlertDescription className="text-xs mt-1">
+        {hasNoCredits && "Vous n'avez plus de crédits Suno. Rechargez pour continuer à générer."}
+        {hasLowCredits && !hasNoCredits && "Vos crédits Suno sont faibles. Pensez à recharger."}
+        {!hasNoCredits && !hasLowCredits && usagePercentage >= 95 && "Votre quota mensuel est presque épuisé."}
+        {!hasNoCredits && !hasLowCredits && usagePercentage >= 80 && usagePercentage < 95 && "Vous avez utilisé plus de 80% de votre quota."}
+        
+        <Link to={ROUTE_PATHS.medMngPricing} className="ml-2">
+          <Button variant="link" size="sm" className="h-auto p-0 text-xs">
+            Voir les offres <ExternalLink className="h-3 w-3 ml-1" />
           </Button>
         </Link>
-      )}
-
-      {onDismiss && !isCritical && (
+      </AlertDescription>
+      
+      {onDismiss && (
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 shrink-0"
+          className="absolute right-2 top-2 h-6 w-6"
           onClick={onDismiss}
         >
-          <X className="h-4 w-4" />
+          <X className="h-3 w-3" />
         </Button>
       )}
-    </div>
+    </Alert>
   );
 };

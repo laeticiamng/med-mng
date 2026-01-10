@@ -3,66 +3,55 @@
  * Affiche l'état de la connexion Supabase Realtime
  */
 
+/**
+ * Indicateur de connexion temps réel (Supabase realtime)
+ */
+
 import React from 'react';
-import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Wifi, WifiOff, Radio } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface RealtimeIndicatorProps {
   isConnected: boolean;
-  connectionError?: string | null;
-  onReconnect?: () => void;
-  showLabel?: boolean;
-  size?: 'sm' | 'default';
+  label?: string;
+  className?: string;
 }
 
 export const RealtimeIndicator: React.FC<RealtimeIndicatorProps> = ({
   isConnected,
-  connectionError,
-  onReconnect,
-  showLabel = false,
-  size = 'sm'
+  label = "Temps réel",
+  className
 }) => {
-  const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
-  
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-1.5">
-            {isConnected ? (
-              <>
-                <div className={`${iconSize} rounded-full bg-success animate-pulse`} />
-                {showLabel && (
-                  <span className="text-xs text-success">Connecté</span>
-                )}
-              </>
-            ) : (
-              <div className="flex items-center gap-1">
-                <WifiOff className={`${iconSize} text-destructive`} />
-                {showLabel && (
-                  <span className="text-xs text-destructive">Déconnecté</span>
-                )}
-                {onReconnect && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5 p-0"
-                    onClick={onReconnect}
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "gap-1 text-xs cursor-help",
+              isConnected 
+                ? "bg-success/10 text-success border-success/20" 
+                : "bg-muted/50 text-muted-foreground border-muted",
+              className
             )}
-          </div>
+          >
+            {isConnected ? (
+              <Radio className="h-3 w-3 animate-pulse" />
+            ) : (
+              <WifiOff className="h-3 w-3" />
+            )}
+            <span className="hidden sm:inline">{label}</span>
+          </Badge>
         </TooltipTrigger>
-        <TooltipContent side="bottom">
+        <TooltipContent>
           <p className="text-xs">
             {isConnected 
-              ? 'Mises à jour en temps réel actives' 
-              : connectionError || 'Connexion perdue - cliquez pour reconnecter'}
+              ? "Connecté en temps réel - Les mises à jour arrivent instantanément"
+              : "Déconnecté du temps réel - Rafraîchissez manuellement"
+            }
           </p>
         </TooltipContent>
       </Tooltip>
