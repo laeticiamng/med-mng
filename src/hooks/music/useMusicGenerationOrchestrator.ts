@@ -1,9 +1,10 @@
 /**
  * Orchestrateur de génération musicale
  * Gère le cycle complet: démarrage, polling, succès/erreur
+ * ✅ Enrichi: Meilleure gestion des états, logging, persistance locale
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMusicPolling } from './useMusicPolling';
@@ -23,10 +24,45 @@ interface GenerationConfig {
   validateAndNormalizeAudioUrl: (url: string) => string;
 }
 
+interface GenerationTask {
+  taskId: string;
+  rang: 'A' | 'B' | 'AB';
+  startTime: number;
+  status: 'pending' | 'generating' | 'completed' | 'failed' | 'cancelled';
+}
+
+// ✅ Stockage local pour persistance des tâches
+const ACTIVE_TASKS_KEY = 'mng_active_generation_tasks';
+
+const saveActiveTasksToStorage = (tasks: Map<string, GenerationTask>) => {
+  try {
+    const data = Array.from(tasks.entries());
+    localStorage.setItem(ACTIVE_TASKS_KEY, JSON.stringify(data));
+  } catch {}
+};
+
+const loadActiveTasksFromStorage = (): Map<string, GenerationTask> => {
+  try {
+    const data = localStorage.getItem(ACTIVE_TASKS_KEY);
+    if (data) {
+      const entries = JSON.parse(data);
+      // Filtrer les tâches de plus de 10 minutes (expirées)
+      const validEntries = entries.filter(([_, task]: [string, GenerationTask]) => 
+        Date.now() - task.startTime < 10 * 60 * 1000
+      );
+      return new Map(validEntries);
+    }
+  } catch {}
+  return new Map();
+};
+
 export const useMusicGenerationOrchestrator = () => {
   const { toast } = useToast();
-  const { startPolling, stopPolling, stopAllPolling } = useMusicPolling();
-  const activeTasksRef = useRef<Set<string>>(new Set());
+  const { startPolling, stopPolling, stopAllPolling, isPolling, getActivePollingTasks } = useMusicPolling();
+  const activeTasksRef = useRef<Map<string, GenerationTask>>(loadActiveTasksFromStorage());
+  
+  // ✅ État observable pour l'UI
+  const [generatingRangs, setGeneratingRangs] = useState<Set<'A' | 'B' | 'AB'>>(new Set());
   
   const { executeWithRetry, isRetrying, retryCount, abort: abortRetry } = useRetryWithBackoff({
     maxRetries: 2,
@@ -41,6 +77,38 @@ export const useMusicGenerationOrchestrator = () => {
     }
   });
 
+  // ✅ Ajouter une tâche active
+  const addActiveTask = useCallback((taskId: string, rang: 'A' | 'B' | 'AB') => {
+    const task: GenerationTask = {
+      taskId,
+      rang,
+      startTime: Date.now(),
+      status: 'generating'
+    };
+    activeTasksRef.current.set(taskId, task);
+    saveActiveTasksToStorage(activeTasksRef.current);
+    setGeneratingRangs(prev => new Set([...prev, rang]));
+  }, []);
+
+  // ✅ Supprimer une tâche active
+  const removeActiveTask = useCallback((taskId: string) => {
+    const task = activeTasksRef.current.get(taskId);
+    if (task) {
+      activeTasksRef.current.delete(taskId);
+      saveActiveTasksToStorage(activeTasksRef.current);
+      setGeneratingRangs(prev => {
+        const next = new Set(prev);
+        next.delete(task.rang);
+        return next;
+      });
+    }
+  }, []);
+
+  // ✅ Vérifier si un rang est en cours de génération
+  const isRangGenerating = useCallback((rang: 'A' | 'B' | 'AB'): boolean => {
+    return generatingRangs.has(rang);
+  }, [generatingRangs]);
+
   const startGeneration = useCallback(async ({
     rang,
     translatedLyrics,
@@ -54,6 +122,16 @@ export const useMusicGenerationOrchestrator = () => {
     onError,
     validateAndNormalizeAudioUrl
   }: GenerationConfig) => {
+    // ✅ Vérifier si déjà en cours
+    if (isRangGenerating(rang)) {
+      toast({
+        title: "Génération en cours",
+        description: `Une génération pour le Rang ${rang} est déjà en cours.`,
+        variant: "default"
+      });
+      return null;
+    }
+
     try {
       const requestBody = {
         lyrics: translatedLyrics,
@@ -68,6 +146,8 @@ export const useMusicGenerationOrchestrator = () => {
         instrumental: false
       };
 
+      console.log(`[Orchestrator] Démarrage génération Rang ${rang}`, { itemCode, model, style: selectedStyle });
+
       // Démarrer la génération avec retry automatique
       const initialData = await executeWithRetry(async () => {
         const { data, error } = await supabase.functions.invoke('generate-music', {
@@ -75,6 +155,7 @@ export const useMusicGenerationOrchestrator = () => {
         });
         
         if (error) {
+          console.error(`[Orchestrator] Erreur API:`, error);
           throw new Error(error.message || 'Erreur lors du démarrage de la génération');
         }
         
@@ -86,7 +167,7 @@ export const useMusicGenerationOrchestrator = () => {
         const validatedAudioUrl = validateAndNormalizeAudioUrl(initialData.audioUrl);
         
         toast({
-          title: "Génération réussie",
+          title: "🎵 Génération réussie !",
           description: `Musique générée avec succès pour le Rang ${rang}`,
         });
         
@@ -100,12 +181,12 @@ export const useMusicGenerationOrchestrator = () => {
         throw new Error('Aucun trackId reçu de l\'API - impossible de suivre la génération');
       }
 
-      // Ajouter aux tâches actives
-      activeTasksRef.current.add(taskId);
+      // ✅ Ajouter aux tâches actives avec persistance
+      addActiveTask(taskId, rang);
 
       // Afficher un message informatif
       toast({
-        title: "Génération démarrée",
+        title: "🎵 Génération démarrée",
         description: `Suno AI traite votre demande pour le Rang ${rang}. Cela peut prendre 2-3 minutes...`,
       });
 
@@ -115,7 +196,7 @@ export const useMusicGenerationOrchestrator = () => {
         rang,
         onProgress,
         onSuccess: (rangPolling, audioUrl) => {
-          activeTasksRef.current.delete(taskId);
+          removeActiveTask(taskId);
           const validatedAudioUrl = validateAndNormalizeAudioUrl(audioUrl);
           
           toast({
@@ -126,20 +207,26 @@ export const useMusicGenerationOrchestrator = () => {
           onSuccess(rangPolling, validatedAudioUrl);
         },
         onError: (error) => {
-          activeTasksRef.current.delete(taskId);
+          removeActiveTask(taskId);
           let errorMessage = error.message;
           let toastTitle = "Erreur de génération Suno";
           
           // Messages plus informatifs selon le type d'erreur
-          if (errorMessage.includes('Timeout')) {
+          if (errorMessage.includes('Timeout') || errorMessage.includes('timeout')) {
             toastTitle = "⏰ Génération trop longue";
             errorMessage = "L'API Suno est peut-être occupée. Réessayez dans quelques minutes.";
-          } else if (errorMessage.includes('réseau') || errorMessage.includes('consécutives')) {
+          } else if (errorMessage.includes('réseau') || errorMessage.includes('consécutives') || errorMessage.includes('network')) {
             toastTitle = "🌐 Problème de connexion";
             errorMessage = "Vérifiez votre connexion et réessayez.";
           } else if (errorMessage.includes('429') || errorMessage.includes('rate')) {
             toastTitle = "⏳ Limite de taux";
             errorMessage = "Trop de requêtes. Attendez quelques secondes.";
+          } else if (errorMessage.includes('annulée') || errorMessage.includes('cancelled')) {
+            toastTitle = "🚫 Génération annulée";
+            errorMessage = "La génération a été annulée.";
+          } else if (errorMessage.includes('crédits') || errorMessage.includes('credits')) {
+            toastTitle = "💳 Crédits insuffisants";
+            errorMessage = "Vos crédits Suno sont épuisés.";
           }
           
           toast({
@@ -156,6 +243,8 @@ export const useMusicGenerationOrchestrator = () => {
       
     } catch (error) {
       const errorMessage = (error as Error).message || "Impossible de générer la musique. Veuillez réessayer.";
+      console.error(`[Orchestrator] Erreur génération:`, error);
+      
       toast({
         title: "Erreur de génération",
         description: errorMessage,
@@ -163,26 +252,36 @@ export const useMusicGenerationOrchestrator = () => {
       });
       
       onError(error as Error);
+      return null;
     }
-  }, [toast, startPolling, executeWithRetry]);
+  }, [toast, startPolling, executeWithRetry, isRangGenerating, addActiveTask, removeActiveTask]);
 
   // Annuler une génération spécifique
   const cancelGeneration = useCallback((taskId: string) => {
+    console.log(`[Orchestrator] Annulation génération: ${taskId}`);
     stopPolling(taskId);
-    activeTasksRef.current.delete(taskId);
+    removeActiveTask(taskId);
     abortRetry();
-  }, [stopPolling, abortRetry]);
+  }, [stopPolling, removeActiveTask, abortRetry]);
 
   // Annuler toutes les générations
   const cancelAllGenerations = useCallback(() => {
+    console.log(`[Orchestrator] Annulation de toutes les générations`);
     stopAllPolling();
     activeTasksRef.current.clear();
+    saveActiveTasksToStorage(activeTasksRef.current);
+    setGeneratingRangs(new Set());
     abortRetry();
   }, [stopAllPolling, abortRetry]);
 
   // Obtenir les tâches actives
   const getActiveTasks = useCallback(() => {
-    return Array.from(activeTasksRef.current);
+    return Array.from(activeTasksRef.current.values());
+  }, []);
+
+  // ✅ Obtenir une tâche par rang
+  const getTaskByRang = useCallback((rang: 'A' | 'B' | 'AB'): GenerationTask | undefined => {
+    return Array.from(activeTasksRef.current.values()).find(task => task.rang === rang);
   }, []);
 
   return {
@@ -190,7 +289,10 @@ export const useMusicGenerationOrchestrator = () => {
     cancelGeneration,
     cancelAllGenerations,
     getActiveTasks,
+    getTaskByRang,
+    isRangGenerating,
     isRetrying,
-    retryCount
+    retryCount,
+    generatingRangs: Array.from(generatingRangs)
   };
 };
