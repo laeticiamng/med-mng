@@ -1,9 +1,10 @@
 /**
  * Hook de polling adaptatif pour la génération musicale
- * Avec retry automatique et backoff exponentiel
+ * Avec retry automatique, backoff exponentiel et circuit breaker
+ * ✅ Enrichi: Meilleure gestion des erreurs, états détaillés, persistance
  */
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PollingProgress } from '@/types/music';
 
@@ -11,6 +12,7 @@ import { PollingProgress } from '@/types/music';
 const FAST_POLL_INTERVAL = 3000;   // 3s - Début (0-30s)
 const NORMAL_POLL_INTERVAL = 5000; // 5s - Milieu (30s-2min)
 const SLOW_POLL_INTERVAL = 8000;   // 8s - Fin (2min+)
+const MAX_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes max
 
 interface PollingConfig {
   taskId: string;
@@ -27,16 +29,29 @@ interface PollingState {
   consecutiveErrors: number;
   startTime: number;
   stopped: boolean;
+  lastPollTime: number;
+  circuitBreakerOpen: boolean;
 }
 
+// ✅ Stocker les tâches actives pour persistance (survit aux re-renders)
+const activePollingTasks = new Map<string, PollingState>();
+
 export const useMusicPolling = () => {
-  const pollingStateRef = useRef<Map<string, PollingState>>(new Map());
+  const pollingStateRef = useRef<Map<string, PollingState>>(activePollingTasks);
+
+  // Cleanup au démontage
+  useEffect(() => {
+    return () => {
+      // Ne pas stopper le polling au démontage pour permettre la persistance
+      // Le composant parent peut appeler stopAllPolling si nécessaire
+    };
+  }, []);
 
   // Calculer l'intervalle adaptatif selon le temps écoulé
   const getAdaptiveInterval = (elapsedMs: number, consecutiveErrors: number): number => {
-    // Backoff exponentiel si erreurs consécutives
-    if (consecutiveErrors > 0) {
-      return Math.min(SLOW_POLL_INTERVAL * Math.pow(1.5, consecutiveErrors), 30000);
+    // Circuit breaker: si trop d'erreurs, ralentir drastiquement
+    if (consecutiveErrors >= 3) {
+      return Math.min(SLOW_POLL_INTERVAL * Math.pow(1.5, consecutiveErrors - 2), 30000);
     }
     
     // Intervalle adaptatif selon la phase
@@ -49,7 +64,7 @@ export const useMusicPolling = () => {
     }
   };
 
-  // Calculer la progression estimée
+  // Calculer la progression estimée basée sur le temps écoulé
   const calculateProgress = (elapsedMs: number): number => {
     if (elapsedMs < 30000) {
       return (elapsedMs / 30000) * 30; // 0-30%
@@ -57,10 +72,46 @@ export const useMusicPolling = () => {
       return 30 + ((elapsedMs - 30000) / 30000) * 20; // 30-50%
     } else if (elapsedMs < 120000) {
       return 50 + ((elapsedMs - 60000) / 60000) * 30; // 50-80%
-    } else if (elapsedMs < 300000) {
+    } else if (elapsedMs < MAX_TIMEOUT_MS) {
       return 80 + Math.min(((elapsedMs - 120000) / 180000) * 15, 15); // 80-95%
     }
     return 95; // Cap à 95% avant completion
+  };
+
+  // ✅ Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
+  const checkDatabaseFirst = async (taskId: string): Promise<{ found: boolean; audioUrl?: string; status?: string; error?: string }> => {
+    try {
+      const { data, error } = await supabase
+        .from('generated_music_tracks')
+        .select('audio_url, generation_status, metadata')
+        .eq('task_id', taskId)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('[useMusicPolling] Erreur BDD:', error);
+        return { found: false };
+      }
+
+      if (data?.generation_status === 'completed' && data?.audio_url) {
+        return { found: true, audioUrl: data.audio_url, status: 'completed' };
+      }
+
+      if (data?.generation_status === 'failed') {
+        const errorMsg = typeof data.metadata === 'object' && data.metadata 
+          ? (data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
+          : 'Génération échouée';
+        return { found: true, status: 'failed', error: errorMsg };
+      }
+
+      if (data?.generation_status === 'cancelled') {
+        return { found: true, status: 'cancelled', error: 'Génération annulée' };
+      }
+
+      return { found: false };
+    } catch (err) {
+      console.warn('[useMusicPolling] Exception BDD:', err);
+      return { found: false };
+    }
   };
 
   const startPolling = useCallback(({ 
@@ -72,7 +123,13 @@ export const useMusicPolling = () => {
     onError
   }: PollingConfig) => {
     const maxConsecutiveErrors = 5;
-    const maxTimeoutMs = 5 * 60 * 1000; // 5 minutes max
+
+    // ✅ Vérifier si un polling existe déjà pour ce taskId
+    const existingState = pollingStateRef.current.get(taskId);
+    if (existingState && !existingState.stopped) {
+      console.log(`[useMusicPolling] Polling déjà actif pour ${taskId}`);
+      return taskId;
+    }
 
     // Initialiser l'état
     const state: PollingState = {
@@ -80,7 +137,9 @@ export const useMusicPolling = () => {
       pollCount: 0,
       consecutiveErrors: 0,
       startTime: Date.now(),
-      stopped: false
+      stopped: false,
+      lastPollTime: 0,
+      circuitBreakerOpen: false
     };
     
     pollingStateRef.current.set(taskId, state);
@@ -92,11 +151,20 @@ export const useMusicPolling = () => {
       }
 
       currentState.pollCount++;
+      currentState.lastPollTime = Date.now();
       const elapsedMs = Date.now() - currentState.startTime;
       
-      // Timeout global
-      if (elapsedMs > maxTimeoutMs) {
+      // ✅ Timeout global
+      if (elapsedMs > MAX_TIMEOUT_MS) {
         stopPolling(taskId);
+        onProgress(rang, {
+          progress: 95,
+          attempts: currentState.pollCount,
+          maxAttempts: maxPolls,
+          estimatedTimeRemaining: 0,
+          status: 'timeout',
+          elapsedMs
+        });
         onError(new Error('Timeout de génération (5 min). Suno est peut-être occupé, réessayez.'));
         return;
       }
@@ -111,7 +179,7 @@ export const useMusicPolling = () => {
       // Calculer et reporter la progression
       const progress = calculateProgress(elapsedMs);
       const estimatedTimeRemaining = Math.max(
-        Math.round((maxTimeoutMs - elapsedMs) / 60000), 
+        Math.round((MAX_TIMEOUT_MS - elapsedMs) / 60000), 
         0
       );
       
@@ -119,10 +187,46 @@ export const useMusicPolling = () => {
         progress: Math.round(progress),
         attempts: currentState.pollCount,
         maxAttempts: maxPolls,
-        estimatedTimeRemaining
+        estimatedTimeRemaining,
+        status: 'polling',
+        elapsedMs
       });
 
       try {
+        // ✅ Vérifier d'abord en BDD (callback peut avoir déjà mis à jour)
+        const dbCheck = await checkDatabaseFirst(taskId);
+        
+        if (dbCheck.found) {
+          if (dbCheck.status === 'completed' && dbCheck.audioUrl) {
+            stopPolling(taskId);
+            onProgress(rang, {
+              progress: 100,
+              attempts: currentState.pollCount,
+              maxAttempts: maxPolls,
+              estimatedTimeRemaining: 0,
+              status: 'success',
+              elapsedMs
+            });
+            onSuccess(rang, dbCheck.audioUrl);
+            return;
+          }
+          
+          if (dbCheck.status === 'failed' || dbCheck.status === 'cancelled') {
+            stopPolling(taskId);
+            onProgress(rang, {
+              progress: 0,
+              attempts: currentState.pollCount,
+              maxAttempts: maxPolls,
+              estimatedTimeRemaining: 0,
+              status: 'error',
+              elapsedMs
+            });
+            onError(new Error(dbCheck.error || 'Génération échouée'));
+            return;
+          }
+        }
+
+        // Appeler l'edge function music-status
         const { data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
           body: { taskId }
         });
@@ -131,8 +235,18 @@ export const useMusicPolling = () => {
           currentState.consecutiveErrors++;
           console.warn(`[useMusicPolling] Erreur polling (${currentState.consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
+          // ✅ Circuit breaker
           if (currentState.consecutiveErrors >= maxConsecutiveErrors) {
+            currentState.circuitBreakerOpen = true;
             stopPolling(taskId);
+            onProgress(rang, {
+              progress: Math.round(progress),
+              attempts: currentState.pollCount,
+              maxAttempts: maxPolls,
+              estimatedTimeRemaining: 0,
+              status: 'error',
+              elapsedMs
+            });
             onError(new Error(`Erreur réseau persistante après ${currentState.consecutiveErrors} tentatives`));
             return;
           }
@@ -144,6 +258,7 @@ export const useMusicPolling = () => {
 
         // Reset erreurs consécutives sur succès
         currentState.consecutiveErrors = 0;
+        currentState.circuitBreakerOpen = false;
 
         // Vérifier si génération terminée avec succès
         if (pollData?.status === 'completed' && pollData?.audioUrl) {
@@ -153,7 +268,9 @@ export const useMusicPolling = () => {
             progress: 100,
             attempts: currentState.pollCount,
             maxAttempts: maxPolls,
-            estimatedTimeRemaining: 0
+            estimatedTimeRemaining: 0,
+            status: 'success',
+            elapsedMs
           });
           
           onSuccess(rang, pollData.audioUrl);
@@ -163,6 +280,14 @@ export const useMusicPolling = () => {
         // Vérifier si erreur définitive
         if (pollData?.status === 'failed') {
           stopPolling(taskId);
+          onProgress(rang, {
+            progress: 0,
+            attempts: currentState.pollCount,
+            maxAttempts: maxPolls,
+            estimatedTimeRemaining: 0,
+            status: 'error',
+            elapsedMs
+          });
           onError(new Error(pollData.error || 'Génération échouée'));
           return;
         }
@@ -218,9 +343,25 @@ export const useMusicPolling = () => {
     });
   }, [stopPolling]);
 
+  // ✅ Obtenir les tâches actives
+  const getActivePollingTasks = useCallback((): string[] => {
+    return Array.from(pollingStateRef.current.keys()).filter(taskId => {
+      const state = pollingStateRef.current.get(taskId);
+      return state && !state.stopped;
+    });
+  }, []);
+
+  // ✅ Vérifier si une tâche est en polling
+  const isPolling = useCallback((taskId: string): boolean => {
+    const state = pollingStateRef.current.get(taskId);
+    return state !== undefined && !state.stopped;
+  }, []);
+
   return {
     startPolling,
     stopPolling,
-    stopAllPolling
+    stopAllPolling,
+    getActivePollingTasks,
+    isPolling
   };
 };

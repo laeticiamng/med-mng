@@ -141,26 +141,34 @@ export const isRetryableError = (error: Error): boolean => {
   const message = error.message.toLowerCase();
   
   // Erreurs réseau
-  if (message.includes('network') || message.includes('fetch')) return true;
+  if (message.includes('network') || message.includes('fetch') || message.includes('failed to fetch')) return true;
   
   // Timeouts
-  if (message.includes('timeout') || message.includes('408')) return true;
+  if (message.includes('timeout') || message.includes('408') || message.includes('timed out')) return true;
   
   // Rate limiting (429) ou service unavailable (503)
-  if (message.includes('429') || message.includes('503')) return true;
+  if (message.includes('429') || message.includes('503') || message.includes('rate limit')) return true;
   
   // Erreurs temporaires Suno
   if (message.includes('455') || message.includes('430') || message.includes('405')) return true;
+  if (message.includes('suno') && (message.includes('busy') || message.includes('occupé'))) return true;
   
   // Erreurs de connexion
-  if (message.includes('connection') || message.includes('econnreset')) return true;
+  if (message.includes('connection') || message.includes('econnreset') || message.includes('econnrefused')) return true;
   
   // Ne pas retry les erreurs d'authentification ou de crédits
-  if (message.includes('401') || message.includes('402') || message.includes('credits')) return false;
-  if (message.includes('authorization') || message.includes('unauthorized')) return false;
+  if (message.includes('401') || message.includes('402') || message.includes('credits') || message.includes('crédits')) return false;
+  if (message.includes('authorization') || message.includes('unauthorized') || message.includes('authentification')) return false;
+  if (message.includes('quota') || message.includes('limit exceeded')) return false;
   
   // Par défaut, retry les erreurs 5xx
   if (message.includes('500') || message.includes('502') || message.includes('504')) return true;
   
+  // Erreurs CORS ou de parsing
+  if (message.includes('cors') || message.includes('json') || message.includes('parsing')) return false;
+  
   return false;
 };
+
+// ✅ Types exportés pour utilisation externe
+export type RetryableErrorChecker = typeof isRetryableError;

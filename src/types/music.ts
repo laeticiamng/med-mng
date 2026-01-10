@@ -1,5 +1,6 @@
 /**
  * Music generation and playback types
+ * ✅ Enrichi: Types complets pour génération, polling, batch et filtres
  */
 
 export interface Track {
@@ -50,12 +51,19 @@ export interface MusicGenerationMetadata {
   prompt?: string;
   duration?: number;
   title?: string;
+  itemCode?: string;
+  rang?: string;
+  style?: string;
+  language?: string;
+  generatedAt?: string;
+  vocalGender?: VocalGender;
+  negativeTags?: string;
   [key: string]: unknown;
 }
 
 export interface MusicGenerationStatus {
   taskId: string;
-  status: 'generating' | 'text_complete' | 'completed' | 'failed';
+  status: 'generating' | 'text_complete' | 'completed' | 'failed' | 'cancelled';
   audioUrl?: string;
   streamUrl?: string;
   imageUrl?: string;
@@ -64,12 +72,13 @@ export interface MusicGenerationStatus {
   error?: string;
 }
 
+// ✅ Enrichi avec status et elapsedMs
 export interface PollingProgress {
   progress: number;
   attempts: number;
   maxAttempts: number;
   estimatedTimeRemaining: number;
-  status?: 'polling' | 'success' | 'error' | 'timeout';
+  status?: 'polling' | 'success' | 'error' | 'timeout' | 'cancelled';
   elapsedMs?: number;
 }
 
@@ -80,6 +89,7 @@ export interface BatchDownloadTrack {
   item_code?: string;
   rang?: string;
   audio_url: string;
+  music_style?: string;
 }
 
 // ✅ Types pour l'historique de génération
@@ -94,9 +104,55 @@ export interface GeneratedTrack {
   is_favorite?: boolean;
   duration?: number;
   metadata?: MusicGenerationMetadata;
+  task_id?: string;
+  generation_status?: 'generating' | 'completed' | 'failed' | 'cancelled';
 }
 
 // ✅ Types pour les filtres
-export type GenerationFilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
-export type GenerationSortType = 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';
-export type GenerationDateRangeType = 'all' | 'today' | 'week' | 'month';
+export type GenerationFilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab' | 'completed' | 'generating';
+export type GenerationSortType = 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc' | 'duration_asc' | 'duration_desc';
+export type GenerationDateRangeType = 'all' | 'today' | 'week' | 'month' | 'year';
+
+// ✅ Types pour les tâches de génération
+export interface GenerationTask {
+  taskId: string;
+  rang: 'A' | 'B' | 'AB';
+  startTime: number;
+  status: 'pending' | 'generating' | 'completed' | 'failed' | 'cancelled';
+  itemCode?: string;
+  style?: string;
+  error?: string;
+}
+
+// ✅ Types pour les erreurs de génération
+export interface GenerationError {
+  code: string;
+  message: string;
+  retryable: boolean;
+  suggestion?: string;
+}
+
+// ✅ Types pour les statistiques de génération
+export interface GenerationStats {
+  totalGenerations: number;
+  successfulGenerations: number;
+  failedGenerations: number;
+  averageDuration: number;
+  favoriteCount: number;
+  byRang: {
+    A: number;
+    B: number;
+    AB: number;
+  };
+  byStyle: Record<string, number>;
+}
+
+// ✅ Types pour les crédits Suno
+export interface SunoCreditsInfo {
+  credits: number;
+  plan: string;
+  used: number;
+  total: number;
+  hasLowCredits: boolean;
+  hasNoCredits: boolean;
+}
