@@ -20,6 +20,10 @@ import { GeneratorForm } from '@/components/generator/GeneratorForm';
 import { GenerationHistory } from '@/components/generator/GenerationHistory';
 import { GenerationProgress } from '@/components/generator/GenerationProgress';
 import { GeneratorStatusBar } from '@/components/generator/GeneratorStatusBar';
+import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
+import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndicator';
+import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
+import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
@@ -28,6 +32,7 @@ import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
 import { useGenerationNotifications } from '@/components/generator/GenerationNotificationHandler';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
+import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -144,7 +149,8 @@ const Generator = () => {
     return false;
   }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation, ecosLyrics]);
 
-  const handleGenerate = useCallback(async () => {
+  // ✅ Handler de génération avec support des paramètres avancés
+  const handleGenerate = useCallback(async (advancedParams?: Partial<AdvancedSunoParams>) => {
     if (!canGenerate()) {
       toast.error('Veuillez sélectionner tous les paramètres requis');
       return;
@@ -200,6 +206,11 @@ const Generator = () => {
       // Marquer le début de la génération
       setGenerationStartTime(Date.now());
       
+      // ✅ Log des paramètres avancés si présents
+      if (advancedParams && Object.keys(advancedParams).length > 0) {
+        console.log('[Generator] Paramètres avancés Suno:', advancedParams);
+      }
+      
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
       const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
       toast.dismiss(loadingToast);
@@ -233,7 +244,8 @@ const Generator = () => {
           metadata: { 
             itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
             style: selectedStyle,
-            rang
+            rang,
+            advancedParams: advancedParams ? Object.keys(advancedParams) : []
           }
         });
         
@@ -321,10 +333,21 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
-          {/* Barre de statut globale (réseau, temps réel, crédits) */}
-          <GeneratorStatusBar 
-            isConnected={realtimeConnected}
-            musicQuota={musicQuota}
+          {/* ✅ Indicateur réseau global */}
+          <div className="flex items-center justify-between mb-4">
+            <GeneratorStatusBar 
+              isConnected={realtimeConnected}
+              musicQuota={musicQuota}
+              className="flex-1"
+            />
+            <NetworkStatusIndicator showLabel notifyOnChange className="ml-2" />
+          </div>
+
+          {/* ✅ Bannière d'avertissement quota/crédits */}
+          <QuotaWarningBanner
+            usagePercentage={musicQuota?.current_usage && musicQuota?.quota_limit ? (musicQuota.current_usage / musicQuota.quota_limit) * 100 : 0}
+            hasNoCredits={false}
+            hasLowCredits={musicQuota?.current_usage && musicQuota?.quota_limit ? (musicQuota.quota_limit - musicQuota.current_usage) <= 5 : false}
             className="mb-4"
           />
 
@@ -394,10 +417,23 @@ const Generator = () => {
             onRetry={handleGenerate}
           />
 
+          {/* ✅ Ajout rapide à une playlist après génération */}
+          {generatedSong && (
+            <PlaylistQuickAdd
+              trackId={String(generatedSong.id)}
+              trackTitle={generatedSong.title}
+              audioUrl={generatedSong.audioUrl}
+              className="my-4"
+            />
+          )}
+
           {/* Historique des générations */}
           <div className="my-8">
             <GenerationHistory />
           </div>
+          
+          {/* ✅ Drawer mobile pour l'historique récent */}
+          <MobileHistoryDrawer />
 
           <PremiumCard variant="glass" className="p-4 sm:p-6 md:p-8" role="region" aria-labelledby="help-heading">
             <h3 id="help-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
