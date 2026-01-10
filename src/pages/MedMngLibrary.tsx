@@ -76,12 +76,9 @@ const MedMngLibraryComponent = () => {
     queryKey: ['med-mng-library', currentPage],
     queryFn: async () => {
       try {
-        console.log('📚 Chargement de la bibliothèque...');
         const result = await medMngApi.getLibrary(currentPage, 12);
-        console.log('✅ Bibliothèque chargée:', result);
         return result;
       } catch (err) {
-        console.error('❌ Erreur chargement bibliothèque:', err);
         return [];
       }
     },
@@ -104,8 +101,7 @@ const MedMngLibraryComponent = () => {
     queryFn: async () => {
       try {
         return await medMngApi.getRemainingQuota();
-      } catch (err) {
-        console.error('❌ Erreur chargement quota:', err);
+      } catch {
         return { remaining_credits: 0 };
       }
     },

@@ -77,7 +77,6 @@ export const useSunoMusicGeneration = () => {
             .maybeSingle();
 
           if (dbTrack?.audio_url && dbTrack.generation_status === 'completed') {
-            console.log('✅ Audio trouvé en BDD:', dbTrack.audio_url);
             setPollingProgress(100);
             clearTimeout(absoluteTimeout);
             if (pollingRef.current) clearTimeout(pollingRef.current);
@@ -101,11 +100,9 @@ export const useSunoMusicGeneration = () => {
           });
 
           if (error) {
-            console.error('Erreur polling:', error);
             networkRetries++;
             
             if (networkRetries >= RETRY_POLL_ATTEMPTS) {
-              console.warn('⚠️ Trop d\'erreurs réseau, continue le polling');
               networkRetries = 0;
             }
             
@@ -119,7 +116,6 @@ export const useSunoMusicGeneration = () => {
             networkRetries = 0;
 
             if (data?.status === 'completed' && data.audioUrl) {
-              console.log('✅ Audio récupéré via polling:', data.audioUrl);
               setPollingProgress(100);
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
@@ -150,7 +146,6 @@ export const useSunoMusicGeneration = () => {
             pollingRef.current = setTimeout(checkStatus, interval) as unknown as NodeJS.Timeout;
           }
         } catch (err) {
-          console.error('Erreur pendant le polling:', err);
           networkRetries++;
           
           if (attempts >= MAX_POLL_ATTEMPTS || abortRef.current) {
@@ -252,8 +247,6 @@ export const useSunoMusicGeneration = () => {
 
   // Arrêter le polling en cours et réinitialiser tous les états
   const cancelGeneration = useCallback((rang?: 'A' | 'B' | 'AB') => {
-    console.log('[cancelGeneration] Annulation demandée pour rang:', rang || 'tous');
-    
     // Forcer l'arrêt du polling via le flag
     abortRef.current = true;
     
