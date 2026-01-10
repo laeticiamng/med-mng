@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Square, CheckSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
+import { BatchActionsBar } from './BatchActionsBar';
+import { GenerationStats } from './GenerationStats';
+import { MusicListSkeleton } from '@/components/ui/skeleton-loader';
 
 interface GeneratedTrack {
   id: string;
@@ -37,6 +41,9 @@ export const GenerationHistory: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -327,6 +334,88 @@ export const GenerationHistory: React.FC = () => {
     }
   }, [filteredHistory]);
 
+  // === BATCH ACTIONS ===
+  const toggleSelection = useCallback((trackId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(trackId)) {
+        next.delete(trackId);
+      } else {
+        next.add(trackId);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(filteredHistory.map(t => t.id)));
+  }, [filteredHistory]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleBatchDelete = useCallback(async () => {
+    if (!user || selectedIds.size === 0) return;
+    
+    setIsBatchDeleting(true);
+    try {
+      const idsToDelete = Array.from(selectedIds);
+      const { error } = await supabase
+        .from('user_generated_music')
+        .delete()
+        .in('id', idsToDelete)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setHistory(prev => prev.filter(t => !selectedIds.has(t.id)));
+      toast.success(`${idsToDelete.length} génération(s) supprimée(s)`);
+      clearSelection();
+    } catch (err) {
+      console.error('Erreur suppression batch:', err);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setIsBatchDeleting(false);
+    }
+  }, [user, selectedIds, clearSelection]);
+
+  const handleBatchFavorite = useCallback(async () => {
+    if (!user || selectedIds.size === 0) return;
+    
+    try {
+      const idsToUpdate = Array.from(selectedIds);
+      const { error } = await supabase
+        .from('user_generated_music')
+        .update({ is_favorite: true })
+        .in('id', idsToUpdate)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setHistory(prev => prev.map(t => 
+        selectedIds.has(t.id) ? { ...t, is_favorite: true } : t
+      ));
+      toast.success(`${idsToUpdate.length} ajouté(s) aux favoris`);
+      clearSelection();
+    } catch (err) {
+      console.error('Erreur favoris batch:', err);
+      toast.error('Erreur lors de la mise à jour');
+    }
+  }, [user, selectedIds, clearSelection]);
+
+  const handleBatchDownload = useCallback(async () => {
+    const tracksToDownload = history.filter(t => selectedIds.has(t.id));
+    
+    for (const track of tracksToDownload) {
+      await handleDownload(track);
+      // Petit délai entre les téléchargements
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    clearSelection();
+  }, [history, selectedIds, handleDownload, clearSelection]);
+
   // Historique réservé aux utilisateurs connectés
   if (!user) {
     return (
@@ -342,10 +431,11 @@ export const GenerationHistory: React.FC = () => {
   if (loading) {
     return (
       <PremiumCard variant="glass" className="p-6">
-        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-          <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
-          <span>Chargement de l'historique...</span>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-5 w-5 text-primary" />
+          <span className="font-semibold">Historique</span>
         </div>
+        <MusicListSkeleton count={5} />
       </PremiumCard>
     );
   }
@@ -372,6 +462,25 @@ export const GenerationHistory: React.FC = () => {
           </h3>
           
           <div className="flex items-center gap-1">
+            {/* Bouton statistiques */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant={showStats ? "default" : "ghost"}
+                    onClick={() => setShowStats(!showStats)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{showStats ? 'Masquer' : 'Afficher'} statistiques</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             {/* Bouton rafraîchir */}
             <TooltipProvider>
               <Tooltip>
@@ -438,6 +547,11 @@ export const GenerationHistory: React.FC = () => {
             )}
           </div>
         </div>
+        
+        {/* Statistiques */}
+        {showStats && (
+          <GenerationStats tracks={history} className="mb-2" />
+        )}
         
         {/* Search and filter row */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -616,6 +730,18 @@ export const GenerationHistory: React.FC = () => {
           )}
         </>
       )}
+      
+      {/* Barre d'actions batch */}
+      <BatchActionsBar
+        selectedCount={selectedIds.size}
+        onDeleteSelected={handleBatchDelete}
+        onFavoriteSelected={handleBatchFavorite}
+        onDownloadSelected={handleBatchDownload}
+        onClearSelection={clearSelection}
+        onSelectAll={selectAll}
+        totalCount={filteredHistory.length}
+        isDeleting={isBatchDeleting}
+      />
     </PremiumCard>
   );
 };
