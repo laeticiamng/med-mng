@@ -151,6 +151,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   return {
     ...state,
     fetchCredits,
+    refetch: fetchCredits, // ✅ Alias pour compatibilité
     hasLowCredits,
     hasNoCredits,
     creditsUnknown,

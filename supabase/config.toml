@@ -196,7 +196,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.suno-credits]
-verify_jwt = true
+verify_jwt = false
 
 [functions.suno-extend-music]
 verify_jwt = true

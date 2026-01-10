@@ -69,4 +69,34 @@ export interface PollingProgress {
   attempts: number;
   maxAttempts: number;
   estimatedTimeRemaining: number;
+  status?: 'polling' | 'success' | 'error' | 'timeout';
+  elapsedMs?: number;
 }
+
+// ✅ Types pour le téléchargement batch
+export interface BatchDownloadTrack {
+  id: string;
+  title?: string;
+  item_code?: string;
+  rang?: string;
+  audio_url: string;
+}
+
+// ✅ Types pour l'historique de génération
+export interface GeneratedTrack {
+  id: string;
+  item_code: string;
+  rang: string;
+  music_style: string;
+  audio_url: string;
+  created_at: string;
+  title?: string;
+  is_favorite?: boolean;
+  duration?: number;
+  metadata?: MusicGenerationMetadata;
+}
+
+// ✅ Types pour les filtres
+export type GenerationFilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
+export type GenerationSortType = 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';
+export type GenerationDateRangeType = 'all' | 'today' | 'week' | 'month';
