@@ -140,7 +140,23 @@ export const AudioWaveform: React.FC<AudioWaveformProps> = ({
         className
       )}
       onClick={handleClick}
-      title="Cliquez pour naviguer"
+      title="Cliquez pour naviguer dans la piste"
+      role="slider"
+      aria-label="Position de lecture audio"
+      aria-valuemin={0}
+      aria-valuemax={duration}
+      aria-valuenow={currentTime}
+      aria-valuetext={`${Math.round(currentTime)} secondes sur ${Math.round(duration)}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (!onSeek || duration <= 0) return;
+        const step = duration / 20; // 5% par touche
+        if (e.key === 'ArrowRight') {
+          onSeek(Math.min(duration, currentTime + step));
+        } else if (e.key === 'ArrowLeft') {
+          onSeek(Math.max(0, currentTime - step));
+        }
+      }}
     />
   );
 };

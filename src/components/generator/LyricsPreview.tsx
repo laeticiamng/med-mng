@@ -50,10 +50,15 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
   const isNearLimit = charCount > 2500 && charCount <= 3000;
 
   return (
-    <PremiumCard variant="glass" className={`p-4 ${className}`}>
+    <PremiumCard 
+      variant="glass" 
+      className={`p-4 ${className}`}
+      role="region"
+      aria-label={`Aperçu des paroles${title ? ` - ${title}` : ''}`}
+    >
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2 flex-wrap">
-          <Music className="h-4 w-4 text-primary" />
+          <Music className="h-4 w-4 text-primary" aria-hidden="true" />
           <span className="font-medium text-sm text-foreground">
             {title || 'Paroles'}
           </span>
@@ -62,18 +67,24 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
               Rang {rang}
             </Badge>
           )}
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs" aria-label={`${lineCount} lignes`}>
             {lineCount} lignes
           </Badge>
           <Badge 
             variant={isOverLimit ? "destructive" : isNearLimit ? "outline" : "secondary"} 
             className={`text-xs ${isNearLimit && !isOverLimit ? 'border-warning text-warning' : ''}`}
+            aria-label={`${charCount} caractères, ${wordCount} mots`}
           >
             {charCount} car. / {wordCount} mots
           </Badge>
           {isOverLimit && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="destructive" className="text-xs" role="alert">
               ⚠️ Trop long (max 3000)
+            </Badge>
+          )}
+          {isNearLimit && !isOverLimit && (
+            <Badge variant="outline" className="text-xs border-warning text-warning">
+              ⚠️ Proche limite
             </Badge>
           )}
         </div>
@@ -82,11 +93,12 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
           size="sm"
           onClick={handleCopy}
           className="h-8 px-2"
+          aria-label={copied ? "Paroles copiées" : "Copier les paroles"}
         >
           {copied ? (
-            <Check className="h-4 w-4 text-success" />
+            <Check className="h-4 w-4 text-success" aria-hidden="true" />
           ) : (
-            <Copy className="h-4 w-4" />
+            <Copy className="h-4 w-4" aria-hidden="true" />
           )}
         </Button>
       </div>
@@ -95,10 +107,15 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
         className={`text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 rounded-lg p-3 ${
           isExpanded ? 'max-h-[300px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'
         }`}
+        role="textbox"
+        aria-readonly="true"
+        aria-multiline="true"
+        aria-label="Contenu des paroles"
+        tabIndex={0}
       >
         {isExpanded ? lyricsText : previewLines}
         {!isExpanded && hasMore && (
-          <span className="text-primary">...</span>
+          <span className="text-primary" aria-hidden="true">...</span>
         )}
       </div>
 
@@ -108,15 +125,17 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
           className="w-full mt-2 h-8"
+          aria-expanded={isExpanded}
+          aria-controls="lyrics-content"
         >
           {isExpanded ? (
             <>
-              <ChevronUp className="h-4 w-4 mr-1" />
+              <ChevronUp className="h-4 w-4 mr-1" aria-hidden="true" />
               Réduire
             </>
           ) : (
             <>
-              <ChevronDown className="h-4 w-4 mr-1" />
+              <ChevronDown className="h-4 w-4 mr-1" aria-hidden="true" />
               Voir tout ({lineCount} lignes)
             </>
           )}
