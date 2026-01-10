@@ -9,6 +9,7 @@ export const ROUTE_PATHS = {
   platformSettings: '/platform-settings',
   optimizedIndex: '/optimized',
   generator: '/generator',
+  sharedMusic: '/shared-music/:trackId',
   ednComplete: '/edn-complete',
   ednCompleteDetail: '/edn-complete/:slug',
   ednImmersive: '/edn/:slug/immersive',
