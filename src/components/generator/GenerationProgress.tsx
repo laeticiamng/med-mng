@@ -85,9 +85,9 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
   // Return early APRÈS tous les hooks
   if (!isGenerating) return null;
 
-  // Détection des seuils de timeout
-  const isWarningTimeout = elapsedSeconds > 120 && progress < 90;
-  const isCriticalTimeout = elapsedSeconds > 240 && progress < 95;
+  // Détection des seuils de timeout (alignés avec ABSOLUTE_TIMEOUT de 5 min)
+  const isWarningTimeout = elapsedSeconds > 180 && progress < 80; // 3 min warning
+  const isCriticalTimeout = elapsedSeconds > 300 && progress < 95; // 5 min critical
 
   return (
     <PremiumCard variant="gradient" className={`p-6 mb-6 ${isCriticalTimeout ? 'border-destructive/50' : isWarningTimeout ? 'border-warning/50' : ''}`}>
@@ -168,23 +168,26 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
         </p>
       </div>
       
-      {/* Message d'avertissement timeout - après 2 minutes */}
+      {/* Message d'avertissement timeout - après 3 minutes */}
       {isWarningTimeout && !isCriticalTimeout && (
         <div className="mt-3 p-2 bg-warning/10 border border-warning/20 rounded-lg">
           <p className="text-xs text-warning font-medium">
-            ⚠️ La génération prend plus de temps que prévu ({Math.floor(elapsedSeconds / 60)}+ min).
+            ⚠️ La génération prend plus de temps que prévu ({Math.floor(elapsedSeconds / 60)}+ min). L'API Suno peut être occupée.
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Vous pouvez annuler et réessayer ou patienter encore un peu.
+            La génération peut prendre jusqu'à 5 minutes. Patientez ou annulez pour réessayer.
           </p>
         </div>
       )}
       
-      {/* Message d'erreur timeout critique - après 4 minutes */}
+      {/* Message d'erreur timeout critique - après 5 minutes */}
       {isCriticalTimeout && (
         <div className="mt-3 p-2 bg-destructive/10 border border-destructive/20 rounded-lg">
           <p className="text-xs text-destructive font-medium">
-            ❌ Délai critique dépassé ({Math.floor(elapsedSeconds / 60)} min). Il est recommandé d'annuler et de réessayer.
+            ❌ Délai critique dépassé ({Math.floor(elapsedSeconds / 60)} min). La génération a échoué.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Cliquez sur "Annuler" pour réessayer avec de nouveaux paramètres.
           </p>
         </div>
       )}
