@@ -112,42 +112,44 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
   return (
     <PremiumCard 
       variant="gradient" 
-      className={`p-6 mb-6 ${isCriticalTimeout ? 'border-destructive/50' : isWarningTimeout ? 'border-warning/50' : ''}`}
+      className={`p-3 sm:p-6 mb-4 sm:mb-6 ${isCriticalTimeout ? 'border-destructive/50' : isWarningTimeout ? 'border-warning/50' : ''}`}
       role="status"
       aria-live="polite"
       aria-label={`Génération en cours: ${Math.round(progress)}%`}
     >
-      <div className="flex items-center gap-4 mb-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+      {/* Header - responsive layout */}
+      <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${
           isCriticalTimeout 
             ? 'bg-gradient-to-br from-destructive/20 to-destructive/10' 
             : 'bg-gradient-to-br from-primary to-primary/60'
         }`}>
           {isCriticalTimeout ? (
-            <AlertCircle className="h-6 w-6 text-destructive" />
+            <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
           ) : progress >= 95 ? (
-            <CheckCircle2 className="h-6 w-6 text-primary-foreground animate-pulse" />
+            <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground animate-pulse" />
           ) : (
-            <Music className="h-6 w-6 text-primary-foreground animate-bounce" />
+            <Music className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground animate-bounce" />
           )}
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-foreground flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            {currentPhase.label}
-            <Badge variant="outline" className="text-xs ml-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-foreground flex flex-wrap items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+            <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin shrink-0" aria-hidden="true" />
+            <span className="truncate">{currentPhase.label}</span>
+            <Badge variant="outline" className="text-[10px] sm:text-xs shrink-0">
               {currentPhase.duration}
             </Badge>
             {rang && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">
                 Rang {rang}
               </Badge>
             )}
           </h3>
-          <p className="text-sm text-muted-foreground flex items-center gap-2">
-            {message} • {Math.round(progress)}%
+          <p className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
+            <span className="truncate">{message}</span>
+            <span className="font-medium">{Math.round(progress)}%</span>
             {estimatedTimeRemaining && (
-              <span className="flex items-center gap-1 text-primary">
+              <span className="flex items-center gap-1 text-primary shrink-0">
                 <Clock className="h-3 w-3" aria-hidden="true" />
                 {estimatedTimeRemaining}
               </span>
@@ -155,49 +157,52 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
           </p>
         </div>
         
-        {/* ✅ Indicateur réseau */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={`p-2 rounded-full ${isOnline ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                {isOnline ? (
-                  <Wifi className="h-4 w-4 text-success" aria-label="Connecté" />
-                ) : (
-                  <WifiOff className="h-4 w-4 text-destructive" aria-label="Hors ligne" />
-                )}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isOnline ? 'Connexion active' : 'Hors ligne - La génération reprendra automatiquement'}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        {/* Bouton annuler */}
-        {onCancel && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCancel}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            aria-label="Annuler la génération"
-          >
-            <X className="h-4 w-4 mr-1" aria-hidden="true" />
-            <TranslatedText text="Annuler" />
-          </Button>
-        )}
+        {/* Actions - mobile: stack vertically */}
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Indicateur réseau */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={`p-1.5 sm:p-2 rounded-full ${isOnline ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                  {isOnline ? (
+                    <Wifi className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success" aria-label="Connecté" />
+                  ) : (
+                    <WifiOff className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" aria-label="Hors ligne" />
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isOnline ? 'Connexion active' : 'Hors ligne - La génération reprendra automatiquement'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {/* Bouton annuler */}
+          {onCancel && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2 sm:px-3 text-xs sm:text-sm"
+              aria-label="Annuler la génération"
+            >
+              <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" aria-hidden="true" />
+              <span className="hidden sm:inline"><TranslatedText text="Annuler" /></span>
+            </Button>
+          )}
+        </div>
       </div>
       
       <Progress 
         value={progress} 
-        className={`h-3 ${isCriticalTimeout ? '[&>div]:bg-destructive' : isWarningTimeout ? '[&>div]:bg-warning' : ''}`}
+        className={`h-2 sm:h-3 ${isCriticalTimeout ? '[&>div]:bg-destructive' : isWarningTimeout ? '[&>div]:bg-warning' : ''}`}
         aria-valuenow={progress}
         aria-valuemin={0}
         aria-valuemax={100}
       />
       
-      {/* Indicateurs de phases visuels */}
-      <div className="flex items-center justify-between mt-2 mb-3" aria-hidden="true">
+      {/* Indicateurs de phases visuels - hidden on small mobile */}
+      <div className="hidden xs:flex items-center justify-between mt-2 mb-2 sm:mb-3" aria-hidden="true">
         {GENERATION_PHASES.filter((_, i) => i % 2 === 0).map((phase, idx) => (
           <div 
             key={idx} 
@@ -208,33 +213,34 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
         ))}
       </div>
       
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground flex items-center gap-2">
-          <Clock className="h-3 w-3" aria-hidden="true" />
+      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1 xs:gap-2 mt-2">
+        <p className="text-[10px] sm:text-xs text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2">
+          <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
           <span>Écoulé: {formatElapsed(elapsedSeconds)}</span>
           {taskId && (
-            <span className="text-muted-foreground/50 font-mono text-[10px]">
+            <span className="text-muted-foreground/50 font-mono text-[10px] hidden sm:inline">
               ID: {taskId.substring(0, 8)}...
             </span>
           )}
           {progress >= 95 && (
-            <span className="ml-2 text-success font-medium animate-pulse">
+            <span className="text-success font-medium animate-pulse">
               ✨ Presque terminé !
             </span>
           )}
         </p>
-        <p className="text-xs text-warning">
-          ⚠️ <TranslatedText text="Ne fermez pas cette page" />
+        <p className="text-[10px] sm:text-xs text-warning shrink-0">
+          ⚠️ <span className="hidden sm:inline"><TranslatedText text="Ne fermez pas cette page" /></span>
+          <span className="sm:hidden">Ne pas fermer</span>
         </p>
       </div>
       
       {/* Message d'avertissement timeout - après 3 minutes */}
       {isWarningTimeout && !isCriticalTimeout && (
-        <div className="mt-3 p-2 bg-warning/10 border border-warning/20 rounded-lg" role="alert">
-          <p className="text-xs text-warning font-medium">
-            ⚠️ La génération prend plus de temps que prévu ({Math.floor(elapsedSeconds / 60)}+ min). L'API Suno peut être occupée.
+        <div className="mt-2 sm:mt-3 p-2 bg-warning/10 border border-warning/20 rounded-lg" role="alert">
+          <p className="text-[10px] sm:text-xs text-warning font-medium">
+            ⚠️ Génération longue ({Math.floor(elapsedSeconds / 60)}+ min) - API occupée
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 hidden sm:block">
             La génération peut prendre jusqu'à 5 minutes. Patientez ou annulez pour réessayer.
           </p>
         </div>

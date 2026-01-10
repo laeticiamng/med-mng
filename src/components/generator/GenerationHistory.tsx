@@ -713,14 +713,14 @@ export const GenerationHistory: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 sm:space-y-3 max-h-[350px] sm:max-h-[400px] overflow-y-auto">
             {paginatedHistory.map((track) => {
               const isCurrentlyPlaying = currentTrack?.url === track.audio_url && isPlaying;
               
               return (
                 <div 
                   key={track.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                  className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-all ${
                     selectedIds.has(track.id) 
                       ? 'bg-primary/5 border-primary/40' 
                       : isCurrentlyPlaying 
@@ -728,31 +728,31 @@ export const GenerationHistory: React.FC = () => {
                         : 'bg-card/50 border-border/30 hover:bg-card/80'
                   }`}
                 >
-                  {/* Checkbox de sélection */}
+                  {/* Checkbox de sélection - plus petit sur mobile */}
                   <Checkbox
                     checked={selectedIds.has(track.id)}
                     onCheckedChange={() => toggleSelection(track.id)}
-                    className="shrink-0"
+                    className="shrink-0 h-4 w-4 sm:h-5 sm:w-5"
                     aria-label={`Sélectionner ${track.title || track.item_code}`}
                   />
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       {track.is_favorite && (
-                        <Heart className="h-3 w-3 text-destructive fill-destructive" />
+                        <Heart className="h-3 w-3 text-destructive fill-destructive shrink-0" />
                       )}
-                      <p className="font-medium text-foreground truncate">
+                      <p className="font-medium text-foreground truncate text-sm sm:text-base">
                         {track.title || `${track.item_code} - Rang ${track.rang}`}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                      <Badge variant="outline" className="text-xs">
+                    <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground flex-wrap mt-0.5">
+                      <Badge variant="outline" className="text-[10px] sm:text-xs px-1 sm:px-2 h-4 sm:h-5">
                         {track.music_style}
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1 sm:px-2 h-4 sm:h-5">
                         {track.rang}
                       </Badge>
-                      <span>
+                      <span className="hidden xs:inline">
                         {formatDistanceToNow(new Date(track.created_at), { 
                           addSuffix: true, 
                           locale: fr 
@@ -761,56 +761,57 @@ export const GenerationHistory: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  {/* Actions - optimisées mobile */}
+                  <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                     <Button
                       size="sm"
                       variant={isCurrentlyPlaying ? "default" : "outline"}
                       onClick={() => handlePlay(track)}
-                      className="h-8 w-8 p-0"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                       aria-label={isCurrentlyPlaying ? "Pause" : "Lecture"}
                     >
                       {isCurrentlyPlaying ? (
-                        <Pause className="h-4 w-4" />
+                        <Pause className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       ) : (
-                        <Play className="h-4 w-4" />
+                        <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       )}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleDownload(track)}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-foreground"
                       aria-label="Télécharger"
                     >
-                      <Download className="h-4 w-4" />
+                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleToggleFavorite(track.id, track.is_favorite || false)}
-                      className={`h-8 w-8 p-0 ${track.is_favorite ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'}`}
+                      className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${track.is_favorite ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'}`}
                       aria-label={track.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"}
                     >
-                      <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
+                      <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
                     </Button>
-                    {/* Bouton partage */}
+                    {/* Bouton partage - hidden on very small screens */}
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setShareTrack(track)}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                      className="hidden xs:flex h-7 w-7 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-primary"
                       aria-label="Partager"
                     >
-                      <Share2 className="h-4 w-4" />
+                      <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleDeleteClick(track.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                       aria-label="Supprimer"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 </div>
@@ -818,11 +819,11 @@ export const GenerationHistory: React.FC = () => {
             })}
           </div>
           
-          {/* Pagination */}
+          {/* Pagination - responsive */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
-              <p className="text-xs text-muted-foreground">
-                Page {currentPage} sur {totalPages} ({filteredHistory.length} résultats)
+            <div className="flex flex-col xs:flex-row items-center justify-between gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/30">
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Page {currentPage}/{totalPages} ({filteredHistory.length} résultats)
               </p>
               <div className="flex items-center gap-2">
                 <Button
@@ -830,18 +831,18 @@ export const GenerationHistory: React.FC = () => {
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>

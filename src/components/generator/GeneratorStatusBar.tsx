@@ -44,9 +44,9 @@ export const GeneratorStatusBar: React.FC<GeneratorStatusBarProps> = ({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Ligne de statut principale */}
-      <div className="flex items-center justify-between gap-2 p-2 bg-muted/30 rounded-lg">
-        <div className="flex items-center gap-2">
+      {/* Ligne de statut principale - responsive */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-muted/30 rounded-lg">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Indicateur réseau (s'affiche seulement si problème) */}
           <NetworkStatusIndicator showLabel className="text-xs" />
           
@@ -58,17 +58,17 @@ export const GeneratorStatusBar: React.FC<GeneratorStatusBarProps> = ({
             />
           )}
           
-          {/* ✅ Indicateur si données du cache */}
+          {/* Indicateur si données du cache */}
           {isFromCache && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              className="h-6 px-1.5 sm:px-2 text-[10px] sm:text-xs text-muted-foreground hover:text-foreground"
               onClick={() => fetchCredits()}
               title="Données en cache, cliquez pour rafraîchir"
             >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Cache
+              <RefreshCw className="h-3 w-3 mr-0.5 sm:mr-1" />
+              <span className="hidden xs:inline">Cache</span>
             </Button>
           )}
         </div>
@@ -76,8 +76,8 @@ export const GeneratorStatusBar: React.FC<GeneratorStatusBarProps> = ({
         {/* Crédits Suno - avec skeleton pendant chargement */}
         {user && (
           creditsLoading ? (
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-5 w-20" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Skeleton className="h-5 w-16 sm:w-20" />
               <Skeleton className="h-5 w-5 rounded-full" />
             </div>
           ) : (
