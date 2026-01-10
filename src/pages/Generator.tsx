@@ -24,6 +24,7 @@ import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
 import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndicator';
 import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
 import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
+import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
@@ -333,14 +334,18 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
-          {/* ✅ Indicateur réseau global */}
-          <div className="flex items-center justify-between mb-4">
+          {/* ✅ Indicateur réseau global + Crédits Suno */}
+          <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
             <GeneratorStatusBar 
               isConnected={realtimeConnected}
               musicQuota={musicQuota}
-              className="flex-1"
+              className="flex-1 min-w-0"
             />
-            <NetworkStatusIndicator showLabel notifyOnChange className="ml-2" />
+            <div className="flex items-center gap-2 shrink-0">
+              {/* ✅ Affichage des crédits Suno */}
+              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} compact className="hidden sm:flex" />
+              <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
+            </div>
           </div>
 
           {/* ✅ Bannière d'avertissement quota/crédits */}

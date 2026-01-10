@@ -112,6 +112,7 @@ const EffectivenessDashboard = lazy(() => import("./pages/EffectivenessDashboard
 
 // 📚 CONTENT PAGES - Lazy loaded
 const Generator = lazy(() => import("./pages/Generator"));
+const SharedMusic = lazy(() => import("./pages/SharedMusic"));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
@@ -188,6 +189,7 @@ const App = () => {
           <Route path={ROUTE_PATHS.optimizedIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OptimizedIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.home} element={<Index />} />
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
+          <Route path={ROUTE_PATHS.sharedMusic} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedMusic /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
           <Route path={ROUTE_PATHS.ednComplete} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
           <Route path={ROUTE_PATHS.ednCompleteDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />

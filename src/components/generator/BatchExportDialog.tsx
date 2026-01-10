@@ -7,6 +7,7 @@ import { Download, FileAudio, Archive, Loader2, CheckCircle, FileArchive } from 
 import { toast } from 'sonner';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import JSZip from 'jszip';
 
 interface Track {
   id: string;
@@ -81,39 +82,55 @@ export const BatchExportDialog: React.FC<BatchExportDialogProps> = ({
     }
   };
 
-  // Export ZIP (simulation - nécessiterait JSZip pour un vrai ZIP)
+  // ✅ Export ZIP réel avec JSZip
   const exportAsZip = async (tracksToExport: Track[]) => {
-    // Note: Pour un vrai ZIP, il faudrait utiliser la librairie JSZip
-    // Ici on simule en téléchargeant les fichiers individuellement avec un message
-    toast.info('Export ZIP: téléchargement des fichiers...', {
-      description: 'Les fichiers seront téléchargés individuellement (ZIP nécessite JSZip)'
-    });
-    
-    // Fallback sur export individuel avec nommage cohérent
+    const zip = new JSZip();
     const timestamp = new Date().toISOString().split('T')[0];
-    
+    const folderName = `MED-MNG-Export-${timestamp}`;
+    const folder = zip.folder(folderName);
+
+    if (!folder) {
+      toast.error('Erreur création archive');
+      return;
+    }
+
+    toast.info('Préparation de l\'archive ZIP...', { duration: 3000 });
+
     for (let i = 0; i < tracksToExport.length; i++) {
       const track = tracksToExport[i];
       
-      const response = await fetch(track.audioUrl);
-      const blob = await response.blob();
-      
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      // Nommage avec préfixe pour regroupement facile
-      a.download = `MED-MNG-${timestamp}_${String(i + 1).padStart(2, '0')}_${track.title || `track-${track.id}`}.mp3`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      setExportProgress(Math.round(((i + 1) / tracksToExport.length) * 100));
-      
-      if (i < tracksToExport.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        const response = await fetch(track.audioUrl);
+        const blob = await response.blob();
+        const filename = `${String(i + 1).padStart(2, '0')}_${(track.title || `track-${track.id}`).replace(/[^a-zA-Z0-9-_]/g, '_')}.mp3`;
+        folder.file(filename, blob);
+        
+        setExportProgress(Math.round(((i + 1) / tracksToExport.length) * 80)); // 80% pour le téléchargement
+      } catch (err) {
+        console.error(`Erreur téléchargement track ${track.id}:`, err);
+        toast.error(`Erreur sur "${track.title || track.id}"`);
       }
     }
+
+    // Générer le ZIP
+    setExportProgress(90);
+    const zipBlob = await zip.generateAsync({ 
+      type: 'blob',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 }
+    });
+    
+    // Télécharger le ZIP
+    const url = window.URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${folderName}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    setExportProgress(100);
   };
 
   const handleExport = async () => {
