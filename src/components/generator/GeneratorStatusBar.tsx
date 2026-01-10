@@ -1,6 +1,7 @@
 /**
  * Barre de statut globale du générateur
  * Intègre: NetworkStatus, SunoCredits, RealtimeIndicator, QuotaWarning
+ * ✅ Corrigé: Types optionnels + Skeleton loader + Meilleure UX
  */
 
 import React, { useState } from 'react';
@@ -11,6 +12,9 @@ import { QuotaWarningBanner } from './QuotaWarningBanner';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface GeneratorStatusBarProps {
   isConnected?: boolean;
@@ -28,15 +32,14 @@ export const GeneratorStatusBar: React.FC<GeneratorStatusBarProps> = ({
   className
 }) => {
   const { user } = useAuth();
-  const { hasLowCredits, hasNoCredits } = useSunoCredits();
+  const { hasLowCredits, hasNoCredits, loading: creditsLoading, fetchCredits, isFromCache } = useSunoCredits();
   const [bannerDismissed, setBannerDismissed] = useState(false);
   
-  // Calculer le % utilisé
-  const usagePercentage = (musicQuota && musicQuota.used != null && musicQuota.limit)
-    ? (musicQuota.used / musicQuota.limit) * 100 
-    : 0;
+  // ✅ Calcul sécurisé du % utilisé avec valeurs par défaut
+  const usedQuota = musicQuota?.used ?? 0;
+  const limitQuota = musicQuota?.limit ?? 0;
+  const usagePercentage = limitQuota > 0 ? (usedQuota / limitQuota) * 100 : 0;
 
-  
   const showQuotaWarning = !bannerDismissed && (usagePercentage >= 80 || hasLowCredits || hasNoCredits);
 
   return (
@@ -54,14 +57,35 @@ export const GeneratorStatusBar: React.FC<GeneratorStatusBarProps> = ({
               label="Sync" 
             />
           )}
+          
+          {/* ✅ Indicateur si données du cache */}
+          {isFromCache && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => fetchCredits()}
+              title="Données en cache, cliquez pour rafraîchir"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Cache
+            </Button>
+          )}
         </div>
         
-        {/* Crédits Suno - utilise le composant existant */}
+        {/* Crédits Suno - avec skeleton pendant chargement */}
         {user && (
-          <SunoCreditsDisplay 
-            showRefresh={true}
-            autoRefresh={false}
-          />
+          creditsLoading ? (
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-5 w-5 rounded-full" />
+            </div>
+          ) : (
+            <SunoCreditsDisplay 
+              showRefresh={true}
+              autoRefresh={false}
+            />
+          )
         )}
       </div>
       

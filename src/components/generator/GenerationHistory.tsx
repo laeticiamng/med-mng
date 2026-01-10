@@ -21,6 +21,7 @@ import { ShareMusicDialog } from './ShareMusicDialog';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { GenerationFilters, type FilterType, type SortType, type DateRangeType } from './GenerationFilters';
+import { useDebounce } from '@/hooks/useDebounce'; // ✅ Import debounce
 
 interface GeneratedTrack {
   id: string;
@@ -47,6 +48,7 @@ export const GenerationHistory: React.FC = () => {
   const [dateRange, setDateRange] = useState<DateRangeType>('all');
   const [styleFilter, setStyleFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300); // ✅ Debounce 300ms
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBatchDeleting, setIsBatchDeleting] = useState(false);
@@ -245,9 +247,9 @@ export const GenerationHistory: React.FC = () => {
         if (track.music_style !== styleFilter) return false;
       }
       
-      // Filtre par recherche
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
+      // Filtre par recherche - ✅ Utilise debouncedSearchQuery
+      if (debouncedSearchQuery.trim()) {
+        const query = debouncedSearchQuery.toLowerCase();
         return (
           (track.title?.toLowerCase().includes(query)) ||
           (track.item_code?.toLowerCase().includes(query)) ||
@@ -274,7 +276,7 @@ export const GenerationHistory: React.FC = () => {
     });
     
     return filtered;
-  }, [history, filter, searchQuery, dateRange, styleFilter, sortBy]);
+  }, [history, filter, debouncedSearchQuery, dateRange, styleFilter, sortBy]); // ✅ Utilise debouncedSearchQuery
 
   // Pagination
   const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
