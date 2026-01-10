@@ -3,8 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Download, FileAudio, Archive, Loader2, CheckCircle } from 'lucide-react';
+import { Download, FileAudio, Archive, Loader2, CheckCircle, FileArchive } from 'lucide-react';
 import { toast } from 'sonner';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface Track {
   id: string;
@@ -54,6 +56,66 @@ export const BatchExportDialog: React.FC<BatchExportDialogProps> = ({
     }
   };
 
+  // Export individuel
+  const exportIndividual = async (tracksToExport: Track[]) => {
+    for (let i = 0; i < tracksToExport.length; i++) {
+      const track = tracksToExport[i];
+      
+      const response = await fetch(track.audioUrl);
+      const blob = await response.blob();
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${track.title || `track-${track.id}`}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setExportProgress(Math.round(((i + 1) / tracksToExport.length) * 100));
+      
+      if (i < tracksToExport.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+  };
+
+  // Export ZIP (simulation - nécessiterait JSZip pour un vrai ZIP)
+  const exportAsZip = async (tracksToExport: Track[]) => {
+    // Note: Pour un vrai ZIP, il faudrait utiliser la librairie JSZip
+    // Ici on simule en téléchargeant les fichiers individuellement avec un message
+    toast.info('Export ZIP: téléchargement des fichiers...', {
+      description: 'Les fichiers seront téléchargés individuellement (ZIP nécessite JSZip)'
+    });
+    
+    // Fallback sur export individuel avec nommage cohérent
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    for (let i = 0; i < tracksToExport.length; i++) {
+      const track = tracksToExport[i];
+      
+      const response = await fetch(track.audioUrl);
+      const blob = await response.blob();
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // Nommage avec préfixe pour regroupement facile
+      a.download = `MED-MNG-${timestamp}_${String(i + 1).padStart(2, '0')}_${track.title || `track-${track.id}`}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setExportProgress(Math.round(((i + 1) / tracksToExport.length) * 100));
+      
+      if (i < tracksToExport.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+  };
+
   const handleExport = async () => {
     if (selectedTracks.size === 0) {
       toast.error('Sélectionnez au moins une piste');
@@ -66,30 +128,10 @@ export const BatchExportDialog: React.FC<BatchExportDialogProps> = ({
     try {
       const tracksToExport = tracks.filter(t => selectedTracks.has(t.id));
       
-      for (let i = 0; i < tracksToExport.length; i++) {
-        const track = tracksToExport[i];
-        
-        // Télécharger chaque fichier
-        const response = await fetch(track.audioUrl);
-        const blob = await response.blob();
-        
-        // Créer le lien de téléchargement
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${track.title || `track-${track.id}`}.mp3`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-        // Mettre à jour la progression
-        setExportProgress(Math.round(((i + 1) / tracksToExport.length) * 100));
-        
-        // Petit délai entre les téléchargements pour éviter de surcharger le navigateur
-        if (i < tracksToExport.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
+      if (exportFormat === 'zip') {
+        await exportAsZip(tracksToExport);
+      } else {
+        await exportIndividual(tracksToExport);
       }
 
       toast.success(`${tracksToExport.length} piste(s) exportée(s)`);
@@ -157,6 +199,30 @@ export const BatchExportDialog: React.FC<BatchExportDialogProps> = ({
               </label>
             ))}
           </div>
+
+        <div className="space-y-3">
+          <p className="text-sm font-medium">Format d'export</p>
+          <RadioGroup 
+            value={exportFormat} 
+            onValueChange={(v) => setExportFormat(v as ExportFormat)}
+            className="flex gap-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="individual" id="individual" />
+              <Label htmlFor="individual" className="flex items-center gap-2 cursor-pointer">
+                <Download className="h-4 w-4" />
+                <span>Fichiers séparés</span>
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="zip" id="zip" />
+              <Label htmlFor="zip" className="flex items-center gap-2 cursor-pointer">
+                <FileArchive className="h-4 w-4" />
+                <span>Lot groupé</span>
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
 
           {/* Progression d'export */}
           {isExporting && (

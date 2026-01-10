@@ -3,7 +3,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TranslatedText } from '@/components/TranslatedText';
 import { getStylesByGenre } from '@/components/edn/music/MusicStylesData';
 import { Badge } from '@/components/ui/badge';
-import { Palette, Music2, Sparkles, Headphones, Zap } from 'lucide-react';
+import { Palette, Music2, Sparkles, Headphones, Zap, Volume2 } from 'lucide-react';
+import { StylePreviewButton } from './StylePreviewButton';
 
 interface StyleSelectorProps {
   selectedStyle: string;
@@ -73,7 +74,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
         </SelectContent>
       </Select>
       
-      {/* Aperçu du style sélectionné - compact sur mobile */}
+      {/* Aperçu du style sélectionné - avec bouton preview audio */}
       {selectedStyleData && (
         <div className="p-3 sm:p-4 bg-accent/5 border border-accent/20 rounded-lg animate-fade-in">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -88,15 +89,25 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
               <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 sm:line-clamp-none">{selectedStyleData.description}</p>
             </div>
             
-            {/* Indicateurs visuels - masqués sur mobile */}
-            <div className="hidden sm:flex gap-2">
-              <div className="flex flex-col items-center gap-1 px-3 py-2 bg-background/50 rounded-lg border border-border/30">
-                <Headphones className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">HD</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 px-3 py-2 bg-primary/10 rounded-lg border border-primary/20">
-                <Zap className="h-4 w-4 text-primary" />
-                <span className="text-xs text-primary font-medium">IA</span>
+            {/* Bouton preview audio + indicateurs */}
+            <div className="flex items-center gap-2">
+              {/* Preview audio du style */}
+              <StylePreviewButton 
+                style={selectedStyle} 
+                variant="outline"
+                size="sm"
+              />
+              
+              {/* Indicateurs visuels - masqués sur mobile */}
+              <div className="hidden sm:flex gap-2">
+                <div className="flex flex-col items-center gap-1 px-3 py-2 bg-background/50 rounded-lg border border-border/30">
+                  <Headphones className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">HD</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 px-3 py-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <span className="text-xs text-primary font-medium">IA</span>
+                </div>
               </div>
             </div>
           </div>
