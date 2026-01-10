@@ -9,23 +9,24 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TranslatedText } from '@/components/TranslatedText';
 
-// Samples audio pour chaque style (URLs statiques ou générées)
+// Samples audio pour chaque style (URLs Pixabay/Freesound CDN)
+// Ces URLs sont des samples libres de droits utilisables en preview
 const STYLE_SAMPLES: Record<string, string> = {
-  'lofi-piano': '/audio/samples/lofi-piano.mp3',
-  'ambient': '/audio/samples/ambient.mp3',
-  'jazz': '/audio/samples/jazz.mp3',
-  'pop': '/audio/samples/pop.mp3',
-  'rock': '/audio/samples/rock.mp3',
-  'electronic': '/audio/samples/electronic.mp3',
-  'classical': '/audio/samples/classical.mp3',
-  'hip-hop': '/audio/samples/hiphop.mp3',
-  'r&b': '/audio/samples/rnb.mp3',
-  'country': '/audio/samples/country.mp3',
-  'folk': '/audio/samples/folk.mp3',
-  'metal': '/audio/samples/metal.mp3',
-  'reggae': '/audio/samples/reggae.mp3',
-  'blues': '/audio/samples/blues.mp3',
-  'soul': '/audio/samples/soul.mp3'
+  'lofi-piano': 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_ee1e3a8c8a.mp3',
+  'ambient': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6f8c2f3.mp3',
+  'jazz': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_5b56a79ef4.mp3',
+  'pop': 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_8bfed7c5eb.mp3',
+  'rock': 'https://cdn.pixabay.com/download/audio/2022/01/20/audio_1c1d6c3b3a.mp3',
+  'electronic': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
+  'classical': 'https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3',
+  'hip-hop': 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_febc508520.mp3',
+  'r&b': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+  'country': 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3',
+  'folk': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_8553db7ea0.mp3',
+  'metal': 'https://cdn.pixabay.com/download/audio/2022/09/06/audio_7e7a80c4cf.mp3',
+  'reggae': 'https://cdn.pixabay.com/download/audio/2022/06/03/audio_1f2dd4dd60.mp3',
+  'blues': 'https://cdn.pixabay.com/download/audio/2022/03/22/audio_49a3c4526f.mp3',
+  'soul': 'https://cdn.pixabay.com/download/audio/2022/04/27/audio_ad3e9ef0a7.mp3'
 };
 
 interface StylePreviewButtonProps {

@@ -41,10 +41,18 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
     return null;
   }
 
+  // Compteurs de caractères et mots
+  const charCount = lyricsText.length;
+  const wordCount = lyricsText.split(/\s+/).filter(w => w.trim()).length;
+  
+  // Avertissement si trop long pour Suno (max ~3000 chars)
+  const isOverLimit = charCount > 3000;
+  const isNearLimit = charCount > 2500 && charCount <= 3000;
+
   return (
     <PremiumCard variant="glass" className={`p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Music className="h-4 w-4 text-primary" />
           <span className="font-medium text-sm text-foreground">
             {title || 'Paroles'}
@@ -57,6 +65,17 @@ export const LyricsPreview: React.FC<LyricsPreviewProps> = ({
           <Badge variant="secondary" className="text-xs">
             {lineCount} lignes
           </Badge>
+          <Badge 
+            variant={isOverLimit ? "destructive" : isNearLimit ? "outline" : "secondary"} 
+            className={`text-xs ${isNearLimit && !isOverLimit ? 'border-warning text-warning' : ''}`}
+          >
+            {charCount} car. / {wordCount} mots
+          </Badge>
+          {isOverLimit && (
+            <Badge variant="destructive" className="text-xs">
+              ⚠️ Trop long (max 3000)
+            </Badge>
+          )}
         </div>
         <Button
           variant="ghost"

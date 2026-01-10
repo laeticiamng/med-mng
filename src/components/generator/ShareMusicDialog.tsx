@@ -16,16 +16,25 @@ interface ShareMusicDialogProps {
   trackId: string;
   audioUrl?: string;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const ShareMusicDialog: React.FC<ShareMusicDialogProps> = ({
   trackTitle,
   trackId,
   audioUrl,
-  trigger
+  trigger,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange
 }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [open, setOpen] = useState(false);
+  
+  // Support both controlled and uncontrolled modes
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = isControlled ? (externalOnOpenChange || (() => {})) : setInternalOpen;
 
   // Générer l'URL de partage
   const shareUrl = `${window.location.origin}/shared-music/${trackId}`;
