@@ -33,7 +33,6 @@ export const useLibraryRealtime = ({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('🎵 Nouvelle chanson ajoutée:', payload.new);
           onNewSong?.(payload.new);
           refetch?.();
           toast.success('🎵 Nouvelle chanson ajoutée à votre bibliothèque !');
@@ -48,7 +47,6 @@ export const useLibraryRealtime = ({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('📝 Chanson mise à jour:', payload.new);
           onSongUpdated?.(payload.new);
           refetch?.();
         }
@@ -62,7 +60,6 @@ export const useLibraryRealtime = ({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('🗑️ Chanson supprimée:', payload.old);
           onSongDeleted?.(payload.old?.id);
           refetch?.();
         }
@@ -82,7 +79,6 @@ export const useLibraryRealtime = ({
         },
         (payload) => {
           if (payload.new?.generation_status === 'completed' && payload.new?.audio_url) {
-            console.log('✅ Génération terminée:', payload.new);
             refetch?.();
             toast.success('🎉 Votre musique est prête !', {
               description: payload.new?.title || 'Nouvelle chanson disponible',

@@ -61,7 +61,6 @@ export const GenerationHistory: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('📥 Nouvelle génération détectée:', payload);
           loadHistory();
         }
       )
@@ -75,7 +74,6 @@ export const GenerationHistory: React.FC = () => {
         },
         (payload) => {
           if (payload.new?.generation_status === 'completed' && payload.new?.audio_url) {
-            console.log('✅ Génération terminée:', payload);
             loadHistory();
             toast.success('🎵 Nouvelle musique disponible !');
           }
