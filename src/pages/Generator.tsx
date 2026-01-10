@@ -25,6 +25,9 @@ import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
+import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
+import { useGenerationNotifications } from '@/components/generator/GenerationNotificationHandler';
+import { useSunoCredits } from '@/hooks/useSunoCredits';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -45,20 +48,28 @@ const Generator = () => {
   const [generatedSong, setGeneratedSong] = useState(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
   
+  // ✅ Hook notifications enrichi
+  const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
+  
+  // ✅ Hook crédits Suno avec rafraîchissement après génération
+  const { refreshAfterGeneration, invalidateCache: refreshCredits } = useSunoCredits();
+
   // Hook temps réel pour les mises à jour automatiques
   const { isConnected: realtimeConnected } = useRealtimeGeneration({
     userId: user?.id,
     onGenerationComplete: (track) => {
-      // Notification navigateur quand génération terminée
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('🎵 Musique prête !', {
-          body: `Votre musique "${track.title || 'Génération'}" est disponible`,
-          icon: '/favicon.ico'
-        });
-      }
-      toast.success('🎵 Nouvelle musique disponible !');
+      handleGenerationComplete(track);
+      refreshAfterGeneration(); // ✅ Rafraîchir les crédits automatiquement
     },
     enabled: !!user
+  });
+  
+  // ✅ Handler de succès qui rafraîchit les crédits
+  useGenerationSuccessHandler({
+    generatedSong,
+    onCreditsRefreshed: () => {
+      console.log('[Generator] Crédits rafraîchis après génération');
+    }
   });
   
   // Restaurer les préférences au montage
@@ -83,12 +94,14 @@ const Generator = () => {
     }
   }, [contentType, selectedItem, selectedRang, selectedStyle, savePreferences]);
   
-  // Demander permission notifications au montage
+  // ✅ Demander permission notifications de manière non-intrusive
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
+    // Attendre 5 secondes après le montage pour éviter d'être intrusif
+    const timer = setTimeout(() => {
+      requestNotificationPermission();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [requestNotificationPermission]);
 
   // Utiliser le hook centralisé pour charger les items EDN
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();

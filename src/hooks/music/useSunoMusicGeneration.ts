@@ -1,3 +1,7 @@
+/**
+ * 🎵 Hook principal pour la génération musicale Suno
+ * ✅ CORRIGÉ: Timeout augmenté, polling BDD amélioré, rafraîchissement crédits
+ */
 
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -13,12 +17,13 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 import { supabase } from '@/integrations/supabase/client';
 
-const MAX_POLL_ATTEMPTS = 60; // ~5 minutes max (60 * 5s)
-const POLL_INTERVAL = 5000; // 5 secondes
-const FAST_POLL_INTERVAL = 3000; // 3 secondes pour les premières tentatives
-const SLOW_POLL_INTERVAL = 8000; // 8 secondes si connexion lente ou après 2 minutes
-const RETRY_POLL_ATTEMPTS = 3; // Nombre de retries en cas d'erreur réseau
-const ABSOLUTE_TIMEOUT = 300000; // 5 minutes en ms - timeout absolu (aligné avec l'UI)
+// ✅ Constantes alignées avec useMusicPolling.ts
+const MAX_POLL_ATTEMPTS = 120; // ~8 minutes max (120 * 4s en moyenne)
+const FAST_POLL_INTERVAL = 2000; // 2s - Début rapide (0-30s)
+const POLL_INTERVAL = 4000; // 4s - Normal (30s-2min)
+const SLOW_POLL_INTERVAL = 6000; // 6s - Lent (2min+)
+const RETRY_POLL_ATTEMPTS = 3;
+const ABSOLUTE_TIMEOUT = 8 * 60 * 1000; // 8 minutes - aligné avec UI
 
 export const useSunoMusicGeneration = () => {
   const { toast } = useToast();
@@ -52,11 +57,11 @@ export const useSunoMusicGeneration = () => {
       let networkRetries = 0;
       abortRef.current = false; // Reset le flag d'arrêt
       
-      // Timeout absolu de sécurité (3 minutes max)
+      // Timeout absolu de sécurité (8 minutes max - aligné avec UI)
       const absoluteTimeout = setTimeout(() => {
         abortRef.current = true;
         if (pollingRef.current) clearTimeout(pollingRef.current);
-        reject(new Error('Timeout: génération trop longue (3 min max). Réessayez.'));
+        reject(new Error('Timeout: génération trop longue (8 min max). Réessayez.'));
       }, ABSOLUTE_TIMEOUT);
 
       const checkStatus = async () => {
@@ -84,12 +89,21 @@ export const useSunoMusicGeneration = () => {
         setPollingProgress(Math.min(Math.round(estimatedProgress), 95));
 
         try {
-          // 1. Vérifier d'abord en BDD (le callback peut avoir déjà mis à jour)
+          // 1. ✅ AMÉLIORATION: Vérifier d'abord en BDD avec ORDER BY pour avoir le plus récent
           const { data: dbTrack } = await supabase
             .from('generated_music_tracks')
-            .select('audio_url, generation_status, metadata')
+            .select('audio_url, stream_url, generation_status, metadata, updated_at')
             .eq('task_id', taskId)
+            .order('updated_at', { ascending: false })
+            .limit(1)
             .maybeSingle();
+
+          console.log('[useSunoMusicGeneration] Polling BDD:', {
+            attempt: attempts,
+            taskId,
+            status: dbTrack?.generation_status,
+            hasAudio: !!dbTrack?.audio_url
+          });
 
           if (dbTrack?.audio_url && dbTrack.generation_status === 'completed') {
             setPollingProgress(100);
@@ -151,12 +165,12 @@ export const useSunoMusicGeneration = () => {
           if (attempts >= MAX_POLL_ATTEMPTS) {
             clearTimeout(absoluteTimeout);
             if (pollingRef.current) clearTimeout(pollingRef.current);
-            reject(new Error('Timeout: génération trop longue (3 min max). Réessayez.'));
+            reject(new Error('Timeout: génération trop longue. Réessayez.'));
             return;
           }
           
           // Continuer le polling seulement si pas annulé
-          // ✅ Polling adaptatif: ralentir après 2 minutes ou si erreurs fréquentes
+          // ✅ Polling adaptatif amélioré
           if (!abortRef.current) {
             let interval: number;
             const elapsedTime = attempts * POLL_INTERVAL;
