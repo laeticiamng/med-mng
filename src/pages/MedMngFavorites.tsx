@@ -135,11 +135,14 @@ const MedMngFavoritesComponent = () => {
       status: item.status,
     }));
     const header = 'code,title,specialty,status';
-    const csv = [
-      header,
-      ...rows.map(row => `${row.code},\"${row.title}\",\"${row.specialty}\",${row.status}`),
-    ].join('\\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    // Correction: utiliser de vrais retours à la ligne, pas des caractères échappés
+    const csvRows = rows.map(row => 
+      `${row.code},"${row.title.replace(/"/g, '""')}","${row.specialty.replace(/"/g, '""')}",${row.status}`
+    );
+    const csv = [header, ...csvRows].join('\n');
+    // Ajouter BOM pour Excel
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

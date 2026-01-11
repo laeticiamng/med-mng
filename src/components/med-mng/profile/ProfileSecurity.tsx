@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { 
   Shield, 
   Key, 
@@ -16,20 +17,32 @@ import {
   CheckCircle,
   Eye,
   EyeOff,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 
 export const ProfileSecurity: React.FC = () => {
+  const { updatePassword, resetPassword, user } = useAuth();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const validatePassword = (password: string): string[] => {
+    const errors: string[] = [];
+    if (password.length < 8) errors.push('Au moins 8 caractères');
+    if (!/[A-Z]/.test(password)) errors.push('Au moins une majuscule');
+    if (!/[a-z]/.test(password)) errors.push('Au moins une minuscule');
+    if (!/[0-9]/.test(password)) errors.push('Au moins un chiffre');
+    return errors;
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -41,25 +54,86 @@ export const ProfileSecurity: React.FC = () => {
       return;
     }
 
-    if (passwordForm.newPassword.length < 8) {
+    const validationErrors = validatePassword(passwordForm.newPassword);
+    if (validationErrors.length > 0) {
       toast({
-        title: "Erreur",
-        description: "Le mot de passe doit contenir au moins 8 caractères.",
+        title: "Mot de passe invalide",
+        description: validationErrors.join(', '),
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Mot de passe mis à jour",
-      description: "Votre mot de passe a été modifié avec succès.",
-    });
+    setIsSubmitting(true);
+    try {
+      const { error } = await updatePassword(passwordForm.newPassword);
+      
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: error.message || "Impossible de mettre à jour le mot de passe.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setPasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
+      toast({
+        title: "Mot de passe mis à jour",
+        description: "Votre mot de passe a été modifié avec succès.",
+      });
+
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error?.message || "Une erreur inattendue s'est produite.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Erreur",
+        description: "Aucun email associé à ce compte.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await resetPassword(user.email);
+      
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: error.message || "Impossible d'envoyer l'email de réinitialisation.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Email envoyé",
+        description: "Un email de réinitialisation a été envoyé à votre adresse.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error?.message || "Une erreur inattendue s'est produite.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEnable2FA = () => {
@@ -177,9 +251,21 @@ export const ProfileSecurity: React.FC = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Mettre à jour le mot de passe
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Mettre à jour le mot de passe
+              </Button>
+              <Button 
+                type="button" 
+                variant="link" 
+                className="text-sm"
+                onClick={handleForgotPassword}
+                disabled={isSubmitting}
+              >
+                Mot de passe oublié ? Recevoir un email de réinitialisation
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
