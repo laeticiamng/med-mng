@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { MAIN_NAV_ITEMS } from '@/config/navigation';
+import { MAIN_NAV_ITEMS, type NavItem } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -89,7 +89,7 @@ export const MainNavigation: React.FC = () => {
               >
                 <item.icon className="w-4 h-4 mr-1.5 xl:mr-2" />
                 <span className="hidden xl:inline">{item.label}</span>
-                <span className="xl:hidden">{item.label.split(' ')[0]}</span>
+                <span className="xl:hidden">{item.shortLabel || item.label}</span>
                 {item.badge && (
                   <Badge variant="secondary" className="ml-1.5 xl:ml-2 text-xs">
                     {item.badge}
