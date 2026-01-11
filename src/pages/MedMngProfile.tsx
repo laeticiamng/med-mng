@@ -81,18 +81,27 @@ const MedMngProfileComponent = () => {
     enabled: !!user?.id,
   });
 
-  // Fetch user statistics
+  // Fetch user statistics including favorites count
   const { data: stats } = useQuery({
     queryKey: ['user-stats', user?.id],
     queryFn: async () => {
       try {
-        const library = await medMngApi.getLibrary(1, 100);
-        const quota = await medMngApi.getRemainingQuota();
+        const [library, quota] = await Promise.all([
+          medMngApi.getLibrary(1, 100),
+          medMngApi.getRemainingQuota(),
+        ]);
+        
+        // Récupérer le nombre de favoris via RPC ou table directe
+        const { count: favoritesCount } = await (supabase as any)
+          .from('favorites')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user?.id);
         
         return {
           totalSongs: library.length || 0,
-          creditsUsed: 50 - (quota?.remaining_credits || 0), // Assuming 50 is the base
+          creditsUsed: 50 - (quota?.remaining_credits || 0),
           creditsRemaining: quota?.remaining_credits || 0,
+          favoritesCount: favoritesCount || 0,
           joinDate: profile?.created_at,
         };
       } catch (err) {
@@ -101,6 +110,7 @@ const MedMngProfileComponent = () => {
           totalSongs: 0,
           creditsUsed: 0,
           creditsRemaining: 0,
+          favoritesCount: 0,
           joinDate: new Date().toISOString(),
         };
       }
@@ -327,7 +337,7 @@ const MedMngProfileComponent = () => {
                   <Heart className="h-6 w-6 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">-</p>
+                  <p className="text-2xl font-bold text-foreground">{stats?.favoritesCount ?? 0}</p>
                   <p className="text-sm text-muted-foreground">Favoris</p>
                 </div>
               </div>
