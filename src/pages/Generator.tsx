@@ -1,7 +1,7 @@
 // Generator page - Music Generation Module v2.1
 // Fixed: Dynamic import issue
 import React, { useState, useCallback, useEffect } from 'react';
-import { ArrowLeft, Sparkles, Music } from 'lucide-react';
+import { ArrowLeft, Sparkles, Music, Settings2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +27,10 @@ import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndi
 import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
 import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
 import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
+import { ModelSelector, type SunoModel } from '@/components/generator/ModelSelector';
+import { OfflineQueueIndicator } from '@/components/generator/OfflineQueueIndicator';
+import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
+import { GenerateLyricsButton } from '@/components/generator/GenerateLyricsButton';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
@@ -35,6 +39,7 @@ import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
 import { useGenerationNotifications } from '@/components/generator/GenerationNotificationHandler';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
 
 const Generator = () => {
@@ -55,6 +60,11 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState<SunoModel>('V4_5ALL');
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  
+  // ✅ Hook réseau pour file d'attente hors-ligne
+  const networkStatus = useNetworkStatus({ showToasts: false });
   
   // ✅ Hook notifications enrichi
   const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
@@ -63,7 +73,7 @@ const Generator = () => {
   const { refreshAfterGeneration, invalidateCache: refreshCredits } = useSunoCredits();
 
   // Hook temps réel pour les mises à jour automatiques
-  const { isConnected: realtimeConnected } = useRealtimeGeneration({
+  const { isConnected: realtimeConnected, reconnect: reconnectRealtime } = useRealtimeGeneration({
     userId: user?.id,
     onGenerationComplete: (track) => {
       handleGenerationComplete(track);
@@ -71,6 +81,19 @@ const Generator = () => {
     },
     enabled: !!user
   });
+
+  // ✅ Handler de reconnexion realtime
+  const handleReconnect = useCallback(async () => {
+    setIsReconnecting(true);
+    try {
+      await reconnectRealtime?.();
+      toast.success('Reconnecté !');
+    } catch {
+      toast.error('Échec de reconnexion');
+    } finally {
+      setIsReconnecting(false);
+    }
+  }, [reconnectRealtime]);
   
   // ✅ Handler de succès qui rafraîchit les crédits
   useGenerationSuccessHandler({
@@ -346,7 +369,7 @@ const Generator = () => {
 
       <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
-          {/* ✅ Indicateur réseau global + Crédits Suno */}
+          {/* ✅ Indicateurs réseau + temps réel + Crédits Suno */}
           <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
             <GeneratorStatusBar 
               isConnected={realtimeConnected}
@@ -354,11 +377,22 @@ const Generator = () => {
               className="flex-1 min-w-0"
             />
             <div className="flex items-center gap-2 shrink-0">
+              {/* ✅ Indicateur temps réel amélioré */}
+              <RealtimeIndicator 
+                isConnected={realtimeConnected}
+                isReconnecting={isReconnecting}
+                onRetry={handleReconnect}
+                showRetry={!realtimeConnected}
+                className="hidden sm:flex"
+              />
               {/* ✅ Affichage des crédits Suno */}
               <SunoCreditsDisplay showRefresh={true} autoRefresh={false} compact className="hidden sm:flex" />
               <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
             </div>
           </div>
+          
+          {/* ✅ Indicateur file d'attente hors-ligne */}
+          <OfflineQueueIndicator className="mb-4" />
 
           {/* ✅ Bannière d'avertissement quota/crédits */}
           <QuotaWarningBanner
@@ -368,19 +402,41 @@ const Generator = () => {
             className="mb-4"
           />
 
-          <QuotaDisplay
-            user={user}
-            remainingFree={remainingFree}
-            maxFreeGenerations={maxFreeGenerations}
-            musicQuota={musicQuota}
-            getUsageDisplay={getUsageDisplay}
-            onRefresh={async () => {
-              // Force refresh du quota en réinitialisant le state
-              if (user) {
-                await loadStats(user.id);
-              }
-            }}
-          />
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <QuotaDisplay
+                user={user}
+                remainingFree={remainingFree}
+                maxFreeGenerations={maxFreeGenerations}
+                musicQuota={musicQuota}
+                getUsageDisplay={getUsageDisplay}
+                onRefresh={async () => {
+                  if (user) {
+                    await loadStats(user.id);
+                  }
+                }}
+              />
+            </div>
+            
+            {/* ✅ Sélecteur de modèle + Génération de paroles IA */}
+            <PremiumCard variant="glass" className="p-4 flex flex-col gap-3 sm:w-72">
+              <div className="flex items-center gap-2 mb-1">
+                <Settings2 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Options avancées</span>
+              </div>
+              <ModelSelector 
+                value={selectedModel}
+                onChange={setSelectedModel}
+                disabled={!!isGenerating}
+                compact={false}
+              />
+              <GenerateLyricsButton 
+                disabled={!!isGenerating}
+                variant="outline"
+                size="sm"
+              />
+            </PremiumCard>
+          </div>
 
           <GeneratorForm
             contentType={contentType}
