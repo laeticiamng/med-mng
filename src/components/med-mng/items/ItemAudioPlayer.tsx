@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pause, Play, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX, Gauge, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 import type { ItemAudio } from '@/types/medMngItems';
 
 const formatTime = (value: number) => {
@@ -25,6 +27,9 @@ interface ItemAudioPlayerProps {
 }
 
 const VOLUME_STORAGE_KEY = 'med-mng-volume';
+const SPEED_STORAGE_KEY = 'med-mng-playback-speed';
+
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
 export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPlayerProps) => {
   const audio = audios[selectedIndex];
@@ -41,6 +46,15 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     const parsed = stored ? Number(stored) : 0.8;
     return Number.isFinite(parsed) ? parsed : 0.8;
   });
+  const [playbackSpeed, setPlaybackSpeed] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 1;
+    }
+    const stored = window.localStorage.getItem(SPEED_STORAGE_KEY);
+    const parsed = stored ? Number(stored) : 1;
+    return PLAYBACK_SPEEDS.includes(parsed) ? parsed : 1;
+  });
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     const element = audioRef.current;
@@ -74,14 +88,30 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     if (!element) {
       return;
     }
-    element.volume = volume;
+    element.volume = isMuted ? 0 : volume;
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(VOLUME_STORAGE_KEY, volume.toString());
     }
-  }, [volume]);
+  }, [volume, isMuted]);
+
+  useEffect(() => {
+    const element = audioRef.current;
+    if (!element) {
+      return;
+    }
+    element.playbackRate = playbackSpeed;
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(SPEED_STORAGE_KEY, playbackSpeed.toString());
+    }
+  }, [playbackSpeed]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignorer si on est dans un input
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
       if (event.code === 'Space') {
         event.preventDefault();
         handleToggle();
@@ -92,11 +122,14 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
       if (event.code === 'ArrowRight') {
         handleSeek(Math.min(duration, currentTime + 10));
       }
+      if (event.code === 'KeyM') {
+        setIsMuted(!isMuted);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentTime, duration]);
+  }, [currentTime, duration, isMuted]);
 
   const handleToggle = () => {
     const element = audioRef.current;
@@ -136,6 +169,13 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     }
   };
 
+  const handleRestart = () => {
+    handleSeek(0);
+    if (!isPlaying) {
+      handleToggle();
+    }
+  };
+
   useEffect(() => {
     if (!audioRef.current) {
       return;
@@ -149,71 +189,161 @@ export const ItemAudioPlayer = ({ audios, selectedIndex, onSelect }: ItemAudioPl
     return null;
   }
 
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
     <Card className="p-4 space-y-4">
+      {/* Header avec infos audio */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">Audio</p>
-          <h3 className="text-lg font-semibold text-foreground">{audio.title}</h3>
-          <p className="text-xs text-muted-foreground">
-            {audio.style ?? 'Style non précisé'} • {audio.bpm ? `${audio.bpm} BPM` : 'BPM n/a'}
-          </p>
+          <h3 className="text-lg font-semibold text-foreground truncate">{audio.title}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">
+              {audio.style ?? 'Style non précisé'}
+            </span>
+            {audio.bpm && (
+              <Badge variant="outline" className="text-xs">
+                {audio.bpm} BPM
+              </Badge>
+            )}
+            {audio.rang && (
+              <Badge variant="secondary" className="text-xs">
+                Rang {audio.rang}
+              </Badge>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handlePrevious} size="icon" variant="outline" disabled={selectedIndex === 0}>
+        <div className="flex items-center gap-1.5">
+          <Button 
+            onClick={handleRestart} 
+            size="icon" 
+            variant="ghost" 
+            className="h-8 w-8"
+            title="Recommencer"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button 
+            onClick={handlePrevious} 
+            size="icon" 
+            variant="outline" 
+            disabled={selectedIndex === 0}
+            className="h-9 w-9"
+          >
             <SkipBack className="h-4 w-4" />
           </Button>
-          <Button onClick={handleToggle} size="icon" variant="outline">
-            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          <Button 
+            onClick={handleToggle} 
+            size="icon" 
+            className="h-11 w-11 rounded-full"
+          >
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
           </Button>
-          <Button onClick={handleNext} size="icon" variant="outline" disabled={selectedIndex === audios.length - 1}>
+          <Button 
+            onClick={handleNext} 
+            size="icon" 
+            variant="outline" 
+            disabled={selectedIndex === audios.length - 1}
+            className="h-9 w-9"
+          >
             <SkipForward className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* Sélecteur de piste */}
+      {audios.length > 1 && (
         <Select value={String(selectedIndex)} onValueChange={(value) => onSelect(Number(value))}>
-          <SelectTrigger>
+          <SelectTrigger className="h-9">
             <SelectValue placeholder="Choisir un rang" />
           </SelectTrigger>
           <SelectContent>
             {audios.map((audioItem, index) => (
               <SelectItem key={audioItem.id} value={String(index)}>
-                {audioItem.rang} • {audioItem.title}
+                {audioItem.rang ? `Rang ${audioItem.rang}` : `Piste ${index + 1}`} • {audioItem.title}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+      )}
 
-        <input
-          type="range"
-          min={0}
-          max={duration || 0}
-          value={currentTime}
-          onChange={(event) => handleSeek(Number(event.target.value))}
-          className="w-full accent-primary"
-        />
+      {/* Barre de progression */}
+      <div className="space-y-2">
+        <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+          <div 
+            className="absolute inset-y-0 left-0 bg-primary transition-all duration-100 rounded-full"
+            style={{ width: `${progressPercent}%` }}
+          />
+          <input
+            type="range"
+            min={0}
+            max={duration || 0}
+            value={currentTime}
+            onChange={(event) => handleSeek(Number(event.target.value))}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </div>
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+          <span>
+            {isBuffering ? 'Chargement...' : `-${formatTime(duration - currentTime)}`}
+          </span>
         </div>
-        {isBuffering && (
-          <p className="text-xs text-muted-foreground">Chargement en cours...</p>
-        )}
       </div>
 
-      <div className="flex items-center gap-3">
-        <Volume2 className="h-4 w-4 text-muted-foreground" />
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={volume}
-          onChange={(event) => setVolume(Number(event.target.value))}
-          className="w-full accent-primary"
-        />
+      {/* Contrôles secondaires: Volume + Vitesse */}
+      <div className="flex items-center gap-4">
+        {/* Volume */}
+        <div className="flex items-center gap-2 flex-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 shrink-0"
+            onClick={() => setIsMuted(!isMuted)}
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </Button>
+          <Slider
+            value={[isMuted ? 0 : volume * 100]}
+            max={100}
+            step={5}
+            onValueChange={([val]) => {
+              setVolume(val / 100);
+              if (val > 0) setIsMuted(false);
+            }}
+            className="flex-1"
+          />
+        </div>
+
+        {/* Vitesse de lecture */}
+        <div className="flex items-center gap-2">
+          <Gauge className="h-4 w-4 text-muted-foreground" />
+          <Select 
+            value={String(playbackSpeed)} 
+            onValueChange={(val) => setPlaybackSpeed(Number(val))}
+          >
+            <SelectTrigger className="h-8 w-20 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PLAYBACK_SPEEDS.map((speed) => (
+                <SelectItem key={speed} value={String(speed)}>
+                  {speed}x
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Raccourcis clavier */}
+      <div className="text-xs text-muted-foreground/60 text-center">
+        Raccourcis: Espace (play/pause) • ← → (±10s) • M (mute)
       </div>
 
       <audio
