@@ -75,7 +75,15 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const result = await secureSunoClient.getRemainingCredits();
+      // ✅ Timeout de 10s pour éviter blocage infini
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout: API indisponible')), 10000);
+      });
+      
+      const result = await Promise.race([
+        secureSunoClient.getRemainingCredits(),
+        timeoutPromise
+      ]);
       
       const credits = result.credits ?? (result.remaining !== undefined ? result.remaining : -1);
       const plan = result.plan ?? 'standard';
@@ -108,8 +116,12 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     } catch (err) {
       console.error('[useSunoCredits] Erreur:', err);
       
-      // Retry automatique avec backoff exponentiel
-      if (retryCountRef.current < maxRetries) {
+      // ✅ Pas de retry si timeout ou fonction non disponible
+      const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
+      const isTimeout = errorMsg.includes('Timeout');
+      const isNotFound = errorMsg.includes('404') || errorMsg.includes('NOT_FOUND');
+      
+      if (!isTimeout && !isNotFound && retryCountRef.current < maxRetries) {
         retryCountRef.current++;
         const delay = Math.pow(2, retryCountRef.current) * 1000;
         console.log(`[useSunoCredits] Retry ${retryCountRef.current}/${maxRetries} dans ${delay}ms`);
@@ -117,10 +129,12 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
         return;
       }
       
+      // ✅ Afficher état "indisponible" au lieu de bloquer
       setState(prev => ({
         ...prev,
+        credits: -1, // Indique "inconnu"
         loading: false,
-        error: err instanceof Error ? err.message : 'Erreur lors de la récupération des crédits',
+        error: isNotFound ? 'Service non disponible' : errorMsg,
         isFromCache: false
       }));
     }
