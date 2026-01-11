@@ -3,7 +3,7 @@
  * ✅ NOUVEAU: Raccourcis pour génération, annulation, navigation
  */
 
-import { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 interface KeyboardShortcutsProps {
