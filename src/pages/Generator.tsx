@@ -1,4 +1,5 @@
-// Generator page - Music Generation Module v2
+// Generator page - Music Generation Module v2.1
+// Fixed: Dynamic import issue
 import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
