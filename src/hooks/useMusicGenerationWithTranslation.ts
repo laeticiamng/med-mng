@@ -2,6 +2,13 @@ import { useSunoMusicGeneration } from './music/useSunoMusicGeneration';
 import { useSubscription } from './useSubscription';
 import { useCallback, useMemo } from 'react';
 
+interface AdvancedSunoParams {
+  vocalGender?: 'male' | 'female' | 'mixed';
+  negativeTags?: string;
+  styleWeight?: number;
+  weirdnessConstraint?: number;
+}
+
 export const useMusicGenerationWithTranslation = () => {
   const sunoGeneration = useSunoMusicGeneration();
   const { getSunoModel } = useSubscription();
@@ -10,7 +17,9 @@ export const useMusicGenerationWithTranslation = () => {
     rang: 'A' | 'B' | 'AB',
     paroles: string[], 
     selectedStyle: string, 
-    duration: number = 240
+    duration: number = 240,
+    modelOverride?: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5",
+    advancedParams?: Partial<AdvancedSunoParams>
   ): Promise<string> => {
     // Validation des paroles avant génération
     if (!paroles || paroles.length === 0) {
@@ -23,11 +32,11 @@ export const useMusicGenerationWithTranslation = () => {
     }
     
     try {
-      // Récupérer le modèle selon l'abonnement
-      const model = getSunoModel();
+      // Récupérer le modèle selon l'abonnement ou utiliser l'override
+      const model = modelOverride || getSunoModel();
       
-      // Générer la musique et attendre l'URL audio (polling intégré)
-      const audioUrl = await sunoGeneration.generateMusicInLanguage(rang, validLyrics, selectedStyle, duration, model);
+      // ✅ Passer les paramètres avancés à l'API Suno
+      const audioUrl = await sunoGeneration.generateMusicInLanguage(rang, validLyrics, selectedStyle, duration, model, advancedParams);
       
       return audioUrl;
       

@@ -215,7 +215,13 @@ export const useSunoMusicGeneration = () => {
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240,
-    model: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL"
+    model: "V4" | "V4_5" | "V4_5ALL" | "V4_5PLUS" | "V5" = "V4_5ALL",
+    advancedParams?: {
+      vocalGender?: 'male' | 'female' | 'mixed';
+      negativeTags?: string;
+      styleWeight?: number;
+      weirdnessConstraint?: number;
+    }
   ): Promise<string> => {
     
     if (isAlreadyGenerating(rang)) {
@@ -232,7 +238,7 @@ export const useSunoMusicGeneration = () => {
       
       const translatedLyrics = await translateLyricsIfNeeded(parolesText);
       const { isComposition, styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
-      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model);
+      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model, undefined, advancedParams);
 
       // Étape 1: Appeler l'API Suno pour démarrer la génération
       const response = await callSunoApi(requestBody);
