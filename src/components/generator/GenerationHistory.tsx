@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2, CheckSquare, Square } from 'lucide-react';
+import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2, CheckSquare, Square, Expand } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -19,9 +19,11 @@ import { GenerationStats } from './GenerationStats';
 import { MusicListSkeleton } from '@/components/ui/skeleton-loader';
 import { ShareMusicDialog } from './ShareMusicDialog';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
+import { ExtendMusicButton } from './ExtendMusicButton';
+import { DateGroupHeader, useGroupByDate } from './HistoryDateGrouping';
 import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { GenerationFilters, type FilterType, type SortType, type DateRangeType } from './GenerationFilters';
-import { useDebounce } from '@/hooks/useDebounce'; // ✅ Import debounce
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface GeneratedTrack {
   id: string;
@@ -32,6 +34,8 @@ interface GeneratedTrack {
   created_at: string;
   title?: string;
   is_favorite?: boolean;
+  duration?: number;
+  task_id?: string;
 }
 
 type FilterTypeSimple = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
@@ -794,6 +798,16 @@ export const GenerationHistory: React.FC = () => {
                     >
                       <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${track.is_favorite ? 'fill-destructive' : ''}`} />
                     </Button>
+                    {/* Bouton extension Suno */}
+                    <ExtendMusicButton
+                      audioId={track.task_id || track.id}
+                      trackTitle={track.title || track.item_code}
+                      currentDuration={track.duration || 240}
+                      size="sm"
+                      variant="ghost"
+                      showLabel={false}
+                      disabled={!track.audio_url}
+                    />
                     {/* Bouton partage - hidden on very small screens */}
                     <Button
                       size="sm"
