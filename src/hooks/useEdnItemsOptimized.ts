@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 export interface EdnItemOptimized {
   id: string;
@@ -13,151 +12,132 @@ export interface EdnItemOptimized {
   competences_count_rang_b?: number;
   specialite?: string;
   mots_cles?: string[];
+  competences_oic_rang_a?: any;
+  competences_oic_rang_b?: any;
 }
 
 const SUPABASE_URL = "https://yaincoxihiqdksxgrsrk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU";
 
+const CACHE_KEY = 'edn_items_cache_v2';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface CacheData {
+  items: EdnItemOptimized[];
+  timestamp: number;
+}
+
+// ✅ Charger depuis le cache localStorage immédiatement
+const loadFromCache = (): EdnItemOptimized[] | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+    
+    const data: CacheData = JSON.parse(cached);
+    const isExpired = Date.now() - data.timestamp > CACHE_TTL;
+    
+    // Retourner même si expiré (pour affichage immédiat), mais on refresh en background
+    return data.items;
+  } catch {
+    return null;
+  }
+};
+
+const saveToCache = (items: EdnItemOptimized[]) => {
+  try {
+    const data: CacheData = { items, timestamp: Date.now() };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch {
+    // Ignore localStorage errors
+  }
+};
+
 export const useEdnItemsOptimized = () => {
-  const [items, setItems] = useState<EdnItemOptimized[]>([]);
-  const [loading, setLoading] = useState(true);
+  // ✅ Initialiser avec le cache pour affichage instantané
+  const [items, setItems] = useState<EdnItemOptimized[]>(() => loadFromCache() || []);
+  const [loading, setLoading] = useState(() => !loadFromCache());
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const fetchItems = useCallback(async (showLoading = true) => {
     const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
-    const fetchItems = async () => {
-      try {
-        // Utiliser fetch direct avec timeout pour éviter blocage
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-        
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales&order=item_code`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            signal: controller.signal
-          }
-        );
-        
-        clearTimeout(timeoutId);
-        
-        if (cancelled) return;
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ Erreur HTTP:', response.status, errorText);
-          setError(`Erreur ${response.status}: ${errorText}`);
-          setLoading(false);
-          return;
-        }
-        
-        const data = await response.json();
-        
-        if (!data || data.length === 0) {
-          setError('Aucun item EDN trouvé');
-          setLoading(false);
-          return;
-        }
-        
-        const mappedItems: EdnItemOptimized[] = data.map((item: any) => ({
-          id: item.id,
-          item_code: item.item_code,
-          title: item.title,
-          subtitle: item.subtitle || undefined,
-          slug: item.slug,
-          updated_at: item.updated_at,
-          paroles_musicales: item.paroles_musicales || undefined,
-          competences_count_rang_a: 0,
-          competences_count_rang_b: 0,
-        }));
-        
-        setItems(mappedItems);
-        setLoading(false);
-        
-        // Background OIC enrichment - utiliser oic_competences (table principale avec 5606 entrées)
-        try {
-          let allOicData: any[] = [];
-          let offset = 0;
-          const limit = 1000;
-          let hasMore = true;
-          
-          while (hasMore) {
-            const oicResponse = await fetch(
-              `${SUPABASE_URL}/rest/v1/oic_competences?select=item_parent,rang&objectif_id=not.is.null&limit=${limit}&offset=${offset}`,
-              {
-                headers: {
-                  'apikey': SUPABASE_KEY,
-                  'Authorization': `Bearer ${SUPABASE_KEY}`,
-                  'Content-Type': 'application/json',
-                  'Prefer': 'count=exact'
-                }
-              }
-            );
-
-            if (cancelled || !oicResponse.ok) break;
-
-            const batch = await oicResponse.json();
-            if (batch && batch.length > 0) {
-              allOicData = [...allOicData, ...batch];
-              offset += limit;
-              hasMore = batch.length === limit;
-            } else {
-              hasMore = false;
-            }
-          }
-
-          if (allOicData.length === 0) return;
-
-          const countsMap = new Map<string, { rangA: number; rangB: number }>();
-          allOicData.forEach((row: any) => {
-            const key = row.item_parent || '';
-            const existing = countsMap.get(key) || { rangA: 0, rangB: 0 };
-            if (row.rang === 'A') existing.rangA++;
-            else if (row.rang === 'B') existing.rangB++;
-            countsMap.set(key, existing);
-          });
-
-          setItems(prev => prev.map((item) => {
-            // item_code est "IC-1", item_parent est "001"
-            const itemNumber = item.item_code.replace('IC-', '');
-            const paddedNumber = itemNumber.padStart(3, '0');
-            
-            const counts = countsMap.get(paddedNumber) 
-              || countsMap.get(itemNumber) 
-              || { rangA: 0, rangB: 0 };
-            
-            return {
-              ...item,
-              competences_count_rang_a: counts.rangA,
-              competences_count_rang_b: counts.rangB,
-            };
-          }));
-        } catch (oicErr) {
-          console.warn('OIC enrichment failed (non-critical):', oicErr);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        
-        if (err instanceof Error && err.name === 'AbortError') {
-          setError('Timeout: le chargement a pris trop de temps. Veuillez réessayer.');
-        } else {
-          setError(err instanceof Error ? err.message : 'Erreur inconnue');
-        }
-        setLoading(false);
+    try {
+      if (showLoading && items.length === 0) {
+        setLoading(true);
       }
-    };
 
-    fetchItems();
+      // ✅ Requête unique optimisée - seulement les champs essentiels
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal
+        }
+      );
 
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        setError('Aucun item EDN trouvé');
+        setLoading(false);
+        return;
+      }
+
+      const mappedItems: EdnItemOptimized[] = data.map((item: any) => ({
+        id: item.id,
+        item_code: item.item_code,
+        title: item.title,
+        slug: item.slug,
+        updated_at: item.updated_at,
+        paroles_musicales: item.paroles_musicales || undefined,
+        // ✅ Utiliser directement les champs pré-calculés si disponibles
+        competences_count_rang_a: item.competences_count_rang_a || 0,
+        competences_count_rang_b: item.competences_count_rang_b || 0,
+      }));
+
+      setItems(mappedItems);
+      saveToCache(mappedItems);
+      setLoading(false);
+      setError(null);
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+      
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Timeout - utiliser le cache si disponible
+        const cached = loadFromCache();
+        if (cached && cached.length > 0) {
+          setItems(cached);
+          setLoading(false);
+          return;
+        }
+        setError('Chargement trop long. Réessayez.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      }
+      setLoading(false);
+    }
+  }, [items.length]);
+
+  useEffect(() => {
+    // Si on a des données en cache, refresh en background
+    const cached = loadFromCache();
+    if (cached && cached.length > 0) {
+      fetchItems(false); // Background refresh sans loading
+    } else {
+      fetchItems(true);
+    }
   }, []);
 
   const stats = useMemo(() => {
@@ -170,12 +150,11 @@ export const useEdnItemsOptimized = () => {
     const withMusic = items.filter(i => 
       i.paroles_musicales && i.paroles_musicales.length > 0
     ).length;
-    
-    // Calcul des totaux OIC globaux
+
     const totalOicRangA = items.reduce((sum, i) => sum + (i.competences_count_rang_a || 0), 0);
     const totalOicRangB = items.reduce((sum, i) => sum + (i.competences_count_rang_b || 0), 0);
     const totalOicCompetences = totalOicRangA + totalOicRangB;
-    
+
     const avgScore = total > 0 ? Math.round(
       items.reduce((sum, item) => {
         let score = 0;
@@ -189,59 +168,19 @@ export const useEdnItemsOptimized = () => {
     return { total, withRangA, withRangB, complete, withMusic, avgScore, totalOicRangA, totalOicRangB, totalOicCompetences };
   }, [items]);
 
-  const refresh = async () => {
+  const refresh = useCallback(() => {
     setLoading(true);
     setError(null);
-    
-    try {
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales&order=item_code`,
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        setError(`Erreur ${response.status}`);
-        setLoading(false);
-        return;
-      }
-      
-      const data = await response.json();
-      
-      if (!data || data.length === 0) {
-        setError('Aucun item EDN trouvé');
-        setLoading(false);
-        return;
-      }
-      
-      const mappedItems: EdnItemOptimized[] = data.map((item: any) => ({
-        id: item.id,
-        item_code: item.item_code,
-        title: item.title,
-        subtitle: item.subtitle || undefined,
-        slug: item.slug,
-        updated_at: item.updated_at,
-        paroles_musicales: item.paroles_musicales || undefined,
-        competences_count_rang_a: 0,
-        competences_count_rang_b: 0,
-      }));
-      
-      setItems(mappedItems);
-      setLoading(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      setLoading(false);
-    }
-  };
+    fetchItems(true);
+  }, [fetchItems]);
 
   return { items, stats, loading, error, refresh };
 };
 
 export const invalidateEdnCache = () => {
-  // No-op for compatibility
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch {
+    // Ignore
+  }
 };
