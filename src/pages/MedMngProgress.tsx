@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target } from 'lucide-react';
+import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target, TrendingUp } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { fetchProgressOverview } from '@/services/medMngItemsService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { UserStatsCard } from '@/components/med-mng/profile/UserStatsCard';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 const MedMngProgressComponent = () => {
   const { user } = useAuth();
@@ -53,11 +55,17 @@ const MedMngProgressComponent = () => {
       <div className="container mx-auto px-4 py-6 space-y-6 max-w-4xl">
         {/* Header - Rassurant */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">Ma progression</h1>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">Ma progression</h1>
+          </div>
           <p className="text-sm text-muted-foreground">
             Une vision claire de ce que tu as déjà vu. La régularité fait la différence.
           </p>
         </div>
+
+        {/* Statistiques utilisateur détaillées */}
+        <UserStatsCard compact />
 
         {/* Loading */}
         {isLoading && (
