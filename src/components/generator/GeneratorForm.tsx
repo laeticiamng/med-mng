@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { Wand2, Keyboard } from 'lucide-react';
+import { Wand2, Keyboard, LogIn, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -15,7 +16,34 @@ import { AdvancedParamsToggle } from './AdvancedParamsToggle';
 import { useKeyboardShortcuts, KeyboardShortcutsHelp } from './KeyboardShortcuts';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ROUTE_PATHS } from '@/config/routes';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
+
+// ✅ Composant bannière d'invitation à se connecter
+const LoginPromptBanner: React.FC<{ remainingFree: number }> = ({ remainingFree }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <Alert className="bg-primary/10 border-primary/30">
+      <Sparkles className="h-4 w-4 text-primary" />
+      <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <span className="text-sm">
+          <strong>Connectez-vous</strong> pour générer de la musique — <strong>3 essais gratuits</strong> inclus !
+        </span>
+        <Button 
+          variant="default" 
+          size="sm" 
+          onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
+          className="w-fit"
+        >
+          <LogIn className="h-4 w-4 mr-2" />
+          Se connecter
+        </Button>
+      </AlertDescription>
+    </Alert>
+  );
+};
 
 interface GeneratorFormProps {
   contentType: string;
@@ -216,12 +244,17 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
+        {/* ✅ Message d'invitation à se connecter pour les utilisateurs non-authentifiés */}
+        {!user && (
+          <LoginPromptBanner remainingFree={remainingFree} />
+        )}
+
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
           <PremiumButton
             variant="primary"
             size="lg"
             onClick={handleGenerateWithParams}
-            disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading || ecosLyricsLoading}
+            disabled={!user || !canGenerate() || isGenerating || (user && !canGenerateMusic()) || lyricsLoading || ecosLyricsLoading}
             className="flex-1 min-h-[48px] text-sm sm:text-base"
           >
             {isGenerating ? (
@@ -233,6 +266,11 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
               <>
                 <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 border-2 border-current border-t-transparent rounded-full" />
                 <span className="truncate"><TranslatedText text="Chargement..." /></span>
+              </>
+            ) : !user ? (
+              <>
+                <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 shrink-0" />
+                <span className="truncate"><TranslatedText text="Connexion requise" /></span>
               </>
             ) : (
               <>
