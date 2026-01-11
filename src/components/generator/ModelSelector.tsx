@@ -142,36 +142,27 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         <SelectTrigger className="h-12">
           <SelectValue placeholder="Sélectionner un modèle" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="w-[320px]">
           {MODELS.map(model => (
             <SelectItem 
               key={model.value} 
               value={model.value}
-              className="py-3"
+              className="py-2 cursor-pointer"
             >
-              <div className="flex items-center justify-between w-full gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{model.label}</span>
-                    {model.new && (
-                      <Badge variant="default" className="text-[10px] h-4 bg-gradient-to-r from-primary to-purple-500">
-                        Nouveau
-                      </Badge>
-                    )}
-                    {model.recommended && (
-                      <Badge variant="outline" className="text-[10px] h-4 border-warning text-warning">
-                        <Crown className="h-2.5 w-2.5 mr-0.5" />
-                        Recommandé
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{model.description}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {getSpeedIcon(model.speed)}
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm">{model.label}</span>
+                  {model.new && (
+                    <Badge className="text-[9px] h-4 px-1.5 bg-primary">New</Badge>
+                  )}
+                  {model.recommended && (
+                    <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-warning text-warning">
+                      Recommandé
+                    </Badge>
+                  )}
                   {getQualityBadge(model.quality)}
-                  <Badge variant="outline" className="text-[10px] h-4">{model.maxDuration}</Badge>
                 </div>
+                <p className="text-xs text-muted-foreground line-clamp-1">{model.description}</p>
               </div>
             </SelectItem>
           ))}
