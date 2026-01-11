@@ -190,7 +190,7 @@ const MedMngLibraryComponent = () => {
     }
   }, [selectedSongIds.length, sortedSongs]);
 
-  // Export CSV/JSON de la bibliothèque
+  // Export CSV/JSON de la bibliothèque avec BOM UTF-8 pour Excel
   const handleExportLibrary = useCallback((format: 'json' | 'csv') => {
     try {
       const exportData = sortedSongs.map(song => ({
@@ -209,19 +209,21 @@ const MedMngLibraryComponent = () => {
       if (format === 'csv') {
         const headers = ['Titre', 'Style', 'Rang', 'Favori', 'Date', 'URL Audio'];
         const rows = exportData.map(d => [
-          `"${d.title}"`,
-          d.style,
-          d.rang,
+          `"${(d.title || '').replace(/"/g, '""')}"`, // Escape quotes in title
+          `"${(d.style || '').replace(/"/g, '""')}"`,
+          d.rang || '',
           d.is_favorite ? 'Oui' : 'Non',
           new Date(d.added_at).toLocaleDateString('fr-FR'),
           d.audio_url
         ]);
-        content = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+        // BOM UTF-8 pour compatibilité Excel + vraies nouvelles lignes
+        const BOM = '\uFEFF';
+        content = BOM + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
         mimeType = 'text/csv;charset=utf-8';
         extension = 'csv';
       } else {
         content = JSON.stringify(exportData, null, 2);
-        mimeType = 'application/json';
+        mimeType = 'application/json;charset=utf-8';
         extension = 'json';
       }
       

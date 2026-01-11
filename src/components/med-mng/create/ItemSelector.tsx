@@ -1,137 +1,219 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, Brain, Shield, Building2, Settings, Scale, AlertTriangle, FileText, Microscope } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BookOpen, Users, Brain, Shield, Building2, Settings, Scale, AlertTriangle, FileText, Microscope, Search, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ItemSelectorProps {
   selectedItem: string | null;
   onItemSelect: (itemCode: string) => void;
 }
 
-interface EDNItem {
-  code: string;
-  title: string;
-  subtitle: string;
-  icon: React.ComponentType<any>;
-  color: string;
-  description: string;
-}
-
-const EDN_ITEMS = [
+// Fallback items si la DB n'est pas disponible
+const FALLBACK_EDN_ITEMS = [
   {
     code: 'IC-1',
     title: 'La relation médecin-malade dans le cadre du colloque singulier ou au sein d\'une équipe',
-    subtitle: 'Fondements de la relation thérapeutique',
-    icon: Users,
-    color: 'bg-primary',
     description: 'Communication, empathie et établissement de la confiance dans la relation soignant-soigné.'
   },
   {
     code: 'IC-2',
     title: 'Les valeurs professionnelles du médecin et des autres professions de santé',
-    subtitle: 'Éthique et déontologie médicale',
-    icon: Shield,
-    color: 'bg-success',
     description: 'Principes éthiques, déontologie et responsabilités professionnelles.'
   },
   {
     code: 'IC-3',
     title: 'Le raisonnement et la décision en médecine',
-    subtitle: 'Démarche diagnostique et thérapeutique',
-    icon: Brain,
-    color: 'bg-accent',
     description: 'Processus de raisonnement clinique, prise de décision et gestion de l\'incertitude.'
   },
   {
     code: 'IC-4',
     title: 'La sécurité du patient. La gestion des risques',
-    subtitle: 'Qualité et sécurité des soins',
-    icon: Shield,
-    color: 'bg-destructive',
     description: 'Prévention des erreurs, gestion des risques et amélioration continue de la qualité.'
   },
   {
     code: 'IC-5',
     title: 'L\'annonce d\'une maladie grave ou létale ou d\'un dommage associé aux soins',
-    subtitle: 'Communication difficile et accompagnement',
-    icon: BookOpen,
-    color: 'bg-warning',
     description: 'Techniques d\'annonce, accompagnement psychologique et gestion des émotions.'
   },
-  {
-    code: 'IC-6',
-    title: 'Organisation de l\'exercice clinique et sécurisation du parcours patient',
-    subtitle: 'Coordination des soins et continuité',
-    icon: Settings,
-    color: 'bg-primary/80',
-    description: 'Organisation des soins, coordination interprofessionnelle et sécurisation du parcours.'
-  },
-  {
-    code: 'IC-7',
-    title: 'Les droits individuels et collectifs du patient',
-    subtitle: 'Respect et protection des droits',
-    icon: Scale,
-    color: 'bg-success/80',
-    description: 'Droits des patients, consentement éclairé et médiation en santé.'
-  },
-  {
-    code: 'IC-8',
-    title: 'Les discriminations',
-    subtitle: 'Identification et lutte anti-discrimination',
-    icon: AlertTriangle,
-    color: 'bg-warning/80',
-    description: 'Reconnaissance des discriminations, prévention et intervention active.'
-  },
-  {
-    code: 'IC-9',
-    title: 'Certificats médicaux dans le cadre des violences',
-    subtitle: 'Expertise médico-légale et protection',
-    icon: FileText,
-    color: 'bg-accent/80',
-    description: 'Rédaction de certificats, accompagnement des victimes et expertise légale.'
-  },
-  {
-    code: 'IC-10',
-    title: 'Approches transversales du corps',
-    subtitle: 'Vision holistique et multidimensionnelle',
-    icon: Microscope,
-    color: 'bg-muted-foreground',
-    description: 'Approches intégratives du corps, dimensions psychosomatiques et transversalité.'
-  },
-  {
-    code: 'OIC-010-03-B',
-    title: 'Impact des différentes maladies sur l\'expérience du corps',
-    subtitle: 'Expérience corporelle et maladie',
-    icon: Brain,
-    color: 'bg-primary/60',
-    description: 'Impact psychocorporel des maladies, adaptation et accompagnement.'
-  }
 ];
 
+const getIconForItem = (code: string) => {
+  const icons: Record<string, React.ComponentType<any>> = {
+    'IC-1': Users,
+    'IC-2': Shield,
+    'IC-3': Brain,
+    'IC-4': Shield,
+    'IC-5': BookOpen,
+    'IC-6': Settings,
+    'IC-7': Scale,
+    'IC-8': AlertTriangle,
+    'IC-9': FileText,
+    'IC-10': Microscope,
+  };
+  return icons[code] || BookOpen;
+};
+
 export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItemSelect }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRang, setSelectedRang] = useState<'A' | 'B' | ''>('');
+
+  // Charger les items depuis la base de données
+  const { data: dbItems, isLoading, error } = useQuery({
+    queryKey: ['edn-items-for-creation'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('items')
+        .select('id, code, title, type, rang, keywords')
+        .order('code', { ascending: true })
+        .limit(100);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // Cache 5 minutes
+  });
+
+  // Utiliser les items DB ou le fallback
+  const items = useMemo(() => {
+    if (dbItems && dbItems.length > 0) {
+      return dbItems.map((item: any) => ({
+        code: item.code,
+        title: item.title,
+        description: item.keywords?.join(', ') || 'Item de formation médicale',
+        rang: item.rang,
+        type: item.type,
+      }));
+    }
+    return FALLBACK_EDN_ITEMS;
+  }, [dbItems]);
+
+  // Filtrer les items
+  const filteredItems = useMemo(() => {
+    return items.filter((item: any) => {
+      const matchesSearch = !searchQuery || 
+        item.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.title.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesRang = !selectedRang || item.rang === selectedRang;
+      
+      return matchesSearch && matchesRang;
+    });
+  }, [items, searchQuery, selectedRang]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Chargement des items...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {EDN_ITEMS.map((item) => (
-        <Card
-          key={item.code}
-          className={`hover:shadow-lg transition-shadow duration-300 cursor-pointer ${
-            selectedItem === item.code ? 'border-2 border-primary' : ''
-          }`}
-          onClick={() => onItemSelect(item.code)}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <item.icon className="h-5 w-5 text-muted-foreground" />
-              {item.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">{item.description}</p>
-            <Badge className="mt-2" variant="secondary">{item.subtitle}</Badge>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-4">
+      {/* Filtres */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher un item (IC-1, relation médecin...)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={selectedRang} onValueChange={(v) => setSelectedRang(v as 'A' | 'B' | '')}>
+          <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectValue placeholder="Tous rangs" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Tous rangs</SelectItem>
+            <SelectItem value="A">Rang A</SelectItem>
+            <SelectItem value="B">Rang B</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Compteur de résultats */}
+      <p className="text-sm text-muted-foreground">
+        {filteredItems.length} item{filteredItems.length > 1 ? 's' : ''} disponible{filteredItems.length > 1 ? 's' : ''}
+        {error && ' (mode hors-ligne)'}
+      </p>
+
+      {/* Liste des items */}
+      <ScrollArea className="h-[400px] rounded-md border p-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-2">
+          {filteredItems.map((item: any) => {
+            const Icon = getIconForItem(item.code);
+            const isSelected = selectedItem === item.code;
+            
+            return (
+              <Card
+                key={item.code}
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  isSelected 
+                    ? 'ring-2 ring-primary bg-primary/5' 
+                    : 'hover:border-primary/50'
+                }`}
+                onClick={() => onItemSelect(item.code)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm font-medium leading-tight line-clamp-2">
+                      {item.title}
+                    </CardTitle>
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className="text-xs">
+                      {item.code}
+                    </Badge>
+                    {item.rang && (
+                      <Badge 
+                        variant={item.rang === 'A' ? 'default' : 'secondary'} 
+                        className="text-xs"
+                      >
+                        Rang {item.rang}
+                      </Badge>
+                    )}
+                    {isSelected && (
+                      <Badge variant="default" className="text-xs bg-primary">
+                        ✓ Sélectionné
+                      </Badge>
+                    )}
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      {filteredItems.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
+          <p>Aucun item ne correspond à votre recherche</p>
+          <Button 
+            variant="link" 
+            onClick={() => { setSearchQuery(''); setSelectedRang(''); }}
+          >
+            Réinitialiser les filtres
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
