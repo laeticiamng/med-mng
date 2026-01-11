@@ -1,3 +1,4 @@
+// Generator page - Music Generation Module
 import React, { useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
