@@ -64,6 +64,9 @@ export const useSunoMusicGeneration = () => {
         reject(new Error('Timeout: génération trop longue (8 min max). Réessayez.'));
       }, ABSOLUTE_TIMEOUT);
 
+      // ✅ Utiliser un timestamp réel pour calculer le progress
+      const pollingStartTime = Date.now();
+      
       const checkStatus = async () => {
         // Vérifier si annulé
         if (abortRef.current) {
@@ -73,20 +76,28 @@ export const useSunoMusicGeneration = () => {
         
         attempts++;
         
-        // Calculer une progression plus réaliste basée sur le temps écoulé
-        // Phase 1 (0-30s): 0-30%, Phase 2 (30-60s): 30-50%, Phase 3 (60-120s): 50-80%, Phase 4 (120s+): 80-95%
-        const elapsedMs = attempts * (attempts < 10 ? FAST_POLL_INTERVAL : POLL_INTERVAL);
+        // ✅ CORRECTION: Utiliser le temps réel écoulé au lieu de attempts * interval
+        const realElapsedMs = Date.now() - pollingStartTime;
         let estimatedProgress: number;
-        if (elapsedMs < 30000) {
-          estimatedProgress = (elapsedMs / 30000) * 30; // 0-30%
-        } else if (elapsedMs < 60000) {
-          estimatedProgress = 30 + ((elapsedMs - 30000) / 30000) * 20; // 30-50%
-        } else if (elapsedMs < 120000) {
-          estimatedProgress = 50 + ((elapsedMs - 60000) / 60000) * 30; // 50-80%
+        
+        // Phase 1 (0-30s): 0-30%, Phase 2 (30-60s): 30-50%, Phase 3 (60-120s): 50-80%, Phase 4 (120s+): 80-95%
+        if (realElapsedMs < 30000) {
+          estimatedProgress = (realElapsedMs / 30000) * 30; // 0-30%
+        } else if (realElapsedMs < 60000) {
+          estimatedProgress = 30 + ((realElapsedMs - 30000) / 30000) * 20; // 30-50%
+        } else if (realElapsedMs < 120000) {
+          estimatedProgress = 50 + ((realElapsedMs - 60000) / 60000) * 30; // 50-80%
         } else {
-          estimatedProgress = 80 + Math.min(((elapsedMs - 120000) / 180000) * 15, 15); // 80-95%
+          estimatedProgress = 80 + Math.min(((realElapsedMs - 120000) / 180000) * 15, 15); // 80-95%
         }
+        
+        // ✅ Mettre à jour le progress AVANT les appels réseau
         setPollingProgress(Math.min(Math.round(estimatedProgress), 95));
+        console.log('[useSunoMusicGeneration] Progress update:', { 
+          attempts, 
+          realElapsedMs, 
+          estimatedProgress: Math.round(estimatedProgress) 
+        });
 
         try {
           // 1. ✅ AMÉLIORATION: Vérifier d'abord en BDD avec ORDER BY pour avoir le plus récent
