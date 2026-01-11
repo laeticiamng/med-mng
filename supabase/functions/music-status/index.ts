@@ -142,37 +142,66 @@ serve(async (req) => {
     }
 
     const sunoData = await sunoResponse.json();
-    console.log('📊 Réponse API Suno:', sunoData);
+    console.log('📊 Réponse API Suno:', JSON.stringify(sunoData, null, 2));
 
     let mappedStatus: 'generating' | 'completed' | 'failed' = 'generating';
     let audioUrl: string | undefined;
     let streamUrl: string | undefined;
     let imageUrl: string | undefined;
 
-    // ✅ CORRECTION: Parser selon le format /generate/record-info (comme dans generate-music)
+    // ✅ Parser selon le format réel de l'API Suno (docs.sunoapi.org)
     if (sunoData.code === 200 && sunoData.data) {
       const taskData = sunoData.data;
       
-      if (taskData.status === 'SUCCESS' || taskData.status === 'COMPLETE') {
+      // Statuts de succès: SUCCESS, FIRST_SUCCESS
+      if (taskData.status === 'SUCCESS' || taskData.status === 'FIRST_SUCCESS') {
         mappedStatus = 'completed';
         
-        // Extraire les URLs depuis response.data
-        if (taskData.response?.data && taskData.response.data.length > 0) {
-          const firstTrack = taskData.response.data[0];
-          audioUrl = firstTrack.audio_url;
-          streamUrl = firstTrack.video_url; // API Suno utilise video_url pour le stream
-          imageUrl = firstTrack.image_url;
+        // ✅ CORRECTION: Structure correcte = response.sunoData[0]
+        if (taskData.response?.sunoData && taskData.response.sunoData.length > 0) {
+          const firstTrack = taskData.response.sunoData[0];
+          audioUrl = firstTrack.audioUrl;
+          streamUrl = firstTrack.streamAudioUrl;
+          imageUrl = firstTrack.imageUrl;
+          console.log('🎵 Track trouvé:', { audioUrl, streamUrl, imageUrl, duration: firstTrack.duration });
         }
-      } else if (taskData.status === 'FAILED' || taskData.status === 'ERROR') {
+      } else if (
+        taskData.status === 'CREATE_TASK_FAILED' || 
+        taskData.status === 'GENERATE_AUDIO_FAILED' || 
+        taskData.status === 'SENSITIVE_WORD_ERROR' ||
+        taskData.status === 'CALLBACK_EXCEPTION'
+      ) {
         mappedStatus = 'failed';
+        console.log('❌ Génération échouée:', taskData.errorMessage || taskData.status);
       } else {
-        // Statuts en cours: PENDING, PROCESSING, RUNNING
+        // Statuts en cours: PENDING, TEXT_SUCCESS
         mappedStatus = 'generating';
+        console.log('⏳ Génération en cours:', taskData.status);
       }
     }
 
     const totalTime = Date.now() - startTime;
     console.log(`📊 Temps total requête status: ${totalTime}ms, status: ${mappedStatus}`);
+
+    // ✅ Mettre à jour la BDD si on a trouvé le résultat
+    if (mappedStatus === 'completed' && audioUrl) {
+      const { error: updateError } = await supabase
+        .from('generated_music_tracks')
+        .update({
+          audio_url: audioUrl,
+          stream_url: streamUrl,
+          image_url: imageUrl,
+          generation_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('task_id', taskId);
+      
+      if (updateError) {
+        console.error('⚠️ Erreur mise à jour BDD:', updateError);
+      } else {
+        console.log('✅ Track mis à jour en BDD');
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,
