@@ -213,7 +213,8 @@ const Generator = () => {
       }
       
       const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
-      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
+      // ✅ Passer les paramètres avancés à l'API Suno
+      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240, "V4_5ALL", advancedParams);
       toast.dismiss(loadingToast);
       
       // Réinitialiser le temps de génération
