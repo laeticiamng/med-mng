@@ -31,7 +31,10 @@ import { ModelSelector, type SunoModel } from '@/components/generator/ModelSelec
 import { OfflineQueueIndicator } from '@/components/generator/OfflineQueueIndicator';
 import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
 import { GenerateLyricsButton } from '@/components/generator/GenerateLyricsButton';
+import { PlaylistManager } from '@/components/generator/PlaylistManager';
+import { LyricsExportButton } from '@/components/generator/LyricsExportButton';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { useGamification } from '@/hooks/useGamification';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
@@ -65,6 +68,9 @@ const Generator = () => {
   
   // ✅ Hook réseau pour file d'attente hors-ligne
   const networkStatus = useNetworkStatus({ showToasts: false });
+  
+  // ✅ Hook file d'attente hors-ligne
+  const offlineQueue = useOfflineQueue();
   
   // ✅ Hook notifications enrichi
   const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
@@ -391,8 +397,20 @@ const Generator = () => {
             </div>
           </div>
           
-          {/* ✅ Indicateur file d'attente hors-ligne */}
-          <OfflineQueueIndicator className="mb-4" />
+          {/* ✅ Indicateur file d'attente hors-ligne avec données du hook */}
+          <OfflineQueueIndicator 
+            queue={offlineQueue.queue.map(q => ({
+              id: q.id,
+              title: q.payload?.title || 'Génération',
+              style: q.payload?.style || '',
+              rang: q.payload?.rang || 'A',
+              timestamp: q.createdAt,
+              status: q.status
+            }))}
+            onSync={offlineQueue.syncAll}
+            onClear={offlineQueue.clearQueue}
+            className="mb-4" 
+          />
 
           {/* ✅ Bannière d'avertissement quota/crédits */}
           <QuotaWarningBanner
@@ -418,7 +436,7 @@ const Generator = () => {
               />
             </div>
             
-            {/* ✅ Sélecteur de modèle + Génération de paroles IA */}
+          {/* ✅ Sélecteur de modèle + Génération de paroles IA */}
             <PremiumCard variant="glass" className="p-4 flex flex-col gap-3 sm:w-72">
               <div className="flex items-center gap-2 mb-1">
                 <Settings2 className="h-4 w-4 text-primary" />
@@ -435,6 +453,29 @@ const Generator = () => {
                 variant="outline"
                 size="sm"
               />
+              {/* ✅ Export paroles si disponibles */}
+              {(ednLyrics || ecosLyrics) && (
+                <LyricsExportButton
+                  lyrics={
+                    contentType === 'edn' && ednLyrics
+                      ? (ednLyrics.paroles_rang_a || ednLyrics.paroles_musicales || []).join('\n\n')
+                      : contentType === 'ecos' && ecosLyrics
+                        ? ecosLyrics.paroles.join('\n\n')
+                        : ''
+                  }
+                  title={
+                    contentType === 'edn' && ednLyrics
+                      ? ednLyrics.title
+                      : contentType === 'ecos' && ecosLyrics
+                        ? ecosLyrics.scenario.title
+                        : 'Paroles'
+                  }
+                  rang={selectedRang}
+                  style={selectedStyle}
+                  variant="outline"
+                  size="sm"
+                />
+              )}
             </PremiumCard>
           </div>
 
@@ -500,9 +541,18 @@ const Generator = () => {
             />
           )}
 
-          {/* Historique des générations */}
-          <div className="my-8">
-            <GenerationHistory />
+          {/* ✅ Gestionnaire de playlists + Historique des générations */}
+          <div className="my-8 grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {/* Sidebar playlists */}
+            <div className="lg:col-span-1">
+              <PremiumCard variant="glass" className="p-4 sticky top-4">
+                <PlaylistManager className="mb-4" />
+              </PremiumCard>
+            </div>
+            {/* Historique principal */}
+            <div className="lg:col-span-3">
+              <GenerationHistory />
+            </div>
           </div>
           
           {/* ✅ Drawer mobile pour l'historique récent */}
