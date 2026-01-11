@@ -152,26 +152,35 @@ const Generator = () => {
   }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation, ecosLyrics]);
 
   // ✅ Handler de génération avec support des paramètres avancés
+  // IMPORTANT: La connexion est requise même pour les générations gratuites
+  // afin de pouvoir tracker les crédits utilisés par utilisateur
   const handleGenerate = useCallback(async (advancedParams?: Partial<AdvancedSunoParams>) => {
+    // ✅ Vérifier d'abord si l'utilisateur est connecté (obligatoire même pour les essais gratuits)
+    if (!user) {
+      toast.error('Connectez-vous pour utiliser le générateur de musique (3 essais gratuits inclus !)', {
+        action: { label: 'Se connecter', onClick: () => navigate(ROUTE_PATHS.medMngLogin) },
+        duration: 5000
+      });
+      return;
+    }
+
     if (!canGenerate()) {
       toast.error('Veuillez sélectionner tous les paramètres requis');
       return;
     }
 
-    if (!user) {
+    // ✅ Vérifier le quota (gratuit ou abonnement)
+    if (!canGenerateMusic()) {
       if (remainingFree <= 0) {
-        toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.', {
-          action: { label: 'Se connecter', onClick: () => navigate(ROUTE_PATHS.medMngLogin) }
+        toast.error('Vous avez utilisé vos 3 générations gratuites. Passez à un abonnement pour continuer.', {
+          action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
         });
-        return;
-      }
-    } else {
-      if (!canGenerateMusic()) {
+      } else {
         toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.', {
           action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
         });
-        return;
       }
+      return;
     }
 
     try {
