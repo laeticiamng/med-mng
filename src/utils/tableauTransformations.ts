@@ -3,32 +3,34 @@
  * en format sections compatible avec les composants TableauRangA/B
  */
 export const transformTableauToSections = (tableauData: any, itemCode: string, title: string, rang: 'A' | 'B') => {
-  if (!tableauData || typeof tableauData !== 'object') {
+  const normalizedTableau = normalizeTableauData(tableauData);
+
+  if (!normalizedTableau) {
     return null;
   }
 
   // Si sections existe déjà et n'est pas vide, retourner tel quel
-  if (tableauData.sections && Array.isArray(tableauData.sections) && tableauData.sections.length > 0) {
-    return tableauData;
+  if (normalizedTableau.sections && Array.isArray(normalizedTableau.sections) && normalizedTableau.sections.length > 0) {
+    return normalizedTableau;
   }
 
   const sections = [];
 
   // Section 1 : Objectifs pédagogiques
-  if (tableauData.objectifs && Array.isArray(tableauData.objectifs) && tableauData.objectifs.length > 0) {
+  if (normalizedTableau.objectifs && Array.isArray(normalizedTableau.objectifs) && normalizedTableau.objectifs.length > 0) {
     sections.push({
       title: "Objectifs pédagogiques",
-      content: tableauData.objectifs.join('\n• '),
+      content: normalizedTableau.objectifs.join('\n• '),
       keywords: []
     });
   }
 
   // Section 2 : Compétences clés
-  if (tableauData.competences_cles && Array.isArray(tableauData.competences_cles) && tableauData.competences_cles.length > 0) {
+  if (normalizedTableau.competences_cles && Array.isArray(normalizedTableau.competences_cles) && normalizedTableau.competences_cles.length > 0) {
     sections.push({
       title: "Compétences clés",
       content: "",
-      competences: tableauData.competences_cles.map((comp: any) => ({
+      competences: normalizedTableau.competences_cles.map((comp: any) => ({
         competence_id: comp.niveau || comp.id || 'N/A',
         concept: comp.competence || comp.titre || comp.intitule || '',
         definition: comp.description || '',
@@ -48,29 +50,29 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
   }
 
   // Section 3 : Situations cliniques
-  if (tableauData.situations_cliniques && Array.isArray(tableauData.situations_cliniques) && tableauData.situations_cliniques.length > 0) {
+  if (normalizedTableau.situations_cliniques && Array.isArray(normalizedTableau.situations_cliniques) && normalizedTableau.situations_cliniques.length > 0) {
     sections.push({
       title: "Situations cliniques",
-      content: tableauData.situations_cliniques.join('\n• '),
+      content: normalizedTableau.situations_cliniques.join('\n• '),
       keywords: []
     });
   }
 
   // Section 4 : Cas complexes (pour Rang B)
-  if (rang === 'B' && tableauData.cas_complexes && Array.isArray(tableauData.cas_complexes) && tableauData.cas_complexes.length > 0) {
+  if (rang === 'B' && normalizedTableau.cas_complexes && Array.isArray(normalizedTableau.cas_complexes) && normalizedTableau.cas_complexes.length > 0) {
     sections.push({
       title: "Cas complexes",
-      content: tableauData.cas_complexes.join('\n• '),
+      content: normalizedTableau.cas_complexes.join('\n• '),
       keywords: []
     });
   }
 
   // Section 5 : Compétences expertes (pour Rang B)
-  if (rang === 'B' && tableauData.competences_expertes && Array.isArray(tableauData.competences_expertes) && tableauData.competences_expertes.length > 0) {
+  if (rang === 'B' && normalizedTableau.competences_expertes && Array.isArray(normalizedTableau.competences_expertes) && normalizedTableau.competences_expertes.length > 0) {
     sections.push({
       title: "Compétences expertes",
       content: "",
-      competences: tableauData.competences_expertes.map((comp: any) => ({
+      competences: normalizedTableau.competences_expertes.map((comp: any) => ({
         competence_id: comp.niveau || 'Expert',
         concept: comp.expertise || comp.competence || '',
         definition: comp.description || '',
@@ -89,12 +91,44 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
 
   // Si aucune section n'a été créée, retourner le tableau original
   if (sections.length === 0) {
-    return tableauData;
+    return normalizedTableau;
   }
 
   return {
-    title: tableauData.title || `${itemCode} Rang ${rang} - ${title}`,
-    subtitle: tableauData.subtitle,
+    title: normalizedTableau.title || `${itemCode} Rang ${rang} - ${title}`,
+    subtitle: normalizedTableau.subtitle,
     sections: sections
   };
+};
+
+export const normalizeTableauData = (tableauData: any) => {
+  const parsedTableau = parseJsonValue(tableauData);
+  if (!parsedTableau || typeof parsedTableau !== 'object') {
+    return null;
+  }
+
+  if ('sections' in parsedTableau) {
+    const parsedSections = parseJsonValue((parsedTableau as { sections?: unknown }).sections);
+    if (Array.isArray(parsedSections)) {
+      return {
+        ...(parsedTableau as Record<string, unknown>),
+        sections: parsedSections
+      };
+    }
+  }
+
+  return parsedTableau;
+};
+
+const parseJsonValue = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.warn('⚠️ Impossible de parser un JSONB stringifié:', error);
+    return null;
+  }
 };
