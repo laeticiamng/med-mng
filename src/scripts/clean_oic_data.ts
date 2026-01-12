@@ -166,6 +166,16 @@ class OICDataCleaner {
 
         fixedDescription = fixedDescription.replace(/^[-*•]\s*/, '');
 
+        if (comp.raw_json?.content) {
+          const listRebuild = this.normalizeListDescription(
+            fixedDescription,
+            comp.raw_json.content
+          );
+          if (listRebuild && listRebuild.length > fixedDescription.length) {
+            fixedDescription = listRebuild;
+          }
+        }
+
         if (fixedDescription.length < 50 && comp.raw_json?.content) {
           const fullContent = this.extractFullDescription(
             comp.raw_json.content,
@@ -216,6 +226,26 @@ class OICDataCleaner {
     }
 
     return content.substring(start, end).trim();
+  }
+
+  private extractListItems(content: string): string[] {
+    return content
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => /^([*#;:]+)\s+/.test(line))
+      .map((line) => line.replace(/^([*#;:]+)\s+/, ''))
+      .map((line) => this.decodeHTMLEntities(this.cleanMediaWikiLinks(line)))
+      .map((line) => line.replace(/<[^>]+>/g, '').trim())
+      .filter(Boolean);
+  }
+
+  private normalizeListDescription(description: string, content: string): string {
+    const listItems = this.extractListItems(content);
+    if (!listItems.length) return description;
+    if (description.length < 50 || /^[-*•]\s+/.test(description)) {
+      return listItems.join('; ');
+    }
+    return description;
   }
 
   private async fixCorruptedTitles() {
@@ -425,4 +455,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const cleaner = new OICDataCleaner();
   cleaner.run().catch(console.error);
 }
-
