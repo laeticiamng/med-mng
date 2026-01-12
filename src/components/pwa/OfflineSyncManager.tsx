@@ -78,7 +78,7 @@ export const OfflineSyncManager: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
   const [lastFullSync, setLastFullSync] = useState<string | null>(null);
-  const isOnline = useNetworkStatus();
+  const { isOnline } = useNetworkStatus({ showToasts: false });
   const { toast } = useToast();
 
   useEffect(() => {
