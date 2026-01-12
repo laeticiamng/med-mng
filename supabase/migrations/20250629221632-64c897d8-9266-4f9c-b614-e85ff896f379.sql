@@ -1,3 +1,7 @@
+-- S'assurer que les extensions sont installées hors du schéma public
+CREATE SCHEMA IF NOT EXISTS extensions;
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 
 -- Renommer les fonctions existantes pour ajouter le préfixe MED MNG
 -- Si elles existent déjà avec le bon préfixe, ces commandes ne feront rien
@@ -149,7 +153,7 @@ SECURITY DEFINER
 AS $function$
 BEGIN
   -- Upsert the scheduled job for MED MNG
-  PERFORM cron.schedule(
+  PERFORM extensions.schedule(
     'med-mng-activity-logs-cleanup',
     '0 0 * * *',
     'SELECT public.med_mng_delete_old_activity_logs()'

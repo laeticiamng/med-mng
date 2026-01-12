@@ -25,12 +25,12 @@ CREATE POLICY "Service role can manage email logs"
 
 -- Configurer le cron job pour l'envoi hebdomadaire automatique
 -- S'exécute tous les lundis à 9h00 UTC
-SELECT cron.schedule(
+SELECT extensions.schedule(
   'weekly-alerts-report',
   '0 9 * * 1', -- Chaque lundi à 9h00
   $$
   SELECT
-    net.http_post(
+    extensions.http_post(
       url := current_setting('app.settings.supabase_url') || '/functions/v1/send-weekly-alerts-report',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
