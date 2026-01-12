@@ -73,6 +73,7 @@ const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
 const AdminCompleteProcess = lazy(() => import("./pages/AdminCompleteProcess"));
 const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
+const AdminExtractionQualityDashboard = lazy(() => import("./pages/AdminExtractionQualityDashboard"));
 
 // 🏥 MEDMNG PAGES - Lazy loaded
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(m => ({ default: m.MedMngLogin })));
@@ -256,6 +257,7 @@ const App = () => {
             <Route path={ROUTE_PATHS.adminExtractEcos} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEcos /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminExtractObjectifs} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnObjectifsExtractionPage /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminOicQuality} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OicDataQualityManager /></Suspense></AdminRoute>} />
+            <Route path={ROUTE_PATHS.adminExtractionQuality} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractionQualityDashboard /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminComplete} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminCompleteProcess /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminPanel} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminPanel /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.library} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LibraryPage /></Suspense>} />
