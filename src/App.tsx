@@ -1,3 +1,4 @@
+// App.tsx - Force rebuild v2026.01.12
 import React, { Suspense, lazy, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
