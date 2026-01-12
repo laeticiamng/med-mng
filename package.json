@@ -12,6 +12,9 @@
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "jest",
+    "test:supabase-docs": "node scripts/validate-supabase-functions-docs.js",
+    "test:supabase-env": "node scripts/validate-supabase-env.js",
+    "test:supabase": "node scripts/validate-supabase-functions-docs.js && node scripts/validate-supabase-env.js",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js"
   },
