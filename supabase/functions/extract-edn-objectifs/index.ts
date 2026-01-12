@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCategoryMembers, getPageContent, testPublicAccess } from './api-client.ts'
-import { parseOICContent, OicCompetence } from './oic-parser.ts'
+import { parseOICContent } from './oic-parser.ts'
+import { assessOicCompetence, computeQualityScore, shouldBlockImport, OicQualityMetrics } from './oic-quality.ts'
 
 // Importations pour Puppeteer (authentification CAS)
 // @ts-ignore
@@ -140,6 +141,7 @@ async function startExtraction(supabaseClient: any) {
 async function extractCompetences(supabaseClient: any, session_id: string) {
   let totalExtraites = 0;
   let currentBatch = 0;
+  let shouldAbort = false;
 
   try {
     console.log(`${LOG_TAG} extraction_started session_id=${session_id}`)
@@ -184,6 +186,10 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
     const totalBatches = Math.ceil(allPageIds.length / batchSize)
     
     for (let batch = 0; batch < totalBatches; batch++) {
+      if (shouldAbort) {
+        break
+      }
+
       currentBatch = batch + 1
       const startIdx = batch * batchSize
       const endIdx = Math.min(startIdx + batchSize, allPageIds.length)
@@ -206,12 +212,37 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
       
       // Parser et sauvegarder chaque page
       let savedInBatch = 0
+      const batchMetrics: OicQualityMetrics = {
+        totalPages: batchIds.length,
+        parsedItems: 0,
+        savedItems: 0,
+        criticalAnomalies: 0,
+        warningAnomalies: 0,
+        parseFailures: 0,
+        qualityScore: 1
+      }
+      const criticalSamples: string[] = []
       for (const page of batchContent) {
+        if (shouldAbort) {
+          break
+        }
         try {
           console.log(`🔍 Parsing page: ${page.title} (ID: ${page.pageid})`)
           const competence = parseOICContent(page)
           
           if (competence) {
+            batchMetrics.parsedItems += 1
+            const assessment = assessOicCompetence(competence)
+            batchMetrics.criticalAnomalies += assessment.criticalIssues.length
+            batchMetrics.warningAnomalies += assessment.warningIssues.length
+
+            if (assessment.criticalIssues.length > 0) {
+              criticalSamples.push(`${competence.objectif_id}: ${assessment.criticalIssues.join(',')}`)
+              shouldAbort = shouldBlockImport(batchMetrics)
+              console.error(`🛑 Anomalie critique détectée: ${competence.objectif_id}`, assessment.criticalIssues)
+              continue
+            }
+
             // Log de l'échantillon AVANT insertion
             if (savedInBatch === 0) {
               console.log('SAMPLE ➜', JSON.stringify(competence, null, 2))
@@ -237,17 +268,59 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
               console.log(`✅ Insertion réussie: ${competence.objectif_id}`)
               savedInBatch++
               totalExtraites++
+              batchMetrics.savedItems += 1
             }
           } else {
             console.log(`⚠️  Parsing échoué pour ${page.title} - competence null`)
+            batchMetrics.parseFailures += 1
+            criticalSamples.push(`${page.title}: parse_failed`)
+            shouldAbort = shouldBlockImport(batchMetrics)
           }
         } catch (error) {
           console.error(`💥 Erreur parsing page ${page.title}:`, error)
           console.error('📄 Page content preview:', page.revisions?.[0]?.content?.substring(0, 200))
+          batchMetrics.parseFailures += 1
+          criticalSamples.push(`${page.title}: parse_exception`)
+          shouldAbort = shouldBlockImport(batchMetrics)
         }
       }
       
       console.log(`✅ Batch ${currentBatch}: ${savedInBatch}/${batchIds.length} objectifs sauvegardés (Total: ${totalExtraites})`)
+
+      batchMetrics.qualityScore = computeQualityScore(batchMetrics)
+
+      await supabaseClient
+        .from('oic_quality_metrics')
+        .insert({
+          session_id,
+          batch_number: currentBatch,
+          total_pages: batchMetrics.totalPages,
+          parsed_items: batchMetrics.parsedItems,
+          saved_items: batchMetrics.savedItems,
+          critical_anomalies: batchMetrics.criticalAnomalies,
+          warning_anomalies: batchMetrics.warningAnomalies,
+          parse_failures: batchMetrics.parseFailures,
+          quality_score: batchMetrics.qualityScore
+        })
+        .then(({ error }) => {
+          if (error) {
+            console.error('⚠️ Impossible d\'historiser les métriques qualité:', error)
+          }
+        })
+
+      if (shouldAbort) {
+        const errorMessage = `Anomalies critiques détectées (batch ${currentBatch}): ${criticalSamples.slice(0, 5).join(' | ')}`
+        await supabaseClient
+          .from('oic_extraction_progress')
+          .update({
+            status: 'erreur',
+            error_message: errorMessage,
+            last_activity: new Date().toISOString()
+          })
+          .eq('session_id', session_id)
+        console.error(`🛑 Extraction interrompue: ${errorMessage}`)
+        break
+      }
       
       // Pause entre les batches
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -256,14 +329,16 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
     // Finaliser l'extraction
     console.log(`🎉 Extraction terminée: ${totalExtraites} objectifs OIC extraits`)
     
-    await supabaseClient
-      .from('oic_extraction_progress')
-      .update({
-        status: 'termine',
-        items_extracted: totalExtraites,
-        last_activity: new Date().toISOString()
-      })
-      .eq('session_id', session_id)
+    if (!shouldAbort) {
+      await supabaseClient
+        .from('oic_extraction_progress')
+        .update({
+          status: 'termine',
+          items_extracted: totalExtraites,
+          last_activity: new Date().toISOString()
+        })
+        .eq('session_id', session_id)
+    }
 
   } catch (error) {
     console.error('💥 Erreur critique extraction:', error)
