@@ -1,8 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
+import { appendEdnCacheParams, getEdnCacheBuster, pickCacheDiagnostics, subscribeEdnCacheBuster } from '@/utils/ednCache';
+
+const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;
@@ -24,6 +27,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
   const [error, setError] = useState<string | null>(null);
   const [isV2Format, setIsV2Format] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -36,18 +40,30 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       try {
         console.log('🔍 useEdnItemV2 - Chargement item:', slug);
         
-        // 1. Récupération depuis Supabase
-        const { data, error: supabaseError } = await supabase
-          .from('edn_items_immersive')
-          .select('*')
-          .eq('slug', slug)
-          .maybeSingle();
+        // 1. Récupération depuis Supabase REST avec cache busting
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`;
+        const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
+        const response = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
+        });
 
-        if (supabaseError) {
-          console.error('❌ Erreur Supabase:', supabaseError);
+        if (!response.ok) {
+          console.error('❌ Erreur Supabase REST:', response.status, response.statusText);
           setError('Item non trouvé');
           return;
         }
+
+        const payload = await response.json();
+        console.log('🧾 useEdnItemV2 - Cache headers:', pickCacheDiagnostics(response.headers));
+
+        const data = Array.isArray(payload) ? payload[0] : payload;
 
         if (!data) {
           setError('Aucune donnée trouvée');
@@ -106,8 +122,16 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
       }
     };
 
+    const unsubscribe = subscribeEdnCacheBuster((value) => {
+      setCacheBuster(value);
+    });
+
     fetchItem();
-  }, [slug]);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [slug, cacheBuster]);
 
   return { 
     item, 

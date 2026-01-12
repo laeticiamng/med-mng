@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 
 export interface EdnItemOptimized {
   id: string;
@@ -25,15 +26,19 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 interface CacheData {
   items: EdnItemOptimized[];
   timestamp: number;
+  cacheBuster: string;
 }
 
 // ✅ Charger depuis le cache localStorage immédiatement
-const loadFromCache = (): EdnItemOptimized[] | null => {
+const loadFromCache = (cacheBuster: string): EdnItemOptimized[] | null => {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
     
     const data: CacheData = JSON.parse(cached);
+    if (data.cacheBuster !== cacheBuster) {
+      return null;
+    }
     const isExpired = Date.now() - data.timestamp > CACHE_TTL;
     
     // Retourner même si expiré (pour affichage immédiat), mais on refresh en background
@@ -43,9 +48,9 @@ const loadFromCache = (): EdnItemOptimized[] | null => {
   }
 };
 
-const saveToCache = (items: EdnItemOptimized[]) => {
+const saveToCache = (items: EdnItemOptimized[], cacheBuster: string) => {
   try {
-    const data: CacheData = { items, timestamp: Date.now() };
+    const data: CacheData = { items, timestamp: Date.now(), cacheBuster };
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch {
     // Ignore localStorage errors
@@ -53,9 +58,10 @@ const saveToCache = (items: EdnItemOptimized[]) => {
 };
 
 export const useEdnItemsOptimized = () => {
+  const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
   // ✅ Initialiser avec le cache pour affichage instantané
-  const [items, setItems] = useState<EdnItemOptimized[]>(() => loadFromCache() || []);
-  const [loading, setLoading] = useState(() => !loadFromCache());
+  const [items, setItems] = useState<EdnItemOptimized[]>(() => loadFromCache(cacheBuster) || []);
+  const [loading, setLoading] = useState(() => !loadFromCache(cacheBuster));
   const [error, setError] = useState<string | null>(null);
 
   const fetchItems = useCallback(async (showLoading = true) => {
@@ -68,17 +74,19 @@ export const useEdnItemsOptimized = () => {
       }
 
       // ✅ Requête unique optimisée - seulement les champs essentiels
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code`,
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          signal: controller.signal
-        }
-      );
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code`;
+      const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
+      const response = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        signal: controller.signal,
+        cache: 'no-store'
+      });
 
       clearTimeout(timeoutId);
 
@@ -110,7 +118,7 @@ export const useEdnItemsOptimized = () => {
       }));
 
       setItems(mappedItems);
-      saveToCache(mappedItems);
+      saveToCache(mappedItems, cacheBuster);
       setLoading(false);
       setError(null);
 
@@ -119,7 +127,7 @@ export const useEdnItemsOptimized = () => {
       
       if (err instanceof Error && err.name === 'AbortError') {
         // Timeout - utiliser le cache si disponible
-        const cached = loadFromCache();
+        const cached = loadFromCache(cacheBuster);
         if (cached && cached.length > 0) {
           setItems(cached);
           setLoading(false);
@@ -131,17 +139,24 @@ export const useEdnItemsOptimized = () => {
       }
       setLoading(false);
     }
-  }, [items.length]);
+  }, [cacheBuster, items.length]);
 
   useEffect(() => {
+    const unsubscribe = subscribeEdnCacheBuster((value) => {
+      setCacheBuster(value);
+    });
+
     // Si on a des données en cache, refresh en background
-    const cached = loadFromCache();
+    const cached = loadFromCache(cacheBuster);
     if (cached && cached.length > 0) {
       fetchItems(false); // Background refresh sans loading
     } else {
       fetchItems(true);
     }
-  }, []);
+    return () => {
+      unsubscribe();
+    };
+  }, [cacheBuster, fetchItems]);
 
   const stats = useMemo(() => {
     const total = items.length;
@@ -186,4 +201,5 @@ export const invalidateEdnCache = () => {
   } catch {
     // Ignore
   }
+  bumpEdnCacheBuster('invalidate-cache');
 };

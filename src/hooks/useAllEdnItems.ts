@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 
 interface EdnItem {
   item_code: string;
@@ -29,8 +30,16 @@ export const useAllEdnItems = () => {
   const [stats, setStats] = useState<EdnItemsStats>(cachedStats || { total: 0, withMusic: 0, withLyrics: 0, byCategory: {} });
   const [loading, setLoading] = useState(!cachedItems);
   const [error, setError] = useState<string | null>(null);
+  const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
+  const lastCacheBusterRef = useRef(cacheBuster);
 
   useEffect(() => {
+    if (cacheBuster !== lastCacheBusterRef.current) {
+      cachedItems = null;
+      cachedStats = null;
+      lastCacheBusterRef.current = cacheBuster;
+    }
+
     // Si on a des données en cache, ne pas refetch
     if (cachedItems && cachedItems.length > 0) {
       setItems(cachedItems);
@@ -40,6 +49,9 @@ export const useAllEdnItems = () => {
     }
 
     let isMounted = true;
+    const unsubscribe = subscribeEdnCacheBuster((value) => {
+      setCacheBuster(value);
+    });
 
     const fetchItems = async () => {
       try {
@@ -47,16 +59,18 @@ export const useAllEdnItems = () => {
         setError(null);
 
         // Utiliser fetch direct pour éviter les conflits avec d'autres hooks Supabase
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`,
-          {
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-            }
-          }
-        );
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`;
+        const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
+        const response = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
+        });
 
         if (!isMounted) return;
 
@@ -111,8 +125,9 @@ export const useAllEdnItems = () => {
 
     return () => {
       isMounted = false;
+      unsubscribe();
     };
-  }, []);
+  }, [cacheBuster]);
 
   const getItemByCode = useCallback((code: string) => {
     return items.find(item => item.item_code === code);
@@ -137,7 +152,7 @@ export const useAllEdnItems = () => {
   const refreshItems = useCallback(() => {
     cachedItems = null;
     cachedStats = null;
-    window.location.reload();
+    bumpEdnCacheBuster('manual-refresh');
   }, []);
 
   return {

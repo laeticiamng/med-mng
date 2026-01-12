@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { bumpEdnCacheBuster } from '@/utils/ednCache';
 
 interface QuickEditModalProps {
   isOpen: boolean;
@@ -51,6 +52,9 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
 
       if (data.success) {
         toast.success('Modification appliquée avec succès');
+        if (formData.table_name === 'edn_items_immersive' || formData.table_name === 'edn_items_complete') {
+          bumpEdnCacheBuster('admin-quick-edit');
+        }
         onSuccess();
         onClose();
       } else {
