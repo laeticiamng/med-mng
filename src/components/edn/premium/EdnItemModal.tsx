@@ -29,6 +29,7 @@ import { ProgressHeatmap } from "@/components/edn/quiz/ProgressHeatmap";
 import { SocialShare } from "@/components/social/SocialShare";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
+import { normalizeTableauData, transformTableauToSections } from "@/utils/tableauTransformations";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -168,11 +169,24 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               }
             }
             
+            const normalizedRangA = transformTableauToSections(
+              data.tableau_rang_a,
+              finalItem.item_code,
+              finalItem.title,
+              'A'
+            ) || normalizeTableauData(data.tableau_rang_a);
+            const normalizedRangB = transformTableauToSections(
+              data.tableau_rang_b,
+              finalItem.item_code,
+              finalItem.title,
+              'B'
+            ) || normalizeTableauData(data.tableau_rang_b);
+
             setCompleteItemData({
               quiz_questions: data.quiz_questions as unknown,
               scene_immersive: data.scene_immersive as unknown,
-              tableau_rang_a: data.tableau_rang_a as unknown,
-              tableau_rang_b: data.tableau_rang_b as unknown,
+              tableau_rang_a: normalizedRangA as unknown,
+              tableau_rang_b: normalizedRangB as unknown,
               paroles_musicales: normalizedParoles,
               paroles_rang_a: data.paroles_rang_a as string[],
               paroles_rang_b: data.paroles_rang_b as string[],

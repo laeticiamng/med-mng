@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, CheckCircle, Clock, FileText, Users, BookOpen } from 'lucide-react';
 import { useItemsCompleteness } from '@/hooks/useItemsCompleteness';
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeTableauData } from '@/utils/tableauTransformations';
 
 interface TableauSection {
   title: string;
@@ -108,7 +109,8 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
   }
 
   const renderTableau = (tableauData: TableauData | null, type: 'A' | 'B') => {
-    if (!tableauData || !tableauData.sections || tableauData.sections.length === 0) {
+    const normalizedTableau = normalizeTableauData(tableauData) as TableauData | null;
+    if (!normalizedTableau || !normalizedTableau.sections || normalizedTableau.sections.length === 0) {
       return (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -129,10 +131,10 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
     return (
       <div className="space-y-4">
         <div className="border-b pb-4">
-          <h3 className="text-lg font-semibold">{tableauData.title}</h3>
+          <h3 className="text-lg font-semibold">{normalizedTableau.title}</h3>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline">
-              {tableauData.sections.length} section{tableauData.sections.length > 1 ? 's' : ''}
+              {normalizedTableau.sections.length} section{normalizedTableau.sections.length > 1 ? 's' : ''}
             </Badge>
             {type === 'A' && (
               <Badge variant="secondary">
@@ -150,7 +152,7 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
         </div>
 
         <div className="grid gap-4">
-          {tableauData.sections.map((section, index) => (
+          {normalizedTableau.sections.map((section, index) => (
             <Card key={index} className="border-l-4 border-l-primary">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{section.title}</CardTitle>
