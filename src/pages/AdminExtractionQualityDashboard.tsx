@@ -12,7 +12,7 @@ import { useSystemAlerts } from '@/hooks/useSystemAlerts';
 import { toast } from 'sonner';
 
 interface OicCompetenceRow {
-  id: string;
+  objectif_id: string;
   intitule: string;
   description: string | null;
   contenu_detaille: unknown | null;
@@ -104,7 +104,7 @@ export const AdminExtractionQualityDashboard: React.FC = () => {
       setLoading(true);
       const { data, count, error } = await supabase
         .from('oic_competences')
-        .select('id, intitule, description, contenu_detaille', { count: 'exact' })
+        .select('objectif_id, intitule, description, contenu_detaille', { count: 'exact' })
         .range(0, 9999);
 
       if (error) throw error;

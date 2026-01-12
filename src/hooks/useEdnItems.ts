@@ -96,8 +96,8 @@ export const useEdnItems = () => {
         setItems(fetchedItems);
       }
 
-      const latestUpdatedAt = fetchedItems.reduce<string>(
-        (latest, item) => (item.updated_at && item.updated_at > latest ? item.updated_at : latest),
+      const latestUpdatedAt = fetchedItems.reduce(
+        (latest: string, item) => (item.updated_at && item.updated_at > latest ? item.updated_at : latest),
         ''
       );
       const signature = `${fetchedItems.length}-${latestUpdatedAt}-${total}`;
