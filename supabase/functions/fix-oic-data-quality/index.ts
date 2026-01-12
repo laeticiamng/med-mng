@@ -19,6 +19,7 @@ interface FixReport {
   emptyDescriptionsHandled: number;
   wikitablesCleaned: number;
   intitulesFixed: number;
+  entriesReextracted: number;
   errors: string[];
   samples: any[];
 }
@@ -203,6 +204,7 @@ async function fixDataQuality(supabaseClient: any) {
     emptyDescriptionsHandled: 0,
     wikitablesCleaned: 0,
     intitulesFixed: 0,
+    entriesReextracted: 0,
     errors: [],
     samples: []
   };
@@ -227,6 +229,21 @@ async function fixDataQuality(supabaseClient: any) {
       let fixedDescription = comp.description || '';
       const fixes = [];
 
+      // 0. Ré-extraction si raw_json disponible pour les entrées problématiques
+      if (comp.raw_json) {
+        const rawContent = extractContentFromRawJson(comp.raw_json);
+        if (rawContent) {
+          const extracted = extractFromRawContent(rawContent, fixedIntitule, fixedDescription);
+          if (extracted) {
+            fixedIntitule = extracted.intitule;
+            fixedDescription = extracted.description;
+            needsUpdate = true;
+            fixes.push('reextracted_from_raw');
+            report.entriesReextracted++;
+          }
+        }
+      }
+
       // 1. Nettoyer les intitulés corrompus
       if (fixedIntitule.includes('[[') && fixedIntitule.includes(']]')) {
         // Extraire le texte des liens MediaWiki [[text|display]] ou [[text]]
@@ -248,7 +265,8 @@ async function fixDataQuality(supabaseClient: any) {
           .replace(/&nbsp;/g, ' ')
           .replace(/&amp;/g, '&')
           .replace(/&quot;/g, '"')
-          .replace(/&#39;/g, "'");
+          .replace(/&#39;/g, "'")
+          .replace(/&#(\d+);/g, (_match, code) => String.fromCharCode(Number(code)));
         needsUpdate = true;
         fixes.push('html_entities_fixed');
         report.htmlEntitiesFixed++;
@@ -256,13 +274,8 @@ async function fixDataQuality(supabaseClient: any) {
 
       // 3. Nettoyer les tables MediaWiki
       if (fixedDescription.includes('{|') && fixedDescription.includes('|}')) {
-        // Convertir les tables MediaWiki simples en texte structuré
-        fixedDescription = fixedDescription.replace(/\{\|\s*class="wikitable"[\s\S]*?\|\}/g, (table) => {
-          // Extraire les lignes de la table
-          const rows = table.split('\n').filter(line => line.trim().startsWith('|') && !line.includes('class='));
-          const cleanRows = rows.map(row => row.replace(/^\|\s*/, '').trim()).filter(row => row.length > 0);
-          return cleanRows.length > 0 ? `\n• ${cleanRows.join('\n• ')}\n` : '[Tableau à reformater]';
-        });
+        // Convertir les tables MediaWiki en HTML standard
+        fixedDescription = fixedDescription.replace(/\{\|[\s\S]*?\|\}/g, (table) => convertMediaWikiTableToHtml(table));
         needsUpdate = true;
         fixes.push('wikitable_cleaned');
         report.wikitablesCleaned++;
@@ -365,4 +378,138 @@ async function fixDataQuality(supabaseClient: any) {
   return new Response(JSON.stringify(summary), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+}
+
+function extractContentFromRawJson(rawJson: any): string | null {
+  if (!rawJson) return null;
+  return (
+    rawJson?.revisions?.[0]?.slots?.main?.content ||
+    rawJson?.revisions?.[0]?.['*'] ||
+    rawJson?.revisions?.[0]?.content ||
+    rawJson?.content ||
+    null
+  );
+}
+
+function extractFromRawContent(
+  content: string,
+  fallbackIntitule: string,
+  fallbackDescription: string
+): { intitule: string; description: string } | null {
+  const intitulePatterns = [
+    /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
+    /\|\s*[Tt]itre\s*=\s*([^\n\|]+)/,
+    /'''(.+?)'''/,
+    /<th[^>]*>[Ii]ntitulé<\/th>\s*<td[^>]*>([^<]+)/,
+    /==\s*(.+?)\s*==/,
+    /^\s*(.*?)$/m
+  ];
+
+  let intitule = fallbackIntitule;
+  for (const pattern of intitulePatterns) {
+    const match = pattern.exec(content);
+    if (match && match[1] && match[1].trim()) {
+      intitule = match[1].trim();
+      break;
+    }
+  }
+
+  const descPatterns = [
+    /\|\s*[Dd]escription\s*=\s*([^\n\|]+)/,
+    /\|\s*[Dd]éfinition\s*=\s*([^\n\|]+)/,
+    /<th[^>]*>[Dd]escription<\/th>\s*<td[^>]*>([^<]+)/,
+    /\n\n(.+?)(?=\n\n|\[\[|==|$)/s
+  ];
+
+  let description = fallbackDescription || '';
+  for (const pattern of descPatterns) {
+    const match = pattern.exec(content);
+    if (match && match[1] && match[1].trim()) {
+      description = match[1].trim();
+      break;
+    }
+  }
+
+  if (!description && !intitule) {
+    return null;
+  }
+
+  const cleanedDescription = description
+    .replace(/\[\[(.+?)\|(.+?)\]\]/g, '$2')
+    .replace(/\[\[(.+?)\]\]/g, '$1')
+    .replace(/'''(.+?)'''/g, '$1')
+    .replace(/''(.+?)''/g, '$1')
+    .replace(/{{.+?}}/g, '')
+    .replace(/<ref.*?\/>/g, '')
+    .replace(/<.*?>/g, '')
+    .trim();
+
+  return {
+    intitule: intitule.substring(0, 500),
+    description: cleanedDescription.substring(0, 2000)
+  };
+}
+
+function convertMediaWikiTableToHtml(tableText: string): string {
+  const lines = tableText.split('\n');
+  const rows: Array<{ cells: string[]; isHeader: boolean }> = [];
+  let currentRow: { cells: string[]; isHeader: boolean } = { cells: [], isHeader: false };
+
+  const pushRow = () => {
+    if (currentRow.cells.length > 0) {
+      rows.push(currentRow);
+      currentRow = { cells: [], isHeader: false };
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('{|')) {
+      continue;
+    }
+    if (trimmed.startsWith('|}')) {
+      pushRow();
+      break;
+    }
+    if (trimmed.startsWith('|-')) {
+      pushRow();
+      continue;
+    }
+
+    const isHeader = trimmed.startsWith('!');
+    if (trimmed.startsWith('|') || trimmed.startsWith('!')) {
+      const cellContent = trimmed.slice(1).trim();
+      const parts = cellContent.split(/!!|\|\|/g);
+      const cleanedParts = parts
+        .map((cell) => cell.replace(/^[^|]*\|\s*/, '').trim())
+        .filter(Boolean);
+
+      if (cleanedParts.length > 0) {
+        currentRow.isHeader = currentRow.isHeader || isHeader;
+        currentRow.cells.push(...cleanedParts);
+      }
+    }
+  }
+
+  if (rows.length === 0) {
+    return tableText;
+  }
+
+  const headerRows = rows.filter((row) => row.isHeader);
+  const bodyRows = rows.filter((row) => !row.isHeader);
+
+  const thead = headerRows.length
+    ? `<thead>${headerRows
+        .map(
+          (row) =>
+            `<tr>${row.cells.map((cell) => `<th>${cell}</th>`).join('')}</tr>`
+        )
+        .join('')}</thead>`
+    : '';
+
+  const tbodyRows = (bodyRows.length ? bodyRows : rows).map(
+    (row) => `<tr>${row.cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`
+  );
+
+  return `<table class="wikitable">${thead}<tbody>${tbodyRows.join('')}</tbody></table>`;
 }

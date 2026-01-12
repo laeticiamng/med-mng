@@ -15,6 +15,7 @@ interface CleaningReport {
   empty_descriptions_handled: number;
   intitules_fixed: number;
   mediawiki_tables_converted: number;
+  entries_reextracted: number;
   errors: Array<{
     objectif_id: string;
     error: string;
@@ -32,6 +33,7 @@ class OICDataCleaner {
     empty_descriptions_handled: 0,
     intitules_fixed: 0,
     mediawiki_tables_converted: 0,
+    entries_reextracted: 0,
     errors: [],
     timestamp: new Date().toISOString(),
   };
@@ -53,6 +55,9 @@ class OICDataCleaner {
       console.log('\n🔧 Correction des intitulés corrompus...');
       await this.fixCorruptedTitles();
 
+      console.log('\n🔁 Ré-extraction des entrées problématiques...');
+      await this.reExtractProblematicEntries();
+
       console.log('\n🔧 Conversion des tables MediaWiki...');
       await this.convertMediaWikiTables();
 
@@ -68,6 +73,7 @@ class OICDataCleaner {
       console.log(`   Fragments corrigés: ${this.report.fragments_fixed}`);
       console.log(`   Intitulés corrigés: ${this.report.intitules_fixed}`);
       console.log(`   Tables converties: ${this.report.mediawiki_tables_converted}`);
+      console.log(`   Entrées ré-extraites: ${this.report.entries_reextracted}`);
       console.log(`   Erreurs: ${this.report.errors.length}`);
     } catch (error) {
       console.error('❌ Erreur lors du nettoyage:', error);
@@ -138,8 +144,10 @@ class OICDataCleaner {
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&apos;/g, "'")
+      .replace(/&#39;/g, "'")
       .replace(/&amp;/g, '&')
       .replace(/&nbsp;/g, ' ')
+      .replace(/&#(\d+);/g, (_match, code) => String.fromCharCode(Number(code)))
       .replace(/<br\s*\/?>(\r?\n)?/gi, '\n')
       .replace(/<sup>([^<]+)<\/sup>/gi, '^$1')
       .replace(/<sub>([^<]+)<\/sub>/gi, '_$1')
@@ -252,6 +260,138 @@ class OICDataCleaner {
     }
   }
 
+  private async reExtractProblematicEntries() {
+    const { data, error } = await this.supabase
+      .from('oic_competences')
+      .select('objectif_id, intitule, description, raw_json')
+      .or(`
+        description.like.%&lt;%,
+        description.like.%&gt;%,
+        description.like.%&nbsp;%,
+        description.like.%{|%,
+        description.like.-%,
+        description.like.*%,
+        description.is.null,
+        intitule.like.%[[%]]%
+      `);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return;
+
+    console.log(`   → ${data.length} entrées à ré-extraire via raw_json`);
+
+    for (const comp of data) {
+      try {
+        const rawContent = this.extractContentFromRawJson(comp.raw_json);
+        if (!rawContent) {
+          continue;
+        }
+
+        const extracted = this.extractFromRawContent(
+          rawContent,
+          comp.intitule,
+          comp.description
+        );
+
+        if (!extracted) {
+          continue;
+        }
+
+        const updatedDescription = this.convertMediaWikiTable(
+          this.decodeHTMLEntities(extracted.description)
+        );
+        const updatedIntitule = this.decodeHTMLEntities(extracted.intitule);
+
+        await this.supabase
+          .from('oic_competences')
+          .update({
+            intitule: updatedIntitule,
+            description: updatedDescription || null,
+            extraction_status: 'reextracted',
+          })
+          .eq('objectif_id', comp.objectif_id);
+
+        this.report.entries_reextracted++;
+        this.report.total_processed++;
+      } catch (err) {
+        this.report.errors.push({
+          objectif_id: comp.objectif_id,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        });
+      }
+    }
+  }
+
+  private extractContentFromRawJson(rawJson: any): string | null {
+    if (!rawJson) return null;
+    return (
+      rawJson?.revisions?.[0]?.slots?.main?.content ||
+      rawJson?.revisions?.[0]?.['*'] ||
+      rawJson?.revisions?.[0]?.content ||
+      rawJson?.content ||
+      null
+    );
+  }
+
+  private extractFromRawContent(
+    content: string,
+    fallbackIntitule: string,
+    fallbackDescription: string | null
+  ) {
+    const intitulePatterns = [
+      /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
+      /\|\s*[Tt]itre\s*=\s*([^\n\|]+)/,
+      /'''(.+?)'''/,
+      /<th[^>]*>[Ii]ntitulé<\/th>\s*<td[^>]*>([^<]+)/,
+      /==\s*(.+?)\s*==/,
+      /^\s*(.*?)$/m
+    ];
+
+    let intitule = fallbackIntitule;
+    for (const pattern of intitulePatterns) {
+      const match = pattern.exec(content);
+      if (match && match[1] && match[1].trim()) {
+        intitule = match[1].trim();
+        break;
+      }
+    }
+
+    const descPatterns = [
+      /\|\s*[Dd]escription\s*=\s*([^\n\|]+)/,
+      /\|\s*[Dd]éfinition\s*=\s*([^\n\|]+)/,
+      /<th[^>]*>[Dd]escription<\/th>\s*<td[^>]*>([^<]+)/,
+      /\n\n(.+?)(?=\n\n|\[\[|==|$)/s
+    ];
+
+    let description = fallbackDescription ?? '';
+    for (const pattern of descPatterns) {
+      const match = pattern.exec(content);
+      if (match && match[1] && match[1].trim()) {
+        description = match[1].trim();
+        break;
+      }
+    }
+
+    if (!description && !intitule) {
+      return null;
+    }
+
+    const cleanedDescription = description
+      .replace(/\[\[(.+?)\|(.+?)\]\]/g, '$2')
+      .replace(/\[\[(.+?)\]\]/g, '$1')
+      .replace(/'''(.+?)'''/g, '$1')
+      .replace(/''(.+?)''/g, '$1')
+      .replace(/{{.+?}}/g, '')
+      .replace(/<ref.*?\/>/g, '')
+      .replace(/<.*?>/g, '')
+      .trim();
+
+    return {
+      intitule: intitule.substring(0, 500),
+      description: cleanedDescription.substring(0, 2000),
+    };
+  }
+
   private cleanMediaWikiLinks(text: string): string {
     return text
       .replace(/\[\[([^\|\]]+)\|([^\]]+)\]\]/g, '$2')
@@ -295,24 +435,71 @@ class OICDataCleaner {
   }
 
   private convertMediaWikiTable(text: string): string {
-    const tableMatch = text.match(/\{\|[^}]*\|(.*?)\|\}/s);
-    if (!tableMatch) return text;
+    return text.replace(/\{\|[\s\S]*?\|\}/g, (table) => this.convertSingleTableToHtml(table));
+  }
 
-    const tableContent = tableMatch[1];
-    const rows = tableContent.split('|-').filter((row) => row.trim());
+  private convertSingleTableToHtml(tableText: string): string {
+    const lines = tableText.split('\n');
+    const rows: Array<{ cells: string[]; isHeader: boolean }> = [];
+    let currentRow: { cells: string[]; isHeader: boolean } = { cells: [], isHeader: false };
 
-    const items: string[] = [];
-    rows.forEach((row) => {
-      const cells = row
-        .split('|')
-        .map((cell) => cell.trim())
-        .filter((cell) => cell);
-      if (cells.length > 0) {
-        items.push(cells.join(' - '));
+    const pushRow = () => {
+      if (currentRow.cells.length > 0) {
+        rows.push(currentRow);
+        currentRow = { cells: [], isHeader: false };
       }
-    });
+    };
 
-    return text.replace(/\{\|.*?\|\}/s, items.join('\n'));
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('{|')) {
+        continue;
+      }
+      if (trimmed.startsWith('|}')) {
+        pushRow();
+        break;
+      }
+      if (trimmed.startsWith('|-')) {
+        pushRow();
+        continue;
+      }
+
+      const isHeader = trimmed.startsWith('!');
+      if (trimmed.startsWith('|') || trimmed.startsWith('!')) {
+        const cellContent = trimmed.slice(1).trim();
+        const parts = cellContent.split(/!!|\|\|/g);
+        const cleanedParts = parts
+          .map((cell) => cell.replace(/^[^|]*\|\s*/, '').trim())
+          .filter(Boolean);
+
+        if (cleanedParts.length > 0) {
+          currentRow.isHeader = currentRow.isHeader || isHeader;
+          currentRow.cells.push(...cleanedParts);
+        }
+      }
+    }
+
+    if (rows.length === 0) {
+      return tableText;
+    }
+
+    const headerRows = rows.filter((row) => row.isHeader);
+    const bodyRows = rows.filter((row) => !row.isHeader);
+
+    const thead = headerRows.length
+      ? `<thead>${headerRows
+          .map(
+            (row) =>
+              `<tr>${row.cells.map((cell) => `<th>${cell}</th>`).join('')}</tr>`
+          )
+          .join('')}</thead>`
+      : '';
+
+    const tbodyRows = (bodyRows.length ? bodyRows : rows).map(
+      (row) => `<tr>${row.cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`
+    );
+
+    return `<table class="wikitable">${thead}<tbody>${tbodyRows.join('')}</tbody></table>`;
   }
 
   private async handleEmptyDescriptions() {
@@ -425,4 +612,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const cleaner = new OICDataCleaner();
   cleaner.run().catch(console.error);
 }
-
