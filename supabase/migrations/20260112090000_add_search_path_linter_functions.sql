@@ -21,7 +21,7 @@ BEGIN
       AND p.proname = ANY(target_functions)
   LOOP
     EXECUTE format(
-      'ALTER FUNCTION %I.%I(%s) SET search_path = public',
+      'ALTER FUNCTION %I.%I(%s) SET search_path = ''public''',
       func_record.schema_name,
       func_record.function_name,
       func_record.function_args
