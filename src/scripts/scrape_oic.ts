@@ -57,6 +57,7 @@ interface OICCompetence {
   url_source: string;
   raw_json?: any;
   date_import?: string;
+  extraction_status?: string;
 }
 
 interface ExtractionStats {
@@ -64,6 +65,7 @@ interface ExtractionStats {
   total_processed: number;
   total_inserted: number;
   total_errors: number;
+  total_needs_review: number;
   start_time: Date;
   end_time?: Date;
   duration_seconds?: number;
@@ -83,6 +85,133 @@ const RUBRIQUES_MAP: Record<string, string> = {
   '10': 'Vieillissement',
   '11': 'Interprétation'
 };
+
+const MIN_DESCRIPTION_LENGTH = 50;
+const MIN_INTITULE_LENGTH = 8;
+
+function decodeHTMLEntities(text: string): string {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/<br\s*\/?>(\r?\n)?/gi, '\n')
+    .replace(/<sup>([^<]+)<\/sup>/gi, '^$1')
+    .replace(/<sub>([^<]+)<\/sub>/gi, '_$1');
+}
+
+function cleanMediaWikiLinks(text: string): string {
+  return text
+    .replace(/\[\[([^\|\]]+)\|([^\]]+)\]\]/g, '$2')
+    .replace(/\[\[([^\]]+)\]\]/g, '$1');
+}
+
+function stripMediaWikiTemplates(text: string): string {
+  return text.replace(/\{\{[^}]+\}\}/g, '');
+}
+
+function cleanWikiText(text: string): string {
+  return decodeHTMLEntities(text)
+    .replace(/<[^>]+>/g, '')
+    .replace(/'''?/g, '')
+    .replace(/\{\{!}}/g, '|')
+    .replace(/\s+/g, ' ')
+    .replace(/^\d+\.\s*/, '')
+    .trim();
+}
+
+function convertMediaWikiTable(tableText: string): string {
+  const normalizedTable = tableText
+    .replace(/^\{\|[^\n]*\n?/, '')
+    .replace(/\|\}\s*$/, '');
+
+  const rows = normalizedTable
+    .split('|-')
+    .map((row) => row.trim())
+    .filter(Boolean);
+
+  const items: string[] = [];
+  rows.forEach((row) => {
+    const cells = row
+      .split(/\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .flatMap((line) => line.split(/!!|\|\|/))
+      .map((cell) => cell.replace(/^!|^\|/, '').trim())
+      .filter(Boolean);
+
+    if (cells.length > 0) {
+      const cleanedCells = cells.map((cell) =>
+        cleanWikiText(cleanMediaWikiLinks(stripMediaWikiTemplates(cell)))
+      );
+      items.push(cleanedCells.join(' - '));
+    }
+  });
+
+  return items.join('\n');
+}
+
+function extractMediaWikiTables(content: string): string[] {
+  const tables = content.match(/\{\|[\s\S]*?\|\}/g);
+  if (!tables) return [];
+  return tables.map((table) => convertMediaWikiTable(table));
+}
+
+function extractListItems(content: string): string[] {
+  return content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^([*#;:]+)\s+/.test(line))
+    .map((line) => line.replace(/^([*#;:]+)\s+/, ''))
+    .map((line) => cleanWikiText(cleanMediaWikiLinks(stripMediaWikiTemplates(line))))
+    .filter(Boolean);
+}
+
+function normalizeListDescription(description: string, content: string): string {
+  const trimmed = description.trim();
+  const listItems = extractListItems(content);
+
+  if (!listItems.length) {
+    return trimmed.replace(/^[-*•]\s+/, '');
+  }
+
+  const hasListPrefix = /^[-*•]\s+/.test(trimmed);
+  const isShort = trimmed.length < MIN_DESCRIPTION_LENGTH;
+
+  if (hasListPrefix || isShort) {
+    return listItems.join('; ');
+  }
+
+  return trimmed;
+}
+
+function validateCompetence(competence: OICCompetence): string[] {
+  const issues: string[] = [];
+
+  if (competence.intitule.length < MIN_INTITULE_LENGTH) {
+    issues.push('intitule_trop_court');
+  }
+
+  if (!competence.description || competence.description.length < MIN_DESCRIPTION_LENGTH) {
+    issues.push('description_trop_courte');
+  }
+
+  if (competence.description && /(\{\||\|\}|&lt;|&gt;|\[\[|\]\])/.test(competence.description)) {
+    issues.push('structure_corrompue');
+  }
+
+  if (!/^OIC-\d{3}-\d{2}-[AB]-\d{2}$/.test(competence.objectif_id)) {
+    issues.push('objectif_id_invalide');
+  }
+
+  if (!/^\d{3}$/.test(competence.item_parent)) {
+    issues.push('item_parent_invalide');
+  }
+
+  return issues;
+}
 
 /**
  * Teste si l'API MediaWiki est accessible publiquement
@@ -301,6 +430,8 @@ function parseOICPage(page: any): OICCompetence | null {
         break;
       }
     }
+
+    intitule = cleanWikiText(cleanMediaWikiLinks(stripMediaWikiTemplates(intitule)));
     
     // Extraction de la description
     let description = '';
@@ -325,6 +456,20 @@ function parseOICPage(page: any): OICCompetence | null {
         description = paragraphMatch[1].trim().substring(0, 500);
       }
     }
+
+    let cleanedDescription = cleanWikiText(cleanMediaWikiLinks(stripMediaWikiTemplates(description)));
+
+    const tableTexts = extractMediaWikiTables(content);
+    if (tableTexts.length > 0) {
+      const tablesCombined = tableTexts.join('\n');
+      if (!cleanedDescription || cleanedDescription.length < MIN_DESCRIPTION_LENGTH) {
+        cleanedDescription = tablesCombined;
+      } else {
+        cleanedDescription = `${cleanedDescription}\n${tablesCombined}`;
+      }
+    }
+
+    cleanedDescription = normalizeListDescription(cleanedDescription, content);
     
     const competence: OICCompetence = {
       objectif_id,
@@ -332,11 +477,19 @@ function parseOICPage(page: any): OICCompetence | null {
       item_parent,
       rang: rang as 'A' | 'B',
       rubrique: RUBRIQUES_MAP[rubrique_code] || 'Autre',
-      description: description || undefined,
+      description: cleanedDescription || undefined,
       ordre: parseInt(ordre_str),
       url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
       raw_json: { content, timestamp },
       date_import: new Date().toISOString()
+    };
+
+    const validationIssues = validateCompetence(competence);
+    competence.extraction_status = validationIssues.length ? 'needs_review' : 'complete';
+    competence.raw_json = {
+      content,
+      timestamp,
+      validation_issues: validationIssues
     };
     
     return competence;
@@ -448,6 +601,7 @@ async function main() {
     total_processed: 0,
     total_inserted: 0,
     total_errors: 0,
+    total_needs_review: 0,
     start_time: new Date()
   };
   
@@ -496,6 +650,9 @@ async function main() {
           const competence = parseOICPage(page);
           if (competence) {
             competences.push(competence);
+            if (competence.extraction_status === 'needs_review') {
+              stats.total_needs_review += 1;
+            }
           } else {
             batchErrors++;
           }
@@ -508,7 +665,9 @@ async function main() {
         stats.total_inserted += inserted;
         stats.total_errors += batchErrors;
         
-        console.log(`   ✅ ${inserted}/${pages.length} compétences insérées (${batchErrors} erreurs)`);
+        console.log(
+          `   ✅ ${inserted}/${pages.length} compétences insérées (${batchErrors} erreurs, ${stats.total_needs_review} à revoir)`
+        );
         
         // Pause entre batches
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -530,6 +689,7 @@ async function main() {
     console.log(`✅ Pages traitées: ${stats.total_processed}`);
     console.log(`💾 Compétences insérées: ${stats.total_inserted}`);
     console.log(`❌ Erreurs: ${stats.total_errors}`);
+    console.log(`🧪 Compétences à revoir: ${stats.total_needs_review}`);
     
     await generateCompletionReport();
     
