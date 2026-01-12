@@ -87,22 +87,26 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
             // Approche alternative : on parse directement et on catch les erreurs de validation
             const validation = validateItemEDN(data);
             
+            // Get the actual ID from the database row - could be 'id' or fallback to slug
+            const itemId = (data as any).id ?? (data as any).slug ?? slug;
+            
             if ('success' in validation && validation.success === true && 'data' in validation) {
               console.log('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
-              parsedItem = EDNItemParser.parseItemV2(validatedData, data.id);
+              parsedItem = EDNItemParser.parseItemV2(validatedData, itemId);
               valErrors = [];
             } else if ('success' in validation && validation.success === false && 'errors' in validation) {
               console.warn('⚠️ Item v2 invalide:', validation.errors);
               valErrors = validation.errors;
               // On continue quand même le parsing pour éviter la régression
-              parsedItem = EDNItemParser.parseAnyItem(data, data.id);
+              parsedItem = EDNItemParser.parseAnyItem(data, itemId);
             }
           } catch (err) {
             console.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
-            parsedItem = EDNItemParser.parseAnyItem(data, data.id);
+            const itemId = (data as any).id ?? (data as any).slug ?? slug;
+            parsedItem = EDNItemParser.parseAnyItem(data, itemId);
           }
         } else {
           // Item format v1
