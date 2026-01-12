@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { appendEdnCacheParams, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
 
 const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
@@ -41,6 +42,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
   const [lyrics, setLyrics] = useState<EdnItemLyrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cacheBuster, setCacheBuster] = useState(getEdnCacheBuster);
 
   useEffect(() => {
     if (!itemCode) {
@@ -50,20 +52,27 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
     }
 
     let isMounted = true;
+    const unsubscribe = subscribeEdnCacheBuster((value) => {
+      setCacheBuster(value);
+    });
     
     const fetchLyrics = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const url = `${SUPABASE_URL}/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
+        const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?item_code=eq.${encodeURIComponent(itemCode)}&select=item_code,title,subtitle,paroles_musicales,paroles_rang_a,paroles_rang_b,paroles_rang_ab&limit=1`;
+        const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         
         const response = await fetch(url, {
           headers: {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Accept': 'application/json'
-          }
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
         });
 
         if (!response.ok) {
@@ -104,8 +113,9 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
 
     return () => {
       isMounted = false;
+      unsubscribe();
     };
-  }, [itemCode]);
+  }, [itemCode, cacheBuster]);
 
   // Parser les paroles en structure utilisable - prioriser rang A/B/AB
   const parsedLyrics = useMemo((): ParsedLyrics | null => {
