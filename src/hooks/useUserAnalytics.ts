@@ -141,9 +141,43 @@ export const useUserAnalytics = () => {
         minutesStudied: s.duration_minutes ?? 0,
       }));
 
-      // Performance par spécialité (à calculer depuis progress + items)
-      // Simplifié pour l'instant
-      const specialtyPerformance: UserAnalytics['specialtyPerformance'] = [];
+      // Performance par spécialité - calcul réel depuis les items
+      let specialtyPerformance: UserAnalytics['specialtyPerformance'] = [];
+      
+      if (progressData.length > 0) {
+        // Récupérer les items avec leur spécialité
+        const contentIds = progressData.map((p: any) => p.content_id);
+        const { data: itemsWithSpecialty } = await (supabase as any)
+          .from('items')
+          .select('id, specialties(name)')
+          .in('id', contentIds);
+        
+        if (itemsWithSpecialty) {
+          const specialtyMap: Record<string, { total: number; revised: number }> = {};
+          
+          itemsWithSpecialty.forEach((item: any) => {
+            const specialtyName = item.specialties?.name || 'Sans spécialité';
+            if (!specialtyMap[specialtyName]) {
+              specialtyMap[specialtyName] = { total: 0, revised: 0 };
+            }
+            specialtyMap[specialtyName].total++;
+            
+            const progress = progressData.find((p: any) => p.content_id === item.id);
+            if (progress?.mastery_level === 'revised') {
+              specialtyMap[specialtyName].revised++;
+            }
+          });
+          
+          specialtyPerformance = Object.entries(specialtyMap)
+            .map(([specialty, stats]) => ({
+              specialty,
+              total: stats.total,
+              revised: stats.revised,
+              percentage: stats.total > 0 ? Math.round((stats.revised / stats.total) * 100) : 0
+            }))
+            .sort((a, b) => b.percentage - a.percentage);
+        }
+      }
 
       return {
         totalItems,
