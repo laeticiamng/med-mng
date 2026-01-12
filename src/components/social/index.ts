@@ -1,3 +1,4 @@
+// Social components
 export { CommentThread } from './CommentThread';
 export { CommunityHub } from './CommunityHub';
 export { DirectMessaging } from './DirectMessaging';
