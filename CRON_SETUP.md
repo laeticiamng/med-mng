@@ -55,6 +55,32 @@ Si vous devez supprimer ou recréer le cron job:
 SELECT cron.unschedule('check-recommendation-alerts-daily');
 ```
 
+### 6. Réactiver le cron avec surveillance post-run
+
+Après validation de l’état **OK**, réactivez le cron puis surveillez son premier passage:
+
+1. **(Re)créer le cron job** (si supprimé)
+   ```sql
+   SELECT cron.schedule(
+     'check-recommendation-alerts-daily',
+     '0 0 * * *',
+     $$ SELECT net.http_post(
+          url:='https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/check-recommendation-alerts',
+          headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU"}'::jsonb,
+          body:='{"scheduled": true}'::jsonb
+        ) as request_id; $$);
+   ```
+
+2. **Surveiller le premier run**
+   ```sql
+   SELECT * FROM cron.job_run_details
+   WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'check-recommendation-alerts-daily')
+   ORDER BY start_time DESC
+   LIMIT 1;
+   ```
+   - Statut `succeeded`
+   - Aucune erreur dans les logs Supabase (Edge Function)
+
 ## Comment ça fonctionne
 
 1. **Suivi automatique**: Quand une recommandation avec un score > 70 est générée, elle est automatiquement ajoutée à la table `recommendation_alerts`
