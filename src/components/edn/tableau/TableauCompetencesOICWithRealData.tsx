@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
+import { getOicItemParentCandidates } from '@/utils/oicItemParent';
 
 interface OicCompetence {
   objectif_id: string;
@@ -32,13 +33,17 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       return;
     }
 
-    // Extract number from itemCode (supports "IC-1", "1", "001", etc.)
-    const itemNumber = cleanCode.replace(/^IC-?/i, '').padStart(3, '0');
+    const itemParentCandidates = getOicItemParentCandidates(cleanCode);
+    if (itemParentCandidates.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
-    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${itemNumber}&rang=eq.${rang}&order=objectif_id`;
+    const itemParentFilter = itemParentCandidates.map(encodeURIComponent).join(',');
+    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=in.(${itemParentFilter})&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
       headers: {
@@ -47,7 +52,12 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
         'Content-Type': 'application/json'
       }
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (Array.isArray(data)) {
           const filtered = data.filter((c: OicCompetence) => c.objectif_id && c.intitule);

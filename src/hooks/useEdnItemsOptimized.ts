@@ -87,8 +87,11 @@ export const useEdnItemsOptimized = () => {
       }
 
       const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Format de réponse inattendu');
+      }
 
-      if (!data || data.length === 0) {
+      if (data.length === 0) {
         setError('Aucun item EDN trouvé');
         setLoading(false);
         return;

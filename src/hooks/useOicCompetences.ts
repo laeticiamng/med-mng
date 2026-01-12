@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getOicItemParentCandidates } from '@/utils/oicItemParent';
 
 export interface OicCompetence {
   objectif_id: string;
@@ -62,10 +63,13 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       return;
     }
 
-    // Extract item number (IC-1 -> 001, IC-10 -> 010)
-    const itemNumber = itemCode.startsWith('OIC-') 
-      ? itemCode.replace('OIC-', '').split('-')[0].padStart(3, '0')
-      : itemCode.replace('IC-', '').padStart(3, '0');
+    const itemParentCandidates = getOicItemParentCandidates(itemCode);
+    if (itemParentCandidates.length === 0) {
+      setCompetences([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
     
     setLoading(true);
     setError(null);
@@ -76,7 +80,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
       const { data, error: fetchError } = await supabase
         .from('oic_competences')
         .select('objectif_id, intitule, description, rang, item_parent')
-        .eq('item_parent', itemNumber)
+        .in('item_parent', itemParentCandidates)
         .eq('rang', rang)
         .order('objectif_id');
       
@@ -101,7 +105,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           description: comp.description || comp.intitule,
           rubrique: '',
           rang: comp.rang || rang,
-          item_parent: comp.item_parent || itemNumber
+          item_parent: comp.item_parent || itemParentCandidates[0]
         })) as OicCompetence[];
 
       // Cache results
