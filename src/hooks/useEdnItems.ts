@@ -47,7 +47,7 @@ export const useEdnItems = () => {
       }
       
       // Utiliser fetch directement au lieu du SDK Supabase
-      const url = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
+      const url = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,tableau_rang_a,tableau_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
       
       console.log('📤 useEdnItems - Sending fetch request');
       

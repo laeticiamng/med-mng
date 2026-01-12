@@ -69,7 +69,7 @@ export const useEdnItemsOptimized = () => {
 
       // ✅ Requête unique optimisée - seulement les champs essentiels
       const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code`,
+        `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,tableau_rang_a,tableau_rang_b&order=item_code`,
         {
           headers: {
             'apikey': SUPABASE_KEY,

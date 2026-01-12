@@ -13,7 +13,7 @@ export async function handleEdn(
 
     const { data, count, error } = await supabase
       .from('edn_items_immersive')
-      .select('item_code,title,subtitle,slug', { count: 'exact' })
+      .select('item_code,title,subtitle,slug,tableau_rang_a,tableau_rang_b', { count: 'exact' })
       .order('item_code')
       .range(offset, offset + limit - 1);
 
@@ -54,4 +54,3 @@ export async function handleEdn(
 
   return null;
 }
-

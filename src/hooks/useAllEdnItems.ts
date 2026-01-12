@@ -48,7 +48,7 @@ export const useAllEdnItems = () => {
 
         // Utiliser fetch direct pour éviter les conflits avec d'autres hooks Supabase
         const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`,
+          `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales,tableau_rang_a,tableau_rang_b&order=item_code`,
           {
             headers: {
               'apikey': SUPABASE_KEY,

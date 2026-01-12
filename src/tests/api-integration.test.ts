@@ -57,6 +57,65 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       }
     });
 
+    it('✅ GET /edn (REST) - inclut les champs JSONB tableau_rang_a/b', async () => {
+      const response = await fetch(
+        `${TEST_SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,tableau_rang_a,tableau_rang_b&limit=1`,
+        {
+          headers: {
+            'apikey': TEST_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${TEST_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      expect(response.ok).toBe(true);
+      const data = await response.json();
+      expect(Array.isArray(data)).toBe(true);
+
+      if (data && data.length > 0) {
+        const item = data[0];
+        expect(item).toHaveProperty('tableau_rang_a');
+        expect(item).toHaveProperty('tableau_rang_b');
+
+        if (item.tableau_rang_a !== null) {
+          expect(typeof item.tableau_rang_a).toBe('object');
+          expect(Array.isArray(item.tableau_rang_a)).toBe(false);
+        }
+
+        if (item.tableau_rang_b !== null) {
+          expect(typeof item.tableau_rang_b).toBe('object');
+          expect(Array.isArray(item.tableau_rang_b)).toBe(false);
+        }
+      }
+    });
+
+    it('✅ GET /edn-tableaux-api/items/:id/tableaux - structure JSONB attendue', async () => {
+      const { data: items } = await supabase
+        .from('edn_items_immersive')
+        .select('id')
+        .limit(1);
+
+      if (!items || items.length === 0) return;
+
+      const itemId = items[0].id;
+      const response = await fetch(
+        `${TEST_SUPABASE_URL}/functions/v1/edn-tableaux-api/items/${itemId}/tableaux`,
+        {
+          headers: {
+            'apikey': TEST_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${TEST_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      expect(response.ok).toBe(true);
+      const data = await response.json();
+      expect(data).toHaveProperty('tableau_rang_a');
+      expect(data).toHaveProperty('tableau_rang_b');
+    });
+
     it('❌ GET /edn/:slug - doit retourner 404 pour slug inexistant', async () => {
       const { data, error } = await supabase
         .from('edn_items_immersive')
