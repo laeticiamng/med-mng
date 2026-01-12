@@ -5,7 +5,8 @@ import { Helmet } from 'react-helmet-async';
 import { 
   TrendingUp, Target, Brain, BookOpen, Trophy, Clock,
   Calendar, Flame, CheckCircle, AlertTriangle, ChevronLeft,
-  BarChart3, PieChart, Activity, Zap, Settings, Award, Star
+  BarChart3, PieChart, Activity, Zap, Settings, Award, Star,
+  History, Bell, Download, Wifi
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,10 @@ import { BadgeCollection } from '@/components/gamification/BadgeCollection';
 import { WeeklyChallenges } from '@/components/gamification/WeeklyChallenges';
 import { ProgressExport } from '@/components/export/ProgressExport';
 import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
+import { RevisionHistory } from '@/components/analytics/RevisionHistory';
+import { SmartReminders } from '@/components/revision/SmartReminders';
+import { PDFExportService } from '@/components/export/PDFExportService';
+import { OfflineSyncManager } from '@/components/pwa/OfflineSyncManager';
 
 export default function ProgressDashboard() {
   const navigate = useNavigate();
@@ -124,13 +129,21 @@ export default function ProgressDashboard() {
 
         {/* Tabs for different views */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="badges">
               <Award className="h-4 w-4 mr-1" />
               Badges
             </TabsTrigger>
             <TabsTrigger value="analytics">Analyses</TabsTrigger>
+            <TabsTrigger value="history">
+              <History className="h-4 w-4 mr-1" />
+              Historique
+            </TabsTrigger>
+            <TabsTrigger value="reminders">
+              <Bell className="h-4 w-4 mr-1" />
+              Rappels
+            </TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="h-4 w-4 mr-1" />
               Options
@@ -301,6 +314,14 @@ export default function ProgressDashboard() {
             <ItemMasteryGrid />
           </TabsContent>
 
+          <TabsContent value="history" className="space-y-6 mt-6">
+            <RevisionHistory />
+          </TabsContent>
+
+          <TabsContent value="reminders" className="space-y-6 mt-6">
+            <SmartReminders />
+          </TabsContent>
+
           <TabsContent value="settings" className="space-y-6 mt-6">
             <div className="grid md:grid-cols-2 gap-6">
               {user && <SRSNotificationSettings userId={user.id} />}
@@ -308,6 +329,8 @@ export default function ProgressDashboard() {
               {user && gamificationStats && (
                 <ProgressExport userId={user.id} stats={gamificationStats} />
               )}
+              <PDFExportService />
+              <OfflineSyncManager />
             </div>
           </TabsContent>
         </Tabs>

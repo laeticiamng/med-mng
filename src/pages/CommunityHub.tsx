@@ -20,13 +20,20 @@ import {
   TrendingUp,
   Lightbulb,
   Flame,
-  Loader2
+  Loader2,
+  GraduationCap,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { Progress } from '@/components/ui/progress';
+// Import new community components
+import { ResourceSharing } from '@/components/social/ResourceSharing';
+import { ForumDiscussion } from '@/components/social/ForumDiscussion';
+import { Leaderboard } from '@/components/gamification/Leaderboard';
+import { MentorshipSystem } from '@/components/mentorship/MentorshipSystem';
 
 interface Post {
   id: string;
@@ -419,22 +426,30 @@ const CommunityHub = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="feed" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Fil d'actualité
+              <span className="hidden sm:inline">Fil</span>
+            </TabsTrigger>
+            <TabsTrigger value="forum" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Forum</span>
             </TabsTrigger>
             <TabsTrigger value="events" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Événements
+              <span className="hidden sm:inline">Événements</span>
             </TabsTrigger>
             <TabsTrigger value="resources" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Ressources
+              <span className="hidden sm:inline">Ressources</span>
+            </TabsTrigger>
+            <TabsTrigger value="mentorship" className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              <span className="hidden sm:inline">Mentorat</span>
             </TabsTrigger>
             <TabsTrigger value="leaderboard" className="flex items-center gap-2">
               <Trophy className="h-4 w-4" />
-              Classements
+              <span className="hidden sm:inline">Classement</span>
             </TabsTrigger>
           </TabsList>
 
@@ -603,170 +618,20 @@ const CommunityHub = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="forum" className="space-y-6">
+            <ForumDiscussion />
+          </TabsContent>
+
           <TabsContent value="resources" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Ressources Partagées</h2>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Partager une Ressource
-              </Button>
-            </div>
+            <ResourceSharing />
+          </TabsContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Music className="h-5 w-5" />
-                    Playlist Cardiologie
-                  </CardTitle>
-                  <CardDescription>15 musiques mnémotechniques</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Collection complète pour mémoriser les algorithmes de prise en charge cardiologique.
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="outline">Musique</Badge>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-warning" />
-                      4.8
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Fiches IC-1 à IC-10
-                  </CardTitle>
-                  <CardDescription>Résumés condensés</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Fiches de révision ultra-synthétiques pour les 10 premiers items fondamentaux.
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="outline">Documents</Badge>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-warning" />
-                      4.9
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5" />
-                    QCM Neurologie
-                  </CardTitle>
-                  <CardDescription>50 questions type ECN</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Questions d'entraînement avec corrections détaillées et explications.
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="outline">Quiz</Badge>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-current text-warning" />
-                      4.7
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="mentorship" className="space-y-6">
+            <MentorshipSystem />
           </TabsContent>
 
           <TabsContent value="leaderboard" className="space-y-6">
-            <h2 className="text-2xl font-semibold">Classements</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-warning" />
-                    Top Contributeurs
-                  </CardTitle>
-                  <CardDescription>Les membres les plus actifs cette semaine</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loadingLeaderboard ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    </div>
-                  ) : leaderboard.length > 0 ? (
-                    <div className="space-y-3">
-                      {leaderboard.map((user) => (
-                        <div key={user.userId} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                              user.rank === 1 ? 'bg-warning/20 text-warning' :
-                              user.rank === 2 ? 'bg-muted text-muted-foreground' :
-                              user.rank === 3 ? 'bg-accent/20 text-accent' :
-                              'bg-muted text-muted-foreground'
-                            }`}>
-                              {user.rank}
-                            </div>
-                            <div>
-                              <p className="font-medium">{user.name}</p>
-                              <p className="text-xs text-muted-foreground">{user.specialty}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold">{user.points}</p>
-                            <p className="text-xs text-muted-foreground">points</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>Aucune activité cette semaine</p>
-                      <p className="text-sm">Commencez à réviser pour apparaître ici !</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-accent" />
-                    Ressources Populaires
-                  </CardTitle>
-                  <CardDescription>Les contenus les mieux notés</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { title: 'Playlist Cardiologie Complète', author: 'Dr. Martin', rating: 4.9, downloads: 156 },
-                      { title: 'Fiches IC Fondamentaux', author: 'Prof. Chen', rating: 4.8, downloads: 234 },
-                      { title: 'QCM Neurologie Avancé', author: 'Dr. Wilson', rating: 4.7, downloads: 189 },
-                      { title: 'Schémas Anatomie', author: 'Marie D.', rating: 4.6, downloads: 167 }
-                    ].map((resource, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                        <div>
-                          <p className="font-medium text-sm">{resource.title}</p>
-                          <p className="text-xs text-muted-foreground">par {resource.author}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-current text-warning" />
-                            <span className="text-sm font-medium">{resource.rating}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{resource.downloads} téléchargements</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Leaderboard />
           </TabsContent>
         </Tabs>
       </div>
