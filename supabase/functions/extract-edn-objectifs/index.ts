@@ -21,6 +21,8 @@ if (!CAS_PASSWORD) {
 
 import { corsHeaders } from '../_shared/cors.ts'
 
+const LOG_TAG = '[extract-edn-objectifs]'
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -67,6 +69,7 @@ serve(async (req) => {
 
     const { action, session_id } = requestBody
 
+    console.log(`${LOG_TAG} action_request action=${action ?? 'unknown'} session_id=${session_id ?? 'none'}`)
     console.log(`🎯 Action demandée: ${action}`)
 
     switch (action) {
@@ -94,6 +97,7 @@ serve(async (req) => {
 async function startExtraction(supabaseClient: any) {
   const session_id = crypto.randomUUID()
   
+  console.log(`${LOG_TAG} start_extraction session_id=${session_id}`)
   console.log('🚀 Démarrage extraction simplifiée')
   console.log(`📊 Session: ${session_id}`)
   
@@ -138,6 +142,7 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
   let currentBatch = 0;
 
   try {
+    console.log(`${LOG_TAG} extraction_started session_id=${session_id}`)
     console.log('🚀 Début extraction des objectifs OIC')
     
     // SIMPLIFICATION: Test direct de l'API sans authentification complexe
