@@ -2,12 +2,24 @@
 console.log('🧪 TEST INSERTION UNITAIRE OIC');
 console.log('=' .repeat(50));
 
-const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function testInsertion() {
   try {
-    console.log('1️⃣ Vérification count initial...');
+    console.log('0️⃣ SQL test (exemple du ticket)');
+    console.log(
+      [
+        'INSERT INTO oic_competences (objectif_id, intitule, item_parent, rang, rubrique, url_source)',
+        "VALUES ('OIC-001-23-A-01', 'Test', '001', 'A', 'Génétique', 'https://livret.uness.fr/lisa/2025/OIC-001-23-A-01');",
+        'SELECT count(*) FROM oic_competences;'
+      ].join('\n')
+    );
+
+    console.log('\n1️⃣ Vérification count initial...');
     
     // Count initial
     const countInitial = await fetch(`${SUPABASE_URL}/rest/v1/oic_competences?select=count`, {
@@ -22,7 +34,31 @@ async function testInsertion() {
     const countInitialResult = await countInitial.text();
     console.log('📊 Count initial:', countInitialResult);
     
-    console.log('\n2️⃣ Test insertion échantillon...');
+    console.log('\n2️⃣ Vérification RLS (policies)...');
+    if (SUPABASE_SERVICE_ROLE_KEY) {
+      const policyResponse = await fetch(`${SUPABASE_URL}/rest/v1/rpc/list_rls_policies`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      });
+
+      if (policyResponse.ok) {
+        const policies = await policyResponse.json();
+        const oicPolicies = policies.filter((policy) => policy.table_name === 'oic_competences');
+        console.log('✅ Policies oic_competences:', JSON.stringify(oicPolicies, null, 2));
+      } else {
+        console.warn('⚠️ Impossible de lire les policies (service role requis).');
+        console.warn(await policyResponse.text());
+      }
+    } else {
+      console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY manquant - skip vérification policies.');
+    }
+
+    console.log('\n3️⃣ Test insertion échantillon (anon -> attendu bloqué si RLS active)...');
     
     // Créer un échantillon de test
     const sampleCompetence = {
@@ -40,8 +76,8 @@ async function testInsertion() {
     
     console.log('SAMPLE ➜', JSON.stringify(sampleCompetence, null, 2));
     
-    // Tentative d'insertion
-    console.log('\n3️⃣ Insertion via REST API...');
+    // Tentative d'insertion avec anon
+    console.log('\n4️⃣ Insertion via REST API (anon)...');
     const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/oic_competences`, {
       method: 'POST',
       headers: {
@@ -53,13 +89,13 @@ async function testInsertion() {
       body: JSON.stringify(sampleCompetence)
     });
     
-    console.log('📊 Status insertion:', insertResponse.status);
+    console.log('📊 Status insertion (anon):', insertResponse.status);
     
     if (insertResponse.ok) {
-      console.log('✅ INSERTION RÉUSSIE!');
+      console.log('✅ INSERTION RÉUSSIE (anon)!');
     } else {
       const errorText = await insertResponse.text();
-      console.error('❌ ERREUR INSERTION:', errorText);
+      console.error('❌ ERREUR INSERTION (anon):', errorText);
       
       // Analyser l'erreur
       try {
@@ -70,7 +106,32 @@ async function testInsertion() {
       }
     }
     
-    console.log('\n4️⃣ Vérification count final...');
+    if (SUPABASE_SERVICE_ROLE_KEY) {
+      console.log('\n5️⃣ Insertion via REST API (service_role)...');
+      const serviceInsertResponse = await fetch(`${SUPABASE_URL}/rest/v1/oic_competences`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(sampleCompetence)
+      });
+
+      console.log('📊 Status insertion (service_role):', serviceInsertResponse.status);
+
+      if (serviceInsertResponse.ok) {
+        console.log('✅ INSERTION RÉUSSIE (service_role)!');
+      } else {
+        const errorText = await serviceInsertResponse.text();
+        console.error('❌ ERREUR INSERTION (service_role):', errorText);
+      }
+    } else {
+      console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY manquant - skip insertion service_role.');
+    }
+
+    console.log('\n6️⃣ Vérification count final...');
     
     // Count final
     const countFinal = await fetch(`${SUPABASE_URL}/rest/v1/oic_competences?select=count`, {
@@ -86,7 +147,7 @@ async function testInsertion() {
     console.log('📊 Count final:', countFinalResult);
     
     // Test lecture
-    console.log('\n5️⃣ Test lecture de l\'échantillon...');
+    console.log('\n7️⃣ Test lecture de l\'échantillon...');
     const readResponse = await fetch(`${SUPABASE_URL}/rest/v1/oic_competences?objectif_id=eq.${sampleCompetence.objectif_id}&select=*`, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
