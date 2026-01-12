@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GamificationPanel } from '@/components/gamification/GamificationPanel';
+import { Leaderboard } from '@/components/gamification/Leaderboard';
+import { CertificateGenerator } from '@/components/gamification/CertificateGenerator';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Trophy, Star, Target, Flame } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Trophy, Star, Target, Flame, Medal, Award, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
@@ -109,29 +112,62 @@ const Achievements: React.FC = () => {
           </Card>
         </div>
 
-        {/* Panel de gamification principal */}
-        <GamificationPanel />
+        {/* Tabs pour les différentes sections */}
+        <Tabs defaultValue="gamification" className="mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="gamification" className="flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              <span className="hidden sm:inline">Progression</span>
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Classement</span>
+            </TabsTrigger>
+            <TabsTrigger value="certificates" className="flex items-center gap-2">
+              <Medal className="h-4 w-4" />
+              <span className="hidden sm:inline">Certificats</span>
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Défis</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Section motivation */}
-        <Card className="mt-8 bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
-          <CardHeader>
-            <CardTitle className="text-center">🎯 Continuez sur votre lancée !</CardTitle>
-            <CardDescription className="text-center">
-              Vous êtes sur la bonne voie pour devenir un expert médical. 
-              Continuez à étudier et à relever des défis pour débloquer encore plus de récompenses !
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="flex justify-center gap-4">
-              <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-                Continuer l'étude
-              </Button>
-              <Button variant="outline" onClick={() => navigate(ROUTE_PATHS.generator)}>
-                Générer une musique
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          <TabsContent value="gamification">
+            <GamificationPanel />
+          </TabsContent>
+
+          <TabsContent value="leaderboard">
+            <Leaderboard />
+          </TabsContent>
+
+          <TabsContent value="certificates">
+            <CertificateGenerator />
+          </TabsContent>
+
+          <TabsContent value="challenges">
+            {/* Section motivation et défis */}
+            <Card className="bg-gradient-to-r from-accent/10 to-primary/10 border-accent/30">
+              <CardHeader>
+                <CardTitle className="text-center">🎯 Continuez sur votre lancée !</CardTitle>
+                <CardDescription className="text-center">
+                  Vous êtes sur la bonne voie pour devenir un expert médical. 
+                  Continuez à étudier et à relever des défis pour débloquer encore plus de récompenses !
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <div className="flex justify-center gap-4">
+                  <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+                    Continuer l'étude
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate(ROUTE_PATHS.generator)}>
+                    Générer une musique
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
