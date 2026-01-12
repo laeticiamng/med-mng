@@ -23,6 +23,15 @@ export interface OicCompetence {
 // Cache global pour éviter les re-fetches
 const competencesCache = new Map<string, OicCompetence[]>();
 
+const normalizeRangValue = (value: unknown, fallback: 'A' | 'B'): 'A' | 'B' => {
+  if (value === undefined || value === null) return fallback;
+  const normalized = String(value).trim().toUpperCase();
+  if (normalized === 'A' || normalized === 'B') return normalized;
+  if (normalized === 'RANG A') return 'A';
+  if (normalized === 'RANG B') return 'B';
+  return fallback;
+};
+
 // Function to invalidate cache
 export function invalidateOicCache(itemCode?: string, rang?: 'A' | 'B') {
   if (itemCode && rang) {
@@ -95,14 +104,25 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
           Boolean(comp.objectif_id && comp.intitule)
         )
-        .map(comp => ({
-          objectif_id: comp.objectif_id,
-          intitule: comp.intitule,
-          description: comp.description || comp.intitule,
-          rubrique: '',
-          rang: comp.rang || rang,
-          item_parent: comp.item_parent || itemNumber
-        })) as OicCompetence[];
+        .map(comp => {
+          const normalizedRang = normalizeRangValue(comp.rang, rang);
+          if (comp.rang && normalizedRang !== comp.rang) {
+            console.warn(
+              `[useOicCompetences] Normalisation rang pour ${itemCode}:`,
+              comp.rang,
+              '→',
+              normalizedRang
+            );
+          }
+          return {
+            objectif_id: comp.objectif_id,
+            intitule: comp.intitule,
+            description: comp.description || comp.intitule,
+            rubrique: '',
+            rang: normalizedRang,
+            item_parent: comp.item_parent || itemNumber
+          };
+        }) as OicCompetence[];
 
       // Cache results
       competencesCache.set(cacheKey, realCompetences);

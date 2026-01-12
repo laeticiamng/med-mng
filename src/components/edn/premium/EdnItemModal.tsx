@@ -67,6 +67,102 @@ interface EdnItemModalProps {
   initialTab?: string;
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0;
+
+const logJsonbIssue = (itemCode: string | undefined, field: string, message: string, payload?: unknown) => {
+  console.warn(`[EdnItemModal] ${itemCode ?? 'item inconnu'} - ${field}: ${message}`, payload);
+};
+
+const normalizeStringArray = (value: unknown, field: string, itemCode?: string) => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value.filter(isNonEmptyString);
+  }
+  if (typeof value === 'string') {
+    logJsonbIssue(itemCode, field, 'string convertie en tableau');
+    return value
+      .split(/\n{1,2}/)
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  }
+  logJsonbIssue(itemCode, field, 'format inattendu, tableau vide utilisé', value);
+  return [];
+};
+
+const normalizeTableauJsonb = (value: unknown, field: string, itemCode?: string) => {
+  if (!value) return undefined;
+  if (!isRecord(value)) {
+    logJsonbIssue(itemCode, field, 'structure attendue: objet JSON', value);
+    return undefined;
+  }
+  const hasSections = Array.isArray(value.sections);
+  const hasLignes = Array.isArray(value.lignes);
+  const hasCompetences = Array.isArray(value.competences_cles);
+  if (!hasSections && !hasLignes && !hasCompetences) {
+    logJsonbIssue(itemCode, field, 'aucune clé sections/lignes/competences_cles détectée', value);
+  }
+  return value;
+};
+
+const normalizeQuizJsonb = (value: unknown, itemCode?: string) => {
+  if (!value) return undefined;
+  if (Array.isArray(value) || isRecord(value)) {
+    return value;
+  }
+  logJsonbIssue(itemCode, 'quiz_questions', 'structure attendue: tableau ou objet', value);
+  return undefined;
+};
+
+const normalizeSceneJsonb = (value: unknown, itemCode?: string) => {
+  if (!value) return undefined;
+  if (isRecord(value)) {
+    return value;
+  }
+  logJsonbIssue(itemCode, 'scene_immersive', 'structure attendue: objet JSON', value);
+  return undefined;
+};
+
+const normalizePanelsJsonb = (value: unknown, field: string, itemCode?: string) => {
+  if (!value) return undefined;
+  if (!Array.isArray(value)) {
+    logJsonbIssue(itemCode, field, 'structure attendue: tableau', value);
+    return undefined;
+  }
+  const validPanels = value.filter((panel) => {
+    if (!isRecord(panel)) return false;
+    return isNonEmptyString(panel.title) && isNonEmptyString(panel.description) && isNonEmptyString(panel.image);
+  });
+  if (validPanels.length !== value.length) {
+    logJsonbIssue(itemCode, field, 'certaines entrées ont été ignorées (structure incomplète)');
+  }
+  return validPanels.length > 0 ? validPanels : undefined;
+};
+
+const normalizeRomanStoryJsonb = (value: unknown, itemCode?: string) => {
+  if (!value) return undefined;
+  if (!Array.isArray(value)) {
+    logJsonbIssue(itemCode, 'roman_story', 'structure attendue: tableau', value);
+    return undefined;
+  }
+  const validChapters = value.filter((chapter) => {
+    if (!isRecord(chapter)) return false;
+    return isNonEmptyString(chapter.title) && isNonEmptyString(chapter.content);
+  });
+  if (validChapters.length !== value.length) {
+    logJsonbIssue(itemCode, 'roman_story', 'certaines entrées ont été ignorées (structure incomplète)');
+  }
+  return validChapters.length > 0 ? validChapters : undefined;
+};
+
+const hasValidTableau = (value: unknown) => {
+  if (!isRecord(value)) return false;
+  return Array.isArray(value.sections) || Array.isArray(value.lignes) || Array.isArray(value.competences_cles);
+};
+
 export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   item,
   isOpen,
@@ -167,20 +263,30 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 normalizedParoles = data.paroles_musicales as string[];
               }
             }
+
+            const normalizedTableauRangA = normalizeTableauJsonb(data.tableau_rang_a, 'tableau_rang_a', finalItem.item_code);
+            const normalizedTableauRangB = normalizeTableauJsonb(data.tableau_rang_b, 'tableau_rang_b', finalItem.item_code);
+            const normalizedQuiz = normalizeQuizJsonb(data.quiz_questions, finalItem.item_code);
+            const normalizedScene = normalizeSceneJsonb(data.scene_immersive, finalItem.item_code);
+            const normalizedBdPanels = normalizePanelsJsonb(data.bd_panels, 'bd_panels', finalItem.item_code);
+            const normalizedRomanStory = normalizeRomanStoryJsonb(data.roman_story, finalItem.item_code);
+            const normalizedParolesRangA = normalizeStringArray(data.paroles_rang_a, 'paroles_rang_a', finalItem.item_code);
+            const normalizedParolesRangB = normalizeStringArray(data.paroles_rang_b, 'paroles_rang_b', finalItem.item_code);
+            const normalizedParolesRangAB = normalizeStringArray(data.paroles_rang_ab, 'paroles_rang_ab', finalItem.item_code);
             
             setCompleteItemData({
-              quiz_questions: data.quiz_questions as unknown,
-              scene_immersive: data.scene_immersive as unknown,
-              tableau_rang_a: data.tableau_rang_a as unknown,
-              tableau_rang_b: data.tableau_rang_b as unknown,
-              paroles_musicales: normalizedParoles,
-              paroles_rang_a: data.paroles_rang_a as string[],
-              paroles_rang_b: data.paroles_rang_b as string[],
-              paroles_rang_ab: data.paroles_rang_ab as string[],
+              quiz_questions: normalizedQuiz,
+              scene_immersive: normalizedScene,
+              tableau_rang_a: normalizedTableauRangA,
+              tableau_rang_b: normalizedTableauRangB,
+              paroles_musicales: normalizeStringArray(normalizedParoles, 'paroles_musicales', finalItem.item_code),
+              paroles_rang_a: normalizedParolesRangA,
+              paroles_rang_b: normalizedParolesRangB,
+              paroles_rang_ab: normalizedParolesRangAB,
               competences_oic_rang_a: oicCompetencesA,
               competences_oic_rang_b: oicCompetencesB,
-              bd_panels: data.bd_panels as unknown,
-              roman_story: data.roman_story as unknown,
+              bd_panels: normalizedBdPanels,
+              roman_story: normalizedRomanStory,
             });
           }
         } catch {
@@ -200,6 +306,23 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   }, [finalItem, isOpen, oicCompetencesA, oicCompetencesB]);
 
   if (!finalItem) return null;
+
+  const tableauRangA = completeItemData?.tableau_rang_a ?? finalItem.tableau_rang_a;
+  const tableauRangB = completeItemData?.tableau_rang_b ?? finalItem.tableau_rang_b;
+  const parolesMusicales = completeItemData?.paroles_musicales ?? finalItem.paroles_musicales;
+  const parolesRangA = completeItemData?.paroles_rang_a ?? finalItem.paroles_rang_a;
+  const parolesRangB = completeItemData?.paroles_rang_b ?? finalItem.paroles_rang_b;
+  const parolesRangAB = completeItemData?.paroles_rang_ab ?? finalItem.paroles_rang_ab;
+  const sceneData = completeItemData?.scene_immersive ?? finalItem.scene_immersive;
+  const quizData = completeItemData?.quiz_questions ?? finalItem.quiz_questions;
+  const bdPanels = completeItemData?.bd_panels ?? finalItem.bd_panels;
+  const romanStory = completeItemData?.roman_story ?? finalItem.roman_story;
+  const hasOicCompetences = oicCompetencesA.length + oicCompetencesB.length > 0;
+  const hasTableauA = hasValidTableau(tableauRangA);
+  const hasTableauB = hasValidTableau(tableauRangB);
+  const hasScene = isRecord(sceneData);
+  const hasBdPanels = Array.isArray(bdPanels) && bdPanels.length > 0;
+  const hasRomanStory = Array.isArray(romanStory) && romanStory.length > 0;
 
   const getItemNumber = (itemCode: string) => {
     return parseInt(itemCode.replace('IC-', '') || '0');
@@ -370,19 +493,19 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         <div className="space-y-3">
                           <h4 className="font-semibold">Contenu disponible</h4>
                           <div className="space-y-2 flex flex-wrap gap-2">
-                            {finalItem.tableau_rang_a && (
+                            {hasTableauA && (
                               <Badge className="bg-primary/10 text-primary">Rang A</Badge>
                             )}
-                            {finalItem.tableau_rang_b && (
+                            {hasTableauB && (
                               <Badge className="bg-accent/10 text-accent">Rang B</Badge>
                             )}
-                            {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+                            {parolesMusicales && parolesMusicales.length > 0 && (
                               <Badge className="bg-success/10 text-success">Musique</Badge>
                             )}
-                            {finalItem.scene_immersive && (
+                            {hasScene && (
                               <Badge className="bg-success/10 text-success">Scène</Badge>
                             )}
-                            {finalItem.quiz_questions && (
+                            {quizData && (
                               <Badge className="bg-warning/10 text-warning">Quiz</Badge>
                             )}
                           </div>
@@ -464,10 +587,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   <EdnItemExport 
                     itemCode={finalItem.item_code}
                     itemTitle={finalItem.title}
-                    tableauRangA={finalItem.tableau_rang_a}
-                    tableauRangB={finalItem.tableau_rang_b}
-                    parolesRangA={finalItem.paroles_rang_a}
-                    parolesRangB={finalItem.paroles_rang_b}
+                    tableauRangA={tableauRangA}
+                    tableauRangB={tableauRangB}
+                    parolesRangA={parolesRangA}
+                    parolesRangB={parolesRangB}
                   />
                   
                   {/* Personal Notes */}
@@ -520,12 +643,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Rang A - Toujours affiché car useOicCompetences charge les vraies données */}
               <TabsContent value="rang-a" className="mt-0 p-6">
-                <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
+                <TableauRangA data={tableauRangA} itemCode={finalItem.item_code} />
               </TabsContent>
 
               {/* Rang B - Toujours affiché car useOicCompetences charge les vraies données */}
               <TabsContent value="rang-b" className="mt-0 p-6">
-                <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+                <TableauRangB data={tableauRangB} itemCode={finalItem.item_code} />
               </TabsContent>
 
               {/* Stats Tab - Historique et progression */}
@@ -556,7 +679,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         </div>
                         <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/20">
                           <div className="text-3xl font-bold text-warning">
-                            {finalItem.paroles_musicales?.length ? '✓' : '○'}
+                            {parolesMusicales?.length ? '✓' : '○'}
                           </div>
                           <div className="text-sm text-muted-foreground">Musique</div>
                         </div>
@@ -612,19 +735,19 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               <TabsContent value="music" className="mt-0 p-6">
                 <ParolesMusicales 
-                  paroles={completeItemData?.paroles_musicales || finalItem.paroles_musicales}
-                  paroles_rang_a={finalItem.paroles_rang_a}
-                  paroles_rang_b={finalItem.paroles_rang_b}
-                  paroles_rang_ab={finalItem.paroles_rang_ab}
+                  paroles={parolesMusicales}
+                  paroles_rang_a={parolesRangA}
+                  paroles_rang_b={parolesRangB}
+                  paroles_rang_ab={parolesRangAB}
                   itemCode={finalItem.item_code}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
+                  tableauRangA={tableauRangA}
+                  tableauRangB={tableauRangB}
                 />
               </TabsContent>
 
               {/* Scene - Toujours affichée */}
               <TabsContent value="scene" className="mt-0 p-6 space-y-4">
-                {(completeItemData?.scene_immersive || finalItem.scene_immersive) ? (
+                {hasScene ? (
                   <>
                     {/* Audio Ambiance Player */}
                     {finalItem.audio_ambiance && (
@@ -633,7 +756,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         itemCode={finalItem.item_code} 
                       />
                     )}
-                    <SceneImmersive data={completeItemData?.scene_immersive || finalItem.scene_immersive} itemCode={finalItem.item_code} />
+                    <SceneImmersive data={sceneData} itemCode={finalItem.item_code} />
                   </>
                 ) : (
                   <Card className="border-2 border-accent/20">
@@ -674,18 +797,6 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               {/* Quiz - Toujours affiché */}
               <TabsContent value="quiz" className="mt-0 p-6 space-y-6">
                 {(() => {
-                  const quizData = completeItemData?.quiz_questions || finalItem.quiz_questions;
-                  // Détection améliorée: quiz peut être un array OU un objet avec sous-clés (qcm, qru, qroc, zap)
-                  const hasQuiz = quizData && (
-                    (Array.isArray(quizData) && quizData.length > 0) ||
-                    (typeof quizData === 'object' && !Array.isArray(quizData) && (
-                      (Array.isArray((quizData as any).qcm) && (quizData as any).qcm.length > 0) ||
-                      (Array.isArray((quizData as any).qru) && (quizData as any).qru.length > 0) ||
-                      (Array.isArray((quizData as any).qroc) && (quizData as any).qroc.length > 0) ||
-                      (Array.isArray((quizData as any).zap) && (quizData as any).zap.length > 0)
-                    ))
-                  );
-                  
                   // Toujours afficher EnhancedQuizFinal qui gère aussi la génération OIC si pas de questions
                   return (
                   <>
@@ -714,24 +825,94 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* BD Gallery */}
               <TabsContent value="bd" className="mt-0 p-6">
-                <BdGallery 
-                  itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
-                  bdPanels={completeItemData?.bd_panels as any || finalItem.bd_panels as any}
-                />
+                {!hasBdPanels && !hasOicCompetences ? (
+                  <Card className="border-2 border-accent/20">
+                    <CardHeader className="text-center">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-accent/10 flex items-center justify-center mb-4">
+                        <Image className="h-8 w-8 text-accent" />
+                      </div>
+                      <CardTitle>BD indisponible pour le moment</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-4">
+                      <p className="text-muted-foreground">
+                        Les données BD pour <strong>{finalItem.item_code}</strong> sont absentes ou incomplètes.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                        <button
+                          onClick={() => setActiveTab('rang-a')}
+                          className="p-4 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-primary mb-1">📚 Rang A</div>
+                          <div className="text-xs text-muted-foreground">Compétences essentielles</div>
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('music')}
+                          className="p-4 rounded-lg border border-success/30 bg-success/5 hover:bg-success/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-success mb-1">🎵 Musique</div>
+                          <div className="text-xs text-muted-foreground">Mémorisation active</div>
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-2">
+                        Revenez plus tard pour découvrir la BD interactive.
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <BdGallery 
+                    itemCode={finalItem.item_code}
+                    title={finalItem.title}
+                    tableauRangA={tableauRangA}
+                    tableauRangB={tableauRangB}
+                    bdPanels={bdPanels as any}
+                  />
+                )}
               </TabsContent>
 
               {/* Roman Narratif */}
               <TabsContent value="roman" className="mt-0 p-6">
-                <RomanNarratif 
-                  itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
-                  romanStory={completeItemData?.roman_story as any || finalItem.roman_story as any}
-                />
+                {!hasRomanStory && !hasOicCompetences ? (
+                  <Card className="border-2 border-primary/20">
+                    <CardHeader className="text-center">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                        <FileText className="h-8 w-8 text-primary" />
+                      </div>
+                      <CardTitle>Roman narratif indisponible</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center space-y-4">
+                      <p className="text-muted-foreground">
+                        Le roman narratif pour <strong>{finalItem.item_code}</strong> n'est pas encore prêt.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                        <button
+                          onClick={() => setActiveTab('rang-b')}
+                          className="p-4 rounded-lg border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-accent-foreground mb-1">🧠 Rang B</div>
+                          <div className="text-xs text-muted-foreground">Compétences avancées</div>
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('quiz')}
+                          className="p-4 rounded-lg border border-warning/30 bg-warning/5 hover:bg-warning/10 transition-colors text-left"
+                        >
+                          <div className="font-semibold text-warning mb-1">📝 Quiz</div>
+                          <div className="text-xs text-muted-foreground">S'entraîner maintenant</div>
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-2">
+                        Essayez les autres formats pédagogiques disponibles.
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <RomanNarratif 
+                    itemCode={finalItem.item_code}
+                    title={finalItem.title}
+                    tableauRangA={tableauRangA}
+                    tableauRangB={tableauRangB}
+                    romanStory={romanStory as any}
+                  />
+                )}
               </TabsContent>
             </div>
           </Tabs>
