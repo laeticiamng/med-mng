@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,10 +20,12 @@ import {
   CheckCircle,
   XCircle,
   Edit,
-  RefreshCw
+  RefreshCw,
+  Gauge
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ROUTE_PATHS } from '@/config/routes';
 
 // Import des composants d'administration existants
 import { AdminSystemSettings } from './AdminSystemSettings';
@@ -54,6 +57,7 @@ interface RecentActivity {
 }
 
 export const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [systemStats, setSystemStats] = useState<SystemStats>({
     totalUsers: 0,
     activeSubscriptions: 0,
@@ -590,6 +594,17 @@ export const AdminDashboard: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-4">
+                  <Button
+                    variant="outline"
+                    className="h-auto p-4 justify-start"
+                    onClick={() => navigate(ROUTE_PATHS.adminExtractionQuality)}
+                  >
+                    <Gauge className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">Dashboard extraction & qualité</div>
+                      <div className="text-sm text-muted-foreground">KPI extraction, qualité et alertes</div>
+                    </div>
+                  </Button>
                   <Button variant="outline" className="h-auto p-4 justify-start">
                     <Database className="h-5 w-5 mr-3" />
                     <div className="text-left">

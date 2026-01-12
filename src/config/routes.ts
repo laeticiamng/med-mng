@@ -51,6 +51,7 @@ export const ROUTE_PATHS = {
   adminExtractEcos: '/admin/extract-ecos',
   adminExtractObjectifs: '/admin/extract-objectifs',
   adminOicQuality: '/admin/oic-quality',
+  adminExtractionQuality: '/admin/extraction-quality',
   adminComplete: '/admin/complete',
   adminPanel: '/admin-panel',
   library: '/library',
