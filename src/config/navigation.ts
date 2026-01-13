@@ -43,7 +43,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
 ];
 
-// Navigation secondaire (menu "Plus")
+// Navigation secondaire (menu "Plus") - Pages réellement existantes
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
@@ -52,12 +52,13 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.generator, label: 'Musique médicale', icon: Music },
   { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning intelligent', icon: Calendar },
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
-  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
   { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag },
   { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
   { path: ROUTE_PATHS.favorites, label: 'Favoris', icon: Sparkles },
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
+  { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
+  { path: ROUTE_PATHS.installPwa, label: 'Installer l\'app', icon: Sparkles },
 ];
 
 // Navigation utilisateur (menu profil)
@@ -98,7 +99,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.designSystem, label: 'Design System', icon: Sparkles },
 ];
 
-// Pages publiques (accessibles sans connexion)
+// Pages publiques (accessibles sans connexion) - Vérifiées existantes
 export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
@@ -109,10 +110,13 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
   { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag },
-  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
   { path: ROUTE_PATHS.installPwa, label: 'Installer App', icon: Sparkles },
+  { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
+  { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
+  { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
+  { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse },
 ];
 
 // Pages légales (footer)
@@ -124,7 +128,7 @@ export const LEGAL_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.mesDonneesRgpd, label: 'Mes données RGPD', icon: FileText },
 ];
 
-// Toutes les pages accessibles (pour sitemap/recherche globale)
+// Toutes les pages accessibles (pour sitemap/recherche globale) - Validées
 export const ALL_ACCESSIBLE_PAGES = [
   // Principales
   { path: ROUTE_PATHS.home, label: 'Accueil', category: 'Principal' },
@@ -148,8 +152,7 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.statistics, label: 'Statistiques', category: 'Suivi' },
   { path: ROUTE_PATHS.favorites, label: 'Favoris', category: 'Suivi' },
   
-  // Communauté & Ressources
-  { path: ROUTE_PATHS.community, label: 'Communauté', category: 'Social' },
+  // Ressources
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', category: 'Ressources' },
   { path: ROUTE_PATHS.store, label: 'Boutique', category: 'Ressources' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
