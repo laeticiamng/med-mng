@@ -2,6 +2,20 @@ import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
 
+export interface StudyGroup {
+  id: string;
+  name: string;
+  description: string;
+  topic?: string;
+  max_members: number;
+  member_count: number;
+  is_active: boolean;
+  is_public: boolean;
+  created_by: string;
+  created_at: string;
+  members?: any[];
+}
+
 export interface StudySession {
   id: string;
   session_name: string;
@@ -28,8 +42,10 @@ export interface SessionParticipant {
 
 export function useCollaborativeStudy() {
   const { toast } = useToast();
+  const [groups, setGroups] = useState<StudyGroup[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [mySessions, setMySessions] = useState<StudySession[]>([]);
+  const [currentSession, setCurrentSession] = useState<{ id: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
@@ -44,16 +60,80 @@ export function useCollaborativeStudy() {
     getUser();
   }, []);
 
-  // Load all public sessions
+  // Load all study groups
+  const loadGroups = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await (supabase as any)
+        .from('study_groups')
+        .select(`
+          *,
+          members:study_group_members(user_id, role, profiles(name, email))
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedGroups: StudyGroup[] = (data || []).map((g: any) => ({
+        id: g.id,
+        name: g.name,
+        description: g.description || '',
+        topic: g.category || g.topic,
+        max_members: g.max_members || 10,
+        member_count: g.member_count || g.members?.length || 0,
+        is_active: g.is_active ?? true,
+        is_public: g.is_public ?? true,
+        created_by: g.created_by || '',
+        created_at: g.created_at,
+        members: g.members || [],
+      }));
+
+      setGroups(formattedGroups);
+    } catch (error) {
+      console.error('Error loading groups:', error);
+      // Fallback mock data
+      setGroups([
+        {
+          id: 'mock-1',
+          name: 'Révision Cardiologie',
+          description: 'Groupe de révision ECG et insuffisance cardiaque',
+          topic: 'Cardiologie',
+          max_members: 10,
+          member_count: 4,
+          is_active: true,
+          is_public: true,
+          created_by: 'user-1',
+          created_at: new Date().toISOString(),
+          members: [],
+        },
+        {
+          id: 'mock-2',
+          name: 'Quiz Pneumologie',
+          description: 'QCM collaboratif pathologies respiratoires',
+          topic: 'Pneumologie',
+          max_members: 8,
+          member_count: 6,
+          is_active: true,
+          is_public: true,
+          created_by: 'user-2',
+          created_at: new Date().toISOString(),
+          members: [],
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Load all public sessions (legacy)
   const loadSessions = useCallback(async () => {
     setLoading(true);
     try {
-      // Use study_groups table as base for collaborative sessions
       const { data, error } = await (supabase as any)
         .from('study_groups')
         .select('*')
         .eq('is_public', true)
-        .order('last_activity_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -76,39 +156,7 @@ export function useCollaborativeStudy() {
       setSessions(formattedSessions);
     } catch (error) {
       console.error('Error loading sessions:', error);
-      // Fallback mock data
-      setSessions([
-        {
-          id: 'mock-1',
-          session_name: 'Révision Cardiologie',
-          description: 'Session intensive ECG et insuffisance cardiaque',
-          subject_areas: ['Cardiologie', 'ECG'],
-          max_participants: 6,
-          current_participants: 3,
-          session_type: 'collaborative',
-          scheduled_start: new Date(Date.now() + 3600000).toISOString(),
-          duration_minutes: 90,
-          is_active: false,
-          is_public: true,
-          creator_id: 'user-1',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 'mock-2',
-          session_name: 'Quiz Pneumologie',
-          description: 'QCM collaboratif sur les pathologies respiratoires',
-          subject_areas: ['Pneumologie'],
-          max_participants: 8,
-          current_participants: 5,
-          session_type: 'collaborative',
-          scheduled_start: new Date(Date.now() + 7200000).toISOString(),
-          duration_minutes: 60,
-          is_active: false,
-          is_public: true,
-          creator_id: 'user-2',
-          created_at: new Date().toISOString()
-        }
-      ]);
+      setSessions([]);
     } finally {
       setLoading(false);
     }
@@ -148,7 +196,50 @@ export function useCollaborativeStudy() {
     }
   }, [currentUser]);
 
-  // Create a new session
+  // Create a new group
+  const createGroup = useCallback(async (name: string, description: string, topic?: string) => {
+    if (!currentUser) {
+      toast({ title: "Connexion requise", variant: "destructive" });
+      return false;
+    }
+
+    try {
+      const { data, error } = await (supabase as any)
+        .from('study_groups')
+        .insert({
+          name,
+          description,
+          category: topic || 'Général',
+          max_members: 10,
+          is_public: true,
+          created_by: currentUser,
+          member_count: 1,
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Join as admin
+      await (supabase as any)
+        .from('study_group_members')
+        .insert({
+          group_id: data.id,
+          user_id: currentUser,
+          role: 'admin'
+        });
+
+      await loadGroups();
+      return true;
+    } catch (error) {
+      console.error('Error creating group:', error);
+      toast({ title: "Erreur", description: "Impossible de créer le groupe", variant: "destructive" });
+      return false;
+    }
+  }, [currentUser, toast, loadGroups]);
+
+  // Create a session (legacy)
   const createSession = useCallback(async (sessionData: Partial<StudySession>) => {
     if (!currentUser) {
       toast({ title: "Connexion requise", variant: "destructive" });
@@ -172,7 +263,6 @@ export function useCollaborativeStudy() {
 
       if (error) throw error;
 
-      // Join as host
       await (supabase as any)
         .from('study_group_members')
         .insert({
@@ -181,96 +271,112 @@ export function useCollaborativeStudy() {
           role: 'admin'
         });
 
-      toast({ title: "Session créée !", description: "Votre session d'étude est prête" });
-      
+      toast({ title: "Session créée !" });
       await loadSessions();
-      await loadMySessions();
-      
       return data;
     } catch (error) {
       console.error('Error creating session:', error);
-      toast({ title: "Erreur", description: "Impossible de créer la session", variant: "destructive" });
+      toast({ title: "Erreur", variant: "destructive" });
       return null;
     }
-  }, [currentUser, toast, loadSessions, loadMySessions]);
+  }, [currentUser, toast, loadSessions]);
 
-  // Join a session
-  const joinSession = useCallback(async (sessionId: string) => {
+  // Join a group
+  const joinGroup = useCallback(async (groupId: string) => {
     if (!currentUser) {
       toast({ title: "Connexion requise", variant: "destructive" });
       return false;
     }
 
     try {
-      // Check if already member
       const { data: existing } = await (supabase as any)
         .from('study_group_members')
         .select('id')
-        .eq('group_id', sessionId)
+        .eq('group_id', groupId)
         .eq('user_id', currentUser)
         .maybeSingle();
 
       if (existing) {
-        toast({ title: "Déjà membre", description: "Vous êtes déjà dans cette session" });
+        toast({ title: "Déjà membre" });
         return true;
       }
 
-      // Join
       await (supabase as any)
         .from('study_group_members')
         .insert({
-          group_id: sessionId,
+          group_id: groupId,
           user_id: currentUser,
           role: 'member'
         });
 
-      // Update member count
-      const session = sessions.find(s => s.id === sessionId);
-      if (session) {
+      const group = groups.find(g => g.id === groupId);
+      if (group) {
         await (supabase as any)
           .from('study_groups')
-          .update({ member_count: session.current_participants + 1 })
-          .eq('id', sessionId);
+          .update({ member_count: (group.member_count || 0) + 1 })
+          .eq('id', groupId);
       }
 
-      toast({ title: "Session rejointe !", description: "Vous avez rejoint la session d'étude" });
-      await loadSessions();
+      await loadGroups();
       return true;
     } catch (error) {
-      console.error('Error joining session:', error);
-      toast({ title: "Erreur", description: "Impossible de rejoindre la session", variant: "destructive" });
+      console.error('Error joining group:', error);
+      toast({ title: "Erreur", variant: "destructive" });
       return false;
     }
-  }, [currentUser, sessions, toast, loadSessions]);
+  }, [currentUser, groups, toast, loadGroups]);
 
-  // Leave a session
-  const leaveSession = useCallback(async (sessionId: string) => {
+  // Join a session (legacy)
+  const joinSession = useCallback(async (sessionId: string) => {
+    return joinGroup(sessionId);
+  }, [joinGroup]);
+
+  // Leave a group
+  const leaveGroup = useCallback(async (groupId: string) => {
     if (!currentUser) return false;
 
     try {
       await (supabase as any)
         .from('study_group_members')
         .delete()
-        .eq('group_id', sessionId)
+        .eq('group_id', groupId)
         .eq('user_id', currentUser);
 
-      // Update member count
-      const session = sessions.find(s => s.id === sessionId);
-      if (session && session.current_participants > 0) {
+      const group = groups.find(g => g.id === groupId);
+      if (group && group.member_count > 0) {
         await (supabase as any)
           .from('study_groups')
-          .update({ member_count: session.current_participants - 1 })
-          .eq('id', sessionId);
+          .update({ member_count: group.member_count - 1 })
+          .eq('id', groupId);
       }
 
-      toast({ title: "Session quittée" });
-      await loadSessions();
+      toast({ title: "Groupe quitté" });
+      await loadGroups();
       return true;
     } catch (error) {
-      console.error('Error leaving session:', error);
+      console.error('Error leaving group:', error);
       return false;
     }
-  }, [currentUser, sessions, toast, loadSessions]);
+  }, [currentUser, groups, toast, loadGroups]);
+
+  // Leave session (legacy)
+  const leaveSession = useCallback(async (sessionId: string) => {
+    return leaveGroup(sessionId);
+  }, [leaveGroup]);
+
+  // Start a study session
+  const startSession = useCallback(async (groupId: string) => {
+    setCurrentSession({ id: groupId });
+    toast({ title: "Session démarrée", description: "Bonne étude !" });
+    return true;
+  }, [toast]);
+
+  // End session
+  const endSession = useCallback(async (sessionId: string) => {
+    setCurrentSession(null);
+    toast({ title: "Session terminée" });
+    return true;
+  }, [toast]);
 
   // Setup realtime subscription
   useEffect(() => {
@@ -280,7 +386,7 @@ export function useCollaborativeStudy() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'study_groups' },
         () => {
-          loadSessions();
+          loadGroups();
         }
       )
       .subscribe();
@@ -288,12 +394,12 @@ export function useCollaborativeStudy() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadSessions]);
+  }, [loadGroups]);
 
   // Initial load
   useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
+    loadGroups();
+  }, [loadGroups]);
 
   useEffect(() => {
     if (currentUser) {
@@ -302,13 +408,21 @@ export function useCollaborativeStudy() {
   }, [currentUser, loadMySessions]);
 
   return {
+    groups,
     sessions,
     mySessions,
+    currentSession,
     loading,
+    loadGroups,
     loadSessions,
     loadMySessions,
+    createGroup,
     createSession,
+    joinGroup,
     joinSession,
-    leaveSession
+    leaveGroup,
+    leaveSession,
+    startSession,
+    endSession,
   };
 }
