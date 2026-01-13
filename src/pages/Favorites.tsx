@@ -8,36 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Heart, Search, Filter, Play, BookOpen, Music, 
   ArrowLeft, Star, Clock, Calendar, Tag, Trash2,
-  Download, Share2, Plus, FolderPlus, Flame, Trophy
+  Download, Share2, Plus, FolderPlus, Flame, Trophy, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useFavorites } from '@/hooks/useFavorites';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
-
-interface FavoriteItem {
-  id: string;
-  type: 'edn' | 'music' | 'playlist' | 'quiz';
-  title: string;
-  description: string;
-  category: string;
-  addedAt: Date;
-  lastAccessed?: Date;
-  progress?: number;
-  duration?: string;
-  tags: string[];
-}
-
-interface Collection {
-  id: string;
-  name: string;
-  description: string;
-  itemCount: number;
-  createdAt: Date;
-  color: string;
-}
 
 const Favorites: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +24,15 @@ const Favorites: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
+  const { 
+    loading, 
+    ednFavorites, 
+    musicFavorites, 
+    stats: favStats,
+    loadAllFavorites,
+    removeEdnFavorite,
+    removeMusicFavorite
+  } = useFavorites();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -53,115 +41,67 @@ const Favorites: React.FC = () => {
       if (user) {
         setUser(user);
         await loadStats(user.id);
-        // Log page view activity
+        await loadAllFavorites(user.id);
         await logActivity({ activity_type: 'study', metadata: { action: 'favorites_viewed' } });
+      } else {
+        navigate(ROUTE_PATHS.medMngLogin);
       }
     };
     init();
-  }, [loadStats, logActivity]);
+  }, [loadStats, logActivity, loadAllFavorites, navigate]);
 
-  // Données de démo
-  const favoriteItems: FavoriteItem[] = [
-    {
-      id: '1',
-      type: 'edn',
-      title: 'IC-157 Diabète',
-      description: 'Physiopathologie et prise en charge du diabète',
-      category: 'Endocrinologie',
-      addedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      lastAccessed: new Date(Date.now() - 1 * 60 * 60 * 1000),
-      progress: 85,
-      tags: ['diabète', 'endocrinologie', 'physiopathologie']
-    },
-    {
-      id: '2',
-      type: 'music',
-      title: 'Cardiologie LoFi Mix',
-      description: 'Musique relaxante pour étudier la cardiologie',
-      category: 'Cardiologie',
-      addedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      lastAccessed: new Date(Date.now() - 3 * 60 * 60 * 1000),
-      duration: '45:32',
-      tags: ['cardiologie', 'lofi', 'relaxation']
-    },
-    {
-      id: '3',
-      type: 'edn',
-      title: 'IC-042 Hypertension',
-      description: 'Approche clinique de l\'hypertension artérielle',
-      category: 'Cardiologie',
-      addedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      progress: 100,
-      tags: ['hypertension', 'cardiologie', 'traitement']
-    },
-    {
-      id: '4',
-      type: 'playlist',
-      title: 'Ma Playlist Urgences',
-      description: 'Compilation musicale pour l\'apprentissage des urgences',
-      category: 'Urgences',
-      addedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      duration: '2:18:45',
-      tags: ['urgences', 'playlist', 'compilation']
-    }
+  // Combiner et filtrer les favoris
+  const allFavorites = [
+    ...ednFavorites.map(f => ({
+      id: f.id,
+      type: 'edn' as const,
+      title: f.item_title || f.item_code,
+      code: f.item_code,
+      addedAt: new Date(f.created_at),
+      tags: [f.item_code.split('-')[0]]
+    })),
+    ...musicFavorites.map(f => ({
+      id: f.id,
+      type: 'music' as const,
+      title: (f.meta as any)?.title || f.track_id,
+      code: f.track_id,
+      addedAt: new Date(f.created_at),
+      tags: ['musique']
+    }))
   ];
 
-  const collections: Collection[] = [
-    {
-      id: '1',
-      name: 'Cardiologie Complète',
-      description: 'Tous mes items préférés en cardiologie',
-      itemCount: 12,
-      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      color: 'bg-destructive/10 text-destructive'
-    },
-    {
-      id: '2',
-      name: 'Révisions ECN',
-      description: 'Collection spéciale pour les révisions',
-      itemCount: 8,
-      createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
-      color: 'bg-primary/10 text-primary'
-    },
-    {
-      id: '3',
-      name: 'Musiques Focus',
-      description: 'Mes musiques préférées pour la concentration',
-      itemCount: 15,
-      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      color: 'bg-accent/10 text-accent'
-    }
-  ];
+  const filteredItems = allFavorites.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.type === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  const getTypeIcon = (type: FavoriteItem['type']) => {
+  const handleRemoveFavorite = async (item: typeof allFavorites[0]) => {
+    if (!user) return;
+    if (item.type === 'edn') {
+      await removeEdnFavorite(user.id, item.code);
+    } else {
+      await removeMusicFavorite(user.id, item.code);
+    }
+    await loadAllFavorites(user.id);
+  };
+
+  const getTypeIcon = (type: 'edn' | 'music') => {
     switch (type) {
       case 'edn': return BookOpen;
       case 'music': return Music;
-      case 'playlist': return Music;
-      case 'quiz': return Star;
       default: return BookOpen;
     }
   };
 
-  const getTypeColor = (type: FavoriteItem['type']) => {
+  const getTypeColor = (type: 'edn' | 'music') => {
     switch (type) {
       case 'edn': return 'bg-primary/10 text-primary';
       case 'music': return 'bg-accent/10 text-accent';
-      case 'playlist': return 'bg-success/10 text-success';
-      case 'quiz': return 'bg-warning/10 text-warning';
       default: return 'bg-muted text-muted-foreground';
     }
   };
-
-  const filteredItems = favoriteItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === 'all' || item.type === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-destructive/5 via-background to-destructive/10">
@@ -206,14 +146,14 @@ const Favorites: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{favoriteItems.length}</div>
-              <div className="text-sm text-muted-foreground">Items Favoris</div>
+              <div className="text-2xl font-bold text-foreground">{favStats?.totalEdnFavorites || 0}</div>
+              <div className="text-sm text-muted-foreground">Items EDN</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-foreground">{collections.length}</div>
-              <div className="text-sm text-muted-foreground">Collections</div>
+              <div className="text-2xl font-bold text-foreground">{favStats?.totalMusicFavorites || 0}</div>
+              <div className="text-sm text-muted-foreground">Musiques</div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30">
@@ -239,187 +179,207 @@ const Favorites: React.FC = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="items" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="items">Mes Favoris</TabsTrigger>
-            <TabsTrigger value="collections">Collections</TabsTrigger>
-          </TabsList>
+        {loading ? (
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Tabs defaultValue="items" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="items">Mes Favoris ({allFavorites.length})</TabsTrigger>
+              <TabsTrigger value="edn">Items EDN ({ednFavorites.length})</TabsTrigger>
+            </TabsList>
 
-          {/* Items favoris */}
-          <TabsContent value="items" className="space-y-6">
-            {/* Filtres */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Rechercher dans mes favoris..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
+            {/* Items favoris */}
+            <TabsContent value="items" className="space-y-6">
+              {/* Filtres */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <Input
+                          placeholder="Rechercher dans mes favoris..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCategory('all')}
+                      >
+                        Tout
+                      </Button>
+                      <Button
+                        variant={selectedCategory === 'edn' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCategory('edn')}
+                      >
+                        Items EDN
+                      </Button>
+                      <Button
+                        variant={selectedCategory === 'music' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCategory('music')}
+                      >
+                        Musique
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedCategory('all')}
-                    >
-                      Tout
-                    </Button>
-                    <Button
-                      variant={selectedCategory === 'edn' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedCategory('edn')}
-                    >
-                      Items EDN
-                    </Button>
-                    <Button
-                      variant={selectedCategory === 'music' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedCategory('music')}
-                    >
-                      Musique
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Liste des favoris */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredItems.map((item) => {
-                const TypeIcon = getTypeIcon(item.type);
-                return (
-                  <Card key={item.id} className="hover:shadow-lg transition-all duration-200">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-start gap-3">
-                          <div className={`p-2 rounded-lg ${getTypeColor(item.type)}`}>
-                            <TypeIcon className="w-5 h-5" />
+              {/* Liste des favoris */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredItems.map((item) => {
+                  const TypeIcon = getTypeIcon(item.type);
+                  return (
+                    <Card key={item.id} className="hover:shadow-lg transition-all duration-200">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-lg ${getTypeColor(item.type)}`}>
+                              <TypeIcon className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                              <Badge variant="outline" className="text-xs">
+                                {item.code}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                            <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
-                            <Badge variant="outline" className="text-xs">
-                              {item.category}
+                          
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={() => handleRemoveFavorite(item)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {item.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
                             </Badge>
+                          ))}
+                          <Badge variant="secondary" className="text-xs">
+                            {item.type === 'edn' ? 'Item EDN' : 'Musique'}
+                          </Badge>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            Ajouté {new Intl.RelativeTimeFormat('fr', { numeric: 'auto' }).format(
+                              Math.ceil((item.addedAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)), 'day'
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                if (item.type === 'edn') {
+                                  navigate(`${ROUTE_PATHS.ednComplete}/${item.code}`);
+                                }
+                              }}
+                            >
+                              <Play className="w-3 h-3 mr-1" />
+                              Ouvrir
+                            </Button>
                           </div>
                         </div>
-                        
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {filteredItems.length === 0 && !loading && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      Aucun favori trouvé
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      {searchQuery ? 'Aucun résultat pour votre recherche.' : 'Commencez à ajouter des contenus à vos favoris !'}
+                    </p>
+                    <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+                      Découvrir du contenu
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Items EDN */}
+            <TabsContent value="edn" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ednFavorites.map((fav) => (
+                  <Card key={fav.id} className="hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <Badge variant="outline">{fav.item_code}</Badge>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                          onClick={() => user && removeEdnFavorite(user.id, fav.item_code)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-
-                      {/* Progression ou durée */}
-                      {item.progress !== undefined && (
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Progression</span>
-                            <span>{item.progress}%</span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div 
-                              className="bg-primary h-2 rounded-full" 
-                              style={{ width: `${item.progress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {item.duration && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                          <Clock className="w-4 h-4" />
-                          {item.duration}
-                        </div>
-                      )}
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {item.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {/* Actions */}
+                      
+                      <h3 className="font-semibold text-foreground mb-3 line-clamp-2">{fav.item_title}</h3>
+                      
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          Ajouté {new Intl.RelativeTimeFormat('fr', { numeric: 'auto' }).format(
-                            Math.ceil((item.addedAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)), 'day'
-                          )}
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(fav.created_at).toLocaleDateString('fr-FR')}
                         </div>
-                        
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
-                            <Play className="w-3 h-3 mr-1" />
-                            Ouvrir
-                          </Button>
-                        </div>
+                        <Button 
+                          size="sm"
+                          onClick={() => navigate(`${ROUTE_PATHS.ednComplete}/${fav.item_code}`)}
+                        >
+                          Étudier
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
-                );
-              })}
-            </div>
-
-            {filteredItems.length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    Aucun favori trouvé
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    {searchQuery ? 'Aucun résultat pour votre recherche.' : 'Commencez à ajouter des contenus à vos favoris !'}
-                  </p>
-                  <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-                    Découvrir du contenu
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Collections */}
-          <TabsContent value="collections" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {collections.map((collection) => (
-                <Card key={collection.id} className="hover:shadow-lg transition-all duration-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={`p-3 rounded-lg ${collection.color}`}>
-                        <FolderPlus className="w-6 h-6" />
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    
-                    <h3 className="font-semibold text-foreground mb-2">{collection.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{collection.description}</p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {collection.itemCount} éléments
-                      </div>
-                      <Button size="sm">
-                        Ouvrir
-                      </Button>
-                    </div>
+                ))}
+              </div>
+              
+              {ednFavorites.length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <BookOpen className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      Aucun item EDN en favoris
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Ajoutez des items depuis la page EDN pour les retrouver ici
+                    </p>
+                    <Button onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+                      Explorer les items EDN
+                    </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+              )}
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </div>
   );

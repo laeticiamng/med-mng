@@ -27,34 +27,16 @@ const UserSettings: React.FC = () => {
   const { stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
-  // Load user and gamification stats
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        loadStats(user.id);
-        logActivity({ activity_type: 'study', metadata: { action: 'view_user_settings' } });
-      }
-    };
-    checkUser();
-  }, [loadStats]);
-
-  const levelProgress = gamificationStats 
-    ? ((gamificationStats.totalPoints % 1000) / 1000) * 100 
-    : 0;
-
-  // État des paramètres
+  // État des paramètres du profil (chargé depuis la DB)
   const [profileData, setProfileData] = useState({
-    firstName: 'Dr. Marie',
-    lastName: 'Dubois',
-    email: 'marie.dubois@medmng.fr',
-    phone: '+33 6 12 34 56 78',
-    specialty: 'Cardiologie',
-    institution: 'CHU de Lyon',
-    bio: 'Cardiologue spécialisée dans les pathologies cardiovasculaires complexes.',
-    location: 'Lyon, France',
-    website: 'https://dr-dubois.fr'
+    name: '',
+    email: '',
+    phone: '',
+    bio: '',
+    location: '',
+    website: '',
+    department: '',
+    job_title: ''
   });
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -76,18 +58,106 @@ const UserSettings: React.FC = () => {
     allowAnalytics: true
   });
 
+  // Load user and profile from database
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        loadStats(user.id);
+        logActivity({ activity_type: 'study', metadata: { action: 'view_user_settings' } });
+
+        // Charger le profil depuis Supabase
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          setProfileData({
+            name: profile.name || '',
+            email: profile.email || user.email || '',
+            phone: profile.phone || '',
+            bio: profile.bio || '',
+            location: profile.location || '',
+            website: profile.website || '',
+            department: profile.department || '',
+            job_title: profile.job_title || ''
+          });
+
+          // Charger les préférences si disponibles
+          if (profile.preferences) {
+            const prefs = profile.preferences as Record<string, unknown>;
+            if (prefs.notifications) {
+              setNotificationSettings(prev => ({ ...prev, ...(prefs.notifications as object) }));
+            }
+            if (prefs.privacy) {
+              setPrivacySettings(prev => ({ ...prev, ...(prefs.privacy as object) }));
+            }
+          }
+        }
+      }
+    };
+    loadUserData();
+  }, [loadStats, logActivity]);
+
+  const levelProgress = gamificationStats 
+    ? ((gamificationStats.totalPoints % 1000) / 1000) * 100 
+    : 0;
+
   const handleSave = async (section: string) => {
+    if (!user) return;
     setIsLoading(true);
     try {
-      // Simulation de sauvegarde
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (section === 'profil') {
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            name: profileData.name,
+            email: profileData.email,
+            phone: profileData.phone,
+            bio: profileData.bio,
+            location: profileData.location,
+            website: profileData.website,
+            department: profileData.department,
+            job_title: profileData.job_title,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+
+        if (error) throw error;
+      } else {
+        // Sauvegarder les préférences dans le champ preferences JSONB
+        const { data: currentProfile } = await supabase
+          .from('profiles')
+          .select('preferences')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        const currentPrefs = (currentProfile?.preferences as Record<string, unknown>) || {};
+        
+        const newPrefs: Record<string, unknown> = {
+          ...currentPrefs,
+          notifications: section === 'notifications' ? notificationSettings : currentPrefs.notifications,
+          privacy: section === 'confidentialité' ? privacySettings : currentPrefs.privacy
+        };
+
+        const { error } = await supabase
+          .from('profiles')
+          .update({ preferences: newPrefs as any, updated_at: new Date().toISOString() })
+          .eq('id', user.id);
+
+        if (error) throw error;
+      }
       
       toast.success('Paramètres sauvegardés !', {
         description: `Les paramètres de ${section} ont été mis à jour avec succès.`
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Save error:', error);
       toast.error('Erreur lors de la sauvegarde', {
-        description: 'Veuillez réessayer plus tard.'
+        description: error.message || 'Veuillez réessayer plus tard.'
       });
     } finally {
       setIsLoading(false);
@@ -217,24 +287,13 @@ const UserSettings: React.FC = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="medical-label">Prénom</Label>
+                        <Label className="medical-label">Nom complet</Label>
                         <Input
-                          value={profileData.firstName}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                          value={profileData.name}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
                           className="medical-input"
                         />
                       </div>
-                      <div>
-                        <Label className="medical-label">Nom</Label>
-                        <Input
-                          value={profileData.lastName}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
-                          className="medical-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label className="medical-label flex items-center gap-2">
                           <Mail className="w-4 h-4" />
@@ -247,6 +306,9 @@ const UserSettings: React.FC = () => {
                           className="medical-input"
                         />
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label className="medical-label flex items-center gap-2">
                           <Phone className="w-4 h-4" />
@@ -259,22 +321,33 @@ const UserSettings: React.FC = () => {
                           className="medical-input"
                         />
                       </div>
+                      <div>
+                        <Label className="medical-label">Département/Spécialité</Label>
+                        <Input
+                          value={profileData.department}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, department: e.target.value }))}
+                          className="medical-input"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="medical-label">Spécialité</Label>
+                        <Label className="medical-label">Poste/Fonction</Label>
                         <Input
-                          value={profileData.specialty}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, specialty: e.target.value }))}
+                          value={profileData.job_title}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, job_title: e.target.value }))}
                           className="medical-input"
                         />
                       </div>
                       <div>
-                        <Label className="medical-label">Institution</Label>
+                        <Label className="medical-label flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Localisation
+                        </Label>
                         <Input
-                          value={profileData.institution}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, institution: e.target.value }))}
+                          value={profileData.location}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
                           className="medical-input"
                         />
                       </div>
