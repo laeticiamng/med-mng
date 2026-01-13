@@ -45,22 +45,30 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 
 // Navigation secondaire (menu "Plus") - Toutes les pages accessibles
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
+  // Apprentissage
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
   { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse },
+  { path: ROUTE_PATHS.ednImmersive, label: 'Mode immersif', icon: BookOpen },
+  // Gamification
   { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Trophy },
+  // Musique
   { path: ROUTE_PATHS.generator, label: 'Créer Musique', icon: Music },
-  { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning intelligent', icon: Calendar },
+  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
+  // Planning
+  { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning IA', icon: Zap },
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
+  // Ressources
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
   { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag },
   { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
   { path: ROUTE_PATHS.favorites, label: 'Favoris', icon: Sparkles },
+  // Communauté
+  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
+  // Info
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
   { path: ROUTE_PATHS.installPwa, label: 'Installer l\'app', icon: Sparkles },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
-  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
 ];
 
 // Navigation utilisateur (menu profil)
@@ -110,6 +118,7 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.chat, label: 'Chat IA', icon: MessageSquare },
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
   { path: ROUTE_PATHS.generator, label: 'Générateur Musique', icon: Music },
+  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
   { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag },
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
@@ -119,6 +128,7 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
   { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse },
+  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
 ];
 
 // Pages légales (footer)
@@ -143,13 +153,17 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', category: 'Apprentissage' },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', category: 'Apprentissage' },
   { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', category: 'Apprentissage' },
-  { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Outils' },
+  { path: ROUTE_PATHS.ednImmersive, label: 'Mode immersif', category: 'Apprentissage' },
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', category: 'Apprentissage' },
+  
+  // Musique & Création
+  { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Outils' },
+  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Outils' },
   
   // Progression
   { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', category: 'Suivi' },
   { path: ROUTE_PATHS.achievements, label: 'Succès & Badges', category: 'Suivi' },
-  { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning intelligent', category: 'Suivi' },
+  { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning IA', category: 'Suivi' },
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', category: 'Suivi' },
   { path: ROUTE_PATHS.statistics, label: 'Statistiques', category: 'Suivi' },
   { path: ROUTE_PATHS.favorites, label: 'Favoris', category: 'Suivi' },
@@ -159,6 +173,9 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.store, label: 'Boutique', category: 'Ressources' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.installPwa, label: 'Installer App', category: 'Ressources' },
+  
+  // Communauté
+  { path: ROUTE_PATHS.community, label: 'Communauté', category: 'Social' },
   
   // Compte utilisateur
   { path: ROUTE_PATHS.medMngProfile, label: 'Mon profil', category: 'Compte' },
