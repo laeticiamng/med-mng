@@ -42,9 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    // Mode test: simuler un utilisateur connecté
+    // Mode test: simuler un utilisateur connecté (log unique au démarrage)
     if (TEST_MODE_ENABLED) {
-      console.log('🧪 Mode test actif - Simulation utilisateur');
+      // Log unique pour éviter le spam console
+      if (!sessionStorage.getItem('test-mode-logged')) {
+        console.log('🧪 Mode test actif - Authentification simulée');
+        sessionStorage.setItem('test-mode-logged', 'true');
+      }
       setUser(TEST_USER as unknown as User);
       setLoading(false);
       return;
