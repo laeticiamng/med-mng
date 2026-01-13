@@ -42,58 +42,80 @@ export const AppFooter = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
           {/* Logo & Description */}
-          <div className="space-y-4">
+          <div className="col-span-2 md:col-span-1 space-y-4">
             <div className="flex items-center space-x-2">
               <Music className="h-6 w-6 text-primary" />
               <span className="font-bold text-xl text-foreground">MED MNG</span>
             </div>
             <p className="text-muted-foreground text-sm">
-              Par EmotionsCare - Ton système anti-panique académique. Quand tu bloques, on te débloque.
+              Par EmotionsCare - Ton système anti-panique académique.
             </p>
           </div>
           
-          {/* Actions - Repositionnement sémantique */}
+          {/* Apprentissage */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Avancer</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Apprendre</h3>
             <div className="space-y-2">
               <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Maîtriser un item
-              </Link>
-              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                S'entraîner (QCM)
-              </Link>
-              <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Simuler (ECOS)
+                Items EDN
               </Link>
               <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Révision flash
+                Flashcards
+              </Link>
+              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Révision espacée
+              </Link>
+              <Link to={ROUTE_PATHS.clinicalCases} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Cas cliniques
+              </Link>
+              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Musique médicale
+              </Link>
+            </div>
+          </div>
+
+          {/* S'entraîner */}
+          <div>
+            <h3 className="font-semibold mb-4 text-foreground">S'entraîner</h3>
+            <div className="space-y-2">
+              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Mode examen
+              </Link>
+              <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Simulations ECOS
               </Link>
               <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Poser une question
+                Chat IA
+              </Link>
+              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Planning
               </Link>
             </div>
           </div>
           
-          {/* Suivi */}
+          {/* Progression */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Mon suivi</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Progression</h3>
             <div className="space-y-2">
               <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 Ma progression
               </Link>
-              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Révisions espacées
-              </Link>
               <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Mes succès
+                Succès & Badges
               </Link>
-              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Mon planning
+              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Statistiques
               </Link>
-              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Musique médicale
+              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Communauté
+              </Link>
+              <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Bibliothèque
+              </Link>
+              <Link to={ROUTE_PATHS.store} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
+                Boutique
               </Link>
             </div>
           </div>
@@ -106,7 +128,7 @@ export const AppFooter = () => {
                 Mentions Légales
               </Link>
               <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Politique de Confidentialité
+                Confidentialité
               </Link>
               <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
                 CGU
@@ -127,7 +149,7 @@ export const AppFooter = () => {
         
         <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
           <p>&copy; {new Date().getFullYear()} EmotionsCare - MED MNG. Tous droits réservés.</p>
-          <p className="mt-1">Méthode MNG - Music Neuro Learning Generator par Laëticia Motongane</p>
+          <p className="mt-1">Méthode MNG - Music Neuro Learning Generator</p>
         </div>
       </div>
     </footer>
