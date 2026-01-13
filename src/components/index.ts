@@ -154,8 +154,15 @@ export {
   ProgressExport
 } from './export';
 
-// Ecos
-export * from './ecos';
+// Ecos (selective exports to avoid conflicts with edn)
+export { 
+  EcosExplorer,
+  EcosHeader,
+  PatientCard,
+  QuizSection as EcosQuizSection,
+  StepContent,
+  StepProgress
+} from './ecos';
 
 // Study (correct exports)
 export { 

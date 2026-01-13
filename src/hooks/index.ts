@@ -1,5 +1,9 @@
 // Hooks Central Index - Complete Hooks Library
 
+// Sub-modules
+export * from './ai';
+export * from './music';
+
 // Mobile & UI
 export * from './use-mobile';
 export * from './use-toast';
