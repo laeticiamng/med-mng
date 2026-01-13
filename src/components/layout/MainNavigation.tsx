@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, ADMIN_NAV_ITEMS, type NavItem } from '@/config/navigation';
+import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, ADMIN_NAV_ITEMS, PUBLIC_PAGES, type NavItem } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
