@@ -68,7 +68,7 @@ export function useForumThreads() {
       if (error) throw error;
 
       // Get profiles for authors
-      const userIds: string[] = [...new Set((data || []).map((p: any) => p.user_id as string))];
+      const userIds: string[] = [...new Set((data || []).map((p: any) => p.user_id as string))] as string[];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
@@ -83,7 +83,7 @@ export function useForumThreads() {
           title: post.content.split('\n')[0].slice(0, 100) || 'Discussion',
           content: post.content,
           author_id: post.user_id,
-          author_name: profile?.display_name || 'Utilisateur',
+          author_name: profile?.name || 'Utilisateur',
           author_avatar: profile?.avatar_url,
           category: post.category || 'Général',
           tags: post.tags || [],
@@ -171,7 +171,7 @@ export function useForumThreads() {
         title: thread.content.split('\n')[0].slice(0, 100) || 'Discussion',
         content: thread.content,
         author_id: thread.user_id,
-        author_name: profile?.display_name || 'Utilisateur',
+        author_name: profile?.name || 'Utilisateur',
         author_avatar: profile?.avatar_url,
         category: thread.category || 'Général',
         tags: thread.tags || [],
