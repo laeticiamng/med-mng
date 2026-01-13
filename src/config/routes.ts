@@ -10,6 +10,7 @@ export const ROUTE_PATHS = {
   optimizedIndex: '/optimized',
   generator: '/generator',
   sharedMusic: '/shared-music/:trackId',
+  sharedMusicIndex: '/shared-music',
   ednComplete: '/edn-complete',
   ednCompleteDetail: '/edn-complete/:slug',
   ednImmersive: '/edn/:slug/immersive',
