@@ -46,22 +46,34 @@ export const subscribeEdnCacheBuster = (onChange: (value: string) => void) => {
   };
 };
 
+/**
+ * ✅ CORRIGÉ: Ne plus ajouter cache_bust/refresh comme paramètres URL
+ * car PostgREST les interprète comme des filtres de requête.
+ * Le cache busting se fait via les headers Cache-Control.
+ */
 export const appendEdnCacheParams = (
   url: string,
-  cacheBuster: string,
-  forceRefresh = false
+  _cacheBuster: string,
+  _forceRefresh = false
 ): string => {
-  const nextUrl = new URL(url);
+  // ✅ Retourner l'URL telle quelle - le cache busting se fait via headers
+  return url;
+};
 
-  if (cacheBuster) {
-    nextUrl.searchParams.set('cache_bust', cacheBuster);
-  }
-
+/**
+ * Génère les headers pour le cache busting
+ */
+export const getEdnCacheHeaders = (forceRefresh = false): HeadersInit => {
+  const headers: HeadersInit = {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+  };
+  
   if (forceRefresh) {
-    nextUrl.searchParams.set('refresh', `${Date.now()}`);
+    headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
   }
-
-  return nextUrl.toString();
+  
+  return headers;
 };
 
 export const pickCacheDiagnostics = (headers: Headers) => {
