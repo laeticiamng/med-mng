@@ -43,13 +43,13 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
 ];
 
-// Navigation secondaire (menu "Plus") - Pages réellement existantes
+// Navigation secondaire (menu "Plus") - Toutes les pages accessibles
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
   { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse },
   { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Trophy },
-  { path: ROUTE_PATHS.generator, label: 'Musique médicale', icon: Music },
+  { path: ROUTE_PATHS.generator, label: 'Créer Musique', icon: Music },
   { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning intelligent', icon: Calendar },
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
@@ -59,6 +59,8 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
   { path: ROUTE_PATHS.installPwa, label: 'Installer l\'app', icon: Sparkles },
+  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
+  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
 ];
 
 // Navigation utilisateur (menu profil)
