@@ -13,4 +13,5 @@ export { BadgeCollection } from './BadgeCollection';
 export { WeeklyChallenges } from './WeeklyChallenges';
 export { AchievementSystem } from './AchievementSystem';
 export { ChallengeSystem } from './ChallengeSystem';
-export { BadgeUnlockAnimation } from './BadgeUnlockAnimation';
+export { BadgeUnlockAnimation, useBadgeUnlock } from './BadgeUnlockAnimation';
+export { GlobalBadgeUnlockProvider, useBadgeUnlockContext } from './GlobalBadgeUnlockProvider';
