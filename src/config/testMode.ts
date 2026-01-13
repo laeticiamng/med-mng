@@ -9,8 +9,9 @@
  * - Une bannière d'avertissement s'affiche
  */
 
-// ⚠️ CHANGER À false APRÈS LE TESTING ⚠️
-export const TEST_MODE_ENABLED = true;
+// ⚠️ Mode Test - À mettre à false en production ⚠️
+// Note: Actuellement en mode test pour développement
+export const TEST_MODE_ENABLED = process.env.NODE_ENV === 'development' ? true : false;
 
 // Utilisateur simulé pour le mode test
 export const TEST_USER = {
