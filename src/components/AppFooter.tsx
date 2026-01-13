@@ -42,114 +42,84 @@ export const AppFooter = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 md:gap-4">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1 space-y-4">
             <div className="flex items-center space-x-2">
               <Music className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl text-foreground">MED MNG</span>
+              <span className="font-bold text-lg text-foreground">MED MNG</span>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Par EmotionsCare - Ton système anti-panique académique.
+            <p className="text-muted-foreground text-xs">
+              Système anti-panique académique par EmotionsCare.
             </p>
           </div>
           
-          {/* Apprentissage */}
+          {/* Apprendre */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Apprendre</h3>
-            <div className="space-y-2">
-              <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Items EDN
-              </Link>
-              <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Flashcards
-              </Link>
-              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Révision espacée
-              </Link>
-              <Link to={ROUTE_PATHS.clinicalCases} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Cas cliniques
-              </Link>
-              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Musique médicale
-              </Link>
+            <h3 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h3>
+            <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Items EDN</Link>
+              <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Flashcards</Link>
+              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Révision espacée</Link>
+              <Link to={ROUTE_PATHS.clinicalCases} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Cas cliniques</Link>
+              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Musique médicale</Link>
+              <Link to={ROUTE_PATHS.mngMethod} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Méthode MNG</Link>
             </div>
           </div>
 
           {/* S'entraîner */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">S'entraîner</h3>
-            <div className="space-y-2">
-              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Mode examen
-              </Link>
-              <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Simulations ECOS
-              </Link>
-              <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Chat IA
-              </Link>
-              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Planning
-              </Link>
+            <h3 className="font-semibold mb-3 text-foreground text-sm">S'entraîner</h3>
+            <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mode examen</Link>
+              <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Simulations ECOS</Link>
+              <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Chat IA</Link>
+              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Planning intelligent</Link>
+              <Link to={ROUTE_PATHS.studyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Planificateur</Link>
             </div>
           </div>
           
           {/* Progression */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Progression</h3>
-            <div className="space-y-2">
-              <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Ma progression
-              </Link>
-              <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Succès & Badges
-              </Link>
-              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Statistiques
-              </Link>
-              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Communauté
-              </Link>
-              <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Bibliothèque
-              </Link>
-              <Link to={ROUTE_PATHS.store} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Boutique
-              </Link>
+            <h3 className="font-semibold mb-3 text-foreground text-sm">Progression</h3>
+            <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Ma progression</Link>
+              <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Succès & Badges</Link>
+              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Statistiques</Link>
+              <Link to={ROUTE_PATHS.favorites} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Favoris</Link>
+            </div>
+          </div>
+
+          {/* Ressources */}
+          <div>
+            <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
+            <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Communauté</Link>
+              <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
+              <Link to={ROUTE_PATHS.store} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Boutique</Link>
+              <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
+              <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Installer l'app</Link>
             </div>
           </div>
           
           {/* Légal */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Légal</h3>
-            <div className="space-y-2">
-              <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Mentions Légales
-              </Link>
-              <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Confidentialité
-              </Link>
-              <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                CGU
-              </Link>
-              <Link to={ROUTE_PATHS.declarationAccessibilite} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Accessibilité
-              </Link>
-              <Link to={ROUTE_PATHS.mesDonneesRgpd} className="block text-muted-foreground hover:text-primary text-sm transition-colors">
-                Mes données RGPD
-              </Link>
-              <a href="mailto:contact@emotionscare.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-sm transition-colors">
-                Contact
-                <ExternalLink className="w-3 h-3" />
+            <h3 className="font-semibold mb-3 text-foreground text-sm">Légal</h3>
+            <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mentions Légales</Link>
+              <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Confidentialité</Link>
+              <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-xs transition-colors">CGU</Link>
+              <Link to={ROUTE_PATHS.declarationAccessibilite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Accessibilité</Link>
+              <Link to={ROUTE_PATHS.mesDonneesRgpd} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Données RGPD</Link>
+              <a href="mailto:contact@emotionscare.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-xs transition-colors">
+                Contact <ExternalLink className="w-2.5 h-2.5" />
               </a>
             </div>
           </div>
         </div>
         
-        <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
+        <div className="border-t border-border mt-6 pt-6 text-center text-muted-foreground text-xs">
           <p>&copy; {new Date().getFullYear()} EmotionsCare - MED MNG. Tous droits réservés.</p>
-          <p className="mt-1">Méthode MNG - Music Neuro Learning Generator</p>
         </div>
       </div>
     </footer>
