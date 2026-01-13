@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy, Search
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy, Search,
+  ChevronDown, MoreHorizontal, Layers, Calendar, HeartPulse, ShoppingBag, Library, BarChart3
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -10,11 +11,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { MAIN_NAV_ITEMS, type NavItem } from '@/config/navigation';
+import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, ADMIN_NAV_ITEMS, type NavItem } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -27,12 +29,15 @@ export const MainNavigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
       loadStats(user.id);
+      // Check admin status (simplified check)
+      setIsAdmin(user.email?.includes('admin') || false);
     }
-  }, [user?.id, loadStats]);
+  }, [user?.id, loadStats, user?.email]);
 
   const handleNavClick = (path: string, label: string) => {
     logActivity({
@@ -44,8 +49,6 @@ export const MainNavigation: React.FC = () => {
   };
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
-
-  const mainNavItems = MAIN_NAV_ITEMS;
 
   const isActive = (path: string) => {
     if (path === ROUTE_PATHS.home) return location.pathname === ROUTE_PATHS.home;
@@ -77,7 +80,7 @@ export const MainNavigation: React.FC = () => {
 
           {/* Navigation desktop */}
           <div className="hidden lg:flex items-center space-x-1">
-            {mainNavItems.map((item) => (
+            {MAIN_NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -90,13 +93,41 @@ export const MainNavigation: React.FC = () => {
                 <item.icon className="w-4 h-4 mr-1.5 xl:mr-2" />
                 <span className="hidden xl:inline">{item.label}</span>
                 <span className="xl:hidden">{item.shortLabel || item.label}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-1.5 xl:ml-2 text-xs">
-                    {item.badge}
-                  </Badge>
-                )}
               </Link>
             ))}
+            
+            {/* Menu "Plus" pour pages secondaires */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground">
+                  <MoreHorizontal className="w-4 h-4 mr-1" />
+                  Plus
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Outils d'apprentissage</DropdownMenuLabel>
+                {SECONDARY_NAV_ITEMS.map((item) => (
+                  <DropdownMenuItem key={item.path} onClick={() => navigate(item.path)}>
+                    <item.icon className="w-4 h-4 mr-2" />
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+                
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                    {ADMIN_NAV_ITEMS.slice(0, 3).map((item) => (
+                      <DropdownMenuItem key={item.path} onClick={() => navigate(item.path)}>
+                        <item.icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Actions utilisateur */}
@@ -128,12 +159,9 @@ export const MainNavigation: React.FC = () => {
               variant="ghost" 
               size="sm" 
               className="relative h-8 w-8 sm:h-9 sm:w-9 p-0"
-              aria-label="Notifications (3 non lues)"
+              aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[10px] sm:text-xs p-0">
-                3
-              </Badge>
             </Button>
 
             {/* Profil utilisateur */}
@@ -146,6 +174,7 @@ export const MainNavigation: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
                     <User className="w-4 h-4 mr-2" />
                     Mon Profil
@@ -154,18 +183,35 @@ export const MainNavigation: React.FC = () => {
                     <Music className="w-4 h-4 mr-2" />
                     Ma Bibliothèque
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.platformSettings)}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngFavorites)}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Mes Favoris
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Ma Progression
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.achievements)}>
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Mes Succès
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.settings)}>
                     <Settings className="w-4 h-4 mr-2" />
                     Paramètres
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.rlsDocumentation)}>
-                    <Shield className="w-4 h-4 mr-2" />
-                    Documentation RLS
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.securityMonitoring)}>
-                    <Shield className="w-4 h-4 mr-2" />
-                    Monitoring Sécurité
-                  </DropdownMenuItem>
+                  
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.adminPanel)}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Panneau Admin
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />
@@ -198,14 +244,18 @@ export const MainNavigation: React.FC = () => {
 
         {/* Menu mobile */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-3 sm:py-4 border-t border-border/50 safe-area-bottom">
+          <div className="lg:hidden py-3 sm:py-4 border-t border-border/50 safe-area-bottom max-h-[70vh] overflow-y-auto">
             <div className="flex flex-col space-y-1.5 sm:space-y-2">
               {/* Mobile search */}
               <div className="px-2 pb-2 sm:hidden">
                 <GlobalSearchBar />
               </div>
               
-              {mainNavItems.map((item) => (
+              {/* Navigation principale */}
+              <div className="px-2 pb-2">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Navigation</p>
+              </div>
+              {MAIN_NAV_ITEMS.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -218,11 +268,26 @@ export const MainNavigation: React.FC = () => {
                 >
                   <item.icon className="w-4 h-4 mr-3" />
                   {item.label}
-                  {item.badge && (
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      {item.badge}
-                    </Badge>
-                  )}
+                </Link>
+              ))}
+              
+              {/* Outils secondaires */}
+              <div className="px-2 pt-3 pb-2 border-t border-border/50">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Outils</p>
+              </div>
+              {SECONDARY_NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center px-3 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(item.path)
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4 mr-3" />
+                  {item.label}
                 </Link>
               ))}
               
