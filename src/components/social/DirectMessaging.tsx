@@ -64,6 +64,45 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Supabase Realtime subscription for new messages
+  useEffect(() => {
+    if (!currentUser || !selectedConversation) return;
+
+    const channel = supabase
+      .channel('direct-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `receiver_id=eq.${currentUser.id}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as any;
+          if (newMsg.sender_id === selectedConversation) {
+            setMessages(prev => [...prev, {
+              id: newMsg.id,
+              senderId: newMsg.sender_id,
+              content: newMsg.content,
+              createdAt: newMsg.created_at,
+              read: false
+            }]);
+            // Mark as read immediately
+            supabase
+              .from('direct_messages')
+              .update({ is_read: true })
+              .eq('id', newMsg.id);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser, selectedConversation]);
+
   const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
