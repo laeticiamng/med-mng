@@ -50,63 +50,92 @@ export const MentorshipSystem: React.FC = () => {
   const loadMentorshipData = async () => {
     setLoading(true);
     try {
-      // Simulated data - would connect to Supabase in production
-      setMentors([
-        {
-          id: '1',
-          name: 'Dr. Sophie Martin',
-          specialty: 'Cardiologie',
-          level: 25,
-          rating: 4.9,
-          reviewCount: 47,
-          availability: 'available',
-          expertise: ['ECG', 'Insuffisance cardiaque', 'HTA'],
-          studentsHelped: 156
-        },
-        {
-          id: '2',
-          name: 'Dr. Pierre Dupont',
-          specialty: 'Neurologie',
-          level: 22,
-          rating: 4.8,
-          reviewCount: 35,
-          availability: 'busy',
-          expertise: ['AVC', 'Épilepsie', 'Céphalées'],
-          studentsHelped: 98
-        },
-        {
-          id: '3',
-          name: 'Dr. Marie Leroy',
-          specialty: 'Pédiatrie',
-          level: 20,
-          rating: 4.95,
-          reviewCount: 62,
-          availability: 'available',
-          expertise: ['Vaccination', 'Développement', 'Urgences pédiatriques'],
-          studentsHelped: 203
-        }
+      // Charger les mentors depuis Supabase
+      const { data: mentorsData, error: mentorsError } = await supabase
+        .from('mentors')
+        .select('*')
+        .eq('is_active', true)
+        .order('rating', { ascending: false });
+
+      if (mentorsError) throw mentorsError;
+
+      // Charger les profils des mentors
+      const mentorUserIds = mentorsData?.map(m => m.user_id) || [];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .in('id', mentorUserIds.length > 0 ? mentorUserIds : ['00000000-0000-0000-0000-000000000000']);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      const formattedMentors: Mentor[] = (mentorsData || []).map((m, index) => {
+        const profile = profileMap.get(m.user_id);
+        return {
+          id: m.id,
+          name: profile?.name || `Mentor ${index + 1}`,
+          avatar: profile?.avatar_url,
+          specialty: m.specialty,
+          level: Math.floor((m.students_helped || 0) / 10) + 10,
+          rating: Number(m.rating) || 4.5,
+          reviewCount: m.review_count || 0,
+          availability: (m.availability as 'available' | 'busy' | 'offline') || 'offline',
+          expertise: m.expertise || [],
+          studentsHelped: m.students_helped || 0
+        };
+      });
+
+      setMentors(formattedMentors.length > 0 ? formattedMentors : [
+        { id: '1', name: 'Dr. Sophie Martin', specialty: 'Cardiologie', level: 25, rating: 4.9, reviewCount: 47, availability: 'available', expertise: ['ECG', 'Insuffisance cardiaque', 'HTA'], studentsHelped: 156 },
+        { id: '2', name: 'Dr. Pierre Dupont', specialty: 'Neurologie', level: 22, rating: 4.8, reviewCount: 35, availability: 'busy', expertise: ['AVC', 'Épilepsie', 'Céphalées'], studentsHelped: 98 },
+        { id: '3', name: 'Dr. Marie Leroy', specialty: 'Pédiatrie', level: 20, rating: 4.95, reviewCount: 62, availability: 'available', expertise: ['Vaccination', 'Développement', 'Urgences pédiatriques'], studentsHelped: 203 }
       ]);
 
-      setMySessions([
-        {
-          id: '1',
-          mentorId: '1',
-          mentorName: 'Dr. Sophie Martin',
-          topic: 'Lecture ECG avancée',
-          scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          duration: 45,
-          status: 'scheduled'
-        },
-        {
-          id: '2',
-          mentorId: '3',
-          mentorName: 'Dr. Marie Leroy',
-          topic: 'Cas clinique pédiatrique',
-          scheduledAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          duration: 30,
-          status: 'completed',
-          rating: 5
+      // Charger les sessions de l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: sessionsData } = await supabase
+          .from('mentor_sessions')
+          .select('*, mentors(id, specialty)')
+          .eq('student_id', user.id)
+          .order('scheduled_at', { ascending: false });
+
+        if (sessionsData && sessionsData.length > 0) {
+          const sessionMentorIds = sessionsData.map(s => s.mentor_id);
+          const { data: mentorProfiles } = await supabase
+            .from('mentors')
+            .select('id, user_id')
+            .in('id', sessionMentorIds);
+
+          const mentorProfileMap = new Map(mentorProfiles?.map(mp => [mp.id, mp]) || []);
+
+          const formattedSessions: MentorSession[] = sessionsData.map(s => ({
+            id: s.id,
+            mentorId: s.mentor_id,
+            mentorName: `Mentor`,
+            topic: s.topic,
+            scheduledAt: s.scheduled_at,
+            duration: s.duration,
+            status: s.status as 'scheduled' | 'completed' | 'cancelled',
+            rating: s.rating
+          }));
+          setMySessions(formattedSessions);
         }
+
+        // Vérifier si l'utilisateur est mentor
+        const { data: mentorCheck } = await supabase
+          .from('mentors')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setIsMentor(!!mentorCheck);
+      }
+    } catch (error) {
+      console.error('Erreur chargement mentorat:', error);
+      // Fallback avec données par défaut
+      setMentors([
+        { id: '1', name: 'Dr. Sophie Martin', specialty: 'Cardiologie', level: 25, rating: 4.9, reviewCount: 47, availability: 'available', expertise: ['ECG', 'Insuffisance cardiaque', 'HTA'], studentsHelped: 156 },
+        { id: '2', name: 'Dr. Pierre Dupont', specialty: 'Neurologie', level: 22, rating: 4.8, reviewCount: 35, availability: 'busy', expertise: ['AVC', 'Épilepsie', 'Céphalées'], studentsHelped: 98 },
+        { id: '3', name: 'Dr. Marie Leroy', specialty: 'Pédiatrie', level: 20, rating: 4.95, reviewCount: 62, availability: 'available', expertise: ['Vaccination', 'Développement', 'Urgences pédiatriques'], studentsHelped: 203 }
       ]);
     } finally {
       setLoading(false);
@@ -130,18 +159,63 @@ export const MentorshipSystem: React.FC = () => {
   };
 
   const requestMentorSession = async (mentorId: string) => {
-    toast({
-      title: 'Demande envoyée',
-      description: 'Votre demande de mentorat a été envoyée. Le mentor vous répondra bientôt.',
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Connexion requise', description: 'Connectez-vous pour demander une session.', variant: 'destructive' });
+        return;
+      }
+
+      const { error } = await supabase.from('mentor_sessions').insert({
+        mentor_id: mentorId,
+        student_id: user.id,
+        topic: 'Session de mentorat',
+        scheduled_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        duration: 30,
+        status: 'pending'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Demande envoyée ✅',
+        description: 'Votre demande de mentorat a été envoyée. Le mentor vous répondra bientôt.',
+      });
+      loadMentorshipData();
+    } catch (error) {
+      console.error('Erreur demande session:', error);
+      toast({ title: 'Erreur', description: 'Impossible d\'envoyer la demande.', variant: 'destructive' });
+    }
   };
 
   const becomeMentor = async () => {
-    toast({
-      title: 'Candidature envoyée',
-      description: 'Votre candidature pour devenir mentor est en cours de traitement.',
-    });
-    setIsMentor(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Connexion requise', description: 'Connectez-vous pour devenir mentor.', variant: 'destructive' });
+        return;
+      }
+
+      const { error } = await supabase.from('mentors').insert({
+        user_id: user.id,
+        specialty: 'Médecine générale',
+        expertise: ['Items EDN', 'Méthodologie'],
+        availability: 'available',
+        bio: 'Nouveau mentor sur la plateforme'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Bienvenue parmi les mentors ! 🎉',
+        description: 'Votre profil mentor a été créé. Vous pouvez maintenant aider d\'autres étudiants.',
+      });
+      setIsMentor(true);
+      loadMentorshipData();
+    } catch (error) {
+      console.error('Erreur création mentor:', error);
+      toast({ title: 'Erreur', description: 'Impossible de créer le profil mentor.', variant: 'destructive' });
+    }
   };
 
   return (
