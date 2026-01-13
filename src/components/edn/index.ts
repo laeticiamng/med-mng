@@ -1,6 +1,24 @@
-// EDN Components - Main exports
+// EDN Components - Complete Module Index
 
-// Core components
+// ========================================
+// Sub-modules with index.ts
+// ========================================
+export * from './audio';
+export * from './audit';
+export * from './comic';
+export * from './content';
+export * from './export';
+export * from './immersive';
+export * from './item';
+export * from './music';
+export * from './premium';
+export * from './quiz';
+export * from './scene';
+export * from './tableau';
+
+// ========================================
+// Core root-level components
+// ========================================
 export { AudioPlayer } from './AudioPlayer';
 export { BandeDessinee } from './BandeDessinee';
 export { BandeDessineeComplete } from './BandeDessineeComplete';
@@ -23,8 +41,8 @@ export { RevisionGuide } from './RevisionGuide';
 export { RomanNarratif } from './RomanNarratif';
 export { SceneImmersive } from './SceneImmersive';
 export { TableauDisplay } from './TableauDisplay';
-export { TableauRangA } from './TableauRangA';
-export { TableauRangB } from './TableauRangB';
+export { TableauRangA as TableauRangARoot } from './TableauRangA';
+export { TableauRangB as TableauRangBRoot } from './TableauRangB';
 export { TableauSectionEnhanced } from './TableauSectionEnhanced';
 export { TableauxNavigator } from './TableauxNavigator';
 export { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
