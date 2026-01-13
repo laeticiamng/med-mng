@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,9 +31,9 @@ import {
   Tag,
   Loader2
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useSharedResources, SharedResource } from '@/hooks/useSharedResources';
 
 interface Resource {
   id: string;
@@ -53,17 +53,17 @@ interface Resource {
   isLiked: boolean;
 }
 
-interface Comment {
-  id: string;
-  userId: string;
-  userName: string;
-  content: string;
-  createdAt: string;
-}
-
 export const ResourceSharing: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    resources: dbResources, 
+    loading, 
+    createResource, 
+    likeResource, 
+    bookmarkResource, 
+    incrementDownloads,
+    incrementViews
+  } = useSharedResources();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'downloads'>('recent');
@@ -79,92 +79,24 @@ export const ResourceSharing: React.FC = () => {
     tags: ''
   });
 
-  useEffect(() => {
-    loadResources();
-  }, []);
-
-  const loadResources = async () => {
-    setLoading(true);
-    try {
-      // Simulation de données - à remplacer par vraie requête Supabase
-      const mockResources: Resource[] = [
-        {
-          id: '1',
-          title: 'Fiches Cardiologie Complètes',
-          description: 'Résumé complet des pathologies cardiaques pour l\'EDN',
-          type: 'pdf',
-          url: '#',
-          tags: ['cardiologie', 'EDN', 'fiches'],
-          authorId: 'user1',
-          authorName: 'Dr. Marie Dupont',
-          likes: 156,
-          downloads: 89,
-          views: 342,
-          comments: 12,
-          createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-          isBookmarked: false,
-          isLiked: true
-        },
-        {
-          id: '2',
-          title: 'Schémas Anatomie - Neurologie',
-          description: 'Illustrations détaillées du système nerveux',
-          type: 'image',
-          url: '#',
-          tags: ['neurologie', 'anatomie', 'schémas'],
-          authorId: 'user2',
-          authorName: 'Paul Martin',
-          likes: 234,
-          downloads: 167,
-          views: 521,
-          comments: 23,
-          createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-          isBookmarked: true,
-          isLiked: false
-        },
-        {
-          id: '3',
-          title: 'Tableau des Antibiotiques',
-          description: 'Récapitulatif des antibiotiques par classe et spectre',
-          type: 'spreadsheet',
-          url: '#',
-          tags: ['infectiologie', 'antibiotiques', 'pharmacologie'],
-          authorId: 'user3',
-          authorName: 'Sophie Bernard',
-          likes: 312,
-          downloads: 245,
-          views: 678,
-          comments: 34,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          isBookmarked: false,
-          isLiked: true
-        },
-        {
-          id: '4',
-          title: 'Cours Vidéo - ECG Débutant',
-          description: 'Lien vers cours complet d\'interprétation ECG',
-          type: 'link',
-          url: 'https://example.com/ecg-course',
-          tags: ['ECG', 'cardiologie', 'vidéo'],
-          authorId: 'user4',
-          authorName: 'Jean Leclerc',
-          likes: 89,
-          downloads: 0,
-          views: 234,
-          comments: 8,
-          createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-          isBookmarked: true,
-          isLiked: false
-        }
-      ];
-
-      setResources(mockResources);
-    } catch (error) {
-      console.error('Erreur chargement ressources:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Convertir les ressources de la DB vers le format local
+  const resources: Resource[] = dbResources.map(r => ({
+    id: r.id,
+    title: r.title,
+    description: r.description || '',
+    type: r.resource_type as Resource['type'],
+    url: r.url,
+    tags: r.tags,
+    authorId: r.author_id,
+    authorName: r.author_name || 'Utilisateur',
+    likes: r.likes_count,
+    downloads: r.downloads_count,
+    views: r.views_count,
+    comments: r.comments_count,
+    createdAt: r.created_at,
+    isBookmarked: r.is_bookmarked || false,
+    isLiked: r.is_liked || false,
+  }));
 
   const getTypeIcon = (type: Resource['type']) => {
     switch (type) {
@@ -178,19 +110,12 @@ export const ResourceSharing: React.FC = () => {
   };
 
   const handleLike = (resourceId: string) => {
-    setResources(prev => prev.map(r =>
-      r.id === resourceId
-        ? { ...r, isLiked: !r.isLiked, likes: r.isLiked ? r.likes - 1 : r.likes + 1 }
-        : r
-    ));
+    likeResource(resourceId);
     toast({ title: 'Merci !', description: 'Votre avis a été enregistré.' });
   };
 
   const handleBookmark = (resourceId: string) => {
-    setResources(prev => prev.map(r =>
-      r.id === resourceId ? { ...r, isBookmarked: !r.isBookmarked } : r
-    ));
-    toast({ title: 'Sauvegardé', description: 'Ressource ajoutée à vos favoris.' });
+    bookmarkResource(resourceId);
   };
 
   const handleUpload = async () => {
@@ -199,28 +124,28 @@ export const ResourceSharing: React.FC = () => {
       return;
     }
 
-    const resource: Resource = {
-      id: Date.now().toString(),
+    const result = await createResource({
       title: newResource.title,
       description: newResource.description,
-      type: newResource.type,
+      resource_type: newResource.type,
       url: newResource.url,
       tags: newResource.tags.split(',').map(t => t.trim()).filter(Boolean),
-      authorId: 'current-user',
-      authorName: 'Vous',
-      likes: 0,
-      downloads: 0,
-      views: 0,
-      comments: 0,
-      createdAt: new Date().toISOString(),
-      isBookmarked: false,
-      isLiked: false
-    };
+    });
 
-    setResources(prev => [resource, ...prev]);
-    setShowUploadDialog(false);
-    setNewResource({ title: '', description: '', type: 'document', url: '', tags: '' });
-    toast({ title: 'Succès !', description: 'Votre ressource a été partagée.' });
+    if (result) {
+      setShowUploadDialog(false);
+      setNewResource({ title: '', description: '', type: 'document', url: '', tags: '' });
+    }
+  };
+
+  const handleDownload = (resourceId: string, url: string) => {
+    incrementDownloads(resourceId);
+    window.open(url, '_blank');
+  };
+
+  const handleView = (resourceId: string, url: string) => {
+    incrementViews(resourceId);
+    window.open(url, '_blank');
   };
 
   const filteredResources = resources
@@ -456,12 +381,12 @@ export const ResourceSharing: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleView(resource.id, resource.url)}>
                     <Eye className="h-4 w-4 mr-1" />
                     Voir
                   </Button>
                   {resource.type !== 'link' && (
-                    <Button size="sm" className="flex-1">
+                    <Button size="sm" className="flex-1" onClick={() => handleDownload(resource.id, resource.url)}>
                       <Download className="h-4 w-4 mr-1" />
                       Télécharger
                     </Button>
