@@ -18981,6 +18981,102 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_bookmarks_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "shared_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          likes_count: number | null
+          resource_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          resource_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          resource_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_comments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "shared_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_likes: {
+        Row: {
+          created_at: string
+          id: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_likes_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "shared_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       retention_notifications: {
         Row: {
           acknowledged: boolean | null
@@ -20364,6 +20460,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shared_resources: {
+        Row: {
+          author_id: string
+          comments_count: number | null
+          created_at: string
+          description: string | null
+          downloads_count: number | null
+          id: string
+          is_approved: boolean | null
+          likes_count: number | null
+          resource_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          url: string
+          views_count: number | null
+        }
+        Insert: {
+          author_id: string
+          comments_count?: number | null
+          created_at?: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          likes_count?: number | null
+          resource_type?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          url: string
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          comments_count?: number | null
+          created_at?: string
+          description?: string | null
+          downloads_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          likes_count?: number | null
+          resource_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          url?: string
+          views_count?: number | null
+        }
+        Relationships: []
       }
       shopify_purchases: {
         Row: {

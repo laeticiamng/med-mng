@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { 
   BarChart, 
   Bar, 
@@ -27,11 +28,14 @@ import {
   Award,
   Activity,
   Flame,
-  Star
+  Star,
+  Download,
+  FileText
 } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Couleurs sémantiques pour les graphiques (compatibles avec le design system)
 const CHART_COLORS = {
@@ -95,6 +99,43 @@ const Statistics = () => {
       color: [CHART_COLORS.chart1, CHART_COLORS.chart2, CHART_COLORS.chart3, CHART_COLORS.chart4, CHART_COLORS.chart5][index % 5]
     })) : [];
 
+  const exportToPDF = async () => {
+    try {
+      const jsPDF = (await import('jspdf')).default;
+      const pdf = new jsPDF();
+      
+      pdf.setFontSize(20);
+      pdf.text('Mes Statistiques MED-MNG', 20, 20);
+      
+      pdf.setFontSize(12);
+      pdf.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 35);
+      
+      pdf.setFontSize(14);
+      pdf.text('Résumé', 20, 50);
+      
+      pdf.setFontSize(11);
+      pdf.text(`Niveau: ${gamificationStats?.level || 1}`, 20, 62);
+      pdf.text(`XP Total: ${gamificationStats?.totalPoints?.toLocaleString() || 0}`, 20, 72);
+      pdf.text(`Streak Actuel: ${streakData.current} jours`, 20, 82);
+      pdf.text(`Record Streak: ${streakData.longest} jours`, 20, 92);
+      pdf.text(`Activités cette semaine: ${personalStats?.totalActivities || 0}`, 20, 102);
+      pdf.text(`Badges obtenus: ${gamificationStats?.badges?.length || 0}`, 20, 112);
+      
+      pdf.setFontSize(14);
+      pdf.text('Progression', 20, 130);
+      
+      pdf.setFontSize(11);
+      pdf.text(`Score moyen: ${personalStats?.averageScore || 0}%`, 20, 142);
+      pdf.text(`Objectif hebdomadaire: ${gamificationStats?.weeklyGoalProgress || 0}%`, 20, 152);
+      
+      pdf.save('mes-statistiques-medmng.pdf');
+      toast.success('PDF exporté avec succès !');
+    } catch (err) {
+      console.error('Erreur export PDF:', err);
+      toast.error('Erreur lors de l\'export PDF');
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -103,11 +144,17 @@ const Statistics = () => {
       </Helmet>
 
       <div className="container mx-auto p-6 space-y-8">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-foreground">Mes Statistiques</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Analyse de votre progression et performances sur MED-MNG
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="text-center md:text-left space-y-2">
+            <h1 className="text-4xl font-bold text-foreground">Mes Statistiques</h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Analyse de votre progression et performances sur MED-MNG
+            </p>
+          </div>
+          <Button onClick={exportToPDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            Exporter en PDF
+          </Button>
         </div>
 
         {/* Stats personnelles */}
