@@ -108,7 +108,7 @@ const PlatformStatusPage = lazy(() => import("./pages/PlatformStatusPage"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const SystemManagement = lazy(() => import("./pages/SystemManagement"));
 const PlatformSettings = lazy(() => import("./pages/PlatformSettings"));
-const OptimizedIndex = lazy(() => import("./pages/OptimizedIndex"));
+// OptimizedIndex supprimé (doublon de Index)
 const AccessibilityDashboard = lazy(() => import("./pages/AccessibilityDashboard"));
 const EffectivenessDashboard = lazy(() => import("./pages/EffectivenessDashboard"));
 
@@ -120,7 +120,7 @@ const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const CommunityHub = lazy(() => import("./pages/CommunityHub"));
-const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
+// ModernHomepage supprimé (doublon de Index)
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
@@ -188,7 +188,7 @@ const App = () => {
            <Route path={ROUTE_PATHS.monitoring} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Monitoring /></Suspense>} />
            <Route path={ROUTE_PATHS.systemManagement} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SystemManagement /></Suspense>} />
           <Route path={ROUTE_PATHS.platformSettings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformSettings /></Suspense>} />
-          <Route path={ROUTE_PATHS.optimizedIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OptimizedIndex /></Suspense>} />
+          <Route path={ROUTE_PATHS.optimizedIndex} element={<Navigate to={ROUTE_PATHS.home} replace />} />
           <Route path={ROUTE_PATHS.home} element={<Index />} />
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           <Route path={ROUTE_PATHS.sharedMusic} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedMusic /></Suspense>} />
@@ -271,7 +271,7 @@ const App = () => {
            <Route path={ROUTE_PATHS.statistics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
            <Route path={ROUTE_PATHS.studyPlanner} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudyPlanner /></Suspense>} />
            <Route path={ROUTE_PATHS.community} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityHub /></Suspense>} />
-            <Route path={ROUTE_PATHS.homepage} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
+            <Route path={ROUTE_PATHS.homepage} element={<Navigate to={ROUTE_PATHS.home} replace />} />
             <Route path={ROUTE_PATHS.achievements} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
             <Route path={ROUTE_PATHS.favorites} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
              <Route path={ROUTE_PATHS.settings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />

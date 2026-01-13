@@ -100,6 +100,8 @@ export const ROUTE_REDIRECTS = [
   ROUTE_PATHS.auditIc2,
   ROUTE_PATHS.auditIc4,
   ROUTE_PATHS.auditCompleteLegacy,
+  ROUTE_PATHS.optimizedIndex, // Redirige vers home
+  ROUTE_PATHS.homepage, // Redirige vers home
 ] as const;
 
 export const ROUTE_LIST = Object.values(ROUTE_PATHS);
