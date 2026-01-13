@@ -139,37 +139,33 @@ export const usePWAMetrics = () => {
   const sendMetricUpdate = async (data: any, immediate = false) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
 
       // Collecter les infos du device
       const deviceInfo = {
         device_type: getDeviceType(),
         browser: getBrowser(),
-        os: getOS(),
-        screen_width: window.screen.width,
-        screen_height: window.screen.height,
       };
 
       const payload = {
-        user_id: user.id,
+        user_id: user?.id || null,
         session_id: sessionIdRef.current,
+        is_installed: metrics.isInstalled,
+        is_offline: metrics.isOffline,
+        page_views: metrics.pageViews,
         ...deviceInfo,
         ...data,
       };
 
-      // Envoyer les métriques (ignoré en cas d'erreur pour ne pas bloquer l'app)
-      if (!immediate) {
-        try {
-          await supabase.from('pwa_metrics' as any).upsert(payload, {
-            onConflict: 'session_id',
-          });
-        } catch (err) {
-          console.debug('Metrics error:', err);
-        }
+      // Envoyer les métriques
+      try {
+        await supabase.from('pwa_metrics').upsert(payload, {
+          onConflict: 'session_id',
+        });
+      } catch (err) {
+        // Silencieux pour ne pas bloquer l'app
       }
     } catch (error) {
       // Silencieux pour ne pas perturber l'expérience utilisateur
-      console.debug('Error sending PWA metrics:', error);
     }
   };
 

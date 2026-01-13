@@ -59,6 +59,10 @@ export * from './usePerformanceDegradationAlerts';
 // Chat & Communication
 export * from './useChatConversations';
 export * from './useEnhancedChat';
+export * from './useDirectMessages';
+
+// Social & Community
+export * from './useSharedResources';
 
 // Clinical & Medical
 export * from './useClinicalCases';
@@ -102,6 +106,7 @@ export * from './useUnifiedAlerts';
 // Exam & Quiz
 export * from './useExamMode';
 export * from './useFlashcards';
+export * from './useTimedFlashcards';
 export * from './useQuizErrorTracker';
 export * from './useQuizHistory';
 export * from './useQuizResults';
