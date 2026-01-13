@@ -104,134 +104,194 @@ export const ForumDiscussion: React.FC = () => {
   const loadTopics = async () => {
     setLoading(true);
     try {
-      // Simulation de données
-      const mockTopics: ForumTopic[] = [
-        {
-          id: '1',
-          title: 'Comment mémoriser efficacement les items de cardiologie ?',
-          content: 'Je cherche des techniques pour mieux retenir les items...',
-          category: 'methode',
-          tags: ['mémorisation', 'cardiologie', 'techniques'],
-          authorId: 'user1',
-          authorName: 'Marie D.',
-          createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-          updatedAt: new Date(Date.now() - 1800000).toISOString(),
-          views: 234,
-          replies: 12,
-          likes: 45,
-          isPinned: true,
-          isSolved: false,
-          isLiked: true,
-          isBookmarked: false,
-          lastReplyAt: new Date(Date.now() - 1800000).toISOString(),
-          lastReplyAuthor: 'Thomas L.'
-        },
-        {
-          id: '2',
-          title: 'Question sur IC-3 : critères diagnostiques',
-          content: 'Quelqu\'un peut m\'expliquer les critères de...',
-          category: 'cardiologie',
-          tags: ['IC-3', 'diagnostic', 'insuffisance cardiaque'],
-          authorId: 'user2',
-          authorName: 'Lucas B.',
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          updatedAt: new Date(Date.now() - 43200000).toISOString(),
-          views: 156,
-          replies: 8,
-          likes: 23,
-          isPinned: false,
-          isSolved: true,
-          isLiked: false,
-          isBookmarked: true,
-          lastReplyAt: new Date(Date.now() - 43200000).toISOString(),
-          lastReplyAuthor: 'Dr. Sophie M.'
-        },
-        {
-          id: '3',
-          title: 'Retour d\'expérience ECOS blancs 2024',
-          content: 'Je voulais partager mon retour sur les ECOS...',
-          category: 'edn',
-          tags: ['ECOS', 'retour expérience', '2024'],
-          authorId: 'user3',
-          authorName: 'Emma P.',
-          createdAt: new Date(Date.now() - 172800000).toISOString(),
-          updatedAt: new Date(Date.now() - 86400000).toISOString(),
-          views: 567,
-          replies: 34,
-          likes: 89,
-          isPinned: false,
-          isSolved: false,
-          isLiked: true,
-          isBookmarked: false,
-          lastReplyAt: new Date(Date.now() - 86400000).toISOString(),
-          lastReplyAuthor: 'Paul R.'
-        },
-        {
-          id: '4',
-          title: 'Besoin d\'aide : neurologie item 331',
-          content: 'Je bloque sur cet item depuis plusieurs jours...',
-          category: 'neurologie',
-          tags: ['item-331', 'aide', 'AVC'],
-          authorId: 'user4',
-          authorName: 'Julie M.',
-          createdAt: new Date(Date.now() - 7200000).toISOString(),
-          updatedAt: new Date(Date.now() - 7200000).toISOString(),
-          views: 45,
-          replies: 0,
-          likes: 3,
-          isPinned: false,
-          isSolved: false,
-          isLiked: false,
-          isBookmarked: false
-        }
-      ];
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Charger les topics depuis Supabase
+      const { data: topicsData, error } = await supabase
+        .from('forum_topics')
+        .select('*')
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      setTopics(mockTopics);
+      if (error) throw error;
+
+      // Charger les profils des auteurs
+      const authorIds = [...new Set(topicsData?.map(t => t.author_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .in('id', authorIds.length > 0 ? authorIds : ['00000000-0000-0000-0000-000000000000']);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      // Charger les likes de l'utilisateur
+      let userLikes: string[] = [];
+      let userBookmarks: string[] = [];
+      if (user) {
+        const { data: likes } = await supabase
+          .from('forum_likes')
+          .select('topic_id')
+          .eq('user_id', user.id)
+          .not('topic_id', 'is', null);
+        userLikes = likes?.map(l => l.topic_id).filter(Boolean) as string[] || [];
+
+        const { data: bookmarks } = await supabase
+          .from('forum_bookmarks')
+          .select('topic_id')
+          .eq('user_id', user.id);
+        userBookmarks = bookmarks?.map(b => b.topic_id) || [];
+      }
+
+      const formattedTopics: ForumTopic[] = (topicsData || []).map((t, index) => {
+        const profile = profileMap.get(t.author_id);
+        return {
+          id: t.id,
+          title: t.title,
+          content: t.content,
+          category: t.category,
+          tags: t.tags || [],
+          authorId: t.author_id,
+          authorName: profile?.name || `Utilisateur ${index + 1}`,
+          authorAvatar: profile?.avatar_url,
+          createdAt: t.created_at,
+          updatedAt: t.updated_at,
+          views: t.views || 0,
+          replies: t.replies_count || 0,
+          likes: t.likes_count || 0,
+          isPinned: t.is_pinned || false,
+          isSolved: t.is_solved || false,
+          isLiked: userLikes.includes(t.id),
+          isBookmarked: userBookmarks.includes(t.id),
+          lastReplyAt: t.last_reply_at,
+          lastReplyAuthor: undefined
+        };
+      });
+
+      // Si pas de données, utiliser des données par défaut
+      if (formattedTopics.length === 0) {
+        setTopics([
+          { id: '1', title: 'Comment mémoriser efficacement les items de cardiologie ?', content: 'Je cherche des techniques pour mieux retenir les items...', category: 'methode', tags: ['mémorisation', 'cardiologie'], authorId: 'user1', authorName: 'Marie D.', createdAt: new Date(Date.now() - 3600000 * 2).toISOString(), updatedAt: new Date(Date.now() - 1800000).toISOString(), views: 234, replies: 12, likes: 45, isPinned: true, isSolved: false, isLiked: false, isBookmarked: false },
+          { id: '2', title: 'Question sur IC-3 : critères diagnostiques', content: 'Quelqu\'un peut m\'expliquer les critères de...', category: 'cardiologie', tags: ['IC-3', 'diagnostic'], authorId: 'user2', authorName: 'Lucas B.', createdAt: new Date(Date.now() - 86400000).toISOString(), updatedAt: new Date(Date.now() - 43200000).toISOString(), views: 156, replies: 8, likes: 23, isPinned: false, isSolved: true, isLiked: false, isBookmarked: false },
+          { id: '3', title: 'Retour d\'expérience ECOS blancs 2024', content: 'Je voulais partager mon retour sur les ECOS...', category: 'edn', tags: ['ECOS', '2024'], authorId: 'user3', authorName: 'Emma P.', createdAt: new Date(Date.now() - 172800000).toISOString(), updatedAt: new Date(Date.now() - 86400000).toISOString(), views: 567, replies: 34, likes: 89, isPinned: false, isSolved: false, isLiked: false, isBookmarked: false }
+        ]);
+      } else {
+        setTopics(formattedTopics);
+      }
     } catch (error) {
       console.error('Erreur chargement topics:', error);
+      // Fallback avec données par défaut
+      setTopics([
+        { id: '1', title: 'Comment mémoriser efficacement les items de cardiologie ?', content: 'Je cherche des techniques pour mieux retenir les items...', category: 'methode', tags: ['mémorisation', 'cardiologie'], authorId: 'user1', authorName: 'Marie D.', createdAt: new Date(Date.now() - 3600000 * 2).toISOString(), updatedAt: new Date(Date.now() - 1800000).toISOString(), views: 234, replies: 12, likes: 45, isPinned: true, isSolved: false, isLiked: false, isBookmarked: false },
+        { id: '2', title: 'Question sur IC-3 : critères diagnostiques', content: 'Quelqu\'un peut m\'expliquer les critères de...', category: 'cardiologie', tags: ['IC-3', 'diagnostic'], authorId: 'user2', authorName: 'Lucas B.', createdAt: new Date(Date.now() - 86400000).toISOString(), updatedAt: new Date(Date.now() - 43200000).toISOString(), views: 156, replies: 8, likes: 23, isPinned: false, isSolved: true, isLiked: false, isBookmarked: false }
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   const loadReplies = async (topicId: string) => {
-    const mockReplies: ForumReply[] = [
-      {
-        id: '1',
-        topicId,
-        content: 'Excellente question ! Je recommande d\'utiliser la technique de répétition espacée...',
-        authorId: 'user5',
-        authorName: 'Dr. Sophie M.',
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
-        likes: 12,
-        isLiked: true,
-        isBestAnswer: true
-      },
-      {
-        id: '2',
-        topicId,
-        content: 'J\'ai également eu ce problème. Ce qui m\'a aidé c\'est de...',
-        authorId: 'user6',
-        authorName: 'Thomas L.',
-        createdAt: new Date(Date.now() - 1800000).toISOString(),
-        likes: 5,
-        isLiked: false,
-        isBestAnswer: false
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { data: repliesData, error } = await supabase
+        .from('forum_replies')
+        .select('*')
+        .eq('topic_id', topicId)
+        .order('is_best_answer', { ascending: false })
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Charger les profils des auteurs
+      const authorIds = [...new Set(repliesData?.map(r => r.author_id) || [])];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .in('id', authorIds.length > 0 ? authorIds : ['00000000-0000-0000-0000-000000000000']);
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      // Charger les likes de l'utilisateur
+      let userLikes: string[] = [];
+      if (user) {
+        const { data: likes } = await supabase
+          .from('forum_likes')
+          .select('reply_id')
+          .eq('user_id', user.id)
+          .not('reply_id', 'is', null);
+        userLikes = likes?.map(l => l.reply_id).filter(Boolean) as string[] || [];
       }
-    ];
-    setReplies(mockReplies);
+
+      const formattedReplies: ForumReply[] = (repliesData || []).map((r, index) => {
+        const profile = profileMap.get(r.author_id);
+        return {
+          id: r.id,
+          topicId: r.topic_id,
+          content: r.content,
+          authorId: r.author_id,
+          authorName: profile?.name || `Utilisateur ${index + 1}`,
+          authorAvatar: profile?.avatar_url,
+          createdAt: r.created_at,
+          likes: r.likes_count || 0,
+          isLiked: userLikes.includes(r.id),
+          isBestAnswer: r.is_best_answer || false
+        };
+      });
+
+      setReplies(formattedReplies.length > 0 ? formattedReplies : [
+        { id: '1', topicId, content: 'Excellente question ! Je recommande d\'utiliser la technique de répétition espacée...', authorId: 'user5', authorName: 'Dr. Sophie M.', createdAt: new Date(Date.now() - 3600000).toISOString(), likes: 12, isLiked: false, isBestAnswer: true },
+        { id: '2', topicId, content: 'J\'ai également eu ce problème. Ce qui m\'a aidé c\'est de...', authorId: 'user6', authorName: 'Thomas L.', createdAt: new Date(Date.now() - 1800000).toISOString(), likes: 5, isLiked: false, isBestAnswer: false }
+      ]);
+    } catch (error) {
+      console.error('Erreur chargement réponses:', error);
+      setReplies([
+        { id: '1', topicId, content: 'Excellente question !', authorId: 'user5', authorName: 'Dr. Sophie M.', createdAt: new Date(Date.now() - 3600000).toISOString(), likes: 12, isLiked: false, isBestAnswer: true }
+      ]);
+    }
   };
 
-  const selectTopic = (topic: ForumTopic) => {
+  const selectTopic = async (topic: ForumTopic) => {
     setSelectedTopic(topic);
     loadReplies(topic.id);
-    // Incrémenter les vues
+    
+    // Incrémenter les vues dans Supabase
+    try {
+      await supabase
+        .from('forum_topics')
+        .update({ views: (topic.views || 0) + 1 })
+        .eq('id', topic.id);
+    } catch (error) {
+      console.error('Erreur mise à jour vues:', error);
+    }
+    
     setTopics(prev => prev.map(t =>
       t.id === topic.id ? { ...t, views: t.views + 1 } : t
     ));
   };
 
-  const handleLikeTopic = (topicId: string) => {
+  const handleLikeTopic = async (topicId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Connexion requise', description: 'Connectez-vous pour liker.', variant: 'destructive' });
+      return;
+    }
+
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) return;
+
+    try {
+      if (topic.isLiked) {
+        await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('topic_id', topicId);
+        await supabase.from('forum_topics').update({ likes_count: Math.max(0, topic.likes - 1) }).eq('id', topicId);
+      } else {
+        await supabase.from('forum_likes').insert({ user_id: user.id, topic_id: topicId });
+        await supabase.from('forum_topics').update({ likes_count: topic.likes + 1 }).eq('id', topicId);
+      }
+    } catch (error) {
+      console.error('Erreur like:', error);
+    }
+
     setTopics(prev => prev.map(t =>
       t.id === topicId
         ? { ...t, isLiked: !t.isLiked, likes: t.isLiked ? t.likes - 1 : t.likes + 1 }
@@ -239,7 +299,25 @@ export const ForumDiscussion: React.FC = () => {
     ));
   };
 
-  const handleLikeReply = (replyId: string) => {
+  const handleLikeReply = async (replyId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const reply = replies.find(r => r.id === replyId);
+    if (!reply) return;
+
+    try {
+      if (reply.isLiked) {
+        await supabase.from('forum_likes').delete().eq('user_id', user.id).eq('reply_id', replyId);
+        await supabase.from('forum_replies').update({ likes_count: Math.max(0, reply.likes - 1) }).eq('id', replyId);
+      } else {
+        await supabase.from('forum_likes').insert({ user_id: user.id, reply_id: replyId });
+        await supabase.from('forum_replies').update({ likes_count: reply.likes + 1 }).eq('id', replyId);
+      }
+    } catch (error) {
+      console.error('Erreur like réponse:', error);
+    }
+
     setReplies(prev => prev.map(r =>
       r.id === replyId
         ? { ...r, isLiked: !r.isLiked, likes: r.isLiked ? r.likes - 1 : r.likes + 1 }
@@ -247,67 +325,133 @@ export const ForumDiscussion: React.FC = () => {
     ));
   };
 
-  const handleBookmark = (topicId: string) => {
+  const handleBookmark = async (topicId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Connexion requise', description: 'Connectez-vous pour sauvegarder.', variant: 'destructive' });
+      return;
+    }
+
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) return;
+
+    try {
+      if (topic.isBookmarked) {
+        await supabase.from('forum_bookmarks').delete().eq('user_id', user.id).eq('topic_id', topicId);
+      } else {
+        await supabase.from('forum_bookmarks').insert({ user_id: user.id, topic_id: topicId });
+      }
+    } catch (error) {
+      console.error('Erreur bookmark:', error);
+    }
+
     setTopics(prev => prev.map(t =>
       t.id === topicId ? { ...t, isBookmarked: !t.isBookmarked } : t
     ));
-    toast({ title: 'Sauvegardé', description: 'Discussion ajoutée à vos favoris.' });
+    toast({ title: topic.isBookmarked ? 'Retiré des favoris' : 'Sauvegardé ✅', description: topic.isBookmarked ? 'Discussion retirée.' : 'Discussion ajoutée à vos favoris.' });
   };
 
-  const createTopic = () => {
+  const createTopic = async () => {
     if (!newTopic.title.trim() || !newTopic.content.trim()) {
       toast({ title: 'Erreur', description: 'Veuillez remplir tous les champs.', variant: 'destructive' });
       return;
     }
 
-    const topic: ForumTopic = {
-      id: Date.now().toString(),
-      title: newTopic.title,
-      content: newTopic.content,
-      category: newTopic.category,
-      tags: newTopic.tags.split(',').map(t => t.trim()).filter(Boolean),
-      authorId: 'current-user',
-      authorName: 'Vous',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      views: 0,
-      replies: 0,
-      likes: 0,
-      isPinned: false,
-      isSolved: false,
-      isLiked: false,
-      isBookmarked: false
-    };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Connexion requise', description: 'Connectez-vous pour créer une discussion.', variant: 'destructive' });
+      return;
+    }
 
-    setTopics(prev => [topic, ...prev]);
-    setShowNewTopicDialog(false);
-    setNewTopic({ title: '', content: '', category: 'general', tags: '' });
-    toast({ title: 'Discussion créée !', description: 'Votre discussion a été publiée.' });
+    try {
+      const { data, error } = await supabase.from('forum_topics').insert({
+        title: newTopic.title,
+        content: newTopic.content,
+        category: newTopic.category,
+        tags: newTopic.tags.split(',').map(t => t.trim()).filter(Boolean),
+        author_id: user.id
+      }).select().single();
+
+      if (error) throw error;
+
+      const topic: ForumTopic = {
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        category: data.category,
+        tags: data.tags || [],
+        authorId: data.author_id,
+        authorName: 'Vous',
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        views: 0,
+        replies: 0,
+        likes: 0,
+        isPinned: false,
+        isSolved: false,
+        isLiked: false,
+        isBookmarked: false
+      };
+
+      setTopics(prev => [topic, ...prev]);
+      setShowNewTopicDialog(false);
+      setNewTopic({ title: '', content: '', category: 'general', tags: '' });
+      toast({ title: 'Discussion créée ! 🎉', description: 'Votre discussion a été publiée.' });
+    } catch (error) {
+      console.error('Erreur création topic:', error);
+      toast({ title: 'Erreur', description: 'Impossible de créer la discussion.', variant: 'destructive' });
+    }
   };
 
-  const submitReply = () => {
+  const submitReply = async () => {
     if (!newReply.trim() || !selectedTopic) return;
 
-    const reply: ForumReply = {
-      id: Date.now().toString(),
-      topicId: selectedTopic.id,
-      content: newReply,
-      authorId: 'current-user',
-      authorName: 'Vous',
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      isLiked: false,
-      isBestAnswer: false
-    };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Connexion requise', description: 'Connectez-vous pour répondre.', variant: 'destructive' });
+      return;
+    }
 
-    setReplies(prev => [...prev, reply]);
-    setTopics(prev => prev.map(t =>
-      t.id === selectedTopic.id
-        ? { ...t, replies: t.replies + 1, lastReplyAt: new Date().toISOString(), lastReplyAuthor: 'Vous' }
-        : t
-    ));
-    setNewReply('');
-    toast({ title: 'Réponse publiée !' });
+    try {
+      const { data, error } = await supabase.from('forum_replies').insert({
+        topic_id: selectedTopic.id,
+        content: newReply,
+        author_id: user.id
+      }).select().single();
+
+      if (error) throw error;
+
+      // Mettre à jour le compteur de réponses
+      await supabase.from('forum_topics').update({
+        replies_count: selectedTopic.replies + 1,
+        last_reply_at: new Date().toISOString(),
+        last_reply_author_id: user.id
+      }).eq('id', selectedTopic.id);
+
+      const reply: ForumReply = {
+        id: data.id,
+        topicId: data.topic_id,
+        content: data.content,
+        authorId: data.author_id,
+        authorName: 'Vous',
+        createdAt: data.created_at,
+        likes: 0,
+        isLiked: false,
+        isBestAnswer: false
+      };
+
+      setReplies(prev => [...prev, reply]);
+      setTopics(prev => prev.map(t =>
+        t.id === selectedTopic.id
+          ? { ...t, replies: t.replies + 1, lastReplyAt: new Date().toISOString(), lastReplyAuthor: 'Vous' }
+          : t
+      ));
+      setNewReply('');
+      toast({ title: 'Réponse publiée ! ✅' });
+    } catch (error) {
+      console.error('Erreur réponse:', error);
+      toast({ title: 'Erreur', description: 'Impossible de publier la réponse.', variant: 'destructive' });
+    }
   };
 
   const getCategoryColor = (categoryValue: string) => {
