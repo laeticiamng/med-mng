@@ -94,11 +94,11 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
             <div className="space-y-1.5">
-              <Link to={ROUTE_PATHS.community} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Communauté</Link>
               <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
               <Link to={ROUTE_PATHS.store} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Boutique</Link>
               <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
               <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Installer l'app</Link>
+              <Link to={ROUTE_PATHS.settings} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Paramètres</Link>
             </div>
           </div>
           
