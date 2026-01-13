@@ -83,15 +83,34 @@ export const POINTS_CONFIG = {
 export function useGamification() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<Badge | null>(null);
   const { toast } = useToast();
 
   const calculateLevel = (xp: number) => Math.floor(xp / XP_PER_LEVEL) + 1;
   const calculateXPToNext = (xp: number) => XP_PER_LEVEL - (xp % XP_PER_LEVEL);
 
+  // Default stats for non-authenticated users
+  const getDefaultStats = (): GamificationStats => ({
+    totalPoints: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    level: 1,
+    xpToNextLevel: XP_PER_LEVEL,
+    currentXP: 0,
+    badges: [],
+    weeklyGoalProgress: 0,
+    weeklyGoal: 50,
+  });
+
   const loadStats = useCallback(async (userId: string) => {
+    if (!userId || userId === '00000000-0000-0000-0000-000000000000') {
+      setStats(getDefaultStats());
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
-      
       // Charger les badges depuis Supabase
       const { data: userBadges } = await supabase
         .from('user_badges')

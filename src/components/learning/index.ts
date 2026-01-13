@@ -4,3 +4,4 @@ export { ItemMasteryGrid } from './ItemMasteryGrid';
 export { LearningInsights } from './LearningInsights';
 export { StudyCalendar } from './StudyCalendar';
 export { StudyCalendarSync } from './StudyCalendarSync';
+export { FlashcardImportExport } from './FlashcardImportExport';
