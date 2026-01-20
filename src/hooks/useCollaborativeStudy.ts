@@ -91,35 +91,8 @@ export function useCollaborativeStudy() {
       setGroups(formattedGroups);
     } catch (error) {
       console.error('Error loading groups:', error);
-      // Fallback mock data
-      setGroups([
-        {
-          id: 'mock-1',
-          name: 'Révision Cardiologie',
-          description: 'Groupe de révision ECG et insuffisance cardiaque',
-          topic: 'Cardiologie',
-          max_members: 10,
-          member_count: 4,
-          is_active: true,
-          is_public: true,
-          created_by: 'user-1',
-          created_at: new Date().toISOString(),
-          members: [],
-        },
-        {
-          id: 'mock-2',
-          name: 'Quiz Pneumologie',
-          description: 'QCM collaboratif pathologies respiratoires',
-          topic: 'Pneumologie',
-          max_members: 8,
-          member_count: 6,
-          is_active: true,
-          is_public: true,
-          created_by: 'user-2',
-          created_at: new Date().toISOString(),
-          members: [],
-        }
-      ]);
+      // No mock data - show empty state for real data integrity
+      setGroups([]);
     } finally {
       setLoading(false);
     }

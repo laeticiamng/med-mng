@@ -324,8 +324,9 @@ export const useFlashcards = () => {
   ): Promise<Flashcard[]> => {
     setLoading(true);
     try {
+      // Use edn_items_complete which is properly typed (not edn_items_immersive)
       const { data: item } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .eq('item_code', itemCode)
         .maybeSingle();

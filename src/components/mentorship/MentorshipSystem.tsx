@@ -84,11 +84,7 @@ export const MentorshipSystem: React.FC = () => {
         };
       });
 
-      setMentors(formattedMentors.length > 0 ? formattedMentors : [
-        { id: '1', name: 'Dr. Sophie Martin', specialty: 'Cardiologie', level: 25, rating: 4.9, reviewCount: 47, availability: 'available', expertise: ['ECG', 'Insuffisance cardiaque', 'HTA'], studentsHelped: 156 },
-        { id: '2', name: 'Dr. Pierre Dupont', specialty: 'Neurologie', level: 22, rating: 4.8, reviewCount: 35, availability: 'busy', expertise: ['AVC', 'Épilepsie', 'Céphalées'], studentsHelped: 98 },
-        { id: '3', name: 'Dr. Marie Leroy', specialty: 'Pédiatrie', level: 20, rating: 4.95, reviewCount: 62, availability: 'available', expertise: ['Vaccination', 'Développement', 'Urgences pédiatriques'], studentsHelped: 203 }
-      ]);
+      setMentors(formattedMentors);
 
       // Charger les sessions de l'utilisateur connecté
       const { data: { user } } = await supabase.auth.getUser();
@@ -131,12 +127,8 @@ export const MentorshipSystem: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur chargement mentorat:', error);
-      // Fallback avec données par défaut
-      setMentors([
-        { id: '1', name: 'Dr. Sophie Martin', specialty: 'Cardiologie', level: 25, rating: 4.9, reviewCount: 47, availability: 'available', expertise: ['ECG', 'Insuffisance cardiaque', 'HTA'], studentsHelped: 156 },
-        { id: '2', name: 'Dr. Pierre Dupont', specialty: 'Neurologie', level: 22, rating: 4.8, reviewCount: 35, availability: 'busy', expertise: ['AVC', 'Épilepsie', 'Céphalées'], studentsHelped: 98 },
-        { id: '3', name: 'Dr. Marie Leroy', specialty: 'Pédiatrie', level: 20, rating: 4.95, reviewCount: 62, availability: 'available', expertise: ['Vaccination', 'Développement', 'Urgences pédiatriques'], studentsHelped: 203 }
-      ]);
+      // No mock data - show empty state for real data integrity
+      setMentors([]);
     } finally {
       setLoading(false);
     }
