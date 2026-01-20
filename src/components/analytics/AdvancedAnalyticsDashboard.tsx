@@ -124,6 +124,29 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false });
 
+      // Fetch real genre distribution from generated music metadata
+      const { data: genreData } = await supabase
+        .from('generated_music_tracks')
+        .select('metadata')
+        .eq('user_id', user.id);
+
+      // Calculate real genre distribution from metadata
+      const genreCounts: Record<string, number> = {};
+      (genreData || []).forEach(track => {
+        const metadata = track.metadata as any;
+        const style = metadata?.style || metadata?.genre || 'Unknown';
+        genreCounts[style] = (genreCounts[style] || 0) + 1;
+      });
+
+      const favoriteGenres = Object.entries(genreCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 4)
+        .map(([name, count], i) => ({
+          name,
+          count,
+          color: [CHART_COLORS.chart1, CHART_COLORS.chart3, CHART_COLORS.chart4, CHART_COLORS.chart5][i]
+        }));
+
       // Construire les analytics à partir des données réelles
       const analyticsData: AdvancedAnalytics = {
         totalStudyTime: gamificationStats?.study_time_minutes || 0,
@@ -131,11 +154,8 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         averageScore: gamificationStats?.average_score || 0,
         streakDays: gamificationStats?.current_streak || 0,
         completedItems: gamificationStats?.items_completed || 0,
-        favoriteGenres: [
-          { name: 'LoFi', count: Math.floor((songsCount || 0) * 0.4), color: CHART_COLORS.chart1 },
-          { name: 'Classical', count: Math.floor((songsCount || 0) * 0.3), color: CHART_COLORS.chart3 },
-          { name: 'Ambient', count: Math.floor((songsCount || 0) * 0.2), color: CHART_COLORS.chart4 },
-          { name: 'Jazz', count: Math.floor((songsCount || 0) * 0.1), color: CHART_COLORS.chart5 }
+        favoriteGenres: favoriteGenres.length > 0 ? favoriteGenres : [
+          { name: 'Aucun genre', count: 0, color: CHART_COLORS.chart1 }
         ],
         weeklyActivity: calculateWeeklyActivity(recentActivities || []),
         monthlyProgress: [],

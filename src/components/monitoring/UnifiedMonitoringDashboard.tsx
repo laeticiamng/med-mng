@@ -70,10 +70,21 @@ export function UnifiedMonitoringDashboard() {
       const totalExtractions = extractionLogs?.length || 0;
       const errorRate = totalExtractions > 0 ? (failedExtractions / totalExtractions) * 100 : 0;
 
-      const simulatedMetrics: SystemMetrics = {
-        totalUsers: 1247,
-        activeUsers24h: userStats?.length || 89,
-        apiCalls24h: 2456,
+      // Fetch real user count from profiles
+      const { count: totalUsersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch API calls count from activity logs
+      const { count: apiCallsCount } = await supabase
+        .from('user_activity_log')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+      const realMetrics: SystemMetrics = {
+        totalUsers: totalUsersCount || 0,
+        activeUsers24h: userStats?.length || 0,
+        apiCalls24h: apiCallsCount || 0,
         errorRate: Math.round(errorRate * 10) / 10,
         averageResponseTime: 187,
         databaseHealth: 'healthy',
@@ -82,7 +93,7 @@ export function UnifiedMonitoringDashboard() {
         lastUpdateTime: new Date().toISOString()
       };
 
-      setMetrics(simulatedMetrics);
+      setMetrics(realMetrics);
       await checkSystemAlerts(extractionLogs);
 
     } catch (error) {
