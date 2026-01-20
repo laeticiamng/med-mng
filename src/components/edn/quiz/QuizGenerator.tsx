@@ -58,14 +58,15 @@ export class QuizGenerator {
     questionId: number,
     templates: QuestionTemplate[]
   ): QuizQuestion | null {
-    // Déterminer le rang de la question
+    // Déterminer le rang de la question de manière déterministe
     let rang: 'A' | 'B';
     if (config.questionType === 'rang-a') {
       rang = 'A';
     } else if (config.questionType === 'rang-b') {
       rang = 'B';
     } else {
-      rang = Math.random() > 0.6 ? 'B' : 'A'; // Favoriser légèrement rang A
+      // Alternance déterministe basée sur l'ID de la question: 60% rang A, 40% rang B
+      rang = (questionId % 5) < 3 ? 'A' : 'B';
     }
 
     // Sélectionner un template selon la difficulté

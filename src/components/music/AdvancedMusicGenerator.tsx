@@ -119,7 +119,12 @@ export const AdvancedMusicGenerator: React.FC = () => {
         isLiked: (song.meta as any)?.is_favorite || false,
         binaural: (song.meta as any)?.binaural || false,
         frequency: (song.meta as any)?.frequency,
-        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
+        waveform: Array.from({ length: 100 }, (_, i) => {
+          const progress = i / 100;
+          const beat = Math.sin(progress * Math.PI * 16) * 30;
+          const bass = Math.sin(progress * Math.PI * 4) * 20;
+          return Math.max(10, Math.min(100, 50 + beat + bass));
+        }),
         lyrics: song.lyrics ? (typeof song.lyrics === 'string' ? (song.lyrics as string).split('\n') : song.lyrics as string[]) : [],
         audioUrl: (song.meta as any)?.audio_url
       }));
@@ -157,11 +162,38 @@ export const AdvancedMusicGenerator: React.FC = () => {
 
     setIsGenerating(true);
     
-    // Simulation de génération IA
-    setTimeout(() => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Appel réel à l'Edge Function de génération musicale
+      const { data, error } = await supabase.functions.invoke('generate-music', {
+        body: {
+          prompt: generationRequest.prompt,
+          style: generationRequest.style,
+          duration: generationRequest.duration,
+          lyrics: generationRequest.lyrics,
+          itemCode: generationRequest.itemCode,
+          specialty: generationRequest.specialty,
+          binaural: generationRequest.binaural,
+          frequency: generationRequest.frequency
+        }
+      });
+
+      if (error) throw error;
+
+      // Générer une waveform déterministe basée sur la durée
+      const waveformPoints = 100;
+      const waveform = Array.from({ length: waveformPoints }, (_, i) => {
+        const progress = i / waveformPoints;
+        const beat = Math.sin(progress * Math.PI * 16) * 30;
+        const bass = Math.sin(progress * Math.PI * 4) * 20;
+        const amplitude = 50 + beat + bass;
+        return Math.max(10, Math.min(100, amplitude));
+      });
+
       const newTrack: MusicTrack = {
-        id: Date.now().toString(),
-        title: `Generated: ${generationRequest.prompt.slice(0, 20)}...`,
+        id: data?.taskId || Date.now().toString(),
+        title: `${generationRequest.prompt.slice(0, 30)}${generationRequest.prompt.length > 30 ? '...' : ''}`,
         artist: 'MED-AI',
         duration: generationRequest.duration,
         genre: generationRequest.style,
@@ -170,14 +202,35 @@ export const AdvancedMusicGenerator: React.FC = () => {
         isLiked: false,
         binaural: generationRequest.binaural,
         frequency: generationRequest.frequency,
-        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
+        waveform,
         lyrics: generationRequest.lyrics
       };
 
+      // Sauvegarder dans Supabase si utilisateur connecté
+      if (user && data?.taskId) {
+        await supabase.from('med_mng_songs').insert([{
+          user_id: user.id,
+          title: newTrack.title,
+          suno_audio_id: data.taskId,
+          lyrics: generationRequest.lyrics?.join('\n') || '',
+          meta: {
+            style: generationRequest.style,
+            duration: generationRequest.duration,
+            item_code: generationRequest.itemCode,
+            specialty: generationRequest.specialty,
+            binaural: generationRequest.binaural,
+            frequency: generationRequest.frequency
+          }
+        }]);
+      }
+
       setRecentTracks(prev => [newTrack, ...prev]);
       setCurrentTrack(newTrack);
+
+    } catch (error) {
+      console.error('Erreur génération musicale:', error);
+    } finally {
       setIsGenerating(false);
-      
       // Reset form
       setGenerationRequest({
         prompt: '',
@@ -186,7 +239,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
         binaural: false,
         lyrics: []
       });
-    }, 3000);
+    }
   };
 
   const togglePlay = () => {

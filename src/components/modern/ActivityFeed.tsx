@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ActivityItem {
   id: string;
@@ -43,7 +44,7 @@ interface ActivityFeedProps {
 }
 
 /**
- * Flux d'activité en temps réel pour engagement utilisateur
+ * Flux d'activité en temps réel pour engagement utilisateur - Données Supabase
  */
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   activities: initialActivities,
@@ -56,17 +57,79 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   const [filter, setFilter] = useState<string>('all');
   const [loading, setLoading] = useState(false);
 
-  // Simulation d'activités en temps réel
+  // Charger les activités réelles depuis Supabase
   useEffect(() => {
-    if (!realTime) return;
+    const loadRealActivities = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-    const interval = setInterval(() => {
-      // Ajouter une nouvelle activité simulée
-      const newActivity: ActivityItem = generateRandomActivity();
-      setActivities(prev => [newActivity, ...prev.slice(0, maxItems - 1)]);
-    }, 30000); // Nouvelle activité toutes les 30 secondes
+        const { data: activityLogs, error } = await supabase
+          .from('user_activity_log')
+          .select('id, action_type, action_details, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(maxItems);
 
-    return () => clearInterval(interval);
+        if (error || !activityLogs) return;
+
+        const mappedActivities: ActivityItem[] = activityLogs.map((log: any) => {
+          const details = log.action_details || {};
+          return {
+            id: log.id,
+            type: mapActionTypeToActivityType(log.action_type),
+            title: mapActionTypeToTitle(log.action_type),
+            description: details.description || `Action: ${log.action_type}`,
+            timestamp: new Date(log.created_at),
+            priority: details.priority || 'medium',
+            metadata: {
+              points: details.points,
+              badge: details.badge,
+              category: details.category
+            },
+            actionable: false
+          };
+        });
+
+        if (mappedActivities.length > 0) {
+          setActivities(mappedActivities);
+        }
+      } catch (error) {
+        console.error('Erreur chargement activités:', error);
+      }
+    };
+
+    loadRealActivities();
+
+    // Abonnement temps réel aux nouvelles activités
+    if (realTime) {
+      const channel = supabase
+        .channel('activity-feed')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_activity_log'
+        }, (payload) => {
+          const log = payload.new;
+          const details = (log as any).action_details || {};
+          const newActivity: ActivityItem = {
+            id: log.id,
+            type: mapActionTypeToActivityType((log as any).action_type),
+            title: mapActionTypeToTitle((log as any).action_type),
+            description: details.description || `Action: ${(log as any).action_type}`,
+            timestamp: new Date((log as any).created_at),
+            priority: details.priority || 'medium',
+            metadata: { points: details.points, badge: details.badge, category: details.category },
+            actionable: false
+          };
+          setActivities(prev => [newActivity, ...prev.slice(0, maxItems - 1)]);
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [realTime, maxItems]);
 
   const getActivityIcon = (type: string) => {
@@ -265,48 +328,33 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   );
 };
 
-// Fonction utilitaire pour générer des activités aléatoires
-function generateRandomActivity(): ActivityItem {
-  const types: ActivityItem['type'][] = ['achievement', 'learning', 'social', 'creation', 'milestone'];
-  const priorities: ActivityItem['priority'][] = ['low', 'medium', 'high'];
-  
-  const templates = [
-    {
-      type: 'achievement' as const,
-      title: 'Nouveau badge débloqué !',
-      description: 'Vous avez obtenu le badge "Expert EDN"',
-      priority: 'high' as const,
-      metadata: { badge: 'Expert EDN', points: 100 }
-    },
-    {
-      type: 'learning' as const,
-      title: 'Item EDN complété',
-      description: 'Item IC-234 : Cardiologie terminé avec succès',
-      priority: 'medium' as const,
-      metadata: { category: 'Cardiologie', points: 50 }
-    },
-    {
-      type: 'creation' as const,
-      title: 'Nouvelle création musicale',
-      description: 'Génération d\'un contenu musical pour l\'item IC-45',
-      priority: 'medium' as const,
-      metadata: { category: 'Musique', points: 25 }
-    },
-    {
-      type: 'social' as const,
-      title: 'Interaction communautaire',
-      description: 'Votre création a reçu 5 nouveaux likes',
-      priority: 'low' as const,
-      metadata: { points: 10 }
-    }
-  ];
-
-  const template = templates[Math.floor(Math.random() * templates.length)];
-  
-  return {
-    id: `activity-${Date.now()}-${Math.random()}`,
-    ...template,
-    timestamp: new Date(),
-    actionable: Math.random() > 0.5
+// Fonctions utilitaires pour mapper les types d'action
+function mapActionTypeToActivityType(actionType: string): ActivityItem['type'] {
+  const typeMap: Record<string, ActivityItem['type']> = {
+    'badge_earned': 'achievement',
+    'item_completed': 'learning',
+    'quiz_completed': 'learning',
+    'music_generated': 'creation',
+    'content_created': 'creation',
+    'post_liked': 'social',
+    'comment_added': 'social',
+    'milestone_reached': 'milestone',
+    'system_notification': 'system'
   };
+  return typeMap[actionType] || 'system';
+}
+
+function mapActionTypeToTitle(actionType: string): string {
+  const titleMap: Record<string, string> = {
+    'badge_earned': 'Nouveau badge débloqué !',
+    'item_completed': 'Item EDN complété',
+    'quiz_completed': 'Quiz terminé',
+    'music_generated': 'Musique générée',
+    'content_created': 'Contenu créé',
+    'post_liked': 'Nouveau like reçu',
+    'comment_added': 'Nouveau commentaire',
+    'milestone_reached': 'Objectif atteint !',
+    'system_notification': 'Notification système'
+  };
+  return titleMap[actionType] || 'Activité';
 }
