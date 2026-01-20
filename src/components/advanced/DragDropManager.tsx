@@ -158,23 +158,32 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
     try {
       const file = droppedFile.file;
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+      const fileName = `${Date.now()}-${crypto.randomUUID()}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
 
-      // Simuler la progression pendant l'upload
-      for (let progress = 0; progress <= 90; progress += 30) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setDroppedFiles(prev => prev.map(f => 
-          f.id === droppedFile.id ? { ...f, uploadProgress: progress } : f
-        ));
-      }
+      // Progression initiale
+      setDroppedFiles(prev => prev.map(f => 
+        f.id === droppedFile.id ? { ...f, uploadProgress: 10 } : f
+      ));
 
-      // Upload réel vers Supabase Storage
+      // Upload réel vers Supabase Storage avec progression basée sur la taille
+      const chunkSize = file.size;
+      const estimatedProgress = Math.min(50, Math.floor((chunkSize / (1024 * 1024)) * 10));
+      
+      setDroppedFiles(prev => prev.map(f => 
+        f.id === droppedFile.id ? { ...f, uploadProgress: estimatedProgress } : f
+      ));
+
       const { error } = await supabase.storage
         .from('user-uploads')
         .upload(filePath, file, { cacheControl: '3600', upsert: false });
 
       if (error) throw error;
+
+      // Upload terminé - progression à 90%
+      setDroppedFiles(prev => prev.map(f => 
+        f.id === droppedFile.id ? { ...f, uploadProgress: 90 } : f
+      ));
 
       const { data: urlData } = supabase.storage
         .from('user-uploads')

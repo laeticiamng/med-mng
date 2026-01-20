@@ -104,18 +104,35 @@ export const PerformanceDashboard: React.FC = () => {
     setIsRunningAudit(true);
     
     try {
-      // Simuler un audit Lighthouse (en production, on utiliserait l'API Lighthouse)
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Calculer les scores basés sur les métriques actuelles
+      // Calculer les scores basés sur les métriques réelles du navigateur
       const performanceScore = performance.getPerformanceScore();
+      
+      // Audit d'accessibilité basé sur le DOM réel
+      const imagesWithoutAlt = document.querySelectorAll('img:not([alt])').length;
+      const buttonsWithoutLabel = document.querySelectorAll('button:not([aria-label]):not(:has(*))').length;
+      const accessibilityPenalty = (imagesWithoutAlt + buttonsWithoutLabel) * 5;
+      const accessibilityScore = Math.max(50, 100 - accessibilityPenalty);
+      
+      // Best practices basées sur les erreurs console (approximation)
+      const hasServiceWorker = 'serviceWorker' in navigator;
+      const hasHttps = window.location.protocol === 'https:';
+      const bestPracticesBase = 70 + (hasServiceWorker ? 15 : 0) + (hasHttps ? 15 : 0);
+      
+      // SEO basé sur les meta tags
+      const hasTitle = document.title.length > 10;
+      const hasDescription = !!document.querySelector('meta[name="description"]');
+      const hasViewport = !!document.querySelector('meta[name="viewport"]');
+      const seoScore = 50 + (hasTitle ? 20 : 0) + (hasDescription ? 20 : 0) + (hasViewport ? 10 : 0);
+      
+      // PWA score
+      const pwaScore = hasServiceWorker ? Math.min(90, performanceScore) : Math.max(30, performanceScore - 40);
       
       setLighthouseScore({
         performance: performanceScore,
-        accessibility: Math.min(100, performanceScore + Math.random() * 10),
-        bestPractices: Math.min(100, performanceScore + Math.random() * 8),
-        seo: Math.min(100, performanceScore + Math.random() * 5),
-        pwa: Math.min(100, performanceScore - Math.random() * 15)
+        accessibility: accessibilityScore,
+        bestPractices: bestPracticesBase,
+        seo: seoScore,
+        pwa: pwaScore
       });
       
       setLastAuditTime(new Date());

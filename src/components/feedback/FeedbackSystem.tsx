@@ -10,6 +10,7 @@ import {
   Heart, ThumbsUp, ThumbsDown, Flag 
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FeedbackSystemProps {
   context?: string;
@@ -38,8 +39,21 @@ export const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Simulation d'envoi de feedback
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Envoi réel vers Supabase via la table user_feedback
+      const { data: userData } = await supabase.auth.getUser();
+      
+      // Utiliser any pour contourner le typage strict car la table vient d'être créée
+      const { error } = await (supabase.from('user_feedback' as any) as any).insert({
+        user_id: userData?.user?.id || null,
+        feedback_type: feedbackType,
+        rating,
+        message,
+        email: email || null,
+        context,
+        created_at: new Date().toISOString()
+      });
+      
+      if (error) throw error;
       
       toast.success('Merci pour votre feedback !', {
         description: 'Nous avons bien reçu votre message et nous vous répondrons rapidement.'
@@ -50,6 +64,7 @@ export const FeedbackSystem: React.FC<FeedbackSystemProps> = ({
       setRating(0);
       setEmail('');
     } catch (error) {
+      console.error('Erreur feedback:', error);
       toast.error('Erreur lors de l\'envoi', {
         description: 'Veuillez réessayer plus tard.'
       });

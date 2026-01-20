@@ -89,8 +89,8 @@ const AdminCompleteProcess = () => {
           }]);
         }
         
+        // Progression basée sur le nombre d'audits terminés
         setProgress(20 + ((i + 1) * 20));
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       setCurrentPhase('completed');

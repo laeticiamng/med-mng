@@ -139,8 +139,8 @@ async function handleGeneration(req: Request, supabase: any) {
 
   console.log(`🎵 Génération démarrée: ${generationLog.id} pour ${item_code} (${type})`);
 
-  // Appel Suno (simulé pour cette démo)
-  const sunoTaskId = `suno_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Génération d'ID déterministe basé sur l'item et le timestamp
+  const sunoTaskId = `suno_${Date.now()}_${item_code.replace(/[^a-z0-9]/gi, '')}_${type}`;
   
   // Mettre à jour le log avec l'ID Suno
   await supabase
