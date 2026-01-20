@@ -158,13 +158,13 @@ class OfflineSyncService {
 
     switch (operation) {
       case 'insert':
-        const { error: insertError } = await supabase.from(table).insert(data);
+        const { error: insertError } = await (supabase as any).from(table).insert(data);
         if (insertError) throw insertError;
         break;
 
       case 'update':
         const { id, ...updateData } = data;
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
           .from(table)
           .update(updateData)
           .eq('id', id);
@@ -172,7 +172,7 @@ class OfflineSyncService {
         break;
 
       case 'delete':
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await (supabase as any)
           .from(table)
           .delete()
           .eq('id', data.id);

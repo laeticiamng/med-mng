@@ -239,15 +239,10 @@ export const ForumDiscussion: React.FC = () => {
         };
       });
 
-      setReplies(formattedReplies.length > 0 ? formattedReplies : [
-        { id: '1', topicId, content: 'Excellente question ! Je recommande d\'utiliser la technique de répétition espacée...', authorId: 'user5', authorName: 'Dr. Sophie M.', createdAt: new Date(Date.now() - 3600000).toISOString(), likes: 12, isLiked: false, isBestAnswer: true },
-        { id: '2', topicId, content: 'J\'ai également eu ce problème. Ce qui m\'a aidé c\'est de...', authorId: 'user6', authorName: 'Thomas L.', createdAt: new Date(Date.now() - 1800000).toISOString(), likes: 5, isLiked: false, isBestAnswer: false }
-      ]);
+      setReplies(formattedReplies);
     } catch (error) {
       console.error('Erreur chargement réponses:', error);
-      setReplies([
-        { id: '1', topicId, content: 'Excellente question !', authorId: 'user5', authorName: 'Dr. Sophie M.', createdAt: new Date(Date.now() - 3600000).toISOString(), likes: 12, isLiked: false, isBestAnswer: true }
-      ]);
+      setReplies([]);
     }
   };
 

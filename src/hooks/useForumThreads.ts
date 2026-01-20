@@ -100,41 +100,8 @@ export function useForumThreads() {
       setThreads(formattedThreads);
     } catch (error) {
       console.error('Error loading threads:', error);
-      // Fallback mock data
-      setThreads([
-        {
-          id: 'mock-1',
-          title: 'Comment mémoriser les items de cardiologie ?',
-          content: 'Je cherche des techniques efficaces pour retenir les items EDN de cardiologie...',
-          author_id: 'user-1',
-          author_name: 'Dr. Martin',
-          category: 'Étude',
-          tags: ['cardiologie', 'mémoire', 'EDN'],
-          views: 156,
-          replies_count: 12,
-          likes_count: 23,
-          is_pinned: true,
-          is_solved: false,
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          last_activity_at: new Date().toISOString()
-        },
-        {
-          id: 'mock-2',
-          title: 'Ressources pour la pneumologie',
-          content: 'Partagez vos meilleures ressources pour réviser la pneumologie !',
-          author_id: 'user-2',
-          author_name: 'Sophie L.',
-          category: 'Ressources',
-          tags: ['pneumologie', 'ressources'],
-          views: 89,
-          replies_count: 8,
-          likes_count: 15,
-          is_pinned: false,
-          is_solved: true,
-          created_at: new Date(Date.now() - 172800000).toISOString(),
-          last_activity_at: new Date(Date.now() - 3600000).toISOString()
-        }
-      ]);
+      // Return empty array on error - no mock data
+      setThreads([]);
     } finally {
       setLoading(false);
     }

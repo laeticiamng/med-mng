@@ -1,5 +1,5 @@
 import React from 'react';
-import { WifiOff, Wifi, RefreshCw, CloudOff, CloudCheck } from 'lucide-react';
+import { WifiOff, Wifi, RefreshCw, CloudOff, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -78,7 +78,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       <div className={cn('flex items-center gap-2', className)}>
         <div className="flex items-center gap-1.5">
           {isOnline ? (
-            <CloudCheck className="h-4 w-4 text-success" />
+            <Cloud className="h-4 w-4 text-success" />
           ) : (
             <CloudOff className="h-4 w-4 text-destructive" />
           )}
@@ -119,7 +119,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         <div className="flex items-center gap-2">
           {isOnline ? (
             <>
-              <CloudCheck className="h-5 w-5 text-success" />
+              <Cloud className="h-5 w-5 text-success" />
               <span className="font-medium text-success">Connecté</span>
             </>
           ) : (
