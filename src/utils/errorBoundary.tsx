@@ -38,8 +38,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     };
   }
 
+  private static errorCounter = 0;
+  
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const errorId = `error_${Date.now()}_${(++ErrorBoundary.errorCounter).toString(36).padStart(6, '0')}`;
     
     return {
       hasError: true,

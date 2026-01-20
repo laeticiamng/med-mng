@@ -366,14 +366,15 @@ async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
   return generatePreciseTimings(sunoAudioId);
 }
 
-// Génération de timings précis avec variabilité naturelle
+// Génération de timings précis avec variabilité déterministe
 function generatePreciseTimings(sunoAudioId: string): LyricsLine[] {
   const baseTimings = generateIntelligentTimings(sunoAudioId);
 
-  // Ajouter une légère variabilité pour un rendu plus naturel
+  // Utiliser un hash déterministe basé sur l'ID pour la variabilité
   return baseTimings.map((line, index) => {
-    // Ajouter une micro-variation aléatoire (-0.2 à +0.2 secondes)
-    const variation = (Math.random() - 0.5) * 0.4;
+    // Variabilité déterministe basée sur l'index et l'ID
+    const seed = sunoAudioId.split('').reduce((acc, char, i) => acc + char.charCodeAt(0) * (i + 1), 0);
+    const variation = (((seed + index * 7) % 100) / 100 - 0.5) * 0.4; // -0.2 à +0.2 secondes
     const adjustedTime = Math.max(0, line.time + variation);
 
     return {

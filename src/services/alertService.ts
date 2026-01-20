@@ -87,9 +87,10 @@ let lastMinuteReset = Date.now();
 let alertHistory: Alert[] = [];
 const MAX_HISTORY = 500;
 
-// Génération d'ID unique
+// Génération d'ID unique déterministe
+let alertCounter = 0;
 function generateAlertId(): string {
-  return `alert_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return `alert_${Date.now()}_${(++alertCounter).toString(36).padStart(6, '0')}`;
 }
 
 // Génération de clé de déduplication

@@ -155,8 +155,9 @@ export class NotFoundError extends AppError {
 }
 
 // Utility functions
+let requestCounter = 0;
 export function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  return `req_${Date.now()}_${(++requestCounter).toString(36).padStart(8, '0')}`;
 }
 
 export function createStandardErrorResponse(

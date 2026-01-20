@@ -35,7 +35,8 @@ interface StudyState {
   reset: () => void;
 }
 
-const generateId = () => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+let sessionCounter = 0;
+const generateId = () => `session-${Date.now()}-${(++sessionCounter).toString(36).padStart(6, '0')}`;
 
 export const useStudyStore = create<StudyState>()(
   persist(
