@@ -1,0 +1,7 @@
+-- Ajouter les colonnes manquantes à pwa_metrics
+ALTER TABLE public.pwa_metrics 
+ADD COLUMN IF NOT EXISTS is_installed BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS is_offline BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS install_date TIMESTAMP WITH TIME ZONE,
+ADD COLUMN IF NOT EXISTS session_duration INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
