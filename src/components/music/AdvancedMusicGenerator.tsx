@@ -94,93 +94,62 @@ export const AdvancedMusicGenerator: React.FC = () => {
   }, []);
 
   const loadMusicLibrary = async () => {
-    // Simulation de données musicales avancées
-    const mockTracks: MusicTrack[] = [
-      {
-        id: '1',
-        title: 'Cardiologie Focus',
-        artist: 'MED-AI',
-        duration: 180,
-        genre: 'LoFi Medical',
-        itemCode: 'IC-042',
-        specialty: 'Cardiologie',
-        isLiked: true,
-        binaural: true,
-        frequency: '40Hz',
-        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
-        lyrics: [
-          'Pression artérielle, rythme cardiaque',
-          'Comprendre les signaux, les pathologies',
-          'IC-042 nous guide vers la maîtrise'
-        ]
-      },
-      {
-        id: '2',
-        title: 'Neurologie Deep Study',
-        artist: 'MED-AI',
-        duration: 240,
-        genre: 'Ambient Medical',
-        itemCode: 'IC-089',
-        specialty: 'Neurologie',
-        isLiked: false,
-        binaural: true,
-        frequency: '8Hz',
-        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
-        lyrics: [
-          'Système nerveux, synapses actives',
-          'Neurotransmetteurs, connexions vitales',
-          'Apprentissage et mémorisation'
-        ]
-      },
-      {
-        id: '3',
-        title: 'Psychiatrie Relaxation',
-        artist: 'MED-AI',
-        duration: 200,
-        genre: 'Healing Sounds',
-        itemCode: 'IC-062',
-        specialty: 'Psychiatrie',
-        isLiked: true,
-        binaural: false,
-        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
-        lyrics: [
-          'Santé mentale, équilibre psychique',
-          'Thérapies douces, guérison holistique',
-          'Bien-être et harmonie intérieure'
-        ]
-      }
-    ];
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const mockPlaylists: Playlist[] = [
-      {
-        id: '1',
-        name: 'Focus Cardiologie',
-        description: 'Musiques optimisées pour l\'étude de la cardiologie',
-        tracks: [mockTracks[0]],
-        isPublic: true,
-        createdAt: '2024-01-15'
-      },
-      {
-        id: '2',
-        name: 'Session Neurologie',
-        description: 'Ambiance parfaite pour l\'apprentissage neurologique',
-        tracks: [mockTracks[1]],
-        isPublic: false,
-        createdAt: '2024-01-12'
-      },
-      {
-        id: '3',
-        name: 'Détente Médicale',
-        description: 'Sons apaisants pour la relaxation après l\'étude',
-        tracks: [mockTracks[2]],
-        isPublic: true,
-        createdAt: '2024-01-10'
-      }
-    ];
+      // Charger les morceaux générés depuis Supabase
+      const { data: songsData, error } = await supabase
+        .from('med_mng_songs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-    setRecentTracks(mockTracks);
-    setPlaylists(mockPlaylists);
-    setCurrentTrack(mockTracks[0]);
+      if (error) throw error;
+
+      const mappedTracks: MusicTrack[] = (songsData || []).map((song: any) => ({
+        id: song.id,
+        title: song.title,
+        artist: 'MED-AI',
+        duration: (song.meta as any)?.duration || 180,
+        genre: (song.meta as any)?.style || 'LoFi Medical',
+        itemCode: (song.meta as any)?.item_code,
+        specialty: (song.meta as any)?.specialty || '',
+        isLiked: (song.meta as any)?.is_favorite || false,
+        binaural: (song.meta as any)?.binaural || false,
+        frequency: (song.meta as any)?.frequency,
+        waveform: Array.from({ length: 100 }, () => Math.random() * 100),
+        lyrics: song.lyrics ? (typeof song.lyrics === 'string' ? (song.lyrics as string).split('\n') : song.lyrics as string[]) : [],
+        audioUrl: (song.meta as any)?.audio_url
+      }));
+
+      if (mappedTracks.length > 0) {
+        setRecentTracks(mappedTracks);
+        setCurrentTrack(mappedTracks[0]);
+      }
+
+      // Charger les playlists depuis Supabase
+      const { data: playlistsData } = await supabase
+        .from('med_mng_playlists')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (playlistsData && playlistsData.length > 0) {
+        const mappedPlaylists: Playlist[] = playlistsData.map(pl => ({
+          id: pl.id,
+          name: pl.name,
+          description: pl.description || '',
+          tracks: [],
+          isPublic: pl.is_public || false,
+          createdAt: pl.created_at
+        }));
+        setPlaylists(mappedPlaylists);
+      }
+    } catch (error) {
+      console.error('Erreur chargement bibliothèque musicale:', error);
+    }
   };
 
   const generateMusic = async () => {

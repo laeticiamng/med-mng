@@ -146,7 +146,30 @@ export const AIChat = () => {
   };
 
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
-    // Mock AI responses based on content
+    // Appeler l'Edge Function pour une vraie réponse IA
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { message: userInput }
+      });
+
+      if (error) throw error;
+
+      if (data?.response) {
+        return {
+          id: Date.now().toString(),
+          content: data.response,
+          role: 'assistant',
+          timestamp: new Date(),
+          type: data.type || 'general',
+          confidence: data.confidence || 85,
+          tools_used: data.toolsUsed
+        };
+      }
+    } catch (error) {
+      console.error('Erreur appel IA:', error);
+    }
+
+    // Fallback: réponse locale intelligente basée sur les mots-clés
     const medicalKeywords = ['cardiologie', 'neurologie', 'diagnostic', 'symptôme', 'traitement', 'pathologie', 'EDN', 'item'];
     const studyKeywords = ['révision', 'planification', 'étude', 'apprendre', 'mémoriser', 'quiz'];
     
@@ -175,7 +198,7 @@ Basé sur votre question concernant **${userInput.slice(0, 50)}...**, voici mon 
 • **Prise en charge** : Protocole thérapeutique approprié
 
 ### Recommandations EDN :
-- Consultez les items IC-220 à IC-235 pour approfondir
+- Consultez les items correspondants pour approfondir
 - Révisez les algorithmes diagnostiques
 - Pratiquez avec des cas cliniques similaires
 
@@ -200,20 +223,12 @@ Pour optimiser vos révisions sur **${userInput.slice(0, 50)}...** :
 
 ⏱️ **Planning** : Je recommande 2-3 sessions de 60 min cette semaine.`;
     } else {
-      responseContent = `Je comprends votre question. Voici quelques pistes de réflexion :
-
-### Analyse de votre demande :
-Vous semblez vous intéresser à **${userInput.slice(0, 30)}...**
+      responseContent = `Je comprends votre question sur **${userInput.slice(0, 30)}...**
 
 ### Suggestions :
 • Précisez votre contexte (révision, cas clinique, recherche)
 • Indiquez le niveau de détail souhaité
 • Mentionnez si c'est pour l'EDN ou la pratique clinique
-
-### Actions possibles :
-- Recherche dans la base de connaissances médicales
-- Génération de quiz personnalisés
-- Création de plans d'étude adaptés
 
 Comment puis-je vous aider plus spécifiquement ?`;
     }
