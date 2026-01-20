@@ -143,11 +143,11 @@ export const AdminContentManager = () => {
       // Persister la validation dans la base de données
       const { error } = await supabase
         .from('edn_items_complete')
-        .upsert({
-          item_code: itemCode,
+        .update({
           is_validated: true,
           validated_at: new Date().toISOString()
-        }, { onConflict: 'item_code' });
+        })
+        .eq('item_code', itemCode);
 
       if (error) throw error;
 

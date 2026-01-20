@@ -52,10 +52,9 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
       });
 
       // Récupérer toutes les données de l'utilisateur
-      const [profileRes, progressRes, activityRes, musicRes, flashcardsRes] = await Promise.all([
+      const [profileRes, progressRes, musicRes, flashcardsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
         supabase.from('user_item_progress').select('*').eq('user_id', userId),
-        supabase.from('user_activity').select('*').eq('user_id', userId).limit(1000),
         supabase.from('user_generated_music').select('*').eq('user_id', userId),
         supabase.from('flashcard_decks').select('*, flashcards(*)').eq('user_id', userId)
       ]);
@@ -66,7 +65,6 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
         userEmail,
         profile: profileRes.data,
         learningProgress: progressRes.data,
-        activityHistory: activityRes.data,
         generatedMusic: musicRes.data,
         flashcards: flashcardsRes.data,
         _meta: {
@@ -111,33 +109,47 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
       // 1. Supprimer les données utilisateur dans les différentes tables
       // Ordre important: supprimer les dépendances d'abord
 
-      // Supprimer les flashcards
-      await supabase.from('flashcard_reviews').delete().eq('flashcard_id', 'in',
-        supabase.from('flashcards').select('id').eq('deck_id', 'in',
-          supabase.from('flashcard_decks').select('id').eq('user_id', userId)
-        )
-      );
-      await supabase.from('flashcards').delete().eq('deck_id', 'in',
-        supabase.from('flashcard_decks').select('id').eq('user_id', userId)
-      );
-      await supabase.from('flashcard_decks').delete().eq('user_id', userId);
+      // Supprimer les flashcards (cascade)
+      const { data: decks } = await supabase
+        .from('flashcard_decks')
+        .select('id')
+        .eq('user_id', userId);
+      
+      if (decks && decks.length > 0) {
+        const deckIds = decks.map(d => d.id);
+        
+        const { data: cards } = await supabase
+          .from('flashcards')
+          .select('id')
+          .in('deck_id', deckIds);
+        
+        if (cards && cards.length > 0) {
+          await supabase.from('flashcard_reviews').delete().in('flashcard_id', cards.map(c => c.id));
+        }
+        
+        await supabase.from('flashcards').delete().in('deck_id', deckIds);
+        await supabase.from('flashcard_decks').delete().eq('user_id', userId);
+      }
 
       // Supprimer les quiz results
       await supabase.from('quiz_results').delete().eq('user_id', userId);
 
-      // Supprimer les favoris et playlists musicales
-      await supabase.from('med_mng_playlist_songs').delete().eq('playlist_id', 'in',
-        supabase.from('med_mng_playlists').select('id').eq('user_id', userId)
-      );
-      await supabase.from('med_mng_playlists').delete().eq('user_id', userId);
+      // Supprimer les playlists musicales (cascade)
+      const { data: playlists } = await supabase
+        .from('med_mng_playlists')
+        .select('id')
+        .eq('user_id', userId);
+      
+      if (playlists && playlists.length > 0) {
+        await supabase.from('med_mng_playlist_songs').delete().in('playlist_id', playlists.map(p => p.id));
+        await supabase.from('med_mng_playlists').delete().eq('user_id', userId);
+      }
+      
       await supabase.from('user_generated_music').delete().eq('user_id', userId);
 
       // Supprimer la progression d'apprentissage
       await supabase.from('user_item_progress').delete().eq('user_id', userId);
       await supabase.from('item_reviews').delete().eq('user_id', userId);
-
-      // Supprimer l'activité
-      await supabase.from('user_activity').delete().eq('user_id', userId);
 
       // Supprimer les préférences
       await supabase.from('user_preferences_extended').delete().eq('user_id', userId);
