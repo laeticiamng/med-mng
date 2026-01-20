@@ -113,8 +113,8 @@ export function useNotifications() {
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          // Utiliser les mock uniquement si pas connecté
-          setNotifications(generateMockNotifications());
+          // Pas d'utilisateur connecté - retourner tableau vide
+          setNotifications([]);
           return;
         }
 

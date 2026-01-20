@@ -450,7 +450,7 @@ export function useGamification() {
         title: '📝 Champion des examens',
         description: 'Compléter 5 examens cette semaine',
         target: 5,
-        current: 0, // Would need to fetch from activity log
+        current: stats?.weeklyGoalProgress || 0,
         xpReward: 400,
         multiplier: 1.75,
         endsAt: weekEnd,

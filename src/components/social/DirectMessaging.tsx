@@ -146,27 +146,8 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
 
         setConversations(Array.from(convMap.values()));
       } else {
-        // Fallback sample data
-        setConversations([
-          {
-            id: 'sample1',
-            participantId: 'sample1',
-            participantName: 'Dr. Sophie Martin',
-            lastMessage: 'Merci pour ton aide sur l\'IC-3 !',
-            lastMessageAt: new Date(Date.now() - 3600000).toISOString(),
-            unreadCount: 2,
-            isOnline: true
-          },
-          {
-            id: 'sample2',
-            participantId: 'sample2',
-            participantName: 'Marc Dubois',
-            lastMessage: 'On se retrouve demain pour réviser ?',
-            lastMessageAt: new Date(Date.now() - 86400000).toISOString(),
-            unreadCount: 0,
-            isOnline: false
-          }
-        ]);
+        // No conversations yet - show empty state
+        setConversations([]);
       }
     } catch (e) {
       console.error('Error loading conversations:', e);
@@ -203,11 +184,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
       }
     } catch (e) {
       console.error('Error loading messages:', e);
-      // Fallback sample messages
-      setMessages([
-        { id: '1', senderId: participantId, content: 'Salut ! Comment avancent tes révisions ?', createdAt: new Date(Date.now() - 7200000).toISOString(), read: true },
-        { id: '2', senderId: currentUser?.id || '', content: 'Ça va bien, je suis sur l\'IC-3 actuellement', createdAt: new Date(Date.now() - 3600000).toISOString(), read: true }
-      ]);
+      setMessages([]);
     }
   };
 
