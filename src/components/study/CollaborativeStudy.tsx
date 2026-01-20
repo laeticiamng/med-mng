@@ -185,27 +185,55 @@ export const CollaborativeStudy: React.FC = () => {
 
   const createSession = async () => {
     try {
-      // Simulation de création de session
-      console.log('Création session:', newSession);
-      
-      const newSessionData: StudySession = {
-        id: Date.now().toString(),
-        session_name: newSession.session_name,
-        description: newSession.description,
-        subject_areas: newSession.subject_areas,
-        max_participants: newSession.max_participants,
-        current_participants: 1,
-        session_type: newSession.session_type,
-        scheduled_start: newSession.scheduled_start,
-        duration_minutes: newSession.duration_minutes,
-        is_active: false,
-        is_public: newSession.is_public,
-        creator_id: 'current-user',
-        created_at: new Date().toISOString()
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Connexion requise",
+          description: "Connectez-vous pour créer une session",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Insérer dans Supabase (table non typée)
+      const { data: newSessionData, error } = await (supabase as any)
+        .from('collaborative_study_sessions')
+        .insert({
+          session_name: newSession.session_name,
+          description: newSession.description,
+          subject_areas: newSession.subject_areas,
+          max_participants: newSession.max_participants,
+          current_participants: 1,
+          session_type: newSession.session_type,
+          scheduled_start: newSession.scheduled_start || null,
+          duration_minutes: newSession.duration_minutes,
+          is_active: false,
+          is_public: newSession.is_public,
+          creator_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const sessionData: StudySession = {
+        id: newSessionData.id,
+        session_name: newSessionData.session_name,
+        description: newSessionData.description,
+        subject_areas: newSessionData.subject_areas || [],
+        max_participants: newSessionData.max_participants,
+        current_participants: newSessionData.current_participants,
+        session_type: newSessionData.session_type,
+        scheduled_start: newSessionData.scheduled_start,
+        duration_minutes: newSessionData.duration_minutes,
+        is_active: newSessionData.is_active,
+        is_public: newSessionData.is_public,
+        creator_id: newSessionData.creator_id,
+        created_at: newSessionData.created_at
       };
 
-      setSessions(prev => [newSessionData, ...prev]);
-      setMySessions(prev => [newSessionData, ...prev]);
+      setSessions(prev => [sessionData, ...prev]);
+      setMySessions(prev => [sessionData, ...prev]);
 
       setNewSession({
         session_name: '',
@@ -221,8 +249,8 @@ export const CollaborativeStudy: React.FC = () => {
       setShowCreateForm(false);
 
       toast({
-        title: "Session créée (simulation)",
-        description: "Votre session d'étude collaborative a été simulée avec succès",
+        title: "Session créée",
+        description: "Votre session d'étude collaborative a été créée avec succès",
       });
     } catch (error) {
       console.error('Erreur création session:', error);
@@ -236,9 +264,23 @@ export const CollaborativeStudy: React.FC = () => {
 
   const joinSession = async (sessionId: string) => {
     try {
-      // Simulation de rejoindre une session
-      console.log('Rejoindre session:', sessionId);
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Connexion requise",
+          description: "Connectez-vous pour rejoindre une session",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Incrémenter le nombre de participants (table non typée)
+      await (supabase as any)
+        .from('collaborative_study_sessions')
+        .update({ current_participants: (sessions.find(s => s.id === sessionId)?.current_participants || 0) + 1 })
+        .eq('id', sessionId);
+
+      // Mise à jour locale
       setSessions(prev => 
         prev.map(session => 
           session.id === sessionId 
@@ -248,7 +290,7 @@ export const CollaborativeStudy: React.FC = () => {
       );
 
       toast({
-        title: "Session rejointe (simulation)",
+        title: "Session rejointe",
         description: "Vous avez rejoint la session d'étude collaborative",
       });
     } catch (error) {
