@@ -213,27 +213,80 @@ export function ExtractionMonitoringDashboard() {
   const pauseExtraction = async (batchId: string) => {
     try {
       toast.info(`Pause de l'extraction ${batchId}...`);
-      // Logique de pause à implémenter
+
+      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'pause_extraction', batch_id: batchId }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Extraction ${batchId} mise en pause`);
+        // Mettre à jour l'état local
+        setRunningExtractions(prev =>
+          prev.map(ext => ext.batch_id === batchId ? { ...ext, status: 'paused' } : ext)
+        );
+        await fetchData();
+      } else {
+        toast.error(data?.error || 'Erreur lors de la pause');
+      }
     } catch (error) {
-      toast.error('Erreur lors de la pause');
+      console.error('Erreur pause extraction:', error);
+      toast.error('Erreur lors de la pause de l\'extraction');
     }
   };
 
   const resumeExtraction = async (batchId: string) => {
     try {
       toast.info(`Reprise de l'extraction ${batchId}...`);
-      // Logique de reprise à implémenter
+
+      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'resume_extraction', batch_id: batchId }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Extraction ${batchId} reprise`);
+        // Mettre à jour l'état local
+        setRunningExtractions(prev =>
+          prev.map(ext => ext.batch_id === batchId ? { ...ext, status: 'running' } : ext)
+        );
+        await fetchData();
+      } else {
+        toast.error(data?.error || 'Erreur lors de la reprise');
+      }
     } catch (error) {
-      toast.error('Erreur lors de la reprise');
+      console.error('Erreur reprise extraction:', error);
+      toast.error('Erreur lors de la reprise de l\'extraction');
     }
   };
 
   const stopExtraction = async (batchId: string) => {
     try {
+      // Demander confirmation
+      const confirmed = window.confirm(`Êtes-vous sûr de vouloir arrêter l'extraction ${batchId} ? Cette action est irréversible.`);
+      if (!confirmed) return;
+
       toast.info(`Arrêt de l'extraction ${batchId}...`);
-      // Logique d'arrêt à implémenter
+
+      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+        body: { action: 'stop_extraction', batch_id: batchId }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Extraction ${batchId} arrêtée`);
+        // Retirer de la liste des extractions en cours
+        setRunningExtractions(prev => prev.filter(ext => ext.batch_id !== batchId));
+        await fetchData();
+      } else {
+        toast.error(data?.error || 'Erreur lors de l\'arrêt');
+      }
     } catch (error) {
-      toast.error('Erreur lors de l\'arrêt');
+      console.error('Erreur arrêt extraction:', error);
+      toast.error('Erreur lors de l\'arrêt de l\'extraction');
     }
   };
 

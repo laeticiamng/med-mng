@@ -7,6 +7,7 @@ import { CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, RotateCcw } from 'l
 import { QuizConfig } from './QuizSelector';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useSRS, ReviewQuality } from '@/hooks/useSRS';
 interface QuizQuestion {
   id: number;
   question: string;
@@ -65,6 +66,7 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
   const [results, setResults] = useState<QuizResults | null>(null);
   const { toast } = useToast();
+  const { recordReview } = useSRS();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -118,10 +120,11 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
     setIsCompleted(true);
     onQuizComplete(quizResults);
     
-    // Sauvegarder en base de données
+    // Sauvegarder en base de données et mettre à jour le SRS
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Sauvegarder le résultat du quiz
         await supabase.from('quiz_results').insert({
           user_id: user.id,
           item_code: itemCode,
@@ -134,9 +137,37 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
           performance: JSON.stringify(quizResults.performance),
           answers: JSON.stringify(quizResults.answers)
         });
+
+        // Intégration SRS: convertir le score du quiz en qualité de révision
+        // Score >= 90% → quality 5 (easy)
+        // Score >= 70% → quality 4 (good)
+        // Score >= 50% → quality 3 (hard but correct)
+        // Score >= 30% → quality 2 (hard, incorrect)
+        // Score < 30% → quality 1 (fail)
+        let srsQuality: ReviewQuality;
+        if (quizResults.score >= 90) {
+          srsQuality = 5;
+        } else if (quizResults.score >= 70) {
+          srsQuality = 4;
+        } else if (quizResults.score >= 50) {
+          srsQuality = 3;
+        } else if (quizResults.score >= 30) {
+          srsQuality = 2;
+        } else {
+          srsQuality = 1;
+        }
+
+        // Enregistrer la révision SRS pour cet item
+        await recordReview(
+          user.id,
+          itemCode,
+          srsQuality,
+          quizResults.timeSpent * 1000, // Convert to ms
+          undefined
+        );
       }
     } catch (error) {
-      console.error('Erreur sauvegarde quiz:', error);
+      console.error('Erreur sauvegarde quiz/SRS:', error);
     }
     
     toast({

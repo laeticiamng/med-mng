@@ -1,11 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
 import { appendEdnCacheParams, getEdnCacheBuster, pickCacheDiagnostics, subscribeEdnCacheBuster } from '@/utils/ednCache';
-
-const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;

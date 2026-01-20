@@ -44,11 +44,20 @@ export const usePlaylists = () => {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      // Ajouter song_count par défaut à 0 car la colonne n'existe pas encore
-      const playlistsWithCount = (data || []).map(playlist => ({
-        ...playlist,
-        song_count: 0
+
+      // Calculer le song_count dynamiquement pour chaque playlist
+      const playlistsWithCount = await Promise.all((data || []).map(async (playlist) => {
+        const { count, error: countError } = await supabase
+          .from('med_mng_playlist_songs')
+          .select('*', { count: 'exact', head: true })
+          .eq('playlist_id', playlist.id);
+
+        return {
+          ...playlist,
+          song_count: countError ? 0 : (count || 0)
+        };
       }));
+
       setPlaylists(playlistsWithCount);
     } catch (error) {
       console.error('Erreur chargement playlists:', error);

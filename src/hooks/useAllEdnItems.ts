@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, getSupabaseHeaders } from '@/lib/supabaseConstants';
 
 interface EdnItem {
   item_code: string;
@@ -17,9 +18,6 @@ interface EdnItemsStats {
   withLyrics: number;
   byCategory: Record<string, number>;
 }
-
-const SUPABASE_URL = "https://yaincoxihiqdksxgrsrk.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU";
 
 // Cache simple en mémoire
 let cachedItems: EdnItem[] | null = null;
@@ -62,13 +60,7 @@ export const useAllEdnItems = () => {
         const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=item_code,title,subtitle,paroles_musicales&order=item_code`;
         const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
         const response = await fetch(url, {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
+          headers: getSupabaseHeaders(true),
           cache: 'no-store'
         });
 

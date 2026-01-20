@@ -21,20 +21,46 @@ export const AdminPanel: React.FC = () => {
       return;
     }
 
+    // Vérifier le rôle admin dans les métadonnées utilisateur
+    const userRole = user.user_metadata?.role || user.app_metadata?.role;
+    const isAdmin = userRole === 'admin' || userRole === 'super_admin' ||
+                   user.email?.endsWith('@med-mng.com') ||
+                   user.email?.endsWith('@admin.med-mng.com');
+
+    if (!isAdmin) {
+      toast.error('Accès non autorisé - Droits administrateur requis');
+      navigate(ROUTE_PATHS.home);
+      return;
+    }
+
     // Log admin access
     logActivity({ activity_type: 'study', metadata: { action: 'admin_panel_access' } });
     console.log('🔐 Accès panel admin autorisé pour:', user.email);
-  }, [user, navigate]);
+  }, [user, navigate, logActivity]);
 
-  if (!user) {
+  // Vérification du rôle admin
+  const userRole = user?.user_metadata?.role || user?.app_metadata?.role;
+  const isAdmin = user && (
+    userRole === 'admin' ||
+    userRole === 'super_admin' ||
+    user.email?.endsWith('@med-mng.com') ||
+    user.email?.endsWith('@admin.med-mng.com')
+  );
+
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Accès restreint</h2>
-          <p className="text-muted-foreground mb-4">Vous devez être connecté pour accéder au panel d'administration</p>
-          <Button onClick={() => navigate(ROUTE_PATHS.medMngLogin)}>
-            Se connecter
+          <p className="text-muted-foreground mb-4">
+            {!user
+              ? 'Vous devez être connecté pour accéder au panel d\'administration'
+              : 'Vous n\'avez pas les droits administrateur nécessaires'
+            }
+          </p>
+          <Button onClick={() => navigate(!user ? ROUTE_PATHS.medMngLogin : ROUTE_PATHS.home)}>
+            {!user ? 'Se connecter' : 'Retour à l\'accueil'}
           </Button>
         </div>
       </div>

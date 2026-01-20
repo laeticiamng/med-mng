@@ -1,5 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { createChatCompletion, ChatCompletionMessage } from '@/openai/chat/completions';
+
+const CHAT_STORAGE_KEY = 'med_mng_chat_sessions';
+const MAX_STORED_SESSIONS = 20; // Limit stored sessions to prevent localStorage overflow
 
 interface ChatSession {
   id: string;
@@ -30,11 +33,68 @@ interface ChatContext {
   specialty?: string;
 }
 
+// Helper to load sessions from localStorage with date parsing
+const loadSessionsFromStorage = (): ChatSession[] => {
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+    // Convert date strings back to Date objects
+    return parsed.map((session: any) => ({
+      ...session,
+      createdAt: new Date(session.createdAt),
+      updatedAt: new Date(session.updatedAt),
+      messages: session.messages.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }))
+    }));
+  } catch (error) {
+    console.error('Error loading chat sessions from storage:', error);
+    return [];
+  }
+};
+
+// Helper to save sessions to localStorage
+const saveSessionsToStorage = (sessions: ChatSession[]) => {
+  try {
+    // Keep only the most recent sessions to prevent overflow
+    const sessionsToSave = sessions.slice(0, MAX_STORED_SESSIONS);
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(sessionsToSave));
+  } catch (error) {
+    console.error('Error saving chat sessions to storage:', error);
+    // If quota exceeded, try removing oldest sessions
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      try {
+        const reducedSessions = sessions.slice(0, Math.floor(MAX_STORED_SESSIONS / 2));
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(reducedSessions));
+      } catch {
+        // Clear storage if still failing
+        localStorage.removeItem(CHAT_STORAGE_KEY);
+      }
+    }
+  }
+};
+
 export const useAIChat = () => {
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  // Initialize sessions from localStorage
+  const [sessions, setSessions] = useState<ChatSession[]>(() => loadSessionsFromStorage());
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Persist sessions to localStorage when they change
+  useEffect(() => {
+    saveSessionsToStorage(sessions);
+  }, [sessions]);
+
+  // Load the most recent session on mount if available
+  useEffect(() => {
+    if (sessions.length > 0 && !currentSession) {
+      setCurrentSession(sessions[0]);
+    }
+  }, []);
 
   // Créer une nouvelle session
   const createSession = useCallback((title: string, context?: ChatContext) => {
@@ -159,9 +219,9 @@ INSTRUCTIONS CONTEXTUELLES :
         content: userMessage.content
       });
 
-      // Appeler l'API OpenAI
+      // Appeler l'API OpenAI - utiliser un modèle existant
       const response = await createChatCompletion({
-        model: options?.model || 'gpt-4.1-2025-04-14',
+        model: options?.model || 'gpt-4o-mini',
         messages: apiMessages,
         max_tokens: options?.maxTokens || 1200,
         temperature: options?.temperature || 0.7,

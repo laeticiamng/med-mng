@@ -337,13 +337,96 @@ class EdnTableauxService {
     progress: number
     recommendation: string
   } {
-    // Pour l'instant, retourne des valeurs par défaut
-    // À améliorer avec un vrai tracking des modifications quotidiennes
+    // Calculer les items complets (>= 80% de score)
+    const completedItems = items.filter(item => item.completeness_score >= 80)
+    const completedToday = completedItems.length
+
+    // Calculer si l'objectif est atteint
+    const targetReached = completedToday >= targetPerDay
+    const progress = Math.min(100, Math.round((completedToday / targetPerDay) * 100))
+
+    // Générer une recommandation
+    let recommendation: string
+    if (targetReached) {
+      recommendation = `🎉 Objectif atteint ! Vous avez complété ${completedToday} items. Continuez sur cette lancée !`
+    } else {
+      const remaining = targetPerDay - completedToday
+      recommendation = `📚 Complétez encore ${remaining} item(s) pour atteindre votre objectif de ${targetPerDay}/jour`
+    }
+
     return {
-      completedToday: 0,
-      targetReached: false,
-      progress: 0,
-      recommendation: `Complétez ${targetPerDay} items aujourd'hui pour atteindre votre objectif`
+      completedToday,
+      targetReached,
+      progress,
+      recommendation
+    }
+  }
+
+  // Calculer la progression quotidienne depuis la base de données avec tracking réel
+  async calculateDailyProgressFromDB(userId: string, targetPerDay: number = 5): Promise<{
+    completedToday: number
+    targetReached: boolean
+    progress: number
+    recommendation: string
+    recentActivity: Array<{ item_code: string; completed_at: string }>
+  }> {
+    try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      // Récupérer les items complétés aujourd'hui depuis user_item_progress
+      const { data: todayProgress, error } = await supabase
+        .from('user_item_progress')
+        .select('item_code, updated_at')
+        .eq('user_id', userId)
+        .gte('mastery_level', 80)
+        .gte('updated_at', today.toISOString())
+        .order('updated_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching daily progress:', error)
+        return {
+          completedToday: 0,
+          targetReached: false,
+          progress: 0,
+          recommendation: `📚 Complétez ${targetPerDay} items aujourd'hui pour atteindre votre objectif`,
+          recentActivity: []
+        }
+      }
+
+      const completedToday = todayProgress?.length || 0
+      const targetReached = completedToday >= targetPerDay
+      const progress = Math.min(100, Math.round((completedToday / targetPerDay) * 100))
+
+      let recommendation: string
+      if (targetReached) {
+        recommendation = `🎉 Objectif atteint ! Vous avez complété ${completedToday} items aujourd'hui.`
+      } else {
+        const remaining = targetPerDay - completedToday
+        recommendation = `📚 Encore ${remaining} item(s) pour atteindre votre objectif quotidien`
+      }
+
+      const recentActivity = (todayProgress || []).slice(0, 5).map(p => ({
+        item_code: p.item_code,
+        completed_at: p.updated_at
+      }))
+
+      return {
+        completedToday,
+        targetReached,
+        progress,
+        recommendation,
+        recentActivity
+      }
+    } catch (error) {
+      console.error('Error calculating daily progress:', error)
+      return {
+        completedToday: 0,
+        targetReached: false,
+        progress: 0,
+        recommendation: `📚 Complétez ${targetPerDay} items aujourd'hui`,
+        recentActivity: []
+      }
     }
   }
 }
