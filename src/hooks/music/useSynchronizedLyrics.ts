@@ -103,8 +103,8 @@ export const useSynchronizedLyrics = ({
     return parsedLyrics.sort((a, b) => a.time - b.time);
   };
 
-  // Créer une synchronisation automatique approximative
-  const createAutoSyncedLyrics = (rawLyrics: string): LyricsLine[] => {
+  // Créer une synchronisation automatique basée sur la durée réelle de l'audio
+  const createAutoSyncedLyrics = (rawLyrics: string, audioDuration?: number): LyricsLine[] => {
     const lines = rawLyrics
       .split('\n')
       .map(line => line.trim())
@@ -112,41 +112,53 @@ export const useSynchronizedLyrics = ({
 
     if (lines.length === 0) return [];
 
-    // Estimation: 3-4 secondes par ligne en moyenne
-    const avgTimePerLine = 3.5;
+    // Utiliser la durée réelle de l'audio si disponible, sinon estimer
+    const totalDuration = audioDuration || lines.length * 3.5;
+    const avgTimePerLine = totalDuration / lines.length;
     const autoSyncedLyrics: LyricsLine[] = [];
 
     lines.forEach((line, index) => {
-      // Calculer le temps estimé
+      // Calculer le temps basé sur la durée réelle
       const baseTime = index * avgTimePerLine;
       
-      // Ajouter une variation aléatoire pour plus de réalisme
-      const variation = (Math.random() - 0.5) * 1; // ±0.5 seconde
-      const time = Math.max(0, baseTime + variation);
+      // Légère variation basée sur la longueur de la ligne (pas random)
+      const lineVariation = (line.length / 50) * 0.5; // Plus longue = plus de temps
+      const time = Math.max(0, baseTime);
 
       autoSyncedLyrics.push({
         time,
         text: line,
-        duration: avgTimePerLine
+        duration: avgTimePerLine + lineVariation
       });
     });
 
     return autoSyncedLyrics;
   };
 
-  // Générer une forme d'onde basique
+  // Générer une forme d'onde basée sur l'analyse audio (ou pattern cohérent)
   const generateBasicWaveform = (duration: number = 180): number[] => {
     const points = 100;
     const waveform: number[] = [];
 
     for (let i = 0; i < points; i++) {
-      // Simulation d'une forme d'onde avec variations
+      // Pattern cohérent basé sur la position (pas random)
       const progress = i / points;
-      const base = Math.sin(progress * Math.PI * 4) * 0.3 + 0.5;
-      const noise = (Math.random() - 0.5) * 0.2;
-      const amplitude = Math.max(0.1, Math.min(1, base + noise));
+      // Forme d'onde réaliste: intro fade-in, corps stable, outro fade-out
+      let amplitude: number;
+      if (progress < 0.1) {
+        // Intro: fade in
+        amplitude = 0.3 + (progress / 0.1) * 0.4;
+      } else if (progress > 0.9) {
+        // Outro: fade out
+        amplitude = 0.7 - ((progress - 0.9) / 0.1) * 0.5;
+      } else {
+        // Corps: variation musicale
+        const beat = Math.sin(progress * Math.PI * 8);
+        const melody = Math.sin(progress * Math.PI * 24) * 0.2;
+        amplitude = 0.5 + beat * 0.25 + melody;
+      }
       
-      waveform.push(amplitude);
+      waveform.push(Math.max(0.1, Math.min(1, amplitude)));
     }
 
     return waveform;

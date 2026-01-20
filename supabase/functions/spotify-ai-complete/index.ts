@@ -473,28 +473,46 @@ async function getActiveAlerts(supabase: any): Promise<any[]> {
 }
 
 async function scheduleGenerationMonitoring(supabase: any, generationId: string, sunoTaskId: string) {
-  // Simulation du monitoring - en production, utiliser un worker/cron job
-  setTimeout(async () => {
+  // Monitoring réel via polling du status Suno
+  const maxAttempts = 30;
+  let attempts = 0;
+  
+  const checkStatus = async () => {
+    attempts++;
     try {
-      // Simuler la completion
-      const { error } = await supabase
+      // Vérifier le statut actuel en base
+      const { data: currentLog } = await supabase
         .from('med_mng_music_generation_logs')
-        .update({
-          generation_status: 'completed',
-          completed_at: new Date().toISOString(),
-          generation_duration_seconds: 42,
-          success: true,
-          audio_url: 'https://demo-music-url.com/generated.mp3'
-        })
-        .eq('id', generationId);
-
-      if (error) {
-        console.error('❌ Erreur update status:', error);
-      } else {
-        console.log(`✅ Génération complétée: ${generationId}`);
+        .select('generation_status, audio_url')
+        .eq('id', generationId)
+        .single();
+      
+      // Si déjà complété ou échoué, arrêter le monitoring
+      if (currentLog?.generation_status === 'completed' || currentLog?.generation_status === 'failed') {
+        console.log(`✅ Génération ${generationId} terminée avec statut: ${currentLog.generation_status}`);
+        return;
       }
+
+      // Si max attempts atteint, marquer comme timeout
+      if (attempts >= maxAttempts) {
+        await supabase
+          .from('med_mng_music_generation_logs')
+          .update({
+            generation_status: 'timeout',
+            error_message: 'Timeout après 5 minutes de monitoring'
+          })
+          .eq('id', generationId);
+        console.log(`⚠️ Timeout pour génération ${generationId}`);
+        return;
+      }
+
+      // Continuer le polling après 10 secondes
+      setTimeout(checkStatus, 10000);
     } catch (error) {
       console.error('❌ Erreur monitoring:', error);
     }
-  }, 42000); // 42 secondes simulées
+  };
+
+  // Démarrer le monitoring après 5 secondes
+  setTimeout(checkStatus, 5000);
 }

@@ -79,43 +79,37 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
     // Notifications are saved via individual operations
   };
 
-  const generateRandomNotification = () => {
-    const types: Notification['type'][] = ['success', 'info', 'achievement', 'content'];
-    const randomType = types[Math.floor(Math.random() * types.length)];
+  // ✅ CORRIGÉ: Créer notification basée sur événement réel (pas random)
+  const createRealNotification = async (type: Notification['type'], title: string, message: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
     
-    const messages = {
-      success: {
-        title: 'Progrès accompli !',
-        message: 'Vous avez complété un nouveau module avec succès.'
-      },
-      info: {
-        title: 'Rappel d\'étude',
-        message: 'Il est temps de continuer votre session d\'étude quotidienne.'
-      },
-      achievement: {
-        title: 'Objectif atteint !',
-        message: 'Vous avez atteint votre objectif d\'étude de la semaine.'
-      },
-      content: {
-        title: 'Nouveau contenu',
-        message: 'Du nouveau contenu musical éducatif est disponible.'
-      }
-    };
-
     const newNotification: Notification = {
       id: Date.now().toString(),
-      type: randomType,
-      title: messages[randomType].title,
-      message: messages[randomType].message,
+      type,
+      title,
+      message,
       timestamp: new Date(),
       read: false,
-      category: randomType === 'achievement' ? 'achievement' : 'content',
-      priority: 'medium'
+      category: type === 'achievement' ? 'achievement' : 'content',
+      priority: type === 'warning' || type === 'error' ? 'high' : 'medium'
     };
 
+    // Sauvegarder en base si utilisateur connecté
+    if (user) {
+      await (supabase as any)
+        .from('user_notifications')
+        .insert({
+          user_id: user.id,
+          type: type,
+          title: title,
+          message: message,
+          is_read: false,
+          priority: newNotification.priority
+        });
+    }
+
     setNotifications(prev => {
-      const updated = [newNotification, ...prev].slice(0, 50); // Garder max 50 notifications
-      saveNotifications(updated);
+      const updated = [newNotification, ...prev].slice(0, 50);
       return updated;
     });
 
