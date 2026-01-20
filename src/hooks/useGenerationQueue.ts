@@ -34,8 +34,10 @@ export const useGenerationQueue = (
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
 
+  const counterRef = useRef(0);
+  
   const addToQueue = useCallback((generation: Omit<QueuedGeneration, 'id' | 'status' | 'addedAt'>): string => {
-    const id = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = `gen_${Date.now()}_${(++counterRef.current).toString(36).padStart(6, '0')}`;
     
     const newGeneration: QueuedGeneration = {
       ...generation,

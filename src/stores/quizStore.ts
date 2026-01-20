@@ -46,7 +46,8 @@ interface QuizState {
   reset: () => void;
 }
 
-const generateId = () => `quiz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+let quizCounter = 0;
+const generateId = () => `quiz-${Date.now()}-${(++quizCounter).toString(36).padStart(6, '0')}`;
 
 export const useQuizStore = create<QuizState>()(
   persist(

@@ -314,7 +314,7 @@ const Generator = () => {
     }
 
     try {
-      const musicId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const musicId = `gen_${Date.now()}_${generatedSong.itemCode.replace(/[^a-zA-Z0-9]/g, '')}`;
       
       const { error } = await supabase
         .from('user_generated_music')

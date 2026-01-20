@@ -88,6 +88,8 @@ export interface PerformanceAnalytics {
   };
 }
 
+let perfSessionCounter = 0;
+
 class PerformanceAnalyticsService {
   private sessionId: string;
 
@@ -96,7 +98,7 @@ class PerformanceAnalyticsService {
   }
 
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `session_${Date.now()}_${(++perfSessionCounter).toString(36).padStart(6, '0')}`;
   }
 
   async recordMetric(metric: Omit<PerformanceMetric, 'session_id'>): Promise<void> {
