@@ -1,8 +1,34 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Simple email sender without external dependency
+async function sendEmail(to: string, subject: string, html: string) {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendApiKey) {
+    console.log("No RESEND_API_KEY, skipping email send");
+    return { id: `mock-${Date.now()}` };
+  }
+  
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "MED-MNG <onboarding@resend.dev>",
+      to: [to],
+      subject,
+      html
+    })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Email send failed: ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -387,15 +413,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Envoyer l'email à chaque destinataire
     const emailPromises = config.recipients.map(async (recipient: string) => {
-      const { data: emailResult, error: emailError } = await resend.emails.send({
-        from: "MED-MNG <onboarding@resend.dev>",
-        to: [recipient],
-        subject: emailSubject,
-        html: emailHTML,
-      });
+      const emailResult = await sendEmail(recipient, emailSubject, emailHTML);
 
-      if (emailError) {
-        throw emailError;
+      if (!emailResult) {
+        throw new Error("Email send failed");
       }
 
       // Si c'est un test A/B, enregistrer le résultat
