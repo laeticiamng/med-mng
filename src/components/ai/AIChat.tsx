@@ -59,22 +59,33 @@ export const AIChat = () => {
     }
   ]);
   
-  const [sessions, setSessions] = useState<ChatSession[]>([
-    {
-      id: '1',
-      title: 'Session de révision cardiologie',
-      created_at: new Date(Date.now() - 86400000),
-      message_count: 15,
-      last_activity: new Date(Date.now() - 3600000)
-    },
-    {
-      id: '2', 
-      title: 'Cas clinique neurologie',
-      created_at: new Date(Date.now() - 172800000),
-      message_count: 8,
-      last_activity: new Date(Date.now() - 7200000)
-    }
-  ]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+
+  // Charger les sessions réelles depuis Supabase
+  useEffect(() => {
+    const loadSessions = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .select('id, title, created_at, updated_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        setSessions(data.map(conv => ({
+          id: conv.id,
+          title: conv.title || 'Nouvelle conversation',
+          created_at: new Date(conv.created_at),
+          message_count: 0, // Sera mis à jour si nécessaire
+          last_activity: new Date(conv.updated_at)
+        })));
+      }
+    };
+    loadSessions();
+  }, []);
 
   const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);

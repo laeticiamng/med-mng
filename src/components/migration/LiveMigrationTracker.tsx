@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FileProgress {
   filename: string;
@@ -20,6 +21,16 @@ interface FileProgress {
   endTime?: number;
 }
 
+interface MigrationReport {
+  id: string;
+  report_type: string;
+  status: string;
+  created_at: string;
+  completed_at: string | null;
+  findings: any;
+  metrics: any;
+}
+
 export const LiveMigrationTracker: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
@@ -27,80 +38,77 @@ export const LiveMigrationTracker: React.FC = () => {
   const [totalProgress, setTotalProgress] = useState(0);
   const [stats, setStats] = useState({
     processed: 0,
-    total: 120,
+    total: 0,
     violations: 0,
     elapsed: 0
   });
 
-  // Simulation d'une migration en cours (en production, se connecterait via WebSocket)
-  useEffect(() => {
-    if (!isRunning) return;
+  // Charger les données réelles depuis Supabase
+  const loadRealMigrationData = useCallback(async () => {
+    try {
+      const { data: reports, error } = await supabase
+        .from('audit_reports')
+        .select('*')
+        .eq('report_type', 'migration')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
-    const simulatedFiles = [
-      'Dashboard.tsx',
-      'Settings.tsx',
-      'UserProfile.tsx',
-      'NotificationPanel.tsx',
-      'SearchBar.tsx',
-      'DataTable.tsx',
-      'ChartWidget.tsx',
-      'SidebarMenu.tsx',
-    ];
+      if (error) throw error;
 
-    let fileIndex = 0;
-    const interval = setInterval(() => {
-      if (fileIndex >= simulatedFiles.length) {
-        setIsRunning(false);
-        clearInterval(interval);
-        return;
-      }
-
-      const filename = simulatedFiles[fileIndex];
-      const violations = Math.floor(Math.random() * 8) + 2;
-      
-      // Marquer le fichier précédent comme complété
-      if (fileIndex > 0) {
-        setFilesProcessed(prev => {
-          const updated = [...prev];
-          const prevFile = updated.find(f => f.filename === simulatedFiles[fileIndex - 1]);
-          if (prevFile) {
-            prevFile.status = 'completed';
-            prevFile.endTime = Date.now();
-            prevFile.violationsFixed = prevFile.violationsFound;
-          }
-          return updated;
+      if (reports && reports.length > 0) {
+        const processedFiles: FileProgress[] = reports.map((report: MigrationReport) => {
+          const metrics = report.metrics as { files_processed?: number; violations_found?: number } | null;
+          return {
+            filename: `Migration ${report.id.slice(0, 8)}`,
+            status: report.status === 'completed' ? 'completed' : 
+                   report.status === 'error' ? 'error' : 'processing',
+            violationsFound: metrics?.violations_found || 0,
+            violationsFixed: report.status === 'completed' ? (metrics?.violations_found || 0) : 0,
+            startTime: new Date(report.created_at).getTime(),
+            endTime: report.completed_at ? new Date(report.completed_at).getTime() : undefined
+          };
         });
+
+        setFilesProcessed(processedFiles);
+        
+        const completedCount = processedFiles.filter(f => f.status === 'completed').length;
+        const totalViolations = processedFiles.reduce((sum, f) => sum + f.violationsFound, 0);
+        
+        setStats({
+          processed: completedCount,
+          total: processedFiles.length,
+          violations: totalViolations,
+          elapsed: processedFiles.reduce((sum, f) => {
+            if (f.startTime && f.endTime) {
+              return sum + (f.endTime - f.startTime) / 1000;
+            }
+            return sum;
+          }, 0)
+        });
+        
+        setTotalProgress(processedFiles.length > 0 ? (completedCount / processedFiles.length) * 100 : 0);
       }
+    } catch (error) {
+      console.error('Erreur chargement migrations:', error);
+    }
+  }, []);
 
-      // Ajouter le nouveau fichier
-      setCurrentFile(filename);
-      setFilesProcessed(prev => [...prev, {
-        filename,
-        status: 'processing',
-        violationsFound: violations,
-        violationsFixed: 0,
-        startTime: Date.now()
-      }]);
-
-      setStats(prev => ({
-        ...prev,
-        processed: fileIndex + 1,
-        violations: prev.violations + violations,
-        elapsed: prev.elapsed + 1.2
-      }));
-
-      setTotalProgress(((fileIndex + 1) / simulatedFiles.length) * 100);
-      fileIndex++;
-    }, 1500);
+  useEffect(() => {
+    loadRealMigrationData();
+    
+    // Polling toutes les 5 secondes si en cours
+    const interval = setInterval(() => {
+      if (isRunning) {
+        loadRealMigrationData();
+      }
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, loadRealMigrationData]);
 
-  const startSimulation = () => {
+  const startMigration = async () => {
     setIsRunning(true);
-    setFilesProcessed([]);
-    setTotalProgress(0);
-    setStats({ processed: 0, total: 120, violations: 0, elapsed: 0 });
+    await loadRealMigrationData();
   };
 
   return (
@@ -120,11 +128,11 @@ export const LiveMigrationTracker: React.FC = () => {
             </div>
             {!isRunning && (
               <button
-                onClick={startSimulation}
+                onClick={startMigration}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
               >
                 <Zap className="w-4 h-4" />
-                Démo Simulation
+                Charger Migrations
               </button>
             )}
           </div>
