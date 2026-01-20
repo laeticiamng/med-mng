@@ -1,9 +1,24 @@
 // Sentry error tracking configuration
 import * as Sentry from '@sentry/react';
 
-// Sentry DSN should be configured via secrets if needed
-// For now, Sentry is optional and disabled by default
-const SENTRY_DSN: string | undefined = undefined;
+// Sentry DSN from environment or secrets
+const SENTRY_DSN: string | undefined = import.meta.env.VITE_SENTRY_DSN;
+
+// Déterminer l'environnement dynamiquement
+const getEnvironment = (): string => {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return 'development';
+    if (hostname.includes('preview') || hostname.includes('lovable.app')) return 'staging';
+    if (hostname === 'med-mng.lovable.app') return 'production';
+  }
+  return import.meta.env.MODE || 'production';
+};
+
+// Version depuis package.json ou build
+const getRelease = (): string => {
+  return import.meta.env.VITE_APP_VERSION || `med-mng@${new Date().toISOString().slice(0, 10)}`;
+};
 
 export function initSentry() {
   if (!SENTRY_DSN) {
@@ -17,15 +32,19 @@ export function initSentry() {
       Sentry.browserTracingIntegration(),
     ],
     // Performance Monitoring
-    tracesSampleRate: 0.1, // 10% of transactions
-    // Environment - use 'production' as default
-    environment: 'production',
-    // Release tracking
-    release: '1.0.0',
+    tracesSampleRate: getEnvironment() === 'production' ? 0.1 : 0.5,
+    // Environment dynamique
+    environment: getEnvironment(),
+    // Release tracking dynamique
+    release: getRelease(),
     // Filter out known non-critical errors
     beforeSend(event) {
       // Filter chunk loading errors (network issues)
       if (event.exception?.values?.[0]?.value?.includes('Loading chunk')) {
+        return null;
+      }
+      // Filter ResizeObserver errors (browser quirk)
+      if (event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
         return null;
       }
       return event;
