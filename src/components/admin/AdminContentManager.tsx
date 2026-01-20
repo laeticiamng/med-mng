@@ -140,16 +140,88 @@ export const AdminContentManager = () => {
 
   const handleValidateItem = async (itemId: string, itemCode: string) => {
     try {
-      // Simplement mettre à jour les données locales pour la démo
-      const updatedItems = items.map(item => 
+      // Persister la validation dans la base de données
+      const { error } = await supabase
+        .from('edn_items_complete')
+        .upsert({
+          item_code: itemCode,
+          is_validated: true,
+          validated_at: new Date().toISOString()
+        }, { onConflict: 'item_code' });
+
+      if (error) throw error;
+
+      // Mettre à jour l'état local après succès
+      const updatedItems = items.map(item =>
         item.id === itemId ? { ...item, is_validated: true } : item
       );
       setItems(updatedItems);
 
-      toast.success('Item validé avec succès');
+      toast.success(`Item ${itemCode} validé avec succès`);
     } catch (error) {
       console.error('Erreur validation:', error);
-      toast.error('Erreur lors de la validation');
+      toast.error('Erreur lors de la validation de l\'item');
+    }
+  };
+
+  const handlePreviewItem = (item: EdnItem) => {
+    // Ouvrir une nouvelle fenêtre/modal pour prévisualiser l'item
+    window.open(`/edn/complete/${item.item_code}`, '_blank');
+  };
+
+  const handleEditItem = async (item: EdnItem) => {
+    // Rediriger vers la page d'édition ou ouvrir un modal d'édition
+    window.open(`/admin/content/edit/${item.item_code}`, '_blank');
+    toast.info(`Ouverture de l'éditeur pour ${item.item_code}`);
+  };
+
+  const handleDeleteItem = async (itemId: string, itemCode: string) => {
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer l'item ${itemCode} ? Cette action est irréversible.`);
+    if (!confirmed) return;
+
+    try {
+      // Supprimer de la table edn_items_immersive
+      const { error: immersiveError } = await supabase
+        .from('edn_items_immersive')
+        .delete()
+        .eq('id', itemId);
+
+      if (immersiveError) throw immersiveError;
+
+      // Supprimer aussi de edn_items_complete si existe
+      await supabase
+        .from('edn_items_complete')
+        .delete()
+        .eq('item_code', itemCode);
+
+      // Mettre à jour l'état local
+      setItems(items.filter(item => item.id !== itemId));
+
+      toast.success(`Item ${itemCode} supprimé avec succès`);
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression de l\'item');
+    }
+  };
+
+  const handleInvalidateItem = async (itemId: string, itemCode: string) => {
+    try {
+      const { error } = await supabase
+        .from('edn_items_complete')
+        .update({ is_validated: false })
+        .eq('item_code', itemCode);
+
+      if (error) throw error;
+
+      const updatedItems = items.map(item =>
+        item.id === itemId ? { ...item, is_validated: false } : item
+      );
+      setItems(updatedItems);
+
+      toast.success(`Validation retirée pour ${itemCode}`);
+    } catch (error) {
+      console.error('Erreur invalidation:', error);
+      toast.error('Erreur lors de l\'invalidation');
     }
   };
 
@@ -299,25 +371,36 @@ export const AdminContentManager = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePreviewItem(item)}>
                             <Eye className="mr-2 h-4 w-4" />
                             Prévisualiser
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditItem(item)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {!item.is_validated && (
-                            <DropdownMenuItem 
+                          {!item.is_validated ? (
+                            <DropdownMenuItem
                               onClick={() => handleValidateItem(item.id, item.item_code)}
                               className="text-success"
                             >
                               <CheckCircle className="mr-2 h-4 w-4" />
                               Valider
                             </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() => handleInvalidateItem(item.id, item.item_code)}
+                              className="text-warning"
+                            >
+                              <AlertTriangle className="mr-2 h-4 w-4" />
+                              Retirer validation
+                            </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteItem(item.id, item.item_code)}
+                            className="text-destructive"
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Supprimer
                           </DropdownMenuItem>

@@ -253,12 +253,13 @@ export const useFlashcards = () => {
 
       if (error) throw error;
 
-      // Update deck card count
+      // Update deck card count - fixed operator precedence bug
+      const currentCount = decks.find(d => d.id === deckId)?.cardCount || 0;
       await supabase
         .from('flashcard_decks')
-        .update({ 
-          card_count: decks.find(d => d.id === deckId)?.cardCount || 0 + 1,
-          updated_at: new Date().toISOString() 
+        .update({
+          card_count: currentCount + 1,
+          updated_at: new Date().toISOString()
         } as any)
         .eq('id', deckId);
 

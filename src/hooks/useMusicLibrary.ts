@@ -71,8 +71,12 @@ export const useMusicLibrary = () => {
         return;
       }
 
-      setSavedMusics((data || []).map((music: any) => ({ ...music, is_favorite: false })));
-      
+      // Charger avec le statut favori depuis la DB
+      setSavedMusics((data || []).map((music: any) => ({
+        ...music,
+        is_favorite: music.is_favorite || false
+      })));
+
       // Convertir au nouveau format Track
       const convertedTracks: Track[] = (data || []).map((music: any) => ({
         id: music.id,
@@ -81,7 +85,7 @@ export const useMusicLibrary = () => {
         type: music.rang === 'A' ? 'rang_a' : music.rang === 'B' ? 'rang_b' : 'mix',
         stream_url: music.audio_url,
         created_at: music.created_at,
-        is_favorite: false // Par défaut, sera géré par la table des favoris
+        is_favorite: music.is_favorite || false // Charger depuis la DB
       }));
       
       setTracks(convertedTracks);
@@ -157,17 +161,33 @@ export const useMusicLibrary = () => {
 
       const newFavoriteStatus = !music.is_favorite;
 
-      setSavedMusics(prev => 
-        prev.map(m => 
-          m.id === musicId 
+      // Persister le statut favori dans la base de données
+      const { error } = await supabase
+        .from('user_generated_music')
+        .update({ is_favorite: newFavoriteStatus })
+        .eq('id', musicId);
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de mettre à jour le favori",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Mettre à jour l'état local seulement après succès DB
+      setSavedMusics(prev =>
+        prev.map(m =>
+          m.id === musicId
             ? { ...m, is_favorite: newFavoriteStatus }
             : m
         )
       );
 
-      setTracks(prev => 
-        prev.map(t => 
-          t.id === musicId 
+      setTracks(prev =>
+        prev.map(t =>
+          t.id === musicId
             ? { ...t, is_favorite: newFavoriteStatus }
             : t
         )
@@ -175,12 +195,17 @@ export const useMusicLibrary = () => {
 
       toast({
         title: newFavoriteStatus ? "⭐ Ajouté aux favoris !" : "Retiré des favoris",
-        description: newFavoriteStatus 
-          ? "Cette musique est maintenant dans vos favoris." 
+        description: newFavoriteStatus
+          ? "Cette musique est maintenant dans vos favoris."
           : "Musique retirée de vos favoris."
       });
-    } catch {
-      // Erreur silencieuse
+    } catch (error) {
+      console.error('Erreur toggle favori:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour",
+        variant: "destructive"
+      });
     }
   };
 

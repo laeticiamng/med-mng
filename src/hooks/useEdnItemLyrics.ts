@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { appendEdnCacheParams, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
-
-const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, getSupabaseHeaders } from '@/lib/supabaseConstants';
 
 interface EdnItemLyrics {
   paroles_musicales?: string[];
@@ -66,11 +64,8 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
         
         const response = await fetch(url, {
           headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            ...getSupabaseHeaders(true),
             'Accept': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
           },
           cache: 'no-store'
         });

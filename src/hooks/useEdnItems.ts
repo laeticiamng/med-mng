@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { appendEdnCacheParams, getEdnCacheBuster, pickCacheDiagnostics, subscribeEdnCacheBuster } from '@/utils/ednCache';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
 
 export interface EdnItemBasic {
   id: string;
@@ -14,8 +15,6 @@ export interface EdnItemBasic {
 }
 
 const ITEMS_PER_PAGE = 50;
-const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
 
 export const useEdnItems = () => {
   const [items, setItems] = useState<EdnItemBasic[]>([]);

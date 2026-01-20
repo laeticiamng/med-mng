@@ -62,15 +62,30 @@ const CACHE_DURATION = 15 * 60 * 1000;
 // Cache en mémoire (pas de localStorage)
 let memoryCache: { data: AnalyticsData | null; timestamp: number } = { data: null, timestamp: 0 };
 
-const loadFromCache = (): { data: AnalyticsData | null; isValid: boolean } => {
+const loadFromCache = (): { data: AnalyticsData | null; isValid: boolean; timestamp: number } => {
   if (memoryCache.data && Date.now() - memoryCache.timestamp < CACHE_DURATION) {
-    return { data: memoryCache.data, isValid: true };
+    return { data: memoryCache.data, isValid: true, timestamp: memoryCache.timestamp };
   }
-  return { data: null, isValid: false };
+  // Return stale data with timestamp even if expired
+  if (memoryCache.data) {
+    return { data: memoryCache.data, isValid: false, timestamp: memoryCache.timestamp };
+  }
+  return { data: null, isValid: false, timestamp: 0 };
 };
 
 const saveToCache = (data: AnalyticsData) => {
   memoryCache = { data, timestamp: Date.now() };
+};
+
+// Formater le temps écoulé depuis le cache
+const formatCacheAge = (timestamp: number): string => {
+  if (!timestamp) return '';
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return `il y a ${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `il y a ${minutes}min`;
+  const hours = Math.floor(minutes / 60);
+  return `il y a ${hours}h${minutes % 60}min`;
 };
 
 export const AdminAnalytics = () => {
@@ -106,6 +121,7 @@ export const AdminAnalytics = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [activeTab, setActiveTab] = useState('overview');
+  const [cacheInfo, setCacheInfo] = useState<{ timestamp: number; isStale: boolean }>({ timestamp: 0, isStale: false });
 
   // Calculer la date de début selon la période
   const getStartDate = useCallback(() => {
@@ -118,11 +134,17 @@ export const AdminAnalytics = () => {
     try {
       // Vérifier le cache seulement si pas de forceRefresh
       if (!forceRefresh) {
-        const { data: cached, isValid } = loadFromCache();
+        const { data: cached, isValid, timestamp } = loadFromCache();
         if (cached && isValid) {
           setAnalyticsData(cached);
+          setCacheInfo({ timestamp, isStale: false });
           setLoading(false);
           return;
+        }
+        // Si données périmées, les afficher quand même avec indicateur
+        if (cached && !isValid) {
+          setAnalyticsData(cached);
+          setCacheInfo({ timestamp, isStale: true });
         }
       }
 
@@ -275,14 +297,16 @@ export const AdminAnalytics = () => {
 
       setAnalyticsData(analyticsResult);
       saveToCache(analyticsResult);
+      setCacheInfo({ timestamp: Date.now(), isStale: false });
 
     } catch (error) {
       console.error('Erreur chargement analytics:', error);
 
       // Fallback au cache même expiré
-      const { data: cached } = loadFromCache();
+      const { data: cached, timestamp } = loadFromCache();
       if (cached) {
         setAnalyticsData(cached);
+        setCacheInfo({ timestamp, isStale: true });
         toast.info('Données du cache utilisées (connexion limitée)');
       } else {
         toast.error('Erreur lors du chargement des analytics');
@@ -433,9 +457,17 @@ export const AdminAnalytics = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Analytics et métriques</h2>
-          <p className="text-muted-foreground">
-            Analysez les performances et l'utilisation de la plateforme
-          </p>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <p>Analysez les performances et l'utilisation de la plateforme</p>
+            {cacheInfo.timestamp > 0 && (
+              <Badge
+                variant={cacheInfo.isStale ? "destructive" : "secondary"}
+                className="text-xs"
+              >
+                {cacheInfo.isStale ? "Donnees perimees - " : "Cache: "}{formatCacheAge(cacheInfo.timestamp)}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Sélecteur de période */}
