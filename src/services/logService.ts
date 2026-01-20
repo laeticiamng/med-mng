@@ -72,9 +72,10 @@ const BUFFER_SIZE = 50;
 const FLUSH_INTERVAL = 5000;
 let flushTimer: NodeJS.Timeout | null = null;
 
-// Génération d'ID unique
+// Génération d'ID unique déterministe
+let logCounter = 0;
 function generateId(): string {
-  return `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return `log_${Date.now()}_${(++logCounter).toString(36).padStart(6, '0')}`;
 }
 
 // Vérifier si le niveau de log est suffisant
