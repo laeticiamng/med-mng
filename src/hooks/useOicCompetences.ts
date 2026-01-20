@@ -45,11 +45,14 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const fetchData = useCallback(async (forceRefresh = false) => {
     // Skip if no itemCode
     if (!itemCode || itemCode.trim() === '') {
+      console.log('[useOicCompetences] No itemCode provided, skipping fetch');
       setCompetences([]);
       setLoading(false);
       setError(null);
       return;
     }
+    
+    console.log(`[useOicCompetences] Fetching for itemCode: ${itemCode}, rang: ${rang}`);
 
     // Normalize itemCode - extract numeric part and pad to 3 digits
     const normalizedCode = itemCode.trim().toUpperCase();
