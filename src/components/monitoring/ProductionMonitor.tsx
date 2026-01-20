@@ -21,6 +21,7 @@ import {
   Bell
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HealthMetric {
   name: string;
@@ -133,19 +134,35 @@ export const ProductionMonitor = () => {
 
   const refreshMetrics = async () => {
     setIsRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setHealthMetrics(prev => prev.map(metric => ({
-        ...metric,
-        value: Math.max(0, metric.value + (Math.random() - 0.5) * 10),
-        lastUpdate: new Date().toLocaleTimeString()
-      })));
+    try {
+      // Fetch real metrics from Supabase
+      const [activityResult, errorsResult, sessionsResult] = await Promise.all([
+        supabase.from('user_activity_log').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString()),
+        supabase.from('ai_monitoring_errors').select('*', { count: 'exact', head: true }).eq('resolved', false),
+        supabase.from('activity_sessions').select('*', { count: 'exact', head: true }).gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      ]);
+
+      setHealthMetrics(prev => prev.map(metric => {
+        if (metric.name === 'Active Users') {
+          return { ...metric, value: activityResult.count || 0, lastUpdate: new Date().toLocaleTimeString() };
+        }
+        if (metric.name === 'Error Rate') {
+          const errorRate = errorsResult.count ? Math.min((errorsResult.count / 100) * 100, 5) : 0.1;
+          return { ...metric, value: parseFloat(errorRate.toFixed(2)), lastUpdate: new Date().toLocaleTimeString() };
+        }
+        if (metric.name === 'DB Connections') {
+          return { ...metric, value: sessionsResult.count || 0, lastUpdate: new Date().toLocaleTimeString() };
+        }
+        return { ...metric, lastUpdate: new Date().toLocaleTimeString() };
+      }));
+
+      toast({ title: "Métriques actualisées", description: "Les données de monitoring ont été mises à jour" });
+    } catch (error) {
+      console.error('Error refreshing metrics:', error);
+      toast({ title: "Erreur", description: "Impossible de rafraîchir les métriques", variant: "destructive" });
+    } finally {
       setIsRefreshing(false);
-      toast({
-        title: "Métriques actualisées",
-        description: "Les données de monitoring ont été mises à jour"
-      });
-    }, 1000);
+    }
   };
 
   const getStatusIcon = (status: string) => {

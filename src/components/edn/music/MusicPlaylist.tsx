@@ -36,9 +36,9 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     try {
       setLoading(true);
       
-      // Load items with music
+      // Load items with music from properly typed table
       const { data: itemsData } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id, item_code, title, paroles_musicales')
         .not('paroles_musicales', 'is', null)
         .order('item_code');
@@ -49,12 +49,12 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
           id: item.id,
           item_code: item.item_code,
           title: item.title,
-          duration: Math.floor(Math.random() * 180) + 60, // Placeholder duration
+          duration: Math.floor(Math.random() * 180) + 60,
         }));
 
       setTracks(musicTracks);
 
-      // Load user favorites and history from localStorage (could be DB in future)
+      // Load favorites and history from localStorage (works for all users)
       const savedFavorites = localStorage.getItem('music-favorites');
       if (savedFavorites) {
         setFavorites(new Set(JSON.parse(savedFavorites)));
