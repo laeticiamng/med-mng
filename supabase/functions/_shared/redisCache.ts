@@ -45,21 +45,21 @@ export class RedisCache {
         return null;
       }
 
-      // Chercher dans le cache (simulation avec table temporaire)
+      // Chercher dans la table cache_entries dédiée
       const cacheKey = `cache:${key}`;
       const { data: cached } = await this.supabase
-        .from("unified_alerts")
-        .select("metadata")
-        .eq("external_id", cacheKey)
+        .from("cache_entries")
+        .select("data, expires_at")
+        .eq("cache_key", cacheKey)
         .single();
 
-      if (!cached?.metadata?.cache_data) {
+      if (!cached?.data) {
         await this.recordMetric(key, "miss", Date.now() - startTime);
         await this.incrementCounter(key, "miss");
         return null;
       }
 
-      const entry: CacheEntry<T> = cached.metadata.cache_data;
+      const entry: CacheEntry<T> = cached.data;
       const expiresAt = new Date(entry.expires_at);
 
       // Vérifier expiration
@@ -109,18 +109,15 @@ export class RedisCache {
 
       const cacheKey = `cache:${key}`;
 
-      // Sauvegarder dans le cache (simulation)
+      // Sauvegarder dans la table cache_entries dédiée
       await this.supabase
-        .from("unified_alerts")
+        .from("cache_entries")
         .upsert({
-          external_id: cacheKey,
-          source: "nvd", // Dummy value
-          severity: "low", // Dummy value
-          title: `Cache: ${key}`,
-          description: "Cache entry",
-          metadata: { cache_data: entry },
-          status: "active",
-        }, { onConflict: "external_id" });
+          cache_key: cacheKey,
+          data: entry,
+          expires_at: expiresAt.toISOString(),
+          created_at: cachedAt.toISOString(),
+        }, { onConflict: "cache_key" });
 
       await this.recordMetric(key, "set", Date.now() - startTime);
       console.log(`[RedisCache] Cache SET for key: ${key}, TTL: ${config.ttl_seconds}s`);
@@ -138,9 +135,9 @@ export class RedisCache {
     try {
       const cacheKey = `cache:${key}`;
       await this.supabase
-        .from("unified_alerts")
+        .from("cache_entries")
         .delete()
-        .eq("external_id", cacheKey);
+        .eq("cache_key", cacheKey);
 
       await this.supabase
         .from(this.TABLE_NAME)

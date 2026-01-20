@@ -334,10 +334,26 @@ class EcosService {
         }
       }
 
+      // Extraire les compétences favorites à partir des métadonnées
+      const competenceCounts = new Map<string, number>();
+      data.forEach(d => {
+        const meta = d.metadata as any;
+        if (meta?.competences && Array.isArray(meta.competences)) {
+          meta.competences.forEach((c: string) => {
+            competenceCounts.set(c, (competenceCounts.get(c) || 0) + 1);
+          });
+        }
+      });
+      
+      const favoriteCompetences = Array.from(competenceCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([c]) => c);
+
       return {
         totalStudied: data.length,
         lastStudied: data[0]?.activity_date || null,
-        favoriteCompetences: [], // À implémenter avec les données de compétences
+        favoriteCompetences,
         studyStreak: streak
       };
     } catch (error) {

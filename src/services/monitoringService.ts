@@ -60,19 +60,41 @@ class MonitoringService {
 
       const responseTime = Date.now() - startTime;
 
+      // Calculer le taux d'erreur réel à partir des logs récents
+      const { data: recentErrors } = await supabase
+        .from('operation_logs')
+        .select('id')
+        .eq('type', 'error')
+        .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
+
+      const { count: totalLogs } = await supabase
+        .from('operation_logs')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
+
+      const errorRate = totalLogs && totalLogs > 0 
+        ? Math.round((recentErrors?.length || 0) / totalLogs * 100) 
+        : 0;
+
+      // Calculer les connexions actives à partir des sessions (table non typée)
+      const { count: activeSessions } = await (supabase as any)
+        .from('streaming_sessions')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date(Date.now() - 30 * 60 * 1000).toISOString());
+
       const health: SystemHealth = {
         status: dbError ? 'degraded' : 'healthy',
         services: {
           database: !dbError,
           edgeFunctions: !!functionTest,
           authentication: !!authTest,
-          storage: true // Assume storage is working if DB is working
+          storage: true
         },
         metrics: {
           responseTime,
-          errorRate: 0, // Would be calculated from recent logs
-          activeConnections: 24, // Mock data
-          memoryUsage: 67.3
+          errorRate,
+          activeConnections: activeSessions || 0,
+          memoryUsage: 0 // Non disponible côté client
         },
         lastCheck: new Date()
       };
