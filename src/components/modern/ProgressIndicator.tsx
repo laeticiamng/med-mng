@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import {
   Trophy, Target, Clock, CheckCircle, 
   TrendingUp, Star, Zap, Award 
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProgressData {
   category: string;
@@ -27,7 +28,7 @@ interface ProgressIndicatorProps {
 }
 
 /**
- * Indicateur de progression moderne avec analytics
+ * Indicateur de progression moderne avec analytics - Données réelles Supabase
  */
 export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   data,
@@ -160,76 +161,135 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 };
 
-// Hook pour données de progression
+// Hook pour données de progression - Données réelles Supabase
 export const useProgressData = () => {
-  const progressData: ProgressData[] = [
-    {
-      category: 'Apprentissage',
-      label: 'Items EDN Complétés',
-      current: 156,
-      target: 370,
-      unit: 'items',
-      icon: Trophy,
-      color: 'bg-primary',
-      trend: 'up',
-      achievements: ['Débutant', 'Régulier', 'Déterminé']
-    },
-    {
-      category: 'Performance',
-      label: 'Taux de Réussite',
-      current: 87,
-      target: 100,
-      unit: '%',
-      icon: Target,
-      color: 'bg-success',
-      trend: 'up',
-      achievements: ['Excellent', 'Progressant']
-    },
-    {
-      category: 'Temps d\'Étude',
-      label: 'Heures Cette Semaine',
-      current: 24,
-      target: 35,
-      unit: 'h',
-      icon: Clock,
-      color: 'bg-warning',
-      trend: 'stable',
-      achievements: ['Assidu', 'Constant']
-    },
-    {
-      category: 'Simulations',
-      label: 'ECOS Réalisés',
-      current: 45,
-      target: 60,
-      unit: 'scénarios',
-      icon: CheckCircle,
-      color: 'bg-accent',
-      trend: 'up',
-      achievements: ['Simulateur', 'Expert']
-    },
-    {
-      category: 'Créativité',
-      label: 'Contenus Générés',
-      current: 28,
-      target: 50,
-      unit: 'créations',
-      icon: Zap,
-      color: 'bg-accent',
-      trend: 'up',
-      achievements: ['Créatif', 'Innovant']
-    },
-    {
-      category: 'Qualité',
-      label: 'Score Moyen',
-      current: 4.6,
-      target: 5.0,
-      unit: '★',
-      icon: Star,
-      color: 'bg-warning',
-      trend: 'up',
-      achievements: ['Qualité', 'Excellence']
-    }
-  ];
+  const [progressData, setProgressData] = useState<ProgressData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProgressData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setDefaultProgressData();
+          return;
+        }
+
+        // Charger les données réelles
+        const { data: itemsData } = await supabase.from('user_item_progress').select('id').eq('user_id', user.id);
+        const { data: sessionsData } = await supabase.from('activity_sessions').select('duration_seconds').eq('user_id', user.id);
+        const { data: songsData } = await supabase.from('med_mng_songs').select('id').eq('user_id', user.id);
+        const { data: quizData } = await supabase.from('quiz_sessions').select('score').eq('user_id', user.id);
+
+        const completedItems = itemsData?.length || 0;
+        const totalStudyMinutes = Math.round((sessionsData?.reduce((sum: number, s: any) => sum + (s.duration_seconds || 0), 0) || 0) / 60);
+        const totalStudyHours = Math.round(totalStudyMinutes / 60);
+        const createdContent = songsData?.length || 0;
+        const quizScores = quizData || [];
+        const avgScore = quizScores.length > 0 
+          ? Math.round(quizScores.reduce((sum: number, q: any) => sum + (q.score || 0), 0) / quizScores.length) 
+          : 0;
+
+        // Déterminer les tendances basées sur les données
+        const getTrend = (current: number, target: number): 'up' | 'down' | 'stable' => {
+          const percentage = (current / target) * 100;
+          if (percentage >= 60) return 'up';
+          if (percentage >= 30) return 'stable';
+          return 'down';
+        };
+
+        const data: ProgressData[] = [
+          {
+            category: 'Apprentissage',
+            label: 'Items EDN Complétés',
+            current: completedItems,
+            target: 370,
+            unit: 'items',
+            icon: Trophy,
+            color: 'bg-primary',
+            trend: getTrend(completedItems, 370),
+            achievements: completedItems >= 50 ? ['Débutant', 'Régulier'] : completedItems >= 10 ? ['Débutant'] : []
+          },
+          {
+            category: 'Performance',
+            label: 'Score Moyen Quiz',
+            current: avgScore,
+            target: 100,
+            unit: '%',
+            icon: Target,
+            color: 'bg-success',
+            trend: avgScore >= 70 ? 'up' : avgScore >= 50 ? 'stable' : 'down',
+            achievements: avgScore >= 80 ? ['Excellent', 'Progressant'] : avgScore >= 60 ? ['Progressant'] : []
+          },
+          {
+            category: 'Temps d\'Étude',
+            label: 'Heures Cette Semaine',
+            current: totalStudyHours,
+            target: 35,
+            unit: 'h',
+            icon: Clock,
+            color: 'bg-warning',
+            trend: getTrend(totalStudyHours, 35),
+            achievements: totalStudyHours >= 20 ? ['Assidu', 'Constant'] : totalStudyHours >= 10 ? ['Assidu'] : []
+          },
+          {
+            category: 'Simulations',
+            label: 'Quiz Réalisés',
+            current: quizScores.length,
+            target: 60,
+            unit: 'quiz',
+            icon: CheckCircle,
+            color: 'bg-accent',
+            trend: getTrend(quizScores.length, 60),
+            achievements: quizScores.length >= 30 ? ['Simulateur', 'Expert'] : quizScores.length >= 10 ? ['Simulateur'] : []
+          },
+          {
+            category: 'Créativité',
+            label: 'Contenus Générés',
+            current: createdContent,
+            target: 50,
+            unit: 'créations',
+            icon: Zap,
+            color: 'bg-accent',
+            trend: getTrend(createdContent, 50),
+            achievements: createdContent >= 20 ? ['Créatif', 'Innovant'] : createdContent >= 5 ? ['Créatif'] : []
+          },
+          {
+            category: 'Qualité',
+            label: 'Score Moyen',
+            current: avgScore >= 80 ? 4.5 : avgScore >= 60 ? 3.5 : 2.5,
+            target: 5.0,
+            unit: '★',
+            icon: Star,
+            color: 'bg-warning',
+            trend: avgScore >= 70 ? 'up' : 'stable',
+            achievements: avgScore >= 80 ? ['Qualité', 'Excellence'] : []
+          }
+        ];
+
+        setProgressData(data);
+      } catch (error) {
+        console.error('Erreur chargement progression:', error);
+        setDefaultProgressData();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const setDefaultProgressData = () => {
+      setProgressData([
+        { category: 'Apprentissage', label: 'Items EDN Complétés', current: 0, target: 370, unit: 'items', icon: Trophy, color: 'bg-primary', trend: 'stable', achievements: [] },
+        { category: 'Performance', label: 'Score Moyen Quiz', current: 0, target: 100, unit: '%', icon: Target, color: 'bg-success', trend: 'stable', achievements: [] },
+        { category: 'Temps d\'Étude', label: 'Heures Cette Semaine', current: 0, target: 35, unit: 'h', icon: Clock, color: 'bg-warning', trend: 'stable', achievements: [] },
+        { category: 'Simulations', label: 'Quiz Réalisés', current: 0, target: 60, unit: 'quiz', icon: CheckCircle, color: 'bg-accent', trend: 'stable', achievements: [] },
+        { category: 'Créativité', label: 'Contenus Générés', current: 0, target: 50, unit: 'créations', icon: Zap, color: 'bg-accent', trend: 'stable', achievements: [] },
+        { category: 'Qualité', label: 'Score Moyen', current: 0, target: 5.0, unit: '★', icon: Star, color: 'bg-warning', trend: 'stable', achievements: [] }
+      ]);
+      setLoading(false);
+    };
+
+    loadProgressData();
+  }, []);
 
   return progressData;
 };
