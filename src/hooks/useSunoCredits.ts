@@ -75,9 +75,9 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      // ✅ Timeout de 10s pour éviter blocage infini
+      // Timeout de 8s pour éviter blocage infini
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout: API indisponible')), 10000);
+        setTimeout(() => reject(new Error('Timeout: API indisponible')), 8000);
       });
       
       const result = await Promise.race([
@@ -114,28 +114,18 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       
       retryCountRef.current = 0;
     } catch (err) {
-      console.error('[useSunoCredits] Erreur:', err);
-      
-      // ✅ Pas de retry si timeout ou fonction non disponible
+      // Log silencieux - pas de spam console
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       const isTimeout = errorMsg.includes('Timeout');
       const isNotFound = errorMsg.includes('404') || errorMsg.includes('NOT_FOUND');
       
-      if (!isTimeout && !isNotFound && retryCountRef.current < maxRetries) {
-        retryCountRef.current++;
-        const delay = Math.pow(2, retryCountRef.current) * 1000;
-        console.log(`[useSunoCredits] Retry ${retryCountRef.current}/${maxRetries} dans ${delay}ms`);
-        setTimeout(() => fetchCredits(true), delay);
-        return;
-      }
-      
-      // ✅ Afficher état "indisponible" au lieu de bloquer
+      // État "indisponible" sans spam - afficher gracieusement
       setState(prev => ({
         ...prev,
-        credits: -1, // Indique "inconnu"
+        credits: prev.isFromCache ? prev.credits : -1,
         loading: false,
-        error: isNotFound ? 'Service non disponible' : errorMsg,
-        isFromCache: false
+        error: null, // Pas d'erreur affichée si service non disponible
+        isFromCache: prev.isFromCache
       }));
     }
   }, []);

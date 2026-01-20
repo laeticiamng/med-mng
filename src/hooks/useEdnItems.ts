@@ -38,14 +38,11 @@ export const useEdnItems = () => {
   ) => {
     // Éviter les appels multiples
     if (fetchingRef.current) {
-      console.log('⏳ useEdnItems - Fetch already in progress, skipping');
       return;
     }
     
     fetchingRef.current = true;
     const start = pageNum * ITEMS_PER_PAGE;
-    
-    console.log('🔄 useEdnItems - Fetching page:', pageNum, 'range:', start, '-', start + ITEMS_PER_PAGE - 1);
     
     try {
       if (!append) {
@@ -57,8 +54,6 @@ export const useEdnItems = () => {
       const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code&offset=${start}&limit=${ITEMS_PER_PAGE}`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, forceRefresh);
       
-      console.log('📤 useEdnItems - Sending fetch request');
-      
       const response = await fetch(url, {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
@@ -69,10 +64,7 @@ export const useEdnItems = () => {
         cache: forceRefresh ? 'no-store' : 'default'
       });
       
-      console.log('📥 useEdnItems - Response status:', response.status);
-      
       if (!mountedRef.current) {
-        console.log('⚠️ useEdnItems - Component unmounted');
         fetchingRef.current = false;
         return;
       }
@@ -84,9 +76,6 @@ export const useEdnItems = () => {
       const data = await response.json();
       const contentRange = response.headers.get('content-range');
       const total = contentRange ? parseInt(contentRange.split('/')[1]) : data.length;
-
-      console.log('✅ useEdnItems - Received:', data.length, 'items, total:', total);
-      console.log('🧾 useEdnItems - Cache headers:', pickCacheDiagnostics(response.headers));
       
       const fetchedItems = data || [];
       
@@ -101,12 +90,6 @@ export const useEdnItems = () => {
         ''
       );
       const signature = `${fetchedItems.length}-${latestUpdatedAt}-${total}`;
-      if (lastSignatureRef.current && lastSignatureRef.current !== signature) {
-        console.log('🔁 useEdnItems - Response diff detected', {
-          previous: lastSignatureRef.current,
-          current: signature
-        });
-      }
       lastSignatureRef.current = signature;
       
       setTotalCount(total);
@@ -117,7 +100,6 @@ export const useEdnItems = () => {
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
-      console.error('❌ useEdnItems - Error:', err);
       fetchingRef.current = false;
       if (!mountedRef.current) return;
       setError(errorMessage);

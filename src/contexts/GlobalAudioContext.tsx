@@ -138,16 +138,12 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
           // Log final des métriques après démarrage réussi
           setTimeout(() => logFinalMetrics(track.url), 1000);
         }).catch((error) => {
-          console.error('❌ Erreur lors du démarrage de la lecture:', error);
-          
           const errorMsg = `${error.name}: ${error.message}`;
           updateMetric(track.url, { errors: [errorMsg] });
           
           if (error.name === 'NotAllowedError') {
-            console.warn('⚠️ Autoplay bloqué - interaction utilisateur requise');
             setIsPlaying(false);
           } else if (error.name === 'NotSupportedError') {
-            console.error('❌ Format audio non supporté');
             setCurrentTrack(null);
           } else {
             setIsPlaying(false);
