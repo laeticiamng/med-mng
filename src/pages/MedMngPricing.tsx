@@ -92,7 +92,7 @@ export const MedMngPricing = () => {
     }
   };
 
-  const handleSimulation = async (planId: string) => {
+  const handlePlanActivation = async (planId: string) => {
     if (!user) {
       toast.error('Veuillez vous connecter');
       navigate(ROUTE_PATHS.medMngLogin);
@@ -110,15 +110,15 @@ export const MedMngPricing = () => {
 
       if (error) throw error;
 
-      toast.success(`🎉 Simulation ${planId} activée !`, {
+      toast.success(`🎉 Plan ${planId} activé !`, {
         description: data?.message || `${data?.quota} générations/mois disponibles`
       });
       
-      // Recharger la page pour voir les changements
+      // Recharger la page pour voir les changements après un court délai UX
       setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
-      console.error('Error activating simulation:', error);
-      toast.error('Erreur lors de l\'activation de la simulation');
+      console.error('Error activating plan:', error);
+      toast.error('Erreur lors de l\'activation du plan');
     } finally {
       setProcessingPlan(null);
     }
@@ -438,7 +438,7 @@ export const MedMngPricing = () => {
                             variant="glass"
                             size="sm"
                             className="w-full"
-                            onClick={() => handleSimulation(plan.id.toLowerCase())}
+                            onClick={() => handlePlanActivation(plan.id.toLowerCase())}
                             disabled={processingPlan === plan.id}
                           >
                             🎭 Simuler ce plan

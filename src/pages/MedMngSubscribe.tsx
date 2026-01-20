@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { CheckCircle, CreditCard } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
 
 const plans = {
   standard: { name: 'Standard', price: 9.99, songs: 30 },
@@ -44,11 +45,9 @@ export const MedMngSubscribe = () => {
 
     setIsProcessing(true);
     try {
-      console.log(`💳 Traitement abonnement ${plan.name} via ${gateway}`);
-
       if (gateway === 'demo') {
-        // Simulation pour la démo
-        await medMngApi.createUserSubscription(planId!, 'demo', 'demo-sub-' + Date.now());
+        // Mode démo - activation via Edge Function réelle
+        await medMngApi.createUserSubscription(planId!, 'demo', `demo-sub-${Date.now()}`);
         
         // Envoyer l'email de confirmation d'abonnement
         const userName = user.user_metadata?.name || user.email?.split('@')[0] || '';
@@ -63,10 +62,21 @@ export const MedMngSubscribe = () => {
         logActivity({ activity_type: 'study', metadata: { action: 'subscription_success', plan: plan.name } });
         toast.success(`🎉 Abonnement ${plan.name} activé ! Vérifiez vos emails.`);
         navigate(ROUTE_PATHS.medMngLibrary);
+      } else if (gateway === 'stripe') {
+        // Stripe réel via Edge Function
+        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+          body: { planId: planId, successUrl: `${window.location.origin}/med-mng/library`, cancelUrl: window.location.href },
+          headers: { Authorization: `Bearer ${session?.access_token}` }
+        });
+        
+        if (error) throw error;
+        if (data?.url) {
+          window.location.href = data.url;
+        }
       } else {
-        // Pour Stripe/PayPal, rediriger vers l'implémentation réelle
-        toast.info(`Redirection vers ${gateway}...`);
-        // Ici vous ajouteriez l'intégration Stripe/PayPal réelle
+        // PayPal - redirection vers implémentation
+        toast.info('PayPal sera bientôt disponible');
       }
 
     } catch (error) {
