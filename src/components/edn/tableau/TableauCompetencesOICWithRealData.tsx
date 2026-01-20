@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
-import { getOicItemParentCandidates } from '@/utils/oicItemParent';
 
 interface OicCompetence {
   objectif_id: string;
@@ -33,17 +32,19 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       return;
     }
 
-    const itemParentCandidates = getOicItemParentCandidates(cleanCode);
-    if (itemParentCandidates.length === 0) {
-      setLoading(false);
-      return;
+    // Normalize to padded 3-digit format
+    let numericPart = cleanCode.toUpperCase();
+    if (numericPart.startsWith('IC-')) {
+      numericPart = numericPart.replace('IC-', '');
+    } else if (numericPart.startsWith('OIC-')) {
+      numericPart = numericPart.replace('OIC-', '').split('-')[0];
     }
+    const paddedItemParent = numericPart.replace(/^0+/, '').padStart(3, '0');
 
     setLoading(true);
     setError(null);
 
-    const itemParentFilter = itemParentCandidates.map(encodeURIComponent).join(',');
-    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=in.(${itemParentFilter})&rang=eq.${rang}&order=objectif_id`;
+    const url = `${SUPABASE_URL}/rest/v1/oic_competences?select=objectif_id,intitule,description,rubrique&item_parent=eq.${paddedItemParent}&rang=eq.${rang}&order=objectif_id`;
     
     fetch(url, {
       headers: {
