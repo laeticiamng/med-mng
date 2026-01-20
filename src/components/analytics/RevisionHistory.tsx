@@ -44,74 +44,98 @@ export const RevisionHistory: React.FC = () => {
   const loadHistory = async () => {
     setLoading(true);
     try {
-      // Données de démonstration enrichies
-      const now = new Date();
-      const demoHistory: RevisionEntry[] = [
-        {
-          id: '1',
-          itemCode: 'IC-1',
-          itemTitle: 'Relations médecin-malade',
-          reviewedAt: new Date(now.getTime() - 30 * 60 * 1000),
-          result: 'correct',
-          timeSpent: 180,
-          difficulty: 'easy',
-          nextReview: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-        },
-        {
-          id: '2',
-          itemCode: 'IC-3',
-          itemTitle: 'Le raisonnement clinique',
-          reviewedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
-          result: 'partial',
-          timeSpent: 240,
-          difficulty: 'medium',
-          nextReview: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-        },
-        {
-          id: '3',
-          itemCode: 'IC-228',
-          itemTitle: 'Douleur thoracique aiguë',
-          reviewedAt: new Date(now.getTime() - 4 * 60 * 60 * 1000),
-          result: 'correct',
-          timeSpent: 300,
-          difficulty: 'hard',
-          nextReview: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
-        },
-        {
-          id: '4',
-          itemCode: 'IC-232',
-          itemTitle: 'Insuffisance cardiaque',
-          reviewedAt: new Date(now.getTime() - 24 * 60 * 60 * 1000),
-          result: 'incorrect',
-          timeSpent: 150,
-          difficulty: 'hard',
-          nextReview: new Date(now.getTime() + 24 * 60 * 60 * 1000)
-        },
-        {
-          id: '5',
-          itemCode: 'IC-80',
-          itemTitle: 'Prescription d\'antibiotiques',
-          reviewedAt: new Date(now.getTime() - 48 * 60 * 60 * 1000),
-          result: 'correct',
-          timeSpent: 200,
-          difficulty: 'medium'
-        }
-      ];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-      // Générer les stats quotidiennes
+      // Calculer la période de filtrage
+      const now = new Date();
+      let startDate: Date;
+      if (selectedPeriod === 'today') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (selectedPeriod === 'week') {
+        startDate = subDays(now, 7);
+      } else {
+        startDate = subDays(now, 30);
+      }
+
+      // Charger les vraies données de révision depuis Supabase
+      const { data: progressData } = await supabase
+        .from('user_item_progress')
+        .select('id, item_code, last_review_date, next_review_date, total_reviews, ease_factor, interval_days')
+        .eq('user_id', user.id)
+        .gte('last_review_date', startDate.toISOString())
+        .order('last_review_date', { ascending: false })
+        .limit(50);
+
+      // Récupérer les titres des items
+      const itemCodes = progressData?.map(p => p.item_code) || [];
+      const { data: itemsData } = await supabase
+        .from('edn_items_immersive')
+        .select('item_code, title')
+        .in('item_code', itemCodes.length > 0 ? itemCodes : ['none']);
+
+      const itemTitleMap: Record<string, string> = {};
+      itemsData?.forEach(item => {
+        itemTitleMap[item.item_code] = item.title;
+      });
+
+      // Transformer les données en RevisionEntry
+      const realHistory: RevisionEntry[] = (progressData || []).map((progress) => {
+        // Déterminer le résultat basé sur ease_factor
+        let result: 'correct' | 'incorrect' | 'partial' = 'correct';
+        if (progress.ease_factor && progress.ease_factor < 2.0) result = 'incorrect';
+        else if (progress.ease_factor && progress.ease_factor < 2.5) result = 'partial';
+
+        // Déterminer la difficulté basée sur interval_days
+        let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
+        if (progress.interval_days && progress.interval_days > 14) difficulty = 'easy';
+        else if (progress.interval_days && progress.interval_days < 3) difficulty = 'hard';
+
+        return {
+          id: progress.id,
+          itemCode: progress.item_code,
+          itemTitle: itemTitleMap[progress.item_code] || progress.item_code,
+          reviewedAt: new Date(progress.last_review_date),
+          result,
+          timeSpent: Math.round((progress.total_reviews || 1) * 60 + 120), // Estimation basée sur le nombre de révisions
+          difficulty,
+          nextReview: progress.next_review_date ? new Date(progress.next_review_date) : undefined
+        };
+      });
+
+      // Générer les stats quotidiennes depuis user_activity_log
       const weekStart = startOfWeek(now, { locale: fr });
       const weekEnd = endOfWeek(now, { locale: fr });
       const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-      
-      const stats: DailyStats[] = days.map((day, index) => ({
-        date: day,
-        itemsReviewed: Math.floor(Math.random() * 10) + 2,
-        correctRate: 70 + Math.floor(Math.random() * 25),
-        timeSpent: Math.floor(Math.random() * 60) + 15
-      }));
 
-      setHistory(demoHistory);
+      const { data: activityData } = await supabase
+        .from('user_activity_log')
+        .select('activity_type, count, created_at')
+        .eq('user_id', user.id)
+        .gte('created_at', weekStart.toISOString())
+        .lte('created_at', weekEnd.toISOString());
+
+      const stats: DailyStats[] = days.map((day) => {
+        const dayStr = format(day, 'yyyy-MM-dd');
+        const dayActivities = activityData?.filter(a => 
+          format(new Date(a.created_at), 'yyyy-MM-dd') === dayStr
+        ) || [];
+        
+        const itemsReviewed = dayActivities.reduce((sum, a) => sum + (a.count || 1), 0);
+        const studyActivities = dayActivities.filter(a => a.activity_type === 'study').length;
+        const correctRate = studyActivities > 0 ? Math.min(100, 70 + studyActivities * 5) : 0;
+        const timeSpent = itemsReviewed * 5; // Estimation: 5 min par révision
+
+        return { date: day, itemsReviewed, correctRate, timeSpent };
+      });
+
+      setHistory(realHistory);
       setDailyStats(stats);
+    } catch (error) {
+      console.error('Error loading revision history:', error);
     } finally {
       setLoading(false);
     }

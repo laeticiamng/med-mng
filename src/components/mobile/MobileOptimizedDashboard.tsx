@@ -32,15 +32,22 @@ export default function MobileOptimizedDashboard() {
 
   const fetchMobileStats = async () => {
     try {
+      // Requêtes parallèles pour les vraies données
       const [
         { data: extractionLogs },
-        { data: integrityReports }
+        { data: integrityReports },
+        { count: profilesCount },
+        { count: recentActivityCount }
       ] = await Promise.all([
         supabase.from('extraction_logs').select('*').limit(50),
-        supabase.from('data_integrity_reports').select('*').limit(20)
+        supabase.from('data_integrity_reports').select('*').limit(20),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('user_activity_log').select('*', { count: 'exact', head: true })
+          .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       ]);
 
-      const uniqueUsers = Math.floor(Math.random() * 25) + 15; // Simulation temporaire
+      // Nombre réel d'utilisateurs depuis profiles
+      const uniqueUsers = profilesCount || 0;
       const successfulExtractions = extractionLogs?.filter(log => log.status === 'completed').length || 0;
       const totalExtractions = extractionLogs?.length || 1;
       const systemHealth = (successfulExtractions / totalExtractions) * 100;
