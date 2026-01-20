@@ -120,26 +120,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           };
         });
 
-      // Si pas de données, utiliser des données par défaut
-      if (sortedUsers.length === 0) {
-        const defaultEntries: LeaderboardEntry[] = Array.from({ length: 10 }, (_, i) => ({
-          id: `default-${i}`,
-          rank: i + 1,
-          previousRank: i + 1,
-          userId: `user${i}`,
-          userName: `Étudiant ${i + 1}`,
-          level: 20 - i,
-          totalXP: 50000 - i * 4000,
-          weeklyXP: 2000 - i * 150,
-          streak: 20 - i * 2,
-          badges: 10 - i,
-          quizScore: 90 - i * 2,
-          studyHours: 80 - i * 5
-        }));
-        setEntries(defaultEntries);
-      } else {
-        setEntries(sortedUsers);
-      }
+      // Set entries - no mock data fallback
+      setEntries(sortedUsers);
 
       // Charger l'utilisateur actuel
       if (user) {
@@ -166,21 +148,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       }
     } catch (error) {
       console.error('Erreur chargement leaderboard:', error);
-      // Fallback avec données par défaut
-      setEntries(Array.from({ length: 10 }, (_, i) => ({
-        id: `fallback-${i}`,
-        rank: i + 1,
-        previousRank: i + 1,
-        userId: `user${i}`,
-        userName: `Étudiant ${i + 1}`,
-        level: 20 - i,
-        totalXP: 50000 - i * 4000,
-        weeklyXP: 2000 - i * 150,
-        streak: 20 - i * 2,
-        badges: 10 - i,
-        quizScore: 90 - i * 2,
-        studyHours: 80 - i * 5
-      })));
+      // No mock data fallback - set empty
+      setEntries([]);
     } finally {
       setLoading(false);
     }

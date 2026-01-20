@@ -135,8 +135,8 @@ export const CommunityHub = () => {
         });
         setPosts(formattedPosts);
       } else {
-        // Fallback to sample posts
-        setPosts(getSamplePosts());
+        // No fallback - just set empty if no data from Supabase
+        setPosts([]);
       }
       
       // Load study groups from Supabase
@@ -158,46 +158,20 @@ export const CommunityHub = () => {
         }));
         setStudyGroups(formattedGroups);
       } else {
-        setStudyGroups(getSampleGroups());
+        // No fallback - just set empty if no data from Supabase  
+        setStudyGroups([]);
       }
     } catch (error) {
       console.error('Error loading community data:', error);
-      setPosts(getSamplePosts());
-      setStudyGroups(getSampleGroups());
+      // No mock data fallback on error
+      setPosts([]);
+      setStudyGroups([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getSamplePosts = (): CommunityPost[] => [
-    {
-      id: '1',
-      author: { id: 'user1', name: 'Dr. Sophie Martin', level: 15, badge: 'Expert' },
-      content: 'Astuce du jour : Pour mémoriser les voies anatomiques, j\'utilise la technique des palais de mémoire. 🧠',
-      type: 'study_tip',
-      category: 'Anatomie',
-      likes: 23, comments: 8, shares: 5,
-      isLiked: false,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      tags: ['mémoire', 'anatomie']
-    },
-    {
-      id: '2',
-      author: { id: 'user2', name: 'Marc Dubois', level: 12, badge: 'Collaborateur' },
-      content: 'Je viens de terminer l\'IC-3 ! Les quiz musicaux m\'ont vraiment aidé.',
-      type: 'achievement',
-      category: 'Réussite',
-      likes: 17, comments: 12, shares: 3,
-      isLiked: true,
-      createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      tags: ['IC-3', 'musique']
-    }
-  ];
-
-  const getSampleGroups = (): StudyGroup[] => [
-    { id: '1', name: 'Cardiologie Avancée', description: 'Groupe d\'étude cardiologie', memberCount: 124, category: 'Spécialité', isPublic: true, lastActivity: new Date().toISOString(), isMember: false },
-    { id: '2', name: 'Préparation ECN 2024', description: 'Préparation aux ECN', memberCount: 89, category: 'Examens', isPublic: true, lastActivity: new Date().toISOString(), isMember: false }
-  ];
+  // Removed getSamplePosts and getSampleGroups - using only real Supabase data
 
   const handleLike = async (postId: string) => {
     const { data: { user } } = await supabase.auth.getUser();

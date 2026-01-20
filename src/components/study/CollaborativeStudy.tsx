@@ -94,29 +94,40 @@ export const CollaborativeStudy: React.FC = () => {
 
   const loadSessions = async () => {
     try {
-      // Utiliser une table existante compatible ou créer une logique de mapping
-      console.log('Chargement des sessions d\'étude...');
-      // Pour le moment, utilisons des données simulées
-      const mockSessions: StudySession[] = [
-        {
-          id: '1',
-          session_name: 'Révision Cardiologie',
-          description: 'Session de révision intensive en cardiologie',
-          subject_areas: ['cardiologie', 'ECG'],
-          max_participants: 5,
-          current_participants: 3,
-          session_type: 'collaborative',
-          scheduled_start: new Date(Date.now() + 3600000).toISOString(),
-          duration_minutes: 90,
-          is_active: false,
-          is_public: true,
-          creator_id: 'user1',
-          created_at: new Date().toISOString()
-        }
-      ];
-      setSessions(mockSessions);
+      // Load real sessions from Supabase study_group_sessions table if it exists
+      const { data, error } = await (supabase as any)
+        .from('study_group_sessions')
+        .select('*')
+        .eq('is_public', true)
+        .order('scheduled_start', { ascending: true })
+        .limit(20);
+
+      if (error) {
+        console.warn('study_group_sessions table not available:', error.message);
+        setSessions([]);
+        return;
+      }
+
+      const formattedSessions: StudySession[] = (data || []).map((session: any) => ({
+        id: session.id,
+        session_name: session.session_name || session.name || 'Session sans nom',
+        description: session.description || '',
+        subject_areas: session.subject_areas || [],
+        max_participants: session.max_participants || 5,
+        current_participants: session.current_participants || 0,
+        session_type: session.session_type || 'collaborative',
+        scheduled_start: session.scheduled_start || new Date().toISOString(),
+        duration_minutes: session.duration_minutes || 60,
+        is_active: session.is_active || false,
+        is_public: session.is_public || true,
+        creator_id: session.creator_id || '',
+        created_at: session.created_at || new Date().toISOString()
+      }));
+
+      setSessions(formattedSessions);
     } catch (error) {
       console.error('Erreur chargement sessions:', error);
+      setSessions([]);
     } finally {
       setLoading(false);
     }
@@ -124,11 +135,43 @@ export const CollaborativeStudy: React.FC = () => {
 
   const loadMySessions = async () => {
     try {
-      // Pour le moment, utilisons des données simulées
-      const mockMySessions: StudySession[] = [];
-      setMySessions(mockMySessions);
+      if (!user) {
+        setMySessions([]);
+        return;
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('study_group_sessions')
+        .select('*')
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('Could not load user sessions:', error.message);
+        setMySessions([]);
+        return;
+      }
+
+      const formattedSessions: StudySession[] = (data || []).map((session: any) => ({
+        id: session.id,
+        session_name: session.session_name || session.name || 'Session sans nom',
+        description: session.description || '',
+        subject_areas: session.subject_areas || [],
+        max_participants: session.max_participants || 5,
+        current_participants: session.current_participants || 0,
+        session_type: session.session_type || 'collaborative',
+        scheduled_start: session.scheduled_start || new Date().toISOString(),
+        duration_minutes: session.duration_minutes || 60,
+        is_active: session.is_active || false,
+        is_public: session.is_public || true,
+        creator_id: session.creator_id || '',
+        created_at: session.created_at || new Date().toISOString()
+      }));
+
+      setMySessions(formattedSessions);
     } catch (error) {
       console.error('Erreur chargement mes sessions:', error);
+      setMySessions([]);
     }
   };
 
