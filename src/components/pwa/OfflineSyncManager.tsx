@@ -29,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { motion, AnimatePresence } from 'framer-motion';
+import { offlineSyncService } from '@/services/offlineSyncService';
 
 interface SyncItem {
   id: string;
@@ -191,8 +192,13 @@ export const OfflineSyncManager: React.FC = () => {
         si.id === item.id ? { ...si, status: 'syncing' as const } : si
       ));
 
-      // Simuler la synchronisation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Synchronisation réelle via le service offline
+      try {
+        const { success, failed } = await offlineSyncService.processSyncQueue();
+        console.log(`[Sync] Processed: ${success} success, ${failed} failed`);
+      } catch (syncError) {
+        console.error('[Sync] Error processing queue:', syncError);
+      }
 
       // Mettre à jour le statut terminé
       setSyncItems(prev => prev.map(si =>
