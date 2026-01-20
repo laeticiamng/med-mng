@@ -18,13 +18,12 @@ export const GenerateLyricsButton = () => {
     setCurrentItem('')
     
     try {
-      // Simuler le progrès pendant la génération
+      // Progrès déterministe pendant la génération
+      let progressStep = 0;
       const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev < 90) return prev + Math.random() * 3
-          return prev
-        })
-      }, 500)
+        progressStep += 1;
+        setProgress(prev => Math.min(90, prev + (90 - prev) * 0.1));
+      }, 500);
 
       const result = await generateAllAdvancedLyrics()
       

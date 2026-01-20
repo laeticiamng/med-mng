@@ -49,15 +49,19 @@ export function useAppliedRecommendations() {
   const getCurrentMetrics = async (): Promise<MetricsSnapshot> => {
     const endDate = new Date();
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 7); // 7 derniers jours
+    startDate.setDate(startDate.getDate() - 7);
 
-    // Récupérer les données réelles des notifications depuis vos tables
-    // Pour l'instant on retourne des métriques simulées basées sur vos données
-    const total = Math.floor(Math.random() * 100) + 50;
-    const successRate = Math.random() * 30 + 70; // entre 70% et 100%
-    const delivered = Math.floor((total * successRate) / 100);
-    const failed = Math.floor(total * 0.05);
-    const pending = total - delivered - failed;
+    // Récupérer les données réelles depuis Supabase
+    const { data: recommendationsData } = await supabase
+      .from('applied_recommendations')
+      .select('status')
+      .gte('created_at', startDate.toISOString());
+
+    const total = recommendationsData?.length || 0;
+    const delivered = recommendationsData?.filter(r => r.status === 'applied').length || 0;
+    const failed = recommendationsData?.filter(r => r.status === 'failed').length || 0;
+    const pending = recommendationsData?.filter(r => r.status === 'pending').length || 0;
+    const successRate = total > 0 ? Math.round((delivered / total) * 100) : 100;
 
     return {
       total,

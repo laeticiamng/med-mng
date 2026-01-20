@@ -45,11 +45,12 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
 
       const musicTracks = (itemsData || [])
         .filter(item => item.paroles_musicales && item.paroles_musicales.length > 0)
-        .map(item => ({
+        .map((item, index) => ({
           id: item.id,
           item_code: item.item_code,
           title: item.title,
-          duration: Math.floor(Math.random() * 180) + 60,
+          // Durée déterministe basée sur la longueur des paroles
+          duration: 60 + ((item.paroles_musicales?.length || 0) * 3) + (index % 60),
         }));
 
       setTracks(musicTracks);

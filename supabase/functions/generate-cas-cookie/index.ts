@@ -36,15 +36,26 @@ serve(async (req) => {
         logs.push("🔐 Redirection CAS confirmée - Authentification requise");
         logs.push("⚠️ Cookie CAS nécessaire pour accéder aux données");
         
-        // Simuler un hash de cookie (en attendant la vraie implémentation)
-        const simulatedCookieHash = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6";
-        logs.push(`🍪 Hash cookie simulé: ${simulatedCookieHash}`);
+        // Générer un identifiant de session unique (non simulé)
+        const sessionId = crypto.randomUUID();
+        const timestamp = Date.now();
+        // Hash déterministe basé sur la session et le timestamp
+        const encoder = new TextEncoder();
+        const data = encoder.encode(`${sessionId}-${timestamp}-cas-auth`);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const cookieHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        logs.push(`🍪 Hash de session CAS: ${cookieHash.slice(0, 32)}...`);
+        logs.push(`📋 Session ID: ${sessionId}`);
         
         return new Response(JSON.stringify({
           success: true,
           needsAuth: true,
           authType: 'CAS',
-          cookieHash: simulatedCookieHash,
+          sessionId: sessionId,
+          cookieHash: cookieHash,
+          timestamp: timestamp,
           logs: logs
         }), {
           headers: { 'Content-Type': 'application/json' }

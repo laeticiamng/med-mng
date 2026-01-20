@@ -153,7 +153,7 @@ export const AIChat = () => {
         
         loadStats(user.id);
       }
-    }, 1500 + Math.random() * 2000);
+    }, 1500); // Délai fixe pour UX fluide
   };
 
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
@@ -193,7 +193,7 @@ export const AIChat = () => {
 
     let responseContent = '';
     let messageType: 'medical' | 'study' | 'general' = 'general';
-    let confidence = 85 + Math.random() * 15;
+    let confidence = 85; // Confiance fixe pour le fallback local
     let toolsUsed: string[] = [];
 
     if (isMedical) {
