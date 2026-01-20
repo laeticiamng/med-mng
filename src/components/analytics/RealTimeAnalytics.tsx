@@ -107,35 +107,32 @@ export const RealTimeAnalytics = () => {
   const fetchRecentActivities = async () => {
     setLoading(true);
     try {
-      // Simulation d'activités récentes
-      const mockActivities: UserActivity[] = [
-        {
-          id: '1',
-          user_id: 'user1',
-          activity_type: 'study_session',
-          item_code: 'IC-1',
-          duration: 1800,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          user_id: 'user2',
-          activity_type: 'quiz_completed',
-          item_code: 'IC-3',
-          duration: 600,
-          created_at: new Date(Date.now() - 300000).toISOString()
-        },
-        {
-          id: '3',
-          user_id: 'user3',
-          activity_type: 'music_generated',
-          item_code: 'IC-2',
-          duration: 240,
-          created_at: new Date(Date.now() - 600000).toISOString()
-        }
-      ];
-      
-      setActivities(mockActivities);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // Charger les activités récentes depuis Supabase
+      const { data: activitiesData, error } = await supabase
+        .from('gamification_activities')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      const mappedActivities: UserActivity[] = (activitiesData || []).map(a => ({
+        id: a.id,
+        user_id: a.user_id,
+        activity_type: a.activity_type,
+        item_code: (a.session_data as any)?.item_code,
+        duration: a.duration || 0,
+        created_at: a.created_at
+      }));
+
+      setActivities(mappedActivities);
     } catch (error) {
       console.error('Erreur lors du chargement des activités:', error);
     } finally {

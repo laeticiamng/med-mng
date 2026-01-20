@@ -87,50 +87,67 @@ export const OfflineSyncManager: React.FC = () => {
   }, []);
 
   const loadSyncData = async () => {
-    // Charger les éléments en attente de sync depuis IndexedDB/localStorage
-    const mockItems: SyncItem[] = [
-      {
-        id: '1',
-        type: 'content',
-        name: 'Items EDN (367 items)',
-        size: 15.2,
-        status: 'synced',
-        lastSynced: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        id: '2',
-        type: 'progress',
-        name: 'Progression utilisateur',
-        size: 0.5,
-        status: 'synced',
-        lastSynced: new Date(Date.now() - 1800000).toISOString()
-      },
-      {
-        id: '3',
-        type: 'quiz',
-        name: 'Résultats quiz (12 sessions)',
-        size: 0.3,
-        status: 'pending'
-      },
-      {
-        id: '4',
-        type: 'notes',
-        name: 'Notes personnelles',
-        size: 0.8,
-        status: 'pending'
-      },
-      {
-        id: '5',
-        type: 'music',
-        name: 'Morceaux téléchargés (5)',
-        size: 45.6,
-        status: 'synced',
-        lastSynced: new Date(Date.now() - 86400000).toISOString()
-      }
-    ];
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Construire la liste des éléments à synchroniser basée sur les données réelles
+      const syncItemsList: SyncItem[] = [];
 
-    setSyncItems(mockItems);
-    setLastFullSync(new Date(Date.now() - 3600000).toISOString());
+      // Contenu EDN
+      const { count: ednCount } = await supabase
+        .from('edn_items_complete')
+        .select('*', { count: 'exact', head: true });
+      
+      syncItemsList.push({
+        id: 'edn-content',
+        type: 'content',
+        name: `Items EDN (${ednCount || 0} items)`,
+        size: (ednCount || 0) * 0.05,
+        status: 'synced',
+        lastSynced: new Date().toISOString()
+      });
+
+      if (user) {
+        // Progression utilisateur
+        const { data: progress } = await supabase
+          .from('user_gamification_stats')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        syncItemsList.push({
+          id: 'user-progress',
+          type: 'progress',
+          name: 'Progression utilisateur',
+          size: 0.1,
+          status: progress ? 'synced' : 'pending',
+          lastSynced: progress?.updated_at
+        });
+
+        // Musiques générées
+        const { count: musicCount } = await supabase
+          .from('med_mng_songs')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if (musicCount && musicCount > 0) {
+          syncItemsList.push({
+            id: 'music-downloads',
+            type: 'music',
+            name: `Morceaux générés (${musicCount})`,
+            size: musicCount * 5,
+            status: 'synced',
+            lastSynced: new Date().toISOString()
+          });
+        }
+      }
+
+      setSyncItems(syncItemsList);
+      setLastFullSync(new Date().toISOString());
+    } catch (error) {
+      console.error('Erreur chargement sync data:', error);
+      setSyncItems([]);
+    }
   };
 
   const estimateStorageUsage = async () => {

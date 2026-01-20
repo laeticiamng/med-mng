@@ -39,61 +39,45 @@ export function useMentorshipMatching() {
   }) => {
     setLoading(true);
     try {
-      // For now, generate sample mentors since table may not exist
-      const sampleMentors: MentorProfile[] = [
-        {
-          id: '1',
-          userId: 'user-1',
-          name: 'Dr. Marie Dupont',
-          specialty: 'Cardiologie',
-          experience: 'doctor',
-          expertise: ['IC-78', 'IC-79', 'IC-80'],
-          availability: 'Disponible les soirs',
-          bio: 'Cardiologue avec 10 ans d\'expérience, passionnée par la transmission du savoir.',
-          rating: 4.8,
-          reviewCount: 24,
-          isAvailable: true,
-        },
-        {
-          id: '2',
-          userId: 'user-2',
-          name: 'Prof. Jean Martin',
-          specialty: 'Neurologie',
-          experience: 'professor',
-          expertise: ['IC-87', 'IC-88', 'IC-89'],
-          availability: 'Weekends uniquement',
-          bio: 'Professeur agrégé de neurologie, auteur de nombreuses publications.',
-          rating: 4.9,
-          reviewCount: 56,
-          isAvailable: true,
-        },
-        {
-          id: '3',
-          userId: 'user-3',
-          name: 'Dr. Sophie Bernard',
-          specialty: 'Pédiatrie',
-          experience: 'resident',
-          expertise: ['IC-23', 'IC-45'],
-          availability: 'Flexible',
-          bio: 'Interne en dernière année, je souhaite aider les étudiants en difficulté.',
-          rating: 4.6,
-          reviewCount: 12,
-          isAvailable: true,
-        },
-      ];
+      // Charger les mentors depuis la table mentor_profiles (non typée)
+      let query = (supabase as any)
+        .from('mentor_profiles')
+        .select('*')
+        .eq('is_available', true);
 
-      // Apply filters
-      let filtered = sampleMentors;
       if (filters?.specialty) {
-        filtered = filtered.filter(m => m.specialty.toLowerCase().includes(filters.specialty!.toLowerCase()));
+        query = query.ilike('specialty', `%${filters.specialty}%`);
       }
       if (filters?.experience) {
-        filtered = filtered.filter(m => m.experience === filters.experience);
+        query = query.eq('experience', filters.experience);
       }
 
-      setMentors(filtered);
+      const { data: mentorsData, error } = await query;
+
+      if (error || !mentorsData) {
+        // Table n'existe pas, retourner liste vide
+        setMentors([]);
+        return;
+      }
+
+      const mappedMentors: MentorProfile[] = mentorsData.map((m: any) => ({
+        id: m.id,
+        userId: m.user_id,
+        name: m.name,
+        specialty: m.specialty,
+        experience: m.experience,
+        expertise: m.expertise || [],
+        availability: m.availability,
+        bio: m.bio,
+        rating: m.rating || 0,
+        reviewCount: m.review_count || 0,
+        isAvailable: m.is_available,
+      }));
+
+      setMentors(mappedMentors);
     } catch (error) {
       console.error('Error loading mentors:', error);
+      setMentors([]);
     } finally {
       setLoading(false);
     }
