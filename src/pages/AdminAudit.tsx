@@ -149,10 +149,9 @@ export default function AdminAudit() {
     const auditTypes: ('database' | 'code' | 'ui_consistency' | 'performance')[] = 
       ['database', 'code', 'ui_consistency', 'performance'];
     
+    // Lancer tous les audits en séquence (sans délai artificiel)
     for (const auditType of auditTypes) {
       await runAudit(auditType);
-      // Attendre un peu entre chaque audit
-      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   };
 

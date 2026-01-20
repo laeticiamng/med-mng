@@ -395,9 +395,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
     setIsGenerating(true);
     
     try {
-      // Simuler un temps de génération réaliste
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Génération immédiate sans délai artificiel
       const content = generateAdvancedContent(selectedFormat);
       setGeneratedContent(content);
       
