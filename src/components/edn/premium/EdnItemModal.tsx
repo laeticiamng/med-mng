@@ -422,42 +422,73 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        {/* Rang A - Affichage complet */}
                         <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                          <h4 className="font-semibold mb-2 text-primary flex items-center gap-2">
+                          <h4 className="font-semibold mb-3 text-primary flex items-center gap-2">
                             <BookOpen className="h-4 w-4" />
                             Rang A - {oicCompetencesA.length} compétences
                           </h4>
                           {oicCompetencesA.length > 0 ? (
-                            <div className="space-y-1 max-h-40 overflow-y-auto">
-                              {oicCompetencesA.slice(0, 5).map((comp, idx) => (
-                                <div key={idx} className="text-xs p-1.5 bg-background/50 rounded">
-                                  <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule?.substring(0, 60)}...
+                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                              {oicCompetencesA.map((comp, idx) => (
+                                <div key={idx} className="p-3 bg-background rounded-lg border border-primary/10 hover:border-primary/30 transition-colors">
+                                  <div className="flex items-start gap-2 mb-2">
+                                    <Badge variant="outline" className="shrink-0 text-xs font-bold text-primary">
+                                      {comp.objectif_id}
+                                    </Badge>
+                                    {comp.rubrique && (
+                                      <Badge variant="secondary" className="shrink-0 text-xs">
+                                        {comp.rubrique}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm font-medium text-foreground mb-1">
+                                    {comp.intitule}
+                                  </p>
+                                  {comp.description && comp.description !== comp.intitule && (
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                      {comp.description}
+                                    </p>
+                                  )}
                                 </div>
                               ))}
-                              {oicCompetencesA.length > 5 && (
-                                <p className="text-xs text-muted-foreground">+{oicCompetencesA.length - 5} autres compétences</p>
-                              )}
                             </div>
                           ) : (
                             <p className="text-sm text-muted-foreground">{loadingA ? 'Chargement...' : 'Aucune compétence'}</p>
                           )}
                         </div>
+
+                        {/* Rang B - Affichage complet */}
                         <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-                          <h4 className="font-semibold mb-2 text-accent-foreground flex items-center gap-2">
+                          <h4 className="font-semibold mb-3 text-accent-foreground flex items-center gap-2">
                             <Brain className="h-4 w-4" />
                             Rang B - {oicCompetencesB.length} compétences
                           </h4>
                           {oicCompetencesB.length > 0 ? (
-                            <div className="space-y-1 max-h-40 overflow-y-auto">
-                              {oicCompetencesB.slice(0, 5).map((comp, idx) => (
-                                <div key={idx} className="text-xs p-1.5 bg-background/50 rounded">
-                                  <span className="font-medium">{comp.objectif_id}</span>: {comp.intitule?.substring(0, 60)}...
+                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                              {oicCompetencesB.map((comp, idx) => (
+                                <div key={idx} className="p-3 bg-background rounded-lg border border-accent/10 hover:border-accent/30 transition-colors">
+                                  <div className="flex items-start gap-2 mb-2">
+                                    <Badge variant="outline" className="shrink-0 text-xs font-bold">
+                                      {comp.objectif_id}
+                                    </Badge>
+                                    {comp.rubrique && (
+                                      <Badge variant="secondary" className="shrink-0 text-xs">
+                                        {comp.rubrique}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm font-medium text-foreground mb-1">
+                                    {comp.intitule}
+                                  </p>
+                                  {comp.description && comp.description !== comp.intitule && (
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                      {comp.description}
+                                    </p>
+                                  )}
                                 </div>
                               ))}
-                              {oicCompetencesB.length > 5 && (
-                                <p className="text-xs text-muted-foreground">+{oicCompetencesB.length - 5} autres compétences</p>
-                              )}
                             </div>
                           ) : (
                             <p className="text-sm text-muted-foreground">{loadingB ? 'Chargement...' : 'Aucune compétence'}</p>

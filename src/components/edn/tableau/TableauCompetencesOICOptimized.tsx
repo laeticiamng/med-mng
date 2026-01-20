@@ -48,33 +48,66 @@ const CompetenceCompactCard: React.FC<{
   return (
     <Card className="hover:shadow-md transition-all duration-200 border border-border/50 group">
       <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform`}>
-            {competence.ordre_affichage || index + 1}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-2">
-              {competence.objectif_id && (
-                <Badge variant="outline" className="text-xs font-medium px-2 py-1">
-                  {competence.objectif_id}
-                </Badge>
-              )}
-              <h4 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${themeColors} text-primary-foreground flex items-center justify-center text-sm font-bold shadow-sm shrink-0`}>
+              {competence.ordre_affichage || index + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                {competence.objectif_id && (
+                  <Badge variant="outline" className="text-xs font-bold">
+                    {competence.objectif_id}
+                  </Badge>
+                )}
+                {competence.rubrique && (
+                  <Badge variant="secondary" className="text-xs">
+                    {competence.rubrique}
+                  </Badge>
+                )}
+              </div>
+              <h4 className="font-semibold text-sm text-foreground mb-2">
                 {competence.titre_complet || competence.intitule}
               </h4>
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-              {competence.sommaire || competence.description?.substring(0, 150) + '...'}
+          </div>
+          
+          {/* Description complète */}
+          {competence.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed pl-13">
+              {competence.description}
             </p>
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            {[competence.sommaire, competence.mecanismes, competence.indications, competence.effets_indesirables]
-              .filter(Boolean)
-              .slice(0, 3)
-              .map((_, idx) => (
-                <div key={idx} className="w-2 h-2 rounded-full bg-primary/60"></div>
-              ))}
-          </div>
+          )}
+          
+          {/* Détails supplémentaires si disponibles */}
+          {(competence.sommaire || competence.mecanismes || competence.indications) && (
+            <div className="mt-2 pl-13 space-y-2 border-l-2 border-primary/20 ml-5">
+              {competence.sommaire && (
+                <div className="pl-3">
+                  <span className="text-xs font-semibold text-primary">Sommaire:</span>
+                  <p className="text-xs text-muted-foreground">{competence.sommaire}</p>
+                </div>
+              )}
+              {competence.mecanismes && (
+                <div className="pl-3">
+                  <span className="text-xs font-semibold text-primary">Mécanismes:</span>
+                  <p className="text-xs text-muted-foreground">{competence.mecanismes}</p>
+                </div>
+              )}
+              {competence.indications && (
+                <div className="pl-3">
+                  <span className="text-xs font-semibold text-primary">Indications:</span>
+                  <p className="text-xs text-muted-foreground">{competence.indications}</p>
+                </div>
+              )}
+              {competence.effets_indesirables && (
+                <div className="pl-3">
+                  <span className="text-xs font-semibold text-warning">Effets indésirables:</span>
+                  <p className="text-xs text-muted-foreground">{competence.effets_indesirables}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
