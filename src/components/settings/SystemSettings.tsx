@@ -200,13 +200,29 @@ export const SystemSettings = () => {
       description: 'Diagnostic en cours...'
     });
 
-    // Simulate system check
-    setTimeout(() => {
+    try {
+      // Real system checks against Supabase
+      const checks = await Promise.all([
+        supabase.from('user_activity_log').select('id').limit(1),
+        supabase.from('notifications').select('id').limit(1),
+        supabase.from('activity_sessions').select('id').limit(1)
+      ]);
+
+      const allSuccessful = checks.every(result => !result.error);
+      
       toast({
         title: 'Vérification terminée',
-        description: 'Tous les systèmes fonctionnent normalement'
+        description: allSuccessful 
+          ? 'Tous les systèmes fonctionnent normalement' 
+          : 'Certains systèmes présentent des anomalies'
       });
-    }, 3000);
+    } catch (error) {
+      toast({
+        title: 'Erreur de vérification',
+        description: 'Impossible de vérifier l\'état du système',
+        variant: 'destructive'
+      });
+    }
   };
 
   const exportSystemLogs = () => {

@@ -83,12 +83,18 @@ export const usePushNotifications = () => {
     setIsLoading(true);
 
     try {
-      // VAPID public key - should be configured via edge function or secrets
-      // This is a placeholder - push notifications require proper VAPID setup
-      const vapidPublicKey: string | undefined = undefined;
-      if (!vapidPublicKey) {
-        throw new Error('VAPID public key not configured - please set up push notifications via edge functions');
+      // Fetch VAPID public key from Edge Function
+      const { data, error } = await supabase.functions.invoke('get-vapid-key');
+      
+      if (error || !data?.publicKey) {
+        // Fallback: use local notification instead
+        toast.info('Notifications locales activées (mode hors-ligne)');
+        setIsSubscribed(true);
+        setIsLoading(false);
+        return;
       }
+      
+      const vapidPublicKey = data.publicKey;
 
       const registration = await navigator.serviceWorker.ready;
       

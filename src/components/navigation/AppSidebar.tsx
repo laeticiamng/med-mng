@@ -145,12 +145,35 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   }, [loadStats]);
 
   useEffect(() => {
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      setUnreadNotifications(Math.floor(Math.random() * 10));
-      setOnlineUsers(Math.floor(Math.random() * 200) + 100);
-    }, 10000);
+    // Load real notifications count from Supabase
+    const loadRealData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Get unread notifications count
+          const { count: notifCount } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('is_read', false);
+          
+          setUnreadNotifications(notifCount || 0);
+        }
+        
+        // Get online users from presence or activity
+        const { count: activeCount } = await supabase
+          .from('user_activity_log')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString());
+        
+        setOnlineUsers(activeCount || 0);
+      } catch (error) {
+        console.error('Error loading sidebar data:', error);
+      }
+    };
 
+    loadRealData();
+    const interval = setInterval(loadRealData, 30000);
     return () => clearInterval(interval);
   }, []);
 
