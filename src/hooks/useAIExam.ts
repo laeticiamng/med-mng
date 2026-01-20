@@ -42,9 +42,9 @@ export const useAIExam = () => {
   ): Promise<AIQuestion[]> => {
     setGenerating(true);
     try {
-      // Fetch item details first
+      // Use edn_items_complete which is properly typed (not edn_items_immersive)
       const { data: items, error: itemsError } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .in('item_code', itemCodes);
 
@@ -131,9 +131,9 @@ export const useAIExam = () => {
       let itemCodes = specificItems;
       
       if (!itemCodes || itemCodes.length === 0) {
-        // Get all items first
+        // Use edn_items_complete which is properly typed
         const { data: allItems } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('item_code, title')
           .limit(500);
 

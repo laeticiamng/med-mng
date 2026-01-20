@@ -81,7 +81,7 @@ export const AchievementSystem = () => {
 
       // Charger les user_badges pour voir lesquels sont débloqués
       const { data: { user } } = await supabase.auth.getUser();
-      let unlockedIds: string[] = [];
+      let unlockedMap: Map<string, string> = new Map();
       
       if (user) {
         const { data: userBadges } = await supabase
@@ -89,7 +89,9 @@ export const AchievementSystem = () => {
           .select('badge_id, earned_at')
           .eq('user_id', user.id);
         
-        unlockedIds = (userBadges || []).map(ub => ub.badge_id);
+        (userBadges || []).forEach(ub => {
+          unlockedMap.set(ub.badge_id, ub.earned_at);
+        });
       }
 
       // Mapper les données Supabase vers l'interface Achievement
@@ -101,8 +103,8 @@ export const AchievementSystem = () => {
         rarity: a.rarity as 'common' | 'rare' | 'epic' | 'legendary',
         category: a.category,
         points: (a.rewards as any)?.xp || 10,
-        unlocked: unlockedIds.includes(a.id),
-        unlockedAt: unlockedIds.includes(a.id) ? new Date().toISOString() : undefined,
+        unlocked: unlockedMap.has(a.id),
+        unlockedAt: unlockedMap.get(a.id) || undefined,
         rewards: a.rewards as any
       }));
 

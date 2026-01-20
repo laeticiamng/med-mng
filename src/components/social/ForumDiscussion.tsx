@@ -168,23 +168,11 @@ export const ForumDiscussion: React.FC = () => {
         };
       });
 
-      // Si pas de données, utiliser des données par défaut
-      if (formattedTopics.length === 0) {
-        setTopics([
-          { id: '1', title: 'Comment mémoriser efficacement les items de cardiologie ?', content: 'Je cherche des techniques pour mieux retenir les items...', category: 'methode', tags: ['mémorisation', 'cardiologie'], authorId: 'user1', authorName: 'Marie D.', createdAt: new Date(Date.now() - 3600000 * 2).toISOString(), updatedAt: new Date(Date.now() - 1800000).toISOString(), views: 234, replies: 12, likes: 45, isPinned: true, isSolved: false, isLiked: false, isBookmarked: false },
-          { id: '2', title: 'Question sur IC-3 : critères diagnostiques', content: 'Quelqu\'un peut m\'expliquer les critères de...', category: 'cardiologie', tags: ['IC-3', 'diagnostic'], authorId: 'user2', authorName: 'Lucas B.', createdAt: new Date(Date.now() - 86400000).toISOString(), updatedAt: new Date(Date.now() - 43200000).toISOString(), views: 156, replies: 8, likes: 23, isPinned: false, isSolved: true, isLiked: false, isBookmarked: false },
-          { id: '3', title: 'Retour d\'expérience ECOS blancs 2024', content: 'Je voulais partager mon retour sur les ECOS...', category: 'edn', tags: ['ECOS', '2024'], authorId: 'user3', authorName: 'Emma P.', createdAt: new Date(Date.now() - 172800000).toISOString(), updatedAt: new Date(Date.now() - 86400000).toISOString(), views: 567, replies: 34, likes: 89, isPinned: false, isSolved: false, isLiked: false, isBookmarked: false }
-        ]);
-      } else {
-        setTopics(formattedTopics);
-      }
+      setTopics(formattedTopics);
     } catch (error) {
       console.error('Erreur chargement topics:', error);
-      // Fallback avec données par défaut
-      setTopics([
-        { id: '1', title: 'Comment mémoriser efficacement les items de cardiologie ?', content: 'Je cherche des techniques pour mieux retenir les items...', category: 'methode', tags: ['mémorisation', 'cardiologie'], authorId: 'user1', authorName: 'Marie D.', createdAt: new Date(Date.now() - 3600000 * 2).toISOString(), updatedAt: new Date(Date.now() - 1800000).toISOString(), views: 234, replies: 12, likes: 45, isPinned: true, isSolved: false, isLiked: false, isBookmarked: false },
-        { id: '2', title: 'Question sur IC-3 : critères diagnostiques', content: 'Quelqu\'un peut m\'expliquer les critères de...', category: 'cardiologie', tags: ['IC-3', 'diagnostic'], authorId: 'user2', authorName: 'Lucas B.', createdAt: new Date(Date.now() - 86400000).toISOString(), updatedAt: new Date(Date.now() - 43200000).toISOString(), views: 156, replies: 8, likes: 23, isPinned: false, isSolved: true, isLiked: false, isBookmarked: false }
-      ]);
+      // No mock data - show empty state for real data integrity
+      setTopics([]);
     } finally {
       setLoading(false);
     }

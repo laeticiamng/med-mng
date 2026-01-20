@@ -26,8 +26,10 @@ import {
   Share2,
   Download,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
   id: string;
@@ -241,15 +243,50 @@ Comment puis-je vous assister aujourd'hui ?`,
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userQuery = currentMessage;
     setCurrentMessage('');
     setIsTyping(true);
 
-    // Simulation de réponse IA
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(currentMessage, currentContext);
+    try {
+      // Call the real AI tutor Edge Function
+      const { data, error } = await supabase.functions.invoke('ai-tutor', {
+        body: {
+          message: userQuery,
+          context: currentContext,
+          history: messages.slice(-6).map(m => ({
+            role: m.type === 'user' ? 'user' : 'assistant',
+            content: m.content
+          }))
+        }
+      });
+
+      if (error) throw error;
+
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: data?.response || 'Désolé, je n\'ai pas pu générer de réponse.',
+        timestamp: new Date(),
+        metadata: {
+          confidence: data?.confidence || 0.92,
+          sources: data?.sources || ['Base de connaissances EDN'],
+          suggestions: data?.suggestions || [
+            'Générer un QCM',
+            'Créer un plan d\'étude',
+            'Expliquer plus en détail'
+          ]
+        }
+      };
+
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Erreur AI:', error);
+      // Fallback to local response generation
+      const aiResponse = generateAIResponse(userQuery, currentContext);
+      setMessages(prev => [...prev, aiResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const generateAIResponse = (userInput: string, context: string): ChatMessage => {
