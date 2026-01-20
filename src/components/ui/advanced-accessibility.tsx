@@ -109,13 +109,11 @@ export const AdvancedAccessibility: React.FC = () => {
   const runAccessibilityAudit = async () => {
     setIsScanning(true);
     
-    // Simulate accessibility audit
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     const issues: AccessibilityReport['issues'] = [];
     let score = 100;
 
-    // Check for common accessibility issues
+    // Audit réel des éléments DOM
+    // 1. Images sans alt
     const images = document.querySelectorAll('img:not([alt])');
     if (images.length > 0) {
       issues.push({
@@ -123,9 +121,10 @@ export const AdvancedAccessibility: React.FC = () => {
         message: `${images.length} image(s) sans attribut alt`,
         element: 'img'
       });
-      score -= 20;
+      score -= Math.min(20, images.length * 5);
     }
 
+    // 2. Boutons sans texte accessible
     const buttons = document.querySelectorAll('button:not([aria-label]):not([title])');
     const buttonTexts = Array.from(buttons).filter(btn => !btn.textContent?.trim());
     if (buttonTexts.length > 0) {
@@ -134,10 +133,12 @@ export const AdvancedAccessibility: React.FC = () => {
         message: `${buttonTexts.length} bouton(s) sans texte accessible`,
         element: 'button'
       });
-      score -= 10;
+      score -= Math.min(10, buttonTexts.length * 2);
     }
 
+    // 3. Structure des titres
     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const h1Count = document.querySelectorAll('h1').length;
     if (headings.length === 0) {
       issues.push({
         level: 'warning',
@@ -145,16 +146,76 @@ export const AdvancedAccessibility: React.FC = () => {
         element: 'heading'
       });
       score -= 15;
+    } else if (h1Count > 1) {
+      issues.push({
+        level: 'warning',
+        message: `${h1Count} balises H1 détectées (recommandé: 1 seule)`,
+        element: 'h1'
+      });
+      score -= 5;
     }
 
-    const forms = document.querySelectorAll('input:not([aria-label]):not([id])');
-    if (forms.length > 0) {
+    // 4. Champs de formulaire sans label
+    const inputs = document.querySelectorAll('input:not([type="hidden"]):not([aria-label]):not([aria-labelledby])');
+    const unlabeledInputs = Array.from(inputs).filter(input => {
+      const id = input.getAttribute('id');
+      if (!id) return true;
+      return !document.querySelector(`label[for="${id}"]`);
+    });
+    if (unlabeledInputs.length > 0) {
       issues.push({
         level: 'error',
-        message: `${forms.length} champ(s) de formulaire sans label`,
+        message: `${unlabeledInputs.length} champ(s) de formulaire sans label`,
         element: 'input'
       });
-      score -= 25;
+      score -= Math.min(25, unlabeledInputs.length * 5);
+    }
+
+    // 5. Liens sans texte
+    const links = document.querySelectorAll('a:not([aria-label])');
+    const emptyLinks = Array.from(links).filter(link => !link.textContent?.trim() && !link.querySelector('img[alt]'));
+    if (emptyLinks.length > 0) {
+      issues.push({
+        level: 'warning',
+        message: `${emptyLinks.length} lien(s) sans texte descriptif`,
+        element: 'a'
+      });
+      score -= Math.min(10, emptyLinks.length * 2);
+    }
+
+    // 6. Contraste de couleur (vérification basique via computed styles)
+    const textElements = document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, a, button, label');
+    let lowContrastCount = 0;
+    textElements.forEach(el => {
+      const styles = window.getComputedStyle(el);
+      const color = styles.color;
+      const bgColor = styles.backgroundColor;
+      // Vérification simplifiée - en production utiliser une lib de contraste
+      if (color === bgColor) {
+        lowContrastCount++;
+      }
+    });
+    if (lowContrastCount > 0) {
+      issues.push({
+        level: 'info',
+        message: `${lowContrastCount} élément(s) potentiellement à faible contraste`,
+        element: 'text'
+      });
+    }
+
+    // 7. Focus visible
+    const focusableWithoutOutline = document.querySelectorAll('a:focus, button:focus, input:focus, select:focus, textarea:focus');
+    // Cette vérification nécessiterait un test interactif
+
+    // 8. Attributs lang
+    const htmlLang = document.documentElement.getAttribute('lang');
+    if (!htmlLang) {
+      issues.push({
+        level: 'warning',
+        message: 'Attribut lang manquant sur la balise HTML',
+        element: 'html'
+      });
+      score -= 5;
     }
 
     setReport({ score: Math.max(0, score), issues });

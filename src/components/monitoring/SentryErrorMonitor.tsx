@@ -65,54 +65,61 @@ export const SentryErrorMonitor = () => {
     }
   };
 
-  const simulateRandomError = () => {
-    const errorTypes = [
-      { 
-        message: 'Erreur de génération musicale', 
-        level: 'error' as const,
-        context: { component: 'MusicGeneration', action: 'suno-api-call' }
-      },
-      { 
-        message: 'Quota API atteint', 
-        level: 'warning' as const,
-        context: { component: 'ExtractionService', quota: 'monthly' }
-      },
-      { 
-        message: 'Timeout extraction EDN', 
-        level: 'error' as const,
-        context: { component: 'ExtractionMonitor', source: 'EDN' }
-      },
-      { 
-        message: 'Connexion utilisateur échouée', 
-        level: 'warning' as const,
-        context: { component: 'AuthService', provider: 'supabase' }
-      }
-    ];
+  // Fonction pour créer une vraie erreur et l'enregistrer dans Supabase
+  const reportNewError = async (errorMessage: string, level: 'error' | 'warning' | 'info', context: Record<string, any>) => {
+    try {
+      // Enregistrer dans Supabase
+      const { data, error } = await supabase
+        .from('ai_monitoring_errors')
+        .insert({
+          message: errorMessage,
+          error_type: context.component || 'manual',
+          severity: level === 'error' ? 'high' : level === 'warning' ? 'medium' : 'low',
+          category: context.action || 'user_reported',
+          context: context,
+          priority: level === 'error' ? 'critical' : 'normal',
+          ai_analysis: { source: 'manual_report', timestamp: new Date().toISOString() }
+        })
+        .select()
+        .single();
 
-    const randomError = errorTypes[Math.floor(Math.random() * errorTypes.length)];
-    
-    const newError: ErrorEvent = {
-      id: `error-${Date.now()}`,
-      message: randomError.message,
-      timestamp: new Date(),
-      level: randomError.level,
-      context: randomError.context,
-      stack: 'at Component.render (/src/components/Example.tsx:42:15)'
-    };
+      if (error) throw error;
 
-    setErrors(prev => [newError, ...prev.slice(0, 9)]); // Garder max 10 erreurs
-    
-    // Envoyer à Sentry si connecté
-    if (isConnected) {
-      if (randomError.level === 'error') {
-        Sentry.captureException(new Error(randomError.message), {
-          tags: randomError.context,
-          level: randomError.level
-        });
-      } else {
-        Sentry.captureMessage(randomError.message, randomError.level);
+      // Ajouter à la liste locale
+      const newError: ErrorEvent = {
+        id: data.id,
+        message: errorMessage,
+        timestamp: new Date(data.created_at),
+        level: level,
+        context: context,
+        stack: `Reported at ${new Date().toISOString()}`
+      };
+
+      setErrors(prev => [newError, ...prev.slice(0, 9)]);
+      
+      // Envoyer à Sentry si connecté
+      if (isConnected) {
+        if (level === 'error') {
+          Sentry.captureException(new Error(errorMessage), {
+            tags: context,
+            level: level
+          });
+        } else {
+          Sentry.captureMessage(errorMessage, level);
+        }
       }
+    } catch (err) {
+      console.error('Erreur lors du signalement:', err);
     }
+  };
+
+  // Fonction de test pour les développeurs (enregistre une vraie erreur)
+  const testErrorReporting = () => {
+    reportNewError(
+      'Test d\'erreur - Vérification du système de monitoring',
+      'info',
+      { component: 'SentryErrorMonitor', action: 'test_report' }
+    );
   };
 
   const clearErrors = () => {
