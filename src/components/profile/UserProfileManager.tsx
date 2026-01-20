@@ -178,8 +178,19 @@ export const UserProfileManager = () => {
     
     setSaving(true);
     try {
-      // Simulation de sauvegarde
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await (supabase as any)
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          display_name: profile.full_name || '',
+          avatar_url: profile.avatar_url || null,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+
+      if (error) throw error;
       
       toast({
         title: "Profil mis à jour",
