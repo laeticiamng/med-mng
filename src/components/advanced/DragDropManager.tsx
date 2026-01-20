@@ -8,6 +8,7 @@ import {
   Upload, File, Image, Music, FileText, X, Check, 
   AlertCircle, Cloud, FolderOpen, Download
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DroppedFile {
   id: string;
@@ -143,9 +144,9 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
 
       setDroppedFiles(prev => [...prev, ...newDroppedFiles]);
 
-      // Simuler l'upload pour chaque fichier
+      // Upload réel vers Supabase Storage
       newDroppedFiles.forEach(droppedFile => {
-        simulateUpload(droppedFile);
+        uploadToSupabase(droppedFile);
       });
 
       // Callback externe
@@ -153,63 +154,70 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
     }
   };
 
-  const simulateUpload = async (droppedFile: DroppedFile) => {
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+  const uploadToSupabase = async (droppedFile: DroppedFile) => {
+    try {
+      const file = droppedFile.file;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      // Simuler la progression pendant l'upload
+      for (let progress = 0; progress <= 90; progress += 30) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setDroppedFiles(prev => prev.map(f => 
+          f.id === droppedFile.id ? { ...f, uploadProgress: progress } : f
+        ));
+      }
+
+      // Upload réel vers Supabase Storage
+      const { error } = await supabase.storage
+        .from('user-uploads')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('user-uploads')
+        .getPublicUrl(filePath);
+
       setDroppedFiles(prev => prev.map(f => 
         f.id === droppedFile.id 
-          ? { ...f, uploadProgress: progress }
+          ? { ...f, status: 'completed', uploadProgress: 100, url: urlData.publicUrl }
+          : f
+      ));
+    } catch (error) {
+      console.error('Erreur upload:', error);
+      setDroppedFiles(prev => prev.map(f => 
+        f.id === droppedFile.id 
+          ? { ...f, status: 'error', errorMessage: error instanceof Error ? error.message : 'Erreur upload' }
           : f
       ));
     }
-
-    // Simuler succès ou erreur
-    const isSuccess = Math.random() > 0.1; // 90% de succès
-
-    setDroppedFiles(prev => prev.map(f => 
-      f.id === droppedFile.id 
-        ? { 
-            ...f, 
-            status: isSuccess ? 'completed' : 'error',
-            url: isSuccess ? `https://example.com/files/${f.file.name}` : undefined,
-            errorMessage: isSuccess ? undefined : 'Erreur lors du téléchargement'
-          }
-        : f
-    ));
-
-    updateGlobalProgress();
-  };
-
-  const updateGlobalProgress = () => {
+    // Update global progress
     setDroppedFiles(current => {
       const totalFiles = current.length;
       if (totalFiles === 0) {
         setGlobalProgress(0);
         return current;
       }
-
       const completedFiles = current.filter(f => f.status === 'completed' || f.status === 'error').length;
       setGlobalProgress((completedFiles / totalFiles) * 100);
       return current;
     });
   };
 
-  const removeFile = (id: string) => {
-    setDroppedFiles(prev => prev.filter(f => f.id !== id));
-    updateGlobalProgress();
-  };
-
   const retryUpload = (id: string) => {
     const file = droppedFiles.find(f => f.id === id);
     if (file) {
       setDroppedFiles(prev => prev.map(f => 
-        f.id === id 
-          ? { ...f, status: 'uploading', uploadProgress: 0, errorMessage: undefined }
-          : f
+        f.id === id ? { ...f, status: 'uploading', uploadProgress: 0, errorMessage: undefined } : f
       ));
-      simulateUpload(file);
+      uploadToSupabase(file);
     }
+  };
+
+  const removeFile = (id: string) => {
+    setDroppedFiles(prev => prev.filter(f => f.id !== id));
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

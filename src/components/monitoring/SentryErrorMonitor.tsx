@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import * as Sentry from '@sentry/react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ErrorEvent {
   id: string;
@@ -20,22 +21,42 @@ export const SentryErrorMonitor = () => {
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
   useEffect(() => {
-    // Vérifier la connexion Sentry
     checkSentryConnection();
+    loadRealErrors();
     
-    // Simuler des erreurs pour demo (uniquement en dev)
-    if (import.meta.env.MODE === 'development') {
-      const interval = setInterval(() => {
-        simulateRandomError();
-      }, 30000); // Toutes les 30s
-      
-      return () => clearInterval(interval);
-    }
+    // Rafraîchir les erreurs réelles toutes les 30s
+    const interval = setInterval(() => {
+      loadRealErrors();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
+
+  const loadRealErrors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_monitoring_errors')
+        .select('id, message, stack, created_at, severity, category, context')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        setErrors(data.map(err => ({
+          id: err.id,
+          message: err.message,
+          stack: err.stack || undefined,
+          timestamp: new Date(err.created_at),
+          level: err.severity === 'high' ? 'error' : err.severity === 'medium' ? 'warning' : 'info',
+          context: err.context as Record<string, any> || undefined
+        })));
+      }
+    } catch (error) {
+      console.error('Erreur chargement logs:', error);
+    }
+  };
 
   const checkSentryConnection = () => {
     try {
-      // Tester si Sentry est initialisé
       setIsConnected(true);
       setLastCheck(new Date());
     } catch (error) {
