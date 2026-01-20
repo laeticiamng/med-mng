@@ -615,34 +615,38 @@ const SAMPLE_CASES: ClinicalCase[] = [
 
 export const useClinicalCases = () => {
   const [loading, setLoading] = useState(false);
-  const [cases, setCases] = useState<ClinicalCase[]>(SAMPLE_CASES);
+  const [cases, setCases] = useState<ClinicalCase[]>([]);
   const [currentProgress, setCurrentProgress] = useState<CaseProgress | null>(null);
   const { toast } = useToast();
 
-  // Get all available cases - load from Supabase first, fallback to sample
+  // Get all available cases - load from Supabase, use built-in cases as backup only
   const getCases = useCallback(async (specialty?: string, difficulty?: string) => {
     setLoading(true);
     try {
       // Try to load from Supabase
-      const { data: dbCases } = await (supabase as any)
-        .from('clinical_cases')
-        .select('*')
-        .eq('is_active', true);
+      const { data: dbCases, error } = await (supabase as any)
+        .from('ai_clinical_cases')
+        .select('*');
       
-      let allCases: ClinicalCase[] = dbCases?.length > 0 
-        ? dbCases.map((c: any) => ({
-            id: c.id,
-            title: c.title,
-            specialty: c.specialty,
-            difficulty: c.difficulty as ClinicalCase['difficulty'],
-            description: c.description || '',
-            patientPresentation: c.patient_presentation,
-            steps: c.steps || [],
-            relatedItems: c.related_items || [],
-            estimatedTime: c.estimated_time || 15,
-            learningObjectives: c.learning_objectives || []
-          }))
-        : SAMPLE_CASES;
+      let allCases: ClinicalCase[] = [];
+      
+      if (dbCases && dbCases.length > 0) {
+        allCases = dbCases.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          specialty: c.specialty,
+          difficulty: c.difficulty as ClinicalCase['difficulty'] || 'intermediate',
+          description: c.description || '',
+          patientPresentation: c.patient_presentation,
+          steps: c.steps || [],
+          relatedItems: c.related_items || [],
+          estimatedTime: c.estimated_time || 15,
+          learningObjectives: c.learning_objectives || []
+        }));
+      } else {
+        // Use sample cases only if database is empty
+        allCases = SAMPLE_CASES;
+      }
       
       let filtered = [...allCases];
       if (specialty) {
@@ -655,6 +659,7 @@ export const useClinicalCases = () => {
       return filtered;
     } catch (e) {
       console.error('Error loading cases:', e);
+      // Fallback to sample cases on error
       setCases(SAMPLE_CASES);
       return SAMPLE_CASES;
     } finally {

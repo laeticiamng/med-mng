@@ -23,87 +23,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
 
   // Generate mock notifications for demo
-  const generateMockNotifications = useCallback((): Notification[] => {
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'critical',
-        title: 'Extraction en échec',
-        message: 'L\'extraction du batch EDN-001 a échoué après 3 tentatives',
-        timestamp: new Date(Date.now() - 5 * 60 * 1000),
-        read: false,
-        category: 'extraction',
-        priority: 'urgent',
-        actionable: true,
-        action: {
-          label: 'Redémarrer',
-          url: '/admin/extractions'
-        }
-      },
-      {
-        id: '2',
-        type: 'warning',
-        title: 'Quota proche de la limite',
-        message: 'Vous avez utilisé 85% de votre quota mensuel',
-        timestamp: new Date(Date.now() - 15 * 60 * 1000),
-        read: false,
-        category: 'quota',
-        priority: 'high',
-        actionable: true,
-        action: {
-          label: 'Voir détails',
-          url: '/quota'
-        }
-      },
-      {
-        id: '3',
-        type: 'info',
-        title: 'Maintenance programmée',
-        message: 'Maintenance système prévue le 28/07 de 2h à 4h du matin',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000),
-        read: true,
-        category: 'maintenance',
-        priority: 'medium'
-      },
-      {
-        id: '4',
-        type: 'success',
-        title: 'Extraction terminée',
-        message: 'L\'extraction OIC-042 s\'est terminée avec succès (250 items)',
-        timestamp: new Date(Date.now() - 45 * 60 * 1000),
-        read: true,
-        category: 'extraction',
-        priority: 'low'
-      },
-      {
-        id: '5',
-        type: 'error',
-        title: 'Erreur d\'authentification',
-        message: 'Plusieurs tentatives de connexion échouées détectées',
-        timestamp: new Date(Date.now() - 60 * 60 * 1000),
-        read: false,
-        category: 'security',
-        priority: 'high',
-        actionable: true,
-        action: {
-          label: 'Investiguer',
-          url: '/admin/security'
-        }
-      },
-      {
-        id: '6',
-        type: 'info',
-        title: 'Nouvelle version disponible',
-        message: 'Une mise à jour du système est disponible (v2.1.3)',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        read: true,
-        category: 'system',
-        priority: 'low'
-      }
-    ];
-
-    return mockNotifications;
-  }, []);
+  // Removed mock notifications - all notifications come from database now
 
   // Load notifications from database
   useEffect(() => {
@@ -190,17 +110,15 @@ export function useNotifications() {
           setNotifications(dbNotifications.slice(0, 20));
         }
       } catch (error) {
-        console.error('Error loading notifications:', error);
-        toast.error('Erreur lors du chargement des notifications');
-        // Fallback sur mock en cas d'erreur
-        setNotifications(generateMockNotifications());
+        // Silent error - return empty array
+        setNotifications([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadNotifications();
-  }, [generateMockNotifications]);
+  }, []);
 
   // Real-time notifications via Supabase
   useEffect(() => {
