@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getOicItemParentCandidates } from '@/utils/oicItemParent';
 
 export interface OicCompetence {
   objectif_id: string;
@@ -44,28 +43,31 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
   const fetchCountRef = useRef(0);
 
   const fetchData = useCallback(async (forceRefresh = false) => {
-    // Skip if no itemCode or invalid format
-    if (!itemCode || (!itemCode.startsWith('IC-') && !itemCode.startsWith('OIC-'))) {
+    // Skip if no itemCode
+    if (!itemCode || itemCode.trim() === '') {
       setCompetences([]);
       setLoading(false);
       setError(null);
       return;
     }
 
-    const cacheKey = `${itemCode}-${rang}`;
+    // Normalize itemCode - extract numeric part and pad to 3 digits
+    const normalizedCode = itemCode.trim().toUpperCase();
+    let numericPart = normalizedCode;
+    if (normalizedCode.startsWith('IC-')) {
+      numericPart = normalizedCode.replace('IC-', '');
+    } else if (normalizedCode.startsWith('OIC-')) {
+      numericPart = normalizedCode.replace('OIC-', '').split('-')[0];
+    }
+    // Pad to 3 digits for database lookup
+    const paddedItemParent = numericPart.replace(/^0+/, '').padStart(3, '0');
+
+    const cacheKey = `${paddedItemParent}-${rang}`;
     
     // Check cache first (unless force refresh)
     if (!forceRefresh && competencesCache.has(cacheKey)) {
       const cached = competencesCache.get(cacheKey)!;
       setCompetences(cached);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    const itemParentCandidates = getOicItemParentCandidates(itemCode);
-    if (itemParentCandidates.length === 0) {
-      setCompetences([]);
       setLoading(false);
       setError(null);
       return;
@@ -77,10 +79,11 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
     const currentFetch = ++fetchCountRef.current;
 
     try {
+      // Use direct padded item_parent for more reliable matching
       const { data, error: fetchError } = await supabase
         .from('oic_competences')
-        .select('objectif_id, intitule, description, rang, item_parent')
-        .in('item_parent', itemParentCandidates)
+        .select('objectif_id, intitule, description, rang, item_parent, rubrique')
+        .eq('item_parent', paddedItemParent)
         .eq('rang', rang)
         .order('objectif_id');
       
@@ -103,9 +106,9 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
           objectif_id: comp.objectif_id,
           intitule: comp.intitule,
           description: comp.description || comp.intitule,
-          rubrique: '',
+          rubrique: comp.rubrique || '',
           rang: comp.rang || rang,
-          item_parent: comp.item_parent || itemParentCandidates[0]
+          item_parent: comp.item_parent || paddedItemParent
         })) as OicCompetence[];
 
       // Cache results
