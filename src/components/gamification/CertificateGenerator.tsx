@@ -60,54 +60,46 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
   const loadCertificates = async () => {
     setLoading(true);
     try {
-      // Simulation - à remplacer par vraie requête
-      const mockCertificates: Certificate[] = [
-        {
-          id: '1',
-          title: 'Maîtrise Cardiologie',
-          description: 'A démontré une excellente maîtrise des items de cardiologie',
-          type: 'mastery',
-          earnedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-          specialty: 'Cardiologie',
-          score: 95,
-          verified: true
-        },
-        {
-          id: '2',
-          title: 'Item IC-1 Complété',
-          description: 'A complété avec succès tous les objectifs de l\'item IC-1',
-          type: 'completion',
-          earnedAt: new Date(Date.now() - 86400000 * 14).toISOString(),
-          itemCode: 'IC-1',
-          rank: 'AB',
-          score: 88,
-          verified: true
-        },
-        {
-          id: '3',
-          title: 'Série de 30 jours',
-          description: 'A maintenu une série d\'étude de 30 jours consécutifs',
-          type: 'achievement',
-          earnedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-          verified: true
-        },
-        {
-          id: '4',
-          title: 'Spécialiste Pneumologie',
-          description: 'A atteint le niveau expert en pneumologie',
-          type: 'specialty',
-          earnedAt: new Date(Date.now() - 86400000 * 21).toISOString(),
-          specialty: 'Pneumologie',
-          score: 92,
-          verified: true
-        }
-      ];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-      setCertificates(mockCertificates);
+      // Charger les badges de l'utilisateur comme certificats
+      const { data: userBadges, error } = await supabase
+        .from('user_badges')
+        .select('*, badge:badge_id(*)')
+        .eq('user_id', user.id)
+        .order('earned_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Mapper les badges vers des certificats
+      const mappedCertificates: Certificate[] = (userBadges || []).map((ub: any) => ({
+        id: ub.id,
+        title: ub.badge?.name || 'Certificat',
+        description: ub.badge?.description || 'Accomplissement débloqué',
+        type: getCertificateType(ub.badge?.category),
+        earnedAt: ub.earned_at,
+        specialty: ub.badge?.category,
+        verified: true
+      }));
+
+      setCertificates(mappedCertificates);
     } catch (error) {
       console.error('Erreur chargement certificats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getCertificateType = (category?: string): Certificate['type'] => {
+    switch (category) {
+      case 'mastery': return 'mastery';
+      case 'learning': return 'completion';
+      case 'special': return 'achievement';
+      default: return 'specialty';
     }
   };
 

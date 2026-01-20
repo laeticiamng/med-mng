@@ -143,29 +143,18 @@ export const ProfileSecurity: React.FC = () => {
     });
   };
 
-  const mockSessions = [
-    {
-      id: 1,
-      device: 'Chrome sur Windows',
-      location: 'Paris, France',
-      lastActive: '2024-01-15 14:30',
-      current: true,
-    },
-    {
-      id: 2,
-      device: 'Safari sur iPhone',
-      location: 'Lyon, France',
-      lastActive: '2024-01-14 09:15',
-      current: false,
-    },
-    {
-      id: 3,
-      device: 'Firefox sur macOS',
-      location: 'Marseille, France',
-      lastActive: '2024-01-13 16:45',
-      current: false,
-    },
-  ];
+  // Session actuelle basée sur les données d'auth réelles
+  const currentSession = {
+    id: 1,
+    device: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+            navigator.userAgent.includes('Safari') ? 'Safari' : 
+            navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Navigateur',
+    location: 'Session actuelle',
+    lastActive: new Date().toLocaleString('fr-FR'),
+    current: true,
+  };
+
+  const sessions = [currentSession];
 
   return (
     <div className="space-y-6">
@@ -331,7 +320,7 @@ export const ProfileSecurity: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {mockSessions.map((session) => (
+          {sessions.map((session) => (
             <div
               key={session.id}
               className="flex items-center justify-between p-4 border rounded-lg"

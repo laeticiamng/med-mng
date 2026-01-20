@@ -44,12 +44,12 @@ interface UserLevel {
 export const AchievementSystem = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userLevel, setUserLevel] = useState<UserLevel>({
-    level: 12,
-    xp: 2340,
-    nextLevelXp: 2500,
-    totalXp: 12340,
-    rank: 'Étudiant Avancé',
-    title: 'Apprenti Médecin'
+    level: 1,
+    xp: 0,
+    nextLevelXp: 100,
+    totalXp: 0,
+    rank: 'Débutant',
+    title: 'Étudiant'
   });
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -57,7 +57,7 @@ export const AchievementSystem = () => {
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
-    initializeAchievements();
+    loadAchievements();
     fetchUserProgress();
     
     // Track achievements view
@@ -68,127 +68,99 @@ export const AchievementSystem = () => {
     });
   }, []);
 
-  const initializeAchievements = () => {
-    const mockAchievements: Achievement[] = [
-      // Achievements d'apprentissage
-      {
-        id: '1',
-        title: 'Premier pas',
-        description: 'Terminer votre première session d\'étude',
-        icon: 'BookOpen',
-        rarity: 'common',
-        category: 'learning',
-        points: 10,
-        unlocked: true,
-        unlockedAt: '2024-01-15T10:30:00Z',
-        rewards: { xp: 50 }
-      },
-      {
-        id: '2',
-        title: 'Mélomane médical',
-        description: 'Générer 10 musiques éducatives',
-        icon: 'Music',
-        rarity: 'rare',
-        category: 'music',
-        points: 25,
-        unlocked: true,
-        unlockedAt: '2024-02-01T14:20:00Z',
-        progress: 10,
-        maxProgress: 10,
-        rewards: { xp: 150, badges: ['Music Master'] }
-      },
-      {
-        id: '3',
-        title: 'Série parfaite',
-        description: 'Étudier 7 jours consécutifs',
-        icon: 'Flame',
-        rarity: 'epic',
-        category: 'consistency',
-        points: 50,
-        unlocked: false,
-        progress: 5,
-        maxProgress: 7,
-        rewards: { xp: 300, unlocks: ['Daily Bonus'] }
-      },
-      {
-        id: '4',
-        title: 'Maître des IC',
-        description: 'Compléter tous les items fondamentaux (IC-1 à IC-5)',
-        icon: 'Crown',
-        rarity: 'legendary',
-        category: 'mastery',
-        points: 100,
-        unlocked: false,
-        progress: 3,
-        maxProgress: 5,
-        rewards: { xp: 500, badges: ['IC Master'], unlocks: ['Advanced Features'] }
-      },
-      {
-        id: '5',
-        title: 'Collaborateur',
-        description: 'Participer à 5 sessions d\'étude collaborative',
-        icon: 'Users',
-        rarity: 'rare',
-        category: 'social',
-        points: 30,
-        unlocked: false,
-        progress: 2,
-        maxProgress: 5,
-        rewards: { xp: 200 }
-      },
-      {
-        id: '6',
-        title: 'Marathonien',
-        description: 'Étudier pendant plus de 2 heures en une session',
-        icon: 'Clock',
-        rarity: 'epic',
-        category: 'endurance',
-        points: 40,
-        unlocked: false,
-        progress: 0,
-        maxProgress: 1,
-        rewards: { xp: 250 }
-      },
-      {
-        id: '7',
-        title: 'Perfectionniste',
-        description: 'Obtenir 100% à 10 quiz consécutifs',
-        icon: 'Target',
-        rarity: 'epic',
-        category: 'performance',
-        points: 60,
-        unlocked: false,
-        progress: 6,
-        maxProgress: 10,
-        rewards: { xp: 350, badges: ['Perfect Score'] }
-      },
-      {
-        id: '8',
-        title: 'Pionnier',
-        description: 'Être parmi les premiers à tester une nouvelle fonctionnalité',
-        icon: 'Sparkles',
-        rarity: 'legendary',
-        category: 'special',
-        points: 75,
-        unlocked: true,
-        unlockedAt: '2024-01-10T09:00:00Z',
-        rewards: { xp: 400, badges: ['Early Adopter'] }
-      }
-    ];
-
-    setAchievements(mockAchievements);
-  };
-
-  const fetchUserProgress = async () => {
+  const loadAchievements = async () => {
     setLoading(true);
     try {
-      // Simulation de récupération des données utilisateur
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Charger les achievements depuis Supabase
+      const { data: achievementsData, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Charger les user_badges pour voir lesquels sont débloqués
+      const { data: { user } } = await supabase.auth.getUser();
+      let unlockedIds: string[] = [];
+      
+      if (user) {
+        const { data: userBadges } = await supabase
+          .from('user_badges')
+          .select('badge_id, earned_at')
+          .eq('user_id', user.id);
+        
+        unlockedIds = (userBadges || []).map(ub => ub.badge_id);
+      }
+
+      // Mapper les données Supabase vers l'interface Achievement
+      const mappedAchievements: Achievement[] = (achievementsData || []).map(a => ({
+        id: a.id,
+        title: a.name,
+        description: a.description,
+        icon: a.icon || 'Award',
+        rarity: a.rarity as 'common' | 'rare' | 'epic' | 'legendary',
+        category: a.category,
+        points: (a.rewards as any)?.xp || 10,
+        unlocked: unlockedIds.includes(a.id),
+        unlockedAt: unlockedIds.includes(a.id) ? new Date().toISOString() : undefined,
+        rewards: a.rewards as any
+      }));
+
+      if (mappedAchievements.length > 0) {
+        setAchievements(mappedAchievements);
+      }
     } catch (error) {
-      console.error('Erreur lors du chargement des progrès:', error);
+      console.error('Erreur lors du chargement des achievements:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchUserProgress = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Charger les stats de gamification
+      const { data: stats } = await (supabase as any)
+        .from('user_gamification_stats')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (stats) {
+        const level = stats.level || 1;
+        const xp = stats.current_xp || 0;
+        const nextLevelXp = level * 100;
+        
+        setUserLevel({
+          level,
+          xp,
+          nextLevelXp,
+          totalXp: stats.total_xp || 0,
+          rank: getRankFromLevel(level),
+          title: getTitleFromLevel(level)
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des progrès:', error);
+    }
+  };
+
+  const getRankFromLevel = (level: number): string => {
+    if (level >= 50) return 'Maître';
+    if (level >= 30) return 'Expert';
+    if (level >= 15) return 'Avancé';
+    if (level >= 5) return 'Intermédiaire';
+    return 'Débutant';
+  };
+
+  const getTitleFromLevel = (level: number): string => {
+    if (level >= 50) return 'Docteur Émérite';
+    if (level >= 30) return 'Médecin Confirmé';
+    if (level >= 15) return 'Interne Expérimenté';
+    if (level >= 5) return 'Étudiant Avancé';
+    return 'Apprenti Médecin';
   };
 
   const getIcon = (iconName: string) => {

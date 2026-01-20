@@ -61,16 +61,37 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
   }, [loadDismissalStatus]);
 
   useEffect(() => {
-    if (helpKey) {
-      const mockHelp: HelpTip = {
-        id: '1',
-        key: helpKey || '',
-        title: title || 'Aide',
-        body: content || 'Contenu d\'aide contextuelle',
-        route: location.pathname
-      };
-      setHelpContent(mockHelp);
-    }
+    const loadHelpContent = async () => {
+      if (!helpKey) return;
+
+      // Essayer de charger depuis Supabase (table non typée)
+      const { data: helpData } = await (supabase as any)
+        .from('help_tips')
+        .select('*')
+        .eq('key', helpKey)
+        .maybeSingle();
+
+      if (helpData) {
+        setHelpContent({
+          id: helpData.id,
+          key: helpData.key,
+          title: helpData.title,
+          body: helpData.body,
+          route: helpData.route
+        });
+      } else {
+        // Utiliser les props si pas de données en base
+        setHelpContent({
+          id: crypto.randomUUID(),
+          key: helpKey,
+          title: title || 'Aide',
+          body: content || '',
+          route: location.pathname
+        });
+      }
+    };
+
+    loadHelpContent();
   }, [helpKey, location.pathname, title, content]);
 
   const shouldShow = () => {

@@ -44,14 +44,14 @@ interface UserStats {
 export const UserProfileManager = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats>({
-    total_sessions: 47,
-    study_time: 2850,
-    completed_items: 23,
-    achievements: 8,
-    current_streak: 5,
-    level: 12,
-    xp: 2340,
-    next_level_xp: 2500
+    total_sessions: 0,
+    study_time: 0,
+    completed_items: 0,
+    achievements: 0,
+    current_streak: 0,
+    level: 1,
+    xp: 0,
+    next_level_xp: 100
   });
   const [preferences, setPreferences] = useState({
     notifications: {
@@ -92,17 +92,49 @@ export const UserProfileManager = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Simulation d'un profil utilisateur complet
-        const mockProfile: UserProfile = {
+        // Charger le profil depuis Supabase
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        const userProfile: UserProfile = {
           id: user.id,
           email: user.email || '',
-          full_name: user.user_metadata?.full_name || 'Dr. Martin Dubois',
-          avatar_url: user.user_metadata?.avatar_url,
-          bio: 'Étudiant en médecine passionné par l\'apprentissage innovant.',
-          speciality: 'Médecine Générale',
-          study_level: 'D3'
+          full_name: (profileData as any)?.full_name || (profileData as any)?.username || user.user_metadata?.full_name || '',
+          avatar_url: profileData?.avatar_url || user.user_metadata?.avatar_url,
+          bio: profileData?.bio || '',
+          speciality: (profileData as any)?.specialty || '',
+          study_level: (profileData as any)?.study_level || ''
         };
-        setProfile(mockProfile);
+        setProfile(userProfile);
+
+        // Charger les stats de gamification (table non typée)
+        const { data: gamificationStats } = await (supabase as any)
+          .from('user_gamification_stats')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        // Charger le nombre de badges
+        const { count: badgeCount } = await supabase
+          .from('user_badges')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if (gamificationStats) {
+          setStats({
+            total_sessions: gamificationStats.quizzes_completed || 0,
+            study_time: gamificationStats.study_time_minutes || 0,
+            completed_items: gamificationStats.items_completed || 0,
+            achievements: badgeCount || 0,
+            current_streak: gamificationStats.current_streak || 0,
+            level: gamificationStats.level || 1,
+            xp: gamificationStats.current_xp || 0,
+            next_level_xp: (gamificationStats.level || 1) * 100
+          });
+        }
       }
     } catch (error) {
       console.error('Erreur lors du chargement du profil:', error);

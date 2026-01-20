@@ -75,24 +75,34 @@ export const AdminSecurityAudit = () => {
     try {
       setLoading(true);
       
-      // Simuler les logs pour la démo (la table sera créée après migration)
-      const mockLogs: StreamingLog[] = [
-        {
-          id: '1',
-          user_id: 'user_' + Math.random().toString(36).substr(2, 9),
-          song_id: 'song_' + Math.random().toString(36).substr(2, 9),
-          session_token: 'session_' + Math.random().toString(36).substr(2, 9),
-          action: 'session_created',
-          ip_address: '192.168.1.' + Math.floor(Math.random() * 255),
-          user_agent: 'Mozilla/5.0',
-          created_at: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
+      // Charger les logs depuis streaming_sessions (table non typée)
+      const { data: logs, error } = await (supabase as any)
+        .from('streaming_sessions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      setStreamingLogs(mockLogs);
+      if (error || !logs) {
+        // Table n'existe pas encore, afficher liste vide
+        setStreamingLogs([]);
+        return;
+      }
+
+      const mappedLogs: StreamingLog[] = logs.map((log: any) => ({
+        id: log.id,
+        user_id: log.user_id,
+        song_id: log.song_id,
+        session_token: log.session_token || '',
+        action: log.is_active ? 'stream_accessed' : 'session_created',
+        ip_address: '',
+        user_agent: '',
+        created_at: log.created_at
+      }));
+
+      setStreamingLogs(mappedLogs);
     } catch (error) {
       console.error('Erreur chargement logs:', error);
-      toast.error('Erreur lors du chargement des logs');
+      setStreamingLogs([]);
     } finally {
       setLoading(false);
     }
