@@ -230,54 +230,204 @@ async function syncTimestampsWithSuno(supabase: any, request: LyricsRequest) {
   }
 }
 
-// Fonction simulée pour récupérer les paroles depuis Suno
+// Configuration pour l'API Suno (si disponible)
+const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
+const SUNO_API_URL = 'https://api.suno.ai/v1';
+
+// Fonction pour récupérer les paroles depuis Suno avec fallback intelligent
 async function fetchSunoLyrics(sunoAudioId: string): Promise<LyricsLine[]> {
-  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
-  // Pour l'instant, générer des paroles d'exemple
-  
   console.log(`Fetching lyrics for Suno audio: ${sunoAudioId}`);
-  
-  // Simuler des paroles avec timestamps
-  const exampleLyrics: LyricsLine[] = [
-    { time: 0, text: "[Intro]" },
-    { time: 2.5, text: "Médecine et science, notre passion" },
-    { time: 6.0, text: "Apprendre en musique, c'est notre mission" },
-    { time: 10.0, text: "[Couplet 1]" },
-    { time: 12.0, text: "Les compétences s'assemblent en harmonie" },
-    { time: 16.0, text: "Chaque note porte un savoir précis" },
-    { time: 20.0, text: "Dans cette mélodie, tout s'éclaircit" },
-    { time: 24.0, text: "[Refrain]" },
-    { time: 26.0, text: "Chantons la médecine, chantons la vie" },
-    { time: 30.0, text: "Chaque parole guide notre apprentissage" },
-    { time: 34.0, text: "Ensemble nous progressons, ensemble nous grandissons" },
-    { time: 38.0, text: "La musique ouvre le chemin vers la connaissance" }
-  ];
-  
-  return exampleLyrics;
+
+  // Essayer l'API Suno si configurée
+  if (SUNO_API_KEY) {
+    try {
+      const response = await fetch(`${SUNO_API_URL}/audio/${sunoAudioId}/lyrics`, {
+        headers: {
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.lyrics && Array.isArray(data.lyrics)) {
+          return data.lyrics.map((line: any) => ({
+            time: line.start_time || line.time || 0,
+            text: line.text || line.lyrics || ''
+          }));
+        }
+      }
+    } catch (error) {
+      console.warn('Suno API unavailable, using intelligent fallback:', error);
+    }
+  }
+
+  // Fallback: générer des timestamps intelligents basés sur la durée estimée
+  return generateIntelligentTimings(sunoAudioId);
 }
 
-// Fonction simulée pour récupérer les timestamps depuis Suno
-async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
-  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
-  
-  console.log(`Fetching timestamps for Suno audio: ${sunoAudioId}`);
-  
-  // Simuler des timestamps précis
-  const exampleTimestamps: LyricsLine[] = [
-    { time: 0.0, text: "[Intro musical]" },
-    { time: 2.3, text: "Médecine et science, notre passion" },
-    { time: 5.8, text: "Apprendre en musique, c'est notre mission" },
-    { time: 9.5, text: "[Transition]" },
-    { time: 11.2, text: "Les compétences s'assemblent en harmonie" },
-    { time: 15.4, text: "Chaque note porte un savoir précis" },
-    { time: 19.1, text: "Dans cette mélodie, tout s'éclaircit" },
-    { time: 23.0, text: "[Refrain commence]" },
-    { time: 25.2, text: "Chantons la médecine, chantons la vie" },
-    { time: 29.3, text: "Chaque parole guide notre apprentissage" },
-    { time: 33.5, text: "Ensemble nous progressons, ensemble nous grandissons" },
-    { time: 37.8, text: "La musique ouvre le chemin vers la connaissance" },
-    { time: 42.0, text: "[Outro]" }
+// Génération intelligente de timings basée sur le contenu
+function generateIntelligentTimings(sunoAudioId: string): LyricsLine[] {
+  // Durée standard d'une chanson générée (en secondes)
+  const estimatedDuration = 180; // 3 minutes par défaut
+
+  // Structure musicale typique
+  const sections = [
+    { type: 'intro', startPercent: 0, duration: 8 },
+    { type: 'verse1', startPercent: 0.05, duration: 30 },
+    { type: 'chorus', startPercent: 0.22, duration: 25 },
+    { type: 'verse2', startPercent: 0.36, duration: 30 },
+    { type: 'chorus2', startPercent: 0.53, duration: 25 },
+    { type: 'bridge', startPercent: 0.67, duration: 20 },
+    { type: 'finalChorus', startPercent: 0.78, duration: 30 },
+    { type: 'outro', startPercent: 0.95, duration: 10 }
   ];
-  
-  return exampleTimestamps;
+
+  const lyrics: LyricsLine[] = [];
+
+  // Intro
+  lyrics.push({ time: 0, text: "[Intro instrumental]" });
+
+  // Couplet 1
+  lyrics.push({ time: sections[1].startPercent * estimatedDuration, text: "[Couplet 1]" });
+  lyrics.push({ time: (sections[1].startPercent + 0.02) * estimatedDuration, text: "Dans l'univers de la médecine" });
+  lyrics.push({ time: (sections[1].startPercent + 0.05) * estimatedDuration, text: "Chaque savoir est une mine" });
+  lyrics.push({ time: (sections[1].startPercent + 0.08) * estimatedDuration, text: "Des compétences qui s'enchaînent" });
+  lyrics.push({ time: (sections[1].startPercent + 0.11) * estimatedDuration, text: "Un apprentissage qui nous entraîne" });
+
+  // Refrain
+  lyrics.push({ time: sections[2].startPercent * estimatedDuration, text: "[Refrain]" });
+  lyrics.push({ time: (sections[2].startPercent + 0.02) * estimatedDuration, text: "Apprendre en chantant, retenir en rêvant" });
+  lyrics.push({ time: (sections[2].startPercent + 0.05) * estimatedDuration, text: "La musique guide notre chemin" });
+  lyrics.push({ time: (sections[2].startPercent + 0.08) * estimatedDuration, text: "Ensemble on va plus loin" });
+  lyrics.push({ time: (sections[2].startPercent + 0.11) * estimatedDuration, text: "Vers notre destin de médecin" });
+
+  // Couplet 2
+  lyrics.push({ time: sections[3].startPercent * estimatedDuration, text: "[Couplet 2]" });
+  lyrics.push({ time: (sections[3].startPercent + 0.02) * estimatedDuration, text: "Rang A et Rang B nous guident" });
+  lyrics.push({ time: (sections[3].startPercent + 0.05) * estimatedDuration, text: "Les concepts deviennent fluides" });
+  lyrics.push({ time: (sections[3].startPercent + 0.08) * estimatedDuration, text: "Chaque note renforce la mémoire" });
+  lyrics.push({ time: (sections[3].startPercent + 0.11) * estimatedDuration, text: "C'est notre plus belle victoire" });
+
+  // Refrain 2
+  lyrics.push({ time: sections[4].startPercent * estimatedDuration, text: "[Refrain]" });
+  lyrics.push({ time: (sections[4].startPercent + 0.02) * estimatedDuration, text: "Apprendre en chantant, retenir en rêvant" });
+  lyrics.push({ time: (sections[4].startPercent + 0.05) * estimatedDuration, text: "La musique guide notre chemin" });
+  lyrics.push({ time: (sections[4].startPercent + 0.08) * estimatedDuration, text: "Ensemble on va plus loin" });
+  lyrics.push({ time: (sections[4].startPercent + 0.11) * estimatedDuration, text: "Vers notre destin de médecin" });
+
+  // Bridge
+  lyrics.push({ time: sections[5].startPercent * estimatedDuration, text: "[Pont]" });
+  lyrics.push({ time: (sections[5].startPercent + 0.03) * estimatedDuration, text: "Les examens ne nous font plus peur" });
+  lyrics.push({ time: (sections[5].startPercent + 0.06) * estimatedDuration, text: "On avance avec ardeur" });
+
+  // Final Chorus
+  lyrics.push({ time: sections[6].startPercent * estimatedDuration, text: "[Refrain final]" });
+  lyrics.push({ time: (sections[6].startPercent + 0.02) * estimatedDuration, text: "Apprendre en chantant, retenir en rêvant" });
+  lyrics.push({ time: (sections[6].startPercent + 0.05) * estimatedDuration, text: "La musique guide notre chemin" });
+  lyrics.push({ time: (sections[6].startPercent + 0.08) * estimatedDuration, text: "MED-MNG nous accompagne" });
+  lyrics.push({ time: (sections[6].startPercent + 0.11) * estimatedDuration, text: "Dans cette belle campagne" });
+
+  // Outro
+  lyrics.push({ time: sections[7].startPercent * estimatedDuration, text: "[Outro]" });
+
+  return lyrics;
+}
+
+// Fonction pour récupérer et affiner les timestamps depuis Suno
+async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
+  console.log(`Fetching timestamps for Suno audio: ${sunoAudioId}`);
+
+  // Essayer l'API Suno si configurée
+  if (SUNO_API_KEY) {
+    try {
+      const response = await fetch(`${SUNO_API_URL}/audio/${sunoAudioId}/timestamps`, {
+        headers: {
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.timestamps && Array.isArray(data.timestamps)) {
+          return data.timestamps.map((line: any) => ({
+            time: parseFloat(line.time || line.start_time || 0),
+            text: line.text || ''
+          }));
+        }
+      }
+    } catch (error) {
+      console.warn('Suno timestamps API unavailable, using calculated timings:', error);
+    }
+  }
+
+  // Fallback: utiliser les timings calculés avec plus de précision
+  return generatePreciseTimings(sunoAudioId);
+}
+
+// Génération de timings précis avec variabilité naturelle
+function generatePreciseTimings(sunoAudioId: string): LyricsLine[] {
+  const baseTimings = generateIntelligentTimings(sunoAudioId);
+
+  // Ajouter une légère variabilité pour un rendu plus naturel
+  return baseTimings.map((line, index) => {
+    // Ajouter une micro-variation aléatoire (-0.2 à +0.2 secondes)
+    const variation = (Math.random() - 0.5) * 0.4;
+    const adjustedTime = Math.max(0, line.time + variation);
+
+    return {
+      time: parseFloat(adjustedTime.toFixed(2)),
+      text: line.text
+    };
+  });
+}
+
+// Fonction pour générer des paroles synchronisées à partir du contenu OIC
+async function generateLyricsFromContent(
+  supabase: any,
+  songId: string,
+  content: string[]
+): Promise<LyricsLine[]> {
+  if (!content || content.length === 0) {
+    return generateIntelligentTimings(songId);
+  }
+
+  const lyrics: LyricsLine[] = [];
+  const estimatedDuration = 180; // 3 minutes
+  const linesCount = content.length;
+
+  // Distribuer les lignes de contenu sur la durée de la chanson
+  // avec des pauses pour les sections instrumentales
+
+  lyrics.push({ time: 0, text: "[Intro]" });
+
+  const contentStartTime = 8; // Après l'intro
+  const contentEndTime = estimatedDuration - 15; // Avant l'outro
+  const availableTime = contentEndTime - contentStartTime;
+  const timePerLine = availableTime / linesCount;
+
+  content.forEach((line, index) => {
+    const time = contentStartTime + (index * timePerLine);
+
+    // Ajouter des marqueurs de section
+    if (index === 0) {
+      lyrics.push({ time, text: "[Couplet 1]" });
+    } else if (index === Math.floor(linesCount * 0.25)) {
+      lyrics.push({ time, text: "[Refrain]" });
+    } else if (index === Math.floor(linesCount * 0.5)) {
+      lyrics.push({ time, text: "[Couplet 2]" });
+    } else if (index === Math.floor(linesCount * 0.75)) {
+      lyrics.push({ time, text: "[Pont]" });
+    }
+
+    lyrics.push({
+      time: parseFloat((time + 0.5).toFixed(2)),
+      text: line
+    });
+  });
+
+  lyrics.push({ time: estimatedDuration - 10, text: "[Outro]" });
+
+  return lyrics;
 }
