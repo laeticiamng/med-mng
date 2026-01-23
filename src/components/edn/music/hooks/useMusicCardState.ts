@@ -1,9 +1,21 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export const useMusicCardState = (isGenerating: boolean) => {
   const [isClicked, setIsClicked] = useState(false);
+  const generationStarted = useRef(false);
 
-  const handleGenerateClick = useCallback((
+  // Reset isClicked when generation completes (isGenerating goes from true to false)
+  useEffect(() => {
+    if (isGenerating) {
+      generationStarted.current = true;
+    } else if (generationStarted.current) {
+      // Generation finished, reset clicked state
+      setIsClicked(false);
+      generationStarted.current = false;
+    }
+  }, [isGenerating]);
+
+  const handleGenerateClick = useCallback(async (
     rang: 'A' | 'B',
     onGenerateMusic: () => void | Promise<void>
   ) => {
@@ -12,9 +24,10 @@ export const useMusicCardState = (isGenerating: boolean) => {
     setIsClicked(true);
     
     try {
-      onGenerateMusic();
-    } finally {
-      setTimeout(() => setIsClicked(false), 2000);
+      await onGenerateMusic();
+    } catch {
+      // On error, reset the clicked state
+      setIsClicked(false);
     }
   }, [isClicked, isGenerating]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import {
   Music, Clock, Heart, ListMusic, Volume2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 interface MusicTrack {
   id: string;
@@ -19,24 +20,109 @@ interface MusicTrack {
   is_favorite?: boolean;
 }
 
+interface MusicPreferences {
+  favorites: string[];
+  history: string[];
+  shuffle_enabled: boolean;
+  repeat_mode: 'none' | 'one' | 'all';
+  volume: number;
+}
+
 interface MusicPlaylistProps {
   onPlayTrack?: (track: MusicTrack) => void;
 }
 
 export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => {
+  const { user } = useAuth();
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [history, setHistory] = useState<MusicTrack[]>([]);
   const [currentTrack, setCurrentTrack] = useState<MusicTrack | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites' | 'history'>('all');
+  const [shuffleEnabled, setShuffleEnabled] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<'none' | 'one' | 'all'>('none');
 
-  const loadMusicData = React.useCallback(async () => {
+  // Load user preferences from Supabase
+  const loadUserPreferences = useCallback(async (musicTracks: MusicTrack[]) => {
+    if (!user) {
+      // Fallback to localStorage for non-authenticated users
+      const savedFavorites = localStorage.getItem('music-favorites');
+      if (savedFavorites) {
+        setFavorites(new Set(JSON.parse(savedFavorites)));
+      }
+      const savedHistory = localStorage.getItem('music-history');
+      if (savedHistory) {
+        const historyItems = JSON.parse(savedHistory) as string[];
+        const historyTracks = musicTracks.filter(t => historyItems.includes(t.item_code));
+        setHistory(historyTracks.slice(0, 20));
+      }
+      return;
+    }
+
+    try {
+      const { data } = await supabase
+        .from('user_music_preferences' as any)
+        .select('favorites, history, shuffle_enabled, repeat_mode, volume')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        const prefs = data as unknown as MusicPreferences;
+        setFavorites(new Set(prefs.favorites || []));
+        setShuffleEnabled(prefs.shuffle_enabled || false);
+        setRepeatMode(prefs.repeat_mode || 'none');
+        
+        const historyItems = prefs.history || [];
+        const historyTracks = musicTracks.filter(t => historyItems.includes(t.item_code));
+        setHistory(historyTracks.slice(0, 20));
+      }
+    } catch {
+      // First time user, no preferences yet
+    }
+  }, [user]);
+
+  // Save preferences to Supabase
+  const savePreferences = useCallback(async (
+    newFavorites?: Set<string>,
+    newHistory?: string[],
+    newShuffle?: boolean,
+    newRepeat?: 'none' | 'one' | 'all'
+  ) => {
+    const favoritesToSave = newFavorites || favorites;
+    const historyToSave = newHistory || history.map(t => t.item_code);
+    const shuffleToSave = newShuffle !== undefined ? newShuffle : shuffleEnabled;
+    const repeatToSave = newRepeat !== undefined ? newRepeat : repeatMode;
+
+    if (!user) {
+      // Fallback to localStorage
+      localStorage.setItem('music-favorites', JSON.stringify([...favoritesToSave]));
+      localStorage.setItem('music-history', JSON.stringify(historyToSave));
+      return;
+    }
+
+    try {
+      await supabase
+        .from('user_music_preferences' as any)
+        .upsert({
+          user_id: user.id,
+          favorites: [...favoritesToSave],
+          history: historyToSave,
+          shuffle_enabled: shuffleToSave,
+          repeat_mode: repeatToSave,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+    } catch {
+      // Silent error handling
+    }
+  }, [user, favorites, history, shuffleEnabled, repeatMode]);
+
+  const loadMusicData = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Load items with music from properly typed table
       const { data: itemsData } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, paroles_musicales')
@@ -54,32 +140,20 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
         }));
 
       setTracks(musicTracks);
-
-      // Load favorites and history from localStorage (works for all users)
-      const savedFavorites = localStorage.getItem('music-favorites');
-      if (savedFavorites) {
-        setFavorites(new Set(JSON.parse(savedFavorites)));
-      }
-
-      const savedHistory = localStorage.getItem('music-history');
-      if (savedHistory) {
-        const historyItems = JSON.parse(savedHistory) as string[];
-        const historyTracks = musicTracks.filter(t => historyItems.includes(t.item_code));
-        setHistory(historyTracks.slice(0, 20));
-      }
+      await loadUserPreferences(musicTracks);
 
     } catch {
       // Silent error handling
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadUserPreferences]);
 
   useEffect(() => {
     loadMusicData();
   }, [loadMusicData]);
 
-  const toggleFavorite = (itemCode: string) => {
+  const toggleFavorite = useCallback((itemCode: string) => {
     const newFavorites = new Set(favorites);
     if (newFavorites.has(itemCode)) {
       newFavorites.delete(itemCode);
@@ -87,28 +161,106 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       newFavorites.add(itemCode);
     }
     setFavorites(newFavorites);
-    localStorage.setItem('music-favorites', JSON.stringify([...newFavorites]));
-  };
+    savePreferences(newFavorites);
+  }, [favorites, savePreferences]);
 
-  const addToHistory = (track: MusicTrack) => {
-    const existingHistory = localStorage.getItem('music-history');
-    let historyItems: string[] = existingHistory ? JSON.parse(existingHistory) : [];
-    
-    // Remove if already exists and add to front
+  const addToHistory = useCallback((track: MusicTrack) => {
+    let historyItems = history.map(t => t.item_code);
     historyItems = historyItems.filter(code => code !== track.item_code);
     historyItems.unshift(track.item_code);
-    historyItems = historyItems.slice(0, 50); // Keep last 50
+    historyItems = historyItems.slice(0, 50);
     
-    localStorage.setItem('music-history', JSON.stringify(historyItems));
-    setHistory(tracks.filter(t => historyItems.includes(t.item_code)).slice(0, 20));
-  };
+    const newHistoryTracks = tracks.filter(t => historyItems.includes(t.item_code)).slice(0, 20);
+    setHistory(newHistoryTracks);
+    savePreferences(undefined, historyItems);
+  }, [history, tracks, savePreferences]);
 
-  const playTrack = (track: MusicTrack) => {
+  const playTrack = useCallback((track: MusicTrack) => {
+    const displayList = activeTab === 'favorites' 
+      ? tracks.filter(t => favorites.has(t.item_code))
+      : activeTab === 'history' 
+        ? history 
+        : tracks;
+    
+    const index = displayList.findIndex(t => t.id === track.id);
+    setCurrentIndex(index);
     setCurrentTrack(track);
     setIsPlaying(true);
     addToHistory(track);
     onPlayTrack?.(track);
-  };
+  }, [activeTab, tracks, favorites, history, addToHistory, onPlayTrack]);
+
+  // Skip to previous track
+  const skipPrevious = useCallback(() => {
+    const displayList = activeTab === 'favorites' 
+      ? tracks.filter(t => favorites.has(t.item_code))
+      : activeTab === 'history' 
+        ? history 
+        : tracks;
+    
+    if (displayList.length === 0) return;
+
+    let newIndex: number;
+    if (shuffleEnabled) {
+      newIndex = Math.floor(Math.random() * displayList.length);
+    } else if (currentIndex <= 0) {
+      newIndex = repeatMode === 'all' ? displayList.length - 1 : 0;
+    } else {
+      newIndex = currentIndex - 1;
+    }
+
+    const newTrack = displayList[newIndex];
+    if (newTrack) {
+      setCurrentIndex(newIndex);
+      setCurrentTrack(newTrack);
+      addToHistory(newTrack);
+      onPlayTrack?.(newTrack);
+    }
+  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack]);
+
+  // Skip to next track
+  const skipNext = useCallback(() => {
+    const displayList = activeTab === 'favorites' 
+      ? tracks.filter(t => favorites.has(t.item_code))
+      : activeTab === 'history' 
+        ? history 
+        : tracks;
+    
+    if (displayList.length === 0) return;
+
+    let newIndex: number;
+    if (shuffleEnabled) {
+      newIndex = Math.floor(Math.random() * displayList.length);
+    } else if (currentIndex >= displayList.length - 1) {
+      newIndex = repeatMode === 'all' ? 0 : displayList.length - 1;
+    } else {
+      newIndex = currentIndex + 1;
+    }
+
+    const newTrack = displayList[newIndex];
+    if (newTrack) {
+      setCurrentIndex(newIndex);
+      setCurrentTrack(newTrack);
+      addToHistory(newTrack);
+      onPlayTrack?.(newTrack);
+    }
+  }, [activeTab, tracks, favorites, history, currentIndex, shuffleEnabled, repeatMode, addToHistory, onPlayTrack]);
+
+  // Toggle shuffle mode
+  const toggleShuffle = useCallback(() => {
+    const newShuffle = !shuffleEnabled;
+    setShuffleEnabled(newShuffle);
+    savePreferences(undefined, undefined, newShuffle);
+  }, [shuffleEnabled, savePreferences]);
+
+  // Cycle repeat mode
+  const cycleRepeat = useCallback(() => {
+    const modes: Array<'none' | 'one' | 'all'> = ['none', 'one', 'all'];
+    const currentModeIndex = modes.indexOf(repeatMode);
+    const newMode = modes[(currentModeIndex + 1) % modes.length];
+    setRepeatMode(newMode);
+    savePreferences(undefined, undefined, undefined, newMode);
+  }, [repeatMode, savePreferences]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -147,8 +299,23 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
                 <p className="font-semibold truncate">{currentTrack.item_code}</p>
                 <p className="text-sm text-muted-foreground truncate">{currentTrack.title}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 ${shuffleEnabled ? 'text-primary' : ''}`}
+                  onClick={toggleShuffle}
+                  title="Mode aléatoire"
+                >
+                  <Shuffle className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={skipPrevious}
+                  title="Piste précédente"
+                >
                   <SkipBack className="h-4 w-4" />
                 </Button>
                 <Button 
@@ -158,8 +325,24 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={skipNext}
+                  title="Piste suivante"
+                >
                   <SkipForward className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 ${repeatMode !== 'none' ? 'text-primary' : ''}`}
+                  onClick={cycleRepeat}
+                  title={`Répéter: ${repeatMode === 'none' ? 'Désactivé' : repeatMode === 'one' ? 'Une piste' : 'Tout'}`}
+                >
+                  <Repeat className="h-4 w-4" />
+                  {repeatMode === 'one' && <span className="absolute text-[8px] font-bold">1</span>}
                 </Button>
               </div>
             </div>
@@ -170,7 +353,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
       {/* Playlist Tabs */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="flex items-center gap-2">
               <ListMusic className="h-5 w-5" />
               Playlist Mnémotechnique

@@ -5,6 +5,7 @@ import { Download, RefreshCw, Wifi, WifiOff, X, Smartphone } from 'lucide-react'
 import { usePWA } from '@/hooks/usePWA';
 
 export const PWAPrompt: React.FC = () => {
+  const [isDismissed, setIsDismissed] = React.useState(false);
   const {
     isInstallable,
     isInstalled,
@@ -17,8 +18,25 @@ export const PWAPrompt: React.FC = () => {
     dismissOfflineReady,
   } = usePWA();
 
+  const handleDismissInstall = () => {
+    setIsDismissed(true);
+    // Remember dismissal for 24 hours
+    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+  };
+
+  // Check if recently dismissed
+  React.useEffect(() => {
+    const dismissedAt = localStorage.getItem('pwa-install-dismissed');
+    if (dismissedAt) {
+      const elapsed = Date.now() - parseInt(dismissedAt);
+      if (elapsed < 24 * 60 * 60 * 1000) {
+        setIsDismissed(true);
+      }
+    }
+  }, []);
+
   // Install prompt
-  if (isInstallable && !isInstalled) {
+  if (isInstallable && !isInstalled && !isDismissed) {
     return (
       <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-primary/30 bg-card/95 backdrop-blur-sm shadow-lg">
         <CardContent className="p-4">
@@ -36,7 +54,7 @@ export const PWAPrompt: React.FC = () => {
                   <Download className="h-3 w-3" />
                   Installer
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => {}}>
+                <Button size="sm" variant="ghost" onClick={handleDismissInstall}>
                   Plus tard
                 </Button>
               </div>
