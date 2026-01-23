@@ -609,17 +609,35 @@ export const useFlashcards = () => {
 
       if (!newDeck) return null;
 
-      // Copy all cards
+      // Copy all cards in batch for transactional safety
       const originalCards = await loadCards(deckId);
-      for (const card of originalCards) {
-        await addCard(
-          newDeck.id,
-          card.front,
-          card.back,
-          card.tags,
-          card.itemCode,
-          card.difficulty
-        );
+      
+      if (originalCards.length > 0) {
+        const cardsToInsert = originalCards.map(card => ({
+          deck_id: newDeck.id,
+          front_content: card.front,
+          back_content: card.back,
+          tags: card.tags,
+          item_code: card.itemCode,
+          difficulty: card.difficulty,
+          review_count: 0,
+          correct_count: 0
+        }));
+
+        const { error: batchError } = await supabase
+          .from('flashcards')
+          .insert(cardsToInsert as any);
+
+        if (batchError) {
+          console.error('Error copying cards:', batchError);
+          // Continue anyway - deck was created
+        }
+
+        // Update card count
+        await supabase
+          .from('flashcard_decks')
+          .update({ card_count: originalCards.length } as any)
+          .eq('id', newDeck.id);
       }
 
       toast({
@@ -730,7 +748,7 @@ export const useFlashcards = () => {
     );
   }, [cards]);
 
-  // Get cards due for review (SRS logic)
+  // Get cards due for review (SM-2 based SRS logic)
   const getDueCards = useCallback((deckId?: string): Flashcard[] => {
     const targetCards = deckId ? cards.filter(c => c.deckId === deckId) : cards;
     const now = new Date();
@@ -743,11 +761,36 @@ export const useFlashcards = () => {
         ? card.correctCount / card.reviewCount
         : 0.5;
 
-      // Calculate interval based on accuracy and difficulty
-      let intervalDays = 1;
-      if (accuracy >= 0.9) intervalDays = card.difficulty === 'easy' ? 7 : card.difficulty === 'medium' ? 5 : 3;
-      else if (accuracy >= 0.7) intervalDays = card.difficulty === 'easy' ? 4 : card.difficulty === 'medium' ? 3 : 2;
-      else intervalDays = 1;
+      // SM-2 inspired algorithm with ease factor
+      // Base ease factor: 2.5, adjusted by performance
+      const baseEaseFactor = 2.5;
+      let easeFactor = baseEaseFactor;
+      
+      // Adjust ease factor based on accuracy
+      if (accuracy >= 0.9) easeFactor = baseEaseFactor + 0.1;
+      else if (accuracy >= 0.8) easeFactor = baseEaseFactor;
+      else if (accuracy >= 0.6) easeFactor = Math.max(1.3, baseEaseFactor - 0.2);
+      else easeFactor = Math.max(1.3, baseEaseFactor - 0.5);
+
+      // Difficulty modifier
+      const difficultyModifier = card.difficulty === 'easy' ? 1.3 
+        : card.difficulty === 'hard' ? 0.8 
+        : 1.0;
+
+      // Calculate interval based on review count and ease factor
+      let intervalDays: number;
+      if (card.reviewCount <= 1) {
+        intervalDays = 1;
+      } else if (card.reviewCount === 2) {
+        intervalDays = 3;
+      } else {
+        // For subsequent reviews: previous_interval * ease_factor * difficulty_modifier
+        const baseInterval = Math.min(card.reviewCount * 2, 30); // Cap growth
+        intervalDays = Math.round(baseInterval * easeFactor * difficultyModifier);
+      }
+
+      // Clamp interval between 1 and 180 days
+      intervalDays = Math.max(1, Math.min(180, intervalDays));
 
       const dueDate = new Date(lastReview);
       dueDate.setDate(dueDate.getDate() + intervalDays);

@@ -54,6 +54,20 @@ const generateQuestionsFromCompetences = (
   const shuffled = [...competences].sort(() => Math.random() - 0.5);
   const selected = shuffled.slice(0, Math.min(maxQuestions, competences.length));
 
+  // Distracteurs médicaux génériques pour compléter si nécessaire
+  const MEDICAL_DISTRACTORS = [
+    "Absence de corrélation clinico-biologique établie",
+    "Critère diagnostique non retenu par les recommandations actuelles",
+    "Modalité thérapeutique de deuxième intention uniquement",
+    "Signe clinique aspécifique sans valeur discriminante",
+    "Approche diagnostique obsolète selon HAS 2024",
+    "Élément sémiologique fréquent mais non pathognomonique",
+    "Traitement symptomatique sans effet sur l'évolution",
+    "Critère d'exclusion plutôt que d'inclusion diagnostique",
+    "Manifestation atypique nécessitant confirmation",
+    "Option non validée par les études de niveau de preuve élevé"
+  ];
+
   return selected.map((comp, index) => {
     // Sélectionner un template de question aléatoire
     const templateIndex = index % QUESTION_TEMPLATES.length;
@@ -71,9 +85,14 @@ const generateQuestionsFromCompetences = (
         return c.intitule;
       });
 
-    // S'assurer qu'on a 4 options uniques
-    while (distractors.length < 3) {
-      distractors.push(`Option incorrecte ${distractors.length + 1}`);
+    // Compléter avec des distracteurs médicaux réalistes si insuffisant
+    let distIdx = 0;
+    while (distractors.length < 3 && distIdx < MEDICAL_DISTRACTORS.length) {
+      const candidate = MEDICAL_DISTRACTORS[distIdx];
+      if (!distractors.includes(candidate)) {
+        distractors.push(candidate);
+      }
+      distIdx++;
     }
 
     // Générer la bonne réponse selon le template
