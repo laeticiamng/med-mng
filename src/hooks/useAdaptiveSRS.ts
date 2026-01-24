@@ -51,8 +51,10 @@ export const useAdaptiveSRS = () => {
       } else {
         newInterval = Math.round(currentInterval * newEF);
         
-        // Apply fuzz factor for better distribution (±5%)
-        const fuzz = 0.95 + Math.random() * 0.1;
+        // Apply deterministic fuzz factor for better distribution (±5%)
+        // Based on card characteristics instead of Math.random() for reproducibility
+        const cardHash = (repetitions * 17 + quality * 31 + currentInterval * 7) % 100;
+        const fuzz = 0.95 + (cardHash / 1000); // ±5% deterministic jitter
         newInterval = Math.round(newInterval * fuzz);
       }
 
