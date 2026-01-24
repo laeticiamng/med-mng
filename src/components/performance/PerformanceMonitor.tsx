@@ -45,15 +45,27 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ isMinima
         const currentTime = performance.now();
         const fps = Math.round(1000 / ((currentTime - lastTime) / 60));
         
-        // Simuler d'autres métriques (en production, utiliser de vraies APIs)
-        const memory = Math.round(45 + Math.random() * 20);
-        const networkLatency = Math.round(80 + Math.random() * 40);
+        // Real memory metrics from performance API when available
+        let memory = 50;
+        let networkLatency = 100;
+        
+        if ('memory' in performance && (performance as any).memory) {
+          const memInfo = (performance as any).memory;
+          memory = Math.round((memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100);
+        }
+        
+        // Use Navigation Timing API for real latency
+        const navEntries = performance.getEntriesByType('navigation');
+        if (navEntries.length > 0) {
+          const nav = navEntries[0] as PerformanceNavigationTiming;
+          networkLatency = Math.round(nav.responseStart - nav.requestStart);
+        }
         
         setMetrics(prev => ({
           ...prev,
           fps: Math.min(fps, 60),
-          memory,
-          networkLatency
+          memory: Math.max(memory, 20),
+          networkLatency: Math.max(networkLatency, 10)
         }));
         
         // Détecter les problèmes de performance

@@ -75,8 +75,10 @@ export const CompetenceFlashcard: React.FC<CompetenceFlashcardProps> = ({
 
   const handleShuffle = () => {
     const indices = [...shuffledIndices];
+    // Deterministic Fisher-Yates shuffle with timestamp seed
+    const seed = Date.now();
     for (let i = indices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = (seed + i * 17) % (i + 1);
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
     setShuffledIndices(indices);
