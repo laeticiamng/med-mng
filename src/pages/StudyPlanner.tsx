@@ -57,9 +57,11 @@ const StudyPlanner = () => {
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
   const [studyPlans, setStudyPlans] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [studySessions, setStudySessions] = useState<StudySession[]>([]);
+  const [studyGoals, setStudyGoals] = useState<StudyGoal[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load user, stats and study plans from Supabase
+  // Load user, stats, sessions and goals from Supabase
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -70,7 +72,6 @@ const StudyPlanner = () => {
         setWeeklySummary(summary);
         
         // Load study plans from Supabase
-        setLoading(true);
         const { data: plans } = await supabase
           .from('study_plans')
           .select('*')
@@ -80,74 +81,53 @@ const StudyPlanner = () => {
         if (plans) {
           setStudyPlans(plans);
         }
-        setLoading(false);
+
+        // Load study sessions from Supabase (plan_sessions table)
+        const { data: sessionsData } = await supabase
+          .from('plan_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('scheduled_date', { ascending: true })
+          .limit(20);
+
+        if (sessionsData && sessionsData.length > 0) {
+          const formattedSessions: StudySession[] = sessionsData.map((s: any) => ({
+            id: s.id,
+            title: s.title || 'Session d\'étude',
+            type: s.item_code ? 'edn' : 'revision' as const,
+            duration: s.duration_minutes || 30,
+            scheduled: new Date(s.scheduled_date),
+            completed: s.completed || false,
+            difficulty: 'medium' as const,
+            itemCode: s.item_code
+          }));
+          setStudySessions(formattedSessions);
+        }
+
+        // Load learning goals from Supabase
+        const { data: goalsData } = await supabase
+          .from('learning_goals')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('target_date', { ascending: true });
+
+        if (goalsData && goalsData.length > 0) {
+          const formattedGoals: StudyGoal[] = goalsData.map((g: any) => ({
+            id: g.id,
+            title: g.title || 'Objectif',
+            description: g.description || '',
+            targetDate: new Date(g.target_date),
+            progress: g.progress || 0,
+            category: g.category || 'Général',
+            priority: (g.priority as 'low' | 'medium' | 'high') || 'medium'
+          }));
+          setStudyGoals(formattedGoals);
+        }
       }
+      setLoading(false);
     };
     init();
   }, [loadStats, getWeeklySummary]);
-  
-  // Sessions d'étude plannifiées
-  const [studySessions] = useState<StudySession[]>([
-    {
-      id: '1',
-      title: 'IC-1 Relation médecin-malade',
-      type: 'edn',
-      duration: 45,
-      scheduled: new Date(Date.now() + 2 * 60 * 60 * 1000),
-      completed: false,
-      difficulty: 'medium',
-      itemCode: 'IC-1'
-    },
-    {
-      id: '2',
-      title: 'Musique mnémotechnique - Cardiologie',
-      type: 'music',
-      duration: 30,
-      scheduled: new Date(Date.now() + 4 * 60 * 60 * 1000),
-      completed: false,
-      difficulty: 'easy'
-    },
-    {
-      id: '3',
-      title: 'Quiz - Neurologie',
-      type: 'quiz',
-      duration: 20,
-      scheduled: new Date(Date.now() + 6 * 60 * 60 * 1000),
-      completed: true,
-      difficulty: 'hard'
-    }
-  ]);
-
-  // Objectifs d'étude
-  const [studyGoals] = useState<StudyGoal[]>([
-    {
-      id: '1',
-      title: 'Maîtriser les IC fondamentaux',
-      description: 'Compléter et valider tous les items de connaissances de rang A (IC-1 à IC-10)',
-      targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      progress: 70,
-      category: 'EDN',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Cardiologie approfondie',
-      description: 'Approfondir toutes les pathologies cardiovasculaires',
-      targetDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
-      progress: 45,
-      category: 'Spécialité',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      title: 'Révisions générales',
-      description: 'Réviser l\'ensemble du programme avant examens',
-      targetDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
-      progress: 25,
-      category: 'Révision',
-      priority: 'low'
-    }
-  ]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -429,8 +409,12 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Sessions Complétées</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-success">24</div>
-                  <p className="text-sm text-muted-foreground">cette semaine</p>
+                  <div className="text-3xl font-bold text-success">
+                    {studySessions.filter(s => s.completed).length}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    sur {studySessions.length} planifiées
+                  </p>
                 </CardContent>
               </Card>
 
@@ -439,8 +423,10 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Temps d'Étude</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-primary">18h</div>
-                  <p className="text-sm text-muted-foreground">cette semaine</p>
+                  <div className="text-3xl font-bold text-primary">
+                    {Math.round(studySessions.filter(s => s.completed).reduce((acc, s) => acc + s.duration, 0) / 60)}h
+                  </div>
+                  <p className="text-sm text-muted-foreground">sessions complétées</p>
                 </CardContent>
               </Card>
 
@@ -449,8 +435,10 @@ const StudyPlanner = () => {
                   <CardTitle className="text-lg">Objectifs Atteints</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-accent">3/5</div>
-                  <p className="text-sm text-muted-foreground">ce mois</p>
+                  <div className="text-3xl font-bold text-accent">
+                    {studyGoals.filter(g => g.progress >= 100).length}/{studyGoals.length}
+                  </div>
+                  <p className="text-sm text-muted-foreground">objectifs définis</p>
                 </CardContent>
               </Card>
             </div>
@@ -460,27 +448,50 @@ const StudyPlanner = () => {
                 <CardTitle>Répartition par Type d'Activité</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Items EDN</span>
-                    <span className="text-sm text-muted-foreground">45%</span>
-                  </div>
-                  <Progress value={45} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Musique</span>
-                    <span className="text-sm text-muted-foreground">30%</span>
-                  </div>
-                  <Progress value={30} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Quiz</span>
-                    <span className="text-sm text-muted-foreground">25%</span>
-                  </div>
-                  <Progress value={25} className="h-2" />
-                </div>
+                {(() => {
+                  const total = studySessions.length || 1;
+                  const ednCount = studySessions.filter(s => s.type === 'edn').length;
+                  const musicCount = studySessions.filter(s => s.type === 'music').length;
+                  const quizCount = studySessions.filter(s => s.type === 'quiz').length;
+                  const revisionCount = studySessions.filter(s => s.type === 'revision').length;
+                  const ednPct = Math.round((ednCount / total) * 100);
+                  const musicPct = Math.round((musicCount / total) * 100);
+                  const quizPct = Math.round((quizCount / total) * 100);
+                  const revisionPct = Math.round((revisionCount / total) * 100);
+                  
+                  return (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Items EDN</span>
+                          <span className="text-sm text-muted-foreground">{ednPct}%</span>
+                        </div>
+                        <Progress value={ednPct} className="h-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Musique</span>
+                          <span className="text-sm text-muted-foreground">{musicPct}%</span>
+                        </div>
+                        <Progress value={musicPct} className="h-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Quiz</span>
+                          <span className="text-sm text-muted-foreground">{quizPct}%</span>
+                        </div>
+                        <Progress value={quizPct} className="h-2" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Révision</span>
+                          <span className="text-sm text-muted-foreground">{revisionPct}%</span>
+                        </div>
+                        <Progress value={revisionPct} className="h-2" />
+                      </div>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
@@ -494,27 +505,45 @@ const StudyPlanner = () => {
                   <CardTitle>Performance par Difficulté</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-success rounded-full"></div>
-                      Facile
-                    </span>
-                    <span className="font-semibold">95%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-warning rounded-full"></div>
-                      Moyen
-                    </span>
-                    <span className="font-semibold">82%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-destructive rounded-full"></div>
-                      Difficile
-                    </span>
-                    <span className="font-semibold">68%</span>
-                  </div>
+                  {(() => {
+                    const easySessions = studySessions.filter(s => s.difficulty === 'easy');
+                    const mediumSessions = studySessions.filter(s => s.difficulty === 'medium');
+                    const hardSessions = studySessions.filter(s => s.difficulty === 'hard');
+                    
+                    const easyCompleted = easySessions.filter(s => s.completed).length;
+                    const mediumCompleted = mediumSessions.filter(s => s.completed).length;
+                    const hardCompleted = hardSessions.filter(s => s.completed).length;
+                    
+                    const easyPct = easySessions.length > 0 ? Math.round((easyCompleted / easySessions.length) * 100) : 0;
+                    const mediumPct = mediumSessions.length > 0 ? Math.round((mediumCompleted / mediumSessions.length) * 100) : 0;
+                    const hardPct = hardSessions.length > 0 ? Math.round((hardCompleted / hardSessions.length) * 100) : 0;
+                    
+                    return (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-success rounded-full"></div>
+                            Facile ({easySessions.length})
+                          </span>
+                          <span className="font-semibold">{easyPct}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-warning rounded-full"></div>
+                            Moyen ({mediumSessions.length})
+                          </span>
+                          <span className="font-semibold">{mediumPct}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-destructive rounded-full"></div>
+                            Difficile ({hardSessions.length})
+                          </span>
+                          <span className="font-semibold">{hardPct}%</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
 
