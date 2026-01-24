@@ -83,7 +83,7 @@ export const AccessibleInput: React.FC<AccessibleInputProps> = ({
   required,
   ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).slice(2)}`;
+  const inputId = id || `input-${Date.now().toString(36)}`;
   
   return (
     <AccessibleFormField
@@ -130,7 +130,7 @@ export const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   onValueChange,
   children
 }) => {
-  const selectId = id || `select-${Math.random().toString(36).slice(2)}`;
+  const selectId = id || `select-${Date.now().toString(36)}`;
   
   return (
     <AccessibleFormField
@@ -176,7 +176,7 @@ export const AccessibleTextarea: React.FC<AccessibleTextareaProps> = ({
   required,
   ...props
 }) => {
-  const textareaId = id || `textarea-${Math.random().toString(36).slice(2)}`;
+  const textareaId = id || `textarea-${Date.now().toString(36)}`;
   
   return (
     <AccessibleFormField
@@ -219,7 +219,7 @@ export const AccessibleCheckbox: React.FC<AccessibleCheckboxProps> = ({
   onCheckedChange,
   required = false
 }) => {
-  const checkboxId = id || `checkbox-${Math.random().toString(36).slice(2)}`;
+  const checkboxId = id || `checkbox-${Date.now().toString(36)}`;
   
   return (
     <div className="space-y-2">

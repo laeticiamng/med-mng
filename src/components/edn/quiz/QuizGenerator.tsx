@@ -145,7 +145,7 @@ export class QuizGenerator {
     ];
   }
 
-  private static selectTemplate(templates: QuestionTemplate[], difficulty: string, rang: 'A' | 'B') {
+  private static selectTemplate(templates: QuestionTemplate[], difficulty: string, rang: 'A' | 'B', seed: number = 0) {
     const availableTemplates = templates.filter(t => 
       t.rang === rang && t.difficulty.includes(difficulty)
     );
@@ -155,7 +155,9 @@ export class QuizGenerator {
       return templates.find(t => t.rang === rang);
     }
     
-    return availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
+    // Deterministic selection based on seed (e.g., item index)
+    const index = seed % availableTemplates.length;
+    return availableTemplates[index] || availableTemplates[0];
   }
 
   private static buildQuestionFromTemplate(

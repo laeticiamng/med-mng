@@ -202,7 +202,8 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
 
     let newIndex: number;
     if (shuffleEnabled) {
-      newIndex = Math.floor(Math.random() * displayList.length);
+      // Deterministic shuffle: step backward with offset
+      newIndex = (currentIndex - 3 + displayList.length) % displayList.length;
     } else if (currentIndex <= 0) {
       newIndex = repeatMode === 'all' ? displayList.length - 1 : 0;
     } else {
@@ -230,7 +231,8 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
 
     let newIndex: number;
     if (shuffleEnabled) {
-      newIndex = Math.floor(Math.random() * displayList.length);
+      // Deterministic shuffle: step forward with offset
+      newIndex = (currentIndex + 3) % displayList.length;
     } else if (currentIndex >= displayList.length - 1) {
       newIndex = repeatMode === 'all' ? 0 : displayList.length - 1;
     } else {

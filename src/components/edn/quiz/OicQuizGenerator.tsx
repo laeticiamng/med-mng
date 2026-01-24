@@ -51,7 +51,12 @@ const generateQuestionsFromCompetences = (
 ): GeneratedQuestion[] => {
   if (competences.length === 0) return [];
 
-  const shuffled = [...competences].sort(() => Math.random() - 0.5);
+  // Deterministic shuffle using Fisher-Yates with seed
+  const shuffled = [...competences];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = (i * 17 + competences.length) % (i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   const selected = shuffled.slice(0, Math.min(maxQuestions, competences.length));
 
   // Distracteurs médicaux génériques pour compléter si nécessaire
@@ -75,8 +80,11 @@ const generateQuestionsFromCompetences = (
     
     // Générer des distracteurs variés basés sur d'autres compétences
     const otherComps = competences.filter(c => c.objectif_id !== comp.objectif_id);
-    const distractors = otherComps
-      .sort(() => Math.random() - 0.5)
+    // Deterministic distractor selection based on index
+    const sortedOthers = [...otherComps].sort((a, b) => 
+      (a.objectif_id || '').localeCompare(b.objectif_id || '')
+    );
+    const distractors = sortedOthers
       .slice(0, 3)
       .map(c => {
         // Varier le type de distracteur selon le template
@@ -100,9 +108,11 @@ const generateQuestionsFromCompetences = (
     if (template.template === 'rubrique' && comp.rubrique) correctAnswer = comp.rubrique;
     if (template.template === 'definition' && comp.description) correctAnswer = comp.description.substring(0, 100) + '...';
     
-    // Mélanger les options avec la bonne réponse
+    // Deterministic options order based on index
     const allOptions = [correctAnswer, ...distractors.filter(d => d !== correctAnswer)].slice(0, 4);
-    const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
+    // Rotate options based on index for variety but deterministic
+    const rotation = index % allOptions.length;
+    const shuffledOptions = [...allOptions.slice(rotation), ...allOptions.slice(0, rotation)];
     const correctIndex = shuffledOptions.indexOf(correctAnswer);
 
     return {

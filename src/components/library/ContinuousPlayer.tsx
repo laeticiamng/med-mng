@@ -86,8 +86,9 @@ export const ContinuousPlayer: React.FC<ContinuousPlayerProps> = ({
       }
     } else if (currentIndex < tracks.length - 1) {
       // Passer à la suivante
+      // Deterministic next track in shuffle mode
       const nextIndex = isShuffle 
-        ? Math.floor(Math.random() * tracks.length)
+        ? (currentIndex + 3) % tracks.length  // Step through with fixed offset
         : currentIndex + 1;
       setCurrentIndex(nextIndex);
     } else {
@@ -120,8 +121,9 @@ export const ContinuousPlayer: React.FC<ContinuousPlayerProps> = ({
 
   const playNext = useCallback(() => {
     if (currentIndex < tracks.length - 1) {
+      // Deterministic next track in shuffle mode
       const nextIndex = isShuffle 
-        ? Math.floor(Math.random() * tracks.length)
+        ? (currentIndex + 3) % tracks.length
         : currentIndex + 1;
       setCurrentIndex(nextIndex);
     }

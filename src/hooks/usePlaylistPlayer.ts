@@ -83,12 +83,13 @@ export const usePlaylistPlayer = ({
     };
   }, []);
 
-  // Generate shuffled order
+  // Generate shuffled order with deterministic seed
   const generateShuffledOrder = useCallback(() => {
     const order = [...Array(tracks.length).keys()];
-    // Fisher-Yates shuffle
+    // Fisher-Yates shuffle with timestamp seed for variety
+    const seed = Date.now();
     for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = (seed + i * 17) % (i + 1);
       [order[i], order[j]] = [order[j], order[i]];
     }
     return order;

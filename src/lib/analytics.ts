@@ -195,7 +195,9 @@ function getSessionId(): string {
   if (typeof window === 'undefined') return 'server';
   let sessionId = sessionStorage.getItem('analytics_session');
   if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? `session_${crypto.randomUUID()}` 
+      : `session_${Date.now()}`;
     sessionStorage.setItem('analytics_session', sessionId);
   }
   return sessionId;

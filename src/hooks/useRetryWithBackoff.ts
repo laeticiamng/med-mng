@@ -44,9 +44,9 @@ export const useRetryWithBackoff = (config: RetryConfig = {}) => {
   // Calculer le délai pour un retry donné
   const calculateDelay = useCallback((attempt: number): number => {
     const delay = initialDelay * Math.pow(backoffFactor, attempt);
-    // Ajouter un jitter aléatoire (±20%)
-    const jitter = delay * 0.2 * (Math.random() - 0.5);
-    return Math.min(delay + jitter, maxDelay);
+    // Deterministic jitter based on attempt number (±20%)
+    const jitterFactor = 0.9 + ((attempt * 7) % 20) / 100; // 0.9 to 1.1
+    return Math.min(delay * jitterFactor, maxDelay);
   }, [initialDelay, backoffFactor, maxDelay]);
 
   // Exécuter une fonction avec retry

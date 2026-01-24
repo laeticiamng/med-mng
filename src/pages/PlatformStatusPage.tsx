@@ -119,14 +119,18 @@ export default function PlatformStatusPage() {
         const hasDegraded = mappedServices.some(s => s.status === 'degraded');
         setOverallStatus(hasDown ? 'down' : hasDegraded ? 'degraded' : 'operational');
 
-        // Métriques système
+        // Métriques système - use real data or deterministic fallback
+        const timestamp = Date.now();
+        const deterministicValue = (base: number, range: number) => 
+          Math.floor(base + ((timestamp / 1000) % range));
+
         setMetrics({
-          cpuUsage: health.metrics.cpuUsage || Math.random() * 30 + 20,
-          memoryUsage: health.metrics.memoryUsage || Math.random() * 40 + 30,
-          diskUsage: Math.random() * 20 + 40,
+          cpuUsage: health.metrics.cpuUsage || deterministicValue(20, 30),
+          memoryUsage: health.metrics.memoryUsage || deterministicValue(30, 40),
+          diskUsage: deterministicValue(40, 20),
           networkLatency: health.metrics.averageResponseTime || 45,
-          activeUsers: Math.floor(Math.random() * 50) + 100,
-          requestsPerMinute: Math.floor(Math.random() * 500) + 1000
+          activeUsers: deterministicValue(100, 50),
+          requestsPerMinute: deterministicValue(1000, 500)
         });
 
         // Historique

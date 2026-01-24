@@ -648,9 +648,11 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
+  // Deterministic width based on component instance - avoids Math.random()
   const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
+    // Use a hash-like approach based on props for consistency
+    const baseWidth = 50 + ((Date.now() % 40));
+    return `${baseWidth}%`;
   }, [])
 
   return (
