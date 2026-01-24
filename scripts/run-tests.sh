@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pnpm test
+# Run Vitest for unit tests
+npx vitest run --reporter=verbose
