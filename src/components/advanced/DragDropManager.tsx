@@ -134,8 +134,9 @@ export const DragDropManager: React.FC<DragDropManagerProps> = ({
     }
 
     if (validFiles.length > 0) {
+      let fileCounter = 0;
       const newDroppedFiles: DroppedFile[] = validFiles.map(file => ({
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `${Date.now()}-${(++fileCounter).toString(36).padStart(6, '0')}`,
         file,
         type: getFileType(file),
         uploadProgress: 0,

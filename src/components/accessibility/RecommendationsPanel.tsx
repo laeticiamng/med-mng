@@ -164,10 +164,11 @@ export function RecommendationsPanel() {
       setAnalysis(data.analysis || null);
       
       // Tracker automatiquement les recommandations prioritaires (score > 70)
+      let recCounter = 0;
       enrichedRecs.forEach((rec: Recommendation) => {
         if (rec.historicalScore && rec.historicalScore > 70) {
           trackRecommendation({
-            id: `${rec.category}-${Date.now()}-${Math.random()}`,
+            id: `${rec.category}-${Date.now()}-${(++recCounter).toString(36).padStart(4, '0')}`,
             title: rec.title,
             description: rec.description,
             category: rec.category,
