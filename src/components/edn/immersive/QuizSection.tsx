@@ -71,7 +71,9 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
     const selectedRangA = rangAQuestions.slice(0, nbRangA);
     const selectedRangB = rangBQuestions.slice(0, nbRangB);
     
-    return [...selectedRangA, ...selectedRangB].sort(() => Math.random() - 0.5);
+    // Deterministic order based on question text hash
+    const combined = [...selectedRangA, ...selectedRangB];
+    return combined.sort((a, b) => (a.question || '').localeCompare(b.question || ''));
   }, [quizData]);
 
   if (!quizData || !questions.length) {

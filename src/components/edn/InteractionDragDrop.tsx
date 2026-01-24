@@ -136,8 +136,12 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
   const phrases = config.exemples?.map(ex => ex.phrase) || [];
   const concepts = config.exemples?.map(ex => ex.concept) || [];
 
-  // Memoized shuffled concepts (shuffle only once)
-  const [shuffledConcepts] = useState(() => [...concepts].sort(() => Math.random() - 0.5));
+  // Memoized shuffled concepts (deterministic shuffle)
+  const [shuffledConcepts] = useState(() => {
+    const arr = [...concepts];
+    // Deterministic shuffle based on content
+    return arr.sort((a, b) => a.localeCompare(b));
+  });
   
   // Early return if no exemples
   if (!config.exemples || config.exemples.length === 0) {

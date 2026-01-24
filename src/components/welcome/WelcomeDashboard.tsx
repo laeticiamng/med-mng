@@ -15,6 +15,12 @@ import { supabase } from '@/integrations/supabase/client';
 export const WelcomeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [platformStats, setPlatformStats] = useState({
+    totalUsers: '...',
+    contentItems: '367',
+    securityScore: '98.3%',
+    uptime: '99.9%'
+  });
   const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load user and gamification stats
@@ -27,6 +33,29 @@ export const WelcomeDashboard: React.FC = () => {
       }
     };
     checkUser();
+
+    // Fetch real platform stats
+    const fetchPlatformStats = async () => {
+      try {
+        const { count: usersCount } = await supabase
+          .from('profiles')
+          .select('id', { count: 'exact', head: true });
+        
+        const { count: itemsCount } = await supabase
+          .from('edn_items_complete')
+          .select('id', { count: 'exact', head: true });
+
+        setPlatformStats({
+          totalUsers: usersCount ? `${usersCount}+` : '250+',
+          contentItems: itemsCount?.toString() || '367',
+          securityScore: '98.3%',
+          uptime: '99.9%'
+        });
+      } catch (err) {
+        console.debug('Platform stats fetch skipped');
+      }
+    };
+    fetchPlatformStats();
   }, [loadStats]);
 
   const levelProgress = gamificationStats 
@@ -68,12 +97,7 @@ export const WelcomeDashboard: React.FC = () => {
     }
   ];
 
-  const platformStats = {
-    totalUsers: '250+',
-    contentItems: '367',
-    securityScore: '98.3%',
-    uptime: '99.9%'
-  };
+  // platformStats is now defined as state above
 
   return (
     <div className="space-y-8">

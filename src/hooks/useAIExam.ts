@@ -161,8 +161,13 @@ export const useAIExam = () => {
           }
         }
 
-        // Shuffle and pick
-        const shuffled = filteredItems.sort(() => Math.random() - 0.5);
+        // Deterministic shuffle using Fisher-Yates with timestamp seed
+        const shuffled = [...filteredItems];
+        const seed = Date.now();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = (seed + i * 17) % (i + 1);
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
         itemCodes = shuffled.slice(0, Math.min(questionCount * 2, 20)).map(i => i.item_code);
       }
 

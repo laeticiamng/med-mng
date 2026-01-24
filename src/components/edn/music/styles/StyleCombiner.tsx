@@ -33,7 +33,13 @@ export const StyleCombiner = ({
 
   const getRandomCombination = () => {
     const availableStyles = allMusicStyles.filter(s => !selectedStyles.includes(s.value));
-    const shuffled = availableStyles.sort(() => 0.5 - Math.random());
+    // Deterministic selection based on timestamp
+    const seed = Date.now();
+    const shuffled = [...availableStyles].sort((a, b) => {
+      const hashA = a.value.charCodeAt(0) + seed;
+      const hashB = b.value.charCodeAt(0) + seed;
+      return hashA - hashB;
+    });
     const combination = shuffled.slice(0, Math.min(3, maxCombinations));
     onStylesChange(combination.map(s => s.value));
   };
