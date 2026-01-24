@@ -148,14 +148,16 @@ describe('Deterministic ID Generation', () => {
   describe('Admin User Stats', () => {
     it('should calculate deterministic credits from index', () => {
       const calculateCredits = (index: number): number => {
+        // Formula: 100 - (index*5 % 100)
+        // When index=20: 20*5=100, 100%100=0, 100-0=100 (wraps!)
         return 100 - (index * 5 % 100);
       };
 
-      // Deterministic
-      expect(calculateCredits(0)).toBe(100);
-      expect(calculateCredits(1)).toBe(95);
-      expect(calculateCredits(20)).toBe(0);
-      expect(calculateCredits(21)).toBe(95); // Wraps around
+      // Verify: index*5 mod 100, then subtract from 100
+      expect(calculateCredits(0)).toBe(100);  // 100 - 0 = 100
+      expect(calculateCredits(1)).toBe(95);   // 100 - 5 = 95
+      expect(calculateCredits(20)).toBe(100); // 100 - (100%100=0) = 100 (wraps!)
+      expect(calculateCredits(21)).toBe(95);  // 100 - 5 = 95
     });
 
     it('should calculate deterministic usage from index', () => {

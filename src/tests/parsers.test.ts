@@ -60,6 +60,7 @@ const parseQuizQuestions = (rawQuestions: any[]): any[] => {
     }
     
     return {
+      ...q, // Preserve additional metadata
       id: q.id || index,
       question: q.question,
       options: q.options,
@@ -333,10 +334,10 @@ describe('🧪 Tests Parseurs Critiques - Quiz Questions', () => {
 
       const result = parseQuizQuestions(questionsWithMeta);
 
-      // Les métadonnées additionnelles sont préservées
-      expect(result[0]).toHaveProperty('difficulty', 'hard');
-      expect(result[0]).toHaveProperty('category', 'medical');
-      expect(result[0]).toHaveProperty('tags');
+      // Using spread operator, metadata should be preserved
+      expect(result[0].difficulty).toBe('hard');
+      expect(result[0].category).toBe('medical');
+      expect(result[0].tags).toBeDefined();
     });
   });
 });
