@@ -39,6 +39,7 @@ function checkRate(key: string, limit: number, windowMs: number) {
 
 serve(async (req) => {
   let requestId: string | null = null;
+  let path = '';
 
   try {
     // CORS preflight
@@ -48,7 +49,7 @@ serve(async (req) => {
 
     const url = new URL(req.url);
     const originalPath = url.pathname;
-    const path = url.pathname.replace('/med-mng-api', '');
+    path = url.pathname.replace('/med-mng-api', '');
     console.log('🔍 Path extraction - Original:', originalPath, 'Extracted:', path);
     const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'anon';
 
