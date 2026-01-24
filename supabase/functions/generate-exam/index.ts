@@ -47,8 +47,13 @@ serve(async (req) => {
       return true;
     });
 
-    // Shuffle and pick
-    const shuffled = filteredQuestions.sort(() => Math.random() - 0.5);
+    // Deterministic shuffle based on timestamp
+    const seed = Date.now();
+    const shuffled = filteredQuestions.sort((a, b) => {
+      const hashA = (a.id || '').charCodeAt(0) + seed;
+      const hashB = (b.id || '').charCodeAt(0) + seed;
+      return hashA - hashB;
+    });
     const selected = shuffled.slice(0, Math.min(questionCount || 20, shuffled.length));
 
     // If not enough questions, generate more
@@ -182,11 +187,13 @@ function getQuestionBank(items: any[]): Question[] {
 }
 
 function generateRandomQuestion(index: number, topic: string): Question {
+  // Deterministic correct answer based on index
+  const correctAnswer = index % 4;
   return {
     id: `gen-${index}-${Date.now()}`,
     question: `Question ${index + 1} sur ${topic} - Quelle est la bonne réponse ?`,
     options: ["Option A", "Option B", "Option C", "Option D"],
-    correctAnswer: Math.floor(Math.random() * 4),
+    correctAnswer: correctAnswer,
     explanation: "Explication détaillée de la réponse correcte.",
     difficulty: 'medium',
     topic

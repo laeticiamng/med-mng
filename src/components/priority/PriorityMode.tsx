@@ -91,38 +91,40 @@ export const PriorityMode: React.FC<PriorityModeProps> = ({ onComplete, embedded
         };
       } else if (userState === 'tired') {
         // User is tired - suggest flashcards or light review
-        const randomItem = items?.[Math.floor(Math.random() * (items?.length || 1))];
+        // Select first item (deterministic)
+        const selectedItem = items?.[0];
         action = {
           type: 'flashcard',
           title: 'Révision légère',
-          subtitle: randomItem ? `Flashcards : ${randomItem.title}` : 'Revoir tes points faibles',
+          subtitle: selectedItem ? `Flashcards : ${selectedItem.title}` : 'Revoir tes points faibles',
           duration: '8 min',
           path: ROUTE_PATHS.flashcards,
-          itemCode: randomItem?.item_code,
+          itemCode: selectedItem?.item_code,
           urgency: 'medium'
         };
       } else {
         // User is OK - full action based on deadline
-        const randomItem = items?.[Math.floor(Math.random() * (items?.length || 1))];
+        // Select first item needing attention (deterministic)
+        const selectedItem = items?.[0];
         
         if (deadline === 'today') {
           action = {
             type: 'exam',
             title: 'Action prioritaire',
-            subtitle: randomItem ? `Maîtriser : ${randomItem.title}` : 'QCM intensif sur tes lacunes',
+            subtitle: selectedItem ? `Maîtriser : ${selectedItem.title}` : 'QCM intensif sur tes lacunes',
             duration: '15 min',
-            path: randomItem ? `/edn/${randomItem.slug}/immersive` : ROUTE_PATHS.examMode,
-            itemCode: randomItem?.item_code,
+            path: selectedItem ? `/edn/${selectedItem.slug}/immersive` : ROUTE_PATHS.examMode,
+            itemCode: selectedItem?.item_code,
             urgency: 'high'
           };
         } else if (deadline === 'this_week') {
           action = {
             type: 'item',
             title: 'Bloc de révision',
-            subtitle: randomItem ? `Approfondir : ${randomItem.title}` : 'Consolider un item EDN',
+            subtitle: selectedItem ? `Approfondir : ${selectedItem.title}` : 'Consolider un item EDN',
             duration: '20 min',
-            path: randomItem ? `/edn/${randomItem.slug}/immersive` : ROUTE_PATHS.ednComplete,
-            itemCode: randomItem?.item_code,
+            path: selectedItem ? `/edn/${selectedItem.slug}/immersive` : ROUTE_PATHS.ednComplete,
+            itemCode: selectedItem?.item_code,
             urgency: 'medium'
           };
         } else {

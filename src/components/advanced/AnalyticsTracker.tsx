@@ -206,9 +206,12 @@ export const AnalyticsTracker: React.FC = () => {
     }
   };
 
+  // Sequential counter for deterministic IDs
+  const eventCounterRef = React.useRef(0);
+  
   const trackEvent = (type: ActivityEvent['type'], description: string, metadata?: Record<string, any>) => {
     const event: ActivityEvent = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `${Date.now()}-${(++eventCounterRef.current).toString(36).padStart(6, '0')}`,
       type,
       timestamp: new Date(),
       description,

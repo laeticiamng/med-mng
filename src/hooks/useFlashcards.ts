@@ -799,11 +799,12 @@ export const useFlashcards = () => {
     });
   }, [cards]);
 
-  // Shuffle cards for review
+  // Shuffle cards for review (deterministic Fisher-Yates with timestamp seed)
   const shuffleCards = useCallback((cardsToShuffle: Flashcard[]): Flashcard[] => {
     const shuffled = [...cardsToShuffle];
+    const seed = Date.now();
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = (seed + i * 17) % (i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
