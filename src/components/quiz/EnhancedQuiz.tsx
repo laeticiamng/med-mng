@@ -192,7 +192,32 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         return;
       }
 
-      // Sauvegarder dans user_activity_log comme activité d'examen
+      const timeSpent = session.endTime 
+        ? Math.round((session.endTime.getTime() - session.startTime.getTime()) / 1000) 
+        : 0;
+      const correctAnswers = session.answers.filter(a => a.isCorrect).length;
+      const wrongAnswers = session.answers.length - correctAnswers;
+
+      // 1. Save to quiz_results table for analytics
+      await supabase.from('quiz_results').insert({
+        user_id: currentUser.id,
+        item_code: session.itemCode,
+        item_title: itemTitle,
+        score: session.score,
+        total_questions: session.questions.length,
+        correct_answers: correctAnswers,
+        wrong_answers: wrongAnswers,
+        time_spent: timeSpent,
+        answers: session.answers.map(a => ({
+          questionId: a.questionId,
+          selectedOption: a.selectedOption,
+          isCorrect: a.isCorrect,
+          timeSpent: a.timeSpent
+        })),
+        created_at: new Date().toISOString()
+      });
+
+      // 2. Save to user_activity_log for activity tracking
       await supabase.from('user_activity_log').insert({
         user_id: currentUser.id,
         activity_type: 'exam',
@@ -204,18 +229,12 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
           rang: session.rang,
           score: session.score,
           questions_count: session.questions.length,
-          correct_answers: session.answers.filter(a => a.isCorrect).length,
-          time_spent: session.endTime ?
-            Math.round((session.endTime.getTime() - session.startTime.getTime()) / 1000) : 0,
-          answers_summary: session.answers.map(a => ({
-            questionId: a.questionId,
-            isCorrect: a.isCorrect,
-            timeSpent: a.timeSpent
-          }))
+          correct_answers: correctAnswers,
+          time_spent: timeSpent
         }
       });
 
-      // Sauvegarder également dans gamification_activities pour les points
+      // 3. Save to gamification_activities for points
       await supabase.from('gamification_activities').insert({
         user_id: currentUser.id,
         activity_type: 'quiz_completed',
@@ -224,7 +243,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         created_at: new Date().toISOString()
       } as any);
 
-      console.log('Quiz session saved successfully:', session.sessionId);
+      console.log('Quiz session saved to quiz_results:', session.sessionId);
     } catch (error) {
       console.error('Error saving quiz session:', error);
     }

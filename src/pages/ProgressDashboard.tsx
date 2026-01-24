@@ -229,31 +229,70 @@ export default function ProgressDashboard() {
               </CardContent>
             </Card>
 
-            {/* Success Probability Card */}
+            {/* Success Probability Card - Weighted Model */}
             <Card className="border-warning/20">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="h-5 w-5 text-warning" />
                   Probabilité de succès estimée
                 </CardTitle>
-                <CardDescription>Basée sur vos performances SRS et historique</CardDescription>
+                <CardDescription>Modèle pondéré : SRS (40%), Examens (30%), Régularité (30%)</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Rétention globale estimée</span>
-                    <span className="text-lg font-bold text-warning">
-                      {srsStats ? Math.min(95, 70 + Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 25)) : 70}%
-                    </span>
-                  </div>
-                  <Progress 
-                    value={srsStats ? Math.min(95, 70 + Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 25)) : 70} 
-                    className="h-3" 
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Plus vous révisez régulièrement, plus votre probabilité de rétention augmente.
-                  </p>
-                </div>
+                {(() => {
+                  // Weighted success probability calculation
+                  const srsWeight = 0.40;
+                  const examWeight = 0.30;
+                  const regularityWeight = 0.30;
+                  
+                  // SRS component: mastery ratio (0-100)
+                  const srsScore = srsStats 
+                    ? Math.round((srsStats.masteredItems / Math.max(1, srsStats.totalItems)) * 100)
+                    : 0;
+                  
+                  // Exam component: average exam score (0-100)
+                  const examScore = examStats?.averageScore || 0;
+                  
+                  // Regularity component: streak bonus + weekly activity
+                  const streakBonus = Math.min(20, (gamificationStats?.currentStreak || 0) * 2);
+                  const activityBonus = Math.min(80, weeklyData.total * 10);
+                  const regularityScore = streakBonus + activityBonus;
+                  
+                  // Weighted total with floor of 50% if any activity exists
+                  const rawProbability = (srsScore * srsWeight) + (examScore * examWeight) + (regularityScore * regularityWeight);
+                  const hasActivity = srsStats?.totalItems > 0 || examStats?.totalExams > 0 || weeklyData.total > 0;
+                  const probability = hasActivity ? Math.max(50, Math.min(95, Math.round(rawProbability))) : 0;
+                  
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Rétention globale estimée</span>
+                        <span className="text-lg font-bold text-warning">{probability}%</span>
+                      </div>
+                      <Progress value={probability} className="h-3" />
+                      
+                      {/* Factor breakdown */}
+                      <div className="grid grid-cols-3 gap-2 pt-2 border-t">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">SRS</p>
+                          <p className="text-sm font-medium">{srsScore}%</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">Examens</p>
+                          <p className="text-sm font-medium">{examScore}%</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">Régularité</p>
+                          <p className="text-sm font-medium">{regularityScore}%</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground">
+                        Continuez à réviser régulièrement pour améliorer votre score.
+                      </p>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
 
