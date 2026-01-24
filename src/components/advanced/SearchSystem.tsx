@@ -89,13 +89,19 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
 
     setIsLoading(true);
     
-    // Real search from Supabase edn_items_immersive
+    // Real search from Supabase edn_items_complete (properly typed table)
     try {
-      const { data } = await supabase
-        .from('edn_items_immersive')
+      const { data, error } = await supabase
+        .from('edn_items_complete')
         .select('id, item_code, title, subtitle')
         .or(`title.ilike.%${searchQuery}%,subtitle.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
         .limit(10);
+
+      if (error) {
+        console.error('Search error:', error);
+        setResults([]);
+        return;
+      }
 
       if (data) {
         const searchResults: SearchResult[] = data.map((item: any) => ({
@@ -114,6 +120,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
       }
     } catch (error) {
       console.error('Search error:', error);
+      setResults([]);
     } finally {
       setIsLoading(false);
     }

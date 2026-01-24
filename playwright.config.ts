@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './test/e2e',
+  testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -77,6 +77,6 @@ export default defineConfig({
 
   timeout: 60000,
   
-  globalSetup: require.resolve('./test/e2e/global-setup.ts'),
-  globalTeardown: require.resolve('./test/e2e/global-teardown.ts'),
+  // globalSetup: require.resolve('./tests/e2e/global-setup.ts'),
+  // globalTeardown: require.resolve('./tests/e2e/global-teardown.ts'),
 });
