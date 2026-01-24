@@ -3,6 +3,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 
+// Sequential counter for deterministic quiz IDs
+let quizSessionCounter = 0;
+
 export interface QuizError {
   questionId: string;
   question: string;
@@ -30,8 +33,13 @@ export const useQuizErrorTracker = () => {
   const { toast } = useToast();
 
   const startQuizSession = useCallback((itemCode: string, itemTitle: string, totalQuestions: number) => {
+    // Use crypto.randomUUID for secure, unique IDs
+    const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID()
+      : `${Date.now()}_${(++quizSessionCounter).toString(36).padStart(6, '0')}`;
+    
     const session: QuizSession = {
-      id: `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `quiz_${uniqueId}`,
       itemCode,
       itemTitle,
       startTime: new Date(),

@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
 
+// Sequential counter for deterministic session IDs
+let sessionCounter = 0;
+
 interface PWAMetrics {
   sessionId: string;
   isInstalled: boolean;
@@ -29,9 +32,11 @@ export const usePWAMetrics = () => {
   const metricsRef = useRef<any>({});
   const sessionIdRef = useRef<string>('');
 
-  // Générer un ID de session unique
+  // Générer un ID de session unique avec crypto.randomUUID
   useEffect(() => {
-    sessionIdRef.current = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionIdRef.current = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? `session_${crypto.randomUUID()}`
+      : `session_${Date.now()}_${(++sessionCounter).toString(36).padStart(6, '0')}`;
     setMetrics(prev => ({ ...prev, sessionId: sessionIdRef.current }));
   }, []);
 
