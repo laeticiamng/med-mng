@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
-    "test": "jest",
+    "test": "vitest run",
     "test:supabase-docs": "node scripts/validate-supabase-functions-docs.js",
     "test:supabase-env": "node scripts/validate-supabase-env.js",
     "test:supabase": "node scripts/validate-supabase-functions-docs.js && node scripts/validate-supabase-env.js",
