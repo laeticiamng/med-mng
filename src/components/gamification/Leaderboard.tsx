@@ -103,10 +103,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         .map(([userId, totalXP], index): LeaderboardEntry => {
           const profile = profileMap.get(userId);
           const streak = streakMap.get(userId);
+          // Calculer le rang précédent basé sur le hash de l'userId (déterministe)
+          const hashCode = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          const rankChange = (hashCode % 3) - 1; // -1, 0, ou +1
           return {
             id: userId,
             rank: index + 1,
-            previousRank: index + 1 + (Math.random() > 0.5 ? 1 : -1),
+            previousRank: Math.max(1, index + 1 + rankChange),
             userId,
             userName: profile?.name || `Étudiant ${index + 1}`,
             avatarUrl: profile?.avatar_url || undefined,
@@ -115,7 +118,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             weeklyXP: Math.floor(totalXP * 0.15),
             streak: streak?.current_streak || 0,
             badges: Math.floor(totalXP / 5000),
-            quizScore: 70 + Math.floor(Math.random() * 25),
+            quizScore: Math.min(95, 70 + Math.floor(totalXP / 500)), // Score basé sur XP
             studyHours: streak?.total_activities || 0
           };
         });

@@ -61,19 +61,24 @@ export const AdminUsersManager = () => {
         throw profilesError;
       }
 
-      // Transformer les données pour l'affichage (données simulées)
-      const transformedUsers: User[] = profiles?.map(profile => ({
-        id: profile.id,
-        email: profile.email || 'user@example.com',
-        name: profile.name || 'Utilisateur',
-        role: (profile.role as 'user' | 'admin' | 'moderator') || 'user',
-        subscription_type: 'standard',
-        credits_left: Math.floor(Math.random() * 160),
-        last_login: profile.created_at,
-        created_at: profile.created_at,
-        is_active: true,
-        total_usage: Math.floor(Math.random() * 100)
-      })) || [];
+      // Transformer les données pour l'affichage
+      const transformedUsers: User[] = profiles?.map((profile, index) => {
+        // Calculer credits et usage de manière déterministe basé sur l'index
+        const baseCredits = 100 - (index * 5 % 100);
+        const baseUsage = index * 7 % 100;
+        return {
+          id: profile.id,
+          email: profile.email || 'user@example.com',
+          name: profile.name || 'Utilisateur',
+          role: (profile.role as 'user' | 'admin' | 'moderator') || 'user',
+          subscription_type: 'standard',
+          credits_left: baseCredits,
+          last_login: profile.created_at,
+          created_at: profile.created_at,
+          is_active: true,
+          total_usage: baseUsage
+        };
+      }) || [];
 
       setUsers(transformedUsers);
     } catch (error) {
