@@ -70,7 +70,7 @@ export class MonitoringService {
 
   static getHealthMetrics() {
     return {
-      activeRequests: this.activeRequestsCount(),
+      activeRequests: this.getActiveRequestsCount(),
       totalProcessed: this.requestCounter,
       uptime: Date.now() - (globalThis as any).startTime || 0
     };
