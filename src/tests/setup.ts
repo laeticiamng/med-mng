@@ -104,13 +104,61 @@ Object.defineProperty(window, 'performance', {
 
 global.fetch = vi.fn();
 
-// Mock de Supabase client pour les tests
+// Mock de Supabase client pour les tests avec chaîne de méthodes complète
+const createMockQueryBuilder = () => {
+  const mockBuilder: any = {
+    select: vi.fn(() => mockBuilder),
+    insert: vi.fn(() => mockBuilder),
+    update: vi.fn(() => mockBuilder),
+    delete: vi.fn(() => mockBuilder),
+    upsert: vi.fn(() => mockBuilder),
+    eq: vi.fn(() => mockBuilder),
+    neq: vi.fn(() => mockBuilder),
+    gt: vi.fn(() => mockBuilder),
+    gte: vi.fn(() => mockBuilder),
+    lt: vi.fn(() => mockBuilder),
+    lte: vi.fn(() => mockBuilder),
+    like: vi.fn(() => mockBuilder),
+    ilike: vi.fn(() => mockBuilder),
+    is: vi.fn(() => mockBuilder),
+    in: vi.fn(() => mockBuilder),
+    contains: vi.fn(() => mockBuilder),
+    containedBy: vi.fn(() => mockBuilder),
+    range: vi.fn(() => mockBuilder),
+    textSearch: vi.fn(() => mockBuilder),
+    filter: vi.fn(() => mockBuilder),
+    or: vi.fn(() => mockBuilder),
+    and: vi.fn(() => mockBuilder),
+    not: vi.fn(() => mockBuilder),
+    match: vi.fn(() => mockBuilder),
+    order: vi.fn(() => mockBuilder),
+    limit: vi.fn(() => mockBuilder),
+    offset: vi.fn(() => mockBuilder),
+    single: vi.fn(() => mockBuilder),
+    maybeSingle: vi.fn(() => mockBuilder),
+    csv: vi.fn(() => mockBuilder),
+    then: vi.fn((resolve) => resolve({ data: [], error: null })),
+  };
+  return mockBuilder;
+};
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(),
+    from: vi.fn(() => createMockQueryBuilder()),
     functions: {
-      invoke: vi.fn(),
+      invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
     },
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+    },
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn().mockReturnThis(),
+      unsubscribe: vi.fn(),
+    })),
+    removeChannel: vi.fn(),
   },
 }));
 
