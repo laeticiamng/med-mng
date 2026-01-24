@@ -91,6 +91,14 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
     
     // Real search from Supabase edn_items_complete (properly typed table)
     try {
+      // Guard against undefined supabase client (test environment)
+      if (!supabase || typeof supabase.from !== 'function') {
+        console.warn('Supabase client not available');
+        setResults([]);
+        setIsLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, subtitle')
