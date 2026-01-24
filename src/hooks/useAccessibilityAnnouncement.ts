@@ -101,7 +101,9 @@ export const useAccessibilityAnnouncement = (): UseAccessibilityAnnouncementRetu
   // Ajouter à l'historique
   const addToHistory = useCallback((message: string, priority: AnnouncementPriority, type?: AnnouncementType) => {
     const log: AnnouncementLog = {
-      id: `ann_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? `ann_${crypto.randomUUID().slice(0, 8)}` 
+        : `ann_${Date.now()}`,
       message,
       timestamp: new Date(),
       priority,

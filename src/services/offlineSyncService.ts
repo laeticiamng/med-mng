@@ -86,7 +86,9 @@ class OfflineSyncService {
     operation: 'insert' | 'update' | 'delete',
     data: any
   ): Promise<string> {
-    const id = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? `sync_${crypto.randomUUID().slice(0, 8)}` 
+      : `sync_${Date.now()}_${(++this.syncQueue.length).toString(36).padStart(6, '0')}`;
 
     const item: SyncQueueItem = {
       id,

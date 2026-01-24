@@ -98,7 +98,9 @@ export const useOfflineQueue = () => {
   // Ajouter une requête de génération
   const addGenerationRequest = useCallback(async (payload: any) => {
     const item: QueuedRequest = {
-      id: `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? `gen_${crypto.randomUUID().slice(0, 8)}` 
+        : `gen_${Date.now()}_${queue.length.toString(36).padStart(6, '0')}`,
       type: 'generate-music',
       payload,
       createdAt: Date.now(),

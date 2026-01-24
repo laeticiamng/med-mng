@@ -85,15 +85,17 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div className={cn('space-y-2', className)}>
-      {Array.from({ length: lines }).map((_, index) => (
-        <div 
-          key={index}
-          className="medical-skeleton rounded-md h-4"
-          style={{ 
-            width: index === lines - 1 ? `${Math.random() * 30 + 70}%` : '100%' 
-          }}
-        />
-      ))}
+      {Array.from({ length: lines }).map((_, index) => {
+        // Deterministic width based on index (last line shorter)
+        const width = index === lines - 1 ? `${70 + (index * 7) % 30}%` : '100%';
+        return (
+          <div 
+            key={index}
+            className="medical-skeleton rounded-md h-4"
+            style={{ width }}
+          />
+        );
+      })}
     </div>
   );
 };

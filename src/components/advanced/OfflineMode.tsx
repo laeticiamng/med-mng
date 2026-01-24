@@ -499,7 +499,9 @@ export const OfflineMode: React.FC = () => {
   // Ajouter à la queue de sync (pour les actions hors ligne)
   const addToSyncQueue = async (action: SyncQueueItem['action'], table: string, data: any) => {
     const item: SyncQueueItem = {
-      id: `sync_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? `sync_${crypto.randomUUID().slice(0, 8)}` 
+        : `sync_${Date.now()}`,
       action,
       table,
       data,

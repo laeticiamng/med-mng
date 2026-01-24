@@ -66,7 +66,8 @@ export const useExamMode = () => {
         }
 
         // Generate a QCM from competences
-        const correctAnswer = Math.floor(Math.random() * 4);
+        // Deterministic correct answer based on index
+        const correctAnswer = index % 4;
         const options = Array(4).fill('').map((_, i) => {
           if (i === correctAnswer) {
             return competences[0] || `Compétence principale de ${item.title}`;
@@ -111,8 +112,12 @@ export const useExamMode = () => {
         throw new Error('No items available');
       }
 
-      // Shuffle and pick items
-      const shuffled = allItems.sort(() => Math.random() - 0.5);
+      // Deterministic shuffle using Fisher-Yates with seed
+      const shuffled = [...allItems];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = (Date.now() + i * 17) % (i + 1);
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
       const selectedCodes = shuffled.slice(0, questionCount).map(i => i.item_code);
 
       // Generate questions

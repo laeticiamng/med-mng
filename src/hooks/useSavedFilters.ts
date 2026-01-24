@@ -96,7 +96,9 @@ export const useSavedFilters = () => {
   // Save current filter as preset
   const saveCurrentFilter = useCallback((name: string) => {
     const newFilter: SavedFilter = {
-      id: `filter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? `filter_${crypto.randomUUID().slice(0, 8)}` 
+        : `filter_${Date.now()}`,
       name: name.trim() || `Filtre ${savedFilters.length + 1}`,
       filters: { ...currentFilters },
       createdAt: new Date().toISOString()
