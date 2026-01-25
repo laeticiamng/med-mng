@@ -52,7 +52,7 @@ export function NotificationPredictions() {
       const startDate = startOfDay(subDays(new Date(), 30));
       const endDate = startOfDay(new Date());
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('notification_history')
         .select('sent_at, status')
         .eq('user_id', user.id)
@@ -60,11 +60,11 @@ export function NotificationPredictions() {
         .lte('sent_at', endDate.toISOString())
         .order('sent_at', { ascending: true });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Grouper par jour
       const grouped: Record<string, HistoricalData> = {};
-      (_data || []).forEach((item) => {
+      (data || []).forEach((item) => {
         const dateKey = format(new Date(item.sent_at), 'yyyy-MM-dd');
         if (!grouped[dateKey]) {
           grouped[dateKey] = {

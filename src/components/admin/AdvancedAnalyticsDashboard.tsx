@@ -66,13 +66,13 @@ export default function AdvancedAnalyticsDashboard() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('analytics-engine', {
+      const { data, error } = await supabase.functions.invoke('analytics-engine', {
         body: { timeframe, detailed: true }
       });
 
       if (error) throw error;
 
-      setAnalytics(_data.metrics);
+      setAnalytics(data.metrics);
       setLastUpdate(new Date());
       toast.success(`Analytics générées pour ${timeframe}`);
     } catch (error) {

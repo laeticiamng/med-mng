@@ -63,7 +63,7 @@ export const AdminContentManager = () => {
     try {
       setLoading(true);
       
-      const { _data: immersiveItems, _error: immersiveError } = await supabase
+      const { data: immersiveItems, error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, 
@@ -77,7 +77,7 @@ export const AdminContentManager = () => {
         throw immersiveError;
       }
 
-      const { _data: completeItems } = await supabase
+      const { data: completeItems } = await supabase
         .from('edn_items_complete')
         .select('item_code, completeness_score, is_validated');
 
@@ -150,7 +150,7 @@ export const AdminContentManager = () => {
   const handleValidateItem = async (itemId: string, itemCode: string) => {
     try {
       // Persister la validation dans la base de données
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('edn_items_complete')
         .update({
           is_validated: true,
@@ -158,7 +158,7 @@ export const AdminContentManager = () => {
         })
         .eq('item_code', itemCode);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Mettre à jour l'état local après succès
       const updatedItems = items.map(item =>
@@ -190,7 +190,7 @@ export const AdminContentManager = () => {
 
     try {
       // Supprimer de la table edn_items_immersive
-      const { _error: immersiveError } = await supabase
+      const { error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .delete()
         .eq('id', itemId);
@@ -215,12 +215,12 @@ export const AdminContentManager = () => {
 
   const handleInvalidateItem = async (itemId: string, itemCode: string) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('edn_items_complete')
         .update({ is_validated: false })
         .eq('item_code', itemCode);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const updatedItems = items.map(item =>
         item.id === itemId ? { ...item, is_validated: false } : item

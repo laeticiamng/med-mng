@@ -96,7 +96,7 @@ export const AdminSystemSettings = () => {
       setLoading(true);
 
       // Vérification réelle de la base de données via une table typée
-      const { _error: dbError } = await supabase
+      const { error: dbError } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true });
 
@@ -110,7 +110,7 @@ export const AdminSystemSettings = () => {
         .gte('created_at', fiveMinutesAgo);
 
       // Vérifier le dernier backup (depuis extraction_logs)
-      const { _data: lastBackup } = await supabase
+      const { data: lastBackup } = await supabase
         .from('extraction_logs')
         .select('created_at')
         .order('created_at', { ascending: false })

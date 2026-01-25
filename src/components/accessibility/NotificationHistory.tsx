@@ -54,16 +54,16 @@ export function NotificationHistory() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('notification_history')
         .select('*')
         .eq('user_id', user.id)
         .order('sent_at', { ascending: false })
         .limit(100);
 
-      if (_error) throw _error;
+      if (error) throw error;
       
-      const typedData = (_data || []).map(item => ({
+      const typedData = (data || []).map(item => ({
         ...item,
         platform: item.platform as 'slack' | 'discord',
         status: item.status as 'success' | 'failed' | 'pending',
@@ -96,17 +96,17 @@ export function NotificationHistory() {
     try {
       setResending(notificationId);
       
-      const { _data, error } = await supabase.functions.invoke('resend-notification', {
+      const { data, error } = await supabase.functions.invoke('resend-notification', {
         body: { notificationId },
       });
 
       if (error) throw error;
 
-      if (_data?.success) {
+      if (data?.success) {
         toast.success('Notification renvoyée avec succès');
         loadHistory();
       } else {
-        toast.error(_data?.error || 'Échec du renvoi');
+        toast.error(data?.error || 'Échec du renvoi');
       }
     } catch (error: any) {
       console.error('Error resending notification:', error);

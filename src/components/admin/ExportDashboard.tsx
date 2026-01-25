@@ -53,7 +53,7 @@ export const ExportDashboard = () => {
         includeMetadata
       });
 
-      const { _data, error } = await supabase.functions.invoke('admin-export', {
+      const { data, error } = await supabase.functions.invoke('admin-export', {
         body: {
           format,
           tables: selectedTables,

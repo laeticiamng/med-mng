@@ -63,7 +63,7 @@ export const AdminSubscriptionsManager = () => {
       setLoading(true);
       
       // Récupérer les données des abonnements depuis user_quotas
-      const { _data: quotaData, _error: quotaError } = await supabase
+      const { data: quotaData, error: quotaError } = await supabase
         .from('user_quotas')
         .select(`
           user_id, subscription_type, 

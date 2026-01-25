@@ -45,14 +45,14 @@ export const ChangelogDashboard: React.FC = () => {
   const fetchChangelog = async () => {
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('admin-quick-edit', {
+      const { data, error } = await supabase.functions.invoke('admin-quick-edit', {
         body: { action: 'get_changelog' }
       });
 
       if (error) throw error;
 
-      if (_data.success) {
-        setChangelog(_data.data);
+      if (data.success) {
+        setChangelog(data.data);
       }
     } catch (error) {
       console.error('Erreur fetch changelog:', error);
