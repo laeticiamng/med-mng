@@ -31,6 +31,8 @@ export const usePWAMetrics = () => {
 
   const metricsRef = useRef<any>({});
   const sessionIdRef = useRef<string>('');
+  const pageViewsRef = useRef(0);
+  const hasTrackedInitialView = useRef(false);
 
   // Générer un ID de session unique avec crypto.randomUUID
   useEffect(() => {
@@ -107,10 +109,7 @@ export const usePWAMetrics = () => {
     });
   }, []);
 
-  // Tracker les page views - using ref to avoid infinite loop
-  const pageViewsRef = useRef(0);
-  const hasTrackedInitialView = useRef(false);
-
+  // Tracker les page views - using refs declared at top to avoid infinite loop
   useEffect(() => {
     const handlePageView = () => {
       pageViewsRef.current += 1;
