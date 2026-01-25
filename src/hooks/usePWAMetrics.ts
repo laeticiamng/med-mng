@@ -107,15 +107,22 @@ export const usePWAMetrics = () => {
     });
   }, []);
 
-  // Tracker les page views
+  // Tracker les page views - using ref to avoid infinite loop
+  const pageViewsRef = useRef(0);
+  const hasTrackedInitialView = useRef(false);
+
   useEffect(() => {
     const handlePageView = () => {
-      setMetrics(prev => ({ ...prev, pageViews: prev.pageViews + 1 }));
-      sendMetricUpdate({ page_views: metrics.pageViews + 1 });
+      pageViewsRef.current += 1;
+      setMetrics(prev => ({ ...prev, pageViews: pageViewsRef.current }));
+      sendMetricUpdate({ page_views: pageViewsRef.current });
     };
 
-    // Initial page view
-    handlePageView();
+    // Initial page view - only once
+    if (!hasTrackedInitialView.current) {
+      hasTrackedInitialView.current = true;
+      handlePageView();
+    }
 
     // Listen to route changes
     window.addEventListener('popstate', handlePageView);
@@ -123,7 +130,7 @@ export const usePWAMetrics = () => {
     return () => {
       window.removeEventListener('popstate', handlePageView);
     };
-  }, [metrics.pageViews]);
+  }, []); // Empty deps - no infinite loop
 
   // Envoyer la durée de session avant fermeture
   useEffect(() => {
