@@ -94,7 +94,7 @@ export function NotificationAnalytics() {
       const previousDates = getPeriodDates(period, 1);
 
       // Charger les données de la période actuelle
-      const { _data: currentData, _error: currentError } = await supabase
+      const { data: currentData, error: currentError } = await supabase
         .from('notification_history')
         .select('id, platform, status, sent_at')
         .eq('user_id', user.id)
@@ -107,7 +107,7 @@ export function NotificationAnalytics() {
       // Charger les données de la période précédente si mode comparaison
       let previousData = [];
       if (compareMode) {
-        const { _data: prevData, _error: prevError } = await supabase
+        const { data: prevData, error: prevError } = await supabase
           .from('notification_history')
           .select('id, platform, status, sent_at')
           .eq('user_id', user.id)

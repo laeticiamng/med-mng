@@ -102,14 +102,14 @@ export const RealTimeDashboard = () => {
   useEffect(() => {
     const fetchRecentActivity = async () => {
       try {
-        const { _data, _error } = await supabase
+        const { data, error } = await supabase
           .from('operation_logs')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(10);
 
-        if (!_error && _data) {
-          setRecentActivity(_data);
+        if (!error && data) {
+          setRecentActivity(data);
         }
       } catch (err) {
         console.error('Erreur récupération activité:', err);

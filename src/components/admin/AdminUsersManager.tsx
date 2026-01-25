@@ -58,7 +58,7 @@ export const AdminUsersManager = () => {
     try {
       setLoading(true);
       
-      const { _data: profiles, _error: profilesError } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, name, role, created_at')
         .order('created_at', { ascending: false });
@@ -123,12 +123,12 @@ export const AdminUsersManager = () => {
           break;
       }
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', userId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast.success(`Action exécutée avec succès`);
       fetchUsers(); // Refresh

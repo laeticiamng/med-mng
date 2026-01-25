@@ -55,7 +55,7 @@ export const AdminSecurityAudit = () => {
 
   const fetchSecurityAudit = async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
         body: { action: 'security-audit' }
       });
 
@@ -63,7 +63,7 @@ export const AdminSecurityAudit = () => {
         throw error;
       }
 
-      setAuditReport(_data);
+      setAuditReport(data);
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Erreur audit sécurité:', error);
@@ -110,7 +110,7 @@ export const AdminSecurityAudit = () => {
 
   const cleanupExpiredSessions = async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
         body: { action: 'cleanup-sessions' }
       });
 
@@ -118,7 +118,7 @@ export const AdminSecurityAudit = () => {
         throw error;
       }
 
-      toast.success(`${_data.message}`);
+      toast.success(`${data.message}`);
       fetchSecurityAudit(); // Refresh après nettoyage
     } catch (error) {
       console.error('Erreur nettoyage:', error);

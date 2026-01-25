@@ -128,15 +128,15 @@ export const AdminDashboard: React.FC = () => {
 
   const fetchRecentActivity = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('admin_changelog')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(15);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const activities: RecentActivity[] = (_data || []).map(item => ({
+      const activities: RecentActivity[] = (data || []).map(item => ({
         id: item.id,
         type: item.action_type,
         description: `${item.action_type} sur ${item.table_name}`,

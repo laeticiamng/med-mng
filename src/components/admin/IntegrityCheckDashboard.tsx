@@ -50,14 +50,14 @@ export const IntegrityCheckDashboard: React.FC = () => {
   const fetchChecks = async () => {
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('data-integrity-check', {
+      const { data, error } = await supabase.functions.invoke('data-integrity-check', {
         body: { action: 'get_status' }
       });
 
       if (error) throw error;
 
-      if (_data.success) {
-        setChecks(_data.data);
+      if (data.success) {
+        setChecks(data.data);
       }
     } catch (error) {
       console.error('Erreur fetch checks:', error);
@@ -70,7 +70,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
   const runIntegrityCheck = async () => {
     setRunningCheck(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('data-integrity-check', {
+      const { data, error } = await supabase.functions.invoke('data-integrity-check', {
         body: { 
           action: 'run_check',
           check_type: 'manual',
@@ -80,9 +80,9 @@ export const IntegrityCheckDashboard: React.FC = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
-        if (_data.should_block) {
-          toast.error(`🚨 CHECK BLOQUÉ: ${_data.summary.critical_issues} problèmes critiques détectés!`);
+      if (data.success) {
+        if (data.should_block) {
+          toast.error(`🚨 CHECK BLOQUÉ: ${data.summary.critical_issues} problèmes critiques détectés!`);
         } else {
           toast.success(`✅ Check terminé: ${_data.summary.total_issues} problèmes trouvés`);
         }
