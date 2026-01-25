@@ -58,8 +58,8 @@ export const LyricsCompletionStatus: React.FC = () => {
     try {
       setLoading(true);
       
-      const { _data, _error } = await supabase
-        .from('edn_items_immersive')
+      const { data, error } = await supabase
+        .from('edn_items_complete')
         .select(`
           id, item_code, title,
           paroles_rang_a, paroles_rang_b, paroles_rang_ab,
@@ -67,13 +67,13 @@ export const LyricsCompletionStatus: React.FC = () => {
         `)
         .order('item_code');
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      setItems(_data || []);
+      setItems(data || []);
       
       toast({
         title: "📊 Statut chargé",
-        description: `${_data?.length || 0} items analysés`
+        description: `${data?.length || 0} items analysés`
       });
     } catch (error) {
       console.error('Erreur:', error);

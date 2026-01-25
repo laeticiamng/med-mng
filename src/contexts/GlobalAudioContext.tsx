@@ -19,7 +19,7 @@ interface GlobalAudioContextType {
   play: (track: AudioTrack) => void;
   pause: () => void;
   resume: () => void;
-  _stop: () => void;
+  stop: () => void;
   seek: (time: number) => void;
   changeVolume: (volume: number) => void;
   minimize: () => void;
@@ -201,6 +201,18 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       });
     }
   };
+
+  const stop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setCurrentTrack(null);
+      console.log('⏹️ Audio arrêté');
+    }
+  };
+
   const seek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
@@ -250,7 +262,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
         play,
         pause,
         resume,
-        _stop,
+        stop,
         seek,
         changeVolume,
         minimize,
