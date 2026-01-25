@@ -7,7 +7,7 @@ interface RangGenerateButtonProps {
   rang: 'A' | 'B';
   musicDuration: number;
   isGenerating: boolean;
-  _buttonColor: string;
+  _buttonColor?: string;
   onGenerate: () => void;
 }
 
@@ -15,7 +15,6 @@ export const RangGenerateButton: React.FC<RangGenerateButtonProps> = ({
   rang,
   musicDuration,
   isGenerating,
-  _buttonColor,
   onGenerate
 }) => {
   const formatDuration = (seconds: number) => {

@@ -105,7 +105,7 @@ export const MentorshipSystem: React.FC = () => {
 
         if (sessionsData && sessionsData.length > 0) {
           const sessionMentorIds = sessionsData.map(s => s.mentor_id);
-          const { _data: mentorProfiles } = await supabase
+          await supabase
             .from('mentors')
             .select('id, user_id')
             .in('id', sessionMentorIds);

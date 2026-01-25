@@ -62,11 +62,10 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
   
-  const { 
-    currentErrors, 
-    _hasCurrentSession, 
-    startQuizSession, 
-    endQuizSession 
+  const {
+    currentErrors,
+    startQuizSession,
+    endQuizSession
   } = useQuizErrorTracker();
   
   const { saveQuizResult } = useQuizResults();

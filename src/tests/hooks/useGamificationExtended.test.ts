@@ -112,11 +112,10 @@ describe('Gamification Module - Extended Tests', () => {
     });
 
     it('should reset streak if gap in activity', () => {
-      const _today = new Date();
       // Avec un gap de 2 jours, le streak devrait être 1
       const hasGap = true;
       const expectedStreak = hasGap ? 1 : 2;
-      
+
       expect(expectedStreak).toBe(1);
     });
 

@@ -114,7 +114,7 @@ export default function AdminAudit() {
     setIsRunningAudit(prev => ({ ...prev, [auditType]: true }));
 
     try {
-      const { _data, error } = await supabase.functions.invoke('audit-system', {
+      const { error } = await supabase.functions.invoke('audit-system', {
         body: {
           auditType,
           autoFix: autoFixEnabled

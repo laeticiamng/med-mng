@@ -248,7 +248,7 @@ export const useSunoMusicGeneration = () => {
       setPollingProgress(0);
       
       const translatedLyrics = await translateLyricsIfNeeded(parolesText);
-      const { isComposition, _styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
+      const { isComposition, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model, undefined, advancedParams);
 
       // Étape 1: Appeler l'API Suno pour démarrer la génération

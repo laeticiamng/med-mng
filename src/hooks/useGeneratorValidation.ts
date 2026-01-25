@@ -44,7 +44,7 @@ export const useGeneratorValidation = ({
   remainingFree,
   canGenerateMusic
 }: UseGeneratorValidationOptions) => {
-  const { _credits, hasNoCredits, hasLowCredits } = useSunoCredits();
+  const { hasNoCredits, hasLowCredits } = useSunoCredits();
 
   // Vérifier la disponibilité des paroles
   const lyricsAvailability = useMemo(() => {

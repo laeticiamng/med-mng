@@ -134,7 +134,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { _data, _error } = await supabase
+      const { _data } = await supabase
         .from('user_preferences_extended')
         .select('music_volume, auto_play, binaural_enabled')
         .eq('user_id', user.user.id)

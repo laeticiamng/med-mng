@@ -176,7 +176,7 @@ const handlers = [
     });
   }),
 
-  http.get('*/music/:id/status', ({ params }) => {
+  http.get('*/music/:id/status', ({ params: _params }) => {
     return HttpResponse.json<APIResponse<{ status: string; progress: number }>>({
       success: true,
       data: { status: 'completed', progress: 100 }

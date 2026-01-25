@@ -36,8 +36,6 @@ interface GeneratedTrack {
   task_id?: string;
 }
 
-type FilterTypeSimple = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
-
 const ITEMS_PER_PAGE = 10;
 
 export const GenerationHistory: React.FC = () => {
@@ -61,7 +59,7 @@ export const GenerationHistory: React.FC = () => {
   const [shareTrack, setShareTrack] = useState<GeneratedTrack | null>(null);
 
   // Realtime subscription pour les nouvelles générations
-  const { isConnected: realtimeConnected } = useRealtimeGeneration({
+  useRealtimeGeneration({
     userId: user?.id,
     onGenerationComplete: (_track) => {
       loadHistory();
@@ -898,7 +896,6 @@ export const GenerationHistory: React.FC = () => {
         <ShareMusicDialog
           trackTitle={shareTrack.title || `${shareTrack.item_code} - Rang ${shareTrack.rang}`}
           trackId={shareTrack.id}
-          _audioUrl={shareTrack.audio_url}
           open={!!shareTrack}
           onOpenChange={(open) => !open && setShareTrack(null)}
         />

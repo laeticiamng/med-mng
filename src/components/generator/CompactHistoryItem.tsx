@@ -12,7 +12,7 @@ import { Download, Heart, Pause, Play, Trash2 } from 'lucide-react';
 import React from 'react';
 
 interface CompactHistoryItemProps {
-  _id: string;
+  _id?: string;
   title?: string;
   item_code: string;
   rang: string;
@@ -29,7 +29,6 @@ interface CompactHistoryItemProps {
 }
 
 export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = ({
-  _id,
   title,
   item_code,
   rang,

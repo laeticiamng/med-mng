@@ -16,15 +16,6 @@ import { ArrowLeft, BarChart3, GitCompare, RefreshCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-interface RecommendationWithMeasurement {
-  id: string;
-  category: string;
-  applied_at: string;
-  measured_at?: string;
-  impact_score?: number | null;
-  impact_calculated?: boolean;
-}
-
 export default function EffectivenessDashboard() {
   const navigate = useNavigate();
   const chartRef = useRef<HTMLDivElement>(null);

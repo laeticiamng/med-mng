@@ -115,10 +115,10 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
 
   const createNewPlaylist = async () => {
     if (!user || !newPlaylistName.trim()) return;
-    
+
     setCreatingNew(true);
     try {
-      const { _data, _error } = await supabase
+      const { _error } = await supabase
         .from('user_playlists')
         .insert({
           user_id: user.id,

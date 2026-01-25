@@ -91,7 +91,7 @@ export const useSpotifyAI = () => {
 
   const getStreamingUrl = async (_songId: string): Promise<string | null> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.auth.getUser();
       
       const { _data, error } = await supabase.functions.invoke('spotify-ai-complete/stream', {
         method: 'GET'

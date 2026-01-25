@@ -29,7 +29,7 @@ interface LearningInsight {
 
 export const LearningInsights: React.FC = () => {
   const navigate = useNavigate();
-  const { _insights, generateInsights, loading } = useLearningAnalytics();
+  const { generateInsights, loading } = useLearningAnalytics();
   const { getTodayStats, logActivity } = useActivityTracking();
   const { _stats: _gamificationStats, loadStats } = useGamification();
   const [localInsights, setLocalInsights] = useState<LearningInsight[]>([]);

@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false }) => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [testResults, setTestResults] = useState<any>({});
-  const { currentTrack, isPlaying, play, pause, _stop } = useGlobalAudio();
+  const { currentTrack, isPlaying, play, pause } = useGlobalAudio();
 
   // URL de test audio
   const testAudioUrl = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';

@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 interface ShareMusicDialogProps {
   trackTitle: string;
   trackId: string;
-  _audioUrl?: string;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -23,7 +22,6 @@ interface ShareMusicDialogProps {
 export const ShareMusicDialog: React.FC<ShareMusicDialogProps> = ({
   trackTitle,
   trackId,
-  _audioUrl,
   trigger,
   open: externalOpen,
   onOpenChange: externalOnOpenChange

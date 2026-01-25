@@ -134,11 +134,11 @@ export const SystemMonitor: React.FC = () => {
     const fetchRealMetrics = async () => {
       try {
         // Query real activity counts from database
-        const { _data: activityCount } = await supabase
+        await supabase
           .from('gamification_activities')
           .select('id', { count: 'exact', head: true });
-        
-        const { _data: profileCount } = await supabase
+
+        await supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true });
 

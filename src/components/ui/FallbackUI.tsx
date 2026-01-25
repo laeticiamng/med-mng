@@ -13,7 +13,7 @@ interface FallbackUIProps {
 }
 
 export function FallbackUI({ context, children }: FallbackUIProps) {
-  const { _status, dataCompleteness, isLoading, refresh, needsUpgrade, isOperational, completenessScore } = useSystemStatus();
+  const { dataCompleteness, isLoading, refresh, needsUpgrade, isOperational, completenessScore } = useSystemStatus();
   const { logActivity } = useActivityTracking();
 
   // Track system status view when there are issues

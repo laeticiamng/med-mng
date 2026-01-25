@@ -79,7 +79,6 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   onClose 
 }) => {
   const {
-    _notifications,
     removeNotification,
     clearAll
   } = useNotifications();

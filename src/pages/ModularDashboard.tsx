@@ -11,20 +11,8 @@ import { StudyPlanManager } from '@/components/study/StudyPlanManager';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import {
-    BarChart3,
-    Brain,
-    Calendar,
-    MessageSquare,
-    Music,
-    Settings,
-    Sparkles,
-    Target,
-    TrendingUp,
-    Users
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import React, { Suspense, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Lazy loaded components
 const RealTimeAnalytics = React.lazy(() => import('@/components/analytics/RealTimeAnalytics').then(m => ({ default: m.RealTimeAnalytics })));
@@ -33,95 +21,13 @@ const AchievementSystem = React.lazy(() => import('@/components/gamification/Ach
 const CommunityHub = React.lazy(() => import('@/components/social/CommunityHub').then(m => ({ default: m.CommunityHub })));
 
 export default function ModularDashboard() {
-  const _navigate = useNavigate();
   const [activeModule, setActiveModule] = useState('analytics');
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     logActivity({ activity_type: 'study', metadata: { action: 'view_modular_dashboard' } });
   }, []);
-  const _modules = [
-    {
-      id: 'analytics',
-      name: 'Analytics Avancées',
-      description: 'Analyse détaillée de votre progression et performances',
-      icon: BarChart3,
-      color: 'from-primary to-primary/80',
-      component: AdvancedAnalyticsDashboard
-    },
-    {
-      id: 'music',
-      name: 'Générateur Musical IA',
-      description: 'Création de musiques personnalisées pour l\'étude',
-      icon: Music,
-      color: 'from-accent to-accent/80',
-      component: AdvancedMusicGenerator
-    },
-    {
-      id: 'assistant',
-      name: 'Assistant IA Médical',
-      description: 'Chat intelligent pour l\'assistance médicale',
-      icon: MessageSquare,
-      color: 'from-success to-success/80',
-      component: AIChat
-    },
-    {
-      id: 'analytics-realtime',
-      name: 'Analytics Temps Réel',
-      description: 'Données en direct et métriques avancées',
-      icon: TrendingUp,
-      color: 'from-warning to-warning/80',
-      component: () => import('@/components/analytics/RealTimeAnalytics').then(m => m.RealTimeAnalytics)
-    },
-    {
-      id: 'profile',
-      name: 'Profil Utilisateur',
-      description: 'Gestion complète du profil et préférences',
-      icon: Settings,
-      color: 'from-muted-foreground to-muted-foreground/80',
-      component: () => import('@/components/profile/UserProfileManager').then(m => m.UserProfileManager)
-    },
-    {
-      id: 'achievements',
-      name: 'Système de Récompenses',
-      description: 'Achievements et progression gamifiée',
-      icon: Brain,
-      color: 'from-warning to-warning/80',
-      component: () => import('@/components/gamification/AchievementSystem').then(m => m.AchievementSystem)
-    },
-    {
-      id: 'community',
-      name: 'Hub Communautaire',
-      description: 'Interactions sociales et groupes d\'étude',
-      icon: Users,
-      color: 'from-accent to-accent/80',
-      component: () => import('@/components/social/CommunityHub').then(m => m.CommunityHub)
-    },
-    {
-      id: 'study-plans',
-      name: 'Plans d\'Étude',
-      description: 'Gestion et suivi des plans d\'apprentissage',
-      icon: Target,
-      color: 'from-primary to-primary/80',
-      component: StudyPlanManager
-    },
-    {
-      id: 'calendar',
-      name: 'Calendrier d\'Étude',
-      description: 'Planning et organisation des sessions',
-      icon: Calendar,
-      color: 'from-primary to-primary/80',
-      component: StudyCalendar
-    },
-    {
-      id: 'system',
-      name: 'Paramètres Système',
-      description: 'Configuration et monitoring avancés',
-      icon: Settings,
-      color: 'from-destructive to-destructive/80',
-      component: SystemSettings
-    }
-  ];
+
   const handleSidebarNavigation = (moduleId: string) => {
     setActiveModule(moduleId);
   };

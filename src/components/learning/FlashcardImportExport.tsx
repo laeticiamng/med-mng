@@ -8,14 +8,13 @@ import { Check, Download, FileText, Upload } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
 interface FlashcardImportExportProps {
-  _decks: FlashcardDeck[];
+  _decks?: FlashcardDeck[];
   currentDeck?: FlashcardDeck | null;
   cards: Flashcard[];
   onImport: (cards: Array<{ front: string; back: string; tags?: string[] }>) => Promise<void>;
 }
 
 export const FlashcardImportExport: React.FC<FlashcardImportExportProps> = ({
-  _decks,
   currentDeck,
   cards,
   onImport

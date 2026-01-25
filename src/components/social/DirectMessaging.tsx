@@ -52,7 +52,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   useEffect(() => {
     loadCurrentUser();

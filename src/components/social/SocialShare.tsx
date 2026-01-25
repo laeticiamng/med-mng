@@ -15,15 +15,13 @@ interface SocialShareProps {
   title: string;
   description?: string;
   value?: number | string;
-  _imageUrl?: string;
 }
 
 export const SocialShare: React.FC<SocialShareProps> = ({
   type,
   title,
   description,
-  value,
-  _imageUrl
+  value
 }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();

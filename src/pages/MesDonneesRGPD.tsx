@@ -101,11 +101,11 @@ const MesDonneesRGPD = () => {
 
       const confirmationToken = `DELETE_${userId}`;
 
-      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
+      const { error } = await supabase.functions.invoke('med-mng-api', {
+        body: {
           path: '/rgpd/purge',
           method: 'DELETE',
-          body: { 
+          body: {
             user_id: userId,
             confirmation_token: confirmationToken
           }

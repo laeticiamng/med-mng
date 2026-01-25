@@ -10,7 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 interface KaraokePlayerProps {
   songId: string;
   currentTime: number; // En secondes
-  _isPlaying: boolean;
+  _isPlaying?: boolean;
   onSeek: (time: number) => void;
   _onTogglePlay?: () => void;
   className?: string;
@@ -19,9 +19,7 @@ interface KaraokePlayerProps {
 export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
   songId,
   currentTime,
-  _isPlaying,
   onSeek,
-  _onTogglePlay,
   className = ""
 }) => {
   const { 

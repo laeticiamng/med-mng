@@ -40,8 +40,7 @@ export const useParolesMusicales = (
     play,
     pause,
     seek,
-    changeVolume,
-    _stop
+    changeVolume
   } = useGlobalAudio();
 
   // Fusionner l'audio des différentes sources
@@ -203,7 +202,6 @@ export const useParolesMusicales = (
     handleGenerateMix,
     handlePlayAudio,
     seek,
-    changeVolume,
-    stop
+    changeVolume
   };
 };

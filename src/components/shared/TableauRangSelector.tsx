@@ -15,14 +15,12 @@ interface TableauRangSelectorProps {
     competences_oic_rang_b?: any[];
   };
   itemCode: string;
-  _onGenerateMusic?: (rang: 'A' | 'B' | 'Mix') => void;
   onGenerateQCM?: (rang: 'A' | 'B' | 'Mix') => void;
 }
 
 export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
   data,
   itemCode,
-  _onGenerateMusic,
   onGenerateQCM
 }) => {
   const [activeRang, setActiveRang] = useState<'A' | 'B'>('A');

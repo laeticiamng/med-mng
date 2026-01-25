@@ -16,8 +16,7 @@ export const OnboardingModal: React.FC = () => {
     previousStep,
     completeStep,
     _completeOnboarding,
-    _skipOnboarding,
-    _isCompleted
+    _skipOnboarding
   } = useOnboarding();
   const { logActivity } = useActivityTracking();
 

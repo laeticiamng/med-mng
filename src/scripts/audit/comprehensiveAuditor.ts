@@ -337,8 +337,8 @@ export class ComprehensiveSystemAuditor {
     console.log('🌐 Audit de l\'API...');
     
     try {
-      const { _data, error } = await supabase.auth.getSession();
-      
+      const { error } = await supabase.auth.getSession();
+
       if (error) {
         result.systemHealth.api = 'warning';
         result.issues.push({
@@ -364,8 +364,8 @@ export class ComprehensiveSystemAuditor {
     console.log('🔐 Audit de l\'authentification...');
     
     try {
-      const { _data, error } = await supabase.auth.getSession();
-      
+      const { error } = await supabase.auth.getSession();
+
       if (error) {
         result.systemHealth.auth = 'warning';
         result.issues.push({

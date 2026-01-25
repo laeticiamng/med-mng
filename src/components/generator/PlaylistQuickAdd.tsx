@@ -27,7 +27,7 @@ interface Playlist {
 }
 
 interface PlaylistQuickAddProps {
-  _trackId: string;
+  _trackId?: string;
   trackTitle: string;
   _audioUrl?: string;
   onAdded?: (playlistName: string) => void;
@@ -37,9 +37,7 @@ interface PlaylistQuickAddProps {
 }
 
 export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
-  _trackId,
   trackTitle,
-  _audioUrl,
   onAdded,
   variant = 'button',
   size = 'default',

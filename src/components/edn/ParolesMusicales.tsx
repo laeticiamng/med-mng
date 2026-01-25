@@ -36,9 +36,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   paroles_rang_a,
   paroles_rang_b,
   paroles_rang_ab,
-  itemCode,
-  _tableauRangA,
-  _tableauRangB
+  itemCode
 }) => {
   const [musicCount, setMusicCount] = useState(0);
   const [showReward, setShowReward] = useState(false);
@@ -48,7 +46,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   const { _addPoints, _unlockBadge, _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { trackMusicGeneration } = useAnalyticsTracking();
-  const { cacheAudio, _isAudioCached, isCaching } = useAudioWithCache({ type: 'music' });
+  const { cacheAudio, isCaching } = useAudioWithCache({ type: 'music' });
   const { toast } = useToast();
 
   const toggleTTS = useCallback(() => {

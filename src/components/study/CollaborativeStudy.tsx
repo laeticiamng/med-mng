@@ -42,13 +42,6 @@ interface StudySession {
   created_at: string;
 }
 
-interface SessionParticipant {
-  id: string;
-  user_id: string;
-  role: string;
-  joined_at: string;
-}
-
 export const CollaborativeStudy: React.FC = () => {
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [mySessions, setMySessions] = useState<StudySession[]>([]);
@@ -58,8 +51,8 @@ export const CollaborativeStudy: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
-  const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { logActivity: _logActivity } = useActivityTracking();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {

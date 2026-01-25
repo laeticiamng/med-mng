@@ -18,7 +18,6 @@ import { useNavigate } from 'react-router-dom';
 
 type RevisionType = 'edn' | 'ecos' | 'both';
 type MusicStyle = 'rap' | 'lofi' | 'spoken' | 'mix';
-type Level = 'discovery' | 'revision' | 'mastery';
 
 interface AntiAnxietyOnboardingProps {
   isOpen: boolean;

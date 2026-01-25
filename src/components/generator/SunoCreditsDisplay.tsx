@@ -12,7 +12,6 @@ interface SunoCreditsDisplayProps {
   showRefresh?: boolean;
   autoRefresh?: boolean;
   showProgress?: boolean;
-  _compact?: boolean;
   // Props pour usage externe (passées directement)
   credits?: number;
   loading?: boolean;
@@ -25,7 +24,6 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
   showRefresh = true,
   autoRefresh = false,
   showProgress = false,
-  _compact = false,
   // Props externes (optionnelles, sinon on utilise le hook)
   credits: _externalCredits,
   loading: _externalLoading,

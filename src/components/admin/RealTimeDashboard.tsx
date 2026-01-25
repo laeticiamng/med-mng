@@ -33,9 +33,9 @@ interface SystemHealth {
 
 export const RealTimeDashboard = () => {
   const [metrics, setMetrics] = useState<MetricCard[]>([]);
-  const [systemHealth, _setSystemHealth] = useState<SystemHealth>({
+  const [systemHealth] = useState<SystemHealth>({
     database: 'healthy',
-    api: 'healthy', 
+    api: 'healthy',
     storage: 'healthy'
   });
   const [liveStats, setLiveStats] = useState({
@@ -46,7 +46,7 @@ export const RealTimeDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  const { _events, isConnected } = useRealTimeMonitoring();
+  const { isConnected } = useRealTimeMonitoring();
 
   // Simuler des données temps réel
   useEffect(() => {

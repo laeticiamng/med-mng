@@ -24,8 +24,6 @@ interface ErrorBoundaryProps {
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private _retryTimeoutId: number | null = null;
-
   constructor(props: ErrorBoundaryProps) {
     super(props);
     

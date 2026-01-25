@@ -1,14 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface AudioCacheEntry {
-  url: string;
-  blob: Blob;
-  cachedAt: number;
-  expiresAt: number;
-  size: number;
-  title?: string;
-}
-
 interface AudioCacheStats {
   totalEntries: number;
   totalSize: number;

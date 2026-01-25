@@ -21,7 +21,7 @@ import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 
 // ✅ Composant bannière d'invitation à se connecter
-const LoginPromptBanner: React.FC<{ remainingFree: number }> = ({ remainingFree }) => {
+const LoginPromptBanner: React.FC<{ remainingFree: number }> = () => {
   const navigate = useNavigate();
   
   return (

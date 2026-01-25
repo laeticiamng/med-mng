@@ -39,7 +39,7 @@ interface TemplateEditorProps {
   onTemplateSelect?: (template: EmailTemplate) => void;
 }
 
-export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect }) => {
+export const TemplateEditor: React.FC<TemplateEditorProps> = ({ onTemplateSelect: _onTemplateSelect }) => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [editMode, setEditMode] = useState(false);

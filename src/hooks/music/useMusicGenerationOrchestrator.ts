@@ -58,7 +58,7 @@ const loadActiveTasksFromStorage = (): Map<string, GenerationTask> => {
 
 export const useMusicGenerationOrchestrator = () => {
   const { toast } = useToast();
-  const { startPolling, stopPolling, stopAllPolling, _isPolling, _getActivePollingTasks } = useMusicPolling();
+  const { startPolling, stopPolling, stopAllPolling } = useMusicPolling();
   const activeTasksRef = useRef<Map<string, GenerationTask>>(loadActiveTasksFromStorage());
   
   // ✅ État observable pour l'UI

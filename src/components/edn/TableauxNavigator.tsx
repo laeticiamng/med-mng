@@ -2,7 +2,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from '@/hooks/use-toast'
 import { useActivityTracking } from '@/hooks/useActivityTracking'
 import { useGamification } from '@/hooks/useGamification'
 import { supabase } from '@/integrations/supabase/client'
@@ -44,7 +43,6 @@ export function TableauxNavigator({
 }: TableauxNavigatorProps) {
   const { logActivity } = useActivityTracking()
   const { _stats, loadStats, _addPoints } = useGamification()
-  const { toast } = useToast()
   const hasTrackedRef = useRef(false)
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a')
   const [_userProgress, setUserProgress] = useState({ rangA: 0, rangB: 0 })

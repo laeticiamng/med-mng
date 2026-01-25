@@ -39,7 +39,7 @@ export const MainNavigation: React.FC = () => {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { _stats: gamificationStats, loadStats } = useGamification();
-  const { logActivity } = useActivityTracking();
+  useActivityTracking();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {

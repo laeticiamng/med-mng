@@ -49,7 +49,7 @@ export const PersonalizedDashboard = () => {
     averageRating: 0
   });
 
-  const [weeklyData, _setWeeklyData] = useState<WeeklyData[]>([
+  const [weeklyData] = useState<WeeklyData[]>([
     { day: 'Lun', minutes: 45, sessions: 2 },
     { day: 'Mar', minutes: 60, sessions: 3 },
     { day: 'Mer', minutes: 30, sessions: 1 },
@@ -60,10 +60,10 @@ export const PersonalizedDashboard = () => {
   ]);
 
   const { recommendations, isLoading } = useAIRecommendations();
-  const { predefinedModes, _activeMode } = useListeningModes();
-  const { _stats: gamificationStats, loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
-  const { getWeeklySummary, _getHeatmapData } = useActivityTracking();
-  const [_user, setUser] = useState<any>(null);
+  const { predefinedModes } = useListeningModes();
+  const { loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
+  const { getWeeklySummary } = useActivityTracking();
+  const [, setUser] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {

@@ -28,7 +28,7 @@ export const useChatConversations = () => {
   const [currentConversation, _setCurrentConversation] = useState<Conversation | null>(null);
   const [messages, _setMessages] = useState<ChatMessage[]>([]);
   const [_isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   // Charger les conversations
   const loadConversations = useCallback(async () => {

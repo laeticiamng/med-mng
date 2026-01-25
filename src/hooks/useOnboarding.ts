@@ -140,7 +140,7 @@ export const useOnboarding = () => {
     }
   };
 
-  const skipOnboarding = async () => {
+  const _skipOnboarding = async () => {
     await completeOnboarding();
   };
 

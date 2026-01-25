@@ -21,7 +21,6 @@ export const AdvancedSearch: React.FC = () => {
     searchHistory,
     suggestions,
     search,
-    _realtimeSearch,
     searchSuggestions,
     clearHistory,
     removeFromHistory

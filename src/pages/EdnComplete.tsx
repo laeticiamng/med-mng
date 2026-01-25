@@ -81,14 +81,14 @@ export default function EdnComplete() {
   const [showPricing, setShowPricing] = useState(false);
   const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
   
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
   // Hooks qui font des appels Supabase
   const { _stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
-  const { _subscription, _canGenerateMusic } = useSubscription();
+  const { _subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
   
   // Alias pour compatibilité

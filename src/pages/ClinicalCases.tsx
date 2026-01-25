@@ -41,9 +41,9 @@ const SPECIALTY_ICONS: Record<string, React.ReactNode> = {
 export default function ClinicalCases() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { 
-    _loading, cases, currentProgress, 
-    getCases, startCase, submitDecision, completeCase, getStats, getCurrentCase 
+  const {
+    cases, currentProgress,
+    getCases, startCase, submitDecision, completeCase, getStats, getCurrentCase
   } = useClinicalCases();
   const { generateCase, loading: aiLoading } = useAIClinicalCases();
   const { logActivity } = useActivityTracking();

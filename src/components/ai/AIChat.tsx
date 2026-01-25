@@ -91,7 +91,7 @@ export const AIChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   useEffect(() => {
     scrollToBottom();

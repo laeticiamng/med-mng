@@ -36,7 +36,7 @@ interface WebVitalMetric {
 }
 
 export const PerformanceDashboard: React.FC = () => {
-  const { t } = useInternationalization();
+  useInternationalization();
   const performance = usePerformance();
   
   const [lighthouseScore, setLighthouseScore] = useState<LighthouseScore>({

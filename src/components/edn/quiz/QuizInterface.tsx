@@ -23,7 +23,7 @@ interface QuizQuestion {
 interface QuizInterfaceProps {
   itemCode: string;
   itemTitle: string;
-  _config: QuizConfig;
+  _config?: QuizConfig;
   questions: QuizQuestion[];
   onQuizComplete: (results: QuizResults) => void;
   onReturnToConfig: () => void;
@@ -53,7 +53,6 @@ interface QuizResults {
 export const QuizInterface: React.FC<QuizInterfaceProps> = ({
   itemCode,
   itemTitle,
-  _config,
   questions,
   onQuizComplete,
   onReturnToConfig

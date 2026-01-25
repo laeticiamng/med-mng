@@ -9,7 +9,7 @@ interface TableauSection {
 }
 
 interface TableauRangAProps {
-  _data: {
+  _data?: {
     theme?: string;
     title?: string;
     subtitle?: string;
@@ -20,7 +20,7 @@ interface TableauRangAProps {
   itemCode?: string;
 }
 
-export const TableauRangA = ({ _data, itemCode }: TableauRangAProps) => {
+export const TableauRangA = ({ itemCode }: TableauRangAProps) => {
   // TOUJOURS utiliser les vraies compétences de la base de données
   // Les fichiers *Integration.ts avec données hardcodées sont obsolètes
   const code = itemCode || "IC-1";

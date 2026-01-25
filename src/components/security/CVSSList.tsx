@@ -8,7 +8,7 @@ import { fr } from 'date-fns/locale';
 import { AlertTriangle, Calendar, Check, Shield, Trash2 } from 'lucide-react';
 
 export const CVSSList = () => {
-  const { assessments, criticalVulns, _highVulns, unpatchedVulns, overdueVulns, updateAssessment, deleteAssessment, isUpdating, isDeleting } = useCVSSAssessments();
+  const { assessments, criticalVulns, unpatchedVulns, overdueVulns, updateAssessment, deleteAssessment, isUpdating, isDeleting } = useCVSSAssessments();
   const { isAdmin } = useUserRoles();
 
   const getSeverityBadge = (severity: string) => {

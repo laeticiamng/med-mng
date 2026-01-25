@@ -10,7 +10,7 @@ import { Flame, Pause, Play, SkipBack, SkipForward, Square, Star, Volume2, Volum
 import { useEffect, useRef, useState } from 'react';
 
 interface AudioPlayerProps {
-  _audioUrl: string;
+  audioUrl?: string;
   title: string;
   isPlaying: boolean;
   currentTime: number;
@@ -26,12 +26,11 @@ interface AudioPlayerProps {
   onPlaybackRateChange?: (rate: number) => void;
 }
 
-export const AudioPlayer = ({ 
-  _audioUrl, 
-  title, 
-  isPlaying, 
-  currentTime, 
-  duration, 
+export const AudioPlayer = ({
+  title,
+  isPlaying,
+  currentTime,
+  duration,
   volume,
   onPlayPause,
   onSeek,
@@ -46,7 +45,7 @@ export const AudioPlayer = ({
   const [previousVolume, setPreviousVolume] = useState(volume);
   const hasTrackedRef = useRef(false);
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats } = useGamification();
+  const { loadStats } = useGamification();
   
   // Hook de buffering pour optimiser l'affichage
   const bufferingState = useAudioBuffering(audioElement || null);

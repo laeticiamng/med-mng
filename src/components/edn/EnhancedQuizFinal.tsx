@@ -65,16 +65,14 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   
-  const { _addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
-  
+
   const {
     startQuizSession,
-    _addQuizError,
     endQuizSession,
     currentSession,
     currentErrors,
-    _hasCurrentSession,
     loadSavedSessions
   } = useQuizErrorTracker();
 

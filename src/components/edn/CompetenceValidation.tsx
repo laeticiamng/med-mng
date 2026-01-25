@@ -45,11 +45,11 @@ interface CompetenceMastery {
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { loadStats } = useGamification();
   const { toast } = useToast();
-  
+
   const [masteryData, setMasteryData] = useState<Map<string, CompetenceMastery>>(new Map());
-  const [_loadingMastery, setLoadingMastery] = useState(false);
+  const [, setLoadingMastery] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   
   // Utiliser les vraies compétences OIC depuis la base de données
@@ -64,21 +64,12 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     setLoadingMastery(true);
     
     // Charger les données de maîtrise existantes
-    const { _data: masteryResults } = await supabase
+    const { data: masteryResults } = await supabase
       .from('user_competence_mastery')
       .select('objectif_id, is_mastered, mastery_level, review_count')
       .eq('user_id', user.id)
       .eq('item_code', item.item_code);
-    
-    // Charger les résultats de quiz pour auto-valider les compétences
-    const { _data: quizResults } = await supabase
-      .from('quiz_results')
-      .select('score, total_questions')
-      .eq('user_id', user.id)
-      .eq('item_code', item.item_code)
-      .order('created_at', { ascending: false })
-      .limit(5);
-    
+
     // Si score moyen > 80%, marquer comme partiellement maîtrisé
     const map = new Map<string, CompetenceMastery>();
     if (masteryResults) {

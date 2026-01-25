@@ -9,7 +9,7 @@ import React from 'react';
 
 interface GenerationSuccessToastProps {
   title: string;
-  _audioUrl: string;
+  _audioUrl?: string;
   rang?: string;
   onPlay: () => void;
   onDownload: () => void;
@@ -20,7 +20,6 @@ interface GenerationSuccessToastProps {
 
 export const GenerationSuccessToast: React.FC<GenerationSuccessToastProps> = ({
   title,
-  _audioUrl,
   rang,
   onPlay,
   onDownload,

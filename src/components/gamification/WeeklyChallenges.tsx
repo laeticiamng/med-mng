@@ -23,7 +23,7 @@ interface WeeklyChallenge {
 }
 
 export function WeeklyChallenges() {
-  const { _stats, _addPoints, _unlockBadge } = useGamification();
+  const { _stats, _addPoints } = useGamification();
   const [challenges, setChallenges] = useState<WeeklyChallenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReward, setShowReward] = useState<string | null>(null);

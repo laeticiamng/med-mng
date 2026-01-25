@@ -65,54 +65,6 @@ export const SentryErrorMonitor = () => {
     }
   };
 
-  // Fonction pour créer une vraie erreur et l'enregistrer dans Supabase
-  const _reportNewError = async (errorMessage: string, level: 'error' | 'warning' | 'info', context: Record<string, any>) => {
-    try {
-      // Enregistrer dans Supabase
-      const { _data, _error } = await supabase
-        .from('ai_monitoring_errors')
-        .insert({
-          message: errorMessage,
-          error_type: context.component || 'manual',
-          severity: level === 'error' ? 'high' : level === 'warning' ? 'medium' : 'low',
-          category: context.action || 'user_reported',
-          context: context,
-          priority: level === 'error' ? 'critical' : 'normal',
-          ai_analysis: { source: 'manual_report', timestamp: new Date().toISOString() }
-        })
-        .select()
-        .single();
-
-      if (_error) throw _error;
-
-      // Ajouter à la liste locale
-      const newError: ErrorEvent = {
-        id: _data.id,
-        message: errorMessage,
-        timestamp: new Date(_data.created_at),
-        level: level,
-        context: context,
-        stack: `Reported at ${new Date().toISOString()}`
-      };
-
-      setErrors(prev => [newError, ...prev.slice(0, 9)]);
-      
-      // Envoyer à Sentry si connecté
-      if (isConnected) {
-        if (level === 'error') {
-          Sentry.captureException(new Error(errorMessage), {
-            tags: context,
-            level: level
-          });
-        } else {
-          Sentry.captureMessage(errorMessage, level);
-        }
-      }
-    } catch (err) {
-      console.error('Erreur lors du signalement:', err);
-    }
-  };
-
   // Fonction de test pour les développeurs (enregistre une vraie erreur)
   const clearErrors = () => {
     setErrors([]);

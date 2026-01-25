@@ -37,7 +37,6 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
   const {
     sessions,
     currentSession,
-    _createSession,
     loadSession,
     deleteSession,
     renameSession,

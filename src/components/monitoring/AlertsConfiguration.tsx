@@ -29,8 +29,8 @@ interface NotificationChannel {
 }
 
 export const AlertsConfiguration = () => {
-  const { toast } = useToast();
-  
+  useToast();
+
   const [alertRules, setAlertRules] = useState<AlertRule[]>([
     {
       id: '1',

@@ -89,7 +89,7 @@ export default function AdvancedAnalyticsDashboard() {
 
   const exportAnalytics = async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('admin-export', {
+      const { error } = await supabase.functions.invoke('admin-export', {
         body: { 
           table: 'analytics',
           format: 'json',

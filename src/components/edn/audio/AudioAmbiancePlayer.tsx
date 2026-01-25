@@ -13,7 +13,7 @@ interface AudioAmbianceProps {
     ambiance_type?: string;
     intensity?: string;
   };
-  _itemCode: string;
+  _itemCode?: string;
 }
 
 // Audio ambiances avec URLs fiables et fallbacks
@@ -50,9 +50,8 @@ const AMBIANCE_SOUNDS: Record<string, { url: string; label: string; fallback: st
   }
 };
 
-export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({ 
-  audioConfig, 
-  _itemCode 
+export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({
+  audioConfig
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);

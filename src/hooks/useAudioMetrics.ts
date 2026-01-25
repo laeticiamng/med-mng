@@ -21,7 +21,7 @@ interface AudioMetrics {
 export const useAudioMetrics = () => {
   const metricsRef = useRef<Map<string, AudioMetrics>>(new Map());
 
-  const startTracking = useCallback((trackUrl: string) => {
+  const _startTracking = useCallback((trackUrl: string) => {
     const metrics: AudioMetrics = {
       loadStartTime: performance.now(),
       bufferHealthScore: 0,

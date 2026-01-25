@@ -41,14 +41,11 @@ export default function MobileOptimizedDashboard() {
       const [
         { _data: extractionLogs },
         { _data: integrityReports },
-        { count: profilesCount },
-        { count: recentActivityCount }
+        { count: profilesCount }
       ] = await Promise.all([
         supabase.from('extraction_logs').select('*').limit(50),
         supabase.from('data_integrity_reports').select('*').limit(20),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('user_activity_log').select('*', { count: 'exact', head: true })
-          .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        supabase.from('profiles').select('*', { count: 'exact', head: true })
       ]);
 
       // Nombre réel d'utilisateurs depuis profiles

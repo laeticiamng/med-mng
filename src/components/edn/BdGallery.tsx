@@ -46,17 +46,15 @@ interface BdPanel {
 interface BdGalleryProps {
   itemCode: string;
   title: string;
-  _tableauRangA?: TableauRangData;
-  _tableauRangB?: TableauRangData;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
   bdPanels?: BdPanel[];
 }
 
-export const BdGallery: React.FC<BdGalleryProps> = ({ 
-  itemCode, 
-  title, 
-  _tableauRangA, 
-  _tableauRangB,
-  bdPanels: storedBdPanels 
+export const BdGallery: React.FC<BdGalleryProps> = ({
+  itemCode,
+  title,
+  bdPanels: storedBdPanels
 }) => {
   const [currentVignette, setCurrentVignette] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -66,7 +64,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { loadStats } = useGamification();
   
   // Charger les vraies compétences OIC (seulement si pas de bdPanels stockés)
   const shouldLoadOic = !storedBdPanels || storedBdPanels.length === 0;

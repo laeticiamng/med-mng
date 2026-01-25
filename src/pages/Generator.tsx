@@ -48,10 +48,10 @@ const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
-  const { _subscription, musicQuota, incrementMusicUsage, _canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
+  const { musicQuota, incrementMusicUsage, _canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
-  const { _addPoints, _unlockBadge, loadStats } = useGamification();
+  const { _addPoints, loadStats } = useGamification();
   const { preferences, savePreferences } = useGeneratorPreferences();
   
   // État avec restauration des préférences

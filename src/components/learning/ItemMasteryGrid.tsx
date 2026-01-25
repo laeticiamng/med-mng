@@ -66,7 +66,7 @@ export const ItemMasteryGrid: React.FC = () => {
         .eq('user_id', user.id);
 
       // Get review sessions for more detailed stats
-      const { _data: reviewSessions } = await supabase
+      await supabase
         .from('review_sessions')
         .select('item_codes, correct_count, total_count, completed_at')
         .eq('user_id', user.id)

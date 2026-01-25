@@ -17,10 +17,10 @@ import {
 import React, { useState } from 'react';
 
 interface ProfileSettingsProps {
-  profile: any;
+  profile?: any;
 }
 
-export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => {
+export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [settings, setSettings] = useState({
     notifications: true,
     emailUpdates: true,

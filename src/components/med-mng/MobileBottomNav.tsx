@@ -11,17 +11,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 interface BottomNavItemProps {
   icon: React.ReactNode;
   label: string;
-  _path: string;
+  _path?: string;
   onClick: () => void;
   isActive: boolean;
 }
 
-const BottomNavItem: React.FC<BottomNavItemProps> = ({ 
-  icon, 
-  label, 
-  _path, 
-  onClick, 
-  isActive 
+const BottomNavItem: React.FC<BottomNavItemProps> = ({
+  icon,
+  label,
+  onClick,
+  isActive
 }) => {
   return (
     <button

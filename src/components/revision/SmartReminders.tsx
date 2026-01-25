@@ -65,7 +65,7 @@ export const SmartReminders: React.FC = () => {
   const loadReminders = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user: _user } } = await supabase.auth.getUser();
       
       // Données de démonstration enrichies
       const demoReminders: SmartReminder[] = [

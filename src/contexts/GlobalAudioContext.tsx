@@ -54,7 +54,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Hook de métriques pour le monitoring
-  const { _startTracking, updateMetric, calculateBufferHealth, logFinalMetrics } = useAudioMetrics();
+  const { updateMetric, calculateBufferHealth, logFinalMetrics } = useAudioMetrics();
 
   const play = (track: AudioTrack) => {
     const startTime = performance.now();

@@ -338,8 +338,8 @@ describe('useMusicGenerationOrchestrator', () => {
       ];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(storedTasks));
 
-      const { result } = renderHook(() => useMusicGenerationOrchestrator());
-      
+      renderHook(() => useMusicGenerationOrchestrator());
+
       expect(localStorageMock.getItem).toHaveBeenCalledWith('mng_active_generation_tasks');
     });
 

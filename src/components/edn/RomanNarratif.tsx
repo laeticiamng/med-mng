@@ -48,11 +48,9 @@ interface RomanNarratifProps {
   romanStory?: RomanChapter[];
 }
 
-export const RomanNarratif: React.FC<RomanNarratifProps> = ({ 
-  itemCode, 
-  title, 
-  _tableauRangA, 
-  _tableauRangB,
+export const RomanNarratif: React.FC<RomanNarratifProps> = ({
+  itemCode,
+  title,
   romanStory: storedRomanStory
 }) => {
   const { logActivity } = useActivityTracking();

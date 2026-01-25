@@ -72,7 +72,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
  * Share content using Web Share API or fallback to clipboard
  */
 export const shareContent = async (options: ExportOptions): Promise<void> => {
-  const { title, content, itemCode, _type } = options;
+  const { title, content, itemCode } = options;
   
   const shareText = `${itemCode} - ${title}\n\n${content.substring(0, 500)}...\n\nGénéré avec MED-MNG`;
   const shareUrl = window.location.href;

@@ -18,7 +18,7 @@ interface SocialShareProps {
   title: string;
   description: string;
   url?: string;
-  _image?: string;
+  image?: string;
   hashtags?: string[];
   className?: string;
 }
@@ -27,7 +27,6 @@ export const SocialShare: React.FC<SocialShareProps> = ({
   title,
   description,
   url = window.location.href,
-  _image,
   hashtags = [],
   className = ""
 }) => {

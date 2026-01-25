@@ -624,7 +624,7 @@ export const useClinicalCases = () => {
     setLoading(true);
     try {
       // Try to load from Supabase
-      const { data: dbCases, _error } = await (supabase as any)
+      const { data: dbCases } = await (supabase as any)
         .from('ai_clinical_cases')
         .select('*');
       

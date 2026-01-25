@@ -17,7 +17,7 @@ interface LyricsViewerProps {
   lyrics: LyricLine[];
   currentTime: number;
   duration: number;
-  _isPlaying: boolean;
+  _isPlaying?: boolean;
   onSeek: (time: number) => void;
   title?: string;
   artist?: string;
@@ -28,7 +28,6 @@ export const LyricsViewer: React.FC<LyricsViewerProps> = ({
   lyrics,
   currentTime,
   duration,
-  _isPlaying,
   onSeek,
   title,
   artist,

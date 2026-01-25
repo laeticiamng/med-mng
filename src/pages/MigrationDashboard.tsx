@@ -55,7 +55,7 @@ interface MigrationRecord {
 
 export default function MigrationDashboardPage() {
   const { logActivity } = useActivityTracking();
-  const { _addPoints } = useGamification();
+  const { } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');

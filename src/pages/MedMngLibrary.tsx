@@ -30,7 +30,7 @@ const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { play } = useGlobalAudio();
+  const { } = useGlobalAudio();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
@@ -47,7 +47,7 @@ const MedMngLibraryComponent = () => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
   
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');

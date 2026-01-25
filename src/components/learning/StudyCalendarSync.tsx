@@ -10,14 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Calendar, Check, Download, ExternalLink, Link2, RefreshCw } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
-interface CalendarEvent {
-  title: string;
-  description: string;
-  start: Date;
-  end: Date;
-  location?: string;
-}
-
 export function StudyCalendarSync() {
   const { toast } = useToast();
   const { getReviewForecast, stats } = useSRS();

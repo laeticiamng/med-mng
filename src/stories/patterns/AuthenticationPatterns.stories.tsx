@@ -50,14 +50,9 @@ const forgotPasswordSchema = z.object({
   email: z.string().email('Email invalide'),
 });
 
-const twoFactorSchema = z.object({
-  code: z.string().length(6, 'Le code doit contenir 6 chiffres'),
-});
-
 type LoginFormData = z.infer<typeof loginSchema>;
 type SignupFormData = z.infer<typeof signupSchema>;
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
-type TwoFactorFormData = z.infer<typeof twoFactorSchema>;
 
 // Login Pattern
 function LoginPattern() {

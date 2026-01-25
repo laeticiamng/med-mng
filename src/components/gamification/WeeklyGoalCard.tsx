@@ -2,7 +2,6 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
     Calendar,
@@ -33,7 +32,6 @@ const DEFAULT_GOALS = {
 
 export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [progress, setProgress] = useState<WeeklyProgress>({
     itemsReviewed: 0,
     quizzesCompleted: 0,

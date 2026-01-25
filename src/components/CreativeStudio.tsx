@@ -53,8 +53,8 @@ const IMAGE_MOODS = [
 export const CreativeStudio = () => {
   const { generateContent, isGenerating, progress } = useContentGeneration();
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats } = useGamification();
-  const [_user, setUser] = useState<any>(null);
+  const { loadStats } = useGamification();
+  const [, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('music');
   const [formData, setFormData] = useState({
     prompt: '',

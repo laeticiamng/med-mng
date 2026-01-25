@@ -42,7 +42,7 @@ interface AuditCategory {
 
 export default function AuditCompleteness() {
   const { logActivity } = useActivityTracking();
-  const { _addPoints } = useGamification();
+  useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');

@@ -31,7 +31,7 @@ export const QuizProgressChart: React.FC = () => {
         return;
       }
 
-      const { _data, _error } = await supabase
+      const { _data } = await supabase
         .from('quiz_results')
         .select('*')
         .eq('user_id', user.id)

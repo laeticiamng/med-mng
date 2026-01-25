@@ -66,12 +66,12 @@ export const useFavoritesAndHistory = () => {
 
   const loadHistory = async (_limit = 50) => {
     try {
-      const { _data, _error } = await supabase
+      const { error } = await supabase
         .from('user_playlists') // Utiliser une table existante temporairement
         .select('*')
         .limit(0); // Ne pas récupérer de données réelles
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Pour l'instant, retourner un historique vide jusqu'à ce que les types soient mis à jour
       setHistory([]);
@@ -180,7 +180,7 @@ export const useFavoritesAndHistory = () => {
 
   const clearHistory = async () => {
     try {
-      const { _error } = await supabase
+      await supabase
         .from('user_playlists') // Table temporaire
         .delete()
         .eq('id', 'temp'); // Requête qui ne supprimera rien

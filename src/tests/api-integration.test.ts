@@ -45,7 +45,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     });
 
     it('❌ GET /edn/:slug - doit retourner 404 pour slug inexistant', async () => {
-      const { _data, _error } = await supabase
+      const { _data } = await supabase
         .from('edn_items_complete')
         .select('*')
         .eq('slug', 'slug-inexistant-test-12345')
@@ -299,9 +299,6 @@ describe('🚨 Tests de robustesse - Edge Cases', () => {
   });
 
   it('⏱️ Timeout - requêtes lentes', async () => {
-    const _timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 10000);
-    });
     try {
       // Query completed before timeout
       expect(true).toBe(true);

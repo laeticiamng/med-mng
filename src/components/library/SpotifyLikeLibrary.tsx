@@ -52,8 +52,8 @@ export const SpotifyLikeLibrary = () => {
     clearHistory 
   } = useFavoritesAndHistory();
   
-  const { playlists, _createPlaylist } = usePlaylists();
-  const { playTrack, isPlaying, currentTrack, pause, _play } = usePlayer();
+  const { playlists } = usePlaylists();
+  const { playTrack, isPlaying, currentTrack, pause } = usePlayer();
 
   const filteredFavorites = favorites.filter(song =>
     song.title.toLowerCase().includes(searchQuery.toLowerCase())

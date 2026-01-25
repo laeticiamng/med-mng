@@ -18,7 +18,7 @@ export const useGenerationNotifications = ({
   onGenerationComplete,
   playNotificationSound = true
 }: GenerationNotificationHandlerProps = {}) => {
-  const { user } = useAuth();
+  useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Son de notification court

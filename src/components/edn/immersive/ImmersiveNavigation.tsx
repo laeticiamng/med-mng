@@ -5,7 +5,7 @@ interface ImmersiveNavigationProps {
   sections: string[];
   currentSection: number;
   onSectionChange: (index: number) => void;
-  _progress: number;
+  _progress?: number;
   hasNext: boolean;
   hasPrev: boolean;
   onNext: () => void;
@@ -16,7 +16,6 @@ export const ImmersiveNavigation = ({
   sections,
   currentSection,
   onSectionChange,
-  _progress,
   hasNext,
   hasPrev,
   onNext,

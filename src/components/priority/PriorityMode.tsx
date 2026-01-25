@@ -62,8 +62,8 @@ export const PriorityMode: React.FC<PriorityModeProps> = ({ onComplete, embedded
     
     try {
       // Fetch items with lowest mastery for the user
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      await supabase.auth.getUser();
+
       const query = supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, slug')

@@ -17,7 +17,7 @@ export const useGenerationSuccessHandler = ({
   generatedSong,
   onCreditsRefreshed
 }: GenerationSuccessHandlerProps) => {
-  const { refreshAfterGeneration, _credits } = useSunoCredits();
+  const { refreshAfterGeneration } = useSunoCredits();
 
   // ✅ Rafraîchir automatiquement les crédits après génération réussie
   useEffect(() => {
@@ -28,7 +28,5 @@ export const useGenerationSuccessHandler = ({
     }
   }, [generatedSong?.audioUrl, refreshAfterGeneration, onCreditsRefreshed]);
 
-  return {
-    credits
-  };
+  return {};
 };

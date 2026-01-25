@@ -212,7 +212,7 @@ export const EmailReportConfig: React.FC = () => {
         await saveConfig();
       }
 
-      const { _data, error } = await supabase.functions.invoke('send-accessibility-report', {
+      const { error } = await supabase.functions.invoke('send-accessibility-report', {
         body: {}
       });
 
