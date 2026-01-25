@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Brain, Star, TrendingUp, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Brain, Loader2, Settings, Star, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export const AIRecommendations = () => {
   const { logActivity } = useActivityTracking();
@@ -16,12 +16,6 @@ export const AIRecommendations = () => {
     generateRecommendations();
     logActivity({ activity_type: 'ai_question', metadata: { action: 'view_recommendations' } });
   }, [generateRecommendations]);
-
-  const handleGenerateWithTracking = async () => {
-    await generateRecommendations();
-    logActivity({ activity_type: 'ai_question', metadata: { action: 'generate_recommendations' } });
-  };
-
   useEffect(() => {
     if (!autoRefresh) return;
 

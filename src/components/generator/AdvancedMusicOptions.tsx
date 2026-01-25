@@ -1,14 +1,13 @@
-import React from 'react';
-import { Settings2, User, Sliders, Sparkles } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { TranslatedText } from '@/components/TranslatedText';
-import { VocalGender, SunoModel } from '@/types/music';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { SunoModel, VocalGender } from '@/types/music';
+import { Settings2, Sliders, Sparkles, User } from 'lucide-react';
+import React from 'react';
 
 interface AdvancedMusicOptionsProps {
   model: SunoModel;

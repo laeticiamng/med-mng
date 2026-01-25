@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Calendar, 
-  Target, 
-  Clock, 
-  Plus,
-  Brain,
-  Zap,
-  Flame,
-  Star
-} from 'lucide-react';
-import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Brain,
+    Calendar,
+    Flame,
+    Plus,
+    Star,
+    Target,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export const RevisionPlanCreator: React.FC = () => {
   const [planName, setPlanName] = useState('');
@@ -32,7 +31,7 @@ export const RevisionPlanCreator: React.FC = () => {
   const { revisionItems, createRevisionPlan } = usePersonalizedRevision();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, addPoints, loadStats } = useGamification();
+  const { _stats: gamificationStats, _addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -106,7 +105,7 @@ export const RevisionPlanCreator: React.FC = () => {
             dailyTarget: dailyTarget[0]
           }
         });
-        await addPoints(user.id, 'dailyStreak');
+        await _addPoints(user.id, 'dailyStreak');
         loadStats(user.id);
       }
       

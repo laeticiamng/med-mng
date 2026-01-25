@@ -12,7 +12,7 @@
  * - Support offline
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================================================
 // MOCKS SETUP
@@ -698,7 +698,6 @@ describe('🎵 Module Audio/Media', () => {
     });
 
     it('should handle audio in background tab', () => {
-      let isVisible = true;
       let wasPlayingBeforeHide = false;
       
       const onVisibilityChange = (visible: boolean, isPlaying: boolean) => {
@@ -706,7 +705,7 @@ describe('🎵 Module Audio/Media', () => {
           wasPlayingBeforeHide = true;
           // Could pause or continue based on settings
         }
-        isVisible = visible;
+        _isVisible = visible;
       };
 
       onVisibilityChange(false, true);

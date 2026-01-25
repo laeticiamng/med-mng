@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { EDNItemsAuditor, AuditReportGenerators } from '@/scripts/auditItems';
-import type { AuditResult, AuditReport } from '@/scripts/auditItems';
+import type { AuditReport } from '@/scripts/auditItems';
 
 interface UseAuditItemsResult {
   report: AuditReport | null;

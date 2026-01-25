@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Bell, Check, X, Archive, Settings, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Bell, Check, Filter, Settings, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 export const NotificationCenter: React.FC = () => {
   const {

@@ -1,30 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Music, 
-  Mic, 
-  Image, 
-  Play, 
-  Download,
-  Trash2,
-  Clock,
-  Calendar,
-  Volume2,
-  Eye,
-  Pause,
-  Flame,
-  Star,
-  Trophy
-} from 'lucide-react';
-import { useContentGeneration } from '@/hooks/useContentGeneration';
 import { useToast } from '@/hooks/use-toast';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useContentGeneration } from '@/hooks/useContentGeneration';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Calendar,
+    Download,
+    Eye,
+    Flame,
+    Image,
+    Mic,
+    Music,
+    Pause,
+    Play,
+    Star,
+    Trophy,
+    Volume2
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface GeneratedItem {
   id: string;
@@ -42,7 +39,7 @@ interface GeneratedItem {
 export const ContentLibrary = () => {
   const { getUserGeneratedContent } = useContentGeneration();
   const { toast } = useToast();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   

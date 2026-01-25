@@ -1,41 +1,39 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Home,
-  BarChart3, 
-  Music, 
-  MessageSquare, 
-  BookOpen, 
-  Users, 
-  Settings,
-  Brain,
-  Calendar,
-  Target,
-  Bell,
-  Trophy,
-  HeartHandshake,
-  Sparkles,
-  Database,
-  Flame,
-  Star
-} from 'lucide-react';
-import { NavLink, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
+} from "@/components/ui/sidebar";
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    BarChart3,
+    Bell,
+    BookOpen,
+    Calendar,
+    Database,
+    Flame,
+    HeartHandshake,
+    Home,
+    MessageSquare,
+    Music,
+    Settings,
+    Sparkles,
+    Star,
+    Target,
+    Trophy,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const navigationItems = [
   {
@@ -131,7 +129,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   const [onlineUsers, setOnlineUsers] = useState(127);
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const init = async () => {

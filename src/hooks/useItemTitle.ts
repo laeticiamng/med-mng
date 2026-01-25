@@ -129,10 +129,10 @@ export const useItemTitle = (
         .eq('item_code', itemCode)
         .maybeSingle();
 
-      let { data, error: queryError } = await query;
+      let { _data, _error: queryError } = await query;
 
       // Si pas trouvé, essayer la table principale
-      if (!data && !queryError) {
+      if (!_data && !queryError) {
         const { data: mainData, error: mainError } = await (supabase
           .from('edn_items_immersive') as any)
           .select(includeDetails
@@ -146,21 +146,21 @@ export const useItemTitle = (
           throw mainError;
         }
 
-        data = mainData;
+        _data = mainData;
       }
 
       if (queryError) {
         throw queryError;
       }
 
-      if (data) {
+      if (_data) {
         const itemDetails: ItemDetails = {
-          title: (data as any).title || fallbackTitle,
-          subtitle: (data as any).subtitle,
+          title: (_data as any).title || fallbackTitle,
+          subtitle: (_data as any).subtitle,
           itemCode: itemCode,
-          rang: (data as any).rang,
-          numero: (data as any).numero,
-          completenessScore: (data as any).completeness_score
+          rang: (_data as any).rang,
+          numero: (_data as any).numero,
+          completenessScore: (_data as any).completeness_score
         };
 
         setTitle(itemDetails.title);

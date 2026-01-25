@@ -15,7 +15,7 @@ const EdnMusicLibrary = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { savedMusics, loading, playingId, handlePlay, handleDelete } = useMusicLibrary();
   const [user, setUser] = useState<any>(null);
-  const { stats, loadStats } = useGamification();
+  const { _stats, loadStats } = useGamification();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -41,21 +41,21 @@ const EdnMusicLibrary = () => {
     <div className="min-h-screen bg-gradient-to-br from-warning/10 via-warning/5 to-primary/5">
       <div className="container mx-auto px-4 py-8">
         {/* Gamification Stats Banner */}
-        {user && stats && (
+        {user && _stats && (
           <Card className="p-4 mb-6 bg-card/80 backdrop-blur-sm border-border">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Flame className="h-5 w-5 text-warning" />
-                  <span className="font-medium">{stats.currentStreak} jours</span>
+                  <span className="font-medium">{_stats.currentStreak} jours</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-primary" />
-                  <span className="font-medium">Niveau {stats.level}</span>
+                  <span className="font-medium">Niveau {_stats.level}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-accent" />
-                  <span className="font-medium">{stats.totalPoints} XP</span>
+                  <span className="font-medium">{_stats.totalPoints} XP</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Music className="h-5 w-5 text-success" />
@@ -63,7 +63,7 @@ const EdnMusicLibrary = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                {stats.badges.filter(b => b.id.includes('music')).slice(0, 3).map(badge => (
+                {_stats.badges.filter(b => b.id.includes('music')).slice(0, 3).map(badge => (
                   <Badge key={badge.id} variant="secondary" className="bg-accent/20">
                     {badge.icon} {badge.name}
                   </Badge>

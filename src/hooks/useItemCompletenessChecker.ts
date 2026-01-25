@@ -46,7 +46,7 @@ export const useItemCompletenessChecker = () => {
       setIsChecking(true);
       console.log(`🔍 Vérification complétude item: ${itemId}`);
 
-      const { data, error } = await supabase.functions.invoke('items-completeness-check', {
+      const { _data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: JSON.stringify({ itemId })
       });
 
@@ -54,7 +54,7 @@ export const useItemCompletenessChecker = () => {
         throw error;
       }
 
-      const result = data as CompletenessResult;
+      const result = _data as CompletenessResult;
       
       // Stocker le résultat
       setItemResults(prev => new Map(prev.set(itemId, result)));
@@ -87,13 +87,13 @@ export const useItemCompletenessChecker = () => {
       setIsChecking(true);
       console.log('🔍 Vérification complétude de tous les items...');
 
-      const { data, error } = await supabase.functions.invoke('items-completeness-check');
+      const { _data, error } = await supabase.functions.invoke('items-completeness-check');
 
       if (error) {
         throw error;
       }
 
-      const report = data as CompletenessReport;
+      const report = _data as CompletenessReport;
       setLastReport(report);
 
       // Stocker tous les résultats individuels

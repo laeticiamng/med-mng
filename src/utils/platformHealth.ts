@@ -22,13 +22,13 @@ export const checkPlatformHealth = async (): Promise<PlatformHealthCheck> => {
   // Vérification de la base de données
   let dbConnected = false;
   try {
-    const { data, error } = await supabase.from('edn_items_immersive').select('count', { count: 'exact' });
-    if (!error && data !== null) {
+    const { _data, _error } = await supabase.from('edn_items_immersive').select('count', { count: 'exact' });
+    if (!_error && _data !== null) {
       dbConnected = true;
       completedFeatures++;
       
       // Vérifier le nombre d'items EDN
-      const count = data as any;
+      const count = _data as any;
       if (count.count >= 367) {
         completedFeatures++;
       } else {
@@ -43,12 +43,12 @@ export const checkPlatformHealth = async (): Promise<PlatformHealthCheck> => {
 
   // Vérification des analytics
   try {
-    const { data: analyticsData, error } = await supabase
+    const { _data: _analyticsData, _error } = await supabase
       .from('edn_analytics_advanced')
       .select('count', { count: 'exact' })
       .limit(1);
     
-    if (!error) {
+    if (!_error) {
       completedFeatures++;
     }
   } catch (error) {
@@ -57,12 +57,12 @@ export const checkPlatformHealth = async (): Promise<PlatformHealthCheck> => {
 
   // Vérification des recommandations
   try {
-    const { data: recommendationsData, error } = await supabase
+    const { _data: _recommendationsData, _error } = await supabase
       .from('edn_smart_recommendations')
       .select('count', { count: 'exact' })
       .limit(1);
     
-    if (!error) {
+    if (!_error) {
       completedFeatures++;
     }
   } catch (error) {

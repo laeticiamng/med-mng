@@ -1,23 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  Stethoscope, Clock, CheckCircle, XCircle, ChevronLeft,
-  Play, ArrowRight, Award, Brain, Heart, Baby, Bone,
-  AlertTriangle, TrendingUp, BarChart3, Sparkles, Loader2
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useClinicalCases, ClinicalCase } from '@/hooks/useClinicalCases';
+import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/hooks/use-toast';
 import { useAIClinicalCases } from '@/hooks/useAIClinicalCases';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useClinicalCases } from '@/hooks/useClinicalCases';
 import { useGamification } from '@/hooks/useGamification';
-import { useToast } from '@/hooks/use-toast';
-import { ROUTE_PATHS } from '@/config/routes';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowRight, Award,
+    Baby,
+    BarChart3,
+    Bone,
+    Brain,
+    CheckCircle,
+    ChevronLeft,
+    Clock,
+    Heart,
+    Loader2,
+    Play,
+    Sparkles,
+    Stethoscope,
+    TrendingUp,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 
 const SPECIALTY_ICONS: Record<string, React.ReactNode> = {
   'Cardiologie': <Heart className="h-5 w-5" />,
@@ -29,13 +41,13 @@ const SPECIALTY_ICONS: Record<string, React.ReactNode> = {
 export default function ClinicalCases() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { 
-    loading, cases, currentProgress, 
-    getCases, startCase, submitDecision, completeCase, getStats, getCurrentCase 
+  const {
+    cases, currentProgress,
+    getCases, startCase, submitDecision, completeCase, getStats, getCurrentCase
   } = useClinicalCases();
   const { generateCase, loading: aiLoading } = useAIClinicalCases();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: _gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('cases');
@@ -120,12 +132,12 @@ export default function ClinicalCases() {
     });
     
     // Award gamification points
-    await addPoints(user.id, 'clinicalCase');
+    await _addPoints(user.id, 'clinicalCase');
     
     // Check for clinical master badge
     const newStats = await getStats(user.id);
     if ((newStats?.totalCasesCompleted || 0) >= 10) {
-      await unlockBadge(user.id, 'clinical_master');
+      await _unlockBadge(user.id, 'clinical_master');
     }
     
     setStats(newStats);

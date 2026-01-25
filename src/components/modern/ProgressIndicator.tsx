@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Trophy, Target, Clock, CheckCircle, 
-  TrendingUp, Star, Zap, Award 
-} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    CheckCircle,
+    Clock,
+    Star,
+    Target,
+    TrendingUp,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ProgressData {
   category: string;
@@ -36,13 +42,6 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   showAchievements = true,
   compact = false
 }) => {
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 90) return 'bg-success';
-    if (percentage >= 70) return 'bg-primary';
-    if (percentage >= 50) return 'bg-warning';
-    return 'bg-muted-foreground';
-  };
-
   const getTrendIcon = (trend?: string) => {
     switch (trend) {
       case 'up': return <TrendingUp className="w-3 h-3 text-success" />;
@@ -164,7 +163,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 // Hook pour données de progression - Données réelles Supabase
 export const useProgressData = () => {
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadProgressData = async () => {
@@ -176,10 +175,10 @@ export const useProgressData = () => {
         }
 
         // Charger les données réelles
-        const { data: itemsData } = await supabase.from('user_item_progress').select('id').eq('user_id', user.id);
-        const { data: sessionsData } = await supabase.from('activity_sessions').select('duration_seconds').eq('user_id', user.id);
-        const { data: songsData } = await supabase.from('med_mng_songs').select('id').eq('user_id', user.id);
-        const { data: quizData } = await supabase.from('quiz_sessions').select('score').eq('user_id', user.id);
+        const { _data: itemsData } = await supabase.from('user_item_progress').select('id').eq('user_id', user.id);
+        const { _data: sessionsData } = await supabase.from('activity_sessions').select('duration_seconds').eq('user_id', user.id);
+        const { _data: songsData } = await supabase.from('med_mng_songs').select('id').eq('user_id', user.id);
+        const { _data: quizData } = await supabase.from('quiz_sessions').select('score').eq('user_id', user.id);
 
         const completedItems = itemsData?.length || 0;
         const totalStudyMinutes = Math.round((sessionsData?.reduce((sum: number, s: any) => sum + (s.duration_seconds || 0), 0) || 0) / 60);

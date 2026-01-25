@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  MessageCircle, Heart, Share2, Users, TrendingUp,
-  BookOpen, Music, Award, Search, Plus, Filter,
-  Clock, Star, ThumbsUp, Send, Image, Smile, ChevronDown
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    BookOpen,
+    ChevronDown,
+    Clock,
+    Heart,
+    Image,
+    MessageCircle,
+    Plus,
+    Search,
+    Send,
+    Share2,
+    Smile,
+    TrendingUp,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { CommentThread } from './CommentThread';
 import { DirectMessaging } from './DirectMessaging';
 
@@ -72,17 +83,17 @@ interface StudyGroup {
 export const CommunityHub = () => {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [newPost, setNewPost] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPost, setSelectedPost] = useState<string | null>(null);
-  const [comments, setComments] = useState<Record<string, PostComment[]>>({});
-  const [newComment, setNewComment] = useState('');
-  const [showDM, setShowDM] = useState(false);
-  const [dmRecipient, setDmRecipient] = useState<string | null>(null);
-  const [dmContent, setDmContent] = useState('');
-  const [directMessages, setDirectMessages] = useState<DirectMessage[]>([]);
+  const [_selectedPost, _setSelectedPost] = useState<string | null>(null);
+  const [_comments, _setComments] = useState<Record<string, PostComment[]>>({});
+  const [_newComment, _setNewComment] = useState('');
+  const [_showDM, _setShowDM] = useState(false);
+  const [_dmRecipient, _setDmRecipient] = useState<string | null>(null);
+  const [_dmContent, _setDmContent] = useState('');
+  const [_directMessages, _setDirectMessages] = useState<DirectMessage[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -205,7 +216,7 @@ export const CommunityHub = () => {
     }
   };
 
-  const handleShare = (postId: string) => {
+  const handleShare = (_postId: string) => {
     toast({ title: "Post partagé !", description: "Le post a été partagé avec succès." });
   };
 

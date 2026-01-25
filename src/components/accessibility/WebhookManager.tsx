@@ -37,18 +37,18 @@ export function WebhookManager() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('webhook_settings')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (_error && _error.code !== 'PGRST116') {
+        throw _error;
       }
 
-      if (data) {
-        setSettings(data);
+      if (_data) {
+        setSettings(_data);
       }
     } catch (error) {
       console.error('Error loading webhook settings:', error);
@@ -72,11 +72,11 @@ export function WebhookManager() {
         discord_enabled: settings.discord_enabled,
       };
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('webhook_settings')
         .upsert(payload, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast.success('Paramètres enregistrés avec succès');
     } catch (error) {
@@ -99,16 +99,16 @@ export function WebhookManager() {
     
     try {
       setTesting(true);
-      const { data, error } = await supabase.functions.invoke('test-webhook', {
+      const { _data, error } = await supabase.functions.invoke('test-webhook', {
         body: { webhookUrl, type },
       });
 
       if (error) throw error;
 
-      if (data?.success) {
-        toast.success(data.message);
+      if (_data?.success) {
+        toast.success(_data.message);
       } else {
-        toast.error(data?.error || 'Test échoué');
+        toast.error(_data?.error || 'Test échoué');
       }
     } catch (error: any) {
       console.error(`Error testing ${type} webhook:`, error);

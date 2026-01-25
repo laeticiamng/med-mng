@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, Loader2, XCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 interface ExtractionResult {
@@ -50,7 +49,7 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🚀 Démarrage du test d'authentification UNESS...");
       
-      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
+      const { _data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'test', // Test avec les nouveaux credentials
           resumeFromItem: 1,
@@ -62,8 +61,8 @@ export const EdnExtractionTest = () => {
         throw error;
       }
 
-      setExtractionResult(data);
-      toast.success(`✅ Extraction terminée: ${data.stats.totalProcessed} items traités`);
+      setExtractionResult(_data);
+      toast.success(`✅ Extraction terminée: ${_data.stats.totalProcessed} items traités`);
       
       // Récupérer les items extraits depuis la base
       await loadExtractedItems();
@@ -83,7 +82,7 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🚀 Démarrage de l'extraction COMPLÈTE (367 items)...");
       
-      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
+      const { _data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'extract',
           resumeFromItem: 1,
@@ -96,8 +95,8 @@ export const EdnExtractionTest = () => {
         throw error;
       }
 
-      setExtractionResult(data);
-      toast.success(`✅ Extraction complète terminée: ${data.stats.totalProcessed} items traités`);
+      setExtractionResult(_data);
+      toast.success(`✅ Extraction complète terminée: ${_data.stats.totalProcessed} items traités`);
       
       // Récupérer les items extraits depuis la base
       await loadExtractedItems();
@@ -114,20 +113,20 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🔄 Chargement des items extraits...");
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (error) {
-        console.error('Erreur Supabase:', error);
-        toast.error(`❌ Erreur chargement: ${error.message}`);
+      if (_error) {
+        console.error('Erreur Supabase:', _error);
+        toast.error(`❌ Erreur chargement: ${_error.message}`);
         return;
       }
 
       // Transform data to match expected interface
-      const transformedData = data?.map(item => ({
+      const transformedData = _data?.map(item => ({
         item_id: parseInt(item.item_code.replace('IC-', '')) || 0,
         intitule: item.title,
         rangs_a: [], // Legacy compatibility
@@ -146,14 +145,14 @@ export const EdnExtractionTest = () => {
 
   const loadCurrentItems = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b, paroles_musicales')
         .order('item_code')
         .limit(10);
 
-      if (error) throw error;
-      setCurrentItems(data || []);
+      if (_error) throw _error;
+      setCurrentItems(_data || []);
     } catch (error) {
       console.error('Erreur chargement items actuels:', error);
     }

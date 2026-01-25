@@ -1,26 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, Search, Filter, MoreHorizontal, Shield, Ban, 
-  CheckCircle, Mail, Calendar, CreditCard, Eye
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
-  DropdownMenuTrigger, DropdownMenuSeparator 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { 
-  Select, SelectContent, SelectItem, 
-  SelectTrigger, SelectValue 
+import { Input } from '@/components/ui/input';
+import {
+    Select, SelectContent, SelectItem,
+    SelectTrigger, SelectValue
 } from '@/components/ui/select';
-import { 
-  Table, TableBody, TableCell, TableHead, 
-  TableHeader, TableRow 
+import {
+    Table, TableBody, TableCell, TableHead,
+    TableHeader, TableRow
 } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Ban,
+    CheckCircle,
+    Eye,
+    MoreHorizontal,
+    Search,
+    Shield,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface User {
@@ -42,7 +48,7 @@ export const AdminUsersManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [subscriptionFilter, setSubscriptionFilter] = useState('all');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [_selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -52,7 +58,7 @@ export const AdminUsersManager = () => {
     try {
       setLoading(true);
       
-      const { data: profiles, error: profilesError } = await supabase
+      const { _data: profiles, _error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, name, role, created_at')
         .order('created_at', { ascending: false });
@@ -117,12 +123,12 @@ export const AdminUsersManager = () => {
           break;
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', userId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast.success(`Action exécutée avec succès`);
       fetchUsers(); // Refresh

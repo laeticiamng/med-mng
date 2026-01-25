@@ -3,18 +3,18 @@
  * Affiche une musique générée via un lien de partage public
  */
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Music, Play, Pause, Download, Share2, Heart, Loader2 } from 'lucide-react';
+import { AudioWaveform } from '@/components/generator/AudioWaveform';
+import { ShareMusicDialog } from '@/components/generator/ShareMusicDialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumCard } from '@/components/ui/premium-card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { AudioWaveform } from '@/components/generator/AudioWaveform';
-import { ShareMusicDialog } from '@/components/generator/ShareMusicDialog';
 import { ROUTE_PATHS } from '@/config/routes';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Download, Loader2, Music, Pause, Play, Share2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface SharedTrack {
   id: string;
@@ -48,30 +48,30 @@ const SharedMusic = () => {
 
       try {
         // Essayer de trouver par music_id d'abord
-        let { data, error: fetchError } = await supabase
+        let { _data, _error: fetchError } = await supabase
           .from('user_generated_music')
           .select('*')
           .eq('music_id', trackId)
           .maybeSingle();
 
         // Si pas trouvé, essayer par id
-        if (!data && !fetchError) {
+        if (!_data && !fetchError) {
           const result = await supabase
             .from('user_generated_music')
             .select('*')
             .eq('id', trackId)
             .maybeSingle();
-          data = result.data;
-          fetchError = result.error;
+          _data = result._data;
+          fetchError = result._error;
         }
 
         if (fetchError) throw fetchError;
-        if (!data) throw new Error('Musique introuvable');
+        if (!_data) throw new Error('Musique introuvable');
 
-        setTrack(data);
+        setTrack(_data);
         
         // Créer l'audio element
-        const audio = new Audio(data.audio_url);
+        const audio = new Audio(_data.audio_url);
         audio.addEventListener('loadedmetadata', () => {
           setDuration(audio.duration);
         });
@@ -259,7 +259,7 @@ const SharedMusic = () => {
                 <ShareMusicDialog
                   trackTitle={track.title || 'Musique générée'}
                   trackId={trackId || track.id}
-                  audioUrl={track.audio_url}
+                  _audioUrl={track.audio_url}
                   trigger={
                     <Button variant="outline">
                       <Share2 className="h-4 w-4 mr-2" />

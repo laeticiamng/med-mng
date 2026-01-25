@@ -2,14 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface PushSubscription {
-  endpoint: string;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-}
-
 /**
  * Hook pour gérer les notifications push
  * - Demande de permission
@@ -84,9 +76,9 @@ export const usePushNotifications = () => {
 
     try {
       // Fetch VAPID public key from Edge Function
-      const { data, error } = await supabase.functions.invoke('get-vapid-key');
+      const { _data, error } = await supabase.functions.invoke('get-vapid-key');
       
-      if (error || !data?.publicKey) {
+      if (error || !_data?.publicKey) {
         // Fallback: use local notification instead
         toast.info('Notifications locales activées (mode hors-ligne)');
         setIsSubscribed(true);
@@ -94,7 +86,7 @@ export const usePushNotifications = () => {
         return;
       }
       
-      const vapidPublicKey = data.publicKey;
+      const vapidPublicKey = _data.publicKey;
 
       const registration = await navigator.serviceWorker.ready;
       
@@ -148,7 +140,7 @@ export const usePushNotifications = () => {
 
     const subscriptionData = JSON.parse(JSON.stringify(subscription));
     
-    const { error } = await supabase.from('push_subscriptions' as any).upsert({
+    const { _error } = await supabase.from('push_subscriptions' as any).upsert({
       user_id: user.id,
       endpoint: subscriptionData.endpoint,
       p256dh: subscriptionData.keys.p256dh,
@@ -159,17 +151,17 @@ export const usePushNotifications = () => {
       onConflict: 'endpoint',
     });
 
-    if (error) throw error;
+    if (_error) throw _error;
   };
 
   // Supprimer l'abonnement de Supabase
   const removeSubscription = async (endpoint: string) => {
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('push_subscriptions' as any)
       .delete()
       .eq('endpoint', endpoint);
 
-    if (error) throw error;
+    if (_error) throw _error;
   };
 
   // Envoyer une notification de test

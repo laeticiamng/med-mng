@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Download, Smartphone, CheckCircle, Zap, Wifi, Heart, Flame, Star, Trophy } from 'lucide-react';
-import { SEOHead } from '@/components/seo/SEOHead';
-import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, Download, Heart, Smartphone, Wifi, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -20,9 +19,9 @@ const InstallPWA: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [_user, setUser] = useState<any>(null);
   
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: _gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // Load user and gamification stats

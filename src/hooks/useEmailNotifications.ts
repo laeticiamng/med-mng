@@ -6,7 +6,7 @@ export const useEmailNotifications = () => {
     try {
       console.log('📧 Envoi email de bienvenue à:', email, name);
       
-      const { data, error } = await supabase.functions.invoke('send-welcome-email', {
+      const { _data, error } = await supabase.functions.invoke('send-welcome-email', {
         body: {
           email,
           name,
@@ -18,7 +18,7 @@ export const useEmailNotifications = () => {
         return { success: false, error };
       }
 
-      console.log('Email de bienvenue envoyé:', data);
+      console.log('Email de bienvenue envoyé:', _data);
       return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);
@@ -34,7 +34,7 @@ export const useEmailNotifications = () => {
     amount: number
   ) => {
     try {
-      const { data, error } = await supabase.functions.invoke('send-emails', {
+      const { _data, error } = await supabase.functions.invoke('send-emails', {
         body: {
           type: 'subscription_success',
           email,
@@ -53,7 +53,7 @@ export const useEmailNotifications = () => {
         return { success: false, error };
       }
 
-      console.log('Email abonnement envoyé:', data);
+      console.log('Email abonnement envoyé:', _data);
       return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);

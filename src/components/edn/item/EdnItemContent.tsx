@@ -1,17 +1,16 @@
-import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Music } from 'lucide-react';
-import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
+import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
+import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
+import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
 import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
-import { SceneImmersive } from '@/components/edn/SceneImmersive';
-import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
-import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Music } from 'lucide-react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -137,8 +136,8 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
           <ParolesMusicales 
             paroles={item.paroles_musicales} 
             itemCode={item.item_code}
-            tableauRangA={item.tableau_rang_a}
-            tableauRangB={item.tableau_rang_b}
+            _tableauRangA={item.tableau_rang_a}
+            _tableauRangB={item.tableau_rang_b}
           />
         );
       

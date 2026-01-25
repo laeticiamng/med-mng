@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertCircle, Flame, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, CheckCircle, Flame, Star } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface InteractionItem {
   id: string;
@@ -34,11 +34,11 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
   itemCode 
 }) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints, stats, loadStats } = useGamification();
+  const { _addPoints, _stats, loadStats } = useGamification();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<string>('');
-  const [completed, setCompleted] = useState(false);
+  const [_completed, setCompleted] = useState(false);
 
   const loadUserStats = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -109,7 +109,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     if (percentage >= 80) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
     }
   };
@@ -129,12 +129,12 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>{interactionConfig.title || `Interaction ${itemCode}`}</span>
-            {stats && (
+            {_stats && (
               <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-bold text-warning">{stats.currentStreak ?? 0}</span>
+                <span className="font-bold text-warning">{_stats.currentStreak ?? 0}</span>
                 <Star className="h-3 w-3 text-primary ml-1" />
-                <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
+                <span className="font-bold text-primary">Nv.{_stats.level ?? 1}</span>
               </div>
             )}
           </div>

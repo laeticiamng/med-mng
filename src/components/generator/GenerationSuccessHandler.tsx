@@ -5,8 +5,8 @@
  * - Met à jour l'historique en temps réel
  */
 
-import { useEffect } from 'react';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { useEffect } from 'react';
 
 interface GenerationSuccessHandlerProps {
   generatedSong: any | null;
@@ -17,7 +17,7 @@ export const useGenerationSuccessHandler = ({
   generatedSong,
   onCreditsRefreshed
 }: GenerationSuccessHandlerProps) => {
-  const { refreshAfterGeneration, credits } = useSunoCredits();
+  const { refreshAfterGeneration } = useSunoCredits();
 
   // ✅ Rafraîchir automatiquement les crédits après génération réussie
   useEffect(() => {
@@ -28,7 +28,5 @@ export const useGenerationSuccessHandler = ({
     }
   }, [generatedSong?.audioUrl, refreshAfterGeneration, onCreditsRefreshed]);
 
-  return {
-    credits
-  };
+  return {};
 };

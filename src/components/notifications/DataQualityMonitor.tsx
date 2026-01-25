@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Database, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle,
-  TrendingDown,
-  TrendingUp,
-  Eye,
-  Download,
-  RefreshCw,
-  Filter
-} from 'lucide-react';
-import { RobustErrorDisplay } from '@/components/common/RobustErrorDisplay';
-import { useSystemAlerts } from '@/hooks/useSystemAlerts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useSystemAlerts } from '@/hooks/useSystemAlerts';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    CheckCircle,
+    Database,
+    Download,
+    Eye,
+    Filter,
+    RefreshCw,
+    TrendingDown,
+    TrendingUp,
+    XCircle
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface DataQualityIssue {
@@ -65,7 +63,7 @@ export function DataQualityMonitor() {
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [selectedTable, setSelectedTable] = useState<string>('all');
   const [loading, setLoading] = useState(true);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, _setAutoRefresh] = useState(true);
 
   const { alertDataCorruption, alertPerformanceDegradation } = useSystemAlerts();
   const { logActivity } = useActivityTracking();
@@ -158,7 +156,7 @@ export function DataQualityMonitor() {
               .from(tableName)
               .select('objectif_id', { count: 'exact', head: true });
 
-            const { data: distinctCheck } = await supabase
+            const { _data: distinctCheck } = await supabase
               .from(tableName)
               .select('objectif_id')
               .limit(1000);

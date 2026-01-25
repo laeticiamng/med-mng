@@ -15,7 +15,7 @@ export const GlobalMiniPlayer = () => {
     isMinimized,
     pause,
     resume,
-    stop,
+    _stop,
     seek,
     changeVolume,
     maximize,
@@ -130,7 +130,7 @@ export const GlobalMiniPlayer = () => {
             </Button>
 
             <Button
-              onClick={stop}
+              onClick={_stop}
               variant="ghost"
               size="sm"
               className="text-muted-foreground hover:bg-muted"

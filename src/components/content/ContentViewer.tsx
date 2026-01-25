@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Book, FileText, Palette, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Book, ChevronLeft, ChevronRight, FileText, Palette, ZoomIn, ZoomOut } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface StoryContent {
   type: 'bd' | 'roman' | 'poeme';
@@ -34,7 +33,7 @@ interface ContentViewerProps {
 export const ContentViewer: React.FC<ContentViewerProps> = ({ content, itemCode, onClose }) => {
   const [currentPanel, setCurrentPanel] = useState(0);
   const [zoom, setZoom] = useState(100);
-  const [showText, setShowText] = useState(true);
+  const [showText, _setShowText] = useState(true);
 
   const renderBD = () => {
     const panels = content.content as Panel[];

@@ -1,5 +1,5 @@
 
-import { ItemEDNV2, CompetenceV2, RangContentV2 } from '@/schemas/itemEDNSchema';
+import { ItemEDNV2, RangContentV2 } from '@/schemas/itemEDNSchema';
 
 // Interface pour la compatibilité avec l'ancien système
 export interface ParsedEDNItem {
@@ -97,7 +97,7 @@ export class EDNItemParser {
   /**
    * Parse le contenu d'un rang (A ou B) vers le format tableau
    */
-  private static parseRangContent(rangContent: RangContentV2, rang: 'A' | 'B') {
+  private static parseRangContent(rangContent: RangContentV2, _rang: 'A' | 'B') {
     const lignes = rangContent.competences.map(competence => [
       competence.concept,
       competence.definition,

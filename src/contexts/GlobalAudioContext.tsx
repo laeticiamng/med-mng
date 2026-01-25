@@ -1,6 +1,6 @@
 
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { useAudioMetrics } from '@/hooks/useAudioMetrics';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 interface AudioTrack {
   url: string;
@@ -19,7 +19,7 @@ interface GlobalAudioContextType {
   play: (track: AudioTrack) => void;
   pause: () => void;
   resume: () => void;
-  stop: () => void;
+  _stop: () => void;
   seek: (time: number) => void;
   changeVolume: (volume: number) => void;
   minimize: () => void;
@@ -54,15 +54,13 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Hook de métriques pour le monitoring
-  const { startTracking, updateMetric, calculateBufferHealth, logFinalMetrics } = useAudioMetrics();
+  const { updateMetric, calculateBufferHealth, logFinalMetrics } = useAudioMetrics();
 
   const play = (track: AudioTrack) => {
     const startTime = performance.now();
     console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
     
     // Démarrer le tracking des métriques
-    const metrics = startTracking(track.url);
-    
     // Vérifier si l'URL est valide
     if (!track.url || track.url === '' || track.url === 'undefined') {
       console.error('❌ URL audio invalide:', track.url);
@@ -203,19 +201,6 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       });
     }
   };
-
-  const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setCurrentTrack(null);
-      setIsMinimized(false);
-      console.log('⏹️ Audio arrêté');
-    }
-  };
-
   const seek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
@@ -265,7 +250,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
         play,
         pause,
         resume,
-        stop,
+        _stop,
         seek,
         changeVolume,
         minimize,

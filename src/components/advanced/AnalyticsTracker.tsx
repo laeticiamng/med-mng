@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart3, TrendingUp, Users, Clock, Eye, MousePointer,
-  Calendar, Target, Zap, Heart, Brain, Award, Activity
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    Award,
+    BarChart3,
+    Brain,
+    Clock, Eye,
+    Heart,
+    MousePointer, Target,
+    TrendingUp, Users,
+    Zap
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface AnalyticsData {
   userBehavior: {
@@ -144,13 +151,13 @@ export const AnalyticsTracker: React.FC = () => {
       if (!user) return;
 
       // Real activity data
-      const { data: activities } = await supabase
+      const { _data: activities } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
-      const { data: sessions } = await supabase
+      const { _data: sessions } = await supabase
         .from('activity_sessions')
         .select('*')
         .eq('user_id', user.id)

@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { 
-  TrendingUp, Users, Clock, AlertTriangle, 
-  ChevronRight, Zap, Shield, Database,
-  RefreshCw, Eye, Download
-} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+    AlertTriangle,
+    ChevronRight,
+    Database,
+    Download,
+    RefreshCw,
+    Shield,
+    TrendingUp, Users,
+    Zap
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface MobileStats {
@@ -34,16 +39,13 @@ export default function MobileOptimizedDashboard() {
     try {
       // Requêtes parallèles pour les vraies données
       const [
-        { data: extractionLogs },
-        { data: integrityReports },
-        { count: profilesCount },
-        { count: recentActivityCount }
+        { _data: extractionLogs },
+        { _data: integrityReports },
+        { count: profilesCount }
       ] = await Promise.all([
         supabase.from('extraction_logs').select('*').limit(50),
         supabase.from('data_integrity_reports').select('*').limit(20),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('user_activity_log').select('*', { count: 'exact', head: true })
-          .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        supabase.from('profiles').select('*', { count: 'exact', head: true })
       ]);
 
       // Nombre réel d'utilisateurs depuis profiles

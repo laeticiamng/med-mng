@@ -1,30 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Settings, 
-  Shield, 
-  Database, 
-  Wifi, 
-  Download, 
-  Upload,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  HardDrive,
-  Activity,
-  Flame,
-  Star,
-  Trophy
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertTriangle,
+    CheckCircle,
+    Download,
+    Flame,
+    RefreshCw,
+    Star,
+    Trophy
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface SystemStatus {
   database: 'connected' | 'disconnected' | 'error';
@@ -74,7 +67,7 @@ export const SystemSettings = () => {
 
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     fetchSystemStatus();
@@ -98,11 +91,11 @@ export const SystemSettings = () => {
   const fetchSystemStatus = async () => {
     try {
       // Check Supabase connection
-      const { error } = await supabase.from('profiles').select('id').limit(1);
+      const { _error } = await supabase.from('profiles').select('id').limit(1);
       
       setSystemStatus(prev => ({
         ...prev,
-        database: error ? 'error' : 'connected'
+        database: _error ? 'error' : 'connected'
       }));
     } catch (error) {
       setSystemStatus(prev => ({
@@ -224,7 +217,7 @@ export const SystemSettings = () => {
         supabase.from('activity_sessions').select('id').limit(1)
       ]);
 
-      const allSuccessful = checks.every(result => !result.error);
+      const allSuccessful = checks.every(result => !result._error);
       
       toast({
         title: 'Vérification terminée',

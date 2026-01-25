@@ -3,9 +3,9 @@
  * Couverture: retry avec backoff, gestion états, catégorisation erreurs
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMusicGenerationOrchestrator } from '@/hooks/music/useMusicGenerationOrchestrator';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock du toast
 const mockToast = vi.fn();
@@ -338,8 +338,8 @@ describe('useMusicGenerationOrchestrator', () => {
       ];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(storedTasks));
 
-      const { result } = renderHook(() => useMusicGenerationOrchestrator());
-      
+      renderHook(() => useMusicGenerationOrchestrator());
+
       expect(localStorageMock.getItem).toHaveBeenCalledWith('mng_active_generation_tasks');
     });
 

@@ -1,22 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import { DownloadButton } from '@/components/library/DownloadButton';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX,
-  Repeat,
-  Repeat1,
-  Shuffle,
-  Heart,
-  ListMusic,
-  Download
+import {
+    Heart,
+    ListMusic,
+    Pause,
+    Play,
+    Repeat,
+    Repeat1,
+    Shuffle,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX
 } from 'lucide-react';
-import { DownloadButton } from '@/components/library/DownloadButton';
+import React, { useCallback, useState } from 'react';
 
 interface PlayerControlsProps {
   isPlaying: boolean;

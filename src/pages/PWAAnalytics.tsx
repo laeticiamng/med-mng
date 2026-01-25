@@ -1,19 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Smartphone, Wifi, WifiOff, TrendingUp, Users, Clock, 
-  Download, Bell, BellOff, RefreshCw, BarChart3, 
-  Monitor, Tablet, Activity
-} from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    Bell, BellOff,
+    Clock,
+    Download,
+    Monitor,
+    RefreshCw,
+    Smartphone,
+    Tablet,
+    Users,
+    Wifi, WifiOff
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface AnalyticsStats {
   total_users: number;
@@ -55,13 +62,13 @@ const PWAAnalytics: React.FC = () => {
   const loadAnalytics = async () => {
     try {
       // Charger les stats depuis Supabase
-      const { data: metricsData, error } = await supabase
+      const { _data: metricsData, _error } = await supabase
         .from('pwa_metrics' as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(1000);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       if (metricsData) {
         // Calculer les statistiques

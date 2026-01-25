@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 interface UseLibraryRealtimeOptions {

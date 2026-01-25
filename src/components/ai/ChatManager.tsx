@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  MessageSquare, 
-  Plus, 
-  Trash2, 
-  Edit, 
-  Download, 
-  Clock,
-  BookOpen,
-  History
-} from 'lucide-react';
-import { ContextualAIChat } from './ContextualAIChat';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAIChat } from '@/hooks/ai/useAIChat';
 import { useToast } from '@/hooks/use-toast';
+import {
+    BookOpen,
+    Clock,
+    Download,
+    Edit,
+    History,
+    MessageSquare,
+    Plus,
+    Trash2
+} from 'lucide-react';
+import React, { useState } from 'react';
+import { ContextualAIChat } from './ContextualAIChat';
 
 interface ChatManagerProps {
   context?: {
@@ -37,7 +37,6 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
   const {
     sessions,
     currentSession,
-    createSession,
     loadSession,
     deleteSession,
     renameSession,
@@ -48,15 +47,6 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ context }) => {
 
   const handleCreateSession = () => {
     const title = newSessionTitle.trim() || `Conversation ${sessions.length + 1}`;
-    const sessionId = createSession(title, {
-      itemCode: context?.itemCode,
-      itemTitle: context?.itemTitle,
-      competences: {
-        rangA: context?.competencesRangA,
-        rangB: context?.competencesRangB
-      }
-    });
-    
     setNewSessionTitle('');
     setIsDialogOpen(false);
     

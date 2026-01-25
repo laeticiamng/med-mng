@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
-import { TrendingUp, Calendar, Target, Brain, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { Brain, Calendar, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Area, AreaChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface QuizResult {
   id: string;
@@ -31,15 +31,15 @@ export const QuizProgressChart: React.FC = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { _data } = await supabase
         .from('quiz_results')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (data) {
-        setQuizResults(data as QuizResult[]);
+      if (_data) {
+        setQuizResults(_data as QuizResult[]);
       }
       setLoading(false);
     };

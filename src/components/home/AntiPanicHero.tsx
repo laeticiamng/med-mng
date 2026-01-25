@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Headphones, 
-  Play, 
-  ArrowRight, 
-  Sparkles,
-  Brain,
-  Target,
-  Music,
-  BookOpen,
-  Flame
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
 import { PriorityMode } from '@/components/priority/PriorityMode';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ROUTE_PATHS } from '@/config/routes';
+import {
+    ArrowRight,
+    BookOpen,
+    Flame,
+    Headphones,
+    Play,
+    Target
+} from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AntiPanicHeroProps {
   showGamification?: boolean;

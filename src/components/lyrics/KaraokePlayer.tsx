@@ -1,27 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Search, Download, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSynchronizedLyrics, type LyricsLine } from '@/hooks/useSynchronizedLyrics';
-import { TranslatedText } from '@/components/TranslatedText';
 import { useToast } from '@/hooks/use-toast';
+import { useSynchronizedLyrics } from '@/hooks/useSynchronizedLyrics';
+import { Download, Search, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface KaraokePlayerProps {
   songId: string;
   currentTime: number; // En secondes
-  isPlaying: boolean;
+  _isPlaying?: boolean;
   onSeek: (time: number) => void;
-  onTogglePlay?: () => void;
+  _onTogglePlay?: () => void;
   className?: string;
 }
 
 export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
   songId,
   currentTime,
-  isPlaying,
   onSeek,
-  onTogglePlay,
   className = ""
 }) => {
   const { 

@@ -1,24 +1,22 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, TrendingUp, AlertTriangle, Sparkles, Calendar } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
-} from 'recharts';
-import { format, addDays, subDays, startOfDay } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { addDays, format, startOfDay, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AlertTriangle, Calendar, Loader2, Sparkles, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ReferenceLine,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 interface HistoricalData {
   date: string;
@@ -54,7 +52,7 @@ export function NotificationPredictions() {
       const startDate = startOfDay(subDays(new Date(), 30));
       const endDate = startOfDay(new Date());
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('notification_history')
         .select('sent_at, status')
         .eq('user_id', user.id)
@@ -62,11 +60,11 @@ export function NotificationPredictions() {
         .lte('sent_at', endDate.toISOString())
         .order('sent_at', { ascending: true });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Grouper par jour
       const grouped: Record<string, HistoricalData> = {};
-      (data || []).forEach((item) => {
+      (_data || []).forEach((item) => {
         const dateKey = format(new Date(item.sent_at), 'yyyy-MM-dd');
         if (!grouped[dateKey]) {
           grouped[dateKey] = {

@@ -30,7 +30,7 @@ export const usePlaylists = () => {
   const loadPlaylists = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_playlists')
         .select(`
           id,
@@ -43,11 +43,11 @@ export const usePlaylists = () => {
         `)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Calculer le song_count dynamiquement pour chaque playlist
-      const playlistsWithCount = await Promise.all((data || []).map(async (playlist) => {
-        const { count, error: countError } = await supabase
+      const playlistsWithCount = await Promise.all((_data || []).map(async (playlist) => {
+        const { count, _error: countError } = await supabase
           .from('med_mng_playlist_songs')
           .select('*', { count: 'exact', head: true })
           .eq('playlist_id', playlist.id);
@@ -73,14 +73,14 @@ export const usePlaylists = () => {
 
   const createPlaylist = async (name: string, description?: string, isPublic = false) => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .rpc('med_mng_create_playlist', {
           playlist_name: name,
           playlist_description: description,
           is_public: isPublic
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "🎵 Playlist créée !",
@@ -88,7 +88,7 @@ export const usePlaylists = () => {
       });
 
       await loadPlaylists();
-      return data;
+      return _data;
     } catch (error) {
       console.error('Erreur création playlist:', error);
       toast({
@@ -102,12 +102,12 @@ export const usePlaylists = () => {
 
   const updatePlaylist = async (id: string, updates: Partial<Pick<Playlist, 'name' | 'description' | 'is_public'>>) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_playlists')
         .update(updates)
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "✅ Playlist mise à jour",
@@ -129,12 +129,12 @@ export const usePlaylists = () => {
 
   const deletePlaylist = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_playlists')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "🗑️ Playlist supprimée",
@@ -156,13 +156,13 @@ export const usePlaylists = () => {
 
   const addSongToPlaylist = async (playlistId: string, songId: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .rpc('med_mng_add_song_to_playlist', {
           playlist_id: playlistId,
           song_id: songId
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "🎵 Chanson ajoutée",
@@ -185,13 +185,13 @@ export const usePlaylists = () => {
   const removeSongFromPlaylist = async (playlistId: string, songId: string) => {
     try {
       // Utiliser une requête directe car la fonction RPC n'est pas encore définie
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_playlist_songs')
         .delete()
         .eq('playlist_id', playlistId)
         .eq('song_id', songId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "🎵 Chanson retirée",
@@ -242,7 +242,7 @@ export const usePlaylists = () => {
   const getPlaylistDetails = async (playlistId: string): Promise<Playlist | null> => {
     try {
       // Récupérer les détails de la playlist
-      const { data: playlist, error: playlistError } = await supabase
+      const { _data: playlist, _error: playlistError } = await supabase
         .from('med_mng_playlists')
         .select('*')
         .eq('id', playlistId)
@@ -251,7 +251,7 @@ export const usePlaylists = () => {
       if (playlistError) throw playlistError;
 
       // Récupérer les chansons de la playlist
-      const { data: songs, error: songsError } = await supabase
+      const { _data: songs, _error: songsError } = await supabase
         .from('med_mng_playlist_songs')
         .select(`
           song_id,
@@ -434,7 +434,7 @@ export const usePlaylists = () => {
   return {
     playlists,
     loading,
-    createPlaylist,
+    _createPlaylist,
     updatePlaylist,
     deletePlaylist,
     addSongToPlaylist,

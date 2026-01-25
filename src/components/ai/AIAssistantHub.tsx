@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  MessageSquare, 
-  Brain, 
-  Lightbulb, 
-  Search, 
-  BookOpen, 
-  Music, 
-  Image, 
-  Calculator,
-  Stethoscope,
-  FileText,
-  PlusCircle,
-  Send,
-  Bot,
-  User,
-  Copy,
-  Share2,
-  Download,
-  RefreshCw,
-  Sparkles,
-  Loader2
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    BookOpen,
+    Bot,
+    Brain,
+    Calculator,
+    Copy,
+    Image,
+    Music,
+    RefreshCw,
+    Send,
+    Share2,
+    Sparkles,
+    Stethoscope,
+    User
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ChatMessage {
   id: string;
@@ -249,7 +239,7 @@ Comment puis-je vous assister aujourd'hui ?`,
 
     try {
       // Call the real AI tutor Edge Function
-      const { data, error } = await supabase.functions.invoke('ai-tutor', {
+      const { _data, error } = await supabase.functions.invoke('ai-tutor', {
         body: {
           message: userQuery,
           context: currentContext,
@@ -265,12 +255,12 @@ Comment puis-je vous assister aujourd'hui ?`,
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: data?.response || 'Désolé, je n\'ai pas pu générer de réponse.',
+        content: _data?.response || 'Désolé, je n\'ai pas pu générer de réponse.',
         timestamp: new Date(),
         metadata: {
-          confidence: data?.confidence || 0.92,
-          sources: data?.sources || ['Base de connaissances EDN'],
-          suggestions: data?.suggestions || [
+          confidence: _data?.confidence || 0.92,
+          sources: _data?.sources || ['Base de connaissances EDN'],
+          suggestions: _data?.suggestions || [
             'Générer un QCM',
             'Créer un plan d\'étude',
             'Expliquer plus en détail'

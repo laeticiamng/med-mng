@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Download, 
-  Trash2, 
-  Shield, 
-  Database, 
-  AlertTriangle,
-  CheckCircle,
-  ArrowLeft,
-  Info
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ROUTE_PATHS } from '@/config/routes';
+import {
+    AlertTriangle,
+    ArrowLeft,
+    CheckCircle,
+    Database,
+    Download,
+    Info,
+    Shield,
+    Trash2
+} from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
@@ -42,7 +42,7 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
+      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
         body: { 
           path: '/rgpd/export',
           method: 'POST',
@@ -53,7 +53,7 @@ const MesDonneesRGPD = () => {
       if (error) throw error;
 
       // Télécharger le fichier JSON
-      const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(_data.data, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -65,7 +65,7 @@ const MesDonneesRGPD = () => {
 
       toast({
         title: "✅ Export réussi",
-        description: `${data.summary.total_library_items} éléments exportés`,
+        description: `${_data.summary.total_library_items} éléments exportés`,
       });
 
     } catch (error: any) {
@@ -101,11 +101,11 @@ const MesDonneesRGPD = () => {
 
       const confirmationToken = `DELETE_${userId}`;
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
+      const { error } = await supabase.functions.invoke('med-mng-api', {
+        body: {
           path: '/rgpd/purge',
           method: 'DELETE',
-          body: { 
+          body: {
             user_id: userId,
             confirmation_token: confirmationToken
           }
@@ -149,7 +149,7 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
+      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
         body: { 
           path: `/rgpd/status/${userId}`,
           method: 'GET'
@@ -158,7 +158,7 @@ const MesDonneesRGPD = () => {
 
       if (error) throw error;
 
-      setDataStatus(data);
+      setDataStatus(_data);
 
     } catch (error: any) {
       console.error('Erreur statut:', error);

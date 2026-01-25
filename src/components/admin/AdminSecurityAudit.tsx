@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Shield, AlertTriangle, CheckCircle, Clock, Users, Activity } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { Activity, AlertTriangle, CheckCircle, Clock, Shield, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface SecurityAuditReport {
@@ -55,7 +55,7 @@ export const AdminSecurityAudit = () => {
 
   const fetchSecurityAudit = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
         body: { action: 'security-audit' }
       });
 
@@ -63,7 +63,7 @@ export const AdminSecurityAudit = () => {
         throw error;
       }
 
-      setAuditReport(data);
+      setAuditReport(_data);
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Erreur audit sécurité:', error);
@@ -110,7 +110,7 @@ export const AdminSecurityAudit = () => {
 
   const cleanupExpiredSessions = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
         body: { action: 'cleanup-sessions' }
       });
 
@@ -118,7 +118,7 @@ export const AdminSecurityAudit = () => {
         throw error;
       }
 
-      toast.success(`${data.message}`);
+      toast.success(`${_data.message}`);
       fetchSecurityAudit(); // Refresh après nettoyage
     } catch (error) {
       console.error('Erreur nettoyage:', error);

@@ -1,16 +1,16 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, AlertTriangle, Info, Flame, Star, Loader2, Check, X, RotateCcw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle, Check, CheckCircle, Flame, Info, Loader2, RotateCcw, Star } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 interface CompetenceItem {
   competence?: string;
   title?: string;
@@ -45,11 +45,11 @@ interface CompetenceMastery {
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { loadStats } = useGamification();
   const { toast } = useToast();
-  
+
   const [masteryData, setMasteryData] = useState<Map<string, CompetenceMastery>>(new Map());
-  const [loadingMastery, setLoadingMastery] = useState(false);
+  const [, setLoadingMastery] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   
   // Utiliser les vraies compétences OIC depuis la base de données
@@ -69,21 +69,8 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       .select('objectif_id, is_mastered, mastery_level, review_count')
       .eq('user_id', user.id)
       .eq('item_code', item.item_code);
-    
-    // Charger les résultats de quiz pour auto-valider les compétences
-    const { data: quizResults } = await supabase
-      .from('quiz_results')
-      .select('score, total_questions')
-      .eq('user_id', user.id)
-      .eq('item_code', item.item_code)
-      .order('created_at', { ascending: false })
-      .limit(5);
-    
+
     // Si score moyen > 80%, marquer comme partiellement maîtrisé
-    const quizBasedMastery = quizResults && quizResults.length > 0 
-      ? (quizResults.reduce((sum, q) => sum + (q.score / q.total_questions) * 100, 0) / quizResults.length) >= 80
-      : false;
-    
     const map = new Map<string, CompetenceMastery>();
     if (masteryResults) {
       masteryResults.forEach(d => map.set(d.objectif_id, d as CompetenceMastery));
@@ -149,7 +136,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     
     // Ajouter des points si maîtrisé
     if (newMastered) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
     }
     
     // Mettre à jour le state local
@@ -230,7 +217,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     });
     
     if (setAsMastered) {
-      await addPoints(user.id, 'perfectExam');
+      await _addPoints(user.id, 'perfectExam');
     }
     
     setSavingId(null);
@@ -347,15 +334,15 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             {getStatusIcon()}
             Validation des Compétences - {item.item_code}
           </CardTitle>
-          {stats && (
+          {_stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats?.currentStreak ?? 0}j
+                {_stats?.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats?.level ?? 1}
+                Niv. {_stats?.level ?? 1}
               </Badge>
             </div>
           )}

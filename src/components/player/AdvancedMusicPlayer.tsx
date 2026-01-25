@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX, 
-  Repeat, 
-  Shuffle, 
-  Heart,
-  Share2,
-  Download,
-  Settings,
-  Maximize,
-  Minimize,
-  Radio
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { KaraokePlayer } from '@/components/lyrics/KaraokePlayer';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
-import { KaraokePlayer } from '@/components/lyrics/KaraokePlayer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    Download,
+    Heart,
+    Maximize,
+    Minimize,
+    Pause,
+    Play,
+    Radio,
+    Repeat,
+    Settings,
+    Share2,
+    Shuffle,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface AdvancedMusicPlayerProps {
   songId: string;
@@ -68,7 +68,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
   
   // Analytics
   const [playCount, setPlayCount] = useState(0);
-  const [totalListenTime, setTotalListenTime] = useState(0);
+  const [_totalListenTime, setTotalListenTime] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -286,9 +286,6 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
-
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}>
       <audio ref={audioRef} src={audioUrl} />
@@ -502,7 +499,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
             <KaraokePlayer
               songId={songId}
               currentTime={currentTime}
-              isPlaying={isPlaying}
+              _isPlaying={isPlaying}
               onSeek={handleSeek}
             />
           )}

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RefreshCw, CheckCircle, AlertTriangle, Database, Zap } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertTriangle, CheckCircle, Database, RefreshCw, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }) => {
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
       setProgress(30);
 
       // Appeler la fonction Edge avec authentification
-      const { data, error } = await supabase.functions.invoke('regenerate-all-oic-content', {
+      const { _data, error } = await supabase.functions.invoke('regenerate-all-oic-content', {
         body: {}
       });
 
@@ -38,10 +38,10 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setProgress(70);
 
-      console.log('✅ Régénération OIC terminée:', data);
+      console.log('✅ Régénération OIC terminée:', _data);
 
       // Transformer en sections
-      const { data: transformData, error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
+      const { _data: _transformData, error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
         body: {}
       });
 
@@ -53,14 +53,14 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setResult({
         success: true,
-        itemsUpdated: data?.updated || 0,
-        itemsProcessed: data?.total_processed || 0,
-        errors: data?.errors || []
+        itemsUpdated: _data?.updated || 0,
+        itemsProcessed: _data?.total_processed || 0,
+        errors: _data?.errors || []
       });
 
       toast({
         title: "✅ Régénération terminée !",
-        description: `${data?.updated || 0} items mis à jour avec compétences OIC réelles`,
+        description: `${_data?.updated || 0} items mis à jour avec compétences OIC réelles`,
       });
 
       if (onComplete) {

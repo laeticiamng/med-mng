@@ -10,7 +10,7 @@
  * - RGPD compliance
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // CONSTANTS FOR TESTING
@@ -112,16 +112,10 @@ describe('Gamification Module - Extended Tests', () => {
     });
 
     it('should reset streak if gap in activity', () => {
-      const today = new Date();
-      const dates = [
-        today.toISOString().split('T')[0],
-        new Date(today.getTime() - 259200000).toISOString().split('T')[0], // 3 jours avant (gap)
-      ];
-      
       // Avec un gap de 2 jours, le streak devrait être 1
       const hasGap = true;
       const expectedStreak = hasGap ? 1 : 2;
-      
+
       expect(expectedStreak).toBe(1);
     });
 

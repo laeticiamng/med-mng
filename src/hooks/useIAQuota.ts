@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 interface QuotaStats {
   by_service: Array<{
@@ -38,10 +38,10 @@ export const useIAQuota = () => {
       }
 
       // Utiliser la nouvelle fonction de base de données pour les utilisateurs connectés
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .rpc('get_user_ai_quota');
 
-      if (error) {
+      if (_error) {
         // Erreur pour utilisateur connecté : afficher notification
         toast({
           title: "Information",
@@ -52,7 +52,7 @@ export const useIAQuota = () => {
         return 80;
       }
 
-      const quotaData = data?.[0];
+      const quotaData = _data?.[0];
       const remainingCredits = quotaData?.remaining_credits || 80;
       
       setQuota(remainingCredits);
@@ -71,9 +71,9 @@ export const useIAQuota = () => {
     try {
       const credits_required = getCreditsRequired(serviceType, operationType);
       
-      const { data: { session } } = await supabase.auth.getSession();
+      const { _data: { session } } = await supabase.auth.getSession();
       
-      const { data, error } = await supabase.functions.invoke('med-mng-api/quota/check', {
+      const { _data, error } = await supabase.functions.invoke('med-mng-api/quota/check', {
         body: { 
           credits_required,
           service_type: serviceType,
@@ -89,9 +89,9 @@ export const useIAQuota = () => {
       if (error) throw error;
 
       return {
-        canProceed: data?.has_enough_credits || false,
+        canProceed: _data?.has_enough_credits || false,
         required: credits_required,
-        remaining: data?.remaining_credits || 0
+        remaining: _data?.remaining_credits || 0
       };
     } catch (error) {
       console.error('Erreur lors de la vérification du quota:', error);
@@ -107,9 +107,9 @@ export const useIAQuota = () => {
     try {
       const credits_to_use = getCreditsRequired(serviceType, operationType);
       
-      const { data: { session } } = await supabase.auth.getSession();
+      const { _data: { session } } = await supabase.auth.getSession();
       
-      const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
+      const { _data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
         body: { 
           credits_to_use,
           service_type: serviceType,
@@ -125,13 +125,13 @@ export const useIAQuota = () => {
 
       if (error) throw error;
 
-      if (data?.success) {
-        setQuota(data.remaining_credits || 0);
+      if (_data?.success) {
+        setQuota(_data.remaining_credits || 0);
         return true;
       } else {
         toast({
           title: "Quota insuffisant",
-          description: `Il vous faut ${data?.required_credits || 0} crédits mais vous n'en avez que ${data?.remaining_credits || 0}`,
+          description: `Il vous faut ${_data?.required_credits || 0} crédits mais vous n'en avez que ${_data?.remaining_credits || 0}`,
           variant: "destructive",
         });
         return false;
@@ -149,9 +149,9 @@ export const useIAQuota = () => {
 
   const getStats = async (periodDays = 30): Promise<QuotaStats | null> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { _data: { session } } = await supabase.auth.getSession();
       
-      const { data, error } = await supabase.functions.invoke(`med-mng-api/quota/stats?period=${periodDays}`, {
+      const { _data, error } = await supabase.functions.invoke(`med-mng-api/quota/stats?period=${periodDays}`, {
         body: {},
         method: 'GET',
         headers: {
@@ -161,7 +161,7 @@ export const useIAQuota = () => {
       });
 
       if (error) throw error;
-      return data as QuotaStats;
+      return _data as QuotaStats;
     } catch (error) {
       console.error('Erreur lors de la récupération des stats:', error);
       return null;
@@ -280,7 +280,7 @@ export const useIAQuota = () => {
   };
 
   // Libérer une réservation (si opération annulée)
-  const releaseReservation = async (reservationId: string, serviceType: string, operationType: string) => {
+  const releaseReservation = async (_reservationId: string, serviceType: string, operationType: string) => {
     const creditsToRestore = getCreditsRequired(serviceType, operationType);
     setQuota(prev => prev + creditsToRestore);
   };
@@ -327,9 +327,9 @@ export const checkAndUseCredits = async (
 
     const credits_to_use = getCreditsRequired(serviceType, operationType);
     
-    const { data: { session } } = await supabase.auth.getSession();
+    const { _data: { session } } = await supabase.auth.getSession();
     
-    const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
+    const { _data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
       body: { 
         credits_to_use,
         service_type: serviceType,
@@ -344,7 +344,7 @@ export const checkAndUseCredits = async (
     });
 
     if (error) throw error;
-    return data?.success || false;
+    return _data?.success || false;
   } catch (error) {
     console.error('Erreur lors de la vérification et utilisation des crédits:', error);
     return false;

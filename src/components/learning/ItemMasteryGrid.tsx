@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Target, Search, TrendingUp, AlertTriangle, CheckCircle, Flame, Star } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertTriangle, CheckCircle, Flame, Search, Star, Target } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ItemMastery {
   itemCode: string;
@@ -22,7 +22,7 @@ interface ItemMastery {
 export const ItemMasteryGrid: React.FC = () => {
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const [items, setItems] = useState<ItemMastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -49,7 +49,7 @@ export const ItemMasteryGrid: React.FC = () => {
       });
 
       // Get all EDN items
-      const { data: ednItems } = await supabase
+      const { _data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .order('item_code');
@@ -60,13 +60,13 @@ export const ItemMasteryGrid: React.FC = () => {
       }
 
       // Get user's progress from Supabase (real data)
-      const { data: progressData } = await supabase
+      const { _data: progressData } = await supabase
         .from('user_item_progress')
         .select('item_code, ease_factor, interval_days, review_count, last_reviewed, next_review')
         .eq('user_id', user.id);
 
       // Get review sessions for more detailed stats
-      const { data: reviewSessions } = await supabase
+      await supabase
         .from('review_sessions')
         .select('item_codes, correct_count, total_count, completed_at')
         .eq('user_id', user.id)

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, History, Bookmark, Tag, Calendar, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useSearch, SearchFilters } from '@/hooks/useSearch';
+import { SearchFilters, useSearch } from '@/hooks/useSearch';
+import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
+import { Bookmark, Calendar, Filter, History, Search, Star, Tag } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export const AdvancedSearch: React.FC = () => {
   const {
@@ -21,7 +21,6 @@ export const AdvancedSearch: React.FC = () => {
     searchHistory,
     suggestions,
     search,
-    realtimeSearch,
     searchSuggestions,
     clearHistory,
     removeFromHistory

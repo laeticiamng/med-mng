@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
-import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Download, Eye } from "lucide-react"
-import { ednTableauxService, CompletenessAuditResult, ItemCompleteness } from "@/services/ednTableauxService"
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { CompletenessAuditResult, ednTableauxService, ItemCompleteness } from "@/services/ednTableauxService"
+import { AlertTriangle, CheckCircle, Download, Eye, RefreshCw, XCircle } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { toast } from "sonner"
 
 export function CompletenessAuditDashboard() {
   const [auditResult, setAuditResult] = useState<CompletenessAuditResult | null>(null)
@@ -229,7 +228,7 @@ export function CompletenessAuditDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {auditResult.incomplete_items.map((item, index) => (
+                  {auditResult.incomplete_items.map((item, _index) => (
                     <div key={item.item_id} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

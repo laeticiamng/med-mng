@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type RepeatMode = 'none' | 'one' | 'all';
 
@@ -55,7 +55,7 @@ export const usePlaylistPlayer = ({
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => handleTrackEnd();
-    const handleError = (e: ErrorEvent) => {
+    const handleError = (_e: ErrorEvent) => {
       setError('Erreur de lecture audio');
       setIsLoading(false);
     };

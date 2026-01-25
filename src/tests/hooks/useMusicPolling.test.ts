@@ -42,14 +42,14 @@ describe('useMusicPolling', () => {
       expect(typeof result.current.startPolling).toBe('function');
       expect(typeof result.current.stopPolling).toBe('function');
       expect(typeof result.current.stopAllPolling).toBe('function');
-      expect(typeof result.current.isPolling).toBe('function');
-      expect(typeof result.current.getActivePollingTasks).toBe('function');
+      expect(typeof result.current._isPolling).toBe('function');
+      expect(typeof result.current._getActivePollingTasks).toBe('function');
     });
 
     it('devrait retourner aucune tâche active initialement', () => {
       const { result } = renderHook(() => useMusicPolling());
       
-      expect(result.current.getActivePollingTasks()).toEqual([]);
+      expect(result.current._getActivePollingTasks()).toEqual([]);
     });
   });
 
@@ -76,8 +76,8 @@ describe('useMusicPolling', () => {
         });
       });
 
-      expect(result.current.isPolling('test-task-123')).toBe(true);
-      expect(result.current.getActivePollingTasks()).toContain('test-task-123');
+      expect(result.current._isPolling('test-task-123')).toBe(true);
+      expect(result.current._getActivePollingTasks()).toContain('test-task-123');
       
       // Cleanup
       act(() => {
@@ -112,7 +112,7 @@ describe('useMusicPolling', () => {
       });
 
       // Devrait n'avoir qu'une seule tâche
-      expect(result.current.getActivePollingTasks().length).toBe(1);
+      expect(result.current._getActivePollingTasks().length).toBe(1);
       
       // Cleanup
       act(() => {
@@ -147,7 +147,7 @@ describe('useMusicPolling', () => {
       });
 
       // Vérifier que le polling a démarré
-      expect(result.current.isPolling('success-task')).toBe(true);
+      expect(result.current._isPolling('success-task')).toBe(true);
       
       // Attendre que le premier poll s'exécute
       await waitFor(() => {
@@ -224,13 +224,13 @@ describe('useMusicPolling', () => {
         });
       });
 
-      expect(result.current.isPolling('circuit-breaker-task')).toBe(true);
+      expect(result.current._isPolling('circuit-breaker-task')).toBe(true);
 
       act(() => {
         result.current.stopPolling('circuit-breaker-task');
       });
 
-      expect(result.current.isPolling('circuit-breaker-task')).toBe(false);
+      expect(result.current._isPolling('circuit-breaker-task')).toBe(false);
     });
   });
 
@@ -272,13 +272,13 @@ describe('useMusicPolling', () => {
         });
       });
 
-      expect(result.current.isPolling('stop-task')).toBe(true);
+      expect(result.current._isPolling('stop-task')).toBe(true);
 
       act(() => {
         result.current.stopPolling('stop-task');
       });
 
-      expect(result.current.isPolling('stop-task')).toBe(false);
+      expect(result.current._isPolling('stop-task')).toBe(false);
     });
 
     it('devrait arrêter tous les pollings actifs', () => {
@@ -297,13 +297,13 @@ describe('useMusicPolling', () => {
         result.current.startPolling({ taskId: 'task-3', rang: 'AB', ...callbacks });
       });
 
-      expect(result.current.getActivePollingTasks().length).toBe(3);
+      expect(result.current._getActivePollingTasks().length).toBe(3);
 
       act(() => {
         result.current.stopAllPolling();
       });
 
-      expect(result.current.getActivePollingTasks().length).toBe(0);
+      expect(result.current._getActivePollingTasks().length).toBe(0);
     });
   });
 
@@ -331,7 +331,7 @@ describe('useMusicPolling', () => {
       });
 
       // Le polling devrait être actif malgré l'erreur BDD
-      expect(result.current.isPolling('db-error-task')).toBe(true);
+      expect(result.current._isPolling('db-error-task')).toBe(true);
       
       // Cleanup
       act(() => {
@@ -342,7 +342,7 @@ describe('useMusicPolling', () => {
     it('devrait retourner false pour isPolling sur taskId inexistant', () => {
       const { result } = renderHook(() => useMusicPolling());
       
-      expect(result.current.isPolling('non-existent-task')).toBe(false);
+      expect(result.current._isPolling('non-existent-task')).toBe(false);
     });
 
     it('devrait gérer stopPolling sur taskId inexistant sans erreur', () => {
@@ -374,13 +374,13 @@ describe('useMusicPolling', () => {
         });
       });
 
-      expect(result.current.isPolling('restart-task')).toBe(true);
+      expect(result.current._isPolling('restart-task')).toBe(true);
 
       act(() => {
         result.current.stopPolling('restart-task');
       });
 
-      expect(result.current.isPolling('restart-task')).toBe(false);
+      expect(result.current._isPolling('restart-task')).toBe(false);
 
       // Redémarrer
       act(() => {
@@ -391,7 +391,7 @@ describe('useMusicPolling', () => {
         });
       });
 
-      expect(result.current.isPolling('restart-task')).toBe(true);
+      expect(result.current._isPolling('restart-task')).toBe(true);
       
       // Cleanup
       act(() => {

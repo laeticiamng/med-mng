@@ -1,16 +1,14 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Palette, Eye, Volume2, VolumeX, Type, Monitor, Keyboard, MousePointer, Settings, RefreshCw, Check, AlertTriangle } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInternationalization } from '@/contexts/InternationalizationContext';
-import { cn } from '@/lib/utils';
+import { AlertTriangle, Check, Eye, Keyboard, Monitor, MousePointer, Palette, RefreshCw } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 export const AccessibilityCenter: React.FC = () => {
   const {
     t

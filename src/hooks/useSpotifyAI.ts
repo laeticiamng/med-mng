@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 
 export interface MusicGeneration {
   id: string;
@@ -54,17 +54,17 @@ export const useSpotifyAI = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('spotify-ai-complete/generate', {
+      const { _data, error } = await supabase.functions.invoke('spotify-ai-complete/generate', {
         body: params
       });
 
       if (error) throw error;
 
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur génération musicale');
+      if (!_data.success) {
+        throw new Error(_data.error || 'Erreur génération musicale');
       }
 
-      return data;
+      return _data;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
@@ -75,32 +75,32 @@ export const useSpotifyAI = () => {
     }
   };
 
-  const getGenerationStatus = async (generationId: string): Promise<any> => {
+  const getGenerationStatus = async (_generationId: string): Promise<any> => {
     try {
-      const { data, error } = await supabase.functions.invoke('spotify-ai-complete/status', {
+      const { _data, error } = await supabase.functions.invoke('spotify-ai-complete/status', {
         method: 'GET'
       });
 
       if (error) throw error;
-      return data;
+      return _data;
     } catch (err) {
       console.error('❌ Erreur getGenerationStatus:', err);
       return null;
     }
   };
 
-  const getStreamingUrl = async (songId: string): Promise<string | null> => {
+  const getStreamingUrl = async (_songId: string): Promise<string | null> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.auth.getUser();
       
-      const { data, error } = await supabase.functions.invoke('spotify-ai-complete/stream', {
+      const { _data, error } = await supabase.functions.invoke('spotify-ai-complete/stream', {
         method: 'GET'
       });
 
       if (error) throw error;
 
-      if (data.success) {
-        return data.streaming_url;
+      if (_data.success) {
+        return _data.streaming_url;
       }
 
       return null;
@@ -122,7 +122,7 @@ export const useSpotifyAI = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_listening_sessions')
         .insert({
           user_id: user.id,
@@ -131,7 +131,7 @@ export const useSpotifyAI = () => {
           ...sessionData
         });
 
-      return !error;
+      return !_error;
     } catch (err) {
       console.error('❌ Erreur trackListeningSession:', err);
       return false;
@@ -152,7 +152,7 @@ export const useSpotifyAI = () => {
 
       const period = timeframeMappings[timeframe] || '7 days';
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_music_generation_logs')
         .select(`
           *,
@@ -162,24 +162,24 @@ export const useSpotifyAI = () => {
         .gte('started_at', `now() - interval '${period}'`)
         .order('started_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      setGenerations(data as MusicGeneration[] || []);
-      return data as MusicGeneration[] || [];
+      setGenerations(_data as MusicGeneration[] || []);
+      return _data as MusicGeneration[] || [];
     } catch (err) {
       console.error('❌ Erreur getUserGenerations:', err);
       return [];
     }
   };
 
-  const getAdminStats = async (timeframe = '24h'): Promise<{ logs: MusicGeneration[], stats: GenerationStats, alerts: any[] } | null> => {
+  const getAdminStats = async (_timeframe = '24h'): Promise<{ logs: MusicGeneration[], stats: GenerationStats, alerts: any[] } | null> => {
     try {
-      const { data, error } = await supabase.functions.invoke('spotify-ai-complete/admin-logs', {
+      const { _data, error } = await supabase.functions.invoke('spotify-ai-complete/admin-logs', {
         method: 'GET'
       });
 
       if (error) throw error;
-      return data;
+      return _data;
     } catch (err) {
       console.error('❌ Erreur getAdminStats:', err);
       return null;

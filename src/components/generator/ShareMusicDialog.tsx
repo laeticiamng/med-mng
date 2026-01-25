@@ -3,18 +3,17 @@
  * Génère un lien de partage et permet partage social
  */
 
-import React, { useState, useCallback } from 'react';
-import { Share2, Copy, Check, Twitter, Facebook, Linkedin, Mail, Link2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Check, Copy, Facebook, Link2, Linkedin, Mail, Share2, Twitter } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
 interface ShareMusicDialogProps {
   trackTitle: string;
   trackId: string;
-  audioUrl?: string;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -23,7 +22,6 @@ interface ShareMusicDialogProps {
 export const ShareMusicDialog: React.FC<ShareMusicDialogProps> = ({
   trackTitle,
   trackId,
-  audioUrl,
   trigger,
   open: externalOpen,
   onOpenChange: externalOnOpenChange

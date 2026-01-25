@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Activity, 
-  AlertCircle, 
-  CheckCircle, 
-  Database, 
-  RefreshCw, 
-  Server, 
-  TrendingUp,
-  Users,
-  Zap,
-  BarChart3,
-  Shield
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { ExtractionMonitoringDashboard } from '@/components/admin/ExtractionMonitoringDashboard';
 import { PlatformHealthDashboard } from '@/components/audit/PlatformHealthDashboard';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertCircle,
+    BarChart3,
+    CheckCircle,
+    Database,
+    RefreshCw,
+    Server,
+    Shield,
+    TrendingUp,
+    Users,
+    Zap
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface SystemMetrics {
   totalUsers: number;
@@ -52,13 +52,13 @@ export function UnifiedMonitoringDashboard() {
   const fetchSystemMetrics = async () => {
     try {
       // Fetch user activity stats using existing function
-      const { data: userStats } = await supabase
+      const { _data: userStats } = await supabase
         .rpc('get_activity_stats', {
           p_start_date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
         });
 
       // Fetch extraction logs for error checking
-      const { data: extractionLogs } = await supabase
+      const { _data: extractionLogs } = await supabase
         .from('extraction_logs')
         .select('status, started_at')
         .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())

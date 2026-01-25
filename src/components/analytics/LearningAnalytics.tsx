@@ -20,7 +20,7 @@ export const LearningAnalytics: React.FC = () => {
   const [stats, setStats] = useState<LearningStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadLearningStats();
@@ -36,12 +36,12 @@ export const LearningAnalytics: React.FC = () => {
 
   const loadLearningStats = async () => {
     try {
-      const { data: analyticsData, error } = await supabase
+      const { _data: analyticsData, _error } = await supabase
         .from('edn_analytics_advanced')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       if (analyticsData && analyticsData.length > 0) {
         // Calculer les statistiques

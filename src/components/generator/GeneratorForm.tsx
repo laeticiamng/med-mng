@@ -1,27 +1,27 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { Wand2, Keyboard, LogIn, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { PremiumCard } from '@/components/ui/premium-card';
-import { PremiumButton } from '@/components/ui/premium-button';
 import { TranslatedText } from '@/components/TranslatedText';
-import { ContentTypeSelector } from './ContentTypeSelector';
-import { EdnItemSelector } from './EdnItemSelector'; 
-import { EcosSelector } from './EcosSelector';
-import { RangSelector } from './RangSelector';
-import { StyleSelector } from './StyleSelector';
-import { LyricsStatusDisplay } from './LyricsStatusDisplay';
-import { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
-import { LyricsPreview } from './LyricsPreview';
-import { AdvancedParamsToggle } from './AdvancedParamsToggle';
-import { useKeyboardShortcuts, KeyboardShortcutsHelp } from './KeyboardShortcuts';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { PremiumButton } from '@/components/ui/premium-button';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTE_PATHS } from '@/config/routes';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
+import { Keyboard, LogIn, Sparkles, Wand2 } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdvancedParamsToggle } from './AdvancedParamsToggle';
+import { ContentTypeSelector } from './ContentTypeSelector';
+import { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
+import { EcosSelector } from './EcosSelector';
+import { EdnItemSelector } from './EdnItemSelector';
+import { KeyboardShortcutsHelp, useKeyboardShortcuts } from './KeyboardShortcuts';
+import { LyricsPreview } from './LyricsPreview';
+import { LyricsStatusDisplay } from './LyricsStatusDisplay';
+import { RangSelector } from './RangSelector';
+import { StyleSelector } from './StyleSelector';
 
 // ✅ Composant bannière d'invitation à se connecter
-const LoginPromptBanner: React.FC<{ remainingFree: number }> = ({ remainingFree }) => {
+const LoginPromptBanner: React.FC<{ remainingFree: number }> = () => {
   const navigate = useNavigate();
   
   return (

@@ -3,17 +3,16 @@
  * ✅ AMÉLIORÉ: Graphiques, tendances, export
  */
 
-import React, { useMemo, useState } from 'react';
-import { BarChart3, Music, Clock, TrendingUp, Star, Zap, Calendar, Target, Award, Download, ChevronDown, ChevronUp } from 'lucide-react';
-import { PremiumCard } from '@/components/ui/premium-card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { TranslatedText } from '@/components/TranslatedText';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { isToday, isThisWeek, isThisMonth, format, differenceInDays, startOfWeek, endOfWeek } from 'date-fns';
+import { differenceInDays, isToday, startOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Award, BarChart3, Calendar, ChevronDown, ChevronUp, Clock, Music, Star, Target, TrendingUp, Zap } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 
 interface GeneratedTrack {
   id: string;
@@ -120,7 +119,6 @@ export const GenerationStats: React.FC<GenerationStatsProps> = ({ tracks, classN
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
     const firstTrack = sortedByDate[0];
-    const lastTrack = sortedByDate[sortedByDate.length - 1];
     const daysSinceFirst = differenceInDays(now, new Date(firstTrack.created_at));
 
     return {

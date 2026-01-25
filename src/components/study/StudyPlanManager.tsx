@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Target, Book, Plus, Edit, Trash2, Flame, Star, Trophy, Loader2, RefreshCw, CheckCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { supabase } from '@/integrations/supabase/client';
+import { Book, Calendar, CheckCircle, Clock, Edit, Loader2, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface StudyPlan {
   id: string;
@@ -42,11 +42,11 @@ interface StudySession {
 
 export const StudyPlanManager = () => {
   const [studyPlans, setStudyPlans] = useState<StudyPlan[]>([]);
-  const [sessions, setSessions] = useState<StudySession[]>([]);
+  const [_sessions, setSessions] = useState<StudySession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<StudyPlan | null>(null);
+  const [_editingPlan, setEditingPlan] = useState<StudyPlan | null>(null);
   const [user, setUser] = useState<any>(null);
   const [newPlan, setNewPlan] = useState<{
     title: string;
@@ -63,7 +63,7 @@ export const StudyPlanManager = () => {
   });
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
 
   // Load user
   useEffect(() => {
@@ -83,14 +83,14 @@ export const StudyPlanManager = () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('study_plans')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setStudyPlans((data || []) as unknown as StudyPlan[]);
+      if (_error) throw _error;
+      setStudyPlans((_data || []) as unknown as StudyPlan[]);
     } catch (err) {
       console.error('Error fetching study plans:', err);
     }
@@ -101,14 +101,14 @@ export const StudyPlanManager = () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('plan_sessions')
         .select('*')
         .eq('user_id', user.id)
         .order('scheduled_date', { ascending: true });
 
-      if (error) throw error;
-      setSessions((data || []) as unknown as StudySession[]);
+      if (_error) throw _error;
+      setSessions((_data || []) as unknown as StudySession[]);
     } catch (err) {
       console.error('Error fetching sessions:', err);
     }
@@ -144,7 +144,7 @@ export const StudyPlanManager = () => {
     setIsSaving(true);
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('study_plans')
         .insert({
           user_id: user.id,
@@ -157,18 +157,18 @@ export const StudyPlanManager = () => {
         .select()
         .maybeSingle();
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      setStudyPlans(prev => [data as unknown as StudyPlan, ...prev]);
+      setStudyPlans(prev => [_data as unknown as StudyPlan, ...prev]);
 
       // Log activity and add points
       logActivity({
         activity_type: 'study',
-        metadata: { action: 'create_study_plan', plan_id: data.id }
+        metadata: { action: 'create_study_plan', plan_id: _data.id }
       });
       
       if (user?.id) {
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
 
       setNewPlan({
@@ -198,12 +198,12 @@ export const StudyPlanManager = () => {
 
   const updatePlan = async (planId: string, updates: Partial<StudyPlan>) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('study_plans')
         .update(updates)
         .eq('id', planId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setStudyPlans(prev => prev.map(plan =>
         plan.id === planId ? { ...plan, ...updates, updated_at: new Date().toISOString() } : plan
@@ -220,12 +220,12 @@ export const StudyPlanManager = () => {
 
   const deletePlan = async (planId: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('study_plans')
         .delete()
         .eq('id', planId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setStudyPlans(prev => prev.filter(plan => plan.id !== planId));
       setSessions(prev => prev.filter(session => session.plan_id !== planId));
@@ -238,57 +238,6 @@ export const StudyPlanManager = () => {
       console.error('Error deleting plan:', error);
     }
   };
-
-  const completeSession = async (sessionId: string) => {
-    const session = sessions.find(s => s.id === sessionId);
-    if (!session) return;
-
-    try {
-      const { error } = await supabase
-        .from('plan_sessions')
-        .update({ completed: true, completed_date: new Date().toISOString() })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-
-      const updatedSessions = sessions.map(s =>
-        s.id === sessionId ? { ...s, completed: true, completed_date: new Date().toISOString() } : s
-      );
-      setSessions(updatedSessions);
-
-      // Update plan progress
-      const planSessions = updatedSessions.filter(s => s.plan_id === session.plan_id);
-      const completedCount = planSessions.filter(s => s.completed).length;
-      const plan = studyPlans.find(p => p.id === session.plan_id);
-
-      if (plan) {
-        const progress = Math.round((completedCount / plan.total_sessions) * 100);
-        await updatePlan(session.plan_id, {
-          sessions_completed: completedCount,
-          progress,
-          status: progress >= 100 ? 'completed' : 'active'
-        });
-      }
-
-      // Gamification
-      if (user?.id) {
-        await addPoints(user.id, 'itemReviewed');
-      }
-
-      logActivity({
-        activity_type: 'study',
-        metadata: { action: 'complete_session', session_id: sessionId, duration: session.duration_minutes }
-      });
-
-      toast({
-        title: 'Session terminée',
-        description: 'Félicitations ! Session d\'étude complétée.'
-      });
-    } catch (error) {
-      console.error('Error completing session:', error);
-    }
-  };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'destructive';
@@ -424,8 +373,6 @@ export const StudyPlanManager = () => {
       <div className="grid gap-6 md:grid-cols-2">
         {studyPlans.map((plan) => {
           const daysRemaining = getDaysRemaining(plan.target_date);
-          const planSessions = sessions.filter(s => s.plan_id === plan.id);
-
           return (
             <Card key={plan.id} className="relative">
               <CardHeader>

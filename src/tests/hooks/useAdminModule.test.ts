@@ -9,7 +9,7 @@
  * - Error handling & edge cases
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // MOCKS & TYPES
@@ -41,12 +41,6 @@ interface ChangelogEntry {
 let mockIsAdmin = false;
 let mockUsers: User[] = [];
 let mockChangelog: ChangelogEntry[] = [];
-
-const mockCheckAdminRole = vi.fn().mockImplementation(async (userId: string) => {
-  // Simulate RLS query
-  return userId === 'admin-user-123';
-});
-
 describe('Admin Module - Comprehensive Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -79,8 +73,6 @@ describe('Admin Module - Comprehensive Tests', () => {
 
     it('should show loading state while checking permissions', () => {
       const isLoading = true;
-      const user = { id: 'user-123' };
-      
       const showLoading = isLoading;
       
       expect(showLoading).toBe(true);
@@ -392,8 +384,6 @@ describe('Admin Module - Comprehensive Tests', () => {
 
     it('should prevent role escalation attacks', () => {
       const currentUserRole = 'user' as string;
-      const attemptedRole = 'admin';
-      
       const canAssignRole = currentUserRole === 'admin';
       
       expect(canAssignRole).toBe(false);
@@ -486,7 +476,6 @@ describe('Admin Module - Comprehensive Tests', () => {
 
   describe('Security', () => {
     it('should not expose sensitive data in error messages', () => {
-      const error = new Error('Database error');
       const safeError = 'Une erreur est survenue';
       
       expect(safeError).not.toContain('Database');

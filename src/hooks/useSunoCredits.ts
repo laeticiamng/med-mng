@@ -3,8 +3,8 @@
  * ✅ Corrigé: Appel au montage + cache localStorage + retry automatique
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { secureSunoClient } from '@/lib/secureApiClient';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const CACHE_KEY = 'suno_credits_cache';
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
@@ -18,7 +18,7 @@ interface CachedCredits {
 }
 
 interface SunoCreditsState {
-  credits: number;
+  _credits: number;
   plan: string;
   used: number;
   total: number;
@@ -38,7 +38,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
         const isValid = Date.now() - parsed.timestamp < CACHE_DURATION_MS;
         if (isValid) {
           return {
-            credits: parsed.credits,
+            _credits: parsed.credits,
             plan: parsed.plan,
             used: parsed.used,
             total: parsed.total,
@@ -52,7 +52,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     } catch {}
     
     return {
-      credits: -1,
+      _credits: -1,
       plan: 'unknown',
       used: 0,
       total: 0,
@@ -64,8 +64,6 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   });
 
   const retryCountRef = useRef(0);
-  const maxRetries = 3;
-
   // ✅ TOUS LES HOOKS DÉCLARÉS EN PREMIER (ordre fixe)
   const fetchCredits = useCallback(async (isRetry = false) => {
     if (!isRetry) {
@@ -102,7 +100,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
       
       setState({
-        credits,
+        _credits,
         plan,
         used,
         total,
@@ -115,14 +113,10 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       retryCountRef.current = 0;
     } catch (err) {
       // Log silencieux - pas de spam console
-      const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
-      const isTimeout = errorMsg.includes('Timeout');
-      const isNotFound = errorMsg.includes('404') || errorMsg.includes('NOT_FOUND');
-      
       // État "indisponible" sans spam - afficher gracieusement
       setState(prev => ({
         ...prev,
-        credits: prev.isFromCache ? prev.credits : -1,
+        _credits: prev.isFromCache ? prev._credits : -1,
         loading: false,
         error: null, // Pas d'erreur affichée si service non disponible
         isFromCache: prev.isFromCache
@@ -147,7 +141,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
 
   // ✅ EFFETS APRÈS TOUS LES useCallback
   useEffect(() => {
-    if (state.isFromCache || state.credits < 0) {
+    if (state.isFromCache || state._credits < 0) {
       fetchCredits();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,9 +155,9 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   }, [autoRefresh, fetchCredits]);
 
   // ✅ Variables dérivées (pas des hooks)
-  const hasLowCredits = state.credits >= 0 && state.credits < 10;
-  const hasNoCredits = state.credits === 0;
-  const creditsUnknown = state.credits < 0;
+  const hasLowCredits = state._credits >= 0 && state._credits < 10;
+  const hasNoCredits = state._credits === 0;
+  const creditsUnknown = state._credits < 0;
   const usagePercentage = state.total > 0 ? Math.round((state.used / state.total) * 100) : 0;
 
   return {
@@ -177,7 +171,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     invalidateCache,
     refreshAfterGeneration,
     // Helper pour affichage
-    displayCredits: state.credits < 0 ? '—' : state.credits.toString(),
+    displayCredits: state._credits < 0 ? '—' : state._credits.toString(),
     // ✅ Helper pour formater le temps depuis dernière mise à jour
     lastUpdatedText: state.lastUpdated 
       ? `Mis à jour ${Math.round((Date.now() - state.lastUpdated.getTime()) / 1000 / 60)} min` 

@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  TrendingUp, 
-  Globe, 
-  FileText, 
-  Image, 
-  Link,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  BarChart3
+import { Textarea } from '@/components/ui/textarea';
+import {
+    AlertTriangle,
+    BarChart3,
+    CheckCircle,
+    FileText,
+    Globe,
+    Image,
+    Info,
+    Link,
+    Search,
+    TrendingUp
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface SEOMetrics {
   title: {
@@ -288,13 +288,6 @@ export const SEOOptimizer: React.FC = () => {
       canonical.setAttribute('href', metaData.canonicalUrl);
     }
   };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-success';
-    if (score >= 70) return 'text-warning';
-    return 'text-destructive';
-  };
-
   const getScoreBadgeVariant = (score: number) => {
     if (score >= 90) return 'default';
     if (score >= 70) return 'secondary';

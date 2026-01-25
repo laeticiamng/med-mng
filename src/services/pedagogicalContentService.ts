@@ -50,8 +50,8 @@ export interface GenerationResult {
 }
 
 class PedagogicalContentService {
-  async getContent(itemCode: string): Promise<PedagogicalContent> {
-    const { data, error } = await supabase.functions.invoke('pedagogical-content-api', {
+  async getContent(_itemCode: string): Promise<PedagogicalContent> {
+    const { _data, error } = await supabase.functions.invoke('pedagogical-content-api', {
       body: null,
       method: 'GET',
     });
@@ -61,11 +61,11 @@ class PedagogicalContentService {
       throw new Error('Failed to fetch content');
     }
 
-    return data;
+    return _data;
   }
 
   async generateMissingContent(itemCode: string): Promise<GenerationResult> {
-    const { data, error } = await supabase.functions.invoke('pedagogical-content-api', {
+    const { _data, error } = await supabase.functions.invoke('pedagogical-content-api', {
       body: { itemCode },
       method: 'POST',
     });
@@ -75,11 +75,11 @@ class PedagogicalContentService {
       throw new Error('Failed to generate content');
     }
 
-    return data;
+    return _data;
   }
 
   async getContentAnalytics(): Promise<ContentAnalytics> {
-    const { data, error } = await supabase.functions.invoke('pedagogical-content-api', {
+    const { _data, error } = await supabase.functions.invoke('pedagogical-content-api', {
       body: null,
       method: 'GET',
     });
@@ -89,22 +89,22 @@ class PedagogicalContentService {
       throw new Error('Failed to fetch analytics');
     }
 
-    return data;
+    return _data;
   }
 
   async getItemContent(itemCode: string): Promise<any> {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_content_ai')
         .select('*')
         .eq('item_id', itemCode);
 
-      if (error) {
-        console.error('Error fetching item content:', error);
+      if (_error) {
+        console.error('Error fetching item content:', _error);
         return null;
       }
 
-      return data;
+      return _data;
     } catch (error) {
       console.error('Exception fetching item content:', error);
       return null;
@@ -160,14 +160,14 @@ class PedagogicalContentService {
 
   async searchContent(query: string, limit: number = 20): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_content_ai')
         .select('*')
         .or(`title.ilike.%${query}%,item_id.ilike.%${query}%`)
         .limit(limit);
 
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
     } catch (error) {
       console.error('Error searching content:', error);
       return [];
@@ -176,12 +176,12 @@ class PedagogicalContentService {
 
   async deleteContent(contentId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_content_ai')
         .delete()
         .eq('id', contentId);
 
-      if (error) throw error;
+      if (_error) throw _error;
       return true;
     } catch (error) {
       console.error('Error deleting content:', error);
@@ -191,14 +191,14 @@ class PedagogicalContentService {
 
   async getRecentGenerations(limit: number = 10): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_content_ai')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(limit);
 
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
     } catch (error) {
       console.error('Error fetching recent generations:', error);
       return [];

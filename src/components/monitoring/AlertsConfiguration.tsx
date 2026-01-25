@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Mail, MessageSquare, Slack, Phone, Webhook } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Bell, Mail, Phone, Slack, Webhook } from 'lucide-react';
+import { useState } from 'react';
 
 interface AlertRule {
   id: string;
@@ -30,8 +29,8 @@ interface NotificationChannel {
 }
 
 export const AlertsConfiguration = () => {
-  const { toast } = useToast();
-  
+  useToast();
+
   const [alertRules, setAlertRules] = useState<AlertRule[]>([
     {
       id: '1',

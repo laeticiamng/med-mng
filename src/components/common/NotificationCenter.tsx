@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bell, 
-  BellOff, 
-  Settings, 
-  Trash2, 
-  Check,
-  AlertTriangle,
-  Info,
-  CheckCircle,
-  XCircle,
-  Filter
+import {
+    AlertTriangle,
+    Bell,
+    BellOff,
+    Check,
+    CheckCircle,
+    Info,
+    Settings,
+    Trash2,
+    XCircle
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
 interface Notification {
   id: string;

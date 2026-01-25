@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Bell, BellRing, Check, X, Trash2, Settings,
-  BookOpen, Music, Users, Trophy, AlertCircle,
-  Info, CheckCircle, XCircle
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    Bell, BellRing,
+    BookOpen,
+    Check,
+    CheckCircle,
+    Info,
+    Trash2,
+    Trophy,
+    X,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Notification {
   id: string;
@@ -75,51 +82,11 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
     setNotifications([]);
   };
 
-  const saveNotifications = async (notifs: Notification[]) => {
+  const saveNotifications = async (_notifs: Notification[]) => {
     // Notifications are saved via individual operations
   };
 
   // ✅ CORRIGÉ: Créer notification basée sur événement réel (pas random)
-  const createRealNotification = async (type: Notification['type'], title: string, message: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const newNotification: Notification = {
-      id: Date.now().toString(),
-      type,
-      title,
-      message,
-      timestamp: new Date(),
-      read: false,
-      category: type === 'achievement' ? 'achievement' : 'content',
-      priority: type === 'warning' || type === 'error' ? 'high' : 'medium'
-    };
-
-    // Sauvegarder en base si utilisateur connecté
-    if (user) {
-      await (supabase as any)
-        .from('user_notifications')
-        .insert({
-          user_id: user.id,
-          type: type,
-          title: title,
-          message: message,
-          is_read: false,
-          priority: newNotification.priority
-        });
-    }
-
-    setNotifications(prev => {
-      const updated = [newNotification, ...prev].slice(0, 50);
-      return updated;
-    });
-
-    // Toast pour notification temps réel
-    toast({
-      title: newNotification.title,
-      description: newNotification.message,
-    });
-  };
-
   const markAsRead = (notificationId: string) => {
     setNotifications(prev => {
       const updated = prev.map(notif =>

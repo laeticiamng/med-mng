@@ -16,18 +16,18 @@ export const useAIClinicalCases = () => {
   const loadAICases = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ai_clinical_cases')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) {
-        console.error('Error loading AI cases:', error);
+      if (_error) {
+        console.error('Error loading AI cases:', _error);
         return [];
       }
 
-      const cases: ClinicalCase[] = (data || []).map(c => ({
+      const cases: ClinicalCase[] = (_data || []).map(c => ({
         id: c.id,
         title: c.title,
         specialty: c.specialty,
@@ -58,7 +58,7 @@ export const useAIClinicalCases = () => {
   ): Promise<ClinicalCase | null> => {
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-clinical-case', {
+      const { _data, error } = await supabase.functions.invoke('generate-clinical-case', {
         body: { specialty, difficulty, relatedItems }
       });
 
@@ -72,7 +72,7 @@ export const useAIClinicalCases = () => {
         return null;
       }
 
-      if (!data || !data.title) {
+      if (!_data || !_data.title) {
         toast({
           title: "Erreur",
           description: "Le cas généré est invalide",
@@ -82,18 +82,18 @@ export const useAIClinicalCases = () => {
       }
 
       // Save to database
-      const { data: savedCase, error: saveError } = await supabase
+      const { _data: savedCase, _error: saveError } = await supabase
         .from('ai_clinical_cases')
         .insert({
-          title: data.title,
-          specialty: data.specialty,
-          difficulty: data.difficulty,
-          description: data.description,
-          patient_presentation: data.patientPresentation,
-          steps: data.steps,
-          related_items: data.relatedItems || relatedItems,
-          estimated_time: data.estimatedTime || 15,
-          learning_objectives: data.learningObjectives || [],
+          title: _data.title,
+          specialty: _data.specialty,
+          difficulty: _data.difficulty,
+          description: _data.description,
+          patient_presentation: _data.patientPresentation,
+          steps: _data.steps,
+          related_items: _data.relatedItems || relatedItems,
+          estimated_time: _data.estimatedTime || 15,
+          learning_objectives: _data.learningObjectives || [],
           generated_by: 'ai'
         })
         .select()
@@ -104,16 +104,16 @@ export const useAIClinicalCases = () => {
       }
 
       const newCase: ClinicalCase = {
-        id: savedCase?.id || data.id || crypto.randomUUID(),
-        title: data.title,
-        specialty: data.specialty,
-        difficulty: data.difficulty,
-        description: data.description || '',
-        patientPresentation: data.patientPresentation,
-        steps: data.steps,
-        relatedItems: data.relatedItems || relatedItems,
-        estimatedTime: data.estimatedTime || 15,
-        learningObjectives: data.learningObjectives || []
+        id: savedCase?.id || _data.id || crypto.randomUUID(),
+        title: _data.title,
+        specialty: _data.specialty,
+        difficulty: _data.difficulty,
+        description: _data.description || '',
+        patientPresentation: _data.patientPresentation,
+        steps: _data.steps,
+        relatedItems: _data.relatedItems || relatedItems,
+        estimatedTime: _data.estimatedTime || 15,
+        learningObjectives: _data.learningObjectives || []
       };
 
       setAiCases(prev => [newCase, ...prev]);
@@ -226,7 +226,7 @@ export const useAIClinicalCases = () => {
 
     // Update use count in database
     try {
-      const { data: currentCase } = await supabase
+      const { _data: currentCase } = await supabase
         .from('ai_clinical_cases')
         .select('use_count')
         .eq('id', currentProgress.caseId)

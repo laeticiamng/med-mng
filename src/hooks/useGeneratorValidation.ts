@@ -3,8 +3,8 @@
  * Centralise toutes les validations avant génération
  */
 
-import { useMemo, useCallback } from 'react';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { useCallback, useMemo } from 'react';
 
 interface ValidationResult {
   isValid: boolean;
@@ -44,7 +44,7 @@ export const useGeneratorValidation = ({
   remainingFree,
   canGenerateMusic
 }: UseGeneratorValidationOptions) => {
-  const { credits, hasNoCredits, hasLowCredits } = useSunoCredits();
+  const { hasNoCredits, hasLowCredits } = useSunoCredits();
 
   // Vérifier la disponibilité des paroles
   const lyricsAvailability = useMemo(() => {

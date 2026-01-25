@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Music, Play, Pause, SkipForward, SkipBack, Volume2, Heart,
-  Library, ListMusic, Clock, TrendingUp, Zap, AlertCircle
-} from 'lucide-react';
-import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { usePlaylists } from '@/hooks/usePlaylists';
+import { useSpotifyAI } from '@/hooks/useSpotifyAI';
+import {
+    AlertCircle,
+    Clock,
+    Library, ListMusic,
+    Music, Play,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface SpotifyAIPlayerProps {
@@ -30,7 +33,7 @@ export const SpotifyAIPlayer: React.FC<SpotifyAIPlayerProps> = ({
   const [activeTab, setActiveTab] = useState('generate');
   const [currentGeneration, setCurrentGeneration] = useState<any>(null);
   const [generationStatus, setGenerationStatus] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [_isPlaying, setIsPlaying] = useState(false);
   const [selectedType, setSelectedType] = useState<'rang_a' | 'rang_b' | 'mix'>('rang_a');
   const [selectedPlaylist, setSelectedPlaylist] = useState<string>('');
 

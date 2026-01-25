@@ -1,8 +1,7 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Play, Sparkles, Volume2 } from 'lucide-react';
 import { allMusicStyles, isPremiumStyle } from './MusicStylesData';
 
@@ -67,7 +66,7 @@ export const StylePreview = ({ selectedStyles, onPreview, showAudioPreview = tru
 
           {/* Styles utilisés */}
           <div className="flex flex-wrap gap-2">
-            {styles.map((style, index) => (
+            {styles.map((style, _index) => (
               <Badge
                 key={style?.value}
                 variant="secondary"

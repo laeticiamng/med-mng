@@ -1,9 +1,8 @@
-import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Crown, Mail, Calendar, Flame, Star, Trophy, Zap } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Calendar, Camera, Crown, Flame, Mail, Star, Trophy, Zap } from 'lucide-react';
+import React from 'react';
 
 interface ProfileHeaderProps {
   profile: any;

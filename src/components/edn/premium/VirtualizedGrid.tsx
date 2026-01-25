@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
 import { useWindowSize } from '@/hooks/useWindowSize';
+import React, { useMemo } from 'react';
 
 interface GridItem {
   id?: string | number;
@@ -9,60 +9,30 @@ interface GridItem {
 interface VirtualizedGridProps<T extends GridItem> {
   items: T[];
   renderItem: (item: T) => React.ReactNode;
-  itemHeight: number;
+  itemHeight?: number;
   gap: number;
 }
 
 export const VirtualizedGrid = <T extends GridItem>({
   items,
   renderItem,
-  itemHeight,
   gap
 }: VirtualizedGridProps<T>) => {
   const { width: windowWidth } = useWindowSize();
-  
-  const { columnCount, itemWidth, gridWidth } = useMemo(() => {
+
+  const { columnCount } = useMemo(() => {
     // Calculer le nombre de colonnes basé sur la largeur de la fenêtre
-    const containerPadding = 32; // padding du container
+    const containerPadding = 32;
     const availableWidth = windowWidth - containerPadding;
-    const minItemWidth = 380; // largeur minimale d'une carte
-    
+    const minItemWidth = 380;
+
     let cols = Math.floor(availableWidth / (minItemWidth + gap));
-    cols = Math.max(1, Math.min(cols, 4)); // Entre 1 et 4 colonnes max
-    
-    const totalGapWidth = (cols - 1) * gap;
-    const width = (availableWidth - totalGapWidth) / cols;
-    const totalWidth = availableWidth;
-    
+    cols = Math.max(1, Math.min(cols, 4));
+
     return {
       columnCount: cols,
-      itemWidth: width,
-      gridWidth: totalWidth
     };
   }, [windowWidth, gap]);
-
-  const rowCount = Math.ceil(items.length / columnCount);
-
-  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
-    const itemIndex = rowIndex * columnCount + columnIndex;
-    const item = items[itemIndex];
-    
-    if (!item) return null;
-
-    return (
-      <div
-        style={{
-          ...style,
-          left: typeof style.left === 'number' ? style.left + (columnIndex * gap) : style.left,
-          width: itemWidth,
-          padding: '12px'
-        }}
-      >
-        {renderItem(item)}
-      </div>
-    );
-  };
-
   // Si peu d'items, affichage normal
   if (items.length <= 20) {
     return (

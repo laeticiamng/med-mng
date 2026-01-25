@@ -1,30 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
-import { 
-  User, Bell, Shield, Eye, Palette, Database, 
-  Download, Upload, Trash2, Save, AlertTriangle,
-  Mail, Phone, MapPin, Calendar, Globe, Lock, Flame, Star, Trophy, Zap
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { FeedbackSystem } from '@/components/feedback/FeedbackSystem';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    Bell,
+    Database,
+    Download,
+    Flame,
+    Mail,
+    MapPin,
+    Palette,
+    Phone,
+    Save,
+    Shield,
+    Star,
+    Trash2,
+    Trophy,
+    Upload,
+    User,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { toast } from 'sonner';
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // État des paramètres du profil (chargé depuis la DB)
@@ -68,7 +81,7 @@ const UserSettings: React.FC = () => {
         logActivity({ activity_type: 'study', metadata: { action: 'view_user_settings' } });
 
         // Charger le profil depuis Supabase
-        const { data: profile } = await supabase
+        const { _data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -111,7 +124,7 @@ const UserSettings: React.FC = () => {
     setIsLoading(true);
     try {
       if (section === 'profil') {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,
@@ -126,10 +139,10 @@ const UserSettings: React.FC = () => {
             updated_at: new Date().toISOString()
           }, { onConflict: 'id' });
 
-        if (error) throw error;
+        if (_error) throw _error;
       } else {
         // Sauvegarder les préférences dans le champ preferences JSONB
-        const { data: currentProfile } = await supabase
+        const { _data: currentProfile } = await supabase
           .from('profiles')
           .select('preferences')
           .eq('id', user.id)
@@ -143,12 +156,12 @@ const UserSettings: React.FC = () => {
           privacy: section === 'confidentialité' ? privacySettings : currentPrefs.privacy
         };
 
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('profiles')
           .update({ preferences: newPrefs as any, updated_at: new Date().toISOString() })
           .eq('id', user.id);
 
-        if (error) throw error;
+        if (_error) throw _error;
       }
       
       toast.success('Paramètres sauvegardés !', {

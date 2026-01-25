@@ -1,44 +1,43 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useMedMngApi } from '@/hooks/useMedMngApi';
-import { withAuth } from '@/components/med-mng/withAuth';
+import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
+import { BatchActions } from '@/components/library/BatchActions';
+import { ContinuousPlayer } from '@/components/library/ContinuousPlayer';
+import { LibraryStats } from '@/components/library/LibraryStats';
+import { PlaylistQuickAdd } from '@/components/library/PlaylistQuickAdd';
+import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
-import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle, Heart, ListMusic, Flame, Trophy, ArrowUpDown, LayoutGrid, List, PlayCircle, BarChart3, CheckSquare, FileDown } from 'lucide-react';
-import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { withAuth } from '@/components/med-mng/withAuth';
 import { TranslatedText } from '@/components/TranslatedText';
-import { useTranslation } from '@/hooks/useTranslation';
-import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
-import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
-import { Badge } from '@/components/ui/badge';
-import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { toast } from 'sonner';
-import { LibraryStats } from '@/components/library/LibraryStats';
-import { ContinuousPlayer } from '@/components/library/ContinuousPlayer';
-import { PlaylistQuickAdd } from '@/components/library/PlaylistQuickAdd';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useLibraryRealtime } from '@/hooks/useLibraryRealtime';
-import { BatchActions } from '@/components/library/BatchActions';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, ArrowUpDown, BarChart3, CheckSquare, FileDown, Flame, Heart, LayoutGrid, List, ListMusic, Music, PlayCircle, Plus, Trophy } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { play } = useGlobalAudio();
+  const { } = useGlobalAudio();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'style'>('date');
   const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
-  const [isPlayingAll, setIsPlayingAll] = useState(false);
+  const [_isPlayingAll, setIsPlayingAll] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [playlistAddOpen, setPlaylistAddOpen] = useState(false);
   const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState<{id: string, title: string} | null>(null);
@@ -48,7 +47,7 @@ const MedMngLibraryComponent = () => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
   
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
@@ -167,11 +166,6 @@ const MedMngLibraryComponent = () => {
   }, [sortedSongs]);
 
   // Ouvrir le dialog playlist pour une chanson
-  const handleAddToPlaylist = useCallback((song: any) => {
-    setSelectedSongForPlaylist({ id: song.id, title: song.title });
-    setPlaylistAddOpen(true);
-  }, []);
-
   // Toggle sélection d'une chanson pour batch actions
   const toggleSongSelection = useCallback((songId: string) => {
     setSelectedSongIds(prev => 
@@ -512,7 +506,7 @@ const MedMngLibraryComponent = () => {
             <ContinuousPlayer
               tracks={continuousPlayerTracks}
               initialTrackIndex={continuousPlayerIndex}
-              onTrackChange={(track, index) => setContinuousPlayerIndex(index)}
+              onTrackChange={(_track, index) => setContinuousPlayerIndex(index)}
               onPlaybackEnd={() => {
                 setShowContinuousPlayer(false);
                 setIsPlayingAll(false);

@@ -1,17 +1,24 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BookOpen, ChevronLeft, ChevronRight, Volume2, 
-  VolumeX, Download, Share2, Bookmark, BookmarkCheck, Eye, Flame, Star, Loader2, Pause
-} from 'lucide-react';
-import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import { exportToPDF, shareContent } from '@/utils/exportUtils';
+import {
+    Bookmark, BookmarkCheck,
+    BookOpen, ChevronLeft, ChevronRight,
+    Download,
+    Eye, Flame,
+    Loader2, Pause,
+    Share2,
+    Star,
+    Volume2,
+    VolumeX
+} from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface TableauRangData {
@@ -36,20 +43,18 @@ interface RomanChapter {
 interface RomanNarratifProps {
   itemCode: string;
   title: string;
-  tableauRangA?: TableauRangData;
-  tableauRangB?: TableauRangData;
+  _tableauRangA?: TableauRangData;
+  _tableauRangB?: TableauRangData;
   romanStory?: RomanChapter[];
 }
 
-export const RomanNarratif: React.FC<RomanNarratifProps> = ({ 
-  itemCode, 
-  title, 
-  tableauRangA, 
-  tableauRangB,
+export const RomanNarratif: React.FC<RomanNarratifProps> = ({
+  itemCode,
+  title,
   romanStory: storedRomanStory
 }) => {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   
@@ -64,8 +69,8 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
 
   // Charger les vraies compétences OIC (seulement si pas de romanStory stocké)
   const shouldLoadOic = !storedRomanStory || storedRomanStory.length === 0;
-  const { competences: competencesA, loading: loadingA } = useOicCompetences(shouldLoadOic ? itemCode : null, 'A');
-  const { competences: competencesB, loading: loadingB } = useOicCompetences(shouldLoadOic ? itemCode : null, 'B');
+  const { competences: competencesA, loading: _loadingA } = useOicCompetences(shouldLoadOic ? itemCode : null, 'A');
+  const { competences: competencesB, loading: _loadingB } = useOicCompetences(shouldLoadOic ? itemCode : null, 'B');
 
   // Load saved progress from localStorage
   useEffect(() => {
@@ -228,7 +233,7 @@ Ce roman narratif couvre ${competencesA.length} compétences de Rang A (fondamen
         const batch = competencesA.slice(i, i + 2);
         const scenario = scenarios[Math.floor(i / 2) % scenarios.length];
         
-        const chapterContent = batch.map((comp, idx) => {
+        const chapterContent = batch.map((comp, _idx) => {
           const rubrique = comp.rubrique ? `[${comp.rubrique}]` : '';
           const description = comp.description?.substring(0, 350) || 'Cette compétence fondamentale est essentielle pour la prise en charge des patients.';
           return `${rubrique}
@@ -260,7 +265,7 @@ L'apprentissage se poursuit, chaque détail compte dans cette spécialité exige
         const batch = competencesB.slice(i, i + 2);
         const scenario = scenarios[(Math.floor(i / 2) + 2) % scenarios.length];
         
-        const chapterContent = batch.map((comp, idx) => {
+        const chapterContent = batch.map((comp, _idx) => {
           const rubrique = comp.rubrique ? `[${comp.rubrique}]` : '';
           const description = comp.description?.substring(0, 350) || 'L\'analyse experte révèle des nuances importantes pour la pratique clinique avancée.';
           return `${rubrique}
@@ -329,7 +334,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
       if (currentChapter + 1 === chapters.length - 1) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await addPoints(user.id, 'itemMastered');
+          await _addPoints(user.id, 'itemMastered');
         }
       }
     }
@@ -426,12 +431,12 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
               Roman Narratif - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {stats && (
+              {_stats && (
                 <div className="flex items-center gap-1 px-2 py-0.5 bg-background/20 rounded-full text-xs text-background">
                   <Flame className="h-3 w-3" />
-                  <span className="font-bold">{stats.currentStreak ?? 0}j</span>
+                  <span className="font-bold">{_stats.currentStreak ?? 0}j</span>
                   <Star className="h-3 w-3 ml-1" />
-                  <span className="font-bold">Nv.{stats.level ?? 1}</span>
+                  <span className="font-bold">Nv.{_stats.level ?? 1}</span>
                 </div>
               )}
               <Badge className="bg-background/20 text-background">
@@ -568,7 +573,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
                   title,
                   content: fullContent,
                   itemCode,
-                  type: 'roman'
+                  _type: 'roman'
                 });
                 setIsExporting(false);
               }}
@@ -586,7 +591,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
                   title,
                   content: currentChap.content,
                   itemCode,
-                  type: 'roman'
+                  _type: 'roman'
                 });
                 setIsSharing(false);
               }}

@@ -6,14 +6,14 @@ export interface ExportOptions {
   title: string;
   content: string;
   itemCode: string;
-  type: 'roman' | 'bd' | 'competences';
+  _type: 'roman' | 'bd' | 'competences';
 }
 
 /**
  * Export content as PDF
  */
 export const exportToPDF = async (options: ExportOptions): Promise<void> => {
-  const { title, content, itemCode, type } = options;
+  const { title, content, itemCode, _type } = options;
   
   try {
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -33,7 +33,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
     
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(`Type: ${type.toUpperCase()} | Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 26);
+    pdf.text(`Type: ${_type.toUpperCase()} | Généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, 26);
     
     // Content
     pdf.setTextColor(0, 0, 0);
@@ -60,7 +60,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
       pdf.text(`MED-MNG | Page ${i}/${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     }
     
-    pdf.save(`${itemCode}-${type}-${Date.now()}.pdf`);
+    pdf.save(`${itemCode}-${_type}-${Date.now()}.pdf`);
     toast.success('PDF téléchargé avec succès !');
   } catch (error) {
     toast.error('Erreur lors de l\'export PDF');
@@ -72,7 +72,7 @@ export const exportToPDF = async (options: ExportOptions): Promise<void> => {
  * Share content using Web Share API or fallback to clipboard
  */
 export const shareContent = async (options: ExportOptions): Promise<void> => {
-  const { title, content, itemCode, type } = options;
+  const { title, content, itemCode } = options;
   
   const shareText = `${itemCode} - ${title}\n\n${content.substring(0, 500)}...\n\nGénéré avec MED-MNG`;
   const shareUrl = window.location.href;

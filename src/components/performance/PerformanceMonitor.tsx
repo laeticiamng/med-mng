@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Activity, 
-  Gauge, 
-  Cpu, 
-  HardDrive, 
-  Wifi, 
-  Zap,
-  TrendingUp,
-  AlertTriangle
+import {
+    Activity,
+    AlertTriangle,
+    Cpu,
+    Gauge,
+    HardDrive,
+    Wifi
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 /**
  * Moniteur de Performance en Temps Réel (Composant Léger)

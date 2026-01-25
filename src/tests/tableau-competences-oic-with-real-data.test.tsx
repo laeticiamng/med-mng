@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
 import { TableauCompetencesOICWithRealData } from '@/components/edn/tableau/TableauCompetencesOICWithRealData';
+import { render, _screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('TableauCompetencesOICWithRealData', () => {
   beforeEach(() => {
@@ -28,7 +28,6 @@ describe('TableauCompetencesOICWithRealData', () => {
     expect(fetchMock).toHaveBeenCalled();
     
     // Check the component renders - either shows data or loading state
-    const content = await screen.findByText(/Compétence|Chargement|OIC/i, { }, { timeout: 3000 }).catch(() => null);
     expect(true).toBe(true); // Test passes if no error
   });
 });

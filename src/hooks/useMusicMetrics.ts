@@ -49,14 +49,14 @@ export function useMusicMetrics() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMetrics = async (type: string) => {
-    const { data, error } = await supabase.functions.invoke('music-metrics', {
+    const { _data, error } = await supabase.functions.invoke('music-metrics', {
       body: { type }
     });
 
     if (error) throw error;
-    if (!data?.success) throw new Error(data?.error || 'Erreur de chargement');
+    if (!_data?.success) throw new Error(_data?.error || 'Erreur de chargement');
     
-    return data.data;
+    return _data.data;
   };
 
   const loadAllStats = async () => {

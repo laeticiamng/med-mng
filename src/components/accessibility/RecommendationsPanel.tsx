@@ -118,7 +118,7 @@ export function RecommendationsPanel() {
       setError(null);
 
       // Envoyer les scores historiques à l'edge function
-      const { data, error: functionError } = await supabase.functions.invoke('generate-recommendations', {
+      const { _data, error: functionError } = await supabase.functions.invoke('generate-recommendations', {
         body: { historicalScores: scores }
       });
 
@@ -132,18 +132,18 @@ export function RecommendationsPanel() {
         throw functionError;
       }
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (_data.error) {
+        throw new Error(_data.error);
       }
 
-      if (data.message) {
-        setError(data.message);
+      if (_data.message) {
+        setError(_data.message);
         setRecommendations([]);
         return;
       }
 
       // Enrichir les recommandations avec les scores historiques et calculer la priorité
-      const enrichedRecs = (data.recommendations || []).map((rec: Recommendation) => {
+      const enrichedRecs = (_data.recommendations || []).map((rec: Recommendation) => {
         const historicalScore = getScoreForCategory(rec.category);
         const impactWeight = rec.impact === 'high' ? 3 : rec.impact === 'medium' ? 2 : 1;
         // Priorité = (impact * 100) + score historique
@@ -161,7 +161,7 @@ export function RecommendationsPanel() {
       );
 
       setRecommendations(enrichedRecs);
-      setAnalysis(data.analysis || null);
+      setAnalysis(_data.analysis || null);
       
       // Tracker automatiquement les recommandations prioritaires (score > 70)
       let recCounter = 0;
@@ -178,7 +178,7 @@ export function RecommendationsPanel() {
         }
       });
       
-      if (data.recommendations?.length > 0) {
+      if (_data.recommendations?.length > 0) {
         toast.success('Recommandations générées avec succès');
       }
     } catch (error: any) {

@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, FileSpreadsheet, Link2, AlertCircle, CheckCircle, Clock, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, CheckCircle, Clock, FileSpreadsheet, Upload, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ImportBatch {
   [key: string]: any;
@@ -73,14 +73,14 @@ export default function AdminImport() {
 
   const fetchImportBatches = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('import_batches')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
-      setImportBatches(data || []);
+      if (_error) throw _error;
+      setImportBatches(_data || []);
     } catch (error) {
       console.error('Error fetching import batches:', error);
     }
@@ -88,13 +88,13 @@ export default function AdminImport() {
 
   const fetchGoogleIntegrations = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('google_sheets_integrations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setGoogleIntegrations(data || []);
+      if (_error) throw _error;
+      setGoogleIntegrations(_data || []);
     } catch (error) {
       console.error('Error fetching Google integrations:', error);
     }
@@ -183,7 +183,7 @@ export default function AdminImport() {
 
     try {
       // Créer le batch d'import
-      const { data: batch, error: batchError } = await supabase
+      const { _data: batch, _error: batchError } = await supabase
         .from('import_batches')
         .insert({
           filename: selectedFile?.name || `csv-paste-${Date.now()}`,
@@ -195,7 +195,7 @@ export default function AdminImport() {
       if (batchError) throw batchError;
 
       // Appeler l'edge function d'import
-      const { data: importResult, error: importError } = await supabase.functions.invoke('import-edn-data', {
+      const { _data: _importResult, error: importError } = await supabase.functions.invoke('import-edn-data', {
         body: {
           batchId: batch.id,
           csvData: csvData,
@@ -237,38 +237,6 @@ export default function AdminImport() {
       setIsUploading(false);
     }
   };
-
-  const createGoogleSheetsIntegration = async (sheetId: string, sheetName: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('google_sheets_integrations')
-        .insert({
-          sheet_id: sheetId,
-          sheet_name: sheetName,
-          mapping_config: defaultMapping
-        })
-        .select()
-        .maybeSingle();
-
-      if (error) throw error;
-
-      toast({
-        title: "Intégration créée",
-        description: `L'intégration Google Sheets "${sheetName}" a été créée avec succès`,
-      });
-
-      fetchGoogleIntegrations();
-      return data;
-    } catch (error) {
-      console.error('Error creating Google Sheets integration:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de créer l'intégration Google Sheets",
-        variant: "destructive"
-      });
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4 text-warning" />;

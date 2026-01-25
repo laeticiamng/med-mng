@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
-import { AlertTriangle, Activity, RefreshCw, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { Activity, AlertTriangle, CheckCircle, Clock, RefreshCw, XCircle } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { toast } from "sonner";
 
 interface MonitoringIncident {
   id: string;
@@ -57,13 +57,13 @@ export const MonitoringDashboard = () => {
   const runHealthChecks = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { _data, error } = await supabase.functions.invoke('monitoring-alerts', {
         body: { action: 'health_check' }
       });
 
       if (error) throw error;
 
-      setHealthResults(data.results || []);
+      setHealthResults(_data.results || []);
       toast.success('Health checks completed');
     } catch (error) {
       console.error('Health check failed:', error);
@@ -76,13 +76,13 @@ export const MonitoringDashboard = () => {
 
   const fetchIncidents = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { _data, error } = await supabase.functions.invoke('monitoring-alerts', {
         body: { action: 'get_incidents' }
       });
 
       if (error) throw error;
 
-      setIncidents(data.incidents || []);
+      setIncidents(_data.incidents || []);
     } catch (error) {
       console.error('Failed to fetch incidents:', error);
       toast.error('Failed to fetch incidents');

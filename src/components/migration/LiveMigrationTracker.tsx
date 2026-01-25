@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Activity, 
-  CheckCircle2, 
-  FileCode, 
-  Zap,
-  Clock,
-  AlertCircle
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertCircle,
+    CheckCircle2,
+    Clock,
+    FileCode,
+    Zap
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface FileProgress {
   filename: string;
@@ -33,7 +33,7 @@ interface MigrationReport {
 
 export const LiveMigrationTracker: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [currentFile, _setCurrentFile] = useState<string | null>(null);
   const [filesProcessed, setFilesProcessed] = useState<FileProgress[]>([]);
   const [totalProgress, setTotalProgress] = useState(0);
   const [stats, setStats] = useState({
@@ -46,14 +46,14 @@ export const LiveMigrationTracker: React.FC = () => {
   // Charger les données réelles depuis Supabase
   const loadRealMigrationData = useCallback(async () => {
     try {
-      const { data: reports, error } = await supabase
+      const { _data: reports, _error } = await supabase
         .from('audit_reports')
         .select('*')
         .eq('report_type', 'migration')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       if (reports && reports.length > 0) {
         const processedFiles: FileProgress[] = reports.map((report: MigrationReport) => {

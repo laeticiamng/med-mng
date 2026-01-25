@@ -51,7 +51,7 @@ export function useSharedResources() {
       const { data: { user } } = await supabase.auth.getUser();
       
       // Charger les ressources approuvées
-      const { data: resourcesData, error: resourcesError } = await supabase
+      const { _data: resourcesData, _error: resourcesError } = await supabase
         .from('shared_resources')
         .select('*')
         .eq('is_approved', true)
@@ -62,7 +62,7 @@ export function useSharedResources() {
 
       // Charger les profils des auteurs
       const authorIds = [...new Set(resourcesData?.map(r => r.author_id) || [])];
-      const { data: profiles } = await supabase
+      const { _data: profiles } = await supabase
         .from('profiles')
         .select('id, name')
         .in('id', authorIds.length > 0 ? authorIds : ['00000000-0000-0000-0000-000000000000']);
@@ -74,13 +74,13 @@ export function useSharedResources() {
       let userBookmarks: string[] = [];
       
       if (user) {
-        const { data: likes } = await supabase
+        const { _data: likes } = await supabase
           .from('resource_likes')
           .select('resource_id')
           .eq('user_id', user.id);
         userLikes = likes?.map(l => l.resource_id) || [];
 
-        const { data: bookmarks } = await supabase
+        const { _data: bookmarks } = await supabase
           .from('resource_bookmarks')
           .select('resource_id')
           .eq('user_id', user.id);
@@ -117,7 +117,7 @@ export function useSharedResources() {
     }
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('shared_resources')
         .insert({
           title: resource.title,
@@ -130,11 +130,11 @@ export function useSharedResources() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({ title: 'Ressource partagée ✅' });
       await loadResources();
-      return data;
+      return _data;
     } catch (err) {
       console.error('Erreur création ressource:', err);
       toast({ title: 'Erreur', description: 'Impossible de créer la ressource', variant: 'destructive' });

@@ -1,14 +1,13 @@
-import { useCallback, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { captureException, addBreadcrumb } from '@/utils/sentry';
-import { 
-  AppError, 
-  ErrorSeverity, 
-  ErrorCategory,
-  shouldNotifyUser,
-  isRetryableError,
-  createStandardErrorResponse
+import {
+    AppError,
+    ErrorCategory,
+    ErrorSeverity,
+    isRetryableError,
+    shouldNotifyUser
 } from '@/utils/errorStandardization';
+import { addBreadcrumb, captureException } from '@/utils/sentry';
+import { useCallback, useEffect } from 'react';
 
 export interface ErrorHandlingOptions {
   showToast?: boolean;

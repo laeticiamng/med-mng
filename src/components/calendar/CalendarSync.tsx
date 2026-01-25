@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Calendar, Link2, Unlink, CheckCircle, Clock,
-  RefreshCw, Settings, Download, AlertCircle
-} from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import {
+    AlertCircle,
+    Calendar,
+    CheckCircle, Clock,
+    Link2,
+    RefreshCw, Settings,
+    Unlink
+} from 'lucide-react';
+import React, { useState } from 'react';
 
 interface CalendarConnection {
   id: string;

@@ -1,25 +1,33 @@
-import React, { useEffect } from 'react';
-import { 
-  Bell, X, Check, CheckCheck, Trash2, Info, 
-  AlertTriangle, CheckCircle, AlertCircle, Flame, Star 
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+    AlertCircle,
+    AlertTriangle,
+    Bell,
+    CheckCheck,
+    CheckCircle,
+    Flame,
+    Info,
+    Star,
+    Trash2,
+    X
+} from 'lucide-react';
+import React, { useEffect } from 'react';
 
 interface NotificationCenterProps {
   isOpen?: boolean;
@@ -71,12 +79,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   onClose 
 }) => {
   const {
-    notifications,
     removeNotification,
     clearAll
   } = useNotifications();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const init = async () => {
@@ -148,7 +155,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const unreadCount = demoNotifications.filter(n => !n.read).length;
 
-  const markAsRead = (id: string) => {
+  const markAsRead = (_id: string) => {
     // Logique pour marquer comme lu
   };
 

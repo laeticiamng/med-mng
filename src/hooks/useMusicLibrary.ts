@@ -57,12 +57,12 @@ export const useMusicLibrary = () => {
 
   const fetchSavedMusics = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_generated_music')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
+      if (_error) {
         toast({
           title: "Erreur",
           description: "Impossible de charger votre bibliothèque musicale",
@@ -72,13 +72,13 @@ export const useMusicLibrary = () => {
       }
 
       // Charger avec le statut favori depuis la DB
-      setSavedMusics((data || []).map((music: any) => ({
+      setSavedMusics((_data || []).map((music: any) => ({
         ...music,
         is_favorite: music.is_favorite || false
       })));
 
       // Convertir au nouveau format Track
-      const convertedTracks: Track[] = (data || []).map((music: any) => ({
+      const convertedTracks: Track[] = (_data || []).map((music: any) => ({
         id: music.id,
         title: music.title,
         item_code: music.item_code || 'N/A',
@@ -101,7 +101,7 @@ export const useMusicLibrary = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('med-mng-api', {
+      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
         body: { 
           endpoint: 'library',
           method: 'GET'
@@ -114,7 +114,7 @@ export const useMusicLibrary = () => {
         return;
       }
 
-      setTracks(data.items || []);
+      setTracks(_data.items || []);
     } catch {
       // Fallback vers l'ancienne méthode
       await fetchSavedMusics();
@@ -129,12 +129,12 @@ export const useMusicLibrary = () => {
 
   const handleDelete = async (musicId: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .delete()
         .eq('id', musicId);
 
-      if (error) {
+      if (_error) {
         toast({
           title: "Erreur",
           description: "Impossible de supprimer cette musique",
@@ -162,12 +162,12 @@ export const useMusicLibrary = () => {
       const newFavoriteStatus = !music.is_favorite;
 
       // Persister le statut favori dans la base de données
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: newFavoriteStatus })
         .eq('id', musicId);
 
-      if (error) {
+      if (_error) {
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour le favori",
@@ -270,7 +270,7 @@ export const useMusicLibrary = () => {
   // Obtenir l'URL de streaming sécurisé
   const getStreamUrl = async (trackId: string): Promise<string | null> => {
     try {
-      const { data, error } = await supabase.functions.invoke('secure-audio-stream', {
+      const { _data, error } = await supabase.functions.invoke('secure-audio-stream', {
         body: { audioId: trackId }
       });
 
@@ -278,7 +278,7 @@ export const useMusicLibrary = () => {
         return null;
       }
 
-      return data.stream_url;
+      return _data.stream_url;
     } catch {
       return null;
     }

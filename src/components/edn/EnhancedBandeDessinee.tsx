@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { BandeDessineeComplete } from './BandeDessineeComplete';
-import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
-import { AlternativeContentFormats } from './content/AlternativeContentFormats';
 import { MasterContentViewer } from '@/components/content/MasterContentViewer';
 import { SpotifyAIPlayer } from '@/components/music/SpotifyAIPlayer';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, FileText, Wand2, Star, Music, Flame } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { BookOpen, FileText, Flame, Music, Star, Wand2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { BandeDessineeComplete } from './BandeDessineeComplete';
+import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
+import { AlternativeContentFormats } from './content/AlternativeContentFormats';
 
 interface EnhancedBandeDessineeProps {
   itemData: {
@@ -27,7 +26,7 @@ interface EnhancedBandeDessineeProps {
 export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ itemData }) => {
   const [activeTab, setActiveTab] = useState('bande-dessinee');
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
 
   useEffect(() => {
     const load = async () => {
@@ -35,11 +34,11 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_enhanced_bd', itemCode: itemData.item_code } });
-        addPoints(user.id, 'itemReviewed');
+        _addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [itemData.item_code, loadStats, logActivity, addPoints]);
+  }, [itemData.item_code, loadStats, logActivity, _addPoints]);
 
   const handleTabChange = async (tab: string) => {
     setActiveTab(tab);
@@ -66,15 +65,15 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
               <BookOpen className="h-6 w-6" />
               Contenu Éducatif Interactif - {itemData.title}
             </CardTitle>
-            {stats && (
+            {_stats && (
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="gap-1 text-xs bg-background/50">
                   <Flame className="h-3 w-3 text-orange-500" />
-                  {stats.currentStreak ?? 0}j
+                  {_stats.currentStreak ?? 0}j
                 </Badge>
                 <Badge variant="outline" className="gap-1 text-xs bg-background/50">
                   <Star className="h-3 w-3 text-yellow-500" />
-                  Niv. {stats.level ?? 1}
+                  Niv. {_stats.level ?? 1}
                 </Badge>
               </div>
             )}

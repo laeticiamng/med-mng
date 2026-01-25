@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Trophy,
-  Medal,
-  Crown,
-  Flame,
-  Star,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Users,
-  Calendar,
-  Target,
-  Zap,
-  Award
-} from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import {
+    Award,
+    Calendar,
+    Crown,
+    Flame,
+    Medal,
+    Minus,
+    Star,
+    Target,
+    TrendingDown,
+    TrendingUp,
+    Trophy,
+    Users
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface LeaderboardEntry {
   id: string;
@@ -51,7 +50,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 }) => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [currentUser, setCurrentUser] = useState<LeaderboardEntry | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe);
   const [selectedCategory, setSelectedCategory] = useState(category);
 
@@ -65,7 +64,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       
       // Charger les vraies données depuis user_activity_log et profiles
-      const { data: activityData, error: activityError } = await supabase
+      const { _data: activityData, _error: activityError } = await supabase
         .from('user_activity_log')
         .select('user_id, score')
         .order('created_at', { ascending: false })
@@ -82,13 +81,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
       // Charger les profils
       const userIds = Array.from(userXpMap.keys()).slice(0, 20);
-      const { data: profiles } = await supabase
+      const { _data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);
 
       // Charger les streaks
-      const { data: streaks } = await supabase
+      const { _data: streaks } = await supabase
         .from('activity_streaks')
         .select('user_id, current_streak, total_activities')
         .in('user_id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);
@@ -206,16 +205,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       default: return 'XP';
     }
   };
-
-  const getRankBgColor = (rank: number) => {
-    switch (rank) {
-      case 1: return 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-500/30';
-      case 2: return 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border-gray-400/30';
-      case 3: return 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 border-amber-600/30';
-      default: return '';
-    }
-  };
-
   return (
     <Card className="w-full">
       <CardHeader>

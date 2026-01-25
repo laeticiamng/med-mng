@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Info, Lightbulb, Zap, Star } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Info, Lightbulb, Star, Zap } from 'lucide-react';
+import React, { useState } from 'react';
 
 /**
  * Système de Tooltips Intelligents avec Contexte

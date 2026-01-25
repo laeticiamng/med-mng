@@ -1,22 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BookOpen, 
-  Trophy, 
-  Flame, 
-  Target, 
-  Clock, 
-  TrendingUp,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useGamification } from '@/hooks/useGamification';
-import { QuizProgressChart } from './quiz/QuizProgressChart';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    BookOpen,
+    CheckCircle,
+    Flame,
+    Target,
+    TrendingUp,
+    Trophy
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { ProgressHeatmap } from './quiz/ProgressHeatmap';
+import { QuizProgressChart } from './quiz/QuizProgressChart';
 
 interface RevisionDashboardProps {
   itemCode?: string;
@@ -43,7 +41,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
 }) => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -66,7 +64,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         quizQuery = quizQuery.eq('item_code', itemCode);
       }
       
-      const { data: quizResults } = await quizQuery.limit(100);
+      const { _data: quizResults } = await quizQuery.limit(100);
 
       // Fetch mastery data - global or per item
       let masteryQuery = supabase
@@ -78,20 +76,16 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         masteryQuery = masteryQuery.eq('item_code', itemCode);
       }
       
-      const { data: masteryData } = await masteryQuery;
+      const { _data: masteryData } = await masteryQuery;
 
       // Calcul comparaison temporelle (semaine actuelle vs précédente)
       const now = new Date();
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-
-      const currentWeekResults = quizResults?.filter(r => new Date(r.created_at) >= oneWeekAgo) || [];
       const prevWeekResults = quizResults?.filter(r => {
         const date = new Date(r.created_at);
         return date >= twoWeeksAgo && date < oneWeekAgo;
       }) || [];
-
-      const currentWeekScores = currentWeekResults.map(r => r.score);
       const prevWeekScores = prevWeekResults.map(r => r.score);
 
       const scores = quizResults?.map(r => r.score) || [];

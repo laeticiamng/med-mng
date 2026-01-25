@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Cloud,
-  CloudOff,
-  RefreshCw,
-  Download,
-  Upload,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  Database,
-  Trash2,
-  Settings,
-  Wifi,
-  WifiOff,
-  HardDrive,
-  Loader2,
-  FileText,
-  Music,
-  Image
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
 import { offlineSyncService } from '@/services/offlineSyncService';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertCircle,
+    CheckCircle,
+    Clock,
+    Cloud,
+    CloudOff,
+    Database,
+    Download,
+    FileText,
+    HardDrive,
+    Loader2,
+    Music,
+    RefreshCw,
+    Settings,
+    Trash2,
+    Upload,
+    Wifi,
+    WifiOff
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface SyncItem {
   id: string;
@@ -110,7 +109,7 @@ export const OfflineSyncManager: React.FC = () => {
 
       if (user) {
         // Progression utilisateur
-        const { data: progress } = await supabase
+        const { _data: progress } = await supabase
           .from('user_gamification_stats')
           .select('*')
           .eq('user_id', user.id)

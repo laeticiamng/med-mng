@@ -21,7 +21,7 @@ interface EnhancedAudioPlayerState {
 
 export const useEnhancedAudioPlayer = () => {
   const { toast } = useToast();
-  const { startTracking, updateMetric, logFinalMetrics } = useAudioMetrics();
+  const { _startTracking, updateMetric, logFinalMetrics } = useAudioMetrics();
   
   const [state, setState] = useState<EnhancedAudioPlayerState>({
     isPlaying: false,
@@ -92,7 +92,7 @@ export const useEnhancedAudioPlayer = () => {
     logAudioMetrics('PLAY_INITIATED', { audioUrl, startTime: playStartTime });
 
     // Démarrer le tracking des métriques
-    const metrics = startTracking(audioUrl);
+    const metrics = _startTracking(audioUrl);
 
     try {
       // Nettoyer l'ancien audio
@@ -275,7 +275,7 @@ export const useEnhancedAudioPlayer = () => {
       
       console.error('❌ Erreur lecture audio:', error);
     }
-  }, [state.volume, logAudioMetrics, startTracking, updateMetric, logFinalMetrics, toast]);
+  }, [state.volume, logAudioMetrics, _startTracking, updateMetric, logFinalMetrics, toast]);
 
   const retry = useCallback(() => {
     if (state.currentTrack && state.retryCount < 3) {

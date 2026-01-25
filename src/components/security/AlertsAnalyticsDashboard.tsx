@@ -1,14 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, FileSpreadsheet, FileText, TrendingUp, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { ArrowDown, ArrowUp, Calendar, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { useState, useRef } from 'react';
 
 const COLORS = [
   'hsl(var(--destructive))',
@@ -34,40 +34,40 @@ export const AlertsAnalyticsDashboard = () => {
   const { data: alerts } = useQuery({
     queryKey: ['unified-alerts-analytics', period],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('unified_alerts')
         .select('*')
         .gte('created_at', cutoffDate.toISOString())
         .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
     },
   });
 
   const { data: comparisonAlerts } = useQuery({
     queryKey: ['unified-alerts-comparison', period],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('unified_alerts')
         .select('*')
         .gte('created_at', comparisonCutoffDate.toISOString())
         .lt('created_at', cutoffDate.toISOString())
         .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
     },
   });
 
   const { data: scoreHistory } = useQuery({
     queryKey: ['alert-score-history', period],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('alert_score_history')
         .select('*')
         .gte('calculated_at', cutoffDate.toISOString())
         .order('calculated_at', { ascending: true });
-      if (error) throw error;
-      return data || [];
+      if (_error) throw _error;
+      return _data || [];
     },
   });
 

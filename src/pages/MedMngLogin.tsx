@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Music, AlertTriangle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useRateLimiting, RateLimitPresets } from '@/hooks/useRateLimiting';
+import { RateLimitPresets, useRateLimiting } from '@/hooks/useRateLimiting';
+import { AlertTriangle, Clock, Music } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -27,7 +27,7 @@ export const MedMngLogin = () => {
     recordAttempt,
     recordSuccess,
     formatBlockTime,
-    state: rateLimitState
+    state: _rateLimitState
   } = useRateLimiting('login', RateLimitPresets.login);
 
   // Mettre à jour l'affichage du temps de blocage

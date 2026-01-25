@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { ItemCompetencesChecker } from '@/components/audit/ItemCompetencesChecker';
+import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, Download, Play, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
-import { ItemCompetencesChecker } from '@/components/audit/ItemCompetencesChecker';
 
 const AdminExtractEcos = () => {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -33,7 +33,7 @@ const AdminExtractEcos = () => {
       setError(null);
       setProgress(10);
       
-      const { data, error } = await supabase.functions.invoke('extract-ecos-uness', {
+      const { _data, error } = await supabase.functions.invoke('extract-ecos-uness', {
         body: {
           action,
           resumeFromSD: action === 'resume' ? resumeFromSD : 1,
@@ -49,10 +49,10 @@ const AdminExtractEcos = () => {
         return;
       }
 
-      console.log('✅ Extraction ECOS terminée:', data);
-      setStats(data.stats);
+      console.log('✅ Extraction ECOS terminée:', _data);
+      setStats(_data.stats);
       setProgress(100);
-      toast.success(`Extraction ECOS terminée! ${data.stats?.totalProcessed || 0} situations traitées`);
+      toast.success(`Extraction ECOS terminée! ${_data.stats?.totalProcessed || 0} situations traitées`);
 
     } catch (error: any) {
       console.error('💥 Erreur critique ECOS:', error);
@@ -73,17 +73,17 @@ const AdminExtractEcos = () => {
 
   const checkExistingData = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ecos_situations_uness')
         .select('sd_id, intitule_sd, date_import')
         .order('sd_id');
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      console.log(`📊 ${data?.length || 0} situations ECOS déjà en base`);
-      toast.info(`${data?.length || 0} situations ECOS trouvées en base`);
+      console.log(`📊 ${_data?.length || 0} situations ECOS déjà en base`);
+      toast.info(`${_data?.length || 0} situations ECOS trouvées en base`);
       
-      return data;
+      return _data;
     } catch (error: any) {
       console.error('Erreur vérification données ECOS:', error);
       toast.error('Erreur lors de la vérification des données ECOS');

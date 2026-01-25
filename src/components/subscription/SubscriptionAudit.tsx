@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart3, Users, Shield, Crown, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { AlertTriangle, BarChart3, CheckCircle, Clock, Shield, Users } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface AuditResult {
   category: string;
@@ -33,7 +33,7 @@ export const SubscriptionAudit: React.FC = () => {
 
     try {
       // Test 1: Vérification des plans d'abonnement
-      const { data: plans, error: plansError } = await supabase
+      const { _data: plans, _error: plansError } = await supabase
         .from('subscription_plans')
         .select('*');
 
@@ -100,11 +100,11 @@ export const SubscriptionAudit: React.FC = () => {
       }
 
       // Test 3: Statistiques d'utilisation
-      const { data: subscriptions } = await supabase
+      const { _data: subscriptions } = await supabase
         .from('user_subscriptions')
         .select('plan_id, status');
 
-      const { data: usage } = await supabase
+      const { _data: usage } = await supabase
         .from('music_generation_usage')
         .select('generated_count, quota_limit');
 

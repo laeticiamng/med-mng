@@ -1,17 +1,15 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target, TrendingUp } from 'lucide-react';
-import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { withAuth } from '@/components/med-mng/withAuth';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { fetchProgressOverview } from '@/services/medMngItemsService';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
+import { UserStatsCard } from '@/components/med-mng/profile/UserStatsCard';
+import { withAuth } from '@/components/med-mng/withAuth';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { UserStatsCard } from '@/components/med-mng/profile/UserStatsCard';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-
+import { fetchProgressOverview } from '@/services/medMngItemsService';
+import { useQuery } from '@tanstack/react-query';
+import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target, TrendingUp } from 'lucide-react';
+import { useMemo } from 'react';
 const MedMngProgressComponent = () => {
   const { user } = useAuth();
 

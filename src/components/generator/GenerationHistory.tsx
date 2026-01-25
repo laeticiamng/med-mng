@@ -1,29 +1,27 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Music, Play, Pause, Trash2, Filter, Heart, Search, Download, ChevronLeft, ChevronRight, FileDown, RefreshCw, BarChart3, Share2, CheckSquare, Square, Expand } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { PremiumCard } from '@/components/ui/premium-card';
 import { TranslatedText } from '@/components/TranslatedText';
-import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { toast } from 'sonner';
-import { formatDistanceToNow, isToday, isThisWeek, isThisMonth } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { BatchActionsBar } from './BatchActionsBar';
-import { GenerationStats } from './GenerationStats';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { PremiumCard } from '@/components/ui/premium-card';
 import { MusicListSkeleton } from '@/components/ui/skeleton-loader';
-import { ShareMusicDialog } from './ShareMusicDialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
+import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow, isThisMonth, isThisWeek, isToday } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { BarChart3, ChevronLeft, ChevronRight, Clock, Download, FileDown, Heart, Music, Pause, Play, RefreshCw, Search, Share2, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { BatchActionsBar } from './BatchActionsBar';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { ExtendMusicButton } from './ExtendMusicButton';
-import { DateGroupHeader, useGroupByDate } from './HistoryDateGrouping';
-import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
-import { GenerationFilters, type FilterType, type SortType, type DateRangeType } from './GenerationFilters';
-import { useDebounce } from '@/hooks/useDebounce';
+import { GenerationFilters, type DateRangeType, type FilterType, type SortType } from './GenerationFilters';
+import { GenerationStats } from './GenerationStats';
+import { ShareMusicDialog } from './ShareMusicDialog';
 
 interface GeneratedTrack {
   id: string;
@@ -37,8 +35,6 @@ interface GeneratedTrack {
   duration?: number;
   task_id?: string;
 }
-
-type FilterTypeSimple = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -63,9 +59,9 @@ export const GenerationHistory: React.FC = () => {
   const [shareTrack, setShareTrack] = useState<GeneratedTrack | null>(null);
 
   // Realtime subscription pour les nouvelles générations
-  const { isConnected: realtimeConnected } = useRealtimeGeneration({
+  useRealtimeGeneration({
     userId: user?.id,
-    onGenerationComplete: (track) => {
+    onGenerationComplete: (_track) => {
       loadHistory();
     },
     enabled: !!user
@@ -93,7 +89,7 @@ export const GenerationHistory: React.FC = () => {
           table: 'user_generated_music',
           filter: `user_id=eq.${user.id}`
         },
-        (payload) => {
+        (_payload) => {
           loadHistory();
         }
       )
@@ -148,8 +144,8 @@ export const GenerationHistory: React.FC = () => {
       ]);
 
       // Combiner les résultats en évitant les doublons par audio_url
-      const userMusic = userMusicResult.data || [];
-      const generatedTracks = (generatedTracksResult.data || [])
+      const userMusic = userMusicResult._data || [];
+      const generatedTracks = (generatedTracksResult._data || [])
         .map((track: any) => ({
           id: track.id,
           item_code: track.metadata?.itemCode || 'GEN',
@@ -315,13 +311,13 @@ export const GenerationHistory: React.FC = () => {
     if (!user || !trackToDelete) return;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .delete()
         .eq('id', trackToDelete)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setHistory(prev => prev.filter(t => t.id !== trackToDelete));
       toast.success('Génération supprimée');
@@ -337,13 +333,13 @@ export const GenerationHistory: React.FC = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: !currentFavorite })
         .eq('id', trackId)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setHistory(prev => prev.map(t => 
         t.id === trackId ? { ...t, is_favorite: !currentFavorite } : t
@@ -464,13 +460,13 @@ export const GenerationHistory: React.FC = () => {
     setIsBatchDeleting(true);
     try {
       const idsToDelete = Array.from(selectedIds);
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .delete()
         .in('id', idsToDelete)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setHistory(prev => prev.filter(t => !selectedIds.has(t.id)));
       toast.success(`${idsToDelete.length} génération(s) supprimée(s)`);
@@ -488,13 +484,13 @@ export const GenerationHistory: React.FC = () => {
     
     try {
       const idsToUpdate = Array.from(selectedIds);
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: true })
         .in('id', idsToUpdate)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setHistory(prev => prev.map(t => 
         selectedIds.has(t.id) ? { ...t, is_favorite: true } : t
@@ -900,7 +896,6 @@ export const GenerationHistory: React.FC = () => {
         <ShareMusicDialog
           trackTitle={shareTrack.title || `${shareTrack.item_code} - Rang ${shareTrack.rang}`}
           trackId={shareTrack.id}
-          audioUrl={shareTrack.audio_url}
           open={!!shareTrack}
           onOpenChange={(open) => !open && setShareTrack(null)}
         />

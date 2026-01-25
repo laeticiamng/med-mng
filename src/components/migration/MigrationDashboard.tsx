@@ -1,53 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
-import { 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
-  TrendingUp, 
-  FileCode, 
-  Palette,
-  Zap,
-  BarChart3,
-  Activity,
-  Terminal,
-  Copy,
-  ExternalLink
-} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart
+import {
+    Activity,
+    AlertCircle,
+    BarChart3,
+    CheckCircle2,
+    Clock,
+    Copy,
+    ExternalLink,
+    FileCode,
+    Palette,
+    Terminal,
+    TrendingUp,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
 } from 'recharts';
-import { MigrationHistory } from './MigrationHistory';
-import { LiveMigrationTracker } from './LiveMigrationTracker';
 import { BeforeAfterComparison } from './BeforeAfterComparison';
+import { LiveMigrationTracker } from './LiveMigrationTracker';
+import { MigrationHistory } from './MigrationHistory';
 
 interface FileStatus {
   name: string;
@@ -92,7 +88,7 @@ export const MigrationDashboard: React.FC = () => {
       metadata: { component: 'migration_dashboard', action: 'view' }
     });
   }, []);
-  const [stats, setStats] = useState<MigrationStats>({
+  const [stats, _setStats] = useState<MigrationStats>({
     totalFiles: 146,
     completedFiles: 25,
     totalViolations: 446,

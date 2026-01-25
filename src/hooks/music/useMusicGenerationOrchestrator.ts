@@ -4,11 +4,11 @@
  * ✅ Enrichi: Meilleure gestion des états, logging, persistance locale
  */
 
-import { useCallback, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { isRetryableError, useRetryWithBackoff } from '@/hooks/useRetryWithBackoff';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useRef, useState } from 'react';
 import { useMusicPolling } from './useMusicPolling';
-import { useRetryWithBackoff, isRetryableError } from '@/hooks/useRetryWithBackoff';
 
 interface GenerationConfig {
   rang: 'A' | 'B' | 'AB';
@@ -58,7 +58,7 @@ const loadActiveTasksFromStorage = (): Map<string, GenerationTask> => {
 
 export const useMusicGenerationOrchestrator = () => {
   const { toast } = useToast();
-  const { startPolling, stopPolling, stopAllPolling, isPolling, getActivePollingTasks } = useMusicPolling();
+  const { startPolling, stopPolling, stopAllPolling } = useMusicPolling();
   const activeTasksRef = useRef<Map<string, GenerationTask>>(loadActiveTasksFromStorage());
   
   // ✅ État observable pour l'UI
@@ -150,7 +150,7 @@ export const useMusicGenerationOrchestrator = () => {
 
       // Démarrer la génération avec retry automatique
       const initialData = await executeWithRetry(async () => {
-        const { data, error } = await supabase.functions.invoke('generate-music', {
+        const { _data, error } = await supabase.functions.invoke('generate-music', {
           body: requestBody
         });
         
@@ -159,7 +159,7 @@ export const useMusicGenerationOrchestrator = () => {
           throw new Error(error.message || 'Erreur lors du démarrage de la génération');
         }
         
-        return data;
+        return _data;
       });
 
       // Si c'est déjà un succès (peu probable), on termine

@@ -506,7 +506,7 @@ function parseOICPage(page: any): OICCompetence | null {
 async function insertCompetencesBatch(competences: OICCompetence[]): Promise<number> {
   if (competences.length === 0) return 0;
   
-  const { data, error } = await supabase
+  const { _data, _error } = await supabase
     .from('oic_competences')
     .upsert(competences, { 
       onConflict: 'objectif_id',
@@ -514,12 +514,12 @@ async function insertCompetencesBatch(competences: OICCompetence[]): Promise<num
     })
     .select();
   
-  if (error) {
-    console.error('❌ Erreur insertion Supabase:', error);
-    throw error;
+  if (_error) {
+    console.error('❌ Erreur insertion Supabase:', _error);
+    throw _error;
   }
   
-  return data?.length || 0;
+  return _data?.length || 0;
 }
 
 /**
@@ -534,7 +534,7 @@ async function generateCompletionReport(): Promise<void> {
     .select('*', { count: 'exact', head: true });
   
   // Répartition par item parent
-  const { data: itemStats } = await supabase
+  const { _data: itemStats } = await supabase
     .from('oic_competences')
     .select('item_parent, rang')
     .order('item_parent');

@@ -8,7 +8,7 @@ export async function launchDirectExtraction() {
   try {
     console.log('📡 Appel de l\'edge function extract-edn-objectifs...');
     
-    const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
+    const { _data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
       body: {
         action: 'start'
       }
@@ -20,8 +20,8 @@ export async function launchDirectExtraction() {
     }
 
     console.log('✅ EXTRACTION DÉMARRÉE AVEC SUCCÈS!');
-    console.log('📊 Session ID:', data.session_id);
-    console.log('🔗 Message:', data.message);
+    console.log('📊 Session ID:', _data.session_id);
+    console.log('🔗 Message:', _data.message);
     
     console.log('');
     console.log('🎯 EXTRACTION EN COURS:');
@@ -40,10 +40,10 @@ export async function launchDirectExtraction() {
     
     const pollStatus = async () => {
       try {
-        const { data: status, error: statusError } = await supabase.functions.invoke('extract-edn-objectifs', {
+        const { _data: status, error: statusError } = await supabase.functions.invoke('extract-edn-objectifs', {
           body: {
             action: 'status',
-            session_id: data.session_id
+            session_id: _data.session_id
           }
         });
 
@@ -59,7 +59,7 @@ export async function launchDirectExtraction() {
           console.log('🎉 EXTRACTION TERMINÉE AVEC SUCCÈS!');
           
           // Générer le rapport final
-          const { data: rapport } = await supabase.functions.invoke('extract-edn-objectifs', {
+          const { _data: rapport } = await supabase.functions.invoke('extract-edn-objectifs', {
             body: { action: 'rapport' }
           });
           
@@ -94,7 +94,7 @@ export async function launchDirectExtraction() {
     // Démarrer le polling après 5 secondes
     setTimeout(pollStatus, 5000);
     
-    return data;
+    return _data;
     
   } catch (error) {
     console.error('💥 ERREUR CRITIQUE:', error);

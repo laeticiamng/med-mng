@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, CheckCircle, Database, Loader2, Play, Search } from 'lucide-react';
+import { useState } from 'react';
 
 interface AnalysisResult {
   analysis: {
@@ -58,14 +58,14 @@ const OicDataQualityManager = () => {
     try {
       console.log('🔍 Starting OIC data quality analysis...');
       
-      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
+      const { _data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'analyze' }
       });
       
       if (error) throw error;
       
-      setAnalysisResult(data);
-      console.log('✅ Analysis completed:', data);
+      setAnalysisResult(_data);
+      console.log('✅ Analysis completed:', _data);
       
     } catch (err: any) {
       console.error('❌ Analysis failed:', err);
@@ -82,14 +82,14 @@ const OicDataQualityManager = () => {
     try {
       console.log('🛠️ Starting OIC data quality fixes...');
       
-      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
+      const { _data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'fix' }
       });
       
       if (error) throw error;
       
-      setFixResult(data);
-      console.log('✅ Fixes completed:', data);
+      setFixResult(_data);
+      console.log('✅ Fixes completed:', _data);
       
       // Relancer l'analyse pour voir les améliorations
       setTimeout(() => {

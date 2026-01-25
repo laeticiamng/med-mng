@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
 import { ContentCompletenessAudit } from '@/components/audit/ContentCompletenessAudit';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  RefreshCw,
-  Download,
-  Filter,
-  BarChart3,
-  FileText,
-  Clock,
-  TrendingUp,
-  Loader2
+    AlertTriangle,
+    BarChart3,
+    CheckCircle,
+    Clock,
+    Download,
+    FileText,
+    Filter,
+    Loader2,
+    RefreshCw,
+    TrendingUp,
+    XCircle
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface AuditStats {
   totalItems: number;
@@ -42,7 +42,7 @@ interface AuditCategory {
 
 export default function AuditCompleteness() {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -123,15 +123,15 @@ export default function AuditCompleteness() {
   // Charger les audits récents
   const loadRecentAudits = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('operation_logs')
         .select('*')
         .eq('type', 'audit')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (!error && data) {
-        setRecentAudits(data);
+      if (!_error && _data) {
+        setRecentAudits(_data);
       }
     } catch (err) {
       console.error('Error loading recent audits:', err);

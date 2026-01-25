@@ -3,18 +3,17 @@
  * Tests prioritaires pour les fonctionnalités critiques
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, _screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Import components to test
-import { AuthProvider } from '@/components/med-mng/AuthProvider';
-import { MusicCard } from '@/components/edn/music/MusicCard';
-import { SearchSystem } from '@/components/advanced/SearchSystem';
 import { NotificationSystem } from '@/components/advanced/NotificationSystem';
-import { mockAuth, mockAudio, mockLanguage } from './setup';
+import { SearchSystem } from '@/components/advanced/SearchSystem';
+import { MusicCard } from '@/components/edn/music/MusicCard';
+import { mockAuth } from './setup';
 
 // 🎭 TEST WRAPPER
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -69,7 +68,6 @@ describe('🔐 Authentication Critical Tests', () => {
 
   it('should handle localStorage session persistence', () => {
     // Test localStorage logic directly
-    const sessionKey = 'supabase.auth.token';
     const mockSession = { user: mockAuth.user, access_token: 'token' };
     
     // Test serialization
@@ -112,8 +110,8 @@ describe('🎵 Music Generation Critical Tests', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText('Test Music')).toBeInTheDocument();
-    expect(screen.getByText(/Générer Musique Rang A/)).toBeInTheDocument();
+    expect(_screen.getByText('Test Music')).toBeInTheDocument();
+    expect(_screen.getByText(/Générer Musique Rang A/)).toBeInTheDocument();
   });
 
   it('should handle music generation flow', async () => {
@@ -129,7 +127,7 @@ describe('🎵 Music Generation Critical Tests', () => {
       </TestWrapper>
     );
 
-    const generateButton = screen.getByText(/Générer Musique Rang A/);
+    const generateButton = _screen.getByText(/Générer Musique Rang A/);
     await user.click(generateButton);
 
     expect(onGenerateMusic).toHaveBeenCalledTimes(1);
@@ -146,11 +144,11 @@ describe('🎵 Music Generation Critical Tests', () => {
     );
 
     // Use getAllByText since there are multiple elements with this text
-    const elements = screen.getAllByText(/Génération en cours/);
+    const elements = _screen.getAllByText(/Génération en cours/);
     expect(elements.length).toBeGreaterThan(0);
     
     // The button should be in generating state
-    const buttons = screen.queryAllByRole('button');
+    const buttons = _screen.queryAllByRole('button');
     const generatingButton = buttons.find(btn => btn.textContent?.includes('Génération'));
     if (generatingButton) {
       expect(generatingButton).toBeDisabled();
@@ -167,7 +165,7 @@ describe('🎵 Music Generation Critical Tests', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText(/paroles valides/)).toBeInTheDocument();
+    expect(_screen.getByText(/paroles valides/)).toBeInTheDocument();
   });
 });
 
@@ -185,7 +183,7 @@ describe('🔍 Search System Critical Tests', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByPlaceholderText('Rechercher...')).toBeInTheDocument();
+    expect(_screen.getByPlaceholderText('Rechercher...')).toBeInTheDocument();
   });
 
   it('should handle search input changes', async () => {
@@ -197,7 +195,7 @@ describe('🔍 Search System Critical Tests', () => {
       </TestWrapper>
     );
 
-    const searchInput = screen.getByPlaceholderText('Rechercher...');
+    const searchInput = _screen.getByPlaceholderText('Rechercher...');
     await user.type(searchInput, 'test query');
 
     expect(searchInput).toHaveValue('test query');
@@ -211,7 +209,7 @@ describe('🔍 Search System Critical Tests', () => {
     );
 
     // SearchSystem may not have filter buttons - just verify render works
-    const searchInput = screen.getByPlaceholderText('Rechercher...');
+    const searchInput = _screen.getByPlaceholderText('Rechercher...');
     expect(searchInput).toBeInTheDocument();
   });
 });
@@ -230,7 +228,7 @@ describe('🔔 Notification System Critical Tests', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText(/Notifications/)).toBeInTheDocument();
+    expect(_screen.getByText(/Notifications/)).toBeInTheDocument();
   });
 
   it('should call onClose when close button clicked', async () => {
@@ -247,7 +245,7 @@ describe('🔔 Notification System Critical Tests', () => {
     );
 
     // Find and click close button
-    const closeButtons = screen.getAllByRole('button');
+    const closeButtons = _screen.getAllByRole('button');
     const closeButton = closeButtons.find(btn => 
       btn.getAttribute('aria-label')?.includes('close') ||
       btn.textContent?.includes('×')
@@ -270,7 +268,7 @@ describe('🔔 Notification System Critical Tests', () => {
     );
 
     // Should not show notifications when closed
-    expect(screen.queryByText(/Notifications/)).not.toBeInTheDocument();
+    expect(_screen.queryByText(/Notifications/)).not.toBeInTheDocument();
   });
 });
 
@@ -290,7 +288,7 @@ describe('🌐 Network Error Handling Tests', () => {
     );
 
     // Component should still render despite network errors
-    expect(screen.getByText('Network Test Component')).toBeInTheDocument();
+    expect(_screen.getByText('Network Test Component')).toBeInTheDocument();
 
     global.fetch = originalFetch;
     consoleSpy.mockRestore();
@@ -315,7 +313,7 @@ describe('📱 Responsive Design Tests', () => {
     );
 
     // Test responsive classes
-    expect(screen.getByText('Mobile Only')).toBeInTheDocument();
+    expect(_screen.getByText('Mobile Only')).toBeInTheDocument();
   });
 });
 
@@ -328,7 +326,7 @@ describe('♿ Accessibility Critical Tests', () => {
       </TestWrapper>
     );
 
-    const button = screen.getByRole('button', { name: 'Test button' });
+    const button = _screen.getByRole('button', { name: 'Test button' });
     expect(button).toBeInTheDocument();
   });
 
@@ -342,8 +340,8 @@ describe('♿ Accessibility Critical Tests', () => {
       </TestWrapper>
     );
 
-    const firstButton = screen.getByText('First');
-    const secondButton = screen.getByText('Second');
+    const firstButton = _screen.getByText('First');
+    const secondButton = _screen.getByText('Second');
 
     await user.tab();
     expect(firstButton).toHaveFocus();
@@ -362,7 +360,7 @@ describe('♿ Accessibility Critical Tests', () => {
     );
 
     // This would require a proper contrast checking tool in real tests
-    expect(screen.getByText('Readable text')).toBeInTheDocument();
+    expect(_screen.getByText('Readable text')).toBeInTheDocument();
   });
 });
 

@@ -13,11 +13,11 @@ interface TableauRangData {
 }
 
 interface TableauRangBProps {
-  data?: TableauRangData;
+  _data?: TableauRangData;
   itemCode?: string;
 }
 
-export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
+export const TableauRangB: React.FC<TableauRangBProps> = ({ itemCode }) => {
   // TOUJOURS utiliser les vraies compétences de la base de données
   const code = itemCode || "IC-1";
   return <TableauCompetencesOICWithRealData itemCode={code} rang="B" />;

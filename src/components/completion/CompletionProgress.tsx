@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, AlertCircle, Flame, Star, Trophy } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, CheckCircle, Clock, Flame, Star, Trophy } from 'lucide-react';
+import React, { useEffect } from 'react';
 
 interface CompletionProgressProps {
   totalItems: number;
@@ -21,7 +21,7 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
   pendingItems
 }) => {
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const load = async () => {
@@ -41,8 +41,6 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
     }
   }, [logActivity, totalItems, completedItems]);
   const completionPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
-  const progressPercentage = totalItems > 0 ? ((completedItems + inProgressItems) / totalItems) * 100 : 0;
-
   return (
     <Card>
       <CardHeader>

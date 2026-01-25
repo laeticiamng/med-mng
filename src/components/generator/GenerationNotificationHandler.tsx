@@ -5,9 +5,9 @@
  * - Son de notification optionnel
  */
 
-import React, { useEffect, useRef, useCallback } from 'react';
-import { toast } from 'sonner';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useCallback, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 interface GenerationNotificationHandlerProps {
   onGenerationComplete?: (track: any) => void;
@@ -18,7 +18,7 @@ export const useGenerationNotifications = ({
   onGenerationComplete,
   playNotificationSound = true
 }: GenerationNotificationHandlerProps = {}) => {
-  const { user } = useAuth();
+  useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Son de notification court

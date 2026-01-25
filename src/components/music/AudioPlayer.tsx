@@ -1,24 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX, 
-  Heart,
-  Plus,
-  Download,
-  Share,
-  HardDrive
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { toast } from "sonner"
 import { useAudioWithCache } from '@/hooks/useAudioWithCache'
+import { cn } from "@/lib/utils"
+import {
+    HardDrive,
+    Heart,
+    Pause,
+    Play,
+    Plus,
+    Share,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX
+} from "lucide-react"
+import React, { useEffect, useRef, useState } from 'react'
+import { toast } from "sonner"
 
 interface AudioPlayerProps {
   song: {
@@ -56,12 +55,12 @@ export function AudioPlayer({
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
   
-  const { cacheAudio, isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' })
+  const { cacheAudio, _isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' })
 
   // Check if audio is cached and get cached URL
   useEffect(() => {
     const checkCache = async () => {
-      const cached = await isAudioCached(song.id)
+      const cached = await _isAudioCached(song.id)
       setIsCached(cached)
       if (cached) {
         const cachedUrl = await getAudioUrl(song.id, song.audio_url)
@@ -71,7 +70,7 @@ export function AudioPlayer({
       }
     }
     checkCache()
-  }, [song.id, song.audio_url, isAudioCached, getAudioUrl])
+  }, [song.id, song.audio_url, _isAudioCached, getAudioUrl])
 
   const handleCacheAudio = async () => {
     const success = await cacheAudio(song.id, song.audio_url, song.title, song.duration)
@@ -229,13 +228,6 @@ export function AudioPlayer({
       description: 'Le lien a été copié dans le presse-papier'
     })
   }
-
-  const handleDownloadAttempt = () => {
-    toast.error('Téléchargement non autorisé', {
-      description: 'Cette chanson est disponible en streaming uniquement'
-    })
-  }
-
   return (
     <Card className={cn("bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20", className)}>
       <CardContent className="p-6">

@@ -1,12 +1,20 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  TrendingUp, TrendingDown, Minus, Target, Clock, 
-  Users, Zap, Heart, BookOpen, Music, Trophy,
-  Calendar, Activity, Star, Award, BarChart3
+import {
+    Activity,
+    Clock,
+    Heart,
+    Minus,
+    Music,
+    Star,
+    Target,
+    TrendingDown,
+    TrendingUp,
+    Trophy,
+    Users
 } from 'lucide-react';
+import React from 'react';
 
 interface StatItem {
   id: string;
@@ -63,7 +71,7 @@ export const ModernStats: React.FC<ModernStatsProps> = ({
     }
   };
 
-  const formatValue = (value: string | number, unit?: string) => {
+  const formatValue = (value: string | number, _unit?: string) => {
     if (typeof value === 'number') {
       if (value >= 1000000) {
         return (value / 1000000).toFixed(1) + 'M';

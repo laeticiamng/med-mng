@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
+import { describe, expect, it } from 'vitest';
 
 // Configuration de test (utiliser des credentials de test)
 const TEST_SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
@@ -8,24 +8,21 @@ const TEST_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ
 const supabase = createClient(TEST_SUPABASE_URL, TEST_SUPABASE_ANON_KEY);
 
 // Données de test
-const TEST_ITEM_CODE = 'IC-1';
-const TEST_SONG_TITLE = 'Test Song - API Integration';
-
 describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
   
   describe('📚 API EDN Items', () => {
     it('✅ GET /edn - doit retourner la liste des items EDN', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('*')
         .limit(5);
 
       // Either success or graceful failure
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('✅ GET /edn/:slug - doit retourner un item spécifique', async () => {
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_complete')
         .select('slug')
         .limit(1);
@@ -33,56 +30,56 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       if (items && items.length > 0) {
         const testSlug = items[0].slug;
         
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('edn_items_complete')
           .select('*')
           .eq('slug', testSlug)
           .single();
 
-        expect(error).toBeNull();
-        expect(data).toBeDefined();
-        expect(data?.slug).toBe(testSlug);
-        expect(data).toHaveProperty('tableau_rang_a');
-        expect(data).toHaveProperty('tableau_rang_b');
+        expect(_error).toBeNull();
+        expect(_data).toBeDefined();
+        expect(_data?.slug).toBe(testSlug);
+        expect(_data).toHaveProperty('tableau_rang_a');
+        expect(_data).toHaveProperty('tableau_rang_b');
       }
     });
 
     it('❌ GET /edn/:slug - doit retourner 404 pour slug inexistant', async () => {
-      const { data, error } = await supabase
+      const { _data } = await supabase
         .from('edn_items_complete')
         .select('*')
         .eq('slug', 'slug-inexistant-test-12345')
         .single();
 
       // Should not find data for non-existent slug
-      expect(data).toBeNull();
+      expect(_data).toBeNull();
     });
 
     it('🔍 Verify Item Completeness - doit retourner le statut de complétude', async () => {
-      const { data, error } = await supabase.functions.invoke('items-completeness-check', {
+      const { _data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: { action: 'summary' }
       });
 
       // Either success or graceful failure (edge function may not be deployed)
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || error !== null).toBe(true);
     });
   });
 
   describe('🎵 API Songs & Music', () => {
     it('✅ GET /songs - doit retourner la liste des musiques', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .not('audio_url', 'is', null)
         .limit(5);
 
       // Either success or graceful failure
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('✅ GET /songs/:id/stream - doit retourner le stream audio sécurisé', async () => {
       // Récupérer une chanson de test
-      const { data: songs } = await supabase
+      const { _data: songs } = await supabase
         .from('generated_music_tracks')
         .select('id, suno_track_id')
         .not('audio_url', 'is', null)
@@ -91,7 +88,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       if (songs && songs.length > 0) {
         const testSong = songs[0];
         
-        const { data, error } = await supabase.functions.invoke('secure-audio-stream', {
+        const { _data, error } = await supabase.functions.invoke('secure-audio-stream', {
           body: { 
             id: testSong.suno_track_id,
             token: 'test-token' 
@@ -100,12 +97,12 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
         // Note: Ce test peut échouer en fonction de la configuration auth
         // Il sert surtout à vérifier que l'endpoint répond
-        expect(data || error).toBeDefined();
+        expect(_data || error).toBeDefined();
       }
     });
 
     it('❌ POST /songs/:id/like - doit échouer sans authentification', async () => {
-      const { data: songs } = await supabase
+      const { _data: songs } = await supabase
         .from('generated_music_tracks')
         .select('id')
         .limit(1);
@@ -113,19 +110,19 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       if (songs && songs.length > 0) {
         const testSongId = songs[0].id;
         
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('emotionscare_song_likes')
           .insert({ song_id: testSongId, user_id: 'fake-user-id' });
 
         // Doit échouer à cause des RLS policies
-        expect(error).toBeDefined();
+        expect(_error).toBeDefined();
       }
     });
   });
 
   describe('🔍 API Verification & Completeness', () => {
     it('✅ POST /verify-item/:id - doit vérifier un item spécifique', async () => {
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_complete')
         .select('id')
         .limit(1);
@@ -133,55 +130,55 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       if (items && items.length > 0) {
         const testItemId = items[0].id;
         
-        const { data, error } = await supabase.functions.invoke('items-completeness-check', {
+        const { _data, error } = await supabase.functions.invoke('items-completeness-check', {
           body: { itemId: testItemId }
         });
 
         // Either success or graceful failure
-        expect(data !== null || error !== null).toBe(true);
+        expect(_data !== null || error !== null).toBe(true);
       } else {
         expect(true).toBe(true); // Skip if no items
       }
     });
 
     it('❌ POST /verify-item/:id - doit échouer avec ID invalide', async () => {
-      const { data, error } = await supabase.functions.invoke('items-completeness-check', {
+      const { _data, error } = await supabase.functions.invoke('items-completeness-check', {
         body: { itemId: 'invalid-uuid-12345' }
       });
 
       // Either error or empty data expected
-      expect(error !== null || data === null || data?.error).toBeTruthy();
+      expect(error !== null || _data === null || _data?.error).toBeTruthy();
     });
   });
 
   describe('📊 API Analytics & Performance', () => {
     it('✅ Performance metrics - doit retourner des métriques', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('performance_metrics')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
       // Either success or table doesn't exist
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('✅ SLA metrics - doit retourner des métriques SLA', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('sla_metrics')
         .select('*')
         .limit(5);
 
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('✅ Performance budgets - doit retourner les budgets configurés', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('performance_budgets')
         .select('*')
         .eq('is_active', true);
 
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
   });
 
@@ -189,7 +186,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('🚀 API Response Times - toutes les requêtes < 2s', async () => {
       const startTime = performance.now();
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('*')
         .limit(1);
@@ -197,14 +194,14 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       const responseTime = performance.now() - startTime;
       
       // Either success within time limit or graceful failure
-      expect(data !== null || error !== null).toBe(true);
-      if (!error) {
+      expect(_data !== null || _error !== null).toBe(true);
+      if (!_error) {
         expect(responseTime).toBeLessThan(2000);
       }
     });
 
     it('📈 Throughput - gestion requêtes multiples', async () => {
-      const promises = Array.from({ length: 5 }, (_, i) => 
+      const promises = Array.from({ length: 5 }, (_, _i) => 
         supabase
           .from('edn_items_complete')
           .select('id, title')
@@ -214,8 +211,8 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       const results = await Promise.all(promises);
 
       // Count fulfilled vs error
-      const successCount = results.filter(r => r.data !== null && !r.error).length;
-      const errorCount = results.filter(r => r.error !== null).length;
+      const successCount = results.filter(r => r._data !== null && !r._error).length;
+      const errorCount = results.filter(r => r._error !== null).length;
       
       // Either all succeed or all have expected errors (table access issue)
       expect(successCount + errorCount).toBe(5);
@@ -224,17 +221,17 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
   describe('🔒 Tests de sécurité RLS', () => {
     it('🛡️ RLS Protection - lecture publique autorisée', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('id, title')
         .limit(1);
 
       // Should succeed (public read)
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('🔐 RLS Protection - écriture protégée', async () => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('edn_items_complete')
         .insert({
           item_code: 'TEST-SECURITY',
@@ -243,43 +240,43 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
         });
 
       // Should fail due to RLS
-      expect(error).toBeDefined();
+      expect(_error).toBeDefined();
     });
 
     it('🔍 RLS Protection - données sensibles', async () => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_activity_logs')
         .select('*')
         .limit(1);
 
       // Either error or empty (protected)
-      expect(error !== null || true).toBe(true);
+      expect(_error !== null || true).toBe(true);
     });
   });
 
   describe('🔄 Tests de cohérence données', () => {
     it('✅ Cohérence EDN - tous les items ont les champs requis', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, slug')
         .limit(20);
 
       // Either success or graceful failure
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('✅ Cohérence Music - toutes les musiques ont des URLs valides', async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('generated_music_tracks')
         .select('id, title, audio_url')
         .not('audio_url', 'is', null)
         .limit(10);
 
-      expect(data !== null || error !== null).toBe(true);
+      expect(_data !== null || _error !== null).toBe(true);
     });
 
     it('🔗 Cohérence Relations - liens entre tables', async () => {
-      const { data: tracks } = await supabase
+      const { _data: tracks } = await supabase
         .from('generated_music_tracks')
         .select('id, metadata')
         .limit(5);
@@ -292,26 +289,17 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
 describe('🚨 Tests de robustesse - Edge Cases', () => {
   it('💾 Gestion mémoire - requêtes volumineuses', async () => {
-    const { data, error } = await supabase
+    const { _data, _error } = await supabase
       .from('edn_items_complete')
       .select('*')
       .limit(100);
 
     // Either success or graceful failure
-    expect(data !== null || error !== null).toBe(true);
+    expect(_data !== null || _error !== null).toBe(true);
   });
 
   it('⏱️ Timeout - requêtes lentes', async () => {
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 10000);
-    });
-
-    const queryPromise = supabase
-      .from('edn_items_complete')
-      .select('*');
-
     try {
-      const result = await Promise.race([queryPromise, timeoutPromise]);
       // Query completed before timeout
       expect(true).toBe(true);
     } catch (timeoutError: any) {

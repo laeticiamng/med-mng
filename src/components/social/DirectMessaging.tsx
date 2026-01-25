@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  MessageCircle, Send, Search, ArrowLeft, 
-  Circle, Check, CheckCheck, Loader2 
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowLeft,
+    Check, CheckCheck,
+    Circle,
+    Loader2,
+    MessageCircle,
+    Search,
+    Send
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Conversation {
   id: string;
@@ -47,7 +52,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   useEffect(() => {
     loadCurrentUser();

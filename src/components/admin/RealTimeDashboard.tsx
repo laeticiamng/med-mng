@@ -1,24 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Activity, 
-  Users, 
-  Database, 
-  Clock, 
-  TrendingUp, 
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Download,
-  Zap
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRealTimeMonitoring } from '@/hooks/useRealTimeMonitoring';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Download,
+    Users,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface MetricCard {
   title: string;
@@ -36,9 +33,9 @@ interface SystemHealth {
 
 export const RealTimeDashboard = () => {
   const [metrics, setMetrics] = useState<MetricCard[]>([]);
-  const [systemHealth, setSystemHealth] = useState<SystemHealth>({
+  const [systemHealth] = useState<SystemHealth>({
     database: 'healthy',
-    api: 'healthy', 
+    api: 'healthy',
     storage: 'healthy'
   });
   const [liveStats, setLiveStats] = useState({
@@ -49,12 +46,11 @@ export const RealTimeDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  const { events, isConnected } = useRealTimeMonitoring();
+  const { isConnected } = useRealTimeMonitoring();
 
   // Simuler des données temps réel
   useEffect(() => {
     const updateMetrics = () => {
-      const now = new Date();
       const baseUsers = 15;
       const baseExtractions = 1247;
       
@@ -106,14 +102,14 @@ export const RealTimeDashboard = () => {
   useEffect(() => {
     const fetchRecentActivity = async () => {
       try {
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('operation_logs')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(10);
 
-        if (!error && data) {
-          setRecentActivity(data);
+        if (!_error && _data) {
+          setRecentActivity(_data);
         }
       } catch (err) {
         console.error('Erreur récupération activité:', err);

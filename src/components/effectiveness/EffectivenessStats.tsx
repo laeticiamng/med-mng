@@ -1,6 +1,6 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart3, CheckCircle2, Target, TrendingUp } from 'lucide-react';
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Target, CheckCircle2, BarChart3 } from 'lucide-react';
 
 interface AppliedRecommendation {
   id: string;

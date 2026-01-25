@@ -1,15 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Trophy, Medal, Crown, TrendingUp, Flame, Star, 
-  Calendar, Loader2, RefreshCw
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import {
+    Crown,
+    Flame,
+    Loader2,
+    Medal,
+    RefreshCw,
+    Star,
+    Trophy
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface LeaderboardEntry {
   rank: number;
@@ -66,8 +71,8 @@ export function LeaderboardPersistent() {
         query = query.gte('created_at', startDate.toISOString());
       }
 
-      const { data: activities, error } = await query;
-      if (error) throw error;
+      const { _data: activities, _error } = await query;
+      if (_error) throw _error;
 
       // Aggregate by user
       const userPoints: Record<string, number> = {};
@@ -89,9 +94,9 @@ export function LeaderboardPersistent() {
         supabase.from('user_gamification_stats').select('user_id, longest_streak').in('user_id', userIds)
       ]);
 
-      const profiles = profilesResult.data || [];
-      const badges = badgesResult.data || [];
-      const streaks = streaksResult.data || [];
+      const profiles = profilesResult._data || [];
+      const badges = badgesResult._data || [];
+      const streaks = streaksResult._data || [];
 
       // Count badges per user
       const badgeCounts: Record<string, number> = {};

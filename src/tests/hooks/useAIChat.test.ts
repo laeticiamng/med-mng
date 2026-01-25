@@ -9,7 +9,7 @@
  * - Rate limiting
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // TYPES & INTERFACES
@@ -431,8 +431,6 @@ describe('AI/Chat Module - Unit Tests', () => {
     });
 
     it('should not expose sensitive error details', () => {
-      const internalError = { message: 'Database connection failed', stack: 'at line 123...' };
-      
       const safeError = 'Une erreur est survenue';
       
       expect(safeError).not.toContain('Database');
@@ -469,7 +467,6 @@ describe('AI/Chat Module - Unit Tests', () => {
     });
 
     it('should provide hints without revealing answer', () => {
-      const question = { correct: 2 };
       const hint = 'Pensez aux symptômes classiques...';
       
       expect(hint).not.toContain('C');
@@ -543,9 +540,6 @@ describe('AI/Chat Module - Unit Tests', () => {
   describe('Performance', () => {
     it('should debounce rapid message submissions', () => {
       let submitCount = 0;
-      const debounceDelay = 300;
-      const rapidSubmissions = 5;
-      
       // Simulate debounce behavior - only last call executes
       submitCount = 1;
       

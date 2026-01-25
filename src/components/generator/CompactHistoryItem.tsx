@@ -3,16 +3,16 @@
  * ✅ NOUVEAU: Mode compact pour affichage mobile optimisé
  */
 
-import React from 'react';
-import { Play, Pause, Heart, Download, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { Download, Heart, Pause, Play, Trash2 } from 'lucide-react';
+import React from 'react';
 
 interface CompactHistoryItemProps {
-  id: string;
+  _id?: string;
   title?: string;
   item_code: string;
   rang: string;
@@ -29,7 +29,6 @@ interface CompactHistoryItemProps {
 }
 
 export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = ({
-  id,
   title,
   item_code,
   rang,

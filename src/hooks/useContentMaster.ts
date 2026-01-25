@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 
 export interface MasterContent {
   id: string;
@@ -43,17 +43,17 @@ export const useContentMaster = () => {
       const params = new URLSearchParams({ item_id: itemId });
       if (contentType) params.append('content_type', contentType);
 
-      const { data, error } = await supabase.functions.invoke('content-master-api/get-master-content', {
+      const { _data, error } = await supabase.functions.invoke('content-master-api/get-master-content', {
         method: 'GET'
       });
 
       if (error) throw error;
 
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur récupération contenu');
+      if (!_data.success) {
+        throw new Error(_data.error || 'Erreur récupération contenu');
       }
 
-      return data.content;
+      return _data.content;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
@@ -72,7 +72,7 @@ export const useContentMaster = () => {
     completionPercentage = 0
   ): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.functions.invoke('content-master-api/track-view', {
+      const { _data, error } = await supabase.functions.invoke('content-master-api/track-view', {
         body: {
           item_id: itemId,
           content_type: contentType,
@@ -83,7 +83,7 @@ export const useContentMaster = () => {
       });
 
       if (error) throw error;
-      return data.success;
+      return _data.success;
     } catch (err) {
       console.error('❌ Erreur trackContentView:', err);
       return false;
@@ -99,7 +99,7 @@ export const useContentMaster = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('content-master-api/generate-content', {
+      const { _data, error } = await supabase.functions.invoke('content-master-api/generate-content', {
         body: {
           item_id: itemId,
           content_types: contentTypes,
@@ -109,11 +109,11 @@ export const useContentMaster = () => {
 
       if (error) throw error;
 
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur génération contenu');
+      if (!_data.success) {
+        throw new Error(_data.error || 'Erreur génération contenu');
       }
 
-      return data;
+      return _data;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);
@@ -132,17 +132,17 @@ export const useContentMaster = () => {
       const params = new URLSearchParams({ timeframe });
       if (itemId) params.append('item_id', itemId);
 
-      const { data, error } = await supabase.functions.invoke('content-master-api/get-stats', {
+      const { _data, error } = await supabase.functions.invoke('content-master-api/get-stats', {
         method: 'GET'
       });
 
       if (error) throw error;
 
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur récupération stats');
+      if (!_data.success) {
+        throw new Error(_data.error || 'Erreur récupération stats');
       }
 
-      return data.stats;
+      return _data.stats;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMsg);

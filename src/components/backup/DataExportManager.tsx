@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Download, 
-  Database, 
-  FileText, 
-  Music, 
-  Users, 
-  Calendar,
-  Archive,
-  Shield,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Loader2
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    AlertTriangle,
+    Archive,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Database,
+    Download,
+    FileText,
+    Loader2,
+    Music,
+    Shield,
+    Users
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface ExportTask {
   id: string;

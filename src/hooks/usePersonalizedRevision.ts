@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuizErrorTracker } from './useQuizErrorTracker';
 
 export interface RevisionItem {
@@ -41,7 +41,7 @@ export const usePersonalizedRevision = () => {
   const [error, setError] = useState<string | null>(null);
   const [revisionItems, setRevisionItems] = useState<RevisionItem[]>([]);
   const [currentPlan, setCurrentPlan] = useState<RevisionPlan | null>(null);
-  const [studySessions, setStudySessions] = useState<StudySession[]>([]);
+  const [studySessions, _setStudySessions] = useState<StudySession[]>([]);
   
   const { getRecentErrors, getErrorsByTheme } = useQuizErrorTracker();
 
@@ -51,7 +51,6 @@ export const usePersonalizedRevision = () => {
     setError(null);
 
     try {
-      const recentErrors = getRecentErrors(30); // 30 derniers jours
       const errorsByTheme = getErrorsByTheme();
 
       const weaknessAnalysis = Object.entries(errorsByTheme).map(([theme, errors]) => {
@@ -95,10 +94,8 @@ export const usePersonalizedRevision = () => {
   }, [getRecentErrors, getErrorsByTheme]);
 
   // Calculer la prochaine date de révision (spaced repetition)
-  const calculateNextReview = (lastSeen: Date, errorFrequency: number): Date => {
+  const calculateNextReview = (_lastSeen: Date, errorFrequency: number): Date => {
     const now = new Date();
-    const daysSinceLastSeen = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60 * 60 * 24));
-    
     // Algorithme de spaced repetition simplifié
     let nextInterval = 1; // Commencer par 1 jour
     

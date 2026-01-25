@@ -1,15 +1,22 @@
-import React, { useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Timer, Zap, CheckCircle, XCircle, Pause, Play, 
-  Trophy, Flame, Target, RotateCcw
-} from 'lucide-react';
-import { useTimedFlashcards, TimedSessionConfig } from '@/hooks/useTimedFlashcards';
 import { Flashcard } from '@/hooks/useFlashcards';
+import { useTimedFlashcards } from '@/hooks/useTimedFlashcards';
 import { cn } from '@/lib/utils';
+import {
+    CheckCircle,
+    Flame,
+    Pause, Play,
+    RotateCcw,
+    Target,
+    Timer,
+    Trophy,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import React, { useEffect } from 'react';
 
 interface TimedFlashcardModeProps {
   cards: Flashcard[];

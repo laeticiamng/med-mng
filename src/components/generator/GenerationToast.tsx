@@ -1,12 +1,6 @@
-/**
- * 🎉 Toast enrichi pour les générations réussies
- * Affiche titre, aperçu waveform et actions rapides
- */
-
-import React from 'react';
-import { toast } from 'sonner';
-import { Music, Play, Download, Share2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Download, Music, Play, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface GenerationToastData {
   title: string;

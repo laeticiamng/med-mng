@@ -1,26 +1,35 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, 
-  Loader2, Trash2, Lightbulb, BookOpen, Sparkles, History,
-  ChevronDown, Award
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Bot,
+    ChevronDown,
+    History,
+    Lightbulb,
+    Loader2,
+    Maximize2,
+    MessageCircle,
+    Minimize2,
+    Send,
+    Sparkles,
+    Trash2,
+    User,
+    X
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -73,7 +82,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const [questionCount, setQuestionCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { _addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const CHAT_URL = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/ai-tutor`;
@@ -90,15 +99,15 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('chat_conversations')
         .select('id, title, created_at, updated_at, last_message')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(20);
 
-      if (data) {
-        const mapped: Conversation[] = data.map((c: any) => ({
+      if (_data) {
+        const mapped: Conversation[] = _data.map((c: any) => ({
           id: c.id,
           title: c.title,
           messages: [],
@@ -110,19 +119,13 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
     };
     loadConversations();
   }, []);
-
-  const saveConversations = async (convs: Conversation[]) => {
-    setConversations(convs);
-    // Supabase is the source of truth now, no localStorage needed
-  };
-
   const startNewConversation = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const title = itemContext ? `Item ${itemContext.itemCode}` : 'Nouvelle conversation';
     
-    const { data, error } = await supabase
+    const { _data, _error } = await supabase
       .from('chat_conversations')
       .insert({
         user_id: user.id,
@@ -131,18 +134,18 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       .select()
       .maybeSingle();
 
-    if (error) {
-      console.error('Error creating conversation:', error);
+    if (_error) {
+      console.error('Error creating conversation:', _error);
       return;
     }
 
     const newConv: Conversation = {
-      id: data.id,
-      title: data.title,
+      id: _data.id,
+      title: _data.title,
       messages: [],
       itemContext,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      createdAt: _data.created_at,
+      updatedAt: _data.updated_at,
     };
     setCurrentConversationId(newConv.id);
     setMessages([]);
@@ -153,7 +156,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
     setCurrentConversationId(conv.id);
     
     // Load messages from Supabase
-    const { data: messagesData } = await supabase
+    const { _data: messagesData } = await supabase
       .from('chat_messages')
       .select('*')
       .eq('conversation_id', conv.id)
@@ -279,7 +282,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       // Gamification: Award points for AI questions
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await addPoints(user.id, 'aiQuestion');
+        await _addPoints(user.id, 'aiQuestion');
         await logActivity({ 
           activity_type: 'study', 
           count: 1, 
@@ -292,7 +295,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
         
         // Unlock "Curieux" badge after 10 AI questions
         if (newCount >= 10) {
-          await unlockBadge(user.id, 'ai_chat');
+          await _unlockBadge(user.id, 'ai_chat');
         }
         
         await checkAndUnlockBadges(user.id);

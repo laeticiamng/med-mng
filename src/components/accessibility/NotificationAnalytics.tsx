@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, TrendingUp, TrendingDown, Activity, PieChart as PieChartIcon, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { endOfDay, endOfMonth, endOfWeek, format, startOfDay, startOfMonth, startOfWeek, subMonths, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Activity, ArrowDownRight, ArrowUpRight, Loader2, Minus, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 interface NotificationHistoryItem {
   id: string;
@@ -94,7 +94,7 @@ export function NotificationAnalytics() {
       const previousDates = getPeriodDates(period, 1);
 
       // Charger les données de la période actuelle
-      const { data: currentData, error: currentError } = await supabase
+      const { _data: currentData, _error: currentError } = await supabase
         .from('notification_history')
         .select('id, platform, status, sent_at')
         .eq('user_id', user.id)
@@ -107,7 +107,7 @@ export function NotificationAnalytics() {
       // Charger les données de la période précédente si mode comparaison
       let previousData = [];
       if (compareMode) {
-        const { data: prevData, error: prevError } = await supabase
+        const { _data: prevData, _error: prevError } = await supabase
           .from('notification_history')
           .select('id, platform, status, sent_at')
           .eq('user_id', user.id)

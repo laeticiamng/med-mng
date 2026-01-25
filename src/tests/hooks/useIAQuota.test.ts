@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock supabase
 const mockRpc = vi.fn();
@@ -47,7 +47,7 @@ describe('useIAQuota', () => {
       });
 
       // Import dynamically after mocks are set up
-      const { useIAQuota } = await import('@/hooks/useIAQuota');
+      await import('@/hooks/useIAQuota');
 
       // Test that quota is returned correctly
       expect(mockRpc).toBeDefined();

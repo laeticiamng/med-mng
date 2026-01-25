@@ -1,26 +1,17 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
-import { PremiumBackground } from "@/components/ui/premium-background";
-import { useNavigate } from "react-router-dom";
-import { SEOHead } from "@/components/seo/SEOHead";
-import { ROUTE_PATHS } from "@/config/routes";
-import { supabase } from "@/integrations/supabase/client";
-import { useGamification } from "@/hooks/useGamification";
 import { AntiPanicHero } from "@/components/home/AntiPanicHero";
 import { QuickActions } from "@/components/home/QuickActions";
 import { ReassuranceSection } from "@/components/home/ReassuranceSection";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { PremiumBackground } from "@/components/ui/premium-background";
+import { useGamification } from "@/hooks/useGamification";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 // Composant de loading léger
-const LazyLoadSpinner = () => (
-  <div className="flex justify-center items-center py-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
-
 const Index = () => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
-  const { stats, loadStats } = useGamification();
+  const { _stats, loadStats } = useGamification();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -90,7 +81,7 @@ const Index = () => {
           <div className="pt-16 pb-16">
             <AntiPanicHero 
               showGamification={!!user}
-              stats={stats || undefined}
+              stats={_stats || undefined}
             />
           </div>
 

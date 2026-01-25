@@ -3,12 +3,12 @@
  * ✅ AMÉLIORÉ: Animation de reconnexion + bouton retry
  */
 
-import React from 'react';
-import { Wifi, WifiOff, Radio, RefreshCw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { Loader2, Radio, RefreshCw, WifiOff } from 'lucide-react';
+import React from 'react';
 
 interface RealtimeIndicatorProps {
   isConnected: boolean;

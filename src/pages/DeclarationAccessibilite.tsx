@@ -1,9 +1,9 @@
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Eye, CheckCircle, XCircle, AlertTriangle, Mail } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { AlertTriangle, ArrowLeft, CheckCircle, Eye, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const DeclarationAccessibilite = () => {
   return (

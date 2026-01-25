@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner";
-import { Loader2, RefreshCw, BookOpen, Palette, Sparkles, Eye, Download, Share2 } from "lucide-react";
-import { BandeDessineDisplay } from './BandeDessineDisplay';
-import { RomanDisplay } from './RomanDisplay';
-import { PoemeDisplay } from './PoemeDisplay';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { pedagogicalContentService } from '@/services/pedagogicalContentService';
+import { BookOpen, Download, Eye, Loader2, Palette, RefreshCw, Share2, Sparkles } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { toast } from "sonner";
+import { BandeDessineDisplay } from './BandeDessineDisplay';
+import { PoemeDisplay } from './PoemeDisplay';
+import { RomanDisplay } from './RomanDisplay';
 
 interface EnhancedContentViewerProps {
   itemCode: string;
@@ -29,7 +29,7 @@ export const EnhancedContentViewer: React.FC<EnhancedContentViewerProps> = ({
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('bd');
-  const [readingProgress, setReadingProgress] = useState<Record<string, number>>({});
+  const [readingProgress, _setReadingProgress] = useState<Record<string, number>>({});
 
   useEffect(() => {
     loadContent();
@@ -78,12 +78,6 @@ export const EnhancedContentViewer: React.FC<EnhancedContentViewerProps> = ({
       setGenerating(false);
     }
   };
-
-  const updateProgress = async (contentType: string, progress: number) => {
-    setReadingProgress(prev => ({ ...prev, [contentType]: progress }));
-    await pedagogicalContentService.updateContentProgress(itemCode, contentType, progress);
-  };
-
   const exportContent = (contentType: string) => {
     const content = contentData?.[contentType === 'bd' ? 'bande_dessinee' : contentType];
     if (!content) return;

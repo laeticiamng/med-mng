@@ -1,32 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { 
-  Users, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Plus, 
-  Search,
-  Filter,
-  Video,
-  MessageCircle,
-  BookOpen,
-  UserPlus,
-  Settings,
-  Flame,
-  Star,
-  Trophy
+import { supabase } from '@/integrations/supabase/client';
+import {
+    BookOpen,
+    Calendar,
+    Clock,
+    Filter,
+    Flame,
+    MessageCircle,
+    Plus,
+    Search,
+    Settings,
+    Star,
+    Trophy,
+    UserPlus,
+    Users,
+    Video
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface StudySession {
   id: string;
@@ -44,13 +42,6 @@ interface StudySession {
   created_at: string;
 }
 
-interface SessionParticipant {
-  id: string;
-  user_id: string;
-  role: string;
-  joined_at: string;
-}
-
 export const CollaborativeStudy: React.FC = () => {
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [mySessions, setMySessions] = useState<StudySession[]>([]);
@@ -60,8 +51,8 @@ export const CollaborativeStudy: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
-  const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { logActivity: _logActivity } = useActivityTracking();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {

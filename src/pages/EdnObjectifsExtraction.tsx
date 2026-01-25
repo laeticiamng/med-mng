@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
 import { EdnObjectifsExtraction as EdnObjectifsExtractionComponent } from '@/components/edn/EdnObjectifsExtraction';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  Target,
-  BookOpen,
-  Download,
-  Search,
-  Filter,
-  CheckCircle2,
-  Clock,
-  TrendingUp,
-  Loader2,
-  RefreshCw,
-  FileText,
-  Lightbulb,
-  GraduationCap,
-  ChevronRight
+    BookOpen,
+    CheckCircle2,
+    ChevronRight,
+    Clock,
+    Download,
+    FileText,
+    Filter,
+    GraduationCap,
+    Lightbulb,
+    Loader2,
+    RefreshCw,
+    Search,
+    Target,
+    TrendingUp
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ObjectifStats {
   totalObjectifs: number;
@@ -47,7 +47,7 @@ interface ObjectifItem {
 
 const EdnObjectifsExtractionPage: React.FC = () => {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');

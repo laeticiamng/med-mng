@@ -33,15 +33,15 @@ export function useFavorites() {
   const loadEdnFavorites = useCallback(async (userId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_edn_favorites')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setEdnFavorites(data || []);
-      return data || [];
+      if (_error) throw _error;
+      setEdnFavorites(_data || []);
+      return _data || [];
     } catch (error: any) {
       console.error('Erreur chargement favoris EDN:', error);
       return [];
@@ -54,14 +54,14 @@ export function useFavorites() {
   const loadMusicFavorites = useCallback(async (userId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('music_favorites')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      const mapped: MusicFavorite[] = (data || []).map(d => ({
+      if (_error) throw _error;
+      const mapped: MusicFavorite[] = (_data || []).map(d => ({
         id: d.id,
         track_id: d.track_id,
         meta: d.meta as Record<string, unknown> | null,
@@ -109,7 +109,7 @@ export function useFavorites() {
   const addEdnFavorite = useCallback(async (userId: string, itemCode: string, itemTitle: string) => {
     try {
       // Vérifier si déjà en favori
-      const { data: existing } = await supabase
+      const { _data: existing } = await supabase
         .from('user_edn_favorites')
         .select('id')
         .eq('user_id', userId)
@@ -124,7 +124,7 @@ export function useFavorites() {
         return false;
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_edn_favorites')
         .insert({
           user_id: userId,
@@ -132,7 +132,7 @@ export function useFavorites() {
           item_title: itemTitle
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Ajouté aux favoris",
@@ -154,13 +154,13 @@ export function useFavorites() {
   // Supprimer un favori EDN
   const removeEdnFavorite = useCallback(async (userId: string, itemCode: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_edn_favorites')
         .delete()
         .eq('user_id', userId)
         .eq('item_code', itemCode);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Retiré des favoris",
@@ -182,7 +182,7 @@ export function useFavorites() {
   // Ajouter un favori musique
   const addMusicFavorite = useCallback(async (userId: string, trackId: string, meta?: { title?: string; artist?: string; duration?: number }) => {
     try {
-      const { data: existing } = await supabase
+      const { _data: existing } = await supabase
         .from('music_favorites')
         .select('id')
         .eq('user_id', userId)
@@ -197,7 +197,7 @@ export function useFavorites() {
         return false;
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('music_favorites')
         .insert({
           user_id: userId,
@@ -205,7 +205,7 @@ export function useFavorites() {
           meta: meta || null
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Ajouté aux favoris",
@@ -227,13 +227,13 @@ export function useFavorites() {
   // Supprimer un favori musique
   const removeMusicFavorite = useCallback(async (userId: string, trackId: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('music_favorites')
         .delete()
         .eq('user_id', userId)
         .eq('track_id', trackId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Retiré des favoris",

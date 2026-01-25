@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuditItems } from '@/hooks/useAuditItems';
 import { useComprehensiveAudit } from '@/hooks/useComprehensiveAudit';
-import { AuditHeader } from './AuditHeader';
+import { useState } from 'react';
 import { AuditErrorDisplay } from './AuditErrorDisplay';
+import { AuditHeader } from './AuditHeader';
+import { AuditIC2CompletionDashboard } from './AuditIC2CompletionDashboard';
+import { AuditInstructions } from './AuditInstructions';
+import { AuditItemsList } from './AuditItemsList';
 import { AuditOverview } from './AuditOverview';
 import { AuditProgress } from './AuditProgress';
-import { AuditItemsList } from './AuditItemsList';
-import { AuditInstructions } from './AuditInstructions';
-import { AuditIC2CompletionDashboard } from './AuditIC2CompletionDashboard';
-import { OICRegenerationPanel } from './OICRegenerationPanel';
 import { ComprehensiveAuditPanel } from './ComprehensiveAuditPanel';
+import { OICRegenerationPanel } from './OICRegenerationPanel';
 import { SyncTablesPanel } from './SyncTablesPanel';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const AuditDashboard = () => {
   const { report, loading, error, runAudit, exportReport } = useAuditItems();

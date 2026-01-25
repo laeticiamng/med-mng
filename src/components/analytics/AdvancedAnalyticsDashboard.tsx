@@ -1,31 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import {
-  Users,
-  Music,
-  Brain,
-  Target,
-  TrendingUp,
-  Calendar,
-  Award,
-  Clock,
-  Headphones,
-  BookOpen,
-  Zap,
-  Activity,
-  BarChart3,
-  Flame,
-  Star,
-  Trophy
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    Award,
+    Brain,
+    Clock,
+    Flame,
+    Music,
+    Star,
+    Target,
+    TrendingUp,
+    Trophy,
+    Users,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Area, AreaChart, Bar, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Couleurs sémantiques pour les graphiques
 const CHART_COLORS = {
@@ -73,7 +69,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadAdvancedAnalytics();
@@ -111,13 +107,13 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         .eq('user_id', user.id);
 
       // Charger les badges
-      const { data: userBadges } = await supabase
+      const { _data: userBadges } = await supabase
         .from('user_badges')
         .select('badge_id')
         .eq('user_id', user.id);
 
       // Charger les activités récentes pour weekly activity
-      const { data: recentActivities } = await supabase
+      const { _data: recentActivities } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
@@ -125,7 +121,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         .order('created_at', { ascending: false });
 
       // Fetch real genre distribution from generated music metadata
-      const { data: genreData } = await supabase
+      const { _data: genreData } = await supabase
         .from('generated_music_tracks')
         .select('metadata')
         .eq('user_id', user.id);

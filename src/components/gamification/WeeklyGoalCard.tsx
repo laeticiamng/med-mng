@@ -1,20 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Target, 
-  Trophy, 
-  Flame,
-  Calendar,
-  TrendingUp,
-  Settings,
-  CheckCircle
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Calendar,
+    CheckCircle,
+    Flame,
+    Target,
+    TrendingUp,
+    Trophy
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface WeeklyGoalCardProps {
   className?: string;
@@ -35,7 +32,6 @@ const DEFAULT_GOALS = {
 
 export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [progress, setProgress] = useState<WeeklyProgress>({
     itemsReviewed: 0,
     quizzesCompleted: 0,
@@ -63,7 +59,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
       startOfWeek.setHours(0, 0, 0, 0);
 
       // Récupérer l'activité de la semaine
-      const { data: activityData } = await supabase
+      const { _data: activityData } = await supabase
         .from('user_activities')
         .select('activity_type, count, duration_seconds')
         .eq('user_id', user.id)
@@ -98,7 +94,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
       }
 
       // Charger les objectifs personnalisés depuis metadata si disponible
-      const { data: profileData } = await supabase
+      const { _data: profileData } = await supabase
         .from('profiles')
         .select('metadata')
         .eq('id', user.id)

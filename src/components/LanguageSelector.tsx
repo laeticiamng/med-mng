@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage, Language, LANGUAGES } from '@/contexts/LanguageContext';
+import { Language, useLanguage } from '@/contexts/LanguageContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Globe } from 'lucide-react';
+import React, { useState } from 'react';
 
 export const LanguageSelector: React.FC = () => {
   const { currentLanguage, setCurrentLanguage, languages } = useLanguage();

@@ -1,18 +1,34 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { 
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  FunnelChart, Funnel, LabelList
-} from 'recharts';
-import { 
-  TrendingUp, Users, Clock, Target, AlertTriangle,
-  Download, RefreshCw, Calendar, Activity
+import {
+    Activity,
+    AlertTriangle,
+    Calendar,
+    Clock,
+    Download, RefreshCw,
+    Target,
+    TrendingUp, Users
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Funnel,
+    FunnelChart,
+    LabelList,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis, YAxis
+} from 'recharts';
+import { toast } from "sonner";
 
 interface AnalyticsData {
   user_engagement: {
@@ -50,13 +66,13 @@ export default function AdvancedAnalyticsDashboard() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analytics-engine', {
+      const { _data, error } = await supabase.functions.invoke('analytics-engine', {
         body: { timeframe, detailed: true }
       });
 
       if (error) throw error;
 
-      setAnalytics(data.metrics);
+      setAnalytics(_data.metrics);
       setLastUpdate(new Date());
       toast.success(`Analytics générées pour ${timeframe}`);
     } catch (error) {
@@ -73,7 +89,7 @@ export default function AdvancedAnalyticsDashboard() {
 
   const exportAnalytics = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('admin-export', {
+      const { error } = await supabase.functions.invoke('admin-export', {
         body: { 
           table: 'analytics',
           format: 'json',
@@ -285,7 +301,7 @@ export default function AdvancedAnalyticsDashboard() {
                   dataKey="adoption_rate"
                   nameKey="feature"
                 >
-                  {analytics.business_insights.feature_adoption.map((entry, index) => (
+                  {analytics.business_insights.feature_adoption.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

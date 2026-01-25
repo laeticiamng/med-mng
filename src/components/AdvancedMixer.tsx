@@ -1,28 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Volume2, 
-  VolumeX,
-  Music,
-  Mic,
-  Image as ImageIcon,
-  Plus,
-  Trash2,
-  Settings,
-  Save,
-  Download,
-  Layers,
-  AudioWaveform
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    AudioWaveform,
+    Download,
+    Image as ImageIcon,
+    Layers,
+    Mic,
+    Music,
+    Pause,
+    Play,
+    Plus,
+    Settings,
+    Square,
+    Trash2,
+    Volume2,
+    VolumeX
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface AudioTrack {
   id: string;
@@ -49,7 +48,7 @@ export const AdvancedMixer = () => {
   const [tracks, setTracks] = useState<AudioTrack[]>([]);
   const [visualLayers, setVisualLayers] = useState<VisualLayer[]>([]);
   const [masterVolume, setMasterVolume] = useState(80);
-  const [isRecording, setIsRecording] = useState(false);
+  const [_isRecording, _setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { logActivity } = useActivityTracking();
 

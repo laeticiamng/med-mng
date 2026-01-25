@@ -1,10 +1,10 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Music, ArrowLeft, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
+import { Home, Music } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface CreateSongHeaderProps {
   remainingCredits?: number;

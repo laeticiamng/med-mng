@@ -1,16 +1,16 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
+import { supabase } from '@/integrations/supabase/client';
+import { BookOpen, Music, RotateCcw, Settings, Trophy } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { QuizFinal } from './QuizFinal';
 import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
-import { QuizSelector, QuizConfig } from './quiz/QuizSelector';
 import { OicQuizGenerator } from './quiz/OicQuizGenerator';
-import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
-import { useGamification } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Music, BookOpen, RotateCcw, Settings } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { QuizConfig, QuizSelector } from './quiz/QuizSelector';
 
 interface EnhancedQuizFinalProps {
   questions: {
@@ -65,16 +65,14 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   
-  const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
-  
+
   const {
     startQuizSession,
-    addQuizError,
     endQuizSession,
     currentSession,
     currentErrors,
-    hasCurrentSession,
     loadSavedSessions
   } = useQuizErrorTracker();
 
@@ -107,13 +105,13 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     
     // Gamification rewards
     if (user) {
-      await addPoints(user.id, 'examCompleted');
+      await _addPoints(user.id, 'examCompleted');
       await logActivity({ activity_type: 'exam', count: 1, score: finalScore, metadata: { itemCode, action: 'complete' } });
       
       // Perfect score bonus
       if (finalScore === 100) {
-        await addPoints(user.id, 'perfectExam');
-        await unlockBadge(user.id, 'perfect_exam');
+        await _addPoints(user.id, 'perfectExam');
+        await _unlockBadge(user.id, 'perfect_exam');
       }
       
       await checkAndUnlockBadges(user.id);
@@ -226,7 +224,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
               </div>
             </div>
             
-            {hasCurrentSession && (
+            {_hasCurrentSession && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
                   <div className="text-lg font-bold text-warning">

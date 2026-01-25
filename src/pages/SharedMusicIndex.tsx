@@ -3,17 +3,17 @@
  * Liste toutes les musiques publiques de la communauté
  */
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Music, Play, Pause, Search, TrendingUp, Clock, User, Filter, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { ROUTE_PATHS } from '@/config/routes';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ROUTE_PATHS } from '@/config/routes';
+import { supabase } from '@/integrations/supabase/client';
+import { Clock, Filter, Loader2, Music, Pause, Play, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface PublicTrack {
   id: string;
@@ -41,15 +41,15 @@ const SharedMusicIndex = () => {
 
   const loadPublicTracks = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_generated_music')
         .select('id, music_id, title, music_style, rang, item_code, created_at, audio_url')
         .not('audio_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-      setTracks(data || []);
+      if (_error) throw _error;
+      setTracks(_data || []);
     } catch (err) {
       console.error('Erreur chargement musiques:', err);
     } finally {

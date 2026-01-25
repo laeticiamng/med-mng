@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
-  RotateCcw, 
-  Music, 
-  Trophy,
-  Target,
-  BookOpen,
-  Clock,
-  Flame,
-  Star
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import {
+    AlertCircle,
+    BookOpen,
+    CheckCircle,
+    Clock,
+    Flame,
+    Music,
+    RotateCcw,
+    Star,
+    Target,
+    Trophy,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface QuizQuestion {
   id: number;
@@ -81,7 +80,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [user, setUser] = useState<any>(null);
 
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, addPoints, unlockBadge, loadStats } = useGamification();
+  const { _stats: gamificationStats, _addPoints, _unlockBadge, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -170,11 +169,11 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       
       // Award points based on score
       if (totalScore === 100) {
-        await addPoints(user.id, 'perfectExam');
-        await unlockBadge(user.id, 'perfect_exam');
+        await _addPoints(user.id, 'perfectExam');
+        await _unlockBadge(user.id, 'perfect_exam');
         toast.success('🏆 Badge "Sans Faute" débloqué !');
       } else {
-        await addPoints(user.id, 'examCompleted');
+        await _addPoints(user.id, 'examCompleted');
       }
       
       loadStats(user.id);
@@ -263,7 +262,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         };
       });
 
-      const { data, error } = await supabase.functions.invoke('generate-error-correction-song', {
+      const { _data, error } = await supabase.functions.invoke('generate-error-correction-song', {
         body: {
           itemCode,
           itemTitle,
@@ -274,7 +273,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
 
       if (error) throw error;
 
-      if (data.success) {
+      if (_data.success) {
         toast.success('🎵 Chanson de correction générée !', {
           description: 'La chanson a été ajoutée à votre bibliothèque.'
         });
@@ -282,7 +281,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         // Ajouter à la bibliothèque utilisateur
         await supabase.from('med_mng_user_songs').insert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
-          song_id: data.song_id
+          song_id: _data.song_id
         });
       }
     } catch (error) {
@@ -395,7 +394,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
             <CardContent>
               <ScrollArea className="h-[300px]">
                 <div className="space-y-4">
-                  {questions.map((question, index) => {
+                  {questions.map((question, _index) => {
                     const userAnswer = answers.find(a => a.questionId === question.id);
                     if (!userAnswer) return null;
 

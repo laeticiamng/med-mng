@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { 
-  Brain, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Music,
-  Trophy,
-  Target,
-  RotateCcw,
-  Loader2,
-  Play,
-  BookOpen
-} from "lucide-react";
-import { qcmService, QcmQuestion, QcmSession } from '@/services/qcmService';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { QcmQuestion, qcmService, QcmSession } from '@/services/qcmService';
+import {
+    BookOpen,
+    Brain,
+    CheckCircle,
+    Clock,
+    Loader2,
+    Music,
+    Play,
+    RotateCcw,
+    Target,
+    Trophy,
+    XCircle
+} from "lucide-react";
+import React, { useState } from 'react';
+import { toast } from "sonner";
 
 interface QcmPlayerProps {
   itemCode: string;
@@ -41,7 +41,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
   className
 }) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints, unlockBadge } = useGamification();
+  const { _addPoints, _unlockBadge } = useGamification();
   const [phase, setPhase] = useState<'setup' | 'loading' | 'playing' | 'results'>('setup');
   const [questions, setQuestions] = useState<QcmQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -125,7 +125,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       if (response.is_correct) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await addPoints(user.id, 'itemReviewed');
+          await _addPoints(user.id, 'itemReviewed');
         }
         toast.success('Bonne réponse ! 🎉');
       } else {
@@ -170,7 +170,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       if (results.score >= 100) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await unlockBadge(user.id, 'perfect_exam');
+          await _unlockBadge(user.id, 'perfect_exam');
         }
       }
       
@@ -369,8 +369,6 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
 
   if (phase === 'results' && sessionResults) {
     const scoreColor = qcmService.getScoreColor(sessionResults.score);
-    const badgeVariant = qcmService.getScoreBadgeVariant(sessionResults.score);
-
     return (
       <Card className={className}>
         <CardHeader>

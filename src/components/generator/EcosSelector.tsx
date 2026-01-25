@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Stethoscope, Search } from 'lucide-react';
-import { toast } from 'sonner';
+import { Loader2, Search, Stethoscope } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface EcosSelectorProps {
   selectedSituation: string;
@@ -48,16 +47,16 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ecos_scenarios')
         .select('id, scenario_code, title, speciality, clinical_case, difficulty_level')
         .eq('is_active', true)
         .order('scenario_code')
         .limit(50);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      setScenarios(data || []);
+      setScenarios(_data || []);
     } catch (err) {
       console.error('Erreur chargement ECOS:', err);
     } finally {

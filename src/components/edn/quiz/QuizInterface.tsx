@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react';
-import { QuizConfig } from './QuizSelector';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { ReviewQuality, useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
-import { useSRS, ReviewQuality } from '@/hooks/useSRS';
+import { ArrowLeft, ArrowRight, CheckCircle, Clock, RotateCcw, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { QuizConfig } from './QuizSelector';
 interface QuizQuestion {
   id: number;
   question: string;
@@ -23,7 +23,7 @@ interface QuizQuestion {
 interface QuizInterfaceProps {
   itemCode: string;
   itemTitle: string;
-  config: QuizConfig;
+  _config?: QuizConfig;
   questions: QuizQuestion[];
   onQuizComplete: (results: QuizResults) => void;
   onReturnToConfig: () => void;
@@ -53,7 +53,6 @@ interface QuizResults {
 export const QuizInterface: React.FC<QuizInterfaceProps> = ({
   itemCode,
   itemTitle,
-  config,
   questions,
   onQuizComplete,
   onReturnToConfig
@@ -62,7 +61,7 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [showExplanation, setShowExplanation] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [_questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [isCompleted, setIsCompleted] = useState(false);
   const [results, setResults] = useState<QuizResults | null>(null);
   const { toast } = useToast();

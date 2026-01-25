@@ -1,33 +1,33 @@
-import React, { useEffect, useState } from 'react';
 import { MigrationDashboard as MigrationDashboardComponent } from '@/components/migration/MigrationDashboard';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
-  ArrowRightLeft,
-  Database,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  RefreshCw,
-  Download,
-  Play,
-  Pause,
-  History,
-  Settings,
-  Loader2,
-  FileCode,
-  Shield,
-  Zap,
-  TrendingUp
+    AlertTriangle,
+    ArrowRightLeft,
+    CheckCircle2,
+    Clock,
+    Database,
+    Download,
+    FileCode,
+    History,
+    Loader2,
+    Pause,
+    Play,
+    RefreshCw,
+    Settings,
+    Shield,
+    TrendingUp,
+    Zap
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface MigrationStats {
   totalMigrations: number;
@@ -55,7 +55,7 @@ interface MigrationRecord {
 
 export default function MigrationDashboardPage() {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -189,7 +189,7 @@ export default function MigrationDashboardPage() {
       });
 
       // Charger l'activité récente
-      const { data: logs } = await supabase
+      const { _data: logs } = await supabase
         .from('operation_logs')
         .select('*')
         .eq('type', 'migration')

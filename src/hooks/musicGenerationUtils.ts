@@ -42,10 +42,6 @@ export const validateGenerationInput = (
 
 export const prepareStyleConfiguration = (selectedStyle: string, duration: number) => {
   const isComposition = selectedStyle.includes('+');
-  const styleDescription = isComposition 
-    ? `Composition musicale personnalisée combinant plusieurs styles : ${selectedStyle.replace(/\+/g, ' × ')}`
-    : selectedStyle;
-
   const adjustedDuration = isComposition 
     ? duration + (selectedStyle.split('+').length - 1) * 30 
     : duration;
@@ -56,7 +52,7 @@ export const prepareStyleConfiguration = (selectedStyle: string, duration: numbe
 
   return {
     isComposition,
-    styleDescription,
+    _styleDescription,
     adjustedDuration,
     durationText
   };

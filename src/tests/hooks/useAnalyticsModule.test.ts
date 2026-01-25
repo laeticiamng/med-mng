@@ -9,7 +9,7 @@
  * - Edge cases & error handling
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // TYPES & INTERFACES
@@ -262,7 +262,6 @@ describe('Analytics Module - Unit Tests', () => {
     });
 
     it('should handle broken streak', () => {
-      const today = new Date().toISOString().split('T')[0];
       const fourDaysAgo = new Date();
       fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
       

@@ -3,15 +3,15 @@
  * Remplacement des hooks avec 'any' par des versions type-safe
  */
 
-import { useState, useCallback, useReducer, useRef, useEffect } from 'react';
-import type { 
-  FormState, 
-  FormField, 
-  StrictRecord, 
-  APIResponse, 
-  JSONValue,
-  SelectOption 
+import type {
+    APIResponse,
+    FormField,
+    FormState,
+    JSONValue,
+    SelectOption,
+    StrictRecord
 } from '@/types/global';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
 // 🎯 TYPE-SAFE FORM HOOK
 export function useTypeSafeForm<T extends StrictRecord<string, unknown>>(
@@ -91,7 +91,7 @@ export function useTypeSafeForm<T extends StrictRecord<string, unknown>>(
   }, []);
 
   const resetForm = useCallback(() => {
-    setFormState(prev => {
+    setFormState(_prev => {
       const fields = {} as { [K in keyof T]: FormField<T[K]> };
       
       for (const key in initialValues) {

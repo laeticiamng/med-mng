@@ -24,13 +24,13 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
   
   try {
     // 1. Récupérer tous les items EDN
-    const { data: items, error } = await supabase
+    const { _data: items, _error } = await supabase
       .from('edn_items_immersive')
       .select('id, item_code, title')
       .order('item_code');
       
-    if (error) {
-      throw new Error(`Erreur récupération items: ${error.message}`);
+    if (_error) {
+      throw new Error(`Erreur récupération items: ${_error.message}`);
     }
     
     if (!items || items.length === 0) {
@@ -65,7 +65,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           ]);
           
           // Mettre à jour l'item avec les nouvelles paroles
-          const { error: updateError } = await supabase
+          const { _error: updateError } = await supabase
             .from('edn_items_immersive')
             .update({
               paroles_rang_a: lyricsA,
@@ -118,7 +118,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
   
   try {
     // Récupérer l'item
-    const { data: item, error: fetchError } = await supabase
+    const { _data: item, _error: fetchError } = await supabase
       .from('edn_items_immersive')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
@@ -136,7 +136,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     ]);
     
     // Sauvegarder
-    const { error: updateError } = await supabase
+    const { _error: updateError } = await supabase
       .from('edn_items_immersive')
       .update({
         paroles_rang_a: lyricsA,

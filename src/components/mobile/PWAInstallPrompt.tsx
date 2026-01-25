@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Download, Smartphone } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Download, Smartphone, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -139,7 +139,7 @@ export function PWAInstallPrompt() {
 // Hook pour gérer l'état PWA
 export function usePWA() {
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstallable, _setIsInstallable] = useState(false);
 
   useEffect(() => {
     // Vérifier si installé

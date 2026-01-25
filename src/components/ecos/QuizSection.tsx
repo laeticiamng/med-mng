@@ -1,11 +1,10 @@
-import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 interface QuizQuestion {
   question: string;
@@ -22,7 +21,7 @@ interface QuizSectionProps {
 
 export const QuizSection = ({ questions, answers, onAnswerChange, scenarioId }: QuizSectionProps) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { _addPoints } = useGamification();
 
   // Track quiz answer
   const handleAnswerWithTracking = async (questionIndex: number, answer: string) => {
@@ -45,7 +44,7 @@ export const QuizSection = ({ questions, answers, onAnswerChange, scenarioId }: 
       });
       
       if (isCorrect) {
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
     }
   };

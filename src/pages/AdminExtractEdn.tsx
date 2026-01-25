@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, Download, Play, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const AdminExtractEdn = () => {
@@ -24,7 +24,7 @@ const AdminExtractEdn = () => {
       
       // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
       // Aucun credential n'est envoyé depuis le frontend
-      const { data, error } = await supabase.functions.invoke('secure-edn-extraction', {
+      const { _data, error } = await supabase.functions.invoke('secure-edn-extraction', {
         body: {
           action,
           resumeFromItem: action === 'resume' ? resumeFromItem : 1,
@@ -38,10 +38,10 @@ const AdminExtractEdn = () => {
         return;
       }
 
-      console.log('✅ Extraction terminée:', data);
-      setStats(data.stats);
+      console.log('✅ Extraction terminée:', _data);
+      setStats(_data.stats);
       setProgress(100);
-      toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
+      toast.success(`Extraction terminée! ${_data.stats?.totalProcessed || 0} items traités`);
 
     } catch (error: any) {
       console.error('💥 Erreur critique:', error);
@@ -54,17 +54,17 @@ const AdminExtractEdn = () => {
 
   const checkExistingData = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, updated_at')
         .order('item_code');
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
-      toast.info(`${data?.length || 0} items EDN trouvés en base`);
+      console.log(`📊 ${_data?.length || 0} items EDN déjà en base`);
+      toast.info(`${_data?.length || 0} items EDN trouvés en base`);
       
-      return data;
+      return _data;
     } catch (error: any) {
       console.error('Erreur vérification données:', error);
       toast.error('Erreur lors de la vérification des données');

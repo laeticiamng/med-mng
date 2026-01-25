@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Get initial session avec gestion d'erreur
     supabase.auth.getSession()
-      .then(({ data: { session }, error }) => {
+      .then(({ _data: { session }, error }) => {
         if (error) {
           handleAuthError(error);
           return;

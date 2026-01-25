@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { 
-  Server, 
-  Cpu, 
-  HardDrive, 
-  Network, 
-  Database, 
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Users,
-  Zap,
-  TrendingUp
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Cpu,
+    Database,
+    HardDrive,
+    Network,
+    Server,
+    TrendingUp,
+    Users,
+    Zap
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface SystemMetrics {
   cpu: {
@@ -79,7 +79,7 @@ export const SystemMonitor: React.FC = () => {
     database: { connections: 47, queryTime: 2.3, cacheHitRate: 94.7, size: 847.2 }
   });
 
-  const [services, setServices] = useState<ServiceStatus[]>([
+  const [services, _setServices] = useState<ServiceStatus[]>([
     { name: 'API Principal', status: 'online', uptime: '99.98%', responseTime: 145, lastCheck: 'Il y a 30s' },
     { name: 'Base de données', status: 'online', uptime: '99.95%', responseTime: 23, lastCheck: 'Il y a 15s' },
     { name: 'Cache Redis', status: 'online', uptime: '99.99%', responseTime: 8, lastCheck: 'Il y a 45s' },
@@ -88,7 +88,7 @@ export const SystemMonitor: React.FC = () => {
     { name: 'Analytics', status: 'online', uptime: '99.94%', responseTime: 234, lastCheck: 'Il y a 30s' }
   ]);
 
-  const [performanceHistory, setPerformanceHistory] = useState<PerformanceData[]>([
+  const [performanceHistory, _setPerformanceHistory] = useState<PerformanceData[]>([
     { timestamp: '00:00', cpu: 35, memory: 52, network: 23, responseTime: 145 },
     { timestamp: '04:00', cpu: 28, memory: 48, network: 18, responseTime: 134 },
     { timestamp: '08:00', cpu: 62, memory: 68, network: 89, responseTime: 187 },
@@ -134,11 +134,11 @@ export const SystemMonitor: React.FC = () => {
     const fetchRealMetrics = async () => {
       try {
         // Query real activity counts from database
-        const { data: activityCount } = await supabase
+        await supabase
           .from('gamification_activities')
           .select('id', { count: 'exact', head: true });
-        
-        const { data: profileCount } = await supabase
+
+        await supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true });
 

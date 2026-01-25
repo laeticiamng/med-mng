@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useLearningAnalytics } from '@/hooks/useLearningAnalytics';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Lightbulb, AlertTriangle, TrendingUp, TrendingDown, 
-  Target, ArrowRight, Sparkles, RefreshCw, Clock, Activity, Flame, Star, Zap
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useLearningAnalytics } from '@/hooks/useLearningAnalytics';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertTriangle,
+    ArrowRight,
+    Lightbulb,
+    RefreshCw,
+    Sparkles,
+    Target,
+    TrendingUp
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface LearningInsight {
@@ -23,12 +29,12 @@ interface LearningInsight {
 
 export const LearningInsights: React.FC = () => {
   const navigate = useNavigate();
-  const { insights, generateInsights, loading } = useLearningAnalytics();
+  const { generateInsights, loading } = useLearningAnalytics();
   const { getTodayStats, logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: _gamificationStats, loadStats } = useGamification();
   const [localInsights, setLocalInsights] = useState<LearningInsight[]>([]);
   const [todayStats, setTodayStats] = useState<any>(null);
-  const [user, setUser] = useState<any>(null);
+  const [_user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {

@@ -1,39 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  MessageCircle, 
-  Heart, 
-  Share2, 
-  BookOpen,
-  Music,
-  Trophy,
-  Star,
-  Calendar,
-  MapPin,
-  Plus,
-  TrendingUp,
-  Lightbulb,
-  Flame,
-  Loader2,
-  GraduationCap,
-  MessageSquare
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    BookOpen,
+    Calendar,
+    Flame,
+    GraduationCap,
+    Heart,
+    Lightbulb,
+    MapPin,
+    MessageCircle,
+    MessageSquare,
+    Plus,
+    Share2,
+    Star,
+    TrendingUp,
+    Trophy,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 // Import new community components
-import { ResourceSharing } from '@/components/social/ResourceSharing';
-import { ForumDiscussion } from '@/components/social/ForumDiscussion';
 import { Leaderboard } from '@/components/gamification/Leaderboard';
 import { MentorshipSystem } from '@/components/mentorship/MentorshipSystem';
+import { ForumDiscussion } from '@/components/social/ForumDiscussion';
+import { ResourceSharing } from '@/components/social/ResourceSharing';
 
 interface Post {
   id: string;
@@ -66,11 +64,11 @@ interface Event {
 
 const CommunityHub = () => {
   const { toast } = useToast();
-  const { stats, addPoints } = useGamification();
+  const { _stats, _addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
   const [activeTab, setActiveTab] = useState('feed');
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [_leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [_loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userBadgesCount, setUserBadgesCount] = useState(0);
 
@@ -79,7 +77,7 @@ const CommunityHub = () => {
     const loadUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase
+        const { _data: profile } = await supabase
           .from('profiles')
           .select('name, email')
           .eq('id', user.id)
@@ -87,13 +85,13 @@ const CommunityHub = () => {
         setCurrentUser({ ...user, profile });
         
         // Get badges count from stats
-        if (stats?.badges) {
-          setUserBadgesCount(stats.badges.length);
+        if (_stats?.badges) {
+          setUserBadgesCount(_stats.badges.length);
         }
       }
     };
     loadUser();
-  }, [stats]);
+  }, [_stats]);
 
   // Load real leaderboard data from user_activity_log
   useEffect(() => {
@@ -104,12 +102,12 @@ const CommunityHub = () => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         
-        const { data: activities, error } = await supabase
+        const { _data: activities, _error } = await supabase
           .from('user_activity_log')
           .select('user_id, count')
           .gte('activity_date', weekAgo.toISOString().split('T')[0]);
         
-        if (error) throw error;
+        if (_error) throw _error;
 
         // Aggregate by user
         const userScores: Record<string, number> = {};
@@ -120,7 +118,7 @@ const CommunityHub = () => {
         // Get user profiles for names
         const userIds = Object.keys(userScores);
         if (userIds.length > 0) {
-          const { data: profiles } = await supabase
+          const { _data: profiles } = await supabase
             .from('profiles')
             .select('id, name, email')
             .in('id', userIds);
@@ -153,7 +151,7 @@ const CommunityHub = () => {
     }
   }, [activeTab]);
 
-  const [posts, setPosts] = useState<Post[]>([
+  const [posts, _setPosts] = useState<Post[]>([
     {
       id: '1',
       author: {
@@ -220,7 +218,7 @@ const CommunityHub = () => {
     }
   ]);
 
-  const [events, setEvents] = useState<Event[]>([
+  const [events, _setEvents] = useState<Event[]>([
     {
       id: '1',
       title: 'Webinaire : Nouvelles Approches Pédagogiques',
@@ -303,7 +301,7 @@ const CommunityHub = () => {
         count: 1,
         metadata: { action: 'community_like', postId }
       });
-      await addPoints(currentUser.id, 'itemReviewed');
+      await _addPoints(currentUser.id, 'itemReviewed');
     }
     
     toast({
@@ -320,7 +318,7 @@ const CommunityHub = () => {
         count: 1,
         metadata: { action: 'event_registration', eventId }
       });
-      await addPoints(currentUser.id, 'dailyStreak');
+      await _addPoints(currentUser.id, 'dailyStreak');
     }
     
     toast({
@@ -345,7 +343,7 @@ const CommunityHub = () => {
         </div>
 
         {/* User Profile Card */}
-        {currentUser && stats && (
+        {currentUser && _stats && (
           <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center gap-6">
@@ -362,11 +360,11 @@ const CommunityHub = () => {
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     <Badge variant="outline" className="gap-1">
                       <Flame className="h-3 w-3 text-orange-500" />
-                      {stats.currentStreak} jours
+                      {_stats.currentStreak} jours
                     </Badge>
                     <Badge variant="outline" className="gap-1">
                       <Star className="h-3 w-3 text-yellow-500" />
-                      Niveau {stats.level}
+                      Niveau {_stats.level}
                     </Badge>
                     <Badge variant="outline" className="gap-1">
                       <Trophy className="h-3 w-3 text-amber-500" />
@@ -378,10 +376,10 @@ const CommunityHub = () => {
                 <div className="w-full md:w-48 space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>XP</span>
-                    <span>{stats.totalPoints % XP_PER_LEVEL} / {XP_PER_LEVEL}</span>
+                    <span>{_stats.totalPoints % XP_PER_LEVEL} / {XP_PER_LEVEL}</span>
                   </div>
                   <Progress 
-                    value={(stats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} 
+                    value={(_stats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} 
                     className="h-2"
                   />
                 </div>

@@ -1,18 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Brain, CheckCircle, XCircle, Trophy, RotateCcw, 
-  ChevronLeft, ChevronRight, Loader2, Sparkles
-} from 'lucide-react';
-import { useOicCompetences, OicCompetence } from '@/hooks/useOicCompetences';
-import { useGamification } from '@/hooks/useGamification';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { OicCompetence, useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Brain, CheckCircle,
+    ChevronLeft, ChevronRight, Loader2,
+    RotateCcw,
+    Sparkles,
+    Trophy,
+    XCircle
+} from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 interface OicQuizGeneratorProps {
@@ -36,13 +40,13 @@ const QUESTION_TEMPLATES = [
   { template: 'definition', question: (comp: OicCompetence) => `Concernant "${comp.intitule}", quelle affirmation est correcte ?` },
   { template: 'objectif', question: (comp: OicCompetence) => `L'objectif ${comp.objectif_id} correspond à :` },
   { template: 'rubrique', question: (comp: OicCompetence) => `Dans quelle catégorie se situe la compétence "${comp.objectif_id}" ?` },
-  { template: 'identification', question: (comp: OicCompetence) => `Identifiez la compétence UNESS officielle :` },
+  { template: 'identification', question: (_comp: OicCompetence) => `Identifiez la compétence UNESS officielle :` },
   { template: 'association', question: (comp: OicCompetence) => `Quelle compétence est associée à l'item parent ${comp.item_parent} ?` },
   { template: 'vrai_faux', question: (comp: OicCompetence) => `L'affirmation suivante est-elle vraie ? "${comp.intitule}"` },
   { template: 'qcm_negatif', question: (comp: OicCompetence) => `Parmi ces affirmations, laquelle n'est PAS correcte pour ${comp.objectif_id} ?` },
-  { template: 'cas_clinique', question: (comp: OicCompetence) => `Un patient présente un tableau clinique. Quelle compétence UNESS est concernée ?` },
+  { template: 'cas_clinique', question: (_comp: OicCompetence) => `Un patient présente un tableau clinique. Quelle compétence UNESS est concernée ?` },
   { template: 'hierarchie', question: (comp: OicCompetence) => `Quel est l'ordre de priorité pour la compétence ${comp.objectif_id} ?` },
-  { template: 'diagnostic', question: (comp: OicCompetence) => `Pour établir le diagnostic, identifiez la compétence requise :` },
+  { template: 'diagnostic', question: (_comp: OicCompetence) => `Pour établir le diagnostic, identifiez la compétence requise :` },
 ];
 
 const generateQuestionsFromCompetences = (
@@ -138,7 +142,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
 
   const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
   const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
-  const { addPoints, unlockBadge } = useGamification();
+  const { _addPoints, _unlockBadge } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const questions = useMemo(() => {
@@ -183,7 +187,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
         // Erreur silencieuse
       }
 
-      await addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
+      await _addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
       await logActivity({
         activity_type: 'exam',
         count: 1,
@@ -192,7 +196,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       });
 
       if (percentage === 100) {
-        await unlockBadge(user.id, 'perfect_exam');
+        await _unlockBadge(user.id, 'perfect_exam');
         toast.success('🏆 Score parfait ! Badge débloqué !');
       } else {
         toast.success(`Quiz terminé ! Score: ${score}/${questions.length}`);
@@ -331,7 +335,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
 
           {/* Résumé des réponses */}
           <div className="mt-6 space-y-3 text-left max-h-64 overflow-y-auto">
-            {questions.map((q, idx) => {
+            {questions.map((q, _idx) => {
               const isCorrect = answers[q.id] === q.correctIndex;
               return (
                 <div 

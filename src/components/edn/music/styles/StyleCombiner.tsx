@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Plus, X, Sparkles, Shuffle } from 'lucide-react';
+import { Plus, Shuffle, Sparkles, X } from 'lucide-react';
+import { useState } from 'react';
 import { allMusicStyles, getCompatibleStyles, isPremiumStyle, musicStylesCategories } from './MusicStylesData';
 
 interface StyleCombinerProps {
@@ -51,11 +51,6 @@ export const StyleCombiner = ({
     const compatible = getCompatibleStyles(lastSelectedStyle);
     return compatible.filter(s => !selectedStyles.includes(s.value)).slice(0, 4);
   };
-
-  const getStyleLabel = (value: string) => {
-    return allMusicStyles.find(s => s.value === value)?.label || value;
-  };
-
   const getCombinationDescription = () => {
     if (selectedStyles.length < 2) return '';
     

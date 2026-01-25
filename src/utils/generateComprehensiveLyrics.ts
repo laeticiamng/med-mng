@@ -22,7 +22,7 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
     
     // 1. Récupérer TOUTES les compétences pour cet item
-    const { data: competences, error } = await supabase
+    const { _data: competences, _error } = await supabase
       .from('oic_competences')
       .select('objectif_id, intitule, description, rang, item_parent')
       .eq('item_parent', itemNumber)
@@ -31,8 +31,8 @@ export async function generateComprehensiveLyrics(itemCode: string, rang: 'A' | 
     
     console.log(`📋 Requête oic_competences:`, { itemNumber, rang, competences: competences?.length, error });
 
-    if (error) {
-      console.error('Erreur récupération compétences:', error);
+    if (_error) {
+      console.error('Erreur récupération compétences:', _error);
       return generateFallbackLyrics(itemCode, rang);
     }
 

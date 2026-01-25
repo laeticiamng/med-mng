@@ -78,11 +78,11 @@ export const AdminChatMonitoring: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      const { data: conversations, error } = await query;
+      const { _data: conversations, _error } = await query;
 
-      if (error) {
-        console.error('Error fetching chat data:', error);
-        throw error;
+      if (_error) {
+        console.error('Error fetching chat data:', _error);
+        throw _error;
       }
 
       // Convertir les conversations en format ChatLog

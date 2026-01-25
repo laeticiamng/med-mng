@@ -4,9 +4,9 @@
  * ✅ Enrichi: Meilleure gestion des erreurs, états détaillés, persistance
  */
 
-import { useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PollingProgress } from '@/types/music';
+import { useCallback, useEffect, useRef } from 'react';
 
 // Intervalles adaptatifs selon la phase de génération
 const FAST_POLL_INTERVAL = 2000;   // 2s - Début (0-30s) - plus rapide pour détecter les callbacks
@@ -83,7 +83,7 @@ export const useMusicPolling = () => {
     try {
       // ✅ CORRECTION: Chercher explicitement un track COMPLÉTÉ avec audio_url
       // Ordonner par updated_at DESC pour avoir la version la plus récente
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('generated_music_tracks')
         .select('audio_url, stream_url, generation_status, metadata, updated_at')
         .eq('task_id', taskId)
@@ -91,38 +91,38 @@ export const useMusicPolling = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error) {
-        console.warn('[useMusicPolling] Erreur BDD:', error);
+      if (_error) {
+        console.warn('[useMusicPolling] Erreur BDD:', _error);
         return { found: false };
       }
 
-      if (!data) {
+      if (!_data) {
         return { found: false };
       }
 
       console.log('[useMusicPolling] Données BDD:', { 
-        status: data.generation_status, 
-        hasAudioUrl: !!data.audio_url,
-        audioUrl: data.audio_url?.substring(0, 50)
+        status: _data.generation_status, 
+        hasAudioUrl: !!_data.audio_url,
+        audioUrl: _data.audio_url?.substring(0, 50)
       });
 
-      if (data.generation_status === 'completed' && data.audio_url) {
+      if (_data.generation_status === 'completed' && _data.audio_url) {
         return { 
           found: true, 
-          audioUrl: data.audio_url, 
-          streamUrl: data.stream_url,
+          audioUrl: _data.audio_url, 
+          streamUrl: _data.stream_url,
           status: 'completed' 
         };
       }
 
-      if (data.generation_status === 'failed') {
-        const errorMsg = typeof data.metadata === 'object' && data.metadata 
-          ? (data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
+      if (_data.generation_status === 'failed') {
+        const errorMsg = typeof _data.metadata === 'object' && _data.metadata 
+          ? (_data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
           : 'Génération échouée';
         return { found: true, status: 'failed', error: errorMsg };
       }
 
-      if (data.generation_status === 'cancelled') {
+      if (_data.generation_status === 'cancelled') {
         return { found: true, status: 'cancelled', error: 'Génération annulée' };
       }
 
@@ -247,7 +247,7 @@ export const useMusicPolling = () => {
         }
 
         // Appeler l'edge function music-status
-        const { data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
+        const { _data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
           body: { taskId }
         });
 
@@ -358,30 +358,18 @@ export const useMusicPolling = () => {
   }, []);
 
   const stopAllPolling = useCallback(() => {
-    pollingStateRef.current.forEach((state, taskId) => {
+    pollingStateRef.current.forEach((_state, taskId) => {
       stopPolling(taskId);
     });
   }, [stopPolling]);
 
   // ✅ Obtenir les tâches actives
-  const getActivePollingTasks = useCallback((): string[] => {
-    return Array.from(pollingStateRef.current.keys()).filter(taskId => {
-      const state = pollingStateRef.current.get(taskId);
-      return state && !state.stopped;
-    });
-  }, []);
-
   // ✅ Vérifier si une tâche est en polling
-  const isPolling = useCallback((taskId: string): boolean => {
-    const state = pollingStateRef.current.get(taskId);
-    return state !== undefined && !state.stopped;
-  }, []);
-
   return {
     startPolling,
     stopPolling,
     stopAllPolling,
-    getActivePollingTasks,
-    isPolling
+    _getActivePollingTasks,
+    _isPolling
   };
 };

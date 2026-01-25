@@ -3,35 +3,41 @@
  * ✅ NOUVEAU: UI complète pour filtrer/trier les tracks
  */
 
-import React from 'react';
-import { 
-  Filter, X, Search, Calendar, Music2, Heart, SortAsc, SortDesc, 
-  RotateCcw, ChevronDown 
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-} from '@/components/ui/dropdown-menu';
-import { TranslatedText } from '@/components/TranslatedText';
-import { 
-  GenerationFilterType, 
-  GenerationSortType, 
-  GenerationDateRangeType 
+    GenerationDateRangeType,
+    GenerationFilterType,
+    GenerationSortType
 } from '@/types/music';
+import {
+    Calendar,
+    ChevronDown,
+    Filter,
+    Heart,
+    Music2,
+    RotateCcw,
+    Search,
+    SortDesc,
+    X
+} from 'lucide-react';
+import React from 'react';
 
 interface GenerationFiltersPanelProps {
   filter: GenerationFilterType;

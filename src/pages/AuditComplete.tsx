@@ -1,38 +1,36 @@
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AuditDashboard } from '@/components/audit/AuditDashboard';
-import { AuditGeneral } from '@/components/edn/audit/AuditGeneral';
-import { ComprehensiveAuditDashboard } from '@/components/audit/ComprehensiveAuditDashboard';
-import { AuditIC1 } from '@/components/edn/audit/AuditIC1';
 import { AuditIC1Completeness } from '@/components/audit/AuditIC1Completeness';
+import { ComprehensiveAuditDashboard } from '@/components/audit/ComprehensiveAuditDashboard';
+import { AuditComparatif } from '@/components/edn/audit/AuditComparatif';
+import { AuditGeneral } from '@/components/edn/audit/AuditGeneral';
+import { AuditIC1 } from '@/components/edn/audit/AuditIC1';
 import { AuditIC2Completeness } from '@/components/edn/audit/AuditIC2Completeness';
 import { AuditIC3 } from '@/components/edn/audit/AuditIC3';
 import { AuditIC4 } from '@/components/edn/audit/AuditIC4';
 import { AuditIC5 } from '@/components/edn/audit/AuditIC5';
-import { AuditComparatif } from '@/components/edn/audit/AuditComparatif';
 import { TranslatedText } from '@/components/TranslatedText';
-import { 
-  FileText, 
-  TrendingUp, 
-  Download, 
-  ArrowLeft, 
-  Award, 
-  BarChart3, 
-  Database, 
-  Target, 
-  BookOpen, 
-  Users, 
-  Shield,
-  Brain,
-  Heart,
-  Stethoscope
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    ArrowLeft,
+    Award,
+    BarChart3,
+    Brain,
+    Database,
+    Download,
+    Heart,
+    Shield,
+    Stethoscope,
+    Target,
+    TrendingUp,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const AuditComplete = () => {
   const { logActivity } = useActivityTracking();

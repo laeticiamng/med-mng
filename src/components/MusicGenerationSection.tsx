@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
-import { MusicGenerationHeader } from '@/components/home/MusicGenerationHeader';
 import { MusicGenerationActions } from '@/components/home/MusicGenerationActions';
-import { MusicGenerationFeatures } from '@/components/home/MusicGenerationFeatures';
-import { MusicGenerationHowItWorks } from '@/components/home/MusicGenerationHowItWorks';
 import { MusicGenerationCTA } from '@/components/home/MusicGenerationCTA';
+import { MusicGenerationFeatures } from '@/components/home/MusicGenerationFeatures';
+import { MusicGenerationHeader } from '@/components/home/MusicGenerationHeader';
+import { MusicGenerationHowItWorks } from '@/components/home/MusicGenerationHowItWorks';
+import { Badge } from '@/components/ui/badge';
+import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { Music, Flame, Trophy } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Flame, Music, Trophy } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const MusicGenerationSection = () => {
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const remainingFree = getRemainingGenerations();
-  const { stats } = useGamification();
+  const { _stats } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [totalGenerations, setTotalGenerations] = useState(0);
 
@@ -40,21 +40,21 @@ const MusicGenerationSection = () => {
     <section className="py-16 bg-gradient-to-br from-warning/10 via-warning/5 to-destructive/10">
       <div className="container mx-auto px-4">
         {/* Gamification stats banner for logged-in users */}
-        {user && stats && (
+        {user && _stats && (
           <div className="flex flex-wrap items-center justify-center gap-4 mb-8 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border">
             <div className="flex items-center gap-2">
               <Flame className="h-5 w-5 text-warning" />
-              <span className="text-sm font-medium">{stats.currentStreak} jours</span>
+              <span className="text-sm font-medium">{_stats.currentStreak} jours</span>
             </div>
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Niveau {stats.level}</span>
+              <span className="text-sm font-medium">Niveau {_stats.level}</span>
             </div>
             <div className="flex items-center gap-2">
               <Music className="h-5 w-5 text-accent" />
               <span className="text-sm font-medium">{totalGenerations} musiques créées</span>
             </div>
-            {stats.badges.some(b => b.id === 'music_master') && (
+            {_stats.badges.some(b => b.id === 'music_master') && (
               <Badge variant="secondary" className="bg-accent/20 text-accent">
                 🎵 Music Master
               </Badge>

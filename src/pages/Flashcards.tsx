@@ -1,26 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  BookOpen, Plus, Trash2, ChevronLeft, Play, RotateCcw,
-  CheckCircle, XCircle, Sparkles, TrendingUp, Flame, BarChart3,
-  Layers, Edit, Eye, EyeOff, Award
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
-import { useFlashcards, FlashcardDeck, Flashcard } from '@/hooks/useFlashcards';
-import { useGamification } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    BarChart3,
+    BookOpen,
+    CheckCircle,
+    ChevronLeft,
+    Eye,
+    Flame,
+    Layers,
+    Play,
+    Plus,
+    Sparkles,
+    Trash2,
+    TrendingUp,
+    XCircle
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 
 export default function Flashcards() {
   const navigate = useNavigate();
@@ -30,7 +40,7 @@ export default function Flashcards() {
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
     generateFromItem, recordReview, getStats
   } = useFlashcards();
-  const { addPoints, unlockBadge, checkAndUnlockBadges, stats: gamificationStats } = useGamification();
+  const { _addPoints, _unlockBadge, checkAndUnlockBadges, _stats: _gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -138,7 +148,7 @@ export default function Flashcards() {
     
     // Gamification: Award points for flashcard review
     if (user) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
       await logActivity({ 
         activity_type: 'flashcard', 
         count: 1, 
@@ -151,8 +161,8 @@ export default function Flashcards() {
       setTotalReviews(newTotal);
       
       // Unlock badges based on reviews
-      if (newTotal >= 10) await unlockBadge(user.id, 'items_10');
-      if (newTotal >= 50) await unlockBadge(user.id, 'items_50');
+      if (newTotal >= 10) await _unlockBadge(user.id, 'items_10');
+      if (newTotal >= 50) await _unlockBadge(user.id, 'items_50');
       
       await checkAndUnlockBadges(user.id);
     }
@@ -179,8 +189,8 @@ export default function Flashcards() {
       
       // Bonus for perfect score
       if (user && score === 100) {
-        await addPoints(user.id, 'perfectExam');
-        await unlockBadge(user.id, 'perfect_exam');
+        await _addPoints(user.id, 'perfectExam');
+        await _unlockBadge(user.id, 'perfect_exam');
       }
       
       if (user) getStats(user.id).then(setStats);
@@ -496,7 +506,7 @@ export default function Flashcards() {
                     </Card>
                   ) : (
                     <div className="space-y-2">
-                      {cards.map((card, index) => (
+                      {cards.map((card, _index) => (
                         <Card key={card.id}>
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between">

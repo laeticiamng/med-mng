@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
 vi.mock('@/hooks/use-toast', () => ({
@@ -33,7 +33,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   }
 }));
 
-import { useGamification, BADGE_DEFINITIONS, XP_PER_LEVEL, POINTS_CONFIG } from '@/hooks/useGamification';
+import { BADGE_DEFINITIONS, POINTS_CONFIG, useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 
 describe('useGamification', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { Flame, Trophy, Star, Zap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import type { GamificationStats } from '@/hooks/useGamification';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import type { GamificationStats } from '@/hooks/useGamification';
+import { Flame, Star, Trophy, Zap } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface StreakDisplayProps {
   stats: GamificationStats;

@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { 
-  Shield, 
-  Key, 
-  Smartphone, 
-  Monitor, 
-  MapPin, 
-  AlertTriangle,
-  CheckCircle,
-  Eye,
-  EyeOff,
-  Clock,
-  Loader2
+import {
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Eye,
+    EyeOff,
+    Key,
+    Loader2,
+    MapPin,
+    Monitor,
+    Shield,
+    Smartphone
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 export const ProfileSecurity: React.FC = () => {
   const { updatePassword, resetPassword, user } = useAuth();

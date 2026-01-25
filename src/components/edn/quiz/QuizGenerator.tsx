@@ -167,8 +167,6 @@ export class QuizGenerator {
     difficulty: string
   ) {
     const topicTitle = item.title;
-    const itemCode = item.item_code;
-    
     // Construire la question
     const question = template.template.replace('{topic}', topicTitle);
     

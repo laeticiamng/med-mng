@@ -149,7 +149,7 @@ export const useListeningModes = () => {
   const startMode = useCallback(async (mode: ListeningMode) => {
     try {
       // Sauvegarder le mode actif
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_listening_modes' as any)
         .upsert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -160,7 +160,7 @@ export const useListeningModes = () => {
           is_active: true
         }, { onConflict: 'user_id,mode_id' });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setActiveMode(mode);
       setSessionStartTime(new Date());
@@ -202,7 +202,7 @@ export const useListeningModes = () => {
       const sessionDuration = Math.round((Date.now() - sessionStartTime.getTime()) / 60000);
 
       // Mettre à jour la session
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_listening_modes' as any)
         .update({
           is_active: false,
@@ -212,7 +212,7 @@ export const useListeningModes = () => {
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .eq('is_active', true);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Session terminée !",
@@ -243,28 +243,9 @@ export const useListeningModes = () => {
       description: "Votre mode d'écoute a repris."
     });
   }, [toast]);
-
-  const getRecommendedPlaylist = useCallback(async (mode: ListeningMode) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-recommendations', {
-        body: {
-          action: 'get_specialized_playlist',
-          mode_config: mode,
-          user_context: 'listening_mode'
-        }
-      });
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Erreur playlist recommandée:', error);
-      return null;
-    }
-  }, []);
-
   return {
     predefinedModes: PREDEFINED_MODES,
-    activeMode,
+    _activeMode,
     sessionStartTime,
     timeRemaining,
     isSessionActive,
@@ -272,6 +253,6 @@ export const useListeningModes = () => {
     endSession,
     pauseSession,
     resumeSession,
-    getRecommendedPlaylist
+    _getRecommendedPlaylist
   };
 };

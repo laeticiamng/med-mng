@@ -1,20 +1,20 @@
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { SceneImmersiveProps, SceneData, SceneCharacter } from './scene/sceneTypes';
-import { getUniqueSpectacularTheme } from './scene/sceneThemes';
-import { SceneBackground } from './scene/SceneBackground';
-import { SceneHeader } from './scene/SceneHeader';
-import { SceneCentralArea } from './scene/SceneCentralArea';
-import { SceneConclusion } from './scene/SceneConclusion';
+import { Button } from '@/components/ui/button';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { Flame, Star, Pause, Play, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Flame, Pause, Play, RotateCcw, Star, ZoomIn, ZoomOut } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SceneBackground } from './scene/SceneBackground';
+import { SceneCentralArea } from './scene/SceneCentralArea';
+import { SceneConclusion } from './scene/SceneConclusion';
+import { SceneHeader } from './scene/SceneHeader';
+import { getUniqueSpectacularTheme } from './scene/sceneThemes';
+import { SceneCharacter, SceneImmersiveProps } from './scene/sceneTypes';
 
 export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersiveProps) => {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -44,12 +44,12 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await addPoints(user.id, 'itemReviewed');
+          await _addPoints(user.id, 'itemReviewed');
         }
       }
     };
     trackView();
-  }, [itemCode, logActivity, addPoints]);
+  }, [itemCode, logActivity, _addPoints]);
 
   // Contenu personnalisé basé sur les vraies données de l'item (format DB)
   // Structure DB: { theme, context, setting: {location, atmosphere, characters}, interactions, case_presentation, learning_outcomes }
@@ -205,12 +205,12 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       </div>
       
       {/* Gamification Stats Banner */}
-      {stats && (
+      {_stats && (
         <div className="absolute top-4 right-4 z-10 flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-full border border-border/50">
           <Flame className="h-4 w-4 text-warning" />
-          <span className="text-sm font-bold text-warning">{stats.currentStreak ?? 0}j</span>
+          <span className="text-sm font-bold text-warning">{_stats.currentStreak ?? 0}j</span>
           <Star className="h-4 w-4 text-primary ml-1" />
-          <span className="text-sm font-bold text-primary">Nv.{stats.level ?? 1}</span>
+          <span className="text-sm font-bold text-primary">Nv.{_stats.level ?? 1}</span>
         </div>
       )}
       

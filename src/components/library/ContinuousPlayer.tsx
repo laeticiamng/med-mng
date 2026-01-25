@@ -1,11 +1,9 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, List } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
-import { PremiumCard } from '@/components/ui/premium-card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { Slider } from '@/components/ui/slider';
+import { List, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Track {
   id: string;

@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Music, TrendingUp, AlertTriangle, Clock, Zap, Users,
-  CheckCircle, XCircle, BarChart3, Activity, RefreshCw, Download
-} from 'lucide-react';
 import { useSpotifyAI } from '@/hooks/useSpotifyAI';
+import {
+    Activity,
+    BarChart3,
+    CheckCircle,
+    Music,
+    RefreshCw
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export const MusicGenerationDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [timeframe, setTimeframe] = useState('24h');
+  const [timeframe, _setTimeframe] = useState('24h');
   const [adminStats, setAdminStats] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 

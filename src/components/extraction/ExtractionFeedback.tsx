@@ -1,26 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RobustErrorDisplay } from '@/components/common/RobustErrorDisplay';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  AlertCircle,
-  RefreshCw,
-  Play,
-  Pause,
-  Square,
-  Download,
-  Eye,
-  FileX,
-  Database,
-  Zap
+import {
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Database,
+    Download,
+    Eye,
+    Pause,
+    Play,
+    RefreshCw,
+    Square,
+    XCircle,
+    Zap
 } from 'lucide-react';
-import { RobustErrorDisplay } from '@/components/common/RobustErrorDisplay';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface ExtractionStatus {

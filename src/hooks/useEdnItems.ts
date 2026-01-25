@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { appendEdnCacheParams, getEdnCacheBuster, pickCacheDiagnostics, subscribeEdnCacheBuster } from '@/utils/ednCache';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/supabaseConstants';
+import { appendEdnCacheParams, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
+import { useEffect, useRef, useState } from 'react';
 
 export interface EdnItemBasic {
   id: string;

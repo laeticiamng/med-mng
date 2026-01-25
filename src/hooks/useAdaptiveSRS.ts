@@ -158,8 +158,8 @@ export const useAdaptiveSRS = () => {
         query = query.eq('deck_id', deckId);
       }
 
-      const { data: cards, error } = await query;
-      if (error || !cards) return [];
+      const { _data: cards, _error } = await query;
+      if (_error || !cards) return [];
 
       // Get SRS data from Supabase
       const cardIds = cards.map(c => c.id);

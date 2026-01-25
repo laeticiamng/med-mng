@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { calculateCVSS, CVSSMetrics, getPatchPriority } from '@/utils/cvssCalculator';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { calculateCVSS, getPatchPriority, CVSSMetrics, CVSSScore } from '@/utils/cvssCalculator';
 
 export interface CVSSAssessment {
   id: string;
@@ -55,13 +55,13 @@ export function useCVSSAssessments() {
   const { data: assessments = [], isLoading } = useQuery({
     queryKey: ['cvss-assessments'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('cvss_assessments')
         .select('*')
         .order('base_score', { ascending: false });
 
-      if (error) throw error;
-      return (data || []) as CVSSAssessment[];
+      if (_error) throw _error;
+      return (_data || []) as CVSSAssessment[];
     },
   });
 
@@ -85,7 +85,7 @@ export function useCVSSAssessments() {
       const deadline = new Date();
       deadline.setDate(deadline.getDate() + priority.deadline);
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('cvss_assessments')
         .insert({
           vulnerability_name: data.vulnerability_name,
@@ -121,7 +121,7 @@ export function useCVSSAssessments() {
           notes: data.notes,
         } as any);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -143,12 +143,12 @@ export function useCVSSAssessments() {
       if (data.patched !== undefined) updates.patched = data.patched;
       if (data.notes !== undefined) updates.notes = data.notes;
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('cvss_assessments')
         .update(updates)
         .eq('id', data.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -162,12 +162,12 @@ export function useCVSSAssessments() {
   // Delete assessment
   const deleteAssessment = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('cvss_assessments')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -180,7 +180,6 @@ export function useCVSSAssessments() {
 
   // Derived data
   const criticalVulns = assessments.filter(a => a.base_severity === 'Critical' && !a.patched);
-  const highVulns = assessments.filter(a => a.base_severity === 'High' && !a.patched);
   const unpatchedVulns = assessments.filter(a => !a.patched);
   const overdueVulns = assessments.filter(a => {
     if (a.patched || !a.patch_deadline) return false;
@@ -191,7 +190,7 @@ export function useCVSSAssessments() {
     assessments,
     isLoading,
     criticalVulns,
-    highVulns,
+    _highVulns,
     unpatchedVulns,
     overdueVulns,
     createAssessment: createAssessment.mutate,

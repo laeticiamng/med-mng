@@ -1,29 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Award,
-  Download,
-  Share2,
-  CheckCircle,
-  Star,
-  Trophy,
-  GraduationCap,
-  Medal,
-  Sparkles,
-  Calendar,
-  FileText,
-  Loader2,
-  ExternalLink
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import {
+    Award,
+    Calendar,
+    CheckCircle,
+    Download,
+    GraduationCap,
+    Loader2,
+    Medal,
+    Share2,
+    Sparkles,
+    Star,
+    Trophy
+} from 'lucide-react';
+import React, { useRef, useState } from 'react';
 
 interface Certificate {
   id: string;
@@ -67,13 +63,13 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
       }
 
       // Charger les badges de l'utilisateur comme certificats
-      const { data: userBadges, error } = await supabase
+      const { _data: userBadges, _error } = await supabase
         .from('user_badges')
         .select('*, badge:badge_id(*)')
         .eq('user_id', user.id)
         .order('earned_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Mapper les badges vers des certificats
       const mappedCertificates: Certificate[] = (userBadges || []).map((ub: any) => ({

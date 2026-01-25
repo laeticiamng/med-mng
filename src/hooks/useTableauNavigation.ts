@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export type RangType = 'A' | 'B';
 
@@ -94,7 +94,6 @@ export const useTableauNavigation = ({
   onItemSelect,
   onFilterChange
 }: UseTableauNavigationProps = {}): UseTableauNavigationReturn => {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // État du rang

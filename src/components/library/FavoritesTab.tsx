@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Heart, Play, Clock, Music } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
-import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/hooks/use-toast';
+import { usePlayer } from '@/hooks/usePlayer';
+import { supabase } from '@/integrations/supabase/client';
+import { Clock, Heart, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface FavoriteTrack {
   id: string;
@@ -36,7 +36,7 @@ export const FavoritesTab = () => {
       setLoading(true);
       
       // D'abord récupérer les favoris de l'utilisateur
-      const { data: favoritesData, error: favError } = await supabase
+      const { _data: favoritesData, _error: favError } = await supabase
         .from('med_mng_user_favorites')
         .select('id, song_id, created_at')
         .order('created_at', { ascending: false });
@@ -50,7 +50,7 @@ export const FavoritesTab = () => {
       // Puis récupérer les détails des chansons
       if (favoritesData && favoritesData.length > 0) {
         const songIds = favoritesData.map(f => f.song_id);
-        const { data: songsData } = await supabase
+        const { _data: songsData } = await supabase
           .from('user_generated_music')
           .select('id, title, item_code, audio_url, rang')
           .in('id', songIds);
@@ -74,12 +74,12 @@ export const FavoritesTab = () => {
 
   const removeFavorite = async (favoriteId: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_user_favorites')
         .delete()
         .eq('id', favoriteId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setFavorites(prev => prev.filter(f => f.id !== favoriteId));
       toast({

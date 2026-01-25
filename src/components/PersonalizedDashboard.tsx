@@ -1,29 +1,28 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TrendingUp, 
-  Clock, 
-  Music, 
-  Brain, 
-  Target, 
-  Calendar,
-  BarChart3,
-  Settings,
-  Award,
-  Zap,
-  Heart,
-  Star,
-  Flame
-} from 'lucide-react';
-import { useAIRecommendations } from '@/hooks/useAIRecommendations';
-import { useListeningModes } from '@/hooks/useListeningModes';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAIRecommendations } from '@/hooks/useAIRecommendations';
+import { useGamification } from '@/hooks/useGamification';
+import { useListeningModes } from '@/hooks/useListeningModes';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    BarChart3,
+    Brain,
+    Calendar,
+    Clock,
+    Flame,
+    Heart,
+    Settings,
+    Star,
+    Target,
+    TrendingUp,
+    Zap
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface DashboardStats {
   totalListeningTime: number;
@@ -50,7 +49,7 @@ export const PersonalizedDashboard = () => {
     averageRating: 0
   });
 
-  const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([
+  const [weeklyData] = useState<WeeklyData[]>([
     { day: 'Lun', minutes: 45, sessions: 2 },
     { day: 'Mar', minutes: 60, sessions: 3 },
     { day: 'Mer', minutes: 30, sessions: 1 },
@@ -61,10 +60,10 @@ export const PersonalizedDashboard = () => {
   ]);
 
   const { recommendations, isLoading } = useAIRecommendations();
-  const { predefinedModes, activeMode } = useListeningModes();
-  const { stats: gamificationStats, loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
-  const { getWeeklySummary, getHeatmapData } = useActivityTracking();
-  const [user, setUser] = useState<any>(null);
+  const { predefinedModes } = useListeningModes();
+  const { loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
+  const { getWeeklySummary } = useActivityTracking();
+  const [, setUser] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -92,13 +91,6 @@ export const PersonalizedDashboard = () => {
     const mins = minutes % 60;
     return `${hours}h ${mins}min`;
   };
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return 'bg-success';
-    if (progress >= 60) return 'bg-warning';
-    return 'bg-destructive';
-  };
-
   const maxMinutes = Math.max(...weeklyData.map(d => d.minutes));
 
   return (

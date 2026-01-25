@@ -42,16 +42,16 @@ export const ComparisonResults = () => {
   const runComparison = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('compare-official-content');
+      const { _data, error } = await supabase.functions.invoke('compare-official-content');
       
       if (error) {
         throw error;
       }
       
-      setResults(data);
+      setResults(_data);
       toast({
         title: "Comparaison terminée",
-        description: `${data.summary.total_items} items analysés avec ${data.summary.average_similarity}% de similarité moyenne`
+        description: `${_data.summary.total_items} items analysés avec ${_data.summary.average_similarity}% de similarité moyenne`
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';

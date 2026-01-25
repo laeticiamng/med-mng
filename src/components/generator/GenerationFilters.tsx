@@ -2,16 +2,15 @@
  * Filtres avancés pour l'historique des générations
  */
 
-import React from 'react';
-import { Filter, Calendar, Music, Star, Tag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { Calendar, Filter, Music, Star, Tag } from 'lucide-react';
+import React from 'react';
 
 export type FilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';
 export type SortType = 'date_desc' | 'date_asc' | 'title_asc' | 'title_desc';

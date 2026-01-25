@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Settings, Shield, Database, Mail, Zap, 
-  AlertTriangle, CheckCircle, RefreshCw, Save, MessageSquare
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle, CheckCircle,
+    Database,
+    RefreshCw, Save,
+    Settings, Shield
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { AdminSecurityAudit } from './AdminSecurityAudit';
 import { AdminChatMonitoring } from './AdminChatMonitoring';
+import { AdminSecurityAudit } from './AdminSecurityAudit';
 
 interface SystemSettings {
   maintenance_mode: boolean;
@@ -94,7 +96,7 @@ export const AdminSystemSettings = () => {
       setLoading(true);
 
       // Vérification réelle de la base de données via une table typée
-      const { error: dbError } = await supabase
+      const { _error: dbError } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true });
 
@@ -108,7 +110,7 @@ export const AdminSystemSettings = () => {
         .gte('created_at', fiveMinutesAgo);
 
       // Vérifier le dernier backup (depuis extraction_logs)
-      const { data: lastBackup } = await supabase
+      const { _data: lastBackup } = await supabase
         .from('extraction_logs')
         .select('created_at')
         .order('created_at', { ascending: false })

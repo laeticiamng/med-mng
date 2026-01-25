@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
 export type SupportedLanguage = Language; // Alias pour compatibilité
@@ -52,15 +52,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const [isTranslating, setIsTranslating] = useState(false);
 
   // Importer les traductions statiquement pour éviter les problèmes Vite
-  const translationModules: Record<Language, Record<string, any>> = {
-    fr: {}, // Will be loaded
-    en: {},
-    es: {},
-    it: {},
-    zh: {},
-    ja: {}
-  };
-
   // Charger les traductions pour la langue courante
   useEffect(() => {
     const loadTranslations = async () => {

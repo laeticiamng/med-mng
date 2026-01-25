@@ -1,41 +1,40 @@
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFavoritesAndHistory } from '@/hooks/useFavoritesAndHistory';
-import { usePlaylists } from '@/hooks/usePlaylists';
 import { usePlayer } from '@/hooks/usePlayer';
-import { 
-  Heart, 
-  History, 
-  Play, 
-  Pause, 
-  Plus, 
-  Search,
-  Music,
-  Clock,
-  Star,
-  Filter,
-  Shuffle,
-  MoreVertical,
-  Download,
-  Share2
+import { usePlaylists } from '@/hooks/usePlaylists';
+import {
+    Clock,
+    Filter,
+    Heart,
+    History,
+    MoreVertical,
+    Music,
+    Pause,
+    Play,
+    Plus,
+    Search,
+    Share2,
+    Shuffle,
+    Star
 } from 'lucide-react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useState } from 'react';
 
 export const SpotifyLikeLibrary = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,8 +52,8 @@ export const SpotifyLikeLibrary = () => {
     clearHistory 
   } = useFavoritesAndHistory();
   
-  const { playlists, createPlaylist } = usePlaylists();
-  const { playTrack, isPlaying, currentTrack, pause, play } = usePlayer();
+  const { playlists } = usePlaylists();
+  const { playTrack, isPlaying, currentTrack, pause } = usePlayer();
 
   const filteredFavorites = favorites.filter(song =>
     song.title.toLowerCase().includes(searchQuery.toLowerCase())

@@ -1,6 +1,6 @@
 
-import { useState, useRef, useEffect } from 'react';
 import { audioCache } from '@/lib/audioCache';
+import { useEffect, useRef, useState } from 'react';
 
 export const useAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -8,7 +8,7 @@ export const useAudioPlayer = () => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-  const [isOfflineCached, setIsOfflineCached] = useState(false);
+  const [_isOfflineCached, setIsOfflineCached] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const play = async (audioUrl: string, audioId?: string) => {

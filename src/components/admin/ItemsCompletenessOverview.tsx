@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle, XCircle, Play, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { useItemsCompleteness } from '@/hooks/useItemsCompleteness';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AlertCircle, AlertTriangle, CheckCircle, Clock, Play, TrendingUp, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export const ItemsCompletenessOverview: React.FC = () => {
   const {
@@ -20,7 +20,7 @@ export const ItemsCompletenessOverview: React.FC = () => {
     resolveAlert,
   } = useItemsCompleteness();
 
-  const [selectedSeverity, setSelectedSeverity] = useState<string>('');
+  const [_selectedSeverity, _setSelectedSeverity] = useState<string>('');
 
   useEffect(() => {
     loadReports();
@@ -53,8 +53,6 @@ export const ItemsCompletenessOverview: React.FC = () => {
       default: return 'outline';
     }
   };
-
-  const criticalAlerts = alerts.filter(alert => alert.severity === 'critical');
   const unresolvedAlerts = alerts.filter(alert => !alert.resolved);
 
   return (

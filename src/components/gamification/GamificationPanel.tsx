@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Trophy, Star, Target, Zap, Award, TrendingUp, 
-  Crown, Flame, Shield, Sparkles, Calendar, Clock, RefreshCw
-} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGamification, BADGE_DEFINITIONS, POINTS_CONFIG } from '@/hooks/useGamification';
+import { BADGE_DEFINITIONS, useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    Calendar, Clock,
+    Crown, Flame,
+    RefreshCw,
+    Shield, Sparkles,
+    Star, Target,
+    TrendingUp,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface BadgeUI {
   id: string;
@@ -74,9 +80,9 @@ const getLevelTitle = (level: number): string => {
 };
 
 export const GamificationPanel: React.FC = () => {
-  const { stats, loading, loadStats, BADGE_DEFINITIONS: badges } = useGamification();
+  const { _stats, loading, loadStats, BADGE_DEFINITIONS: _badges } = useGamification();
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [_userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -93,7 +99,7 @@ export const GamificationPanel: React.FC = () => {
   const loadLeaderboard = async (currentUserId: string) => {
     try {
       // Charger les top utilisateurs par XP depuis user_activity_log
-      const { data: activities } = await supabase
+      const { _data: activities } = await supabase
         .from('user_activity_log')
         .select('user_id, score, count')
         .order('score', { ascending: false });
@@ -116,11 +122,11 @@ export const GamificationPanel: React.FC = () => {
             isCurrentUser: id === currentUserId
           }));
 
-        setLeaderboard(sortedUsers.length > 0 ? sortedUsers : getDefaultLeaderboard(stats?.totalPoints || 0));
+        setLeaderboard(sortedUsers.length > 0 ? sortedUsers : getDefaultLeaderboard(_stats?.totalPoints || 0));
       }
     } catch (error) {
       console.error('Error loading leaderboard:', error);
-      setLeaderboard(getDefaultLeaderboard(stats?.totalPoints || 0));
+      setLeaderboard(getDefaultLeaderboard(_stats?.totalPoints || 0));
     }
   };
 
@@ -135,17 +141,17 @@ export const GamificationPanel: React.FC = () => {
   // Calcul du niveau et XP
   const XP_PER_LEVEL = 500;
   const userLevel: Level = {
-    current: stats?.level || 1,
-    xp: stats?.totalPoints || 0,
-    xpToNext: XP_PER_LEVEL - ((stats?.totalPoints || 0) % XP_PER_LEVEL),
-    title: getLevelTitle(stats?.level || 1)
+    current: _stats?.level || 1,
+    xp: _stats?.totalPoints || 0,
+    xpToNext: XP_PER_LEVEL - ((_stats?.totalPoints || 0) % XP_PER_LEVEL),
+    title: getLevelTitle(_stats?.level || 1)
   };
 
   // Convertir les badges du hook en format UI
   const badgesUI: BadgeUI[] = BADGE_DEFINITIONS.map(badge => {
     const IconComponent = ICON_MAP[badge.icon] || Star;
-    const isEarned = stats?.badges.some(b => b.id === badge.id);
-    const earnedBadge = stats?.badges.find(b => b.id === badge.id);
+    const isEarned = _stats?.badges.some(b => b.id === badge.id);
+    const earnedBadge = _stats?.badges.find(b => b.id === badge.id);
     
     return {
       id: badge.id,
@@ -165,30 +171,30 @@ export const GamificationPanel: React.FC = () => {
       title: 'Série d\'Or',
       description: 'Étudiez 7 jours consécutifs',
       reward: '+500 XP',
-      progress: Math.min(stats?.currentStreak || 0, 7),
+      progress: Math.min(_stats?.currentStreak || 0, 7),
       maxProgress: 7,
       category: 'streak',
-      unlocked: (stats?.currentStreak || 0) >= 7
+      unlocked: (_stats?.currentStreak || 0) >= 7
     },
     {
       id: '2',
       title: 'Objectif Hebdomadaire',
       description: 'Atteignez 100% de votre objectif',
       reward: 'Badge Rare + 200 XP',
-      progress: stats?.weeklyGoalProgress || 0,
+      progress: _stats?.weeklyGoalProgress || 0,
       maxProgress: 100,
       category: 'study',
-      unlocked: (stats?.weeklyGoalProgress || 0) >= 100
+      unlocked: (_stats?.weeklyGoalProgress || 0) >= 100
     },
     {
       id: '3',
       title: 'Collectionneur',
       description: 'Débloquez 10 badges',
       reward: 'Titre Spécial',
-      progress: stats?.badges.length || 0,
+      progress: _stats?.badges.length || 0,
       maxProgress: 10,
       category: 'social',
-      unlocked: (stats?.badges.length || 0) >= 10
+      unlocked: (_stats?.badges.length || 0) >= 10
     }
   ];
 
@@ -201,7 +207,7 @@ export const GamificationPanel: React.FC = () => {
       title: 'Sprint du Jour',
       description: 'Complétez 5 révisions SRS',
       reward: '+100 XP',
-      progress: Math.min((stats?.weeklyGoalProgress || 0) / 20, 5),
+      progress: Math.min((_stats?.weeklyGoalProgress || 0) / 20, 5),
       maxProgress: 5,
       timeLeft: `${hoursLeft}h`,
       difficulty: 'easy'
@@ -219,10 +225,10 @@ export const GamificationPanel: React.FC = () => {
     {
       id: '3',
       title: 'Régularité',
-      description: `Maintenez votre streak de ${stats?.currentStreak || 0} jour(s)`,
+      description: `Maintenez votre streak de ${_stats?.currentStreak || 0} jour(s)`,
       reward: '+300 XP',
-      progress: stats?.currentStreak || 0,
-      maxProgress: (stats?.currentStreak || 0) + 1,
+      progress: _stats?.currentStreak || 0,
+      maxProgress: (_stats?.currentStreak || 0) + 1,
       timeLeft: `${hoursLeft}h`,
       difficulty: 'hard'
     }
@@ -286,7 +292,7 @@ export const GamificationPanel: React.FC = () => {
             <div className="text-right">
               <p className="text-sm text-muted-foreground">XP Total</p>
               <p className="text-xl font-bold text-foreground">{userLevel.xp.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Streak: {stats?.currentStreak || 0} jours 🔥</p>
+              <p className="text-xs text-muted-foreground">Streak: {_stats?.currentStreak || 0} jours 🔥</p>
             </div>
           </div>
           

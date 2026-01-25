@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Clock, Play, Calendar, Music } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
 import { usePlayer } from '@/hooks/usePlayer';
+import { supabase } from '@/integrations/supabase/client';
+import { Calendar, Clock, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface RecentTrack {
   id: string;
@@ -34,20 +34,20 @@ export const RecentTab = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_generated_music')
         .select('id, title, item_code, audio_url, rang, created_at, updated_at')
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) {
-        console.error('Erreur récents:', error);
+      if (_error) {
+        console.error('Erreur récents:', _error);
         setRecentTracks([]);
         return;
       }
 
-      setRecentTracks(data || []);
+      setRecentTracks(_data || []);
     } catch (error) {
       console.error('Erreur:', error);
       setRecentTracks([]);

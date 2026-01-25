@@ -30,7 +30,7 @@ export function useEffectivenessScores() {
         return;
       }
 
-      const { data, error: rpcError } = await supabase.rpc('get_category_effectiveness_scores', {
+      const { _data, _error: rpcError } = await supabase.rpc('get_category_effectiveness_scores', {
         p_user_id: user.id,
       });
 
@@ -38,7 +38,7 @@ export function useEffectivenessScores() {
 
       // Convertir en objet indexé par catégorie
       const scoresMap: Record<string, CategoryScore> = {};
-      (data || []).forEach((score: any) => {
+      (_data || []).forEach((score: any) => {
         scoresMap[score.category] = score;
       });
 

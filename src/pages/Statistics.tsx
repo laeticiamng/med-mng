@@ -1,40 +1,33 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line
-} from 'recharts';
-import {
-  Users,
-  BookOpen,
-  Music,
-  TrendingUp,
-  Clock,
-  Target,
-  Award,
-  Activity,
-  Flame,
-  Star,
-  Download,
-  FileText
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    Award,
+    Clock,
+    Download,
+    Flame,
+    Star,
+    TrendingUp
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
 import { toast } from 'sonner';
 
 // Couleurs sémantiques pour les graphiques (compatibles avec le design system)
@@ -54,12 +47,12 @@ const CHART_COLORS = {
 };
 
 const Statistics = () => {
-  const { getHeatmapData, getWeeklySummary, getStreak } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _getHeatmapData, getWeeklySummary, getStreak } = useActivityTracking();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const [personalStats, setPersonalStats] = useState<any>(null);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [streakData, setStreakData] = useState({ current: 0, longest: 0 });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -68,7 +61,7 @@ const Statistics = () => {
         await loadStats(user.id);
         
         const [heatmap, weekly, streak] = await Promise.all([
-          getHeatmapData(30),
+          _getHeatmapData(30),
           getWeeklySummary(),
           getStreak()
         ]);
@@ -85,7 +78,7 @@ const Statistics = () => {
       setLoading(false);
     };
     load();
-  }, [getHeatmapData, getWeeklySummary, getStreak, loadStats]);
+  }, [_getHeatmapData, getWeeklySummary, getStreak, loadStats]);
 
   // Données de spécialités basées sur l'activité réelle
   const activityTypeData = personalStats?.byType ? Object.entries(personalStats.byType)

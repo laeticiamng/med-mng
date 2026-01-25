@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 import { useCache } from './useCache';
 
 export interface SearchFilters {
@@ -76,7 +76,7 @@ export function useSearch() {
       }
 
       // Recherche via Supabase fonction
-      const { data, error: searchError } = await supabase.functions.invoke('advanced-search', {
+      const { _data, error: searchError } = await supabase.functions.invoke('advanced-search', {
         body: {
           query: query.trim(),
           filters,
@@ -92,10 +92,10 @@ export function useSearch() {
 
       if (searchError) throw searchError;
 
-      const searchResults: SearchResult[] = data.results || [];
+      const searchResults: SearchResult[] = _data.results || [];
       
       setResults(searchResults);
-      setTotalResults(data.totalCount || 0);
+      setTotalResults(_data.totalCount || 0);
       
       // Mettre en cache
       cache.set(cacheKey, searchResults, { ttl: 5 * 60 * 1000 }); // 5 minutes
@@ -121,13 +121,13 @@ export function useSearch() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('search-suggestions', {
+      const { _data, error } = await supabase.functions.invoke('search-suggestions', {
         body: { query: query.trim() }
       });
 
       if (error) throw error;
 
-      setSuggestions(data.suggestions || []);
+      setSuggestions(_data.suggestions || []);
     } catch (error) {
       console.error('Erreur suggestions:', error);
       setSuggestions([]);
@@ -156,13 +156,13 @@ export function useSearch() {
 
   const searchSimilar = useCallback(async (itemId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('similar-search', {
+      const { _data, error } = await supabase.functions.invoke('similar-search', {
         body: { itemId }
       });
 
       if (error) throw error;
 
-      return data.results || [];
+      return _data.results || [];
     } catch (error) {
       console.error('Erreur recherche similaire:', error);
       return [];
@@ -171,13 +171,13 @@ export function useSearch() {
 
   const getPopularSearches = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('popular-searches', {
+      const { _data, error } = await supabase.functions.invoke('popular-searches', {
         body: { limit: 10 }
       });
 
       if (error) throw error;
 
-      return data.searches || [];
+      return _data.searches || [];
     } catch (error) {
       console.error('Erreur recherches populaires:', error);
       return [];
@@ -185,19 +185,6 @@ export function useSearch() {
   }, []);
 
   // Recherche en temps réel avec debounce
-  const realtimeSearch = useMemo(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    return (query: string, filters?: SearchFilters, options?: SearchOptions) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (query.trim()) {
-          search(query, filters, options);
-        }
-      }, 300);
-    };
-  }, [search]);
-
   // Load search history from Supabase
   useEffect(() => {
     const loadHistory = async () => {
@@ -426,7 +413,7 @@ export function useSearch() {
     searchHistory,
     suggestions,
     search,
-    realtimeSearch,
+    _realtimeSearch,
     searchSuggestions,
     clearHistory,
     removeFromHistory,

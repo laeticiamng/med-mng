@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { secureSunoClient } from '@/lib/secureApiClient';
+import { useEffect, useState } from 'react';
 
 interface LyricsLine {
   time: number;
@@ -136,7 +136,7 @@ export const useSynchronizedLyrics = ({
   };
 
   // Générer une forme d'onde basée sur l'analyse audio (ou pattern cohérent)
-  const generateBasicWaveform = (duration: number = 180): number[] => {
+  const generateBasicWaveform = (_duration: number = 180): number[] => {
     const points = 100;
     const waveform: number[] = [];
 

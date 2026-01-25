@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { RefreshCw, TrendingUp, AlertTriangle, Target, Clock, BarChart3 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePerformanceAnalytics } from '@/hooks/usePerformanceAnalytics';
-import { WebVitalsChart } from './WebVitalsChart';
-import { PerformanceBudgetsManager } from './PerformanceBudgetsManager';
-import { SLAMetricsDisplay } from './SLAMetricsDisplay';
+import { AlertTriangle, BarChart3, Clock, RefreshCw, Target } from 'lucide-react';
+import { useState } from 'react';
 import { PerformanceAlertsPanel } from './PerformanceAlertsPanel';
+import { PerformanceBudgetsManager } from './PerformanceBudgetsManager';
 import { PerformanceTrendsChart } from './PerformanceTrendsChart';
+import { SLAMetricsDisplay } from './SLAMetricsDisplay';
+import { WebVitalsChart } from './WebVitalsChart';
 
 export const PerformanceAnalyticsDashboard = () => {
   const [period, setPeriod] = useState<'1h' | '24h' | '7d' | '30d'>('24h');

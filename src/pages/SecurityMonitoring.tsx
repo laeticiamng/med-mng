@@ -1,42 +1,41 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Shield,
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Activity,
-  Database,
-  Lock,
-  AlertCircle,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
-import { useSecurityMonitoring } from "@/hooks/useSecurityMonitoring";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { useSecurityMonitoring } from "@/hooks/useSecurityMonitoring";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useActivityTracking } from "@/hooks/useActivityTracking";
+import {
+    Activity,
+    AlertCircle,
+    AlertTriangle,
+    CheckCircle,
+    CheckCircle2,
+    Clock,
+    Database,
+    Eye,
+    Lock,
+    RefreshCw,
+    Shield,
+    TrendingDown,
+    TrendingUp,
+    XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+    Area,
+    AreaChart,
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
 
 // Couleurs sémantiques pour les graphiques
 const CHART_COLORS = {

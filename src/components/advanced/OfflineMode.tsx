@@ -1,16 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Wifi, WifiOff, Download, RefreshCw, Check, AlertCircle,
-  HardDrive, Cloud, RotateCw, CheckCircle, Trash2, FileDown,
-  Music, BookOpen, ClipboardList, Loader2
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    BookOpen,
+    CheckCircle,
+    ClipboardList,
+    Cloud,
+    Download,
+    FileDown,
+    HardDrive,
+    Loader2,
+    Music,
+    RotateCw,
+    Trash2,
+    Wifi, WifiOff
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // IndexedDB configuration
@@ -222,7 +232,7 @@ export const OfflineMode: React.FC = () => {
 
     try {
       // Charger les items EDN disponibles
-      const { data: ednItems } = await supabase
+      const { _data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .limit(20);
@@ -319,13 +329,13 @@ export const OfflineMode: React.FC = () => {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 20 }));
 
         // Récupérer l'item EDN complet
-        const { data: ednData, error } = await supabase
+        const { _data: ednData, _error } = await supabase
           .from('edn_items_immersive')
           .select('*')
           .eq('item_code', itemCode)
           .maybeSingle();
 
-        if (error) throw error;
+        if (_error) throw _error;
 
         setDownloadProgress(prev => ({ ...prev, [contentId]: 60 }));
 
@@ -497,21 +507,6 @@ export const OfflineMode: React.FC = () => {
   };
 
   // Ajouter à la queue de sync (pour les actions hors ligne)
-  const addToSyncQueue = async (action: SyncQueueItem['action'], table: string, data: any) => {
-    const item: SyncQueueItem = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID 
-        ? `sync_${crypto.randomUUID().slice(0, 8)}` 
-        : `sync_${Date.now()}`,
-      action,
-      table,
-      data,
-      timestamp: Date.now()
-    };
-
-    await offlineDB.put(STORES.syncQueue, item);
-    setSyncStatus(prev => ({ ...prev, pending: prev.pending + 1 }));
-  };
-
   const formatSize = (bytes: number) => {
     const MB = bytes / (1024 * 1024);
     return `${MB.toFixed(1)} MB`;

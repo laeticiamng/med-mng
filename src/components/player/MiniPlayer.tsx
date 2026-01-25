@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Flame, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
-import { usePlayer } from '@/hooks/usePlayer';
+import { Slider } from '@/components/ui/slider';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { usePlayer } from '@/hooks/usePlayer';
 import { supabase } from '@/integrations/supabase/client';
+import { Flame, Pause, Play, SkipBack, SkipForward, Star, Volume2, VolumeX } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface MiniPlayerProps {
   className?: string;
@@ -21,7 +21,7 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
     duration,
     volume,
     isMuted,
-    play,
+    _play,
     pause,
     seek,
     setVolume,
@@ -30,8 +30,8 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
   } = usePlayer();
 
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats } = useGamification();
-  const [isDragging, setIsDragging] = useState(false);
+  const { _stats, loadStats } = useGamification();
+  const [_isDragging, setIsDragging] = useState(false);
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
               variant="default"
               size="sm"
               className="h-10 w-10 rounded-full"
-              onClick={isPlaying ? pause : play}
+              onClick={isPlaying ? pause : _play}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -172,16 +172,16 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
         </div>
 
         {/* Gamification Stats */}
-        {stats && (
+        {_stats && (
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
             <div className="flex items-center gap-1 text-warning">
               <Flame className="h-3 w-3" />
-              <span className="text-xs font-bold">{stats.currentStreak}</span>
+              <span className="text-xs font-bold">{_stats.currentStreak}</span>
             </div>
             <div className="w-px h-3 bg-border" />
             <div className="flex items-center gap-1 text-primary">
               <Star className="h-3 w-3" />
-              <span className="text-xs font-bold">Nv.{stats.level}</span>
+              <span className="text-xs font-bold">Nv.{_stats.level}</span>
             </div>
           </div>
         )}

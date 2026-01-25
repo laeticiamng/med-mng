@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useState } from 'react';
 
 export interface Badge {
   id: string;
@@ -83,7 +83,7 @@ export const POINTS_CONFIG = {
 export function useGamification() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<Badge | null>(null);
+  const [_newlyUnlockedBadge, _setNewlyUnlockedBadge] = useState<Badge | null>(null);
   const { toast } = useToast();
 
   const calculateLevel = (xp: number) => Math.floor(xp / XP_PER_LEVEL) + 1;
@@ -112,7 +112,7 @@ export function useGamification() {
     try {
       setLoading(true);
       // Charger les badges depuis Supabase
-      const { data: userBadges } = await supabase
+      const { _data: userBadges } = await supabase
         .from('user_badges')
         .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
         .eq('user_id', userId)
@@ -131,7 +131,7 @@ export function useGamification() {
       });
 
       // Charger les points totaux depuis gamification_activities
-      const { data: activities } = await supabase
+      const { _data: activities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .eq('user_id', userId);
@@ -139,7 +139,7 @@ export function useGamification() {
       const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
 
       // Calculate streak from user_activity_log
-      const { data: activityLog } = await supabase
+      const { _data: activityLog } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', userId)
@@ -174,7 +174,7 @@ export function useGamification() {
         .gte('activity_date', weekStart.toISOString().split('T')[0]);
 
       // Récupérer le longest streak depuis Supabase
-      const { data: gamificationData } = await supabase
+      const { _data: gamificationData } = await supabase
         .from('user_gamification_stats')
         .select('longest_streak')
         .eq('user_id', userId)
@@ -211,44 +211,6 @@ export function useGamification() {
       setLoading(false);
     }
   }, []);
-
-  const addPoints = useCallback(async (userId: string, action: keyof typeof POINTS_CONFIG, multiplier = 1) => {
-    if (!stats) return;
-
-    const points = POINTS_CONFIG[action] * multiplier;
-    const newXP = stats.currentXP + points;
-    const newLevel = calculateLevel(newXP);
-    const leveledUp = newLevel > stats.level;
-
-    // Persister dans Supabase
-    await supabase.from('gamification_activities').insert({
-      user_id: userId,
-      activity_type: action,
-      activity_name: action,
-      points_earned: points,
-      created_at: new Date().toISOString(),
-    } as any);
-
-    const updatedStats: GamificationStats = {
-      ...stats,
-      totalPoints: stats.totalPoints + points,
-      currentXP: newXP,
-      level: newLevel,
-      xpToNextLevel: calculateXPToNext(newXP),
-    };
-
-    setStats(updatedStats);
-
-    if (leveledUp) {
-      toast({
-        title: `🎉 Niveau ${newLevel} atteint !`,
-        description: `Vous avez gagné ${points} XP`,
-      });
-    }
-
-    return points;
-  }, [stats, toast]);
-
   const unlockBadge = useCallback(async (userId: string, badgeId: string) => {
     if (!stats) return false;
 
@@ -257,7 +219,7 @@ export function useGamification() {
     if (stats.badges.some(b => b.id === badgeId)) return false;
 
     // Persister dans Supabase user_badges
-    const { error } = await supabase.from('user_badges').insert({
+    const { _error } = await supabase.from('user_badges').insert({
       user_id: userId,
       badge_id: badgeId,
       badge_name: badgeDef.name,
@@ -268,8 +230,8 @@ export function useGamification() {
       unlocked: true,
     } as any);
 
-    if (error) {
-      console.error('Error saving badge:', error);
+    if (_error) {
+      console.error('Error saving badge:', _error);
       return false;
     }
 
@@ -461,7 +423,7 @@ export function useGamification() {
   // Get recent achievements
   const getRecentAchievements = useCallback(async (userId: string, limit: number = 5): Promise<Badge[]> => {
     try {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_badges')
         .select('badge_id, badge_name, badge_description, badge_icon, earned_at')
         .eq('user_id', userId)
@@ -469,7 +431,7 @@ export function useGamification() {
         .order('earned_at', { ascending: false })
         .limit(limit);
 
-      return (data || []).map(b => {
+      return (_data || []).map(b => {
         const def = BADGE_DEFINITIONS.find(d => d.id === b.badge_id);
         return {
           id: b.badge_id,
@@ -495,28 +457,28 @@ export function useGamification() {
     badges: number;
   }[]> => {
     try {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('gamification_activities')
         .select('user_id, points_earned')
         .limit(1000);
 
-      if (!data) return [];
+      if (!_data) return [];
 
       // Aggregate by user
       const userPoints = new Map<string, number>();
-      data.forEach(d => {
+      _data.forEach(d => {
         userPoints.set(d.user_id, (userPoints.get(d.user_id) || 0) + (d.points_earned || 0));
       });
 
       // Get user profiles
       const userIds = Array.from(userPoints.keys());
-      const { data: profiles } = await supabase
+      const { _data: profiles } = await supabase
         .from('profiles')
         .select('id, full_name')
         .in('id', userIds);
 
       // Get badge counts
-      const { data: badges } = await supabase
+      const { _data: badges } = await supabase
         .from('user_badges')
         .select('user_id')
         .eq('unlocked', true)
@@ -558,18 +520,18 @@ export function useGamification() {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('gamification_activities')
         .select('points_earned, created_at')
         .eq('user_id', userId)
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: true });
 
-      if (!data) return [];
+      if (!_data) return [];
 
       // Group by date
       const byDate = new Map<string, number>();
-      data.forEach(d => {
+      _data.forEach(d => {
         const date = d.created_at.split('T')[0];
         byDate.set(date, (byDate.get(date) || 0) + (d.points_earned || 0));
       });
@@ -630,11 +592,11 @@ export function useGamification() {
   }, [loadStats]);
 
   return {
-    stats,
+    _stats,
     loading,
     loadStats,
-    addPoints,
-    unlockBadge,
+    _addPoints,
+    _unlockBadge,
     checkAndUnlockBadges,
     getProgressToNextBadge,
     getMultiplier,

@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard, TrendingUp, DollarSign, Users, Calendar,
-  MoreHorizontal, Ban, CheckCircle, AlertTriangle
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Table, TableBody, TableCell, TableHead, 
-  TableHeader, TableRow 
-} from '@/components/ui/table';
-import { 
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
-  DropdownMenuTrigger 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+    Table, TableBody, TableCell, TableHead,
+    TableHeader, TableRow
+} from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    Ban, CheckCircle,
+    CreditCard,
+    DollarSign,
+    MoreHorizontal,
+    TrendingUp,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Subscription {
@@ -58,7 +63,7 @@ export const AdminSubscriptionsManager = () => {
       setLoading(true);
       
       // Récupérer les données des abonnements depuis user_quotas
-      const { data: quotaData, error: quotaError } = await supabase
+      const { _data: quotaData, _error: quotaError } = await supabase
         .from('user_quotas')
         .select(`
           user_id, subscription_type, 
@@ -131,7 +136,7 @@ export const AdminSubscriptionsManager = () => {
     }
   };
 
-  const handleSubscriptionAction = async (subscriptionId: string, action: 'suspend' | 'reactivate' | 'refund') => {
+  const handleSubscriptionAction = async (_subscriptionId: string, action: 'suspend' | 'reactivate' | 'refund') => {
     try {
       // Ici, vous implémenteriez les actions réelles sur les abonnements
       // Pour la démo, on simule juste une action

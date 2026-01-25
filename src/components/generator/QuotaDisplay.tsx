@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Zap, Crown, TrendingUp, ExternalLink, Music } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { Crown, ExternalLink, Music, RefreshCw, TrendingUp, Zap } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface QuotaDisplayProps {
   user: any;
@@ -31,7 +31,7 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Crédits Suno réels
-  const { credits: sunoCredits, loading: sunoLoading, fetchCredits, hasLowCredits, creditsUnknown, displayCredits } = useSunoCredits();
+  const { _credits: _sunoCredits, loading: sunoLoading, fetchCredits, hasLowCredits, creditsUnknown, displayCredits } = useSunoCredits();
 
   // Track quota view
   useEffect(() => {

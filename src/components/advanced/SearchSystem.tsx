@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Search, Filter, Star, Clock, TrendingUp, 
-  BookOpen, Music, Users, X
-} from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    BookOpen,
+    Clock,
+    Music,
+    Search, Star,
+    TrendingUp,
+    Users, X
+} from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface SearchResult {
   id: string;
@@ -99,20 +103,20 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
         return;
       }
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, subtitle')
         .or(`title.ilike.%${searchQuery}%,subtitle.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
         .limit(10);
 
-      if (error) {
-        console.error('Search error:', error);
+      if (_error) {
+        console.error('Search error:', _error);
         setResults([]);
         return;
       }
 
-      if (data) {
-        const searchResults: SearchResult[] = data.map((item: any) => ({
+      if (_data) {
+        const searchResults: SearchResult[] = _data.map((item: any) => ({
           id: item.id,
           title: `${item.item_code} - ${item.title}`,
           type: 'edn' as const,

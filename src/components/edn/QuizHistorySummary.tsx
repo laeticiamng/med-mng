@@ -1,13 +1,13 @@
-import React, { useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Trophy, Target, Clock, Loader2, TrendingDown, Minus, FileDown } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuizHistory } from '@/hooks/useQuizHistory';
-import { formatDistanceToNow, format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
+import { Clock, FileDown, Loader2, Minus, Target, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface QuizHistorySummaryProps {
   itemCode: string;
@@ -105,13 +105,6 @@ export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode
     if (score >= 60) return 'text-warning';
     return 'text-destructive';
   };
-
-  const getScoreBadgeVariant = (score: number) => {
-    if (score >= 80) return 'bg-success/10 text-success border-success/20';
-    if (score >= 60) return 'bg-warning/10 text-warning border-warning/20';
-    return 'bg-destructive/10 text-destructive border-destructive/20';
-  };
-
   return (
     <Card className="border-primary/20">
       <CardHeader className="pb-2">

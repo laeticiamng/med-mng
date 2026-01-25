@@ -10,7 +10,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 
 const MngMethod = () => {
-  const { stats, loadStats } = useGamification();
+  const { _stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
 
@@ -47,21 +47,21 @@ const MngMethod = () => {
           </div>
           
           {/* Gamification Stats */}
-          {user && stats && (
+          {user && _stats && (
             <div className="flex items-center gap-3 px-4 py-2 bg-card rounded-full border border-border">
               <div className="flex items-center gap-1 text-warning">
                 <Flame className="h-4 w-4" />
-                <span className="font-bold">{stats.currentStreak}</span>
+                <span className="font-bold">{_stats.currentStreak}</span>
               </div>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-1 text-primary">
                 <Star className="h-4 w-4" />
-                <span className="font-bold">Niv. {stats.level}</span>
+                <span className="font-bold">Niv. {_stats.level}</span>
               </div>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-1">
                 <Trophy className="h-4 w-4 text-warning" />
-                <Badge variant="secondary">{stats.badges.length}</Badge>
+                <Badge variant="secondary">{_stats.badges.length}</Badge>
               </div>
             </div>
           )}

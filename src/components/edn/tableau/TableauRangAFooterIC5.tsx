@@ -1,7 +1,7 @@
 
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Target, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { AlertTriangle, Building2, TrendingUp } from 'lucide-react';
 
 interface TableauRangAFooterIC5Props {
   colonnesCount: number;

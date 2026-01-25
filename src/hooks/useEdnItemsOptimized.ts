@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { appendEdnCacheParams, bumpEdnCacheBuster, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
-import { SUPABASE_URL, SUPABASE_ANON_KEY, getSupabaseHeaders } from '@/lib/supabaseConstants';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export interface EdnItemOptimized {
   id: string;
@@ -19,7 +19,6 @@ export interface EdnItemOptimized {
 }
 
 const CACHE_KEY = 'edn_items_cache_v2';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 interface CacheData {
   items: EdnItemOptimized[];
@@ -37,8 +36,6 @@ const loadFromCache = (cacheBuster: string): EdnItemOptimized[] | null => {
     if (data.cacheBuster !== cacheBuster) {
       return null;
     }
-    const isExpired = Date.now() - data.timestamp > CACHE_TTL;
-    
     // Retourner même si expiré (pour affichage immédiat), mais on refresh en background
     return data.items;
   } catch {

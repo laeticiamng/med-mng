@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useState } from 'react';
 
 export interface ContentGenerationRequest {
   type: 'music' | 'voice' | 'image';
@@ -89,7 +89,7 @@ export const useContentGeneration = () => {
 
       console.log(`🎯 Génération ${request.type}:`, payload);
 
-      const { data, error } = await supabase.functions.invoke(functionName, {
+      const { _data, error } = await supabase.functions.invoke(functionName, {
         body: payload
       });
 
@@ -100,15 +100,15 @@ export const useContentGeneration = () => {
         throw error;
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur de génération');
+      if (!_data.success) {
+        throw new Error(_data.error || 'Erreur de génération');
       }
 
       const result: GeneratedContent = {
-        id: data.trackId || crypto.randomUUID(),
+        id: _data.trackId || crypto.randomUUID(),
         type: request.type,
-        content: data.audioUrl || data.audioBase64 || data.imageBase64 || '',
-        metadata: data.metadata || {},
+        content: _data.audioUrl || _data.audioBase64 || _data.imageBase64 || '',
+        metadata: _data.metadata || {},
         createdAt: new Date().toISOString()
       };
 
@@ -149,9 +149,9 @@ export const useContentGeneration = () => {
         ]);
 
         return [
-          ...(music.data || []).map(item => ({ ...item, type: 'music' as const })),
-          ...(voice.data || []).map(item => ({ ...item, type: 'voice' as const })),
-          ...(images.data || []).map(item => ({ ...item, type: 'image' as const }))
+          ...(music._data || []).map(item => ({ ...item, type: 'music' as const })),
+          ...(voice._data || []).map(item => ({ ...item, type: 'voice' as const })),
+          ...(images._data || []).map(item => ({ ...item, type: 'image' as const }))
         ];
       }
 
@@ -303,7 +303,7 @@ export const useContentGeneration = () => {
   };
 
   // Vérifier si un type de génération est disponible
-  const isGenerationAvailable = useCallback(async (type: 'music' | 'voice' | 'image'): Promise<boolean> => {
+  const isGenerationAvailable = useCallback(async (_type: 'music' | 'voice' | 'image'): Promise<boolean> => {
     const { data: { user } } = await supabase.auth.getUser();
     return !!user;
   }, []);

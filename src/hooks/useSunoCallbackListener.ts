@@ -1,7 +1,7 @@
 
-import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useRef, useState } from 'react';
 
 interface CallbackAudio {
   [key: string]: string; // rang -> audioUrl
@@ -13,8 +13,6 @@ export const useSunoCallbackListener = () => {
   const { toast } = useToast();
   
   const processedTracksRef = useRef(new Set<string>());
-  const lastCheckRef = useRef(Date.now());
-
   useEffect(() => {
     const pollForCallbacks = async () => {
       // Ne faire le polling que si une génération est en cours
@@ -23,7 +21,7 @@ export const useSunoCallbackListener = () => {
       try {
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         
-        const { data: recentTracks } = await supabase
+        const { _data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .not('audio_url', 'is', null)

@@ -1,21 +1,21 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  PlayCircle,
-  FileText,
-  Heart,
-  User,
-  Activity,
-  Stethoscope
-} from 'lucide-react';
 import { IC1CompletenessAuditor } from '@/scripts/audit/itemIC1Completeness';
+import {
+    Activity,
+    AlertTriangle,
+    CheckCircle,
+    FileText,
+    Heart,
+    PlayCircle,
+    Stethoscope,
+    User,
+    XCircle
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface IC1CompletenessReport {
   isCompliant: boolean;

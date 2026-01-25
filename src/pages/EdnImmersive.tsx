@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import { useImmersiveLogic } from '@/components/edn/immersive/useImmersiveLogic';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { ArrowLeft, Play, Pause, Volume2, Flame, Trophy } from 'lucide-react';
+import { ImmersiveContent } from '@/components/edn/immersive/ImmersiveContent';
+import { useImmersiveLogic } from '@/components/edn/immersive/useImmersiveLogic';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { ImmersiveContent } from '@/components/edn/immersive/ImmersiveContent';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Flame, Pause, Play, Trophy, Volume2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const EdnImmersive = () => {
   const {
@@ -27,7 +27,7 @@ const EdnImmersive = () => {
   } = useImmersiveLogic();
 
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {
@@ -66,12 +66,12 @@ const EdnImmersive = () => {
             score: 100,
             metadata: { action: 'immersive_complete', item_code: item.item_code }
           });
-          await addPoints(user.id, 'itemReviewed');
+          await _addPoints(user.id, 'itemReviewed');
         }
       }
     };
     trackCompletion();
-  }, [progress, item, logActivity, addPoints]);
+  }, [progress, item, logActivity, _addPoints]);
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 

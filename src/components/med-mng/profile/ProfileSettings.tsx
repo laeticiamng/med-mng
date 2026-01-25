@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { 
-  Bell, 
-  Volume2, 
-  Globe, 
-  Moon, 
-  Download, 
-  Trash2,
-  RefreshCw
+import {
+    Bell,
+    Download,
+    Globe,
+    Moon,
+    RefreshCw,
+    Trash2,
+    Volume2
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface ProfileSettingsProps {
-  profile: any;
+  profile?: any;
 }
 
-export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile }) => {
+export const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [settings, setSettings] = useState({
     notifications: true,
     emailUpdates: true,

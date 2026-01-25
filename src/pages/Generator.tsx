@@ -1,58 +1,57 @@
 // Generator page - Music Generation Module v2.1
 // Fixed: Dynamic import issue
-import React, { useState, useCallback, useEffect } from 'react';
-import { ArrowLeft, Sparkles, Music, Settings2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { TranslatedText } from '@/components/TranslatedText';
-import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
-import { PremiumBackground } from '@/components/ui/premium-background';
-import { PremiumCard } from '@/components/ui/premium-card';
-import { PremiumButton } from '@/components/ui/premium-button';
-import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
-import { useSubscription } from '@/hooks/useSubscription';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
-import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
-import { useEcosLyrics } from '@/hooks/useEcosLyrics';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
-import { GeneratorForm } from '@/components/generator/GeneratorForm';
-import { GenerationHistory } from '@/components/generator/GenerationHistory';
-import { GenerationProgress } from '@/components/generator/GenerationProgress';
-import { GeneratorStatusBar } from '@/components/generator/GeneratorStatusBar';
-import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
-import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndicator';
-import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
-import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
-import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
-import { ModelSelector, type SunoModel } from '@/components/generator/ModelSelector';
-import { OfflineQueueIndicator } from '@/components/generator/OfflineQueueIndicator';
-import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
 import { GenerateLyricsButton } from '@/components/generator/GenerateLyricsButton';
-import { PlaylistManager } from '@/components/generator/PlaylistManager';
-import { LyricsExportButton } from '@/components/generator/LyricsExportButton';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useOfflineQueue } from '@/hooks/useOfflineQueue';
-import { useGamification } from '@/hooks/useGamification';
-import { useAllEdnItems } from '@/hooks/useAllEdnItems';
-import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
-import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
-import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
+import { GenerationHistory } from '@/components/generator/GenerationHistory';
 import { useGenerationNotifications } from '@/components/generator/GenerationNotificationHandler';
-import { useSunoCredits } from '@/hooks/useSunoCredits';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { GenerationProgress } from '@/components/generator/GenerationProgress';
+import { useGenerationSuccessHandler } from '@/components/generator/GenerationSuccessHandler';
+import { GeneratorForm } from '@/components/generator/GeneratorForm';
+import { GeneratorStatusBar } from '@/components/generator/GeneratorStatusBar';
+import { LyricsExportButton } from '@/components/generator/LyricsExportButton';
+import { MobileHistoryDrawer } from '@/components/generator/MobileHistoryDrawer';
+import { ModelSelector, type SunoModel } from '@/components/generator/ModelSelector';
+import { NetworkStatusIndicator } from '@/components/generator/NetworkStatusIndicator';
+import { OfflineQueueIndicator } from '@/components/generator/OfflineQueueIndicator';
+import { PlaylistManager } from '@/components/generator/PlaylistManager';
+import { PlaylistQuickAdd } from '@/components/generator/PlaylistQuickAdd';
+import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
+import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
+import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
+import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
+import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { TranslatedText } from '@/components/TranslatedText';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumButton } from '@/components/ui/premium-button';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { ROUTE_PATHS } from '@/config/routes';
 import type { AdvancedSunoParams } from '@/hooks/music/useAdvancedSunoParams';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAllEdnItems } from '@/hooks/useAllEdnItems';
+import { useEcosLyrics } from '@/hooks/useEcosLyrics';
+import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
+import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
+import { useGamification } from '@/hooks/useGamification';
+import { useGeneratorPreferences } from '@/hooks/useGeneratorPreferences';
+import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
+import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Music, Settings2, Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
-  const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
+  const { musicQuota, incrementMusicUsage, _canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
-  const { addPoints, unlockBadge, loadStats } = useGamification();
+  const { _addPoints, loadStats } = useGamification();
   const { preferences, savePreferences } = useGeneratorPreferences();
   
   // État avec restauration des préférences
@@ -67,8 +66,6 @@ const Generator = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   
   // ✅ Hook réseau pour file d'attente hors-ligne
-  const networkStatus = useNetworkStatus({ showToasts: false });
-  
   // ✅ Hook file d'attente hors-ligne
   const offlineQueue = useOfflineQueue();
   
@@ -76,7 +73,7 @@ const Generator = () => {
   const { handleGenerationComplete, requestNotificationPermission } = useGenerationNotifications();
   
   // ✅ Hook crédits Suno avec rafraîchissement après génération
-  const { refreshAfterGeneration, invalidateCache: refreshCredits } = useSunoCredits();
+  const { refreshAfterGeneration, invalidateCache: _refreshCredits } = useSunoCredits();
 
   // Hook temps réel pour les mises à jour automatiques
   const { isConnected: realtimeConnected, reconnect: reconnectRealtime } = useRealtimeGeneration({
@@ -200,7 +197,7 @@ const Generator = () => {
     }
 
     // ✅ Vérifier le quota (gratuit ou abonnement)
-    if (!canGenerateMusic()) {
+    if (!_canGenerateMusic()) {
       if (remainingFree <= 0) {
         toast.error('Vous avez utilisé vos 3 générations gratuites. Passez à un abonnement pour continuer.', {
           action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
@@ -291,7 +288,7 @@ const Generator = () => {
           }
         });
         
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
         loadStats(user.id);
       }
       
@@ -300,7 +297,7 @@ const Generator = () => {
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
-  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, remainingFree, _canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, _addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;
@@ -316,7 +313,7 @@ const Generator = () => {
     try {
       const musicId = `gen_${Date.now()}_${generatedSong.itemCode.replace(/[^a-zA-Z0-9]/g, '')}`;
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_generated_music')
         .insert({
           user_id: user.id,
@@ -329,7 +326,7 @@ const Generator = () => {
           is_favorite: false
         } as any);
 
-      if (error) throw error;
+      if (_error) throw _error;
       toast.success('✨ Chanson ajoutée à votre bibliothèque !');
     } catch (err) {
       console.error('Erreur sauvegarde bibliothèque:', err);
@@ -392,7 +389,7 @@ const Generator = () => {
                 className="hidden sm:flex"
               />
               {/* ✅ Affichage des crédits Suno */}
-              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} compact className="hidden sm:flex" />
+              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} _compact className="hidden sm:flex" />
               <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
             </div>
           </div>
@@ -505,7 +502,7 @@ const Generator = () => {
             isGenerating={isGenerating}
             user={user}
             remainingFree={remainingFree}
-            canGenerateMusic={canGenerateMusic}
+            canGenerateMusic={_canGenerateMusic}
           />
 
           {/* Barre de progression pendant la génération */}
@@ -534,9 +531,9 @@ const Generator = () => {
           {/* ✅ Ajout rapide à une playlist après génération */}
           {generatedSong && (
             <PlaylistQuickAdd
-              trackId={String(generatedSong.id)}
+              _trackId={String(generatedSong.id)}
               trackTitle={generatedSong.title}
-              audioUrl={generatedSong.audioUrl}
+              _audioUrl={generatedSong.audioUrl}
               className="my-4"
             />
           )}

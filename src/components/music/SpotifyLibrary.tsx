@@ -1,31 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { AudioPlayer } from "./AudioPlayer"
-import { 
-  Music, 
-  Plus, 
-  Search, 
-  Play, 
-  Heart,
-  List,
-  Grid,
-  Shuffle,
-  Filter,
-  MoreHorizontal,
-  Clock,
-  Calendar
-} from "lucide-react"
-import { musicService } from "@/services/musicService"
-import { toast } from "sonner"
-import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input"
 import { ROUTE_PATHS } from '@/config/routes'
+import { cn } from "@/lib/utils"
+import { musicService } from "@/services/musicService"
+import {
+    Calendar,
+    Filter,
+    Grid,
+    Heart,
+    List,
+    MoreHorizontal,
+    Music,
+    Play,
+    Plus,
+    Search
+} from "lucide-react"
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { toast } from "sonner"
+import { AudioPlayer } from "./AudioPlayer"
 
 interface Song {
   id: string

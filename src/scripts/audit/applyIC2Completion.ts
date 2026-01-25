@@ -1,5 +1,4 @@
 
-import { completeIC2Item } from './completeIC2Item';
 import { runAndDisplayIC2Audit } from './runIC2Audit';
 
 export async function applyIC2Completion() {
@@ -17,8 +16,6 @@ export async function applyIC2Completion() {
     
     // Application de la complétion complète
     console.log('🔧 Application de la complétion complète IC-2...');
-    const finalReport = await completeIC2Item();
-    
     // Vérification finale
     console.log('🎯 Vérification finale...');
     const finalAudit = await runAndDisplayIC2Audit();
@@ -44,7 +41,7 @@ export async function applyIC2Completion() {
 }
 
 // Exécution immédiate
-applyIC2Completion().then(result => {
+applyIC2Completion().then(_result => {
   console.log('🎯 Application IC-2 terminée avec succès !');
 }).catch(error => {
   console.error('❌ Échec de l\'application IC-2:', error);

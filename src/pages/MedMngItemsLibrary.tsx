@@ -1,20 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, Search, SlidersHorizontal, Star, LayoutGrid, List, Heart, Music2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useAuth } from '@/components/med-mng/AuthProvider';
 import { fetchItemsWithMeta } from '@/services/medMngItemsService';
 import type { ItemStatus } from '@/types/medMngItems';
 import { normalizeSearchText } from '@/utils/searchNormalization';
+import { useQuery } from '@tanstack/react-query';
+import { BookOpen, Heart, LayoutGrid, List, Music2, Search, SlidersHorizontal } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const statusLabel: Record<ItemStatus, string> = {
   not_started: 'À réviser',

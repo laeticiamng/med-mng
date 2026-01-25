@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const HeroSection = () => {
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const checkUser = async () => {

@@ -83,7 +83,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     try {
       // Use direct padded item_parent for more reliable matching
-      const { data, error: fetchError } = await supabase
+      const { _data, _error: fetchError } = await supabase
         .from('oic_competences')
         .select('objectif_id, intitule, description, rang, item_parent, rubrique')
         .eq('item_parent', paddedItemParent)
@@ -101,7 +101,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         return;
       }
 
-      const realCompetences = (data || [])
+      const realCompetences = (_data || [])
         .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
           Boolean(comp.objectif_id && comp.intitule)
         )

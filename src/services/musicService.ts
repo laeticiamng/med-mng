@@ -67,23 +67,23 @@ class MusicService {
     try {
       console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
       
-      const { data, error } = await supabase.functions.invoke('music-generation', {
+      const { _data, error } = await supabase.functions.invoke('music-generation', {
         body: request,
         method: 'POST'
       })
 
       if (error) throw error
 
-      if (data.success) {
-        console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
+      if (_data.success) {
+        console.log(`✅ Song generated successfully in ${_data.duration_seconds}s`)
         // Événement analytics
-        this.trackGeneration(request, data.duration_seconds, true)
+        this.trackGeneration(request, _data.duration_seconds, true)
       } else {
-        console.error('❌ Song generation failed:', data.error)
-        this.trackGeneration(request, 0, false, data.error)
+        console.error('❌ Song generation failed:', _data.error)
+        this.trackGeneration(request, 0, false, _data.error)
       }
 
-      return data
+      return _data
     } catch (error) {
       console.error('❌ Error generating song:', error)
       this.trackGeneration(request, 0, false, error.message)
@@ -96,7 +96,7 @@ class MusicService {
       const response = await fetch(`${this.baseUrl}/stats`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -112,7 +112,7 @@ class MusicService {
   // ===== BIBLIOTHÈQUE UTILISATEUR =====
   async getUserLibrary(): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('emotionscare_user_songs')
         .select(`
           *,
@@ -126,8 +126,8 @@ class MusicService {
         `)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      return data || []
+      if (_error) throw _error
+      return _data || []
     } catch (error) {
       console.error('❌ Error fetching user library:', error)
       throw error
@@ -140,7 +140,7 @@ class MusicService {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('emotionscare_user_songs')
         .insert({
           user_id: user.id,
@@ -148,7 +148,7 @@ class MusicService {
           created_at: new Date().toISOString()
         })
 
-      if (error) throw error
+      if (_error) throw _error
       console.log('✅ Song added to library')
     } catch (error) {
       console.error('❌ Error adding to library:', error)
@@ -158,12 +158,12 @@ class MusicService {
 
   async removeFromLibrary(songId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('emotionscare_user_songs')
         .delete()
         .eq('song_id', songId)
 
-      if (error) throw error
+      if (_error) throw _error
       console.log('✅ Song removed from library')
     } catch (error) {
       console.error('❌ Error removing from library:', error)
@@ -180,7 +180,7 @@ class MusicService {
         return []
       }
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_playlists')
         .select(`
           id,
@@ -194,14 +194,14 @@ class MusicService {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('❌ Error fetching playlists:', error)
+      if (_error) {
+        console.error('❌ Error fetching playlists:', _error)
         return []
       }
 
       // Récupérer les chansons pour chaque playlist
-      const playlists: Playlist[] = await Promise.all((data || []).map(async (playlist) => {
-        const { data: songs } = await supabase
+      const playlists: Playlist[] = await Promise.all((_data || []).map(async (playlist) => {
+        const { _data: songs } = await supabase
           .from('med_mng_playlist_songs')
           .select('id, playlist_id, song_id, position, added_at')
           .eq('playlist_id', playlist.id)
@@ -225,7 +225,7 @@ class MusicService {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_playlists')
         .insert({
           user_id: user.id,
@@ -236,10 +236,10 @@ class MusicService {
         .select()
         .maybeSingle()
 
-      if (error) throw error
+      if (_error) throw _error
 
       const newPlaylist: Playlist = {
-        ...data,
+        ..._data,
         songs: []
       }
 
@@ -254,7 +254,7 @@ class MusicService {
   async addSongToPlaylist(playlistId: string, songId: string): Promise<void> {
     try {
       // Obtenir la position maximale actuelle
-      const { data: existing } = await supabase
+      const { _data: existing } = await supabase
         .from('med_mng_playlist_songs')
         .select('position')
         .eq('playlist_id', playlistId)
@@ -281,13 +281,13 @@ class MusicService {
 
   async removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_playlist_songs')
         .delete()
         .eq('playlist_id', playlistId)
         .eq('song_id', songId)
 
-      if (error) throw error
+      if (_error) throw _error
       console.log('✅ Song removed from playlist')
     } catch (error) {
       console.error('❌ Error removing song from playlist:', error)
@@ -304,12 +304,12 @@ class MusicService {
         .eq('playlist_id', playlistId)
 
       // Puis supprimer la playlist
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_playlists')
         .delete()
         .eq('id', playlistId)
 
-      if (error) throw error
+      if (_error) throw _error
       console.log('✅ Playlist deleted')
     } catch (error) {
       console.error('❌ Error deleting playlist:', error)
@@ -320,7 +320,7 @@ class MusicService {
   // ===== FAVORIS =====
   async getFavorites(): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('emotionscare_song_likes')
         .select(`
           *,
@@ -334,8 +334,8 @@ class MusicService {
         `)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      return data || []
+      if (_error) throw _error
+      return _data || []
     } catch (error) {
       console.error('❌ Error fetching favorites:', error)
       throw error
@@ -345,7 +345,7 @@ class MusicService {
   async toggleFavorite(songId: string): Promise<boolean> {
     try {
       // Vérifier si déjà en favori
-      const { data: existing } = await supabase
+      const { _data: existing } = await supabase
         .from('emotionscare_song_likes')
         .select('id')
         .eq('song_id', songId)
@@ -353,12 +353,12 @@ class MusicService {
 
       if (existing) {
         // Retirer des favoris
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('emotionscare_song_likes')
           .delete()
           .eq('song_id', songId)
 
-        if (error) throw error
+        if (_error) throw _error
         console.log('✅ Removed from favorites')
         return false
       } else {
@@ -366,7 +366,7 @@ class MusicService {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('User not authenticated')
 
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('emotionscare_song_likes')
           .insert({
             user_id: user.id,
@@ -374,7 +374,7 @@ class MusicService {
             created_at: new Date().toISOString()
           })
 
-        if (error) throw error
+        if (_error) throw _error
         console.log('✅ Added to favorites')
         return true
       }

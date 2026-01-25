@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, BellOff, Clock, Calendar, Mail, Smartphone, Check, Flame, Star, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { Bell, BellOff, Check, Clock, Flame, Mail, Smartphone, Star } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface NotificationPreferences {
   enabled: boolean;
@@ -44,10 +44,10 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFS);
   const [pushSupported, setPushSupported] = useState(false);
   const [pushPermission, setPushPermission] = useState<NotificationPermission>('default');
-  const [saving, setSaving] = useState(false);
+  const [_saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadStats(userId);

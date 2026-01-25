@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Wifi, WifiOff, Database, Shield, Clock } from 'lucide-react';
+import { AlertTriangle, Clock, Database, Shield } from 'lucide-react';
+import React, { createContext, useCallback, useContext } from 'react';
 
 interface APIError {
   error: string;

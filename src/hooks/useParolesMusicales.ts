@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
-import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
-import { useSunoPolling } from './useSunoPolling';
+import { useState } from 'react';
 import { useSunoCallbackListener } from './useSunoCallbackListener';
+import { useSunoPolling } from './useSunoPolling';
 
 export const useParolesMusicales = (
-  paroles: string[] = [], 
+  _paroles: string[] = [], 
   itemData?: { 
     paroles_rang_a?: string[], 
     paroles_rang_b?: string[], 
@@ -40,8 +40,7 @@ export const useParolesMusicales = (
     play,
     pause,
     seek,
-    changeVolume,
-    stop
+    changeVolume
   } = useGlobalAudio();
 
   // Fusionner l'audio des différentes sources
@@ -203,7 +202,6 @@ export const useParolesMusicales = (
     handleGenerateMix,
     handlePlayAudio,
     seek,
-    changeVolume,
-    stop
+    changeVolume
   };
 };

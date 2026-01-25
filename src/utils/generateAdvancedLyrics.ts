@@ -62,17 +62,17 @@ export async function generateAdvancedLyrics(
 }
 
 async function fetchItemData(itemCode: string): Promise<EdnItemData> {
-  const { data, error } = await supabase
+  const { _data, _error } = await supabase
     .from('edn_items_immersive')
     .select('item_code, title, tableau_rang_a, tableau_rang_b')
     .eq('item_code', itemCode)
     .maybeSingle();
     
-  if (error || !data) {
+  if (_error || !_data) {
     throw new Error(`Item ${itemCode} non trouvé`);
   }
   
-  return data;
+  return _data;
 }
 
 async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promise<CompetenceOIC[]> {
@@ -87,19 +87,19 @@ async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promi
     query = query.eq('rang', rang);
   }
   
-  const { data, error } = await query.order('ordre');
+  const { _data, _error } = await query.order('ordre');
   
-  if (error || !data) {
+  if (_error || !_data) {
     console.log(`Aucune compétence OIC pour ${itemCode}`);
     return [];
   }
   
-  return data;
+  return _data;
 }
 
 function generateSongStructure(
   itemData: EdnItemData, 
-  competences: CompetenceOIC[], 
+  _competences: CompetenceOIC[], 
   rang: 'A' | 'B' | 'AB'
 ): SongStructure {
   const title = itemData.title;
@@ -160,7 +160,7 @@ function extractMedicalContent(itemData: EdnItemData, rang: 'A' | 'B' | 'AB') {
   return content;
 }
 
-function generateCouplet1(itemCode: string, title: string, diagnosticContent: string[], rang: string): string[] {
+function generateCouplet1(itemCode: string, title: string, diagnosticContent: string[], _rang: string): string[] {
   const shortTitle = title.length > 40 ? title.substring(0, 37) + '...' : title;
   
   return [
@@ -175,7 +175,7 @@ function generateCouplet1(itemCode: string, title: string, diagnosticContent: st
   ];
 }
 
-function generateRefrain(itemCode: string, title: string, rang: string): string[] {
+function generateRefrain(itemCode: string, _title: string, rang: string): string[] {
   const intensity = rang === 'B' ? 'expertise' : rang === 'AB' ? 'maîtrise totale' : 'fondements';
   
   return [
@@ -186,7 +186,7 @@ function generateRefrain(itemCode: string, title: string, rang: string): string[
   ];
 }
 
-function generateCouplet2(cliniqueContent: string[], paraclinique: string[], rang: string): string[] {
+function generateCouplet2(cliniqueContent: string[], paraclinique: string[], _rang: string): string[] {
   return [
     `Maintenant j'approfondis l'examen`,
     `${cliniqueContent[0] || 'Inspection, palpation méthodique'}`,
@@ -214,7 +214,7 @@ function generateCouplet3(traitementContent: string[], surveillance: string[], r
   ];
 }
 
-function generateCouplet4(complexeContent: string[], rang: string): string[] {
+function generateCouplet4(complexeContent: string[], _rang: string): string[] {
   return [
     `Cas complexes, là où ça se corse`,
     `${complexeContent[0] || 'Formes atypiques, pièges diagnostiques'}`,
@@ -267,7 +267,7 @@ function optimizeSongLength(song: string[]): string[] {
   }
   
   // Réduire si trop long: supprimer le couplet 4 si présent
-  const withoutCouplet4 = song.filter((line, index) => {
+  const withoutCouplet4 = song.filter((_line, index) => {
     const nextLines = song.slice(index, index + 10);
     return !nextLines.some(l => l.includes('[Couplet 4]'));
   });
@@ -281,7 +281,7 @@ function optimizeSongLength(song: string[]): string[] {
   return song.slice(0, Math.floor(song.length * 0.8));
 }
 
-function generateFallbackAdvancedSong(itemCode: string, rang: 'A' | 'B' | 'AB'): string[] {
+function generateFallbackAdvancedSong(itemCode: string, _rang: 'A' | 'B' | 'AB'): string[] {
   const structure = {
     couplet1: [
       `${itemCode} pathologie centrale`,

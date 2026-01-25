@@ -1,9 +1,8 @@
 
-import { useState, useEffect } from 'react';
-import { TableauRangAHeader } from './TableauRangAHeader';
-import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
-import { generateLignesRangBIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect, useState } from 'react';
+import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
+import { determinerColonnesUtilesIC4, generateLignesRangBIntelligentIC4 } from './TableauRangAUtilsIC4';
 
 interface ConceptData {
   concept?: string;

@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square, Flame, Star } from 'lucide-react';
-import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
-import { useAudioBuffering } from '@/hooks/useAudioBuffering';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAudioBuffering } from '@/hooks/useAudioBuffering';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { Flame, Pause, Play, SkipBack, SkipForward, Square, Star, Volume2, VolumeX } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface AudioPlayerProps {
-  audioUrl: string;
+  audioUrl?: string;
   title: string;
   isPlaying: boolean;
   currentTime: number;
@@ -26,12 +26,11 @@ interface AudioPlayerProps {
   onPlaybackRateChange?: (rate: number) => void;
 }
 
-export const AudioPlayer = ({ 
-  audioUrl, 
-  title, 
-  isPlaying, 
-  currentTime, 
-  duration, 
+export const AudioPlayer = ({
+  title,
+  isPlaying,
+  currentTime,
+  duration,
   volume,
   onPlayPause,
   onSeek,
@@ -46,7 +45,7 @@ export const AudioPlayer = ({
   const [previousVolume, setPreviousVolume] = useState(volume);
   const hasTrackedRef = useRef(false);
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats } = useGamification();
+  const { loadStats } = useGamification();
   
   // Hook de buffering pour optimiser l'affichage
   const bufferingState = useAudioBuffering(audioElement || null);
@@ -120,15 +119,15 @@ export const AudioPlayer = ({
           {title}
         </h3>
         <div className="flex items-center gap-2">
-          {stats && (
+          {_stats && (
             <>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats.currentStreak ?? 0}j
+                {_stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats.level ?? 1}
+                Niv. {_stats.level ?? 1}
               </Badge>
             </>
           )}

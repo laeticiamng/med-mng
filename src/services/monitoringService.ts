@@ -45,23 +45,23 @@ class MonitoringService {
     
     try {
       // Test database connectivity
-      const { data: dbTest, error: dbError } = await supabase
+      const { _data: _dbTest, _error: dbError } = await supabase
         .from('profiles')
         .select('id')
         .limit(1);
 
       // Test authentication
-      const { data: authTest } = await supabase.auth.getSession();
+      const { _data: authTest } = await supabase.auth.getSession();
 
       // Test edge functions
-      const { data: functionTest } = await supabase.functions.invoke('med-mng-api', {
+      const { _data: functionTest } = await supabase.functions.invoke('med-mng-api', {
         body: { action: 'health_check' }
       });
 
       const responseTime = Date.now() - startTime;
 
       // Calculer le taux d'erreur réel à partir des logs récents
-      const { data: recentErrors } = await supabase
+      const { _data: recentErrors } = await supabase
         .from('operation_logs')
         .select('id')
         .eq('type', 'error')
@@ -144,7 +144,7 @@ class MonitoringService {
   async getPerformanceMetrics(): Promise<PerformanceMetrics> {
     try {
       // Get recent operation logs to calculate real performance metrics
-      const { data: recentLogs } = await supabase
+      const { _data: recentLogs } = await supabase
         .from('operation_logs')
         .select('*')
         .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
@@ -152,7 +152,6 @@ class MonitoringService {
         .limit(100);
 
       // Calculate real metrics from operation logs
-      const successLogs = recentLogs?.filter(log => log.type === 'success') || [];
       const errorLogs = recentLogs?.filter(log => log.type === 'error') || [];
       const slowQueries = recentLogs?.filter(log => log.type === 'slow_query') || [];
       
@@ -192,14 +191,14 @@ class MonitoringService {
 
   async logOperation(type: string, message: string, meta?: Record<string, unknown>): Promise<void> {
     try {
-      const { error } = await supabase.from('operation_logs').insert({
+      const { _error } = await supabase.from('operation_logs').insert({
         type,
         message,
         meta: meta ? JSON.parse(JSON.stringify(meta)) : null
       });
 
-      if (error) {
-        console.error('Failed to log operation:', error);
+      if (_error) {
+        console.error('Failed to log operation:', _error);
       }
     } catch (error) {
       console.error('Error logging operation:', error);
