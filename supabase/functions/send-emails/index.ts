@@ -1,15 +1,12 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
-import { Resend } from "npm:resend@2.0.0";
+import { corsHeaders } from '../_shared/cors.ts';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-import { corsHeaders } from '../_shared/cors.ts';
 
 interface EmailRequest {
   type: 'welcome' | 'subscription_success';
@@ -56,20 +53,28 @@ serve(async (req) => {
       htmlContent = htmlContent.replace(regex, String(value || ''));
     }
 
-    // Envoyer l'email avec Resend
-    const emailResponse = await resend.emails.send({
-      from: 'MedMNG <onboarding@resend.dev>',
-      to: [email],
-      subject: template.subject,
-      html: htmlContent,
+    // Envoyer l'email avec Resend via fetch API
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'MedMNG <onboarding@resend.dev>',
+        to: [email],
+        subject: template.subject,
+        html: htmlContent,
+      }),
     });
 
-    console.log('✅ Email envoyé avec succès:', emailResponse);
+    const emailResult = await emailResponse.json();
+    console.log('✅ Email envoyé avec succès:', emailResult);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        emailId: emailResponse.data?.id,
+        emailId: emailResult.id,
         message: `Email ${type} envoyé à ${email}` 
       }), 
       {

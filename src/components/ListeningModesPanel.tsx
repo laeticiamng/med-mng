@@ -35,7 +35,7 @@ const getModeColor = (color: string) => {
 export const ListeningModesPanel = () => {
   const {
     predefinedModes,
-    activeMode,
+    _activeMode: activeMode,
     timeRemaining,
     isSessionActive,
     startMode,
@@ -44,7 +44,7 @@ export const ListeningModesPanel = () => {
     resumeSession,
   } = useListeningModes();
 
-  const { loadStats } = useGamification();
+  const { loadStats, _stats: gamificationStats, _addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   const [selectedMode, setSelectedMode] = useState<ListeningMode | null>(null);

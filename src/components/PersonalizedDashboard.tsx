@@ -61,7 +61,7 @@ export const PersonalizedDashboard = () => {
 
   const { recommendations, isLoading } = useAIRecommendations();
   const { predefinedModes } = useListeningModes();
-  const { loadStats: loadGamification, BADGE_DEFINITIONS } = useGamification();
+  const { loadStats: loadGamification, BADGE_DEFINITIONS, _stats: gamificationStats } = useGamification();
   const { getWeeklySummary } = useActivityTracking();
   const [, setUser] = useState<any>(null);
 

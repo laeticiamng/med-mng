@@ -55,12 +55,12 @@ export const ABTestManager: React.FC = () => {
   }, []);
 
   const loadTemplates = async () => {
-    const { _data, _error } = await supabase
+    const { data, error } = await supabase
       .from('email_templates')
       .select('id, name, subject')
       .order('created_at', { ascending: false });
 
-    if (_error) {
+    if (error) {
       toast({
         title: "Erreur",
         description: "Impossible de charger les templates",
@@ -69,12 +69,12 @@ export const ABTestManager: React.FC = () => {
       return;
     }
 
-    setTemplates(_data || []);
+    setTemplates(data || []);
   };
 
   const loadABTests = async () => {
     setLoading(true);
-    const { _data, _error } = await supabase
+    const { data, error } = await supabase
       .from('email_ab_tests' as any)
       .select(`
         *,
@@ -83,7 +83,7 @@ export const ABTestManager: React.FC = () => {
       `)
       .order('created_at', { ascending: false });
 
-    if (_error) {
+    if (error) {
       toast({
         title: "Erreur",
         description: "Impossible de charger les tests A/B",
@@ -93,7 +93,7 @@ export const ABTestManager: React.FC = () => {
       return;
     }
 
-    setABTests(_data as any || []);
+    setABTests(data as any || []);
     setLoading(false);
   };
 
@@ -121,7 +121,7 @@ export const ABTestManager: React.FC = () => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + newTest.duration_days);
 
-    const { _error } = await supabase
+    const { error } = await supabase
       .from('email_ab_tests' as any)
       .insert({
         name: newTest.name,
@@ -131,7 +131,7 @@ export const ABTestManager: React.FC = () => {
         status: 'active',
       });
 
-    if (_error) {
+    if (error) {
       toast({
         title: "Erreur",
         description: "Impossible de créer le test A/B",
@@ -158,12 +158,12 @@ export const ABTestManager: React.FC = () => {
   };
 
   const stopTest = async (testId: string) => {
-    const { _error } = await supabase
+    const { error } = await supabase
       .from('email_ab_tests' as any)
       .update({ status: 'cancelled' })
       .eq('id', testId);
 
-    if (_error) {
+    if (error) {
       toast({
         title: "Erreur",
         description: "Impossible d'arrêter le test",

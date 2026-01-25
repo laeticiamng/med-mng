@@ -109,18 +109,18 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       let existingRecords: { id: string; is_favorite: boolean | null }[] | null = null;
       
       if (finalUrl && finalUrl.startsWith('http')) {
-        const { _data } = await supabase
+        const { data } = await supabase
           .from('user_generated_music')
           .select('id, is_favorite')
           .eq('user_id', user.id)
           .eq('audio_url', finalUrl)
           .limit(1);
-        existingRecords = _data;
+        existingRecords = data;
       }
       
       // Stratégie 2: Si pas trouvé, chercher par item_code + style
       if (!existingRecords || existingRecords.length === 0) {
-        const { _data } = await supabase
+        const { data } = await supabase
           .from('user_generated_music')
           .select('id, is_favorite')
           .eq('user_id', user.id)
@@ -128,7 +128,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           .eq('music_style', generatedSong.style)
           .order('created_at', { ascending: false })
           .limit(1);
-        existingRecords = _data;
+        existingRecords = data;
       }
 
       if (existingRecords && existingRecords.length > 0) {
@@ -144,7 +144,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         toast({ title: newFavoriteState ? "❤️ Ajouté aux favoris !" : "💔 Retiré des favoris" });
       } else {
         // Aucun record trouvé, créer un nouveau avec le favori
-        const { _error } = await supabase
+        const { error } = await supabase
           .from('user_generated_music')
           .insert({
             user_id: user.id,
@@ -156,7 +156,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             is_favorite: true
           } as any);
           
-        if (!_error) {
+        if (!error) {
           setIsFavorite(true);
           toast({ title: "❤️ Ajouté aux favoris et à la bibliothèque !" });
         }

@@ -65,16 +65,16 @@ export const EmailReportConfig: React.FC = () => {
 
   const loadConfig = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('accessibility_report_config')
         .select('*')
         .maybeSingle();
 
-      if (_error && _error.code !== 'PGRST116') throw _error;
+      if (error && error.code !== 'PGRST116') throw error;
 
-      if (_data) {
-        setConfig(_data as EmailConfig);
-        setShowTokenInput(!_data.github_token);
+      if (data) {
+        setConfig(data as EmailConfig);
+        setShowTokenInput(!data.github_token);
       }
     } catch (error) {
       console.error('Error loading config:', error);
@@ -90,14 +90,14 @@ export const EmailReportConfig: React.FC = () => {
 
   const loadHistory = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('accessibility_report_history')
         .select('*')
         .order('sent_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
-      setHistory((_data || []) as ReportHistory[]);
+      if (error) throw error;
+      setHistory((data || []) as ReportHistory[]);
     } catch (error) {
       console.error('Error loading history:', error);
     }
@@ -121,12 +121,12 @@ export const EmailReportConfig: React.FC = () => {
         updateData.github_token = githubToken;
       }
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('accessibility_report_config')
         .update(updateData)
         .eq('id', config.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: 'Configuration sauvegardée',
