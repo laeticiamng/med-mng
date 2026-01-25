@@ -1,9 +1,8 @@
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import type { AuditResult } from '@/scripts/audit/types';
+import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface AuditItemCardProps {
   item: AuditResult;

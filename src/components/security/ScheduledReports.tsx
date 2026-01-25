@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { Mail, Clock, Calendar, Plus, Trash2, Send } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calendar, Clock, Mail, Plus, Send, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ScheduledReport {
   id: string;
@@ -31,13 +31,13 @@ export const ScheduledReports = () => {
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['scheduled-reports'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('scheduled_reports')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return (data || []) as ScheduledReport[];
+      if (_error) throw _error;
+      return (_data || []) as ScheduledReport[];
     },
   });
 
@@ -46,7 +46,7 @@ export const ScheduledReports = () => {
     mutationFn: async (data: { reportType: string; recipients: string[] }) => {
       const nextScheduled = getNextScheduledDate(data.reportType);
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('scheduled_reports')
         .insert({
           report_type: data.reportType,
@@ -55,7 +55,7 @@ export const ScheduledReports = () => {
           enabled: true,
         } as any);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
@@ -72,12 +72,12 @@ export const ScheduledReports = () => {
   // Delete scheduled report
   const deleteReport = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('scheduled_reports')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
@@ -137,16 +137,6 @@ export const ScheduledReports = () => {
     }
     createReport.mutate({ reportType, recipients });
   };
-
-  const getReportTypeLabel = (type: string) => {
-    switch (type) {
-      case 'daily': return 'Quotidien';
-      case 'weekly': return 'Hebdomadaire';
-      case 'monthly': return 'Mensuel';
-      default: return type;
-    }
-  };
-
   const getReportTypeBadge = (type: string) => {
     switch (type) {
       case 'daily': return <Badge>Quotidien</Badge>;

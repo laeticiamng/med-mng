@@ -1,22 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  Calendar, Clock, Brain, Target, Sparkles, ChevronLeft,
-  Play, CheckCircle, AlertCircle, Loader2, RefreshCw, Flame, Trophy
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { supabase } from '@/integrations/supabase/client';
-import { useSRS } from '@/hooks/useSRS';
-import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useGamification } from '@/hooks/useGamification';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useSRS } from '@/hooks/useSRS';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    CheckCircle,
+    ChevronLeft,
+    Clock,
+    Flame,
+    Loader2, RefreshCw,
+    Sparkles,
+    Target,
+    Trophy
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 
 interface StudySession {
   startTime: string;
@@ -61,7 +68,7 @@ export default function SmartStudyPlanner() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { stats: srsStats, getStats: getSrsStats } = useSRS();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -91,7 +98,7 @@ export default function SmartStudyPlanner() {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('study-planner', {
+      const { _data, error } = await supabase.functions.invoke('study-planner', {
         body: {
           userProgress: {
             masteredCount: srsStats?.masteredItems || 0,
@@ -106,17 +113,17 @@ export default function SmartStudyPlanner() {
 
       if (error) throw error;
       
-      if (data.error) {
-        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      if (_data.error) {
+        toast({ title: "Erreur", description: _data.error, variant: "destructive" });
         return;
       }
 
-      setPlan(data);
+      setPlan(_data);
       
       // Log activity and award points
       if (user) {
         await logActivity({ activity_type: 'study', metadata: { action: 'plan_generated' }, score: 100 });
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
       
       toast({ title: "Planning généré", description: "Votre planning personnalisé est prêt ! (+10 XP)" });

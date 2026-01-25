@@ -3,9 +3,9 @@
  * Gestion d'erreurs robuste avec monitoring et recovery
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import type { AppError } from '@/types/global';
+import { AlertTriangle, Bug, Home, RefreshCw } from 'lucide-react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -24,7 +24,7 @@ interface ErrorBoundaryProps {
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private retryTimeoutId: number | null = null;
+  private _retryTimeoutId: number | null = null;
 
   constructor(props: ErrorBoundaryProps) {
     super(props);

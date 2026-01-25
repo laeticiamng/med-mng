@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Eye, 
-  Accessibility, 
-  Volume2, 
-  Mouse, 
-  Keyboard,
-  Monitor,
-  Settings,
-  CheckCircle,
-  AlertTriangle
+import { Switch } from '@/components/ui/switch';
+import {
+    Accessibility,
+    AlertTriangle,
+    CheckCircle,
+    Eye,
+    Keyboard,
+    Settings
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface AccessibilitySettings {
   highContrast: boolean;
@@ -204,7 +201,6 @@ export const AdvancedAccessibility: React.FC = () => {
     }
 
     // 7. Focus visible
-    const focusableWithoutOutline = document.querySelectorAll('a:focus, button:focus, input:focus, select:focus, textarea:focus');
     // Cette vérification nécessiterait un test interactif
 
     // 8. Attributs lang
@@ -234,13 +230,6 @@ export const AdvancedAccessibility: React.FC = () => {
       voiceControl: false,
     });
   };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-success';
-    if (score >= 70) return 'text-warning';
-    return 'text-destructive';
-  };
-
   const getScoreBadgeVariant = (score: number) => {
     if (score >= 90) return 'success' as const;
     if (score >= 70) return 'warning' as const;

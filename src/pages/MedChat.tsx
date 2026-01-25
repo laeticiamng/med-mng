@@ -1,25 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TranslatedText } from '@/components/TranslatedText';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  MessageSquare, Send, User, Bot, ArrowLeft, Search, 
-  Sparkles, Clock, BookOpen, Brain, Heart, Activity,
-  History, HelpCircle, Settings, Mic, Copy, ThumbsUp,
-  ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2, Flame, Star
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
-import { useChatConversations } from '@/hooks/useChatConversations';
-import { TranslatedText } from '@/components/TranslatedText';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useChatConversations } from '@/hooks/useChatConversations';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    Activity,
+    ArrowLeft,
+    BookOpen,
+    Bot,
+    Brain,
+    Clock,
+    Copy,
+    Flame,
+    Heart,
+    HelpCircle,
+    History,
+    Loader2,
+    MessageSquare,
+    Mic,
+    RefreshCw,
+    Search,
+    Send,
+    Sparkles,
+    Star,
+    ThumbsDown,
+    ThumbsUp,
+    User
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -41,7 +59,7 @@ export const MedChat: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>([
@@ -79,11 +97,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
   }, [loadStats]);
 
   const {
-    conversations,
-    currentConversation,
-    createConversation,
     sendMessage,
-    isGenerating,
   } = useChatConversations();
 
   const scrollToBottom = () => {
@@ -150,13 +164,13 @@ Tu n'as pas besoin de tout chercher toi-même.`,
           metadata: { question: textToSend.slice(0, 100) }
         });
         
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         
         // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
-          await unlockBadge(user.id, 'ai_chat');
+          await _unlockBadge(user.id, 'ai_chat');
         }
         
         loadStats(user.id);

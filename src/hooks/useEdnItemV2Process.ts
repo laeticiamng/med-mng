@@ -57,9 +57,6 @@ export const useEdnItemV2Process = (item: any) => {
       if (!hasRangACompetences && !hasRangBCompetences) {
         return item;
       }
-      
-      const totalCompetences = v2Data.content.rang_a.competences.length + v2Data.content.rang_b.competences.length;
-      
       // Transform V2 data to legacy format for compatibility
       const transformedItem = {
         ...item,

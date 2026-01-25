@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  BarChart3, TrendingUp, Users, Activity,
-  Calendar, Download, Music, Brain, Eye, RefreshCw, Loader2
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    BarChart3,
+    Brain,
+    Calendar, Download,
+    Loader2,
+    RefreshCw,
+    TrendingUp, Users
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // Utiliser React state pour le cache (pas de localStorage)
-import { useRef } from 'react';
 
 interface AnalyticsData {
   userGrowth: {
@@ -120,7 +123,7 @@ export const AdminAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [_activeTab, _setActiveTab] = useState('overview');
   const [cacheInfo, setCacheInfo] = useState<{ timestamp: number; isStale: boolean }>({ timestamp: 0, isStale: false });
 
   // Calculer la date de début selon la période
@@ -415,7 +418,7 @@ export const AdminAnalytics = () => {
   };
 
   // Calculer l'activité quotidienne
-  const calculateDailyActivity = (logs: any[], profiles: any[]): AnalyticsData['dailyActivity'] => {
+  const calculateDailyActivity = (logs: any[], _profiles: any[]): AnalyticsData['dailyActivity'] => {
     const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
     const result: AnalyticsData['dailyActivity'] = [];
 

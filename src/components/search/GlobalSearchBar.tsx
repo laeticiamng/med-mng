@@ -1,15 +1,14 @@
 // Unified Global Search across all modules
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, X, FileText, Music, Users, Brain, BookOpen, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { BookOpen, Brain, FileText, Loader2, Music, Search, Users, X } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface SearchResult {
   id: string;
@@ -69,7 +68,7 @@ export const GlobalSearchBar: React.FC = () => {
 
     try {
       // Search EDN items
-      const { data: ednItems } = await supabase
+      const { _data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, slug')
         .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
@@ -88,7 +87,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search quizzes
-      const { data: quizzes } = await supabase
+      const { _data: quizzes } = await supabase
         .from('ai_exam_history')
         .select('id, exam_type, created_at')
         .ilike('exam_type', `%${searchQuery}%`)
@@ -108,7 +107,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search generated music
-      const { data: music } = await supabase
+      const { _data: music } = await supabase
         .from('generated_music_tracks')
         .select('id, title, item_code')
         .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
@@ -127,7 +126,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search clinical cases
-      const { data: cases } = await supabase
+      const { _data: cases } = await supabase
         .from('ai_clinical_cases')
         .select('id, title, specialty')
         .or(`title.ilike.%${searchQuery}%,specialty.ilike.%${searchQuery}%`)
@@ -147,7 +146,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search community posts
-      const { data: posts } = await supabase
+      const { _data: posts } = await supabase
         .from('community_posts')
         .select('id, title, content')
         .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)

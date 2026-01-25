@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
-import { 
-  History, Calendar, Clock, BookOpen, TrendingUp, 
-  CheckCircle, XCircle, RotateCcw, Filter, Download
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+import { eachDayOfInterval, endOfWeek, format, startOfWeek, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import {
+    BookOpen,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Download,
+    History,
+    RotateCcw,
+    TrendingUp,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface RevisionEntry {
   id: string;
@@ -34,7 +39,7 @@ interface DailyStats {
 export const RevisionHistory: React.FC = () => {
   const [history, setHistory] = useState<RevisionEntry[]>([]);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month'>('week');
 
   useEffect(() => {
@@ -62,7 +67,7 @@ export const RevisionHistory: React.FC = () => {
       }
 
       // Charger les vraies données de révision depuis Supabase
-      const { data: progressData } = await supabase
+      const { _data: progressData } = await supabase
         .from('user_item_progress')
         .select('id, item_code, last_review_date, next_review_date, total_reviews, ease_factor, interval_days')
         .eq('user_id', user.id)
@@ -72,7 +77,7 @@ export const RevisionHistory: React.FC = () => {
 
       // Récupérer les titres des items
       const itemCodes = progressData?.map(p => p.item_code) || [];
-      const { data: itemsData } = await supabase
+      const { _data: itemsData } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .in('item_code', itemCodes.length > 0 ? itemCodes : ['none']);
@@ -111,7 +116,7 @@ export const RevisionHistory: React.FC = () => {
       const weekEnd = endOfWeek(now, { locale: fr });
       const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-      const { data: activityData } = await supabase
+      const { _data: activityData } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, created_at')
         .eq('user_id', user.id)

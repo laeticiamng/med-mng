@@ -13,7 +13,7 @@ class MedMngApi {
     }
 
     // Sinon, on récupère un nouveau token
-    const { data: { session } } = await supabase.auth.getSession();
+    const { _data: { session } } = await supabase.auth.getSession();
     if (!session?.user?.id) {
       throw new Error('Authentification requise pour obtenir un token CSRF');
     }
@@ -36,7 +36,7 @@ class MedMngApi {
   }
 
   private async getAuthHeaders(includeCSRF = false) {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { _data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
       throw new Error('Authentification requise pour MED-MNG');
     }

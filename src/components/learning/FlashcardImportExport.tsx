@@ -1,22 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Download, Upload, FileText, Check, AlertTriangle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { FlashcardDeck, Flashcard } from '@/hooks/useFlashcards';
+import { Flashcard, FlashcardDeck } from '@/hooks/useFlashcards';
+import { Check, Download, FileText, Upload } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
 
 interface FlashcardImportExportProps {
-  decks: FlashcardDeck[];
+  _decks: FlashcardDeck[];
   currentDeck?: FlashcardDeck | null;
   cards: Flashcard[];
   onImport: (cards: Array<{ front: string; back: string; tags?: string[] }>) => Promise<void>;
 }
 
 export const FlashcardImportExport: React.FC<FlashcardImportExportProps> = ({
-  decks,
+  _decks,
   currentDeck,
   cards,
   onImport

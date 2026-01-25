@@ -1,15 +1,15 @@
-import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Download, FileText, Table, FileSpreadsheet } from 'lucide-react';
-import { exportComparisonToPDF, exportComparisonToExcel, exportComparisonToCSV } from '@/utils/exportComparison';
+import { exportComparisonToCSV, exportComparisonToExcel, exportComparisonToPDF } from '@/utils/exportComparison';
+import { Download, FileSpreadsheet, FileText, Table } from 'lucide-react';
+import React from 'react';
 import { toast } from 'sonner';
 
 interface ComparisonData {

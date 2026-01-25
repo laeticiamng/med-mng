@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, 
-  Plus, 
-  Trash2, 
-  Send, 
-  Calendar, 
-  Clock, 
-  CheckCircle2, 
-  XCircle,
-  AlertCircle,
-  Key
-} from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    Calendar,
+    CheckCircle2,
+    Clock,
+    Key,
+    Mail,
+    Plus,
+    Send,
+    Trash2,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface EmailConfig {
   id: string;
@@ -65,16 +65,16 @@ export const EmailReportConfig: React.FC = () => {
 
   const loadConfig = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('accessibility_report_config')
         .select('*')
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (_error && _error.code !== 'PGRST116') throw _error;
 
-      if (data) {
-        setConfig(data as EmailConfig);
-        setShowTokenInput(!data.github_token);
+      if (_data) {
+        setConfig(_data as EmailConfig);
+        setShowTokenInput(!_data.github_token);
       }
     } catch (error) {
       console.error('Error loading config:', error);
@@ -90,14 +90,14 @@ export const EmailReportConfig: React.FC = () => {
 
   const loadHistory = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('accessibility_report_history')
         .select('*')
         .order('sent_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
-      setHistory((data || []) as ReportHistory[]);
+      if (_error) throw _error;
+      setHistory((_data || []) as ReportHistory[]);
     } catch (error) {
       console.error('Error loading history:', error);
     }
@@ -121,12 +121,12 @@ export const EmailReportConfig: React.FC = () => {
         updateData.github_token = githubToken;
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('accessibility_report_config')
         .update(updateData)
         .eq('id', config.id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: 'Configuration sauvegardée',
@@ -212,7 +212,7 @@ export const EmailReportConfig: React.FC = () => {
         await saveConfig();
       }
 
-      const { data, error } = await supabase.functions.invoke('send-accessibility-report', {
+      const { _data, error } = await supabase.functions.invoke('send-accessibility-report', {
         body: {}
       });
 

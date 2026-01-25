@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Book, Grid, Layers, List } from 'lucide-react';
+import React, { useState } from 'react';
 import { CompetenceCardOptimized } from './CompetenceCardOptimized';
 import { CompetenceFlashcard } from './CompetenceFlashcard';
-import { Book, Search, Grid, List, Layers } from 'lucide-react';
 
 interface CompetenceOIC {
   intitule: string;
@@ -155,7 +155,6 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
   const { title, competences, count, theme } = data;
   
   // Message spécial pour items avec très peu de compétences
-  const isLowCount = count <= 3;
   const themeColors = rang === 'A' 
     ? 'from-primary to-primary/80'
     : 'from-accent to-accent/80';

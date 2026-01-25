@@ -1,37 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  X, BookOpen, Music, Users, Brain, Play, Pause, Volume2, 
-  VolumeX, Maximize2, Minimize2, FileText, Image, 
-  CheckCircle, Star, Download, Share2, BarChart3
-} from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { TableauRangA } from "@/components/edn/TableauRangA";
-import { TableauRangB } from "@/components/edn/TableauRangB";
-import { ParolesMusicales } from "@/components/edn/ParolesMusicales";
-import { SceneImmersive } from "@/components/edn/SceneImmersive";
-import { EnhancedQuizFinal } from "@/components/edn/EnhancedQuizFinal";
+import { AudioAmbiancePlayer } from "@/components/edn/audio/AudioAmbiancePlayer";
 import { BdGallery } from "@/components/edn/BdGallery";
-import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
-import { AudioAmbiancePlayer } from "@/components/edn/audio/AudioAmbiancePlayer";
+import { EnhancedQuizFinal } from "@/components/edn/EnhancedQuizFinal";
 import { EdnItemExport } from "@/components/edn/export/EdnItemExport";
+import { ParolesMusicales } from "@/components/edn/ParolesMusicales";
 import { PersonalNotes } from "@/components/edn/PersonalNotes";
-import { QuizLeaderboard } from "@/components/edn/QuizLeaderboard";
-import { QuizHistorySummary } from "@/components/edn/QuizHistorySummary";
-import { QuizProgressChart } from "@/components/edn/quiz/QuizProgressChart";
 import { ProgressHeatmap } from "@/components/edn/quiz/ProgressHeatmap";
-import { SocialShare } from "@/components/social/SocialShare";
+import { QuizProgressChart } from "@/components/edn/quiz/QuizProgressChart";
+import { QuizHistorySummary } from "@/components/edn/QuizHistorySummary";
+import { QuizLeaderboard } from "@/components/edn/QuizLeaderboard";
+import { RomanNarratif } from "@/components/edn/RomanNarratif";
+import { SceneImmersive } from "@/components/edn/SceneImmersive";
+import { TableauRangA } from "@/components/edn/TableauRangA";
+import { TableauRangB } from "@/components/edn/TableauRangB";
 import { FaqSection } from "@/components/help/FaqSection";
+import { SocialShare } from "@/components/social/SocialShare";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
-import { normalizeTableauData, transformTableauToSections } from "@/utils/tableauTransformations";
 import { useOicCompetences } from "@/hooks/useOicCompetences";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeTableauData, transformTableauToSections } from "@/utils/tableauTransformations";
+import {
+    BarChart3,
+    BookOpen,
+    Brain,
+    FileText, Image,
+    Maximize2, Minimize2,
+    Music, Users,
+    X
+} from "lucide-react";
+import React, { useEffect, useState } from 'react';
 
 interface OicCompetence {
   intitule?: string;
@@ -76,7 +80,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab || 'overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [_audioPlaying, _setAudioPlaying] = useState(false);
   const [completeItemData, setCompleteItemData] = useState<EdnItemData | null>(null);
   const isMobile = useIsMobile();
 
@@ -149,52 +153,52 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       if (finalItem && isOpen) {
         try {
           // Toujours fetch les données complètes depuis Supabase pour avoir bd_panels et roman_story
-          const { data } = await supabase
+          const { _data } = await supabase
             .from('edn_items_immersive')
             .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab, bd_panels, roman_story')
             .eq('item_code', finalItem.item_code)
             .maybeSingle();
           
-          if (data) {
+          if (_data) {
             // Normaliser paroles_musicales: si c'est une string, la convertir en array
             let normalizedParoles: string[] = [];
-            if (data.paroles_musicales) {
-              if (typeof data.paroles_musicales === 'string') {
-                normalizedParoles = (data.paroles_musicales as string)
+            if (_data.paroles_musicales) {
+              if (typeof _data.paroles_musicales === 'string') {
+                normalizedParoles = (_data.paroles_musicales as string)
                   .split(/\n\n|\[.*?\]/)
                   .map(s => s.trim())
                   .filter(s => s.length > 0);
-              } else if (Array.isArray(data.paroles_musicales)) {
-                normalizedParoles = data.paroles_musicales as string[];
+              } else if (Array.isArray(_data.paroles_musicales)) {
+                normalizedParoles = _data.paroles_musicales as string[];
               }
             }
             
             const normalizedRangA = transformTableauToSections(
-              data.tableau_rang_a,
+              _data.tableau_rang_a,
               finalItem.item_code,
               finalItem.title,
               'A'
-            ) || normalizeTableauData(data.tableau_rang_a);
+            ) || normalizeTableauData(_data.tableau_rang_a);
             const normalizedRangB = transformTableauToSections(
-              data.tableau_rang_b,
+              _data.tableau_rang_b,
               finalItem.item_code,
               finalItem.title,
               'B'
-            ) || normalizeTableauData(data.tableau_rang_b);
+            ) || normalizeTableauData(_data.tableau_rang_b);
 
             setCompleteItemData({
-              quiz_questions: data.quiz_questions as unknown,
-              scene_immersive: data.scene_immersive as unknown,
+              quiz_questions: _data.quiz_questions as unknown,
+              scene_immersive: _data.scene_immersive as unknown,
               tableau_rang_a: normalizedRangA as unknown,
               tableau_rang_b: normalizedRangB as unknown,
               paroles_musicales: normalizedParoles,
-              paroles_rang_a: data.paroles_rang_a as string[],
-              paroles_rang_b: data.paroles_rang_b as string[],
-              paroles_rang_ab: data.paroles_rang_ab as string[],
+              paroles_rang_a: _data.paroles_rang_a as string[],
+              paroles_rang_b: _data.paroles_rang_b as string[],
+              paroles_rang_ab: _data.paroles_rang_ab as string[],
               competences_oic_rang_a: oicCompetencesA,
               competences_oic_rang_b: oicCompetencesB,
-              bd_panels: data.bd_panels as unknown,
-              roman_story: data.roman_story as unknown,
+              bd_panels: _data.bd_panels as unknown,
+              roman_story: _data.roman_story as unknown,
             });
           }
         } catch {
@@ -565,12 +569,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* Rang A - Toujours affiché car useOicCompetences charge les vraies données */}
               <TabsContent value="rang-a" className="mt-0 p-6">
-                <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
+                <TableauRangA _data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
               </TabsContent>
 
               {/* Rang B - Toujours affiché car useOicCompetences charge les vraies données */}
               <TabsContent value="rang-b" className="mt-0 p-6">
-                <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+                <TableauRangB _data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
 
               {/* Stats Tab - Historique et progression */}
@@ -662,8 +666,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   paroles_rang_b={finalItem.paroles_rang_b}
                   paroles_rang_ab={finalItem.paroles_rang_ab}
                   itemCode={finalItem.item_code}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
+                  _tableauRangA={finalItem.tableau_rang_a}
+                  _tableauRangB={finalItem.tableau_rang_b}
                 />
               </TabsContent>
 
@@ -675,7 +679,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     {finalItem.audio_ambiance && (
                       <AudioAmbiancePlayer 
                         audioConfig={finalItem.audio_ambiance} 
-                        itemCode={finalItem.item_code} 
+                        _itemCode={finalItem.item_code} 
                       />
                     )}
                     <SceneImmersive data={completeItemData?.scene_immersive || finalItem.scene_immersive} itemCode={finalItem.item_code} />
@@ -721,16 +725,6 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 {(() => {
                   const quizData = completeItemData?.quiz_questions || finalItem.quiz_questions;
                   // Détection améliorée: quiz peut être un array OU un objet avec sous-clés (qcm, qru, qroc, zap)
-                  const hasQuiz = quizData && (
-                    (Array.isArray(quizData) && quizData.length > 0) ||
-                    (typeof quizData === 'object' && !Array.isArray(quizData) && (
-                      (Array.isArray((quizData as any).qcm) && (quizData as any).qcm.length > 0) ||
-                      (Array.isArray((quizData as any).qru) && (quizData as any).qru.length > 0) ||
-                      (Array.isArray((quizData as any).qroc) && (quizData as any).qroc.length > 0) ||
-                      (Array.isArray((quizData as any).zap) && (quizData as any).zap.length > 0)
-                    ))
-                  );
-                  
                   // Toujours afficher EnhancedQuizFinal qui gère aussi la génération OIC si pas de questions
                   return (
                   <>
@@ -762,8 +756,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <BdGallery 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  _tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  _tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                   bdPanels={completeItemData?.bd_panels as any || finalItem.bd_panels as any}
                 />
               </TabsContent>
@@ -773,8 +767,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <RomanNarratif 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  _tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  _tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                   romanStory={completeItemData?.roman_story as any || finalItem.roman_story as any}
                 />
               </TabsContent>

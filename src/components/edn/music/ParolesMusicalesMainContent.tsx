@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Music } from 'lucide-react';
-import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
-import { SunoGenerationStatus } from './SunoGenerationStatus';
 import { SynchronizedLyricsDisplay } from '@/components/music/SynchronizedLyricsDisplay';
 import { Button } from '@/components/ui/button';
 import { useSynchronizedLyrics } from '@/hooks/music/useSynchronizedLyrics';
+import { Music } from 'lucide-react';
+import React, { useState } from 'react';
+import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
+import { SunoGenerationStatus } from './SunoGenerationStatus';
 
 interface CurrentTrack {
   url?: string;

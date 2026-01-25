@@ -80,7 +80,7 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         return;
       }
       
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_competence_progress')
         .select('competence_id')
         .eq('user_id', user.id)
@@ -88,8 +88,8 @@ export const InteractiveTableauRang: React.FC<InteractiveTableauRangProps> = ({
         .eq('rang', rang)
         .eq('mastered', true);
       
-      if (data) {
-        setMasteredCompetences(new Set(data.map((d: { competence_id: string }) => d.competence_id)));
+      if (_data) {
+        setMasteredCompetences(new Set(_data.map((d: { competence_id: string }) => d.competence_id)));
       }
     };
     loadMastered();

@@ -1,13 +1,13 @@
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import React from 'react';
 
 interface RangGenerateButtonProps {
   rang: 'A' | 'B';
   musicDuration: number;
   isGenerating: boolean;
-  buttonColor: string;
+  _buttonColor: string;
   onGenerate: () => void;
 }
 
@@ -15,7 +15,7 @@ export const RangGenerateButton: React.FC<RangGenerateButtonProps> = ({
   rang,
   musicDuration,
   isGenerating,
-  buttonColor,
+  _buttonColor,
   onGenerate
 }) => {
   const formatDuration = (seconds: number) => {

@@ -1,32 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Calendar,
-  Clock,
-  Target,
-  BookOpen,
-  Music,
-  Brain,
-  CheckCircle,
-  AlertCircle,
-  Plus,
-  Edit,
-  Trash2,
-  Play,
-  Flame,
-  Star,
-  Trophy
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import {
+    AlertCircle,
+    BookOpen,
+    Brain,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Edit,
+    Music,
+    Play,
+    Plus,
+    Target,
+    Trash2
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 interface StudySession {
   id: string;
@@ -53,13 +50,13 @@ const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
-  const [studyPlans, setStudyPlans] = useState<any[]>([]);
+  const [_studyPlans, setStudyPlans] = useState<any[]>([]);
   const [studySessions, setStudySessions] = useState<StudySession[]>([]);
   const [studyGoals, setStudyGoals] = useState<StudyGoal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   // Load user, stats, sessions and goals from Supabase
   useEffect(() => {
@@ -72,7 +69,7 @@ const StudyPlanner = () => {
         setWeeklySummary(summary);
         
         // Load study plans from Supabase
-        const { data: plans } = await supabase
+        const { _data: plans } = await supabase
           .from('study_plans')
           .select('*')
           .eq('user_id', user.id)
@@ -83,7 +80,7 @@ const StudyPlanner = () => {
         }
 
         // Load study sessions from Supabase (plan_sessions table)
-        const { data: sessionsData } = await supabase
+        const { _data: sessionsData } = await supabase
           .from('plan_sessions')
           .select('*')
           .eq('user_id', user.id)
@@ -105,7 +102,7 @@ const StudyPlanner = () => {
         }
 
         // Load learning goals from Supabase
-        const { data: goalsData } = await supabase
+        const { _data: goalsData } = await supabase
           .from('learning_goals')
           .select('*')
           .eq('user_id', user.id)
@@ -174,12 +171,12 @@ const StudyPlanner = () => {
         count: 1,
         metadata: { sessionId, action: 'start' }
       });
-      await addPoints(user.id, 'dailyStreak');
+      await _addPoints(user.id, 'dailyStreak');
       
       // Track sessions completed for badge
       const completedCount = studySessions.filter(s => s.completed).length + 1;
       if (completedCount >= 10) {
-        await unlockBadge(user.id, 'items_10');
+        await _unlockBadge(user.id, 'items_10');
       }
       
       loadStats(user.id);
@@ -190,29 +187,6 @@ const StudyPlanner = () => {
       description: "Votre session d'étude a commencé. Bon travail !",
     });
   };
-
-  const createStudyPlan = async (title: string, description: string) => {
-    if (!user) return;
-    
-    const { data, error } = await supabase
-      .from('study_plans')
-      .insert([{
-        user_id: user.id,
-        title,
-        description,
-        status: 'active',
-        target_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      }])
-      .select()
-      .maybeSingle();
-
-    if (data) {
-      setStudyPlans([data, ...studyPlans]);
-      await addPoints(user.id, 'itemReviewed');
-      toast({ title: "Plan créé", description: "Votre plan d'étude a été créé avec succès." });
-    }
-  };
-
   return (
     <>
       <Helmet>

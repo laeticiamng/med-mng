@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, _screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { MainNavigation } from '@/components/layout/MainNavigation';
@@ -45,6 +45,6 @@ describe('MainNavigation coherence', () => {
     renderNavigation();
 
     // Check that at least the first nav item is rendered as a link
-    expect(screen.getByRole('link', { name: /accueil/i })).toBeInTheDocument();
+    expect(_screen.getByRole('link', { name: /accueil/i })).toBeInTheDocument();
   });
 });

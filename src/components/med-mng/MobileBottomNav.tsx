@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Library, Plus, CreditCard, User, Flame, Heart } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
-import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { CreditCard, Flame, Heart, Home, Library, Plus, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface BottomNavItemProps {
   icon: React.ReactNode;
   label: string;
-  path: string;
+  _path: string;
   onClick: () => void;
   isActive: boolean;
 }
@@ -19,7 +19,7 @@ interface BottomNavItemProps {
 const BottomNavItem: React.FC<BottomNavItemProps> = ({ 
   icon, 
   label, 
-  path, 
+  _path, 
   onClick, 
   isActive 
 }) => {
@@ -60,7 +60,7 @@ const BottomNavItem: React.FC<BottomNavItemProps> = ({
 export const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { stats } = useGamification();
+  const { _stats } = useGamification();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -115,21 +115,21 @@ export const MobileBottomNav: React.FC = () => {
       aria-label="Navigation principale mobile"
     >
       {/* Mini gamification stats bar */}
-      {user && stats && (
+      {user && _stats && (
         <div className="flex items-center justify-center gap-4 py-1 bg-muted/50 border-b border-border text-xs">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className="flex items-center gap-1">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-medium">{stats.currentStreak}</span>
+                <span className="font-medium">{_stats.currentStreak}</span>
               </TooltipTrigger>
               <TooltipContent>Streak actuelle</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <span className="text-muted-foreground">•</span>
-          <span className="font-medium">Niv. {stats.level}</span>
+          <span className="font-medium">Niv. {_stats.level}</span>
           <span className="text-muted-foreground">•</span>
-          <span className="text-primary font-medium">{stats.totalPoints} XP</span>
+          <span className="text-primary font-medium">{_stats.totalPoints} XP</span>
         </div>
       )}
       
@@ -139,7 +139,7 @@ export const MobileBottomNav: React.FC = () => {
             key={item.path}
             icon={item.icon}
             label={item.label}
-            path={item.path}
+            _path={item.path}
             onClick={item.onClick}
             isActive={isActive(item.path)}
           />

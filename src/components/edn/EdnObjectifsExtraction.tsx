@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
-import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock, Flame, Trophy } from 'lucide-react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
+import { AlertCircle, BarChart3, CheckCircle, Clock, Flame, Pause, PlayCircle, RefreshCw, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ExtractionStatus {
   session_id: string;
@@ -44,7 +44,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats } = useGamification();
+  const { _stats: gamificationStats } = useGamification();
 
   // Track page view
   useEffect(() => {
@@ -60,9 +60,6 @@ export const EdnObjectifsExtraction: React.FC = () => {
     try {
       setError(null);
       setIsExtracting(true);
-      
-      const result = await extractor.startExtraction();
-      
       // Démarre le polling du statut
       extractor.startStatusPolling((newStatus) => {
         setStatus(newStatus);

@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 import { useToast } from './use-toast';
 
 export interface StudyGroup {
@@ -345,7 +345,7 @@ export function useCollaborativeStudy() {
   }, [toast]);
 
   // End session
-  const endSession = useCallback(async (sessionId: string) => {
+  const endSession = useCallback(async (_sessionId: string) => {
     setCurrentSession(null);
     toast({ title: "Session terminée" });
     return true;

@@ -1,5 +1,5 @@
 
-import { CheckCircle, Target, BookOpen, Award, Scale, Users, Shield, AlertTriangle, Heart, Brain } from 'lucide-react';
+import { AlertTriangle, Award, BookOpen, Brain, CheckCircle, Scale, Shield, Target, Users } from 'lucide-react';
 
 interface TableauRangAFooterIC2Props {
   colonnesCount?: number;

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { checkAndUseCredits } from '@/hooks/useIAQuota';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 export interface FavoriteSong {
   id: string;
@@ -30,7 +30,7 @@ export const useFavoritesAndHistory = () => {
 
   const loadFavorites = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_user_favorites')
         .select(`
           id,
@@ -43,9 +43,9 @@ export const useFavoritesAndHistory = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      const formattedFavorites: FavoriteSong[] = data?.map(fav => ({
+      const formattedFavorites: FavoriteSong[] = _data?.map(fav => ({
         id: fav.id,
         song_id: fav.song_id,
         title: (fav.med_mng_songs as any)?.title || 'Titre inconnu',
@@ -64,14 +64,14 @@ export const useFavoritesAndHistory = () => {
     }
   };
 
-  const loadHistory = async (limit = 50) => {
+  const loadHistory = async (_limit = 50) => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_playlists') // Utiliser une table existante temporairement
         .select('*')
         .limit(0); // Ne pas récupérer de données réelles
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Pour l'instant, retourner un historique vide jusqu'à ce que les types soient mis à jour
       setHistory([]);
@@ -98,13 +98,13 @@ export const useFavoritesAndHistory = () => {
         return false;
       }
 
-      const { data, error } = await supabase.rpc('med_mng_toggle_favorite', {
+      const { _data, _error } = await supabase.rpc('med_mng_toggle_favorite', {
         song_id: songId
       });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      const isAdded = data; // true si ajouté, false si retiré
+      const isAdded = _data; // true si ajouté, false si retiré
 
       toast({
         title: isAdded ? "❤️ Ajouté aux favoris" : "💔 Retiré des favoris",
@@ -131,14 +131,14 @@ export const useFavoritesAndHistory = () => {
     deviceType: string = 'web'
   ) => {
     try {
-      const { error } = await supabase.rpc('med_mng_log_listen', {
+      const { _error } = await supabase.rpc('med_mng_log_listen', {
         song_id: songId,
         duration_seconds: durationSeconds,
         completion_percentage: completionPercentage,
         device_type: deviceType
       });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Recharger l'historique silencieusement
       await loadHistory();
@@ -180,7 +180,7 @@ export const useFavoritesAndHistory = () => {
 
   const clearHistory = async () => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_playlists') // Table temporaire
         .delete()
         .eq('id', 'temp'); // Requête qui ne supprimera rien

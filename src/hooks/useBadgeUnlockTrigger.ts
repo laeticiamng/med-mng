@@ -18,7 +18,7 @@ export function useBadgeUnlockTrigger() {
       if (!user) return;
 
       // Load initial badges
-      const { data: existingBadges } = await supabase
+      const { _data: existingBadges } = await supabase
         .from('user_badges')
         .select('badge_id')
         .eq('user_id', user.id)

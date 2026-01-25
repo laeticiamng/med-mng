@@ -1,26 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  BookOpen, Search, Filter, MoreHorizontal, Edit, Trash2, 
-  CheckCircle, AlertTriangle, Music, Brain, Image, Eye
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
-  DropdownMenuTrigger, DropdownMenuSeparator 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { 
-  Select, SelectContent, SelectItem, 
-  SelectTrigger, SelectValue 
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import {
+    Select, SelectContent, SelectItem,
+    SelectTrigger, SelectValue
 } from '@/components/ui/select';
-import { 
-  Table, TableBody, TableCell, TableHead, 
-  TableHeader, TableRow 
+import {
+    Table, TableBody, TableCell, TableHead,
+    TableHeader, TableRow
 } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    BookOpen,
+    Brain,
+    CheckCircle,
+    Edit,
+    Eye,
+    MoreHorizontal,
+    Music,
+    Search,
+    Trash2
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface EdnItem {
@@ -54,7 +63,7 @@ export const AdminContentManager = () => {
     try {
       setLoading(true);
       
-      const { data: immersiveItems, error: immersiveError } = await supabase
+      const { _data: immersiveItems, _error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, 
@@ -68,7 +77,7 @@ export const AdminContentManager = () => {
         throw immersiveError;
       }
 
-      const { data: completeItems } = await supabase
+      const { _data: completeItems } = await supabase
         .from('edn_items_complete')
         .select('item_code, completeness_score, is_validated');
 
@@ -141,7 +150,7 @@ export const AdminContentManager = () => {
   const handleValidateItem = async (itemId: string, itemCode: string) => {
     try {
       // Persister la validation dans la base de données
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('edn_items_complete')
         .update({
           is_validated: true,
@@ -149,7 +158,7 @@ export const AdminContentManager = () => {
         })
         .eq('item_code', itemCode);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Mettre à jour l'état local après succès
       const updatedItems = items.map(item =>
@@ -181,7 +190,7 @@ export const AdminContentManager = () => {
 
     try {
       // Supprimer de la table edn_items_immersive
-      const { error: immersiveError } = await supabase
+      const { _error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .delete()
         .eq('id', itemId);
@@ -206,12 +215,12 @@ export const AdminContentManager = () => {
 
   const handleInvalidateItem = async (itemId: string, itemCode: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('edn_items_complete')
         .update({ is_validated: false })
         .eq('item_code', itemCode);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       const updatedItems = items.map(item =>
         item.id === itemId ? { ...item, is_validated: false } : item

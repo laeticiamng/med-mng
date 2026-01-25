@@ -8,7 +8,7 @@
  * - Edge cases et sécurité
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // MOCKS
@@ -369,8 +369,6 @@ describe('useUserRoles Hook - Unit Tests', () => {
       
       const isAdmin = currentRoles.includes('admin');
       const isSelfEscalation = currentUserId === targetUserId;
-      const canEscalate = isAdmin || (!isAdmin && !isSelfEscalation);
-      
       // Non-admin essayant de s'auto-promouvoir = interdit
       expect(!isAdmin && isSelfEscalation).toBe(true);
     });

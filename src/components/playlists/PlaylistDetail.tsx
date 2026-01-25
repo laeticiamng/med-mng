@@ -1,31 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, GripVertical, X, Music } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { usePlaylists, type Playlist, type PlaylistSong } from '@/hooks/usePlaylists';
 import { TranslatedText } from '@/components/TranslatedText';
-import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { usePlaylists, type Playlist, type PlaylistSong } from '@/hooks/usePlaylists';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
-  SortableContext as SortableContextProvider,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { ArrowLeft, GripVertical, Music, Pause, Play, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface SortableSongItemProps {
   song: PlaylistSong;

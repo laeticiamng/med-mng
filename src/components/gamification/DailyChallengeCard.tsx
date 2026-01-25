@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Zap, 
-  Clock, 
-  Gift,
-  RefreshCw,
-  CheckCircle,
-  Star,
-  Trophy
-} from 'lucide-react';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { useGamification } from '@/hooks/useGamification';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/hooks/use-toast';
+import { useGamification } from '@/hooks/useGamification';
+import {
+    CheckCircle,
+    Clock,
+    Gift,
+    RefreshCw,
+    Star,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface DailyChallengeCardProps {
   className?: string;
@@ -73,7 +73,7 @@ const DAILY_CHALLENGES: Omit<Challenge, 'id' | 'current' | 'completed'>[] = [
 
 export const DailyChallengeCard: React.FC<DailyChallengeCardProps> = ({ className = '' }) => {
   const { user } = useAuth();
-  const { stats, addPoints } = useGamification();
+  const { _stats, _addPoints } = useGamification();
   const { toast } = useToast();
   const navigate = useNavigate();
   

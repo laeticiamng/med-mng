@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Download, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Download, FileText, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface TableauSection {
   titre?: string;
@@ -93,14 +93,14 @@ export function EdnItemExport({
       let oicCompetencesB: OicCompetence[] = [];
       
       if (options.includeOicCompetences) {
-        const { data: compA } = await supabase
+        const { _data: compA } = await supabase
           .from('oic_competences')
           .select('*')
           .eq('item_parent', itemCode)
           .eq('rang', 'A')
           .limit(100);
         
-        const { data: compB } = await supabase
+        const { _data: compB } = await supabase
           .from('oic_competences')
           .select('*')
           .eq('item_parent', itemCode)

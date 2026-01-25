@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Download, FileText, Share2, Loader2, Check, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { Download, FileText, Loader2, Share2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface ExportOptions {
   includeStats: boolean;
@@ -121,7 +120,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - periodDays);
 
-        const { data: activities } = await supabase
+        const { _data: activities } = await supabase
           .from('user_activity_log')
           .select('*')
           .eq('user_id', userId)

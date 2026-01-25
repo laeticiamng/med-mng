@@ -87,9 +87,6 @@ export const useMusicValidation = () => {
         isTruncated: false
       };
     }
-    
-    const isTruncated = charCount > limits.promptMax;
-    
     if (charCount > limits.promptMax) {
       return {
         isValid: true,

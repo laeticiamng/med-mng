@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Heart, Reply, Send, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Heart, Loader2, Reply, Send } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Comment {
   id: string;
@@ -79,7 +78,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
     }
 
     try {
-      const { data: profile } = await supabase
+      const { _data: profile } = await supabase
         .from('profiles')
         .select('name')
         .eq('id', user.id)

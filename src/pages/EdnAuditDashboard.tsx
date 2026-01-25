@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Play, RefreshCw, CheckCircle, AlertCircle, XCircle, 
-  TrendingUp, TrendingDown, Loader2, ArrowLeft, Search, Sparkles
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { SEOHead } from '@/components/seo/SEOHead';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    ArrowLeft,
+    CheckCircle,
+    Loader2,
+    Play, RefreshCw,
+    Search, Sparkles,
+    TrendingDown,
+    TrendingUp
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AuditResult {
   id: string;
@@ -36,7 +42,7 @@ export const EdnAuditDashboard: React.FC = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const [completingItems, setCompletingItems] = useState<Set<string>>(new Set());
   const [auditResults, setAuditResults] = useState<AuditResult[]>([]);
-  const [stats, setStats] = useState({
+  const [_stats, _setStats] = useState({
     pending: 0,
     analyzing: 0,
     completed: 0,
@@ -46,17 +52,17 @@ export const EdnAuditDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadAuditResults = async () => {
-    const { data, error } = await supabase
+    const { _data, _error } = await supabase
       .from('edn_items_audit')
       .select('*')
       .order('completeness_score', { ascending: true });
 
-    if (error) {
-      console.error('Error loading audit results:', error);
+    if (_error) {
+      console.error('Error loading audit results:', _error);
       return;
     }
 
-    setAuditResults(data || []);
+    setAuditResults(_data || []);
   };
 
   const startAudit = async () => {
@@ -70,7 +76,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
       
       // Lancer l'audit global
-      const { data, error } = await supabase.functions.invoke('audit-edn-completeness', {
+      const { _data, error } = await supabase.functions.invoke('audit-edn-completeness', {
         body: { action: 'start-audit' }
       });
 
@@ -78,11 +84,11 @@ export const EdnAuditDashboard: React.FC = () => {
 
       toast({
         title: "✅ Audit lancé",
-        description: `Analyse de ${data.itemCount} items en cours...`,
+        description: `Analyse de ${_data.itemCount} items en cours...`,
       });
 
       // Récupérer tous les items à analyser
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code')
         .order('item_code');
@@ -146,19 +152,19 @@ export const EdnAuditDashboard: React.FC = () => {
       while (hasMore && iterations < 20) { // Limite de sécurité à 20 itérations
         iterations++;
         
-        const { data, error } = await supabase.functions.invoke('complete-missing-competences', {
+        const { _data, error } = await supabase.functions.invoke('complete-missing-competences', {
           body: { itemCode }
         });
 
         if (error) throw error;
         
-        totalCompleted += data.completedCompetences;
-        hasMore = data.hasMore || false;
+        totalCompleted += _data.completedCompetences;
+        hasMore = _data.hasMore || false;
         
         if (hasMore) {
           toast({
             title: `⏳ Progression ${iterations}/${maxIterations}`,
-            description: `${totalCompleted} compétences complétées, ${data.remaining} restantes...`,
+            description: `${totalCompleted} compétences complétées, ${_data.remaining} restantes...`,
           });
           
           // Petite pause entre les batchs

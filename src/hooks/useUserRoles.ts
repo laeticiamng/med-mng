@@ -29,13 +29,13 @@ export function useUserRoles() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id);
 
-      if (error) throw error;
-      return (data || []).map((r: any) => r.role as AppRole);
+      if (_error) throw _error;
+      return (_data || []).map((r: any) => r.role as AppRole);
     },
   });
 
@@ -60,7 +60,7 @@ export function useUserRoles() {
       if (usersError) throw usersError;
 
       // Get all role assignments
-      const { data: roles, error: rolesError } = await supabase
+      const { _data: roles, _error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
 
@@ -85,7 +85,7 @@ export function useUserRoles() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_roles')
         .insert({
           user_id: userId,
@@ -93,7 +93,7 @@ export function useUserRoles() {
           assigned_by: user.id,
         } as any);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-with-roles'] });
@@ -107,13 +107,13 @@ export function useUserRoles() {
   // Remove role from user
   const removeRole = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
         .eq('role', role as any);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-with-roles'] });

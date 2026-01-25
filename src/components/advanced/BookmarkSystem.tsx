@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Bookmark, BookmarkCheck, Heart, Star, 
-  Share2, Download, Eye, Clock, Filter
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Bookmark, BookmarkCheck,
+    Clock,
+    Eye,
+    Filter,
+    Share2,
+    Star
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface BookmarkItem {
   id: string;
@@ -79,11 +83,6 @@ export const BookmarkSystem: React.FC<BookmarkSystemProps> = ({
       })));
     }
   };
-
-  const saveBookmarks = async (newBookmarks: BookmarkItem[]) => {
-    setBookmarks(newBookmarks);
-  };
-
   const handleBookmarkToggle = async () => {
     if (!itemId || !itemTitle || !itemType) return;
 

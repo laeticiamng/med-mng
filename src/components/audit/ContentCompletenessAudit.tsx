@@ -1,45 +1,14 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, CheckCircle, Clock, AlertCircle, Play, FileText, BarChart3 } from 'lucide-react';
 import { useContentCompletenessChecker } from '@/hooks/useContentCompletenessChecker';
+import { AlertCircle, AlertTriangle, BarChart3, CheckCircle, Clock, FileText, Play } from 'lucide-react';
+import React from 'react';
 
 export const ContentCompletenessAudit: React.FC = () => {
   const { isAnalyzing, results, error, runAnalysis } = useContentCompletenessChecker();
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'complete':
-        return <CheckCircle className="w-4 h-4 text-success" />;
-      case 'partial':
-        return <Clock className="w-4 h-4 text-warning" />;
-      case 'incomplete':
-        return <AlertCircle className="w-4 h-4 text-warning" />;
-      case 'empty':
-        return <AlertTriangle className="w-4 h-4 text-destructive" />;
-      default:
-        return <AlertTriangle className="w-4 h-4 text-muted-foreground" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'complete':
-        return 'bg-success/10 text-success border-success/20';
-      case 'partial':
-        return 'bg-warning/10 text-warning border-warning/20';
-      case 'incomplete':
-        return 'bg-warning/10 text-warning border-warning/20';
-      case 'empty':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
-      default:
-        return 'bg-muted text-muted-foreground border-border';
-    }
-  };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'HIGH':

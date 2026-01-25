@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock Supabase
 const mockSupabase = {
@@ -168,12 +168,6 @@ describe('Progress Dashboard - Weighted Success Model', () => {
     });
 
     it('should handle users with partial data', () => {
-      const userData = {
-        srsCards: [{ mastery_level: 'mastered' }],
-        exams: [], // No exams yet
-        streak: 3
-      };
-
       // Should still calculate with available data
       const srsScore = 100; // 1/1 mastered
       const examScore = 0; // No data, default to 0

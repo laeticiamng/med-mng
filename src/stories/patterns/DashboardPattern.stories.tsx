@@ -1,42 +1,41 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Meta, StoryObj } from '@storybook/react';
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import {
-  TrendingUp,
-  TrendingDown,
-  Users,
-  DollarSign,
-  ShoppingCart,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  Download,
-  Filter,
-  Calendar,
-  MoreVertical,
+    Activity,
+    ArrowDownRight,
+    ArrowUpRight,
+    Calendar,
+    DollarSign,
+    Download,
+    Filter,
+    MoreVertical,
+    ShoppingCart,
+    TrendingUp,
+    Users,
 } from 'lucide-react';
+import { useState } from 'react';
+import {
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 const meta = {
   title: 'Patterns/Dashboard',
@@ -130,7 +129,7 @@ const MetricCard = ({
 
 // Dashboard complet avec sidebar
 const CompleteDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('7days');
+  const [selectedPeriod, _setSelectedPeriod] = useState('7days');
 
   return (
     <div className="flex h-screen bg-background">

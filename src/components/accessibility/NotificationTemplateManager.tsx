@@ -90,16 +90,16 @@ export function NotificationTemplateManager() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('notification_templates')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
       
       // Cast the data to match our interface
-      const typedData = (data || []).map(item => ({
+      const typedData = (_data || []).map(item => ({
         ...item,
         platform: item.platform as 'slack' | 'discord' | 'both',
         variables: Array.isArray(item.variables) ? item.variables as string[] : []
@@ -145,19 +145,19 @@ export function NotificationTemplateManager() {
       };
 
       if (selectedTemplate) {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('notification_templates')
           .update(payload)
           .eq('id', selectedTemplate.id);
 
-        if (error) throw error;
+        if (_error) throw _error;
         toast.success('Template mis à jour avec succès');
       } else {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('notification_templates')
           .insert(payload);
 
-        if (error) throw error;
+        if (_error) throw _error;
         toast.success('Template créé avec succès');
       }
 
@@ -174,12 +174,12 @@ export function NotificationTemplateManager() {
     if (!templateToDelete) return;
 
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('notification_templates')
         .delete()
         .eq('id', templateToDelete);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast.success('Template supprimé avec succès');
       setDeleteDialogOpen(false);

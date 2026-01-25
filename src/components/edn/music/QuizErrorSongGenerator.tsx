@@ -21,11 +21,11 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
   itemTitle
 }) => {
   const [selectedStyle, setSelectedStyle] = React.useState<string>('lofi-piano');
-  const { currentErrors, hasCurrentSession } = useQuizErrorTracker();
+  const { currentErrors, _hasCurrentSession } = useQuizErrorTracker();
   const { generateMusic, loading: isGenerating } = useSpotifyAI();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
 
   React.useEffect(() => {
     const load = async () => {
@@ -115,7 +115,7 @@ Grâce à mes erreurs... quelle surprise !`;
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await logActivity({ activity_type: 'study', count: 1, metadata: { itemCode, action: 'error_song_generated', errorsCount: currentErrors.length } });
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
       
       toast({
@@ -133,7 +133,7 @@ Grâce à mes erreurs... quelle surprise !`;
     }
   };
 
-  if (!hasCurrentSession || !currentErrors.length) {
+  if (!_hasCurrentSession || !currentErrors.length) {
     return (
       <Card className="border-border">
         <CardHeader>
@@ -157,15 +157,15 @@ Grâce à mes erreurs... quelle surprise !`;
             <Brain className="h-5 w-5" />
             Transformer vos erreurs en chanson
           </CardTitle>
-          {stats && (
+          {_stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {stats.currentStreak ?? 0}j
+                {_stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {stats.level ?? 1}
+                Niv. {_stats.level ?? 1}
               </Badge>
             </div>
           )}

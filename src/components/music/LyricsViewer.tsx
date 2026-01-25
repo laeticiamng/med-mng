@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Play, Pause, Volume2, Search, SkipForward, SkipBack } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import { Search, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface LyricLine {
   timestamp: number; // en secondes
@@ -17,7 +17,7 @@ interface LyricsViewerProps {
   lyrics: LyricLine[];
   currentTime: number;
   duration: number;
-  isPlaying: boolean;
+  _isPlaying: boolean;
   onSeek: (time: number) => void;
   title?: string;
   artist?: string;
@@ -28,15 +28,15 @@ export const LyricsViewer: React.FC<LyricsViewerProps> = ({
   lyrics,
   currentTime,
   duration,
-  isPlaying,
+  _isPlaying,
   onSeek,
   title,
   artist,
   itemCode
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [showSections, setShowSections] = useState(true);
+  const [_highlightedIndex, _setHighlightedIndex] = useState(-1);
+  const [showSections, _setShowSections] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const activeLineRef = useRef<HTMLDivElement>(null);
 

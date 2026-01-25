@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Search, Filter, Heart, Play, MoreHorizontal, Music } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import { usePlayer } from '@/hooks/usePlayer';
+import { Filter, Heart, MoreHorizontal, Music, Play, Search } from 'lucide-react';
+import { useState } from 'react';
 
 export const MusicLibrary = () => {
   const {
@@ -26,7 +26,7 @@ export const MusicLibrary = () => {
 
   const { playTrack, currentTrack, isPlaying } = usePlayer();
 
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [_viewMode, _setViewMode] = useState<'list' | 'grid'>('list');
 
   const getTypeLabel = (type: string) => {
     switch (type) {
@@ -202,7 +202,7 @@ export const MusicLibrary = () => {
         </Card>
       ) : (
         <div className="space-y-2">
-          {tracks.map((track, index) => (
+          {tracks.map((track, _index) => (
             <Card key={track.id} className="hover:bg-muted/50 transition-colors">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">

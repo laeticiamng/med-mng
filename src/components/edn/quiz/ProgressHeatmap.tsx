@@ -42,17 +42,17 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
         quizQuery = quizQuery.eq('item_code', itemCode);
       }
 
-      const { data: quizData } = await quizQuery;
+      const { _data: quizData } = await quizQuery;
 
       // Fetch study activities
-      const { data: activityData } = await supabase
+      const { _data: activityData } = await supabase
         .from('user_activities')
         .select('created_at, activity_type')
         .eq('user_id', user.id)
         .gte('created_at', startDate.toISOString());
 
       // Fetch mastery updates
-      const { data: masteryData } = await supabase
+      const { _data: masteryData } = await supabase
         .from('user_competence_mastery')
         .select('updated_at')
         .eq('user_id', user.id)

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useActivityTracking, ActivityType } from '@/hooks/useActivityTracking';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, Flame, TrendingUp, Filter, X } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { Calendar, Filter, Flame, TrendingUp, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface HeatmapData {
   date: string;
@@ -29,7 +29,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
 };
 
 export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
-  const { getHeatmapData, getStreak } = useActivityTracking();
+  const { _getHeatmapData, getStreak } = useActivityTracking();
   const [data, setData] = useState<HeatmapData[]>([]);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
     const loadData = async () => {
       setLoading(true);
       const [heatmapData, streakData] = await Promise.all([
-        getHeatmapData(days),
+        _getHeatmapData(days),
         getStreak()
       ]);
       setData(heatmapData);
@@ -47,7 +47,7 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
       setLoading(false);
     };
     loadData();
-  }, [days, getHeatmapData, getStreak]);
+  }, [days, _getHeatmapData, getStreak]);
 
   const getIntensityClass = (count: number): string => {
     if (count === 0) return 'bg-muted';
@@ -89,16 +89,6 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
     });
     return acc;
   }, {} as Record<string, number>);
-  
-  const activityLabels: Record<string, string> = {
-    study: '📚 Étude',
-    review: '🔄 Révision',
-    exam: '📝 Examen',
-    clinical: '🏥 Cas clinique',
-    flashcard: '🃏 Flashcard',
-    ai_question: '🤖 Question IA',
-  };
-
   // Group by weeks for display
   const weeks: HeatmapData[][] = [];
   let currentWeek: HeatmapData[] = [];

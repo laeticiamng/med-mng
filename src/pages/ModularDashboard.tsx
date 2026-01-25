@@ -1,57 +1,46 @@
-import React, { useState, Suspense, useEffect } from 'react';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/navigation/AppSidebar';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { AdvancedAnalyticsDashboard } from '@/components/analytics/AdvancedAnalyticsDashboard';
-import { AdvancedMusicGenerator } from '@/components/music/AdvancedMusicGenerator';
-import { AIAssistantHub } from '@/components/ai/AIAssistantHub';
-import { NotificationCenter } from '@/components/notifications/NotificationCenter';
-import { CollaborativeStudy } from '@/components/study/CollaborativeStudy';
-import { AdvancedMusicPlayer } from '@/components/music/AdvancedMusicPlayer';
-import { StudyPlanManager } from '@/components/study/StudyPlanManager';
-import { StudyCalendar } from '@/components/calendar/StudyCalendar';
-import { SystemSettings } from '@/components/settings/SystemSettings';
 import { AIChat } from '@/components/ai/AIChat';
-import { ROUTE_PATHS } from '@/config/routes';
+import { AdvancedAnalyticsDashboard } from '@/components/analytics/AdvancedAnalyticsDashboard';
+import { StudyCalendar } from '@/components/calendar/StudyCalendar';
+import { AdvancedMusicGenerator } from '@/components/music/AdvancedMusicGenerator';
+import { AdvancedMusicPlayer } from '@/components/music/AdvancedMusicPlayer';
+import { AppSidebar } from '@/components/navigation/AppSidebar';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { SystemSettings } from '@/components/settings/SystemSettings';
+import { CollaborativeStudy } from '@/components/study/CollaborativeStudy';
+import { StudyPlanManager } from '@/components/study/StudyPlanManager';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    BarChart3,
+    Brain,
+    Calendar,
+    MessageSquare,
+    Music,
+    Settings,
+    Sparkles,
+    Target,
+    TrendingUp,
+    Users
+} from 'lucide-react';
+import React, { Suspense, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Lazy loaded components
 const RealTimeAnalytics = React.lazy(() => import('@/components/analytics/RealTimeAnalytics').then(m => ({ default: m.RealTimeAnalytics })));
 const UserProfileManager = React.lazy(() => import('@/components/profile/UserProfileManager').then(m => ({ default: m.UserProfileManager })));
 const AchievementSystem = React.lazy(() => import('@/components/gamification/AchievementSystem').then(m => ({ default: m.AchievementSystem })));
 const CommunityHub = React.lazy(() => import('@/components/social/CommunityHub').then(m => ({ default: m.CommunityHub })));
-import { 
-  BarChart3, 
-  Music, 
-  MessageSquare, 
-  BookOpen, 
-  Users, 
-  Settings,
-  Sparkles,
-  TrendingUp,
-  Headphones,
-  Brain,
-  Calendar,
-  Target
-} from 'lucide-react';
 
 export default function ModularDashboard() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [activeModule, setActiveModule] = useState('analytics');
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
     logActivity({ activity_type: 'study', metadata: { action: 'view_modular_dashboard' } });
   }, []);
-
-  const handleModuleChange = (moduleId: string) => {
-    setActiveModule(moduleId);
-    logActivity({ activity_type: 'study', metadata: { action: 'switch_module', module: moduleId } });
-  };
-
-  const modules = [
+  const _modules = [
     {
       id: 'analytics',
       name: 'Analytics Avancées',
@@ -133,33 +122,6 @@ export default function ModularDashboard() {
       component: SystemSettings
     }
   ];
-
-  const quickActions = [
-    {
-      title: 'Interface EDN',
-      description: 'Accéder aux items EDN complets',
-      icon: BookOpen,
-      action: () => navigate(ROUTE_PATHS.ednComplete),
-      color: 'bg-primary'
-    },
-    {
-      title: 'Communauté',
-      description: 'Rejoindre la communauté médicale',
-      icon: Users,
-      action: () => navigate(ROUTE_PATHS.community),
-      color: 'bg-success'
-    },
-    {
-      title: 'Paramètres',
-      description: 'Configurer votre profil',
-      icon: Settings,
-      action: () => navigate(ROUTE_PATHS.settings),
-      color: 'bg-muted-foreground'
-    }
-  ];
-
-  const ActiveComponent = modules.find(m => m.id === activeModule)?.component || AdvancedAnalyticsDashboard;
-
   const handleSidebarNavigation = (moduleId: string) => {
     setActiveModule(moduleId);
   };

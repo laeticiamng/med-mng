@@ -1,26 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  User, 
-  Trophy, 
-  Calendar, 
-  Music, 
-  Brain, 
-  Target,
-  Zap,
-  Star,
-  TrendingUp,
-  Clock,
-  Award,
-  Flame
-} from 'lucide-react';
-import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { BADGE_DEFINITIONS, useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    Brain,
+    Calendar,
+    Clock,
+    Music,
+    Star,
+    Target,
+    TrendingUp,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface UserStats {
   totalSessions: number;
@@ -43,9 +41,9 @@ interface Achievement {
 }
 
 export const UserProfile: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const [_activeTab, _setActiveTab] = useState('overview');
+  const [_user, setUser] = useState<any>(null);
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
 

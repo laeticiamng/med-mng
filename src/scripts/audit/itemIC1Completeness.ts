@@ -14,13 +14,13 @@ export class IC1CompletenessAuditor {
     
     try {
       // Récupération de l'item IC-1
-      const { data: ic1Item, error } = await supabase
+      const { _data: ic1Item, _error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .or('item_code.eq.IC-1,item_code.eq.IC-001,slug.eq.ic-1,slug.eq.relation-medecin-malade')
         .maybeSingle();
 
-      if (error || !ic1Item) {
+      if (_error || !ic1Item) {
         return this.createErrorReport();
       }
 

@@ -1,41 +1,54 @@
 // ProgressDashboard - Learning Progress Tracking
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  TrendingUp, Target, Brain, BookOpen, Trophy, Clock,
-  Calendar, Flame, CheckCircle, AlertTriangle, ChevronLeft,
-  BarChart3, PieChart, Activity, Zap, Settings, Award, Star,
-  History, Bell, Download, Wifi
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useSRS } from '@/hooks/useSRS';
-import { useExamMode } from '@/hooks/useExamMode';
-import { useClinicalCases } from '@/hooks/useClinicalCases';
-import { useFlashcards } from '@/hooks/useFlashcards';
-import { useGamification } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useToast } from '@/hooks/use-toast';
-import { ROUTE_PATHS } from '@/config/routes';
+import { RevisionHistory } from '@/components/analytics/RevisionHistory';
+import { PDFExportService } from '@/components/export/PDFExportService';
+import { ProgressExport } from '@/components/export/ProgressExport';
+import { BadgeCollection } from '@/components/gamification/BadgeCollection';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { WeeklyChallenges } from '@/components/gamification/WeeklyChallenges';
 import { ActivityHeatmap } from '@/components/learning/ActivityHeatmap';
+import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
 import { LearningInsights } from '@/components/learning/LearningInsights';
 import { StudyCalendar } from '@/components/learning/StudyCalendar';
-import { ItemMasteryGrid } from '@/components/learning/ItemMasteryGrid';
 import { StudyCalendarSync } from '@/components/learning/StudyCalendarSync';
-import { StreakDisplay } from '@/components/gamification/StreakDisplay';
-import { BadgeCollection } from '@/components/gamification/BadgeCollection';
-import { WeeklyChallenges } from '@/components/gamification/WeeklyChallenges';
-import { ProgressExport } from '@/components/export/ProgressExport';
 import { SRSNotificationSettings } from '@/components/notifications/SRSNotificationSettings';
-import { RevisionHistory } from '@/components/analytics/RevisionHistory';
-import { SmartReminders } from '@/components/revision/SmartReminders';
-import { PDFExportService } from '@/components/export/PDFExportService';
 import { OfflineSyncManager } from '@/components/pwa/OfflineSyncManager';
+import { SmartReminders } from '@/components/revision/SmartReminders';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useClinicalCases } from '@/hooks/useClinicalCases';
+import { useExamMode } from '@/hooks/useExamMode';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { useGamification } from '@/hooks/useGamification';
+import { useSRS } from '@/hooks/useSRS';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertTriangle,
+    Award,
+    Bell,
+    BookOpen,
+    Brain,
+    Calendar,
+    ChevronLeft,
+    Clock,
+    Flame,
+    History,
+    Settings,
+    Star,
+    Target,
+    TrendingUp,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProgressDashboard() {
   const navigate = useNavigate();
@@ -44,8 +57,8 @@ export default function ProgressDashboard() {
   const { getStats: getExamStats } = useExamMode();
   const { getStats: getClinicalStats } = useClinicalCases();
   const { getStats: getFlashcardStats } = useFlashcards();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
-  const { getHeatmapData } = useActivityTracking();
+  const { _stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
+  const { _getHeatmapData } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
   const [examStats, setExamStats] = useState<any>(null);
@@ -72,7 +85,7 @@ export default function ProgressDashboard() {
       checkAndUnlockBadges(user.id);
       
       // Load weekly data
-      const heatmapData = await getHeatmapData(14);
+      const heatmapData = await _getHeatmapData(14);
       const thisWeek = heatmapData.slice(0, 7);
       const lastWeek = heatmapData.slice(7, 14);
       const thisWeekTotal = thisWeek.reduce((sum, d) => sum + d.count, 0);
@@ -87,7 +100,7 @@ export default function ProgressDashboard() {
       setWeeklyData({ total: thisWeekTotal, byType, trend });
     };
     loadData();
-  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, getHeatmapData]);
+  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, _getHeatmapData]);
 
   const totalProgress = srsStats ? 
     Math.round((srsStats.masteredItems / srsStats.totalItems) * 100) : 0;

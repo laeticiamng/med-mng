@@ -1,28 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Zap, 
-  Clock, 
-  Brain, 
-  Target, 
-  ArrowRight, 
-  CheckCircle2,
-  AlertCircle,
-  Coffee,
-  Battery,
-  BatteryLow,
-  BatteryWarning,
-  Calendar,
-  Play,
-  Sparkles
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    ArrowRight,
+    Battery,
+    BatteryLow,
+    BatteryWarning,
+    Brain,
+    Calendar,
+    Clock,
+    Play,
+    Target,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type UserLevel = 'dfasm1' | 'dfasm2' | 'dfasm3' | 'ecn';
 type Deadline = 'today' | 'this_week' | 'this_month';
@@ -52,7 +48,7 @@ export const PriorityMode: React.FC<PriorityModeProps> = ({ onComplete, embedded
   const [userState, setUserState] = useState<UserState | null>(null);
   const [nextAction, setNextAction] = useState<NextAction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [priorityItems, setPriorityItems] = useState<any[]>([]);
+  const [_priorityItems, _setPriorityItems] = useState<any[]>([]);
 
   // Fetch priority items based on user profile
   useEffect(() => {
@@ -73,8 +69,8 @@ export const PriorityMode: React.FC<PriorityModeProps> = ({ onComplete, embedded
         .select('id, item_code, title, slug')
         .limit(10);
 
-      const { data } = await query;
-      const items = data as any[] | null;
+      const { _data } = await query;
+      const items = _data as any[] | null;
       
       // Determine action based on user state
       let action: NextAction;

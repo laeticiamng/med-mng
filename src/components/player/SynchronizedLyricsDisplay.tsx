@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Music2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChevronDown, ChevronUp, Music2 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 interface LyricLine {
   time: number; // in seconds
@@ -138,8 +138,6 @@ export const SynchronizedLyricsDisplay: React.FC<SynchronizedLyricsDisplayProps>
           {parsedLyrics.map((line, index) => {
             const isActive = index === activeLineIndex;
             const isPast = index < activeLineIndex;
-            const isFuture = index > activeLineIndex;
-            
             return (
               <div
                 key={index}

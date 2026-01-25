@@ -1,45 +1,42 @@
 // App.tsx - Force rebuild v2026.01.12
-import React, { Suspense, lazy, useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { HelmetProvider } from "react-helmet-async";
-import { HelpButton } from "@/components/onboarding/HelpButton";
-import { ViewportProvider } from "@/components/responsive/ViewportProvider";
-import { SkipLinks } from "@/components/navigation/SkipLinks";
-import { HelpCenter } from "@/components/help/HelpCenter";
-import { NotificationSystem } from "@/components/advanced/NotificationSystem";
-import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
-import { CookieBanner } from "@/components/common/CookieBanner";
-import { PWAPrompt } from "@/components/pwa/PWAPrompt";
-import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
-import { Bell } from 'lucide-react';
-import { MainNavigation } from '@/components/layout/MainNavigation';
-import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
-import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
-import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
-import { ThemeProvider } from '@/components/ui/theme-provider';
-import { usePWAMetrics } from '@/hooks/usePWAMetrics';
-import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
+import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
+import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
+import { CookieBanner } from "@/components/common/CookieBanner";
+import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
+import { HelpCenter } from "@/components/help/HelpCenter";
+import { MainNavigation } from '@/components/layout/MainNavigation';
+import { SkipLinks } from "@/components/navigation/SkipLinks";
+import { HelpButton } from "@/components/onboarding/HelpButton";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { PWAPrompt } from "@/components/pwa/PWAPrompt";
+import { ViewportProvider } from "@/components/responsive/ViewportProvider";
+import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
+import { Button } from "@/components/ui/button";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ROUTE_PATHS } from '@/config/routes';
+import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
+import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { PerformanceProvider } from '@/contexts/PerformanceContext';
+import { usePWAMetrics } from '@/hooks/usePWAMetrics';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Bell } from 'lucide-react';
+import { Suspense, lazy, useState } from "react";
+import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AdminRoute } from "./components/auth/AdminRoute";
+import { AuthProvider } from "./components/med-mng/AuthProvider";
+import { ProtectedRoute } from "./components/med-mng/withAuth";
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
-const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
-  default: module.DynamicOnboarding
-})));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
   default: module.AppFooter
 })));
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
-import { AuthProvider } from "./components/med-mng/AuthProvider";
-import { ProtectedRoute } from "./components/med-mng/withAuth";
-import { AdminRoute } from "./components/auth/AdminRoute";
 
 // ⚡ CRITICAL PAGES - Chargement immédiat
 import Index from "./pages/Index";
@@ -159,7 +156,7 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-  const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
+  const [isHelpCenterOpen, _setIsHelpCenterOpen] = useState(false);
   
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();

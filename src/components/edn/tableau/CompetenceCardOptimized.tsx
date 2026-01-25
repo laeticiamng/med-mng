@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { createSafeHtml } from '@/utils/sanitize';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Book, 
-  Target, 
-  AlertTriangle, 
-  Users,
-  Eye,
-  Settings,
-  Lightbulb,
-  FileText,
-  Heart,
-  List
+import {
+    AlertTriangle,
+    Book,
+    ChevronDown,
+    ChevronRight,
+    Eye,
+    FileText,
+    Heart,
+    Lightbulb,
+    List,
+    Settings,
+    Target,
+    Users
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface CompetenceOIC {
   intitule: string;
@@ -99,13 +98,6 @@ const CompetenceSection: React.FC<{
     </div>
   );
 };
-
-const KeywordBadge: React.FC<{ keyword: string }> = ({ keyword }) => (
-  <Badge variant="secondary" className="text-xs font-medium bg-primary/10 text-primary border-primary/20">
-    {keyword}
-  </Badge>
-);
-
 export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = ({ 
   competence, 
   index, 
@@ -252,7 +244,7 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
               {/* Indicateurs de contenu */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  {sections.slice(0, 4).map((section, idx) => (
+                  {sections.slice(0, 4).map((_section, idx) => (
                     <div key={idx} className="w-2 h-2 rounded-full bg-primary/60"></div>
                   ))}
                   {availableSectionsCount > 4 && (
@@ -291,7 +283,7 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
             )}
             
             {/* Autres sections */}
-            {sections.map((section, idx) => (
+            {sections.map((section, _idx) => (
               <CompetenceSection
                 key={section.key}
                 title={section.title}

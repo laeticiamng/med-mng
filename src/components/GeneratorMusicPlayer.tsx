@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock, Heart, Download, RefreshCw } from 'lucide-react';
-import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { DebugAudioButton } from './DebugAudioButton';
-import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ENABLE_DEBUG } from '@/config/env';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Bug, Clock, Download, Heart, Library, Loader2, Music, Pause, Play, RefreshCw, Share2 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { DebugAudioButton } from './DebugAudioButton';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -110,18 +109,18 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       let existingRecords: { id: string; is_favorite: boolean | null }[] | null = null;
       
       if (finalUrl && finalUrl.startsWith('http')) {
-        const { data } = await supabase
+        const { _data } = await supabase
           .from('user_generated_music')
           .select('id, is_favorite')
           .eq('user_id', user.id)
           .eq('audio_url', finalUrl)
           .limit(1);
-        existingRecords = data;
+        existingRecords = _data;
       }
       
       // Stratégie 2: Si pas trouvé, chercher par item_code + style
       if (!existingRecords || existingRecords.length === 0) {
-        const { data } = await supabase
+        const { _data } = await supabase
           .from('user_generated_music')
           .select('id, is_favorite')
           .eq('user_id', user.id)
@@ -129,7 +128,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           .eq('music_style', generatedSong.style)
           .order('created_at', { ascending: false })
           .limit(1);
-        existingRecords = data;
+        existingRecords = _data;
       }
 
       if (existingRecords && existingRecords.length > 0) {
@@ -145,7 +144,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         toast({ title: newFavoriteState ? "❤️ Ajouté aux favoris !" : "💔 Retiré des favoris" });
       } else {
         // Aucun record trouvé, créer un nouveau avec le favori
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('user_generated_music')
           .insert({
             user_id: user.id,
@@ -157,7 +156,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             is_favorite: true
           } as any);
           
-        if (!error) {
+        if (!_error) {
           setIsFavorite(true);
           toast({ title: "❤️ Ajouté aux favoris et à la bibliothèque !" });
         }

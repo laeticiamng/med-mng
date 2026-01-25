@@ -1,33 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music, Flame, Trophy, Search,
-  ChevronDown, MoreHorizontal, Layers, Calendar, HeartPulse, ShoppingBag, Library, BarChart3
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, ADMIN_NAV_ITEMS, PUBLIC_PAGES, type NavItem } from '@/config/navigation';
+import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import {
+    BarChart3,
+    Bell,
+    ChevronDown,
+    Flame,
+    LogOut, Menu,
+    MoreHorizontal,
+    Music,
+    Settings,
+    Shield,
+    Sparkles,
+    Trophy,
+    User,
+    X
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -38,16 +49,6 @@ export const MainNavigation: React.FC = () => {
       setIsAdmin(user.email?.includes('admin') || false);
     }
   }, [user?.id, loadStats, user?.email]);
-
-  const handleNavClick = (path: string, label: string) => {
-    logActivity({
-      activity_type: 'study',
-      count: 1,
-      metadata: { component: 'main_navigation', action: 'click', destination: label }
-    });
-    navigate(path);
-  };
-
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
   const isActive = (path: string) => {

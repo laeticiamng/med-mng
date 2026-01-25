@@ -76,7 +76,7 @@ class QcmService {
     sessionType: 'rang_a' | 'rang_b' | 'mixed', 
     questionCount: number = 10
   ): Promise<{ success: boolean; questions: QcmQuestion[] }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: {
         item_code: itemCode,
         session_type: sessionType,
@@ -89,7 +89,7 @@ class QcmService {
       throw new Error('Erreur lors de la génération du QCM');
     }
 
-    return data;
+    return _data;
   }
 
   async startQcmSession(
@@ -97,7 +97,7 @@ class QcmService {
     sessionType: 'rang_a' | 'rang_b' | 'mixed',
     questions: QcmQuestion[]
   ): Promise<{ success: boolean; session_id: string; questions: QcmQuestion[] }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: {
         item_code: itemCode,
         session_type: sessionType,
@@ -110,7 +110,7 @@ class QcmService {
       throw new Error('Erreur lors du démarrage de la session QCM');
     }
 
-    return data;
+    return _data;
   }
 
   async submitResponse(
@@ -123,7 +123,7 @@ class QcmService {
     explanation?: string,
     medicalConcept?: string
   ): Promise<{ success: boolean; is_correct: boolean; explanation: string }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: {
         session_id: sessionId,
         question_id: questionId,
@@ -141,7 +141,7 @@ class QcmService {
       throw new Error('Erreur lors de la soumission de la réponse');
     }
 
-    return data;
+    return _data;
   }
 
   async completeSession(sessionId: string): Promise<{
@@ -154,7 +154,7 @@ class QcmService {
     incorrect_responses: QcmResponse[];
     can_generate_error_song: boolean;
   }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: { session_id: sessionId }
     });
 
@@ -163,7 +163,7 @@ class QcmService {
       throw new Error('Erreur lors de la finalisation de la session');
     }
 
-    return data;
+    return _data;
   }
 
   async generateErrorSong(
@@ -174,7 +174,7 @@ class QcmService {
     error_song: ErrorSong;
     song_data: any;
   }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: {
         session_id: sessionId,
         incorrect_responses: incorrectResponses
@@ -186,11 +186,11 @@ class QcmService {
       throw new Error('Erreur lors de la génération de la chanson d\'erreurs');
     }
 
-    return data;
+    return _data;
   }
 
   async getUserQcmHistory(): Promise<{ success: boolean; sessions: QcmSession[] }> {
-    const { data, error } = await supabase.functions.invoke('qcm-generator', {
+    const { _data, error } = await supabase.functions.invoke('qcm-generator', {
       body: null,
       method: 'GET'
     });
@@ -200,7 +200,7 @@ class QcmService {
       throw new Error('Erreur lors de la récupération de l\'historique QCM');
     }
 
-    return data;
+    return _data;
   }
 
   async getUserQuotas(): Promise<UserQuota | null> {
@@ -208,18 +208,18 @@ class QcmService {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return null;
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_quotas')
         .select('*')
         .eq('user_id', user.user.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching quotas:', error);
+      if (_error && _error.code !== 'PGRST116') {
+        console.error('Error fetching quotas:', _error);
         return null;
       }
 
-      return data as UserQuota;
+      return _data as UserQuota;
     } catch (error) {
       console.error('Error in getUserQuotas:', error);
       return null;
@@ -230,7 +230,7 @@ class QcmService {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('User not authenticated');
 
-    const { data, error } = await supabase
+    const { _data, _error } = await supabase
       .from('user_quotas')
       .insert({
         user_id: user.user.id,
@@ -242,12 +242,12 @@ class QcmService {
       .select()
       .maybeSingle();
 
-    if (error) {
-      console.error('Error creating default quotas:', error);
+    if (_error) {
+      console.error('Error creating default quotas:', _error);
       throw new Error('Erreur lors de la création des quotas');
     }
 
-    return data as UserQuota;
+    return _data as UserQuota;
   }
 
   // Utility functions
@@ -302,7 +302,7 @@ class QcmService {
   }
 
   // Analyser les erreurs récurrentes
-  analyzeRecurringErrors(sessions: QcmSession[], responses: QcmResponse[]): {
+  analyzeRecurringErrors(_sessions: QcmSession[], responses: QcmResponse[]): {
     concept: string;
     errorCount: number;
     percentage: number;
@@ -403,7 +403,7 @@ class QcmService {
 
   // Générer un plan de révision
   generateRevisionPlan(
-    sessions: QcmSession[],
+    _sessions: QcmSession[],
     errors: { concept: string; errorCount: number; percentage: number }[]
   ): {
     day: number;

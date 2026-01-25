@@ -1,9 +1,9 @@
 import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Flame, Star, Trophy } from 'lucide-react';
+import { Flame, Star } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 interface StepProgressProps {
   currentStep: number;
@@ -12,7 +12,7 @@ interface StepProgressProps {
 
 export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const hasCompletedRef = useRef(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => 
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await addPoints(user.id, 'itemMastered');
+          await _addPoints(user.id, 'itemMastered');
         }
       }
     };
@@ -48,12 +48,12 @@ export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => 
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <span className="text-foreground font-medium">Progression</span>
-          {stats && (
+          {_stats && (
             <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
               <Flame className="h-3 w-3 text-warning" />
-              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <span className="font-bold text-warning">{_stats.currentStreak}</span>
               <Star className="h-3 w-3 text-primary ml-1" />
-              <span className="font-bold text-primary">Nv.{stats.level}</span>
+              <span className="font-bold text-primary">Nv.{_stats.level}</span>
             </div>
           )}
         </div>

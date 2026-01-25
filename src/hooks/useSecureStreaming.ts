@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface StreamingSession {
@@ -30,7 +30,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
-  const [currentSession, setCurrentSession] = useState<StreamingSession | null>(null);
+  const [_currentSession, setCurrentSession] = useState<StreamingSession | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sessionTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -56,7 +56,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
     try {
       setIsLoading(true);
 
-      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
         body: { 
           songId, 
           userId: user.id,
@@ -68,7 +68,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
         throw error;
       }
 
-      const session: StreamingSession = data;
+      const session: StreamingSession = _data;
       setCurrentSession(session);
 
       // Programmer le nettoyage automatique de la session

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useQuizResults, QuizResult } from '@/hooks/useQuizResults';
-import { History, Trophy, TrendingUp, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { useQuizResults } from '@/hooks/useQuizResults';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ChevronDown, ChevronUp, Clock, History, TrendingUp, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface QuizHistoryPanelProps {
   itemCode?: string;

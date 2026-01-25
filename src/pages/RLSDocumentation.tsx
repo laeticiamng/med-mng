@@ -31,18 +31,18 @@ const RLSDocumentation = () => {
   const { data: policies, isLoading: policiesLoading } = useQuery({
     queryKey: ["rls-policies"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_rls_policies");
-      if (error) throw error;
-      return data as Policy[];
+      const { _data, _error } = await supabase.rpc("get_rls_policies");
+      if (_error) throw _error;
+      return _data as Policy[];
     },
   });
 
   const { data: tableSummaries } = useQuery({
     queryKey: ["rls-table-summaries"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_rls_table_summaries");
-      if (error) throw error;
-      return data as TableSummary[];
+      const { _data, _error } = await supabase.rpc("get_rls_table_summaries");
+      if (_error) throw _error;
+      return _data as TableSummary[];
     },
   });
 

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ContextualHelp } from './ContextualHelp';
-import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ContextualHelp } from './ContextualHelp';
 
 interface AdaptiveTooltipProps {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
   trigger = 'hover',
   delay = 1000
 }) => {
-  const [shouldShow, setShouldShow] = useState(false);
+  const [_shouldShow, setShouldShow] = useState(false);
   const [featureData, setFeatureData] = useState<{ visitCount: number; isFirstVisit: boolean }>({ visitCount: 0, isFirstVisit: true });
   const location = useLocation();
 

@@ -103,7 +103,7 @@ class PerformanceAnalyticsService {
 
   async recordMetric(metric: Omit<PerformanceMetric, 'session_id'>): Promise<void> {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('performance_metrics')
         .insert({
           ...metric,
@@ -111,8 +111,8 @@ class PerformanceAnalyticsService {
           timestamp: new Date().toISOString(),
         });
 
-      if (error) {
-        console.error('Failed to record performance metric:', error);
+      if (_error) {
+        console.error('Failed to record performance metric:', _error);
       }
     } catch (error) {
       console.error('Error recording performance metric:', error);
@@ -189,7 +189,7 @@ class PerformanceAnalyticsService {
     const periodStart = this.getPeriodStart(period);
 
     // Récupérer les métriques Web Vitals
-    const { data: webVitalsData } = await supabase
+    const { _data: webVitalsData } = await supabase
       .from('performance_metrics')
       .select('metric_name, metric_value')
       .eq('metric_type', 'web_vital')
@@ -197,19 +197,19 @@ class PerformanceAnalyticsService {
       .order('timestamp', { ascending: false });
 
     // Récupérer les budgets de performance
-    const { data: budgets } = await supabase
+    const { _data: budgets } = await supabase
       .from('performance_budgets')
       .select('*')
       .eq('active', true);
 
     // Récupérer les SLA
-    const { data: slasData } = await supabase
+    const { _data: slasData } = await supabase
       .from('sla_metrics')
       .select('*')
       .gte('period_end', new Date().toISOString());
 
     // Récupérer les alertes actives
-    const { data: alertsData } = await supabase
+    const { _data: alertsData } = await supabase
       .from('performance_alerts')
       .select('*')
       .eq('resolved', false)
@@ -217,7 +217,7 @@ class PerformanceAnalyticsService {
       .limit(50);
 
     // Récupérer les tendances
-    const { data: trendsData } = await supabase
+    const { _data: trendsData } = await supabase
       .from('performance_metrics')
       .select('timestamp, metric_name, metric_value')
       .gte('timestamp', periodStart)
@@ -257,28 +257,28 @@ class PerformanceAnalyticsService {
   }
 
   async createPerformanceBudget(budget: Omit<PerformanceBudget, 'id'>): Promise<void> {
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('performance_budgets')
       .insert(budget);
 
-    if (error) {
-      throw new Error(`Failed to create performance budget: ${error.message}`);
+    if (_error) {
+      throw new Error(`Failed to create performance budget: ${_error.message}`);
     }
   }
 
   async updatePerformanceBudget(id: string, updates: Partial<PerformanceBudget>): Promise<void> {
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('performance_budgets')
       .update(updates)
       .eq('id', id);
 
-    if (error) {
-      throw new Error(`Failed to update performance budget: ${error.message}`);
+    if (_error) {
+      throw new Error(`Failed to update performance budget: ${_error.message}`);
     }
   }
 
   async acknowledgeAlert(alertId: string): Promise<void> {
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('performance_alerts')
       .update({
         acknowledged: true,
@@ -286,13 +286,13 @@ class PerformanceAnalyticsService {
       })
       .eq('id', alertId);
 
-    if (error) {
-      throw new Error(`Failed to acknowledge alert: ${error.message}`);
+    if (_error) {
+      throw new Error(`Failed to acknowledge alert: ${_error.message}`);
     }
   }
 
   async resolveAlert(alertId: string): Promise<void> {
-    const { error } = await supabase
+    const { _error } = await supabase
       .from('performance_alerts')
       .update({
         resolved: true,
@@ -300,16 +300,16 @@ class PerformanceAnalyticsService {
       })
       .eq('id', alertId);
 
-    if (error) {
-      throw new Error(`Failed to resolve alert: ${error.message}`);
+    if (_error) {
+      throw new Error(`Failed to resolve alert: ${_error.message}`);
     }
   }
 
   async calculateSLAMetrics(): Promise<void> {
     try {
-      const { error } = await supabase.rpc('calculate_sla_metrics');
-      if (error) {
-        console.error('Failed to calculate SLA metrics:', error);
+      const { _error } = await supabase.rpc('calculate_sla_metrics');
+      if (_error) {
+        console.error('Failed to calculate SLA metrics:', _error);
       }
     } catch (error) {
       console.error('Error calculating SLA metrics:', error);
@@ -317,7 +317,7 @@ class PerformanceAnalyticsService {
   }
 
   private async checkPerformanceBudgets(metricName: string, value: number): Promise<void> {
-    const { data: budgets } = await supabase
+    const { _data: budgets } = await supabase
       .from('performance_budgets')
       .select('*')
       .eq('metric_type', 'web_vital')
@@ -383,13 +383,13 @@ class PerformanceAnalyticsService {
   }
 
   private async calculateAPIPerformance(periodStart: string) {
-    const { data } = await supabase
+    const { _data } = await supabase
       .from('performance_metrics')
       .select('metric_value, metadata')
       .eq('metric_type', 'api_call')
       .gte('timestamp', periodStart);
 
-    if (!data || data.length === 0) {
+    if (!_data || _data.length === 0) {
       return {
         avgResponseTime: 0,
         p95ResponseTime: 0,
@@ -398,8 +398,8 @@ class PerformanceAnalyticsService {
       };
     }
 
-    const responseTimes = data.map(d => d.metric_value);
-    const errorCount = data.filter(d => {
+    const responseTimes = _data.map(d => d.metric_value);
+    const errorCount = _data.filter(d => {
       const metadata = d.metadata as Record<string, any>;
       return metadata?.status_code >= 400;
     }).length;
@@ -410,19 +410,19 @@ class PerformanceAnalyticsService {
     return {
       avgResponseTime: responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length,
       p95ResponseTime: responseTimes[p95Index] || 0,
-      errorRate: (errorCount / data.length) * 100,
-      throughput: data.length,
+      errorRate: (errorCount / _data.length) * 100,
+      throughput: _data.length,
     };
   }
 
   private async calculateDatabasePerformance(periodStart: string) {
-    const { data } = await supabase
+    const { _data } = await supabase
       .from('performance_metrics')
       .select('metric_value, metadata')
       .eq('metric_type', 'database_query')
       .gte('timestamp', periodStart);
 
-    if (!data || data.length === 0) {
+    if (!_data || _data.length === 0) {
       return {
         avgQueryTime: 0,
         slowQueries: 0,
@@ -430,7 +430,7 @@ class PerformanceAnalyticsService {
       };
     }
 
-    const queryTimes = data.map(d => d.metric_value);
+    const queryTimes = _data.map(d => d.metric_value);
     const slowQueries = queryTimes.filter(time => time > 1000).length;
 
     return {

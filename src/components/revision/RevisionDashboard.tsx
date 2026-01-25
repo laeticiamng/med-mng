@@ -1,31 +1,31 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Brain, 
-  Calendar, 
-  Target, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
-  BookOpen,
-  Zap,
-  Trophy,
-  Flame,
-  Award
-} from 'lucide-react';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
-import { RevisionPlanCreator } from './RevisionPlanCreator';
-import { TodayRevisionSession } from './TodayRevisionSession';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertCircle,
+    Award,
+    BookOpen,
+    Brain,
+    Calendar,
+    CheckCircle2,
+    Clock,
+    Flame,
+    Target,
+    TrendingUp,
+    Trophy,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { ProgressAnalytics } from './ProgressAnalytics';
 import { ProgressHeatmap } from './ProgressHeatmap';
 import { QuizProgressChart } from './QuizProgressChart';
-import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
-import { supabase } from '@/integrations/supabase/client';
+import { RevisionPlanCreator } from './RevisionPlanCreator';
+import { TodayRevisionSession } from './TodayRevisionSession';
 
 export const RevisionDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('today');
@@ -40,7 +40,7 @@ export const RevisionDashboard: React.FC = () => {
     analyzeUserWeaknesses
   } = usePersonalizedRevision();
   
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and revision history from DB
   useEffect(() => {
@@ -50,7 +50,7 @@ export const RevisionDashboard: React.FC = () => {
         loadStats(user.id);
         
         // Load revision history from Supabase
-        const { data: historyData } = await supabase
+        const { _data: historyData } = await supabase
           .from('revision_history')
           .select('item_code, score, session_date, created_at')
           .eq('user_id', user.id)
@@ -83,32 +83,6 @@ export const RevisionDashboard: React.FC = () => {
   }, [loadStats]);
 
   // Track revision session completion - save to DB
-  const trackRevision = async (itemCode: string, score: number) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const entry = {
-      itemCode,
-      score,
-      timestamp: new Date().toISOString(),
-      date: new Date().toLocaleDateString('fr-FR')
-    };
-    const newHistory = [entry, ...revisionHistory].slice(0, 50);
-    setRevisionHistory(newHistory);
-    
-    // Save to DB if user is logged in
-    if (user) {
-      await supabase.from('revision_history').insert({
-        user_id: user.id,
-        item_code: itemCode,
-        score,
-        session_date: new Date().toISOString().split('T')[0]
-      });
-    } else {
-      // Fallback to localStorage for non-authenticated users
-      localStorage.setItem('revision-history', JSON.stringify(newHistory));
-    }
-  };
-
   const todayItems = getTodayRevisionItems();
   const stats = getProgressStats();
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;

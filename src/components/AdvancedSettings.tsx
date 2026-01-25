@@ -1,30 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { 
-  Settings, 
-  Volume2, 
-  Bell, 
-  Shield, 
-  Palette, 
-  Download,
-  Upload,
-  RefreshCw,
-  Save,
-  User,
-  Brain,
-  Music
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
+import {
+    Bell,
+    Brain,
+    Download,
+    RefreshCw,
+    Save,
+    Settings,
+    Shield,
+    Upload,
+    Volume2
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface UserSettings {
   general: {

@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Activity, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  Database, 
-  Globe, 
-  Server, 
-  Shield,
-  Zap,
-  Users,
-  HardDrive,
-  Cpu,
-  RefreshCw,
-  Bell
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Database,
+    Globe,
+    HardDrive,
+    RefreshCw,
+    Server,
+    Users,
+    Zap
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface HealthMetric {
   name: string;
@@ -51,7 +47,7 @@ interface SystemStatus {
 
 export const ProductionMonitor = () => {
   const { toast } = useToast();
-  const [systemStatus, setSystemStatus] = useState<SystemStatus>({
+  const [systemStatus, _setSystemStatus] = useState<SystemStatus>({
     api: 'online',
     database: 'online',
     frontend: 'online',
@@ -180,23 +176,6 @@ export const ProductionMonitor = () => {
         return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'online':
-      case 'healthy':
-        return 'bg-success';
-      case 'degraded':
-      case 'warning':
-        return 'bg-warning';
-      case 'offline':
-      case 'critical':
-        return 'bg-destructive';
-      default:
-        return 'bg-muted';
-    }
-  };
-
   const resolveAlert = (alertId: string) => {
     setAlerts(prev => prev.map(alert => 
       alert.id === alertId ? { ...alert, resolved: true } : alert

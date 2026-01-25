@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MusicPlaylist } from '@/components/edn/music/MusicPlaylist';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, Music, CheckCircle, XCircle, Clock, 
-  Eye, BarChart3, ListMusic, Heart
-} from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { MusicPlaylist } from '@/components/edn/music/MusicPlaylist';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    BarChart3,
+    CheckCircle,
+    Clock,
+    ListMusic,
+    Music,
+    Search,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface EdnItemLyrics {
   id: string;
@@ -40,7 +45,7 @@ export const LyricsCompletionStatus: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'missing'>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [_viewMode, _setViewMode] = useState<'grid' | 'list'>('list');
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
 
@@ -53,7 +58,7 @@ export const LyricsCompletionStatus: React.FC = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title,
@@ -62,13 +67,13 @@ export const LyricsCompletionStatus: React.FC = () => {
         `)
         .order('item_code');
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      setItems(data || []);
+      setItems(_data || []);
       
       toast({
         title: "📊 Statut chargé",
-        description: `${data?.length || 0} items analysés`
+        description: `${_data?.length || 0} items analysés`
       });
     } catch (error) {
       console.error('Erreur:', error);
@@ -101,15 +106,6 @@ export const LyricsCompletionStatus: React.FC = () => {
       default: return <XCircle className="h-4 w-4 text-destructive" />;
     }
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'complete': return 'bg-success/10 text-success border-success/20';
-      case 'partial': return 'bg-warning/10 text-warning-foreground border-warning/20';
-      default: return 'bg-destructive/10 text-destructive border-destructive/20';
-    }
-  };
-
   const calculateStats = (): LyricsStats => {
     return items.reduce((stats, item) => {
       stats.total++;

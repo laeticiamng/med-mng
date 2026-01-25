@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface SystemAlert {
@@ -32,7 +32,7 @@ export function useSystemAlerts() {
     criticalOnly: false,
     autoAcknowledge: false
   });
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, _setIsConnected] = useState(false);
 
   // Créer une nouvelle alerte
   const createAlert = useCallback((

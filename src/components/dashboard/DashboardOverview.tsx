@@ -31,7 +31,7 @@ interface Activity {
 
 export const DashboardOverview: React.FC = () => {
   const navigate = useNavigate();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { getTodayStats } = useActivityTracking();
   const [todayStats, setTodayStats] = useState<any>(null);
   const [user, setUser] = useState<any>(null);

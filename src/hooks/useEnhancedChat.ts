@@ -71,7 +71,7 @@ export const useEnhancedChat = () => {
       }));
 
       // Appeler l'API de chat amélioré
-      const { data, error } = await supabase.functions.invoke('enhanced-contextual-chat', {
+      const { _data, error } = await supabase.functions.invoke('enhanced-contextual-chat', {
         body: {
           message: content,
           conversation_history: conversationHistory,
@@ -82,7 +82,7 @@ export const useEnhancedChat = () => {
 
       if (error) throw error;
 
-      const response: ChatResponse = data;
+      const response: ChatResponse = _data;
 
       // Ajouter la réponse de l'assistant
       const assistantMessage: ChatMessage = {

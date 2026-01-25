@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Calendar } from 'lucide-react';
+import React, { useMemo } from 'react';
 
 interface ProgressHeatmapProps {
   data: Array<{
@@ -95,7 +95,7 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({ data }) => {
             <div className="flex gap-1">
               {weeks.map((week, weekIdx) => (
                 <div key={weekIdx} className="flex flex-col gap-1">
-                  {week.map((day, dayIdx) => (
+                  {week.map((day, _dayIdx) => (
                     <Tooltip key={day.date}>
                       <TooltipTrigger asChild>
                         <div 

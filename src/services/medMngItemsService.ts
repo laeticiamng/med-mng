@@ -296,8 +296,8 @@ export const fetchProgressOverview = async (
     throw progressResponse.error;
   }
 
-  if (profileResponse.error) {
-    throw profileResponse.error;
+  if (profileResponse._error) {
+    throw profileResponse._error;
   }
 
   if (sessionsResponse.error) {
@@ -361,7 +361,7 @@ export const fetchProgressOverview = async (
   ).length;
   const notStartedCount = validProgressItems.filter((item: any) => item.status === 'not_started')
     .length;
-  const profileData = profileResponse.data as any;
+  const profileData = profileResponse._data as any;
   const streakCurrent = profileData?.streak_current ?? 0;
   const streakBest = profileData?.streak_best ?? 0;
   const weeklyGoal = profileData?.weekly_goal ?? 10;

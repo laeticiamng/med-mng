@@ -1,15 +1,15 @@
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ROUTE_PATHS } from '@/config/routes';
+import { BookOpen, Brain, HelpCircle, Music, Zap } from "lucide-react";
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { HelpCircle, BookOpen, Music, Brain, Zap } from "lucide-react";
-import { ROUTE_PATHS } from '@/config/routes';
 const faqItems = [
   {
     id: "rang-ab",
@@ -146,8 +146,6 @@ const faqItems = [
 ];
 
 export const FaqSection: React.FC = () => {
-  const categories = [...new Set(faqItems.map(item => item.category))];
-
   return (
     <Card className="w-full">
       <CardHeader>

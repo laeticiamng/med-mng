@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { checkAndUseCredits } from '@/hooks/useIAQuota';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 export interface LyricsLine {
   time: number; // Temps en secondes
@@ -27,21 +27,21 @@ export const useSynchronizedLyrics = (songId?: string) => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('med_mng_synchronized_lyrics')
         .select('*')
         .eq('song_id', id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-        throw error;
+      if (_error && _error.code !== 'PGRST116') { // PGRST116 = no rows found
+        throw _error;
       }
 
-      if (data) {
+      if (_data) {
         setLyricsData({
-          song_id: data.song_id,
-          lyrics_data: (data.lyrics_data as unknown) as LyricsLine[],
-          source: data.source as 'suno' | 'manual' | 'ai_generated'
+          song_id: _data.song_id,
+          lyrics_data: (_data.lyrics_data as unknown) as LyricsLine[],
+          source: _data.source as 'suno' | 'manual' | 'ai_generated'
         });
       } else {
         // Essayer de générer automatiquement depuis les métadonnées de la chanson
@@ -68,13 +68,13 @@ export const useSynchronizedLyrics = (songId?: string) => {
         return;
       }
       // Récupérer les métadonnées de la chanson
-      const { data: song, error } = await supabase
+      const { _data: song, _error } = await supabase
         .from('med_mng_songs')
         .select('meta, lyrics')
         .eq('id', targetSongId)
         .maybeSingle();
 
-      if (error || !song) return;
+      if (_error || !song) return;
 
       // Essayer d'extraire les paroles depuis différentes sources
       let rawLyrics = '';
@@ -107,7 +107,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
     const duration = totalDuration || lines.length * 4; // Default 4s per line if no duration
     
     let currentTime = 0;
-    return lines.map((line, index) => {
+    return lines.map((line, _index) => {
       const lineText = line.trim();
       const lineWeight = lineText.length / totalChars;
       const lineDuration = Math.max(2, duration * lineWeight); // Minimum 2 seconds per line
@@ -123,45 +123,6 @@ export const useSynchronizedLyrics = (songId?: string) => {
   };
 
   // Fetch real timestamps from Suno API if available
-  const fetchSunoTimestamps = async (songId: string): Promise<LyricsLine[] | null> => {
-    try {
-      // Check if song has Suno metadata with timestamps
-      const { data: song } = await (supabase as any)
-        .from('med_mng_songs')
-        .select('meta, lyrics')
-        .eq('id', songId)
-        .maybeSingle();
-
-      if (!song) return null;
-
-      const meta = song.meta as any;
-      
-      // Check for Suno-provided timestamps in metadata
-      if (meta?.suno_data?.lyrics_timestamps) {
-        return meta.suno_data.lyrics_timestamps.map((t: any) => ({
-          time: t.start || t.time,
-          text: t.text || t.line
-        }));
-      }
-
-      // Check for timestamps embedded in lyrics data
-      if (song.lyrics && typeof song.lyrics === 'object') {
-        const lyricsObj = song.lyrics as any;
-        if (lyricsObj.lines && Array.isArray(lyricsObj.lines)) {
-          return lyricsObj.lines.map((l: any) => ({
-            time: l.startTime || l.time || 0,
-            text: l.text || l.words || ''
-          }));
-        }
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Error fetching Suno timestamps:', error);
-      return null;
-    }
-  };
-
   // Sauvegarder les paroles synchronisées
   const saveSynchronizedLyrics = async (
     targetSongId: string, 
@@ -169,7 +130,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
     source: 'suno' | 'manual' | 'ai_generated' = 'manual'
   ) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_synchronized_lyrics')
         .upsert({
           song_id: targetSongId,
@@ -177,7 +138,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
           source
         });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setLyricsData({
         song_id: targetSongId,

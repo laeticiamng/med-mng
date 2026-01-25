@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { OnboardingModal } from './OnboardingModal';
-import { useOnboarding } from '@/hooks/useOnboarding';
-import { useLocation } from 'react-router-dom';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { supabase } from '@/integrations/supabase/client';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { OnboardingModal } from './OnboardingModal';
 
 interface OnboardingStep {
   key: string;
@@ -19,20 +19,16 @@ export const DynamicOnboarding: React.FC = () => {
   const location = useLocation();
   const [onboardingData, setOnboardingData] = useState<OnboardingStep[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showTour, setShowTour] = useState(false);
-  const { logActivity } = useActivityTracking();
-  const { addPoints, loadStats } = useGamification();
-  const [user, setUser] = useState<any>(null);
-  
+  const [showTour, _setShowTour] = useState(false);
+  const { logActivity: _logActivity } = useActivityTracking();
+  const { loadStats } = useGamification();
+  const [, setUser] = useState<any>(null);
+
   // ✅ Only show onboarding on homepage
   const shouldShowOnboarding = location.pathname === '/';
-  
+
   const {
     isActive,
-    completeOnboarding,
-    skipOnboarding,
-    currentStep,
-    steps
   } = useOnboarding();
 
   // Check user on mount
@@ -57,12 +53,12 @@ export const DynamicOnboarding: React.FC = () => {
       
       // Try to load dynamic onboarding from Supabase edge function if available
       try {
-        const { data, error } = await supabase.functions.invoke('get-onboarding-steps', {
+        const { _data, error } = await supabase.functions.invoke('get-onboarding-steps', {
           body: {}
         });
 
-        if (!error && data?.steps && data.steps.length > 0) {
-          setOnboardingData(data.steps);
+        if (!error && _data?.steps && _data.steps.length > 0) {
+          setOnboardingData(_data.steps);
         }
       } catch {
         // Edge function not available, use static fallback (this is expected)
@@ -126,49 +122,6 @@ export const DynamicOnboarding: React.FC = () => {
 
     setOnboardingData(staticSteps);
   };
-
-  const handleModalComplete = async () => {
-    // Log onboarding completion activity
-    if (user) {
-      await logActivity({
-        activity_type: 'study',
-        count: 1,
-        metadata: { action: 'onboarding_modal_complete' }
-      });
-      // Award points for completing onboarding
-      await addPoints(user.id, 'itemReviewed');
-    }
-    
-    // Check if there are tour steps
-    const tourSteps = onboardingData.filter(step => step.type === 'tour');
-    if (tourSteps.length > 0) {
-      setShowTour(true);
-    } else {
-      completeOnboarding();
-    }
-  };
-
-  const handleTourComplete = async () => {
-    // Log tour completion activity
-    if (user) {
-      await logActivity({
-        activity_type: 'study',
-        count: 1,
-        metadata: { action: 'onboarding_tour_complete' }
-      });
-      // Award points for completing tour
-      await addPoints(user.id, 'itemReviewed');
-    }
-    
-    setShowTour(false);
-    completeOnboarding();
-  };
-
-  const handleSkip = () => {
-    setShowTour(false);
-    skipOnboarding();
-  };
-
   if (isLoading) {
     return null;
   }
@@ -183,15 +136,6 @@ export const DynamicOnboarding: React.FC = () => {
     }));
 
   // Prepare tour steps
-  const tourSteps = onboardingData
-    .filter(step => step.type === 'tour' && step.target)
-    .map(step => ({
-      target: step.target!,
-      title: step.title,
-      content: step.body.replace(/<[^>]*>/g, ''), // Strip HTML for tour
-      position: step.position || 'bottom' as const
-    }));
-
   return (
     <>
       {isActive && shouldShowOnboarding && !showTour && modalSteps.length > 0 && (

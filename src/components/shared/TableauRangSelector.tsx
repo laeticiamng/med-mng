@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
 import { TableauRangB } from '@/components/edn/TableauRangB';
 import { MusicGenerator } from '@/components/music/MusicGenerator';
-import { BookOpen, Brain, Play, Plus, Music } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BookOpen, Brain, Music, Plus } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface TableauRangSelectorProps {
   data: {
@@ -15,14 +15,14 @@ interface TableauRangSelectorProps {
     competences_oic_rang_b?: any[];
   };
   itemCode: string;
-  onGenerateMusic?: (rang: 'A' | 'B' | 'Mix') => void;
+  _onGenerateMusic?: (rang: 'A' | 'B' | 'Mix') => void;
   onGenerateQCM?: (rang: 'A' | 'B' | 'Mix') => void;
 }
 
 export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
   data,
   itemCode,
-  onGenerateMusic,
+  _onGenerateMusic,
   onGenerateQCM
 }) => {
   const [activeRang, setActiveRang] = useState<'A' | 'B'>('A');
@@ -179,7 +179,7 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
         ) : (
           hasData('B') ? (
             <TableauRangB 
-              data={data.tableau_rang_b || data.competences_oic_rang_b} 
+              _data={data.tableau_rang_b || data.competences_oic_rang_b} 
               itemCode={itemCode}
             />
           ) : (

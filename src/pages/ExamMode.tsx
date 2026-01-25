@@ -1,25 +1,35 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { 
-  Clock, CheckCircle, XCircle, Play, Pause, RotateCcw,
-  Trophy, Target, TrendingUp, AlertTriangle, ChevronLeft,
-  Timer, Award, BarChart3, Brain, Sparkles, Loader2
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useExamMode, ExamQuestion, ExamSession } from '@/hooks/useExamMode';
-import { useAIExam, AIQuestion, AIExamSession } from '@/hooks/useAIExam';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
-import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROUTE_PATHS } from '@/config/routes';
-import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { useToast } from '@/hooks/use-toast';
+import { AIQuestion, useAIExam } from '@/hooks/useAIExam';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { ExamQuestion, ExamSession, useExamMode } from '@/hooks/useExamMode';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    Award, BarChart3, Brain,
+    CheckCircle,
+    ChevronLeft,
+    Clock,
+    Loader2,
+    Play,
+    RotateCcw,
+    Sparkles,
+    Target,
+    Timer,
+    TrendingUp,
+    Trophy,
+    XCircle
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 
 export default function ExamMode() {
   const navigate = useNavigate();
@@ -33,7 +43,7 @@ export default function ExamMode() {
     startAIExam, submitAnswer: submitAIAnswer, completeExam: completeAIExam, resetExam: resetAIExam 
   } = useAIExam();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -152,10 +162,10 @@ export default function ExamMode() {
       const result = await completeAIExam();
       if (result && user) {
         // Award points
-        await addPoints(user.id, 'examCompleted');
+        await _addPoints(user.id, 'examCompleted');
         if (result.score === 100) {
-          await addPoints(user.id, 'perfectExam');
-          await unlockBadge(user.id, 'perfect_exam');
+          await _addPoints(user.id, 'perfectExam');
+          await _unlockBadge(user.id, 'perfect_exam');
         }
         loadGamificationStats(user.id);
       }
@@ -169,10 +179,10 @@ export default function ExamMode() {
           score: session?.score || 0,
           metadata: { exam_type: 'standard' }
         });
-        await addPoints(user.id, 'examCompleted');
+        await _addPoints(user.id, 'examCompleted');
         if (session?.score === 100) {
-          await addPoints(user.id, 'perfectExam');
-          await unlockBadge(user.id, 'perfect_exam');
+          await _addPoints(user.id, 'perfectExam');
+          await _unlockBadge(user.id, 'perfect_exam');
         }
         getStats(user.id).then(setStats);
         loadGamificationStats(user.id);
@@ -211,11 +221,6 @@ export default function ExamMode() {
   const isExamCompleted = examMode === 'ai'
     ? aiSession?.completedAt
     : currentSession?.completed_at;
-
-  const examScore = examMode === 'ai'
-    ? aiSession?.score
-    : currentSession?.score;
-
   const getAnswerStatus = (session: ExamSession) => {
     const correct = Object.values(session.answers).filter(a => a.correct).length;
     const total = Object.keys(session.answers).length;

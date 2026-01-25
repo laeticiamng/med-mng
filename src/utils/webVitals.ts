@@ -1,5 +1,5 @@
-import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Types pour les métriques Web Vitals
 export interface WebVitalsData {
@@ -207,19 +207,14 @@ export const webVitalsMonitor = new WebVitalsMonitor();
 
 // Hook React pour utiliser les Web Vitals
 export const useWebVitals = () => {
-  const [metrics, setMetrics] = useState<WebVitalsData[]>([]);
-  const [performanceScore, setPerformanceScore] = useState(0);
+  const [metrics, _setMetrics] = useState<WebVitalsData[]>([]);
+  const [performanceScore, _setPerformanceScore] = useState(0);
 
   useEffect(() => {
     // Initialiser le monitoring
     webVitalsMonitor.init();
 
     // S'abonner aux nouvelles métriques
-    const unsubscribe = webVitalsMonitor.onMetric((metric) => {
-      setMetrics(webVitalsMonitor.getMetrics());
-      setPerformanceScore(webVitalsMonitor.getPerformanceScore());
-    });
-
     // Nettoyer à la destruction du composant
     return () => {
       // Note: pas de vraie méthode unsubscribe dans cette implémentation simple

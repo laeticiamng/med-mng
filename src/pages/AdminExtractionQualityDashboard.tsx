@@ -102,14 +102,14 @@ export const AdminExtractionQualityDashboard: React.FC = () => {
   const fetchQualityMetrics = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, count, error } = await supabase
+      const { _data, count, _error } = await supabase
         .from('oic_competences')
         .select('objectif_id, intitule, description, contenu_detaille', { count: 'exact' })
         .range(0, 9999);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
-      const rows = (data || []) as OicCompetenceRow[];
+      const rows = (_data || []) as OicCompetenceRow[];
       const totalCompetences = count ?? rows.length;
       const scannedCompetences = rows.length;
 

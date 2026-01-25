@@ -87,17 +87,17 @@ export const useQuotaRefresh = (options: UseQuotaRefreshOptions = {}) => {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('ia-quota', {
+      const { _data, error: fnError } = await supabase.functions.invoke('ia-quota', {
         body: { action: 'get' }
       });
 
       if (fnError) throw fnError;
 
       const quotaData: QuotaData = {
-        remaining: data?.remaining ?? 10,
-        total: data?.total ?? 10,
-        used: data?.used ?? 0,
-        resetDate: data?.resetDate,
+        remaining: _data?.remaining ?? 10,
+        total: _data?.total ?? 10,
+        used: _data?.used ?? 0,
+        resetDate: _data?.resetDate,
         lastUpdated: new Date()
       };
 

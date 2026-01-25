@@ -1,6 +1,6 @@
 
-import { Loader2, Music } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Loader2, Music } from 'lucide-react';
 
 interface MusicLoadingIndicatorProps {
   rang: 'A' | 'B';
@@ -16,14 +16,10 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
-  const cardColor = rang === 'A' ? 'amber' : 'blue';
   const bgColor = rang === 'A' ? 'bg-warning/10' : 'bg-primary/10';
   const borderColor = rang === 'A' ? 'border-warning/30' : 'border-primary/30';
   const textColor = rang === 'A' ? 'text-warning-foreground' : 'text-primary';
   const iconColor = rang === 'A' ? 'text-warning' : 'text-primary';
-  const progressColor = rang === 'A' ? 'bg-warning' : 'bg-primary';
-
   return (
     <div className={`${bgColor} ${borderColor} border-2 rounded-lg p-6 mb-6 shadow-lg`}>
       <div className="flex items-center justify-center space-x-4">

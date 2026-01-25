@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { Star, Zap, Trophy, Gift, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Gift, Sparkles, Star, Trophy, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface LevelUpModalProps {
   isOpen: boolean;
@@ -75,8 +75,6 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
     if (level < 50) return 'from-yellow-400 to-yellow-600';
     return 'from-pink-400 via-purple-400 to-indigo-400';
   };
-
-  const xpForNextLevel = newLevel * 1000;
   const xpProgress = (totalXP % 1000) / 1000 * 100;
 
   return (

@@ -61,7 +61,7 @@ export const RangAudioPlayer: React.FC<RangAudioPlayerProps> = ({
       </div>
       
       <AudioPlayer
-        audioUrl={generatedAudio}
+        _audioUrl={generatedAudio}
         title={`Suno Rang ${rang} - ${itemCode}`}
         isPlaying={currentTrack?.url === generatedAudio && isPlaying}
         currentTime={currentTrack?.url === generatedAudio ? currentTime : 0}

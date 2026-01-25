@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Wand2, Flame, Star, Music, Info } from 'lucide-react';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Flame, Info, Star, Wand2 } from 'lucide-react';
+import React, { useEffect } from 'react';
 import { ContentTypeSelector } from './ContentTypeSelector';
 import { ItemSelector } from './ItemSelector';
+import { RangSelector } from './RangSelector';
+import { SelectionPreview } from './SelectionPreview';
 import { SituationSelector } from './SituationSelector';
 import { StyleSelector } from './StyleSelector';
-import { SelectionPreview } from './SelectionPreview';
-import { RangSelector } from './RangSelector';
-import { useGamification } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { supabase } from '@/integrations/supabase/client';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CreateSongFormProps {
   contentType: string;
@@ -47,7 +47,7 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
   onStyleChange,
   onGenerate
 }) => {
-  const { stats } = useGamification();
+  const { _stats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = React.useState<any>(null);
 
@@ -99,15 +99,15 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
               {completedCount}/{completionSteps.length} étapes complétées
             </p>
           </div>
-          {user && stats && (
+          {user && _stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1">
                 <Flame className="h-3 w-3 text-warning" />
-                {stats.currentStreak}
+                {_stats.currentStreak}
               </Badge>
               <Badge variant="outline" className="gap-1">
                 <Star className="h-3 w-3 text-primary" />
-                Nv.{stats.level}
+                Nv.{_stats.level}
               </Badge>
             </div>
           )}

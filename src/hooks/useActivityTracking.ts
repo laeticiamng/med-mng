@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback } from 'react';
 
 export type ActivityType = 'srs_review' | 'exam' | 'flashcard' | 'clinical_case' | 'study' | 'ai_question' | 'music_generation' | 'ecos' | 'review' | 'clinical';
 
@@ -24,7 +24,7 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_activity_log')
         .insert({
           user_id: user.id,
@@ -35,8 +35,8 @@ export const useActivityTracking = () => {
           metadata: activity.metadata || {}
         });
 
-      if (error) {
-        console.error('Error logging activity:', error);
+      if (_error) {
+        console.error('Error logging activity:', _error);
         return false;
       }
       return true;
@@ -55,19 +55,19 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_activity_log')
         .select('activity_date, activity_type, count')
         .eq('user_id', user.id)
         .gte('activity_date', startDate.toISOString().split('T')[0])
         .order('activity_date', { ascending: true });
 
-      if (error || !data) return [];
+      if (_error || !_data) return [];
 
       // Group by date
       const byDate: Record<string, HeatmapData> = {};
       
-      data.forEach(log => {
+      _data.forEach(log => {
         const dateStr = log.activity_date;
         if (!byDate[dateStr]) {
           byDate[dateStr] = {
@@ -119,16 +119,16 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { current: 0, longest: 0 };
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
         .order('activity_date', { ascending: false });
 
-      if (error || !data || data.length === 0) return { current: 0, longest: 0 };
+      if (_error || !_data || _data.length === 0) return { current: 0, longest: 0 };
 
       // Get unique dates
-      const uniqueDates = [...new Set(data.map(d => d.activity_date))].sort().reverse();
+      const uniqueDates = [...new Set(_data.map(d => d.activity_date))].sort().reverse();
       
       // Calculate current streak
       let currentStreak = 0;
@@ -141,7 +141,6 @@ export const useActivityTracking = () => {
       if (uniqueDates[0] === today || uniqueDates[0] === yesterdayStr) {
         let checkDate = new Date(uniqueDates[0]);
         for (const dateStr of uniqueDates) {
-          const date = new Date(dateStr);
           const checkStr = checkDate.toISOString().split('T')[0];
           
           if (dateStr === checkStr) {
@@ -186,26 +185,26 @@ export const useActivityTracking = () => {
 
       const today = new Date().toISOString().split('T')[0];
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score')
         .eq('user_id', user.id)
         .eq('activity_date', today);
 
-      if (error || !data) return null;
+      if (_error || !_data) return null;
 
       const stats = {
-        totalActivities: data.reduce((sum, d) => sum + d.count, 0),
-        totalTime: data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
-        averageScore: data.filter(d => d.score).length > 0
-          ? Math.round(data.filter(d => d.score).reduce((sum, d) => sum + (d.score || 0), 0) / data.filter(d => d.score).length)
+        totalActivities: _data.reduce((sum, d) => sum + d.count, 0),
+        totalTime: _data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
+        averageScore: _data.filter(d => d.score).length > 0
+          ? Math.round(_data.filter(d => d.score).reduce((sum, d) => sum + (d.score || 0), 0) / _data.filter(d => d.score).length)
           : null,
         byType: {
-          srs_review: data.filter(d => d.activity_type === 'srs_review').reduce((sum, d) => sum + d.count, 0),
-          exam: data.filter(d => d.activity_type === 'exam').reduce((sum, d) => sum + d.count, 0),
-          flashcard: data.filter(d => d.activity_type === 'flashcard').reduce((sum, d) => sum + d.count, 0),
-          clinical_case: data.filter(d => d.activity_type === 'clinical_case').reduce((sum, d) => sum + d.count, 0),
-          study: data.filter(d => d.activity_type === 'study').reduce((sum, d) => sum + d.count, 0)
+          srs_review: _data.filter(d => d.activity_type === 'srs_review').reduce((sum, d) => sum + d.count, 0),
+          exam: _data.filter(d => d.activity_type === 'exam').reduce((sum, d) => sum + d.count, 0),
+          flashcard: _data.filter(d => d.activity_type === 'flashcard').reduce((sum, d) => sum + d.count, 0),
+          clinical_case: _data.filter(d => d.activity_type === 'clinical_case').reduce((sum, d) => sum + d.count, 0),
+          study: _data.filter(d => d.activity_type === 'study').reduce((sum, d) => sum + d.count, 0)
         }
       };
 
@@ -228,14 +227,14 @@ export const useActivityTracking = () => {
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
       // Current week
-      const { data: currentWeek } = await supabase
+      const { _data: currentWeek } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score')
         .eq('user_id', user.id)
         .gte('activity_date', weekAgo.toISOString().split('T')[0]);
 
       // Previous week
-      const { data: previousWeek } = await supabase
+      const { _data: previousWeek } = await supabase
         .from('user_activity_log')
         .select('activity_type, count')
         .eq('user_id', user.id)
@@ -288,13 +287,13 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
         .gte('activity_date', startDate.toISOString().split('T')[0]);
 
-      const uniqueDays = new Set(data?.map(d => d.activity_date) || []);
+      const uniqueDays = new Set(_data?.map(d => d.activity_date) || []);
       return uniqueDays.size;
     } catch (error) {
       console.error('Error getting active days:', error);
@@ -312,14 +311,14 @@ export const useActivityTracking = () => {
       const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
       const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score, activity_date')
         .eq('user_id', user.id)
         .gte('activity_date', startOfMonth.toISOString().split('T')[0])
         .lte('activity_date', endOfMonth.toISOString().split('T')[0]);
 
-      if (error || !data) return null;
+      if (_error || !_data) return null;
 
       const byType: Record<ActivityType, number> = {
         srs_review: 0, exam: 0, flashcard: 0, clinical_case: 0,
@@ -327,19 +326,19 @@ export const useActivityTracking = () => {
         review: 0, clinical: 0
       };
 
-      data.forEach(d => {
+      _data.forEach(d => {
         byType[d.activity_type as ActivityType] += d.count;
       });
 
-      const uniqueDays = new Set(data.map(d => d.activity_date));
+      const uniqueDays = new Set(_data.map(d => d.activity_date));
 
       return {
-        totalActivities: data.reduce((sum, d) => sum + d.count, 0),
-        totalTime: data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
+        totalActivities: _data.reduce((sum, d) => sum + d.count, 0),
+        totalTime: _data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
         activeDays: uniqueDays.size,
         totalDaysInMonth: endOfMonth.getDate(),
         byType,
-        averagePerDay: data.length > 0 ? Math.round(data.reduce((sum, d) => sum + d.count, 0) / uniqueDays.size) : 0
+        averagePerDay: _data.length > 0 ? Math.round(_data.reduce((sum, d) => sum + d.count, 0) / uniqueDays.size) : 0
       };
     } catch (error) {
       console.error('Error getting monthly summary:', error);
@@ -356,7 +355,7 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_activity_log')
         .select('*')
         .eq('user_id', user.id)
@@ -364,8 +363,8 @@ export const useActivityTracking = () => {
         .gte('activity_date', startDate.toISOString().split('T')[0])
         .order('activity_date', { ascending: false });
 
-      if (error) return [];
-      return data || [];
+      if (_error) return [];
+      return _data || [];
     } catch (error) {
       console.error('Error getting activity by type:', error);
       return [];
@@ -393,16 +392,16 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_activity_log')
         .select('created_at')
         .eq('user_id', user.id)
         .limit(500);
 
-      if (!data || data.length < 10) return null;
+      if (!_data || _data.length < 10) return null;
 
       const byHour: Record<number, number> = {};
-      data.forEach(d => {
+      _data.forEach(d => {
         const hour = new Date(d.created_at).getHours();
         byHour[hour] = (byHour[hour] || 0) + 1;
       });
@@ -488,7 +487,7 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { period1: { total: 0, average: 0 }, period2: { total: 0, average: 0 }, change: 0 };
 
-      const [{ data: data1 }, { data: data2 }] = await Promise.all([
+      const [{ _data: data1 }, { _data: data2 }] = await Promise.all([
         supabase
           .from('user_activity_log')
           .select('count')
@@ -559,7 +558,7 @@ export const useActivityTracking = () => {
 
   return {
     logActivity,
-    getHeatmapData,
+    _getHeatmapData,
     getStreak,
     getTodayStats,
     getWeeklySummary,

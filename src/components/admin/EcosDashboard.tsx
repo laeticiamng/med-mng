@@ -1,35 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line
-} from 'recharts';
-import { 
-  Loader2, 
-  RefreshCw, 
-  TrendingUp, 
-  Book,
-  Target,
-  Clock,
-  Users,
-  Award,
-  BarChart3
+import { EcosAnalytics, ecosService } from '@/services/ecosService';
+import {
+    Award,
+    BarChart3,
+    Book,
+    Loader2,
+    RefreshCw,
+    Target,
+    TrendingUp
 } from "lucide-react";
-import { ecosService, EcosAnalytics } from '@/services/ecosService';
+import React, { useEffect, useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
+import { toast } from "sonner";
 
 export const EcosDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<EcosAnalytics | null>(null);
@@ -112,13 +108,6 @@ export const EcosDashboard: React.FC = () => {
       color: 'hsl(var(--destructive))'
     }
   ];
-
-  const recentSituationsData = analytics.recent_additions.map((situation, index) => ({
-    name: `ECOS ${situation.sd_id}`,
-    date: new Date(situation.created_at).toLocaleDateString('fr-FR'),
-    position: analytics.recent_additions.length - index
-  }));
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -233,7 +222,7 @@ export const EcosDashboard: React.FC = () => {
                 />
                 <YAxis />
                 <Tooltip
-                  formatter={(value, name, props) => [
+                  formatter={(value, _name, props) => [
                     `${value} situations (${props.payload.percentage}%)`,
                     props.payload.fullName
                   ]}

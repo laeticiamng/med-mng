@@ -3,17 +3,17 @@
  * Affichage compact et swipable des générations récentes
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { Clock, Music, Play, Pause, Heart, Download, ChevronUp, ChevronDown, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, ChevronUp, Clock, Download, Heart, Pause, Play } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface GeneratedTrack {
   id: string;
@@ -39,7 +39,7 @@ export const MobileHistoryDrawer: React.FC<MobileHistoryDrawerProps> = ({
   const { play, currentTrack, isPlaying, pause } = useGlobalAudio();
   const [isExpanded, setIsExpanded] = useState(false);
   const [tracks, setTracks] = useState<GeneratedTrack[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
   // Charger les tracks récents
   const loadTracks = useCallback(async () => {
@@ -47,15 +47,15 @@ export const MobileHistoryDrawer: React.FC<MobileHistoryDrawerProps> = ({
     setLoading(true);
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_generated_music')
         .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(maxItems);
 
-      if (error) throw error;
-      setTracks(data || []);
+      if (_error) throw _error;
+      setTracks(_data || []);
     } catch (err) {
       console.error('Erreur chargement tracks:', err);
     } finally {

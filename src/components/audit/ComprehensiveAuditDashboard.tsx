@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { CheckCircle, AlertTriangle, XCircle, Play, Wrench, Download, RefreshCw } from 'lucide-react';
-import { ComprehensiveSystemAuditor, ComprehensiveAuditResult } from '@/scripts/audit/comprehensiveAuditor';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { ComprehensiveAuditResult, ComprehensiveSystemAuditor } from '@/scripts/audit/comprehensiveAuditor';
+import { AlertTriangle, CheckCircle, Download, Play, RefreshCw, Wrench, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export const ComprehensiveAuditDashboard = () => {
   const [auditResult, setAuditResult] = useState<ComprehensiveAuditResult | null>(null);

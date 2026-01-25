@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Sparkles, 
-  Music, 
-  BarChart3, 
-  Shield, 
-  Users, 
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Zap,
-  Heart
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowRight,
+    BarChart3,
+    CheckCircle,
+    Heart,
+    Music,
+    Shield,
+    Sparkles,
+    Star,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Écran de Bienvenue Interactif pour Nouveaux Utilisateurs
@@ -34,7 +32,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { addPoints, loadStats } = useGamification();
+  const { _addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -83,7 +81,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setProgress(prev => {
+      setProgress(_prev => {
         const newProgress = (currentStep + 1) * 25;
         return Math.min(newProgress, 100);
       });
@@ -103,7 +101,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
           count: 1,
           metadata: { action: 'welcome_complete' }
         });
-        await addPoints(user.id, 'dailyStreak');
+        await _addPoints(user.id, 'dailyStreak');
         loadStats(user.id);
       }
       onComplete?.();

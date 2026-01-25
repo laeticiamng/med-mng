@@ -1,9 +1,13 @@
-import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  BookOpen, Music, Users, Brain, CheckCircle, 
-  TrendingUp, Target, Award 
+import {
+    Award,
+    BookOpen,
+    Brain, CheckCircle,
+    Music,
+    Target,
+    Users
 } from "lucide-react";
+import React from 'react';
 
 interface EdnItem {
   id: string;

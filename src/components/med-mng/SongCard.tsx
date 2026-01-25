@@ -48,7 +48,7 @@ export const SongCard: React.FC<SongCardProps> = ({
   const medMngApi = useMedMngApi();
   const { playlists, addSongToPlaylist } = usePlaylists();
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
@@ -90,7 +90,7 @@ export const SongCard: React.FC<SongCardProps> = ({
     
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
     }
     
     onPlay();
@@ -197,12 +197,12 @@ export const SongCard: React.FC<SongCardProps> = ({
           </div>
           
           {/* Gamification Stats */}
-          {stats && (
+          {_stats && (
             <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-background/80 backdrop-blur-sm rounded-full text-xs">
               <Flame className="h-3 w-3 text-warning" />
-              <span className="font-bold text-warning">{stats.currentStreak}</span>
+              <span className="font-bold text-warning">{_stats.currentStreak}</span>
               <Star className="h-3 w-3 text-primary ml-1" />
-              <span className="font-bold text-primary">Nv.{stats.level}</span>
+              <span className="font-bold text-primary">Nv.{_stats.level}</span>
             </div>
           )}
           

@@ -25,19 +25,19 @@ export const useAIRecommendations = () => {
     try {
       setIsLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('ai-recommendations', {
+      const { _data, error } = await supabase.functions.invoke('ai-recommendations', {
         body: { action: 'generate_recommendations' }
       });
 
       if (error) throw error;
 
-      setRecommendations(data);
+      setRecommendations(_data);
       toast({
         title: "Recommandations générées !",
         description: "Vos recommandations personnalisées sont prêtes."
       });
 
-      return data;
+      return _data;
     } catch (error) {
       console.error('Erreur génération recommandations:', error);
       toast({
@@ -59,7 +59,7 @@ export const useAIRecommendations = () => {
     try {
       setIsLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('ai-recommendations', {
+      const { _data, error } = await supabase.functions.invoke('ai-recommendations', {
         body: { 
           action: 'get_personalized_playlist',
           ...params
@@ -68,7 +68,7 @@ export const useAIRecommendations = () => {
 
       if (error) throw error;
 
-      return data;
+      return _data;
     } catch (error) {
       console.error('Erreur playlist personnalisée:', error);
       toast({
@@ -90,7 +90,7 @@ export const useAIRecommendations = () => {
     learning_style?: string;
   }) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('med_mng_user_preferences' as any)
         .upsert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -98,7 +98,7 @@ export const useAIRecommendations = () => {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Préférences sauvegardées !",

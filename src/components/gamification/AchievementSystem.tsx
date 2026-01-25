@@ -1,17 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Award, Trophy, Medal, Star, Target, Crown,
-  Flame, Zap, BookOpen, Music, Users, Clock,
-  TrendingUp, CheckCircle, Gift, Sparkles
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    BookOpen,
+    CheckCircle,
+    Clock,
+    Crown,
+    Flame,
+    Gift,
+    Medal,
+    Music,
+    Sparkles,
+    Star, Target,
+    TrendingUp,
+    Trophy,
+    Users,
+    Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Achievement {
   id: string;
@@ -51,7 +62,7 @@ export const AchievementSystem = () => {
     rank: 'Débutant',
     title: 'Étudiant'
   });
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
@@ -72,19 +83,19 @@ export const AchievementSystem = () => {
     setLoading(true);
     try {
       // Charger les achievements depuis Supabase
-      const { data: achievementsData, error } = await supabase
+      const { _data: achievementsData, _error } = await supabase
         .from('achievements')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Charger les user_badges pour voir lesquels sont débloqués
       const { data: { user } } = await supabase.auth.getUser();
       let unlockedMap: Map<string, string> = new Map();
       
       if (user) {
-        const { data: userBadges } = await supabase
+        const { _data: userBadges } = await supabase
           .from('user_badges')
           .select('badge_id, earned_at')
           .eq('user_id', user.id);

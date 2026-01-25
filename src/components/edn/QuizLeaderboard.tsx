@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Trophy, Medal, TrendingUp, Users, Crown, Star, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
+import { Calendar, ChevronLeft, ChevronRight, Crown, Medal, Star, TrendingUp, Trophy, Users } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface LeaderboardEntry {
   rank: number;
@@ -33,7 +33,7 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
 }) => {
   const [itemCode, setItemCode] = useState<string | undefined>(initialItemCode);
   const [availableItems, setAvailableItems] = useState<string[]>([]);
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [_entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [allEntries, setAllEntries] = useState<LeaderboardEntry[]>([]);
   const [userStats, setUserStats] = useState<{ rank: number; avgScore: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,13 +44,13 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   // Fetch available items for filter
   useEffect(() => {
     const fetchItems = async () => {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('quiz_results')
         .select('item_code')
         .order('item_code');
       
-      if (data) {
-        const uniqueItems = [...new Set(data.map(d => d.item_code))].sort();
+      if (_data) {
+        const uniqueItems = [...new Set(_data.map(d => d.item_code))].sort();
         setAvailableItems(uniqueItems);
       }
     };
@@ -84,8 +84,8 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           query = query.gte('created_at', startDate.toISOString());
         }
 
-        const { data: results, error } = await query;
-        if (error) throw error;
+        const { _data: results, _error } = await query;
+        if (_error) throw _error;
 
         // Aggregate by user
         const userScores: Record<string, { total: number; count: number; scores: number[] }> = {};

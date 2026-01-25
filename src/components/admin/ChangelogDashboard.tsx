@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Clock, 
-  User, 
-  Database, 
-  Edit, 
-  Filter,
-  Download,
-  RefreshCw
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Clock,
+    Download,
+    Edit,
+    Filter,
+    RefreshCw,
+    User
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { QuickEditModal } from './QuickEditModal';
 
@@ -46,14 +45,14 @@ export const ChangelogDashboard: React.FC = () => {
   const fetchChangelog = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('admin-quick-edit', {
+      const { _data, error } = await supabase.functions.invoke('admin-quick-edit', {
         body: { action: 'get_changelog' }
       });
 
       if (error) throw error;
 
-      if (data.success) {
-        setChangelog(data.data);
+      if (_data.success) {
+        setChangelog(_data.data);
       }
     } catch (error) {
       console.error('Erreur fetch changelog:', error);

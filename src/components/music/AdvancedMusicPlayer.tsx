@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Music, 
-  Play, 
-  Pause, 
-  Volume2, 
-  Heart, 
-  Share2, 
-  Plus, 
-  Shuffle,
-  Repeat,
-  SkipForward,
-  SkipBack,
-  Headphones,
-  Mic,
-  Save,
-  List,
-  Filter
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Filter,
+    Headphones,
+    Heart,
+    List,
+    Music,
+    Pause,
+    Play,
+    Plus,
+    Repeat,
+    Save,
+    Share2,
+    Shuffle,
+    SkipBack,
+    SkipForward,
+    Volume2
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface MusicTrack {
   id: string;
@@ -52,11 +50,11 @@ export const AdvancedMusicPlayer: React.FC = () => {
   const [currentTrack, setCurrentTrack] = useState<MusicTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(75);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [currentTime, _setCurrentTime] = useState(0);
+  const [duration, _setDuration] = useState(0);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [recentTracks, setRecentTracks] = useState<MusicTrack[]>([]);
-  const [favoriteGenres, setFavoriteGenres] = useState<string[]>([]);
+  const [_favoriteGenres, _setFavoriteGenres] = useState<string[]>([]);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
   const [audioSettings, setAudioSettings] = useState({
     binauralBeats: false,
@@ -136,18 +134,18 @@ export const AdvancedMusicPlayer: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_preferences_extended')
         .select('music_volume, auto_play, binaural_enabled')
         .eq('user_id', user.user.id)
         .maybeSingle();
 
-      if (data) {
-        setVolume(data.music_volume || 75);
+      if (_data) {
+        setVolume(_data.music_volume || 75);
         setAudioSettings(prev => ({
           ...prev,
-          autoPlay: data.auto_play,
-          binauralBeats: data.binaural_enabled
+          autoPlay: _data.auto_play,
+          binauralBeats: _data.binaural_enabled
         }));
       }
     } catch {
@@ -190,7 +188,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_preferences_extended')
         .upsert({
           user_id: user.user.id,
@@ -199,7 +197,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
           binaural_enabled: audioSettings.binauralBeats
         }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Paramètres sauvegardés",

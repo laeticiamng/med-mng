@@ -45,21 +45,21 @@ export const useImmersiveLogic = () => {
     const fetchItem = async () => {
       try {
         // Utiliser edn_items_complete au lieu de edn_items_immersive pour avoir les bonnes compétences OIC
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
 
-        if (error) {
+        if (_error) {
           return;
         }
 
-        if (!data) {
+        if (!_data) {
           return;
         }
 
-        setItem(data);
+        setItem(_data);
       } catch (error) {
         // Error handled silently
       } finally {

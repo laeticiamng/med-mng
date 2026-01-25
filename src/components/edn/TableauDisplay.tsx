@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { CheckCircle, AlertTriangle, XCircle, Book, FileText, Flame, Star, ChevronDown, ChevronUp, LayoutList, LayoutGrid } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { useActivityTracking } from '@/hooks/useActivityTracking'
 import { useGamification } from '@/hooks/useGamification'
 import { supabase } from '@/integrations/supabase/client'
+import { cn } from "@/lib/utils"
+import { AlertTriangle, Book, CheckCircle, ChevronDown, ChevronUp, FileText, Flame, LayoutGrid, LayoutList, Star, XCircle } from "lucide-react"
+import { useEffect, useState } from 'react'
 
 interface TableauSection {
   title: string
@@ -29,7 +29,7 @@ interface TableauDisplayProps {
 
 export function TableauDisplay({ tableau, rang, isComplete, className }: TableauDisplayProps) {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const [isAccordionMode, setIsAccordionMode] = useState(false);
   const [openSections, setOpenSections] = useState<number[]>([0]);
   const [showAllKeywords, setShowAllKeywords] = useState<Record<number, boolean>>({});
@@ -50,11 +50,11 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_tableau', rang } });
-        addPoints(user.id, 'itemReviewed');
+        _addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [rang, loadStats, logActivity, addPoints]);
+  }, [rang, loadStats, logActivity, _addPoints]);
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
       <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>
@@ -147,15 +147,15 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {stats && (
+            {_stats && (
               <>
                 <Badge variant="outline" className="gap-1 text-xs">
                   <Flame className="h-3 w-3 text-orange-500" />
-                  {stats?.currentStreak ?? 0}j
+                  {_stats?.currentStreak ?? 0}j
                 </Badge>
                 <Badge variant="outline" className="gap-1 text-xs">
                   <Star className="h-3 w-3 text-yellow-500" />
-                  Niv. {stats?.level ?? 1}
+                  Niv. {_stats?.level ?? 1}
                 </Badge>
               </>
             )}

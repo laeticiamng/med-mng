@@ -38,24 +38,24 @@ export const PlaylistsTab = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_playlists')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) {
-        console.error('Erreur playlists:', error);
+      if (_error) {
+        console.error('Erreur playlists:', _error);
         setPlaylists([]);
         return;
       }
 
-      if (!data) {
+      if (!_data) {
         setPlaylists([]);
         return;
       }
 
       // Parser song_ids comme JSON et typer correctement
-      const parsedPlaylists: Playlist[] = data.map(p => ({
+      const parsedPlaylists: Playlist[] = _data.map(p => ({
         id: p.id,
         name: p.name,
         description: p.description || undefined,
@@ -97,7 +97,7 @@ export const PlaylistsTab = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('user_playlists')
         .insert({
           name: newPlaylistName.trim(),
@@ -110,18 +110,18 @@ export const PlaylistsTab = () => {
         .select()
         .maybeSingle();
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       const newPlaylist: Playlist = {
-        id: data.id,
-        name: data.name,
-        description: data.description || undefined,
-        song_ids: Array.isArray(data.song_ids) ? (data.song_ids as string[]) : [],
-        is_public: data.is_public || false,
-        cover_image_url: data.cover_image_url || undefined,
-        play_count: data.play_count || 0,
-        created_at: data.created_at,
-        updated_at: data.updated_at
+        id: _data.id,
+        name: _data.name,
+        description: _data.description || undefined,
+        song_ids: Array.isArray(_data.song_ids) ? (_data.song_ids as string[]) : [],
+        is_public: _data.is_public || false,
+        cover_image_url: _data.cover_image_url || undefined,
+        play_count: _data.play_count || 0,
+        created_at: _data.created_at,
+        updated_at: _data.updated_at
       };
 
       setPlaylists(prev => [newPlaylist, ...prev]);
@@ -131,7 +131,7 @@ export const PlaylistsTab = () => {
       
       toast({
         title: "Playlist créée",
-        description: `"${data.name}" a été créée avec succès`
+        description: `"${_data.name}" a été créée avec succès`
       });
     } catch (error) {
       console.error('Erreur création playlist:', error);
@@ -145,12 +145,12 @@ export const PlaylistsTab = () => {
 
   const deletePlaylist = async (playlistId: string, playlistName: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_playlists')
         .delete()
         .eq('id', playlistId);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       setPlaylists(prev => prev.filter(p => p.id !== playlistId));
       toast({

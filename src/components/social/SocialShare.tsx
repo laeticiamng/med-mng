@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { Share2, Twitter, Facebook, Linkedin, Link, Check, Award, Trophy, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Award, Check, Facebook, Link, Linkedin, MessageCircle, Share2, Trophy, Twitter } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface SocialShareProps {
   type: 'badge' | 'score' | 'streak' | 'achievement';
   title: string;
   description?: string;
   value?: number | string;
-  imageUrl?: string;
+  _imageUrl?: string;
 }
 
 export const SocialShare: React.FC<SocialShareProps> = ({
@@ -23,7 +23,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
   title,
   description,
   value,
-  imageUrl
+  _imageUrl
 }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();

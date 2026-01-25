@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Music, Brain, Play, CheckCircle, Clock, Flame, Star, AlertTriangle, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertTriangle, BookOpen, Brain, CheckCircle, Clock, Flame, Music, Play, Star, Target } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface RevisionGuideProps {
   onStartRevision?: () => void;
@@ -24,7 +24,7 @@ interface WeakItem {
 
 export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, onOpenItem }) => {
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   const [weakItems, setWeakItems] = useState<WeakItem[]>([]);
   const [totalQuizzes, setTotalQuizzes] = useState(0);
@@ -36,7 +36,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
         loadStats(user.id);
         
         // Fetch weak items (lowest scores) with intelligent analysis
-        const { data: quizData } = await supabase
+        const { _data: quizData } = await supabase
           .from('quiz_results')
           .select('item_code, score, created_at')
           .eq('user_id', user.id)
@@ -107,7 +107,7 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
     
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
     }
     
     onStartRevision?.();
@@ -171,12 +171,12 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-4">
           <h2 className="text-2xl font-bold text-foreground">🎓 Guide de Révision EDN</h2>
-          {stats && (
+          {_stats && (
             <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
               <Flame className="h-4 w-4 text-warning" />
-              <span className="text-sm font-bold text-warning">{stats.currentStreak ?? 0}j</span>
+              <span className="text-sm font-bold text-warning">{_stats.currentStreak ?? 0}j</span>
               <Star className="h-4 w-4 text-primary ml-1" />
-              <span className="text-sm font-bold text-primary">Nv.{stats.level ?? 1}</span>
+              <span className="text-sm font-bold text-primary">Nv.{_stats.level ?? 1}</span>
             </div>
           )}
         </div>
@@ -283,7 +283,6 @@ export const RevisionGuide: React.FC<RevisionGuideProps> = ({ onStartRevision, o
         <CardContent>
           <div className="space-y-4">
             {revisionSteps.map((step) => {
-              const Icon = step.icon;
               return (
                 <div 
                   key={step.id} 

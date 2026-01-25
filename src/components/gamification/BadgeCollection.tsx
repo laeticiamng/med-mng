@@ -1,16 +1,16 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Lock, Share2, Check, Sparkles, TrendingUp, Clock, Star, Zap, Volume2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useBadgeUnlockTrigger } from '@/hooks/useBadgeUnlockTrigger';
-import { motion, AnimatePresence } from 'framer-motion';
-import canvasConfetti from 'canvas-confetti';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
+import canvasConfetti from 'canvas-confetti';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Clock, Lock, Share2, Sparkles, Zap } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface BadgeCollectionProps {
   unlockedBadges: BadgeType[];
@@ -46,7 +46,7 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
   const [copiedBadge, setCopiedBadge] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
   const [showUnlockAnimation, setShowUnlockAnimation] = useState<string | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, _setSoundEnabled] = useState(true);
   const unlockedIds = new Set(unlockedBadges.map(b => b.id));
 
   // Play unlock sound effect

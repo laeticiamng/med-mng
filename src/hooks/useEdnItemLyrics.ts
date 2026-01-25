@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { SUPABASE_URL, getSupabaseHeaders } from '@/lib/supabaseConstants';
 import { appendEdnCacheParams, getEdnCacheBuster, subscribeEdnCacheBuster } from '@/utils/ednCache';
-import { SUPABASE_URL, SUPABASE_ANON_KEY, getSupabaseHeaders } from '@/lib/supabaseConstants';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface EdnItemLyrics {
   paroles_musicales?: string[];

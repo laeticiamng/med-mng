@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TableauCompetencesOICWithRealData } from './tableau/TableauCompetencesOICWithRealData';
 
 interface TableauSection {
@@ -11,7 +9,7 @@ interface TableauSection {
 }
 
 interface TableauRangAProps {
-  data: {
+  _data: {
     theme?: string;
     title?: string;
     subtitle?: string;
@@ -22,7 +20,7 @@ interface TableauRangAProps {
   itemCode?: string;
 }
 
-export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
+export const TableauRangA = ({ _data, itemCode }: TableauRangAProps) => {
   // TOUJOURS utiliser les vraies compétences de la base de données
   // Les fichiers *Integration.ts avec données hardcodées sont obsolètes
   const code = itemCode || "IC-1";

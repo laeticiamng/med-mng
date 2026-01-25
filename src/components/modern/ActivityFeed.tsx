@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Activity, User, BookOpen, Music, Trophy, Heart,
-  MessageSquare, Share, Clock, TrendingUp, Zap,
-  CheckCircle, AlertTriangle, Info, Star
-} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity, BookOpen,
+    Heart,
+    Info,
+    MessageSquare,
+    Music,
+    Share,
+    Star,
+    TrendingUp,
+    Trophy
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface ActivityItem {
   id: string;
@@ -55,7 +61,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 }) => {
   const [activities, setActivities] = useState(initialActivities);
   const [filter, setFilter] = useState<string>('all');
-  const [loading, setLoading] = useState(false);
+  const [_loading, _setLoading] = useState(false);
 
   // Charger les activités réelles depuis Supabase
   useEffect(() => {
@@ -64,14 +70,14 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: activityLogs, error } = await supabase
+        const { _data: activityLogs, _error } = await supabase
           .from('user_activity_log')
           .select('id, action_type, action_details, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(maxItems);
 
-        if (error || !activityLogs) return;
+        if (_error || !activityLogs) return;
 
         const mappedActivities: ActivityItem[] = activityLogs.map((log: any) => {
           const details = log.action_details || {};

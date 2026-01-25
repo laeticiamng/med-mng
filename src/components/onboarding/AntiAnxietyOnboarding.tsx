@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Headphones,
-  Music, 
-  Brain, 
-  ArrowRight,
-  BookOpen,
-  Target,
-  Sparkles
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ROUTE_PATHS } from '@/config/routes';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowRight,
+    BookOpen,
+    Brain,
+    Headphones,
+    Music,
+    Sparkles,
+    Target
+} from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type RevisionType = 'edn' | 'ecos' | 'both';
 type MusicStyle = 'rap' | 'lofi' | 'spoken' | 'mix';
@@ -35,7 +35,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
   const { logActivity } = useActivityTracking();
   const [step, setStep] = useState<'welcome' | 'revision' | 'style' | 'action'>('welcome');
   const [revisionType, setRevisionType] = useState<RevisionType | null>(null);
-  const [musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
+  const [_musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
 
   const handleRevisionSelect = (type: RevisionType) => {
     setRevisionType(type);

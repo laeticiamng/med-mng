@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Shield, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  RefreshCw,
-  Database,
-  Play,
-  Clock
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Database,
+    Play,
+    RefreshCw,
+    Shield,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface IntegrityCheck {
@@ -51,14 +50,14 @@ export const IntegrityCheckDashboard: React.FC = () => {
   const fetchChecks = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('data-integrity-check', {
+      const { _data, error } = await supabase.functions.invoke('data-integrity-check', {
         body: { action: 'get_status' }
       });
 
       if (error) throw error;
 
-      if (data.success) {
-        setChecks(data.data);
+      if (_data.success) {
+        setChecks(_data.data);
       }
     } catch (error) {
       console.error('Erreur fetch checks:', error);
@@ -71,7 +70,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
   const runIntegrityCheck = async () => {
     setRunningCheck(true);
     try {
-      const { data, error } = await supabase.functions.invoke('data-integrity-check', {
+      const { _data, error } = await supabase.functions.invoke('data-integrity-check', {
         body: { 
           action: 'run_check',
           check_type: 'manual',
@@ -81,11 +80,11 @@ export const IntegrityCheckDashboard: React.FC = () => {
 
       if (error) throw error;
 
-      if (data.success) {
-        if (data.should_block) {
-          toast.error(`🚨 CHECK BLOQUÉ: ${data.summary.critical_issues} problèmes critiques détectés!`);
+      if (_data.success) {
+        if (_data.should_block) {
+          toast.error(`🚨 CHECK BLOQUÉ: ${_data.summary.critical_issues} problèmes critiques détectés!`);
         } else {
-          toast.success(`✅ Check terminé: ${data.summary.total_issues} problèmes trouvés`);
+          toast.success(`✅ Check terminé: ${_data.summary.total_issues} problèmes trouvés`);
         }
         
         await fetchChecks();

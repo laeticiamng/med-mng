@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const useMusicCardState = (isGenerating: boolean) => {
   const [isClicked, setIsClicked] = useState(false);
@@ -16,7 +16,7 @@ export const useMusicCardState = (isGenerating: boolean) => {
   }, [isGenerating]);
 
   const handleGenerateClick = useCallback(async (
-    rang: 'A' | 'B',
+    _rang: 'A' | 'B',
     onGenerateMusic: () => void | Promise<void>
   ) => {
     if (isClicked || isGenerating) return;

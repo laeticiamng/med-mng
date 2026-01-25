@@ -1,7 +1,7 @@
 
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertTriangle, Info, Target, BookOpen, TrendingUp } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { AlertTriangle, CheckCircle, Info, Target } from 'lucide-react';
 
 export const AuditIC5 = () => {
   const auditResults = {

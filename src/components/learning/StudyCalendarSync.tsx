@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Download, Link2, RefreshCw, Check, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useSRS } from '@/hooks/useSRS';
+import { supabase } from '@/integrations/supabase/client';
+import { Calendar, Check, Download, ExternalLink, Link2, RefreshCw } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 interface CalendarEvent {
   title: string;
@@ -22,7 +22,7 @@ export function StudyCalendarSync() {
   const { toast } = useToast();
   const { getReviewForecast, stats } = useSRS();
   const [syncEnabled, setSyncEnabled] = useState(false);
-  const [googleConnected, setGoogleConnected] = useState(false);
+  const [_googleConnected, _setGoogleConnected] = useState(false);
   const [icalUrl, setIcalUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +53,7 @@ export function StudyCalendarSync() {
     ical.push('END:VTIMEZONE');
 
     // Add events for each day with reviews
-    forecast.forEach((day, index) => {
+    forecast.forEach((day, _index) => {
       if (day.count > 0) {
         const startDate = new Date(day.date);
         startDate.setHours(9, 0, 0, 0); // Default to 9 AM

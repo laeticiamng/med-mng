@@ -50,26 +50,6 @@ export const useQuizErrorTracker = () => {
     
     setCurrentSession(session);
   }, []);
-
-  const addQuizError = useCallback((error: Omit<QuizError, 'timestamp'>) => {
-    if (!currentSession) {
-      return;
-    }
-
-    const fullError: QuizError = {
-      ...error,
-      timestamp: new Date()
-    };
-
-    setCurrentSession(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        errors: [...prev.errors, fullError]
-      };
-    });
-  }, [currentSession]);
-
   const endQuizSession = useCallback(async (finalScore: number) => {
     if (!currentSession) {
       return null;
@@ -180,7 +160,7 @@ export const useQuizErrorTracker = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('quiz_sessions')
         .select('*')
         .eq('user_id', user.id)
@@ -188,8 +168,8 @@ export const useQuizErrorTracker = () => {
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (data) {
-        const sessions: QuizSession[] = data.map((s) => {
+      if (_data) {
+        const sessions: QuizSession[] = _data.map((s) => {
           const sessionData = s.session_data as { errors?: QuizError[]; itemTitle?: string } | null;
           return {
             id: s.id,
@@ -228,14 +208,14 @@ export const useQuizErrorTracker = () => {
     currentSession,
     allSessions,
     startQuizSession,
-    addQuizError,
+    _addQuizError,
     endQuizSession,
     getSessionErrors,
     getErrorsByTheme,
     clearCurrentSession,
     loadSavedSessions,
     getRecentErrors,
-    hasCurrentSession: !!currentSession,
+    _hasCurrentSession: !!currentSession,
     currentErrors: currentSession?.errors || []
   };
 };

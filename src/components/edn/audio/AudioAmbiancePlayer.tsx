@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Volume2, VolumeX, Play, Pause, Music2, Waves } from 'lucide-react';
+import { Music2, Pause, Play, Volume2, VolumeX, Waves } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface AudioAmbianceProps {
   audioConfig?: {
@@ -13,7 +13,7 @@ interface AudioAmbianceProps {
     ambiance_type?: string;
     intensity?: string;
   };
-  itemCode: string;
+  _itemCode: string;
 }
 
 // Audio ambiances avec URLs fiables et fallbacks
@@ -52,7 +52,7 @@ const AMBIANCE_SOUNDS: Record<string, { url: string; label: string; fallback: st
 
 export const AudioAmbiancePlayer: React.FC<AudioAmbianceProps> = ({ 
   audioConfig, 
-  itemCode 
+  _itemCode 
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);

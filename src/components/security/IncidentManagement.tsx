@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { AlertTriangle, CheckCircle, Clock, ArrowUpCircle, MessageSquare } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSecurityIncidents, SecurityIncident, IncidentStatus } from '@/hooks/useSecurityIncidents';
+import { Textarea } from '@/components/ui/textarea';
+import { IncidentStatus, SecurityIncident, useSecurityIncidents } from '@/hooks/useSecurityIncidents';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AlertTriangle, ArrowUpCircle, CheckCircle, Clock, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
 
 export const IncidentManagement = () => {
   const { incidents, activeIncidents, criticalIncidents, updateIncidentStatus, escalateIncident, isUpdating } = useSecurityIncidents();
@@ -24,8 +24,6 @@ export const IncidentManagement = () => {
 
   // Check permissions
   const canModify = isAdmin || isSecurityAnalyst;
-  const canDelete = isAdmin;
-
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
       case 'critical':

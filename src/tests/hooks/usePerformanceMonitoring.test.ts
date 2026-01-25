@@ -12,7 +12,7 @@
  * - Escalation appropriée
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================================================
 // MOCKS SETUP
@@ -267,8 +267,6 @@ describe('📊 Module Performance Monitoring', () => {
     it('should batch alerts for notification', () => {
       const pendingAlerts: any[] = [];
       const batchSize = 5;
-      const batchTimeout = 30000;
-
       const addToBatch = (alert: any): boolean => {
         pendingAlerts.push(alert);
         
@@ -498,7 +496,6 @@ describe('📊 Module Performance Monitoring', () => {
     });
 
     it('should detect cascading failures', () => {
-      const failedServices = new Set<string>();
       const dependencyGraph = {
         'api-gateway': ['auth-service', 'user-service'],
         'user-service': ['database', 'cache'],
@@ -632,8 +629,6 @@ describe('📊 Module Performance Monitoring', () => {
       let state: CircuitState = 'closed';
       let failureCount = 0;
       const failureThreshold = 5;
-      const recoveryTimeout = 30000;
-
       const recordOutcome = (success: boolean) => {
         if (success) {
           failureCount = 0;

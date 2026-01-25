@@ -78,18 +78,18 @@ export function useUserPreferences() {
       // Charger directement depuis Supabase (source of truth)
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('user_preferences')
           .select('preferences')
           .eq('user_id', user.user.id)
           .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
-          throw error;
+        if (_error && _error.code !== 'PGRST116') {
+          throw _error;
         }
 
-        if (data?.preferences) {
-          setPreferences({ ...defaultPreferences, ...(data.preferences as any) });
+        if (_data?.preferences) {
+          setPreferences({ ...defaultPreferences, ...(_data.preferences as any) });
         }
       }
       // Pour utilisateurs non connectés, utiliser les defaults
@@ -109,14 +109,14 @@ export function useUserPreferences() {
       // Sync directement avec Supabase (source of truth)
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('user_preferences')
           .upsert({
             user_id: user.user.id,
             preferences: updatedPrefs as any
           }, { onConflict: 'user_id' });
 
-        if (error) throw error;
+        if (_error) throw _error;
         
         toast({
           title: "Préférences sauvegardées",
@@ -148,14 +148,14 @@ export function useUserPreferences() {
 
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        const { error } = await supabase
+        const { _error } = await supabase
           .from('user_preferences')
           .upsert({
             user_id: user.user.id,
             preferences: defaultPreferences as any
           }, { onConflict: 'user_id' });
 
-        if (error) throw error;
+        if (_error) throw _error;
       }
 
       toast({

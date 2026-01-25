@@ -1,18 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Palette, Volume2, Clock, Zap, Brain, Eye, Moon, Sun,
-  Layout, Settings, User, Bell, Shield, Sparkles
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Bell,
+    Brain, Moon,
+    Palette,
+    Settings,
+    Sparkles,
+    Sun,
+    Zap
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface PersonalizationSettings {
   theme: 'light' | 'dark' | 'system';
@@ -65,7 +70,7 @@ const defaultSettings: PersonalizationSettings = {
 export const UserPersonalization: React.FC = () => {
   const [settings, setSettings] = useState<PersonalizationSettings>(defaultSettings);
   const [isChanged, setIsChanged] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [_isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   // Load settings from Supabase

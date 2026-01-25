@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
-import { Download, FileAudio, Archive, Loader2, CheckCircle, FileArchive } from 'lucide-react';
-import { toast } from 'sonner';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import JSZip from 'jszip';
+import { Download, FileArchive, FileAudio, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 interface Track {
   id: string;

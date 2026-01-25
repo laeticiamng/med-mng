@@ -1,6 +1,6 @@
 
-import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React from 'react';
 import { musicStyles } from './MusicStylesData';
 
 interface ParolesMusicalesControlsProps {
@@ -16,12 +16,6 @@ export const ParolesMusicalesControls: React.FC<ParolesMusicalesControlsProps> =
   onStyleChange,
   onDurationChange
 }) => {
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>

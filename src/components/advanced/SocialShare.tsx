@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Share2, Copy, Link, MessageCircle, Mail,
-  Facebook, Twitter, Linkedin, QrCode
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Copy,
+    Facebook,
+    Linkedin,
+    Mail,
+    MessageCircle,
+    QrCode,
+    Share2,
+    Twitter
+} from 'lucide-react';
+import React, { useState } from 'react';
 
 interface SocialShareProps {
   title: string;
   description: string;
   url?: string;
-  image?: string;
+  _image?: string;
   hashtags?: string[];
   className?: string;
 }
@@ -21,7 +27,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
   title,
   description,
   url = window.location.href,
-  image,
+  _image,
   hashtags = [],
   className = ""
 }) => {
@@ -74,8 +80,6 @@ export const SocialShare: React.FC<SocialShareProps> = ({
     const encodedTitle = encodeURIComponent(title);
     const encodedDescription = encodeURIComponent(description);
     const encodedUrl = encodeURIComponent(url);
-    const hashtagsStr = hashtags.map(tag => `%23${tag}`).join('%20');
-
     let shareUrl = '';
 
     switch (platform) {

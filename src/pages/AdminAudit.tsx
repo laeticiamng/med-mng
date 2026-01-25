@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Database, 
-  Code, 
-  Palette, 
-  Zap, 
-  Play, 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle, 
-  Clock,
-  Trash2,
-  Settings,
-  BarChart3,
-  FileText,
-  RefreshCw
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    BarChart3,
+    CheckCircle,
+    Clock,
+    Code,
+    Database,
+    FileText,
+    Palette,
+    Play,
+    RefreshCw,
+    Settings,
+    Trash2,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface AuditReport {
   [key: string]: any;
@@ -56,14 +55,14 @@ export default function AdminAudit() {
 
   const fetchAuditReports = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('audit_reports')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
-      setAuditReports(data || []);
+      if (_error) throw _error;
+      setAuditReports(_data || []);
     } catch (error) {
       console.error('Error fetching audit reports:', error);
     }
@@ -72,7 +71,7 @@ export default function AdminAudit() {
   const fetchOverallMetrics = async () => {
     try {
       // Récupérer les métriques depuis la dernière audit de base de données
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('audit_reports')
         .select('metrics')
         .eq('report_type', 'database')
@@ -80,10 +79,10 @@ export default function AdminAudit() {
         .order('created_at', { ascending: false })
         .limit(1);
 
-      if (error) throw error;
+      if (_error) throw _error;
       
-      if (data && data.length > 0) {
-        const reportMetrics = data[0].metrics as any;
+      if (_data && _data.length > 0) {
+        const reportMetrics = _data[0].metrics as any;
         setMetrics({
           totalItems: reportMetrics?.total_edn_items || 0,
           duplicates: reportMetrics?.duplicates_found || 0,
@@ -115,7 +114,7 @@ export default function AdminAudit() {
     setIsRunningAudit(prev => ({ ...prev, [auditType]: true }));
 
     try {
-      const { data, error } = await supabase.functions.invoke('audit-system', {
+      const { _data, error } = await supabase.functions.invoke('audit-system', {
         body: {
           auditType,
           autoFix: autoFixEnabled
@@ -157,11 +156,11 @@ export default function AdminAudit() {
 
   const cleanupData = async () => {
     try {
-      const { data, error } = await supabase.rpc('cleanup_duplicates');
+      const { _data, _error } = await supabase.rpc('cleanup_duplicates');
       
-      if (error) throw error;
+      if (_error) throw _error;
 
-      const cleanupResult = data as any;
+      const cleanupResult = _data as any;
       toast({
         title: "Nettoyage terminé",
         description: `${cleanupResult?.cleaned || 0} doublons supprimés`,

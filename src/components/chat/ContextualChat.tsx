@@ -1,31 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  MessageCircle, 
-  Send, 
-  Book, 
-  Globe, 
-  Loader2, 
-  Music, 
-  Brain,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  User,
-  Bot,
-  Flame,
-  Star
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import {
+    Book,
+    Bot,
+    Brain,
+    Clock,
+    Flame,
+    Globe,
+    Loader2,
+    MessageCircle,
+    Music,
+    Send,
+    Star,
+    User
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface ChatMessage {
   id: string;
@@ -63,7 +61,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
 
   // Load user and stats
   useEffect(() => {
@@ -140,7 +138,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
     setMessages(prev => [...prev, typingMessage]);
 
     try {
-      const { data, error } = await supabase.functions.invoke('contextual-medical-chat', {
+      const { _data, error } = await supabase.functions.invoke('contextual-medical-chat', {
         body: {
           message: content,
           currentItem,
@@ -159,25 +157,25 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        content: data.response,
+        content: _data.response,
         isUser: false,
         timestamp: new Date(),
-        source: data.source || 'mixed',
-        relatedItems: data.relatedItems || [],
-        suggestions: data.suggestions || []
+        source: _data.source || 'mixed',
+        relatedItems: _data.relatedItems || [],
+        suggestions: _data.suggestions || []
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      setConversationId(data.conversationId);
+      setConversationId(_data.conversationId);
 
       // Track AI question and award points
       if (user) {
         await logActivity({
           activity_type: 'ai_question',
           count: 1,
-          metadata: { currentItem, source: data.source }
+          metadata: { currentItem, source: _data.source }
         });
-        await addPoints(user.id, 'aiQuestion');
+        await _addPoints(user.id, 'aiQuestion');
         loadStats(user.id);
       }
 
@@ -209,7 +207,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
     try {
       if (!conversationId) {
         // Créer une nouvelle conversation
-        const { data: convData } = await supabase
+        const { _data: convData } = await supabase
           .from('chat_conversations')
           .insert({
             user_id: (await supabase.auth.getUser()).data.user?.id,

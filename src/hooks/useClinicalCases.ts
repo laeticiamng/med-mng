@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useState } from 'react';
 
 export interface ClinicalStep {
   id: string;
@@ -614,7 +614,7 @@ const SAMPLE_CASES: ClinicalCase[] = [
 ];
 
 export const useClinicalCases = () => {
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [cases, setCases] = useState<ClinicalCase[]>([]);
   const [currentProgress, setCurrentProgress] = useState<CaseProgress | null>(null);
   const { toast } = useToast();
@@ -624,7 +624,7 @@ export const useClinicalCases = () => {
     setLoading(true);
     try {
       // Try to load from Supabase
-      const { data: dbCases, error } = await (supabase as any)
+      const { data: dbCases, _error } = await (supabase as any)
         .from('ai_clinical_cases')
         .select('*');
       
@@ -729,7 +729,7 @@ export const useClinicalCases = () => {
   }, [currentProgress, cases]);
 
   // Complete the case
-  const completeCase = useCallback(async (userId: string) => {
+  const completeCase = useCallback(async (_userId: string) => {
     if (!currentProgress) return null;
 
     const completedProgress = {
@@ -926,7 +926,7 @@ export const useClinicalCases = () => {
   }, [cases]);
 
   // Get recommended cases based on user stats (synchronous version using default)
-  const getRecommendedCases = useCallback((userId: string): ClinicalCase[] => {
+  const getRecommendedCases = useCallback((_userId: string): ClinicalCase[] => {
     // For sync use, recommend based on diversity of specialties
     const specialtyCounts = new Map<string, number>();
     cases.forEach(c => {
@@ -1014,7 +1014,7 @@ export const useClinicalCases = () => {
   }, []);
 
   return {
-    loading,
+    _loading,
     cases,
     currentProgress,
     getCases,

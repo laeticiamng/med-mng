@@ -11,7 +11,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
     try {
       // Vérifier d'abord en base de données
-      const { data: dbTracks, error: dbError } = await supabase
+      const { _data: dbTracks, _error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
@@ -57,24 +57,24 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       }
 
       // Si pas trouvé en BDD, vérifier via l'API de statut
-      const { data, error } = await supabase.functions.invoke('music-status', {
+      const { _data, error } = await supabase.functions.invoke('music-status', {
         body: { taskId }
       });
 
-      if (data && !error) {
+      if (_data && !error) {
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
-          status: data.status,
-          audioUrl: data.audioUrl,
-          streamUrl: data.streamUrl,
-          imageUrl: data.imageUrl,
-          progress: getProgressFromStatus(data.status, data.metadata?.progress),
-          metadata: data.metadata
+          status: _data.status,
+          audioUrl: _data.audioUrl,
+          streamUrl: _data.streamUrl,
+          imageUrl: _data.imageUrl,
+          progress: getProgressFromStatus(_data.status, _data.metadata?.progress),
+          metadata: _data.metadata
         };
         
         setStatus(statusData);
         
-        if (data.status === 'completed' || data.status === 'failed') {
+        if (_data.status === 'completed' || _data.status === 'failed') {
           setIsPolling(false);
         }
         

@@ -26,14 +26,14 @@ export function useSecurityIncidents() {
   const { data: incidents = [], isLoading, error } = useQuery({
     queryKey: ['security-incidents'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('security_alerts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (_error) throw _error;
       
-      return (data || []).map(alert => ({
+      return (_data || []).map(alert => ({
         id: alert.id,
         title: alert.title,
         description: alert.description,
@@ -69,12 +69,12 @@ export function useSecurityIncidents() {
         }
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('security_alerts')
         .update(updates)
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['security-incidents'] });
@@ -88,7 +88,7 @@ export function useSecurityIncidents() {
 
   const escalateIncident = useMutation({
     mutationFn: async ({ id, assignedTo }: { id: string; assignedTo: string }) => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('security_alerts')
         .update({
           status: 'escalated',
@@ -96,7 +96,7 @@ export function useSecurityIncidents() {
         })
         .eq('id', id);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Send notification
       await supabase.functions.invoke('send-security-alert', {

@@ -152,7 +152,7 @@ export const PersonalNotes: React.FC<PersonalNotesProps> = ({ itemCode }) => {
         title: `Notes personnelles - ${itemCode}`,
         content: currentNote,
         itemCode,
-        type: 'competences'
+        _type: 'competences'
       });
       toast.success('Notes exportées en PDF');
     } catch {

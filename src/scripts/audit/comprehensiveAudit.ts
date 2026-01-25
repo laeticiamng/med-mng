@@ -51,16 +51,16 @@ export class ComprehensivePlatformAuditor {
 
     try {
       // Vérifier que tous les items ont les champs requis
-      const { data: items, error } = await supabase
+      const { _data: items, _error } = await supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, subtitle, tableau_rang_a, tableau_rang_b');
 
-      if (error) {
+      if (_error) {
         issues.push({
           severity: 'critical',
           category: 'Database',
           issue: 'Impossible de récupérer les items EDN',
-          details: error.message
+          details: _error.message
         });
         return { issues, score: 0 };
       }
@@ -119,7 +119,7 @@ export class ComprehensivePlatformAuditor {
     let score = 100;
 
     try {
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code, tableau_rang_a, tableau_rang_b');
 
@@ -171,7 +171,7 @@ export class ComprehensivePlatformAuditor {
     let score = 100;
 
     try {
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code, tableau_rang_a, tableau_rang_b');
 
@@ -242,7 +242,7 @@ export class ComprehensivePlatformAuditor {
     let score = 100;
 
     try {
-      const { data: oicCompetences } = await supabase
+      const { _data: oicCompetences } = await supabase
         .from('backup_oic_competences')
         .select('item_parent, rang, intitule, description');
 
@@ -314,11 +314,11 @@ export class ComprehensivePlatformAuditor {
     let score = 100;
 
     try {
-      const { data: items } = await supabase
+      const { _data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title');
 
-      const { data: oicCompetences } = await supabase
+      const { _data: oicCompetences } = await supabase
         .from('backup_oic_competences')
         .select('item_parent, rang, intitule, description');
 
@@ -431,7 +431,7 @@ export class ComprehensivePlatformAuditor {
    * Récupérer les statistiques générales
    */
   private static async getStatistics() {
-    const { data: items } = await supabase
+    const { _data: items } = await supabase
       .from('edn_items_immersive')
       .select('tableau_rang_a, tableau_rang_b');
 
@@ -471,7 +471,7 @@ export class ComprehensivePlatformAuditor {
    * Récupérer les statistiques de qualité OIC
    */
   private static async getOICQualityStats() {
-    const { data: oicCompetences } = await supabase
+    const { _data: oicCompetences } = await supabase
       .from('backup_oic_competences')
       .select('item_parent, rang, intitule, description');
 

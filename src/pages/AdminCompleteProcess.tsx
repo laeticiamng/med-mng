@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, Download, Play, Database, Code, Palette, Zap, CheckCircle, RefreshCw, ArrowRight } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, ArrowRight, CheckCircle, Code, Database, Download, Palette, RefreshCw, Zap } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
 const AdminCompleteProcess = () => {
   const [currentPhase, setCurrentPhase] = useState<string>('idle');
@@ -42,7 +42,7 @@ const AdminCompleteProcess = () => {
       // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
       const credentials = await getCredentials();
       
-      const { data: extractionData, error: extractionError } = await supabase.functions.invoke('extract-edn-uness', {
+      const { _data: extractionData, error: extractionError } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'start',
           credentials // Credentials sécurisés (pas de hardcodé)
@@ -66,7 +66,7 @@ const AdminCompleteProcess = () => {
         setCurrentPhase(phaseName);
         console.log(`🔍 Audit ${auditType}...`);
         
-        const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
+        const { _data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
           body: {
             auditType: auditType,
             autoFix: true
@@ -117,15 +117,15 @@ const AdminCompleteProcess = () => {
         description: 'Mise à jour de tous les contenus avec données spécifiques'
       });
 
-      const { data, error: reimportError } = await supabase.functions.invoke('reimport-edn-complete', {
+      const { _data, error: reimportError } = await supabase.functions.invoke('reimport-edn-complete', {
         body: { action: 'reimport_all' }
       });
 
       if (reimportError) throw reimportError;
 
-      setReimportResults(data);
+      setReimportResults(_data);
       toast.success('Ré-importation terminée!', {
-        description: `${data.stats?.success || 0} items mis à jour avec contenu spécifique`
+        description: `${_data.stats?.success || 0} items mis à jour avec contenu spécifique`
       });
 
     } catch (error: any) {

@@ -1,20 +1,20 @@
 
-import React, { useState } from 'react';
-import { withAuth } from '@/components/med-mng/withAuth';
-import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
-import { useMedMngApi } from '@/hooks/useMedMngApi';
-import { useSongGeneration } from '@/hooks/useSongGeneration';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
 import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
+import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
 import { InformationCard } from '@/components/med-mng/create/InformationCard';
-import { useNavigate } from 'react-router-dom';
-import { AlertCircle, CreditCard } from 'lucide-react';
+import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useSongGeneration } from '@/hooks/useSongGeneration';
+import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, CreditCard } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
 const ednitems = [

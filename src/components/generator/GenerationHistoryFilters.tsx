@@ -3,14 +3,13 @@
  * Filtres par date, style, rang avec interface moderne
  */
 
-import React from 'react';
-import { Calendar, Tag, Layers, X, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Calendar, Layers, Tag, X } from 'lucide-react';
+import React from 'react';
 
 export type DateRangeType = 'all' | 'today' | 'week' | 'month' | 'custom';
 export type FilterType = 'all' | 'favorites' | 'rang_a' | 'rang_b' | 'rang_ab';

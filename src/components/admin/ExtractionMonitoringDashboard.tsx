@@ -1,32 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
-  PlayCircle, 
-  RefreshCw, 
-  Activity, 
-  Filter,
-  Users,
-  Database,
-  Download,
-  Eye,
-  Calendar,
-  TrendingUp,
-  Pause,
-  Play,
-  Square,
-  AlertTriangle
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    AlertCircle,
+    AlertTriangle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Database,
+    Download,
+    Eye,
+    Filter,
+    Pause,
+    PlayCircle,
+    RefreshCw,
+    Square,
+    TrendingUp,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface ExtractionLog {
@@ -129,9 +128,9 @@ export function ExtractionMonitoringDashboard() {
         })
       ]);
 
-      if (statsRes.data?.success) {
+      if (statsRes._data?.success) {
         const enhancedStats = {
-          ...statsRes.data.data,
+          ...statsRes._data.data,
           avg_duration_minutes: 23.5,
           peak_concurrent_extractions: 8,
           data_volume_processed_gb: 145.7
@@ -139,8 +138,8 @@ export function ExtractionMonitoringDashboard() {
         setStats(enhancedStats);
       }
       
-      if (recentRes.data?.success) {
-        let filteredData = recentRes.data.data;
+      if (recentRes._data?.success) {
+        let filteredData = recentRes._data.data;
         
         // Filtrage côté client pour la recherche
         if (filters.search) {
@@ -153,14 +152,14 @@ export function ExtractionMonitoringDashboard() {
         setRecentExtractions(filteredData);
       }
       
-      if (runningRes.data?.success) setRunningExtractions(runningRes.data.data);
-      if (quotasRes.data?.success) setUserQuotas(quotasRes.data.data.critical_users || []);
+      if (runningRes._data?.success) setRunningExtractions(runningRes._data.data);
+      if (quotasRes._data?.success) setUserQuotas(quotasRes._data.data.critical_users || []);
       
       setLastUpdateTime(new Date());
       
       // Alertes automatiques pour les extractions critiques
-      if (alertsEnabled && runningRes.data?.data) {
-        const criticalExtractions = runningRes.data.data.filter((ext: ExtractionLog) =>
+      if (alertsEnabled && runningRes._data?.data) {
+        const criticalExtractions = runningRes._data.data.filter((ext: ExtractionLog) =>
           ext.progress_percentage > 0 && ext.failed_items > ext.total_items * 0.1
         );
         
@@ -183,8 +182,8 @@ export function ExtractionMonitoringDashboard() {
         body: { action: 'get_events', batch_id: batchId }
       });
 
-      if (response.data?.success) {
-        setBatchEvents(response.data.data);
+      if (response._data?.success) {
+        setBatchEvents(response._data.data);
       }
     } catch (error) {
       console.error('Error fetching batch events:', error);
@@ -214,13 +213,13 @@ export function ExtractionMonitoringDashboard() {
     try {
       toast.info(`Pause de l'extraction ${batchId}...`);
 
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+      const { _data, error } = await supabase.functions.invoke('extraction-monitoring', {
         body: { action: 'pause_extraction', batch_id: batchId }
       });
 
       if (error) throw error;
 
-      if (data?.success) {
+      if (_data?.success) {
         toast.success(`Extraction ${batchId} mise en pause`);
         // Mettre à jour l'état local
         setRunningExtractions(prev =>
@@ -228,40 +227,13 @@ export function ExtractionMonitoringDashboard() {
         );
         await fetchData();
       } else {
-        toast.error(data?.error || 'Erreur lors de la pause');
+        toast.error(_data?.error || 'Erreur lors de la pause');
       }
     } catch (error) {
       console.error('Erreur pause extraction:', error);
       toast.error('Erreur lors de la pause de l\'extraction');
     }
   };
-
-  const resumeExtraction = async (batchId: string) => {
-    try {
-      toast.info(`Reprise de l'extraction ${batchId}...`);
-
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
-        body: { action: 'resume_extraction', batch_id: batchId }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        toast.success(`Extraction ${batchId} reprise`);
-        // Mettre à jour l'état local
-        setRunningExtractions(prev =>
-          prev.map(ext => ext.batch_id === batchId ? { ...ext, status: 'running' } : ext)
-        );
-        await fetchData();
-      } else {
-        toast.error(data?.error || 'Erreur lors de la reprise');
-      }
-    } catch (error) {
-      console.error('Erreur reprise extraction:', error);
-      toast.error('Erreur lors de la reprise de l\'extraction');
-    }
-  };
-
   const stopExtraction = async (batchId: string) => {
     try {
       // Demander confirmation
@@ -270,19 +242,19 @@ export function ExtractionMonitoringDashboard() {
 
       toast.info(`Arrêt de l'extraction ${batchId}...`);
 
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+      const { _data, error } = await supabase.functions.invoke('extraction-monitoring', {
         body: { action: 'stop_extraction', batch_id: batchId }
       });
 
       if (error) throw error;
 
-      if (data?.success) {
+      if (_data?.success) {
         toast.success(`Extraction ${batchId} arrêtée`);
         // Retirer de la liste des extractions en cours
         setRunningExtractions(prev => prev.filter(ext => ext.batch_id !== batchId));
         await fetchData();
       } else {
-        toast.error(data?.error || 'Erreur lors de l\'arrêt');
+        toast.error(_data?.error || 'Erreur lors de l\'arrêt');
       }
     } catch (error) {
       console.error('Erreur arrêt extraction:', error);

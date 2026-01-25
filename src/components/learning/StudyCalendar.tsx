@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, ChevronLeft, ChevronRight, Brain, Target, Flame, Star, Trophy, Download, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAdaptiveSRS } from '@/hooks/useAdaptiveSRS';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import { Brain, Calendar, ChevronLeft, ChevronRight, Download, Flame, Star, Trophy } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface DayData {
   date: Date;
@@ -20,8 +20,8 @@ interface DayData {
 
 export const StudyCalendar: React.FC = () => {
   const { getSRSStats } = useAdaptiveSRS();
-  const { getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
-  const { stats: gamificationStats } = useGamification();
+  const { _getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
+  const { _stats: gamificationStats } = useGamification();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarData, setCalendarData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ export const StudyCalendar: React.FC = () => {
       setActiveDays(activeDaysCount);
 
       // Get past activity
-      const heatmapData = await getHeatmapData(60);
+      const heatmapData = await _getHeatmapData(60);
 
       // Build calendar data
       const year = currentMonth.getFullYear();
@@ -120,7 +120,7 @@ export const StudyCalendar: React.FC = () => {
     };
 
     loadData();
-  }, [currentMonth, getSRSStats, getHeatmapData, getStreak, getActiveDaysCount]);
+  }, [currentMonth, getSRSStats, _getHeatmapData, getStreak, getActiveDaysCount]);
 
   const { toast } = useToast();
 

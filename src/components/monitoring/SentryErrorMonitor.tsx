@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import * as Sentry from '@sentry/react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import * as Sentry from '@sentry/react';
+import { AlertCircle, CheckCircle, RefreshCw, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface ErrorEvent {
   id: string;
@@ -34,14 +34,14 @@ export const SentryErrorMonitor = () => {
 
   const loadRealErrors = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ai_monitoring_errors')
         .select('id, message, stack, created_at, severity, category, context')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (!error && data) {
-        setErrors(data.map(err => ({
+      if (!_error && _data) {
+        setErrors(_data.map(err => ({
           id: err.id,
           message: err.message,
           stack: err.stack || undefined,
@@ -66,10 +66,10 @@ export const SentryErrorMonitor = () => {
   };
 
   // Fonction pour créer une vraie erreur et l'enregistrer dans Supabase
-  const reportNewError = async (errorMessage: string, level: 'error' | 'warning' | 'info', context: Record<string, any>) => {
+  const _reportNewError = async (errorMessage: string, level: 'error' | 'warning' | 'info', context: Record<string, any>) => {
     try {
       // Enregistrer dans Supabase
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ai_monitoring_errors')
         .insert({
           message: errorMessage,
@@ -83,13 +83,13 @@ export const SentryErrorMonitor = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Ajouter à la liste locale
       const newError: ErrorEvent = {
-        id: data.id,
+        id: _data.id,
         message: errorMessage,
-        timestamp: new Date(data.created_at),
+        timestamp: new Date(_data.created_at),
         level: level,
         context: context,
         stack: `Reported at ${new Date().toISOString()}`
@@ -114,14 +114,6 @@ export const SentryErrorMonitor = () => {
   };
 
   // Fonction de test pour les développeurs (enregistre une vraie erreur)
-  const testErrorReporting = () => {
-    reportNewError(
-      'Test d\'erreur - Vérification du système de monitoring',
-      'info',
-      { component: 'SentryErrorMonitor', action: 'test_report' }
-    );
-  };
-
   const clearErrors = () => {
     setErrors([]);
   };

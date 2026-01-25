@@ -1,42 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import { ABTestManager } from '@/components/accessibility/ABTestManager';
+import { AccessibilityDashboardMetrics } from '@/components/accessibility/AccessibilityDashboardMetrics';
+import { AppliedRecommendationsTracker } from '@/components/accessibility/AppliedRecommendationsTracker';
+import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
+import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
+import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
+import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
+import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
+import { NotificationAnalytics } from '@/components/accessibility/NotificationAnalytics';
+import { NotificationHistory } from '@/components/accessibility/NotificationHistory';
+import { NotificationPredictions } from '@/components/accessibility/NotificationPredictions';
+import { NotificationTemplateManager } from '@/components/accessibility/NotificationTemplateManager';
+import { RecommendationAlertsPanel } from '@/components/accessibility/RecommendationAlertsPanel';
+import { RecommendationsPanel } from '@/components/accessibility/RecommendationsPanel';
+import { TemplateEditor } from '@/components/accessibility/TemplateEditor';
+import { ViolationsChart } from '@/components/accessibility/ViolationsChart';
+import { WebhookManager } from '@/components/accessibility/WebhookManager';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useGitHubAccessibilityMetrics } from '@/hooks/useGitHubAccessibilityMetrics';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { AccessibilityDashboardMetrics } from '@/components/accessibility/AccessibilityDashboardMetrics';
-import { ViolationsChart } from '@/components/accessibility/ViolationsChart';
-import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
-import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
-import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
-import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
-import { TemplateEditor } from '@/components/accessibility/TemplateEditor';
-import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
-import { ABTestManager } from '@/components/accessibility/ABTestManager';
-import { WebhookManager } from '@/components/accessibility/WebhookManager';
-import { NotificationTemplateManager } from '@/components/accessibility/NotificationTemplateManager';
-import { NotificationHistory } from '@/components/accessibility/NotificationHistory';
-import { NotificationAnalytics } from '@/components/accessibility/NotificationAnalytics';
-import { NotificationPredictions } from '@/components/accessibility/NotificationPredictions';
-import { RecommendationsPanel } from '@/components/accessibility/RecommendationsPanel';
-import { AppliedRecommendationsTracker } from '@/components/accessibility/AppliedRecommendationsTracker';
-import { RecommendationAlertsPanel } from '@/components/accessibility/RecommendationAlertsPanel';
-import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { ROUTE_PATHS } from '@/config/routes';
-import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
+import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGitHubAccessibilityMetrics } from '@/hooks/useGitHubAccessibilityMetrics';
 import { supabase } from '@/integrations/supabase/client';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { exportMetricsToCSV, exportMetricsToJSON, exportMonthlyReport, exportSummaryToCSV } from '@/utils/exportAccessibilityMetrics';
+import { AlertCircle, BarChart3, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText, Key, RefreshCw, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AccessibilityDashboard = () => {
   const navigate = useNavigate();

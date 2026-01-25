@@ -86,7 +86,7 @@ export const useSubscription = () => {
 
     try {
       // Get user subscription avec retry logic
-      const { data: subData, error: subError } = await supabase
+      const { _data: subData, _error: subError } = await supabase
         .rpc('get_user_subscription', { user_uuid: user.id });
 
       if (subError) {
@@ -126,7 +126,7 @@ export const useSubscription = () => {
       }
 
       // Get music quota depuis la nouvelle table user_quotas (musique uniquement)
-      const { data: quotaData, error: quotaError } = await supabase
+      const { _data: quotaData, _error: quotaError } = await supabase
         .rpc('get_music_quota', { p_user_id: user.id });
 
       if (quotaError) {
@@ -199,17 +199,17 @@ export const useSubscription = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .rpc('increment_music_usage', { user_uuid: user.id });
 
-      if (error) {
-        console.error('Error incrementing music usage:', error);
+      if (_error) {
+        console.error('Error incrementing music usage:', _error);
         toast.error('Erreur lors de la mise à jour du quota');
         return false;
       }
 
       // Refresh quota après incrémentation (musique uniquement)
-      const { data: quotaData, error: quotaError } = await supabase
+      const { _data: quotaData, _error: quotaError } = await supabase
         .rpc('get_music_quota', { p_user_id: user.id });
 
       if (!quotaError && quotaData && quotaData.length > 0) {
@@ -227,7 +227,7 @@ export const useSubscription = () => {
         }
       }
 
-      return data;
+      return _data;
     } catch (error) {
       console.error('Error in incrementMusicUsage:', error);
       toast.error('Erreur lors de l\'incrément du quota');
@@ -239,20 +239,6 @@ export const useSubscription = () => {
     if (!subscription) return false;
     return subscription.features[feature] || false;
   }, [subscription]);
-
-  const canGenerateMusic = useCallback((): boolean => {
-    if (!user) {
-      // Free users can generate 3 songs without account
-      return true;
-    }
-    // Si pas de quota chargé, permettre la génération par défaut
-    // (le quota sera créé au premier usage via la RPC get_music_quota)
-    if (musicQuota === null) {
-      return true;
-    }
-    return musicQuota.can_generate;
-  }, [user, musicQuota]);
-
   const canSaveMusic = useCallback((): boolean => {
     return hasFeatureAccess('save_music');
   }, [hasFeatureAccess]);
@@ -469,14 +455,14 @@ export const useSubscription = () => {
   }, [subscription]);
 
   return {
-    subscription,
+    _subscription,
     musicQuota,
     loading,
     error,
     fetchSubscription,
     incrementMusicUsage,
     hasFeatureAccess,
-    canGenerateMusic,
+    _canGenerateMusic,
     canSaveMusic,
     getUsageDisplay,
     getSunoModel,

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Music, Library, Heart, Shield, Headphones, Download, Crown, Star, Zap, Check } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { useSubscription } from '@/hooks/useSubscription';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PremiumBackground } from '@/components/ui/premium-background';
-import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
+import { PremiumCard } from '@/components/ui/premium-card';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useSubscription } from '@/hooks/useSubscription';
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, Check, Crown, Download, Headphones, Heart, Library, Music, Shield, Star, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface SubscriptionPlan {
   id: string;
@@ -26,7 +26,7 @@ interface SubscriptionPlan {
 export const MedMngPricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription, loading: subscriptionLoading } = useSubscription();
+  const { _subscription, loading: subscriptionLoading } = useSubscription();
   const { logActivity } = useActivityTracking();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,14 +39,14 @@ export const MedMngPricing = () => {
 
   const fetchPlans = async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('subscription_plans')
         .select('*')
         .order('price', { ascending: true });
 
-      if (error) throw error;
+      if (_error) throw _error;
       
-      const processedPlans: SubscriptionPlan[] = (data || []).map(plan => ({
+      const processedPlans: SubscriptionPlan[] = (_data || []).map(plan => ({
         id: plan.id,
         name: plan.name,
         description: `Plan ${plan.name.toLowerCase()}`,
@@ -74,15 +74,15 @@ export const MedMngPricing = () => {
     setProcessingPlan(planId);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+      const { _data, error } = await supabase.functions.invoke('create-subscription-checkout', {
         body: { planId },
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+        headers: { Authorization: `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}` }
       });
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
+      if (_data?.url) {
+        window.open(_data.url, '_blank');
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
@@ -102,8 +102,8 @@ export const MedMngPricing = () => {
     setProcessingPlan(planId);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke('activate-simulation', {
+      const { _data: { session } } = await supabase.auth.getSession();
+      const { _data, error } = await supabase.functions.invoke('activate-simulation', {
         body: { planId },
         headers: { Authorization: `Bearer ${session?.access_token}` }
       });
@@ -111,7 +111,7 @@ export const MedMngPricing = () => {
       if (error) throw error;
 
       toast.success(`🎉 Plan ${planId} activé !`, {
-        description: data?.message || `${data?.quota} générations/mois disponibles`
+        description: _data?.message || `${_data?.quota} générations/mois disponibles`
       });
       
       // Recharger la page pour voir les changements après un court délai UX
@@ -145,7 +145,7 @@ export const MedMngPricing = () => {
   };
 
   const isCurrentPlan = (planName: string) => {
-    return subscription?.plan_name === planName;
+    return _subscription?.plan_name === planName;
   };
 
   const freeFeatures = [
@@ -304,7 +304,7 @@ export const MedMngPricing = () => {
         </div>
 
         {/* Current subscription banner */}
-        {subscription && (
+        {_subscription && (
           <PremiumCard variant="glass" className="mb-8 p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -312,7 +312,7 @@ export const MedMngPricing = () => {
                   <TranslatedText text="Votre abonnement actuel" />
                 </h3>
                 <p className="text-muted-foreground">
-                  Plan {subscription.plan_name} - {subscription.monthly_quota} générations/mois
+                  Plan {_subscription.plan_name} - {_subscription.monthly_quota} générations/mois
                 </p>
               </div>
               <Badge variant="default" className="bg-success text-success-foreground">

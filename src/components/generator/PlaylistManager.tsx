@@ -3,26 +3,33 @@
  * ✅ NOUVEAU: Créer, modifier, supprimer des playlists
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { 
-  Plus, ListMusic, Play, Trash2, Edit2, Check, X, 
-  Music, MoreVertical, FolderPlus 
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Check,
+    Edit2,
+    FolderPlus,
+    ListMusic,
+    MoreVertical,
+    Music,
+    Plus,
+    Trash2,
+    X
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Playlist {
   id: string;
@@ -62,16 +69,16 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     
     try {
       // Note: Table music_playlists doit exister
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('music_playlists')
         .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       // Mapper les données pour correspondre à notre interface
-      const mappedData: Playlist[] = (data || []).map((p: any) => ({
+      const mappedData: Playlist[] = (_data || []).map((p: any) => ({
         id: p.id,
         name: p.name,
         description: p.description,
@@ -99,7 +106,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     if (!user || !newPlaylistName.trim()) return;
     
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('music_playlists')
         .insert({
           user_id: user.id,
@@ -109,15 +116,15 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         .select()
         .single();
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       const newPlaylist: Playlist = {
-        id: data.id,
-        name: data.name,
-        description: data.description,
+        id: _data.id,
+        name: _data.name,
+        description: _data.description,
         track_count: 0,
-        created_at: data.created_at,
-        updated_at: data.updated_at
+        created_at: _data.created_at,
+        updated_at: _data.updated_at
       };
       
       setPlaylists(prev => [newPlaylist, ...prev]);
@@ -138,12 +145,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     }
     
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('music_playlists')
         .update({ name: editingName.trim(), updated_at: new Date().toISOString() })
         .eq('id', id);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       setPlaylists(prev => prev.map(p => 
         p.id === id ? { ...p, name: editingName.trim() } : p
@@ -159,12 +166,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   // Supprimer une playlist
   const deletePlaylist = useCallback(async (id: string) => {
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('music_playlists')
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       setPlaylists(prev => prev.filter(p => p.id !== id));
       toast.success('Playlist supprimée');
@@ -187,7 +194,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       const existingTracks = Array.isArray(playlist?.tracks) ? playlist.tracks : [];
       const newTracks = [...existingTracks, ...selectedTrackIds];
       
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('music_playlists')
         .update({ 
           tracks: newTracks,
@@ -195,7 +202,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         })
         .eq('id', playlistId);
       
-      if (error) throw error;
+      if (_error) throw _error;
       
       await loadPlaylists();
       toast.success(`${selectedTrackIds.length} piste(s) ajoutée(s)`);

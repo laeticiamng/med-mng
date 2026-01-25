@@ -51,7 +51,7 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
     queryFn: async () => {
       console.log(`[useUnifiedAlerts] Fetching alerts with mode: ${mode}`);
       
-      const { data, error } = await supabase.functions.invoke('unified-alerts', {
+      const { _data, error } = await supabase.functions.invoke('unified-alerts', {
         body: { mode },
       });
 
@@ -60,8 +60,8 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
         throw error;
       }
 
-      console.log('[useUnifiedAlerts] Response:', data);
-      return data;
+      console.log('[useUnifiedAlerts] Response:', _data);
+      return _data;
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   });
@@ -101,12 +101,12 @@ export const useUnifiedAlerts = (mode: 'combined' | 'pagerduty' | 'nvd' = 'combi
   // Manual refresh mutation
   const refreshMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('unified-alerts', {
+      const { _data, error } = await supabase.functions.invoke('unified-alerts', {
         body: { mode },
       });
 
       if (error) throw error;
-      return data;
+      return _data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['unified-alerts'] });

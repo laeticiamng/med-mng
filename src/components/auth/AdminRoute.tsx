@@ -37,19 +37,19 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
       try {
         // Vérification sécurisée via la table user_roles avec RLS
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
           .eq('role', 'admin')
           .maybeSingle();
 
-        if (error) {
-          console.error('Erreur vérification rôle admin:', error);
+        if (_error) {
+          console.error('Erreur vérification rôle admin:', _error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(!!data);
-          if (data) {
+          setIsAdmin(!!_data);
+          if (_data) {
             logActivity({
               activity_type: 'study',
               count: 1,

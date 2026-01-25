@@ -8,7 +8,7 @@
  * - Edge cases: tokens expirés, erreurs réseau, race conditions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // MOCK SUPABASE CLIENT
@@ -628,9 +628,6 @@ describe('Auth Module - Unit Tests', () => {
         data: { user: null, session: null },
         error: { message: 'Invalid email format' }
       });
-      
-      const result = await mockSignIn({ email: 'тест@example.com', password: 'password123' });
-      
       // Les emails avec unicode devraient être rejetés ou normalisés
       expect(mockSignIn).toHaveBeenCalled();
     });

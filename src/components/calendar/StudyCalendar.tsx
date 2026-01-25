@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, AlertCircle, CheckCircle, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, Calendar, CheckCircle, Clock, Plus } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface StudyEvent {
   id: string;
@@ -23,8 +23,8 @@ export const StudyCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState<StudyEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+  const [_loading, setLoading] = useState(true);
+  const [_viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const { toast } = useToast();
 
   const fetchEvents = useCallback(async () => {

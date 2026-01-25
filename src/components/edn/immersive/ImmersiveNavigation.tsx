@@ -1,12 +1,11 @@
 
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImmersiveNavigationProps {
   sections: string[];
   currentSection: number;
   onSectionChange: (index: number) => void;
-  progress: number;
+  _progress: number;
   hasNext: boolean;
   hasPrev: boolean;
   onNext: () => void;
@@ -17,7 +16,7 @@ export const ImmersiveNavigation = ({
   sections,
   currentSection,
   onSectionChange,
-  progress,
+  _progress,
   hasNext,
   hasPrev,
   onNext,

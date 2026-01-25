@@ -1,18 +1,18 @@
-import React from 'react';
-import { useSunoCredits } from '@/hooks/useSunoCredits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Coins, RefreshCw, AlertTriangle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSunoCredits } from '@/hooks/useSunoCredits';
+import { cn } from '@/lib/utils';
+import { AlertTriangle, Coins, RefreshCw } from 'lucide-react';
+import React from 'react';
 
 interface SunoCreditsDisplayProps {
   className?: string;
   showRefresh?: boolean;
   autoRefresh?: boolean;
   showProgress?: boolean;
-  compact?: boolean;
+  _compact?: boolean;
   // Props pour usage externe (passées directement)
   credits?: number;
   loading?: boolean;
@@ -25,15 +25,15 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
   showRefresh = true,
   autoRefresh = false,
   showProgress = false,
-  compact = false,
+  _compact = false,
   // Props externes (optionnelles, sinon on utilise le hook)
-  credits: externalCredits,
-  loading: externalLoading,
-  error: externalError,
-  hasLowCredits: externalHasLowCredits
+  credits: _externalCredits,
+  loading: _externalLoading,
+  error: _externalError,
+  hasLowCredits: _externalHasLowCredits
 }) => {
   const {
-    credits,
+    _credits,
     loading,
     error,
     fetchCredits,
@@ -84,7 +84,7 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
               {!creditsUnknown && (
                 <>
                   <p className="text-muted-foreground">
-                    Plan: {plan} • {credits} crédits restants
+                    Plan: {plan} • {_credits} crédits restants
                   </p>
                   {showProgress && total > 0 && (
                     <div className="mt-2">

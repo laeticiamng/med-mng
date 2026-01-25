@@ -1,9 +1,8 @@
 
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AuditItemCard } from './AuditItemCard';
 import type { AuditReport } from '@/scripts/audit/types';
+import { AuditItemCard } from './AuditItemCard';
 
 interface AuditItemsListProps {
   report: AuditReport;

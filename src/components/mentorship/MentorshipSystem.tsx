@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Users, GraduationCap, Star, MessageCircle, Calendar,
-  Award, TrendingUp, Clock, CheckCircle, UserPlus
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    Calendar,
+    CheckCircle,
+    Clock,
+    GraduationCap,
+    MessageCircle,
+    Star,
+    TrendingUp,
+    UserPlus,
+    Users
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Mentor {
   id: string;
@@ -39,7 +47,7 @@ interface MentorSession {
 export const MentorshipSystem: React.FC = () => {
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [mySessions, setMySessions] = useState<MentorSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [isMentor, setIsMentor] = useState(false);
   const { toast } = useToast();
 
@@ -51,7 +59,7 @@ export const MentorshipSystem: React.FC = () => {
     setLoading(true);
     try {
       // Charger les mentors depuis Supabase
-      const { data: mentorsData, error: mentorsError } = await supabase
+      const { _data: mentorsData, _error: mentorsError } = await supabase
         .from('mentors')
         .select('*')
         .eq('is_active', true)
@@ -61,7 +69,7 @@ export const MentorshipSystem: React.FC = () => {
 
       // Charger les profils des mentors
       const mentorUserIds = mentorsData?.map(m => m.user_id) || [];
-      const { data: profiles } = await supabase
+      const { _data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', mentorUserIds.length > 0 ? mentorUserIds : ['00000000-0000-0000-0000-000000000000']);
@@ -89,7 +97,7 @@ export const MentorshipSystem: React.FC = () => {
       // Charger les sessions de l'utilisateur connecté
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: sessionsData } = await supabase
+        const { _data: sessionsData } = await supabase
           .from('mentor_sessions')
           .select('*, mentors(id, specialty)')
           .eq('student_id', user.id)
@@ -97,13 +105,10 @@ export const MentorshipSystem: React.FC = () => {
 
         if (sessionsData && sessionsData.length > 0) {
           const sessionMentorIds = sessionsData.map(s => s.mentor_id);
-          const { data: mentorProfiles } = await supabase
+          const { _data: mentorProfiles } = await supabase
             .from('mentors')
             .select('id, user_id')
             .in('id', sessionMentorIds);
-
-          const mentorProfileMap = new Map(mentorProfiles?.map(mp => [mp.id, mp]) || []);
-
           const formattedSessions: MentorSession[] = sessionsData.map(s => ({
             id: s.id,
             mentorId: s.mentor_id,
@@ -118,7 +123,7 @@ export const MentorshipSystem: React.FC = () => {
         }
 
         // Vérifier si l'utilisateur est mentor
-        const { data: mentorCheck } = await supabase
+        const { _data: mentorCheck } = await supabase
           .from('mentors')
           .select('id')
           .eq('user_id', user.id)
@@ -158,7 +163,7 @@ export const MentorshipSystem: React.FC = () => {
         return;
       }
 
-      const { error } = await supabase.from('mentor_sessions').insert({
+      const { _error } = await supabase.from('mentor_sessions').insert({
         mentor_id: mentorId,
         student_id: user.id,
         topic: 'Session de mentorat',
@@ -167,7 +172,7 @@ export const MentorshipSystem: React.FC = () => {
         status: 'pending'
       });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: 'Demande envoyée ✅',
@@ -188,7 +193,7 @@ export const MentorshipSystem: React.FC = () => {
         return;
       }
 
-      const { error } = await supabase.from('mentors').insert({
+      const { _error } = await supabase.from('mentors').insert({
         user_id: user.id,
         specialty: 'Médecine générale',
         expertise: ['Items EDN', 'Méthodologie'],
@@ -196,7 +201,7 @@ export const MentorshipSystem: React.FC = () => {
         bio: 'Nouveau mentor sur la plateforme'
       });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: 'Bienvenue parmi les mentors ! 🎉',

@@ -1,7 +1,7 @@
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LucideIcon } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { LucideIcon } from 'lucide-react';
 
 interface Step {
   title: string;
@@ -31,11 +31,6 @@ export const StepContent = ({
 }: StepContentProps) => {
   const { logActivity } = useActivityTracking();
   const IconComponent = step.icon;
-
-  const handleResponseWithTracking = (field: string, value: string) => {
-    onResponseChange(field, value);
-  };
-
   const handleNextWithTracking = () => {
     logActivity({
       activity_type: 'study',

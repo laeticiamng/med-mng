@@ -1,13 +1,12 @@
-import React from 'react';
 import { Card } from '@/components/ui/card';
-import { 
-  Headphones, 
-  Brain, 
-  Repeat, 
-  Sparkles,
-  Music,
-  BookOpen
+import {
+    Brain,
+    Headphones,
+    Music,
+    Repeat,
+    Sparkles
 } from 'lucide-react';
+import React from 'react';
 
 export const ReassuranceSection: React.FC = () => {
   const features = [

@@ -61,14 +61,14 @@ export const useSecurityMonitoring = () => {
   } = useQuery({
     queryKey: ["security-corrections"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from("security_corrections_history")
         .select("*")
         .order("applied_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-      return data as SecurityCorrection[];
+      if (_error) throw _error;
+      return _data as SecurityCorrection[];
     },
   });
 
@@ -80,13 +80,13 @@ export const useSecurityMonitoring = () => {
   } = useQuery({
     queryKey: ["security-alerts"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from("security_alerts")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as SecurityAlert[];
+      if (_error) throw _error;
+      return _data as SecurityAlert[];
     },
     refetchInterval: 60000, // Refresh every minute
   });
@@ -99,14 +99,14 @@ export const useSecurityMonitoring = () => {
   } = useQuery({
     queryKey: ["security-metrics"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from("security_metrics_snapshots")
         .select("*")
         .order("recorded_at", { ascending: false })
         .limit(30);
 
-      if (error) throw error;
-      return data as SecurityMetricsSnapshot[];
+      if (_error) throw _error;
+      return _data as SecurityMetricsSnapshot[];
     },
     refetchInterval: 300000, // Refresh every 5 minutes
   });
@@ -114,9 +114,9 @@ export const useSecurityMonitoring = () => {
   // Fetch current metrics
   const { mutate: refreshMetrics, isPending: refreshing } = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("security-metrics");
+      const { _data, error } = await supabase.functions.invoke("security-metrics");
       if (error) throw error;
-      return data;
+      return _data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["security-metrics"] });
@@ -149,12 +149,12 @@ export const useSecurityMonitoring = () => {
         updates.resolved_at = new Date().toISOString();
       }
 
-      const { error } = await supabase
+      const { _error } = await supabase
         .from("security_alerts")
         .update(updates)
         .eq("id", alertId);
 
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["security-alerts"] });

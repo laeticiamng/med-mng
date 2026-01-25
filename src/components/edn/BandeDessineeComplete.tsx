@@ -44,7 +44,7 @@ interface BandeDessineeCompleteProps {
 
 export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) => {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { _addPoints } = useGamification();
   const [panels, setPanels] = useState<VignettePregenere[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -68,7 +68,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
           // Award points for viewing complete BD
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            await addPoints(user.id, 'itemReviewed');
+            await _addPoints(user.id, 'itemReviewed');
           }
         } else {
           const defaultPanels = createDefaultPanels(itemData);
@@ -84,7 +84,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
     };
     
     loadBandeDessinee();
-  }, [itemData.item_code, logActivity, addPoints, itemData]);
+  }, [itemData.item_code, logActivity, _addPoints, itemData]);
 
   // Images médicales Unsplash variées et valides
   const MEDICAL_IMAGES = [

@@ -3,15 +3,15 @@
  * Configuration des mocks pour les tests d'intégration
  */
 
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
-import type { 
-  UserProfile, 
-  GeneratedSong, 
-  EDNItem, 
-  APIResponse,
-  SubscriptionInfo 
+import type {
+    APIResponse,
+    EDNItem,
+    GeneratedSong,
+    SubscriptionInfo,
+    UserProfile
 } from '@/types/global';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 
 // 🎭 MOCK DATA
 const mockUser: UserProfile = {

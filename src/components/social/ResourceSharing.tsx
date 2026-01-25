@@ -1,39 +1,33 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  FileText,
-  Upload,
-  Download,
-  Search,
-  Filter,
-  Heart,
-  MessageCircle,
-  Share2,
-  Bookmark,
-  MoreVertical,
-  File,
-  Image,
-  FileSpreadsheet,
-  Presentation,
-  Link2,
-  Plus,
-  ThumbsUp,
-  Eye,
-  Calendar,
-  User,
-  Tag,
-  Loader2
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useSharedResources, SharedResource } from '@/hooks/useSharedResources';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useSharedResources } from '@/hooks/useSharedResources';
+import {
+    Bookmark,
+    Download,
+    Eye,
+    File,
+    FileSpreadsheet,
+    FileText,
+    Filter,
+    Heart,
+    Image,
+    Link2,
+    Loader2,
+    MessageCircle,
+    Plus,
+    Presentation,
+    Search,
+    Share2,
+    Upload
+} from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Resource {
   id: string;
@@ -68,7 +62,7 @@ export const ResourceSharing: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'downloads'>('recent');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [_selectedResource, _setSelectedResource] = useState<Resource | null>(null);
   const { toast } = useToast();
 
   const [newResource, setNewResource] = useState({

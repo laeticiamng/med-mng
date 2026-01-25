@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
-import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
-import { EffectivenessStats } from '@/components/effectiveness/EffectivenessStats';
+import { ComparisonChart } from '@/components/effectiveness/ComparisonChart';
+import { ComparisonExport } from '@/components/effectiveness/ComparisonExport';
+import { ComparisonStats } from '@/components/effectiveness/ComparisonStats';
 import { EffectivenessByCategory } from '@/components/effectiveness/EffectivenessByCategory';
 import { EffectivenessOverTimeChart } from '@/components/effectiveness/EffectivenessOverTimeChart';
+import { EffectivenessStats } from '@/components/effectiveness/EffectivenessStats';
 import { PerformanceDegradationAlerts } from '@/components/effectiveness/PerformanceDegradationAlerts';
-import { PeriodSelector, DateRange } from '@/components/effectiveness/PeriodSelector';
-import { ComparisonChart } from '@/components/effectiveness/ComparisonChart';
-import { ComparisonStats } from '@/components/effectiveness/ComparisonStats';
-import { ComparisonExport } from '@/components/effectiveness/ComparisonExport';
+import { DateRange, PeriodSelector } from '@/components/effectiveness/PeriodSelector';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, RefreshCw, BarChart3, GitCompare } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
+import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
+import { ArrowLeft, BarChart3, GitCompare, RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface RecommendationWithMeasurement {
   id: string;

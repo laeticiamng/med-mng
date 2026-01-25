@@ -1,8 +1,7 @@
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, PlayCircle, Download, FileText } from 'lucide-react';
 import type { AuditReport } from '@/scripts/audit/types';
+import { Download, FileText, Loader2, PlayCircle } from 'lucide-react';
 
 interface AuditHeaderProps {
   loading: boolean;

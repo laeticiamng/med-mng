@@ -14,11 +14,11 @@ export const QuizStreakTracker: React.FC<QuizStreakTrackerProps> = ({
   className = '',
   compact = false
 }) => {
-  const { stats } = useGamification();
+  const { _stats } = useGamification();
 
-  const currentStreak = stats?.currentStreak || 0;
-  const bestStreak = (stats as any)?.bestStreak || currentStreak;
-  const totalQuizzes = (stats as any)?.totalQuizzes || 0;
+  const currentStreak = _stats?.currentStreak || 0;
+  const bestStreak = (_stats as any)?.bestStreak || currentStreak;
+  const totalQuizzes = (_stats as any)?.totalQuizzes || 0;
   
   // Calcul des milestones
   const nextMilestone = currentStreak < 7 ? 7 : currentStreak < 30 ? 30 : currentStreak < 100 ? 100 : 365;

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RefreshCw, CheckCircle, AlertTriangle, Database, Zap, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertTriangle, ArrowRight, CheckCircle, Database, RefreshCw, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => {
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setProgress(30);
 
-      const { data, error } = await supabase.functions.invoke('sync-edn-tables', {
+      const { _data, error } = await supabase.functions.invoke('sync-edn-tables', {
         body: {}
       });
 
@@ -41,14 +41,14 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setResult({
         success: true,
-        itemsSynced: data?.synced || 0,
-        itemsProcessed: data?.total_processed || 0,
-        errors: data?.errors || []
+        itemsSynced: _data?.synced || 0,
+        itemsProcessed: _data?.total_processed || 0,
+        errors: _data?.errors || []
       });
 
       toast({
         title: "✅ Synchronisation terminée !",
-        description: `${data?.synced || 0} items synchronisés avec succès`,
+        description: `${_data?.synced || 0} items synchronisés avec succès`,
       });
 
       if (onComplete) {
@@ -83,7 +83,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
         description: "Création des paroles Rang A, B et A+B depuis les compétences OIC...",
       });
 
-      const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+      const { _data, error } = await supabase.functions.invoke('update-edn-unique-content', {
         body: {}
       });
 
@@ -93,14 +93,14 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setLyricsResult({
         success: true,
-        updated: data?.successCount || data?.updated || 0,
-        processed: data?.processedCount || data?.total_processed || 0,
-        errors: data?.errors || []
+        updated: _data?.successCount || _data?.updated || 0,
+        processed: _data?.processedCount || _data?.total_processed || 0,
+        errors: _data?.errors || []
       });
 
       toast({
         title: "✅ Paroles générées !",
-        description: `${data?.successCount || data?.updated || 0} items mis à jour avec paroles`,
+        description: `${_data?.successCount || _data?.updated || 0} items mis à jour avec paroles`,
       });
 
       if (onComplete) {

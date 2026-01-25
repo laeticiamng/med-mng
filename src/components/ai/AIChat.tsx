@@ -1,29 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  MessageSquare, 
-  Send, 
-  Bot, 
-  User, 
-  Sparkles, 
-  Brain,
-  Stethoscope,
-  BookOpen,
-  Lightbulb,
-  Zap,
-  Clock,
-  Activity,
-  Flame,
-  Star
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    BookOpen,
+    Bot,
+    Brain,
+    Clock,
+    Flame,
+    Lightbulb,
+    MessageSquare,
+    Send,
+    Sparkles,
+    Star,
+    Stethoscope,
+    User,
+    Zap
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ChatMessage {
   id: string;
@@ -45,7 +45,7 @@ interface ChatSession {
 
 export const AIChat = () => {
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -67,15 +67,15 @@ export const AIChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('chat_conversations')
         .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (!error && data) {
-        setSessions(data.map(conv => ({
+      if (!_error && _data) {
+        setSessions(_data.map(conv => ({
           id: conv.id,
           title: conv.title || 'Nouvelle conversation',
           created_at: new Date(conv.created_at),
@@ -142,13 +142,13 @@ export const AIChat = () => {
           metadata: { question: currentInput.slice(0, 100), type: aiResponse.type }
         });
         
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         
         // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
-          await unlockBadge(user.id, 'ai_chat');
+          await _unlockBadge(user.id, 'ai_chat');
         }
         
         loadStats(user.id);
@@ -159,21 +159,21 @@ export const AIChat = () => {
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
     // Appeler l'Edge Function pour une vraie réponse IA
     try {
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
+      const { _data, error } = await supabase.functions.invoke('ai-chat', {
         body: { message: userInput }
       });
 
       if (error) throw error;
 
-      if (data?.response) {
+      if (_data?.response) {
         return {
           id: Date.now().toString(),
-          content: data.response,
+          content: _data.response,
           role: 'assistant',
           timestamp: new Date(),
-          type: data.type || 'general',
-          confidence: data.confidence || 85,
-          tools_used: data.toolsUsed
+          type: _data.type || 'general',
+          confidence: _data.confidence || 85,
+          tools_used: _data.toolsUsed
         };
       }
     } catch (error) {

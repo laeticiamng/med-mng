@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type AnnouncementPriority = 'polite' | 'assertive' | 'off';
 export type AnnouncementType = 'status' | 'alert' | 'log' | 'timer' | 'marquee';
@@ -64,7 +64,6 @@ export const useAccessibilityAnnouncement = (): UseAccessibilityAnnouncementRetu
   const [history, setHistory] = useState<AnnouncementLog[]>([]);
 
   const queueRef = useRef<Array<{ message: string; options: AnnouncementOptions }>>([]);
-  const processingRef = useRef(false);
   const pausedRef = useRef(false);
   const liveRegionRef = useRef<HTMLDivElement | null>(null);
 

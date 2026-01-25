@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Bell, Clock, Calendar, Brain, Target, Flame,
-  Settings, Plus, Trash2, CheckCircle, AlertTriangle
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    AlertTriangle,
+    Bell,
+    Brain,
+    CheckCircle,
+    Clock,
+    Flame, Plus,
+    Target,
+    Trash2
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface SmartReminder {
   id: string;
@@ -42,7 +48,7 @@ export const SmartReminders: React.FC = () => {
     nextReview: null,
     itemsDueToday: 0
   });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [showAddReminder, setShowAddReminder] = useState(false);
   const [newReminder, setNewReminder] = useState({
     title: '',

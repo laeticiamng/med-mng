@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, XCircle, Trophy, RotateCcw, Flame, Star, Share2 } from 'lucide-react';
-import { useQuizWithErrorTracking } from '@/hooks/useQuizWithErrorTracking';
-import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useQuizWithErrorTracking } from '@/hooks/useQuizWithErrorTracking';
 import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, Flame, RotateCcw, Share2, Star, Trophy, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 interface QuizQuestion {
   question: string;
   options?: string[];
@@ -50,7 +50,7 @@ interface QuizFinalProps {
 }
 
 export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN', onQuizFinished }: QuizFinalProps) => {
-  const { addPoints, unlockBadge, stats } = useGamification();
+  const { _addPoints, _unlockBadge, _stats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { toast } = useToast();
   const [pointsAwarded, setPointsAwarded] = useState(false);
@@ -282,7 +282,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       // Award points based on score
       const isPerfect = percentage === 100;
-      addPoints(userId, isPerfect ? 'perfectExam' : 'examCompleted');
+      _addPoints(userId, isPerfect ? 'perfectExam' : 'examCompleted');
       
       // Log activity
       logActivity({
@@ -300,7 +300,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       // Check for perfect score badge
       if (isPerfect) {
-        unlockBadge(userId, 'perfect_exam');
+        _unlockBadge(userId, 'perfect_exam');
         toast({
           title: "🏆 Score parfait !",
           description: `Badge débloqué !`,
@@ -317,7 +317,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       setPointsAwarded(true);
     }
-  }, [showResults, pointsAwarded, score, allQuestions.length, userId, startTime, addPoints, logActivity, itemCode, itemTitle, unlockBadge, toast, onQuizFinished]);
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId, startTime, _addPoints, logActivity, itemCode, itemTitle, _unlockBadge, toast, onQuizFinished]);
 
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
@@ -366,15 +366,15 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         </div>
 
         {/* Gamification Stats */}
-        {stats && (
+        {_stats && (
           <div className="flex justify-center gap-4">
             <Badge variant="outline" className="gap-1 text-sm">
               <Flame className="h-4 w-4 text-orange-500" />
-              Série: {stats.currentStreak ?? 0} jours
+              Série: {_stats.currentStreak ?? 0} jours
             </Badge>
             <Badge variant="outline" className="gap-1 text-sm">
               <Star className="h-4 w-4 text-yellow-500" />
-              Niveau {stats.level ?? 1}
+              Niveau {_stats.level ?? 1}
             </Badge>
           </div>
         )}

@@ -1,37 +1,36 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import { PlatformStatus } from '@/components/platform/PlatformStatus';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
 import { getSystemHealth, quickHealthCheck, ServiceHealth } from '@/services/healthService';
 import {
-  Activity,
-  Server,
-  Database,
-  Wifi,
-  WifiOff,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  RefreshCw,
-  Clock,
-  Zap,
-  Shield,
-  HardDrive,
-  Cpu,
-  MemoryStick,
-  Globe,
-  Loader2,
-  TrendingUp,
-  TrendingDown,
-  Settings
+    Activity,
+    AlertTriangle,
+    CheckCircle2,
+    Clock,
+    Cpu,
+    Database,
+    Globe,
+    HardDrive,
+    Loader2,
+    MemoryStick,
+    RefreshCw,
+    Server,
+    Settings,
+    Shield,
+    TrendingUp,
+    Wifi,
+    WifiOff,
+    XCircle,
+    Zap
 } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface ServiceStatus {
   name: string;
@@ -53,7 +52,7 @@ interface SystemMetrics {
 
 export default function PlatformStatusPage() {
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { _addPoints } = useGamification();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState('overview');

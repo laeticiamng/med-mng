@@ -1,10 +1,10 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
 import { TEST_MODE_ENABLED } from '@/config/testMode';
 import { AlertTriangle, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 interface WithAuthProps {
   children: React.ReactNode;
@@ -39,19 +39,6 @@ const TestModeBanner: React.FC = () => {
 };
 
 // Wrapper pour ajouter le padding si la bannière est visible
-const TestModeWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [dismissed, setDismissed] = React.useState(false);
-  
-  return (
-    <>
-      <TestModeBanner />
-      <div className={TEST_MODE_ENABLED && !dismissed ? "pt-10" : ""}>
-        {children}
-      </div>
-    </>
-  );
-};
-
 export const withAuth = (Component: React.ComponentType<any>) => {
   return function AuthenticatedComponent(props: any) {
     const { user, loading } = useAuth();

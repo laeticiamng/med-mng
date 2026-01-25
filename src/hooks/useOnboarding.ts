@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 import { useQueryCache } from './useQueryCache';
 
 export interface OnboardingStep {
@@ -13,16 +13,16 @@ export interface OnboardingStep {
 }
 
 interface OnboardingState {
-  steps: OnboardingStep[];
-  currentStep: number;
+  _steps: OnboardingStep[];
+  _currentStep: number;
   isActive: boolean;
   completedSteps: string[];
 }
 
 export const useOnboarding = () => {
   const [state, setState] = useState<OnboardingState>({
-    steps: [],
-    currentStep: 0,
+    _steps: [],
+    _currentStep: 0,
     isActive: false,
     completedSteps: []
   });
@@ -37,17 +37,17 @@ export const useOnboarding = () => {
   const { data: stepsData, loading: stepsLoading } = useQueryCache(
     'onboarding_steps',
     async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('onboarding_steps')
         .select('*')
         .eq('is_active', true)
         .eq('type', 'onboarding')
         .order('id');
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Transform database data to OnboardingStep format
-      return (data || []).map(row => ({
+      return (_data || []).map(row => ({
         id: row.id,
         key: row.key,
         title: typeof row.title === 'object' ? (row.title as any)?.fr || (row.title as any)?.en || '' : String(row.title),
@@ -62,7 +62,7 @@ export const useOnboarding = () => {
 
   useEffect(() => {
     if (stepsData) {
-      setState(prev => ({ ...prev, steps: stepsData }));
+      setState(prev => ({ ...prev, _steps: stepsData }));
     }
     setLoading(stepsLoading);
   }, [stepsData, stepsLoading]);
@@ -88,7 +88,7 @@ export const useOnboarding = () => {
   };
 
   const startOnboarding = async () => {
-    setState(prev => ({ ...prev, isActive: true, currentStep: 0 }));
+    setState(prev => ({ ...prev, isActive: true, _currentStep: 0 }));
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await (supabase as any).from('user_onboarding').upsert({
@@ -102,15 +102,15 @@ export const useOnboarding = () => {
 
   const nextStep = () => {
     setState(prev => {
-      const newStep = Math.min(prev.currentStep + 1, prev.steps.length - 1);
-      return { ...prev, currentStep: newStep };
+      const newStep = Math.min(prev._currentStep + 1, prev._steps.length - 1);
+      return { ...prev, _currentStep: newStep };
     });
   };
 
   const previousStep = () => {
     setState(prev => ({
       ...prev,
-      currentStep: Math.max(prev.currentStep - 1, 0)
+      _currentStep: Math.max(prev._currentStep - 1, 0)
     }));
   };
 
@@ -148,34 +148,34 @@ export const useOnboarding = () => {
   const goToStep = (stepIndex: number) => {
     setState(prev => ({
       ...prev,
-      currentStep: Math.max(0, Math.min(stepIndex, prev.steps.length - 1))
+      _currentStep: Math.max(0, Math.min(stepIndex, prev._steps.length - 1))
     }));
   };
 
   // Obtenir l'étape courante
   const getCurrentStep = (): OnboardingStep | null => {
-    return state.steps[state.currentStep] || null;
+    return state._steps[state._currentStep] || null;
   };
 
   // Progression totale
   const getProgress = (): number => {
-    if (state.steps.length === 0) return 0;
-    return Math.round(((state.currentStep + 1) / state.steps.length) * 100);
+    if (state._steps.length === 0) return 0;
+    return Math.round(((state._currentStep + 1) / state._steps.length) * 100);
   };
 
   // Nombre d'étapes restantes
   const getRemainingSteps = (): number => {
-    return Math.max(0, state.steps.length - state.currentStep - 1);
+    return Math.max(0, state._steps.length - state._currentStep - 1);
   };
 
   // Vérifier si c'est la première étape
   const isFirstStep = (): boolean => {
-    return state.currentStep === 0;
+    return state._currentStep === 0;
   };
 
   // Vérifier si c'est la dernière étape
   const isLastStep = (): boolean => {
-    return state.currentStep === state.steps.length - 1;
+    return state._currentStep === state._steps.length - 1;
   };
 
   // Réinitialiser l'onboarding
@@ -185,8 +185,8 @@ export const useOnboarding = () => {
       await (supabase as any).from('user_onboarding').delete().eq('user_id', user.id);
     }
     setState({
-      steps: state.steps,
-      currentStep: 0,
+      _steps: state._steps,
+      _currentStep: 0,
       isActive: false,
       completedSteps: []
     });
@@ -194,7 +194,7 @@ export const useOnboarding = () => {
 
   // Obtenir les tooltips pour une page donnée
   const getTooltipsForPage = (pageKey: string): OnboardingStep[] => {
-    return state.steps.filter(s =>
+    return state._steps.filter(s =>
       s.type === 'tooltip' && s.key.startsWith(pageKey)
     );
   };
@@ -238,11 +238,11 @@ export const useOnboarding = () => {
   // Statistiques d'onboarding
   const getOnboardingStats = () => {
     return {
-      totalSteps: state.steps.length,
+      totalSteps: state._steps.length,
       completedSteps: state.completedSteps.length,
-      currentStep: state.currentStep + 1,
+      currentStep: state._currentStep + 1,
       progress: getProgress(),
-      isComplete: state.completedSteps.length === state.steps.length
+      isComplete: state.completedSteps.length === state._steps.length
     };
   };
 
@@ -253,8 +253,8 @@ export const useOnboarding = () => {
     nextStep,
     previousStep,
     completeStep,
-    completeOnboarding,
-    skipOnboarding,
+    _completeOnboarding,
+    _skipOnboarding,
     goToStep,
     getCurrentStep,
     getProgress,
@@ -266,6 +266,6 @@ export const useOnboarding = () => {
     markTooltipAsSeen,
     isTooltipSeen,
     getOnboardingStats,
-    isCompleted: (stepKey: string) => state.completedSteps.includes(stepKey)
+    _isCompleted: (stepKey: string) => state.completedSteps.includes(stepKey)
   };
 };

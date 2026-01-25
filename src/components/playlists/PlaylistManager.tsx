@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { Plus, Music, Edit2, Trash2, Lock, Globe } from 'lucide-react';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { usePlaylists, type Playlist } from '@/hooks/usePlaylists';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Edit2, Globe, Lock, Music, Plus, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlaylistSearch } from './PlaylistSearch';
 
 export const PlaylistManager = () => {
-  const { playlists, loading, createPlaylist, updatePlaylist, deletePlaylist } = usePlaylists();
+  const { playlists, loading, _createPlaylist, updatePlaylist, deletePlaylist } = usePlaylists();
   const navigate = useNavigate();
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -86,7 +85,7 @@ export const PlaylistManager = () => {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
-    const result = await createPlaylist(formData.name, formData.description, formData.is_public);
+    const result = await _createPlaylist(formData.name, formData.description, formData.is_public);
     if (result) {
       setIsCreateDialogOpen(false);
       setFormData({ name: '', description: '', is_public: false });

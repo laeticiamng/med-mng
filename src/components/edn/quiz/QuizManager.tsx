@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { QuizSelector, QuizConfig } from './QuizSelector';
-import { QuizInterface } from './QuizInterface';
-import { QuizGenerator } from './QuizGenerator';
-import { QuizErrorSongGenerator } from '../music/QuizErrorSongGenerator';
-import { QuizHistoryPanel } from './QuizHistoryPanel';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { useQuizResults } from '@/hooks/useQuizResults';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RotateCcw, Music, Brain, Trophy, History } from 'lucide-react';
+import { Brain, History, Music, RotateCcw, Trophy } from 'lucide-react';
+import React, { useState } from 'react';
+import { QuizErrorSongGenerator } from '../music/QuizErrorSongGenerator';
+import { QuizGenerator } from './QuizGenerator';
+import { QuizHistoryPanel } from './QuizHistoryPanel';
+import { QuizInterface } from './QuizInterface';
+import { QuizConfig, QuizSelector } from './QuizSelector';
 interface TableauSection {
   concepts?: Array<{ concept?: string; definition?: string }>;
 }
@@ -64,7 +64,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
   
   const { 
     currentErrors, 
-    hasCurrentSession, 
+    _hasCurrentSession, 
     startQuizSession, 
     endQuizSession 
   } = useQuizErrorTracker();
@@ -164,7 +164,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item }) => {
       <QuizInterface
         itemCode={item.item_code}
         itemTitle={item.title}
-        config={quizConfig}
+        _config={quizConfig}
         questions={quizQuestions}
         onQuizComplete={handleQuizComplete}
         onReturnToConfig={handleReturnToConfig}

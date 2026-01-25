@@ -24,7 +24,7 @@ export async function generateAllLyrics(options?: LyricsGenerationOptions): Prom
   console.log('Lancement de la génération des paroles pour tous les items EDN...')
 
   try {
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+    const { _data, error } = await supabase.functions.invoke('update-edn-unique-content', {
       body: {
         action: 'generate_lyrics',
         options: options || {}
@@ -36,8 +36,8 @@ export async function generateAllLyrics(options?: LyricsGenerationOptions): Prom
       throw error
     }
 
-    console.log('Génération des paroles terminée:', data)
-    return data as LyricsGenerationResult
+    console.log('Génération des paroles terminée:', _data)
+    return _data as LyricsGenerationResult
 
   } catch (error) {
     console.error('Erreur lors de la génération:', error)
@@ -49,7 +49,7 @@ export async function generateLyricsForItem(itemCode: string, options?: Omit<Lyr
   console.log(`Génération des paroles pour l'item ${itemCode}...`)
 
   try {
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+    const { _data, error } = await supabase.functions.invoke('update-edn-unique-content', {
       body: {
         action: 'generate_lyrics',
         options: {
@@ -64,7 +64,7 @@ export async function generateLyricsForItem(itemCode: string, options?: Omit<Lyr
       throw error
     }
 
-    return data as LyricsGenerationResult
+    return _data as LyricsGenerationResult
   } catch (error) {
     console.error(`Erreur lors de la génération pour ${itemCode}:`, error)
     throw error
@@ -82,13 +82,13 @@ export async function getLyricsGenerationStatus(): Promise<{
   pendingGeneration: number
 }> {
   try {
-    const { data, error } = await supabase
+    const { _data, _error } = await supabase
       .from('edn_items_immersive')
       .select('item_code, paroles_musicales')
 
-    if (error) throw error
+    if (_error) throw _error
 
-    const items = data || []
+    const items = _data || []
     const withLyrics = items.filter((i: any) => Boolean(i.paroles_musicales)).length
     const withoutLyrics = items.filter((i: any) => !i.paroles_musicales).length
 

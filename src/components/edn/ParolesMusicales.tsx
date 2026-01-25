@@ -1,21 +1,21 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, Award, Sparkles, Flame, Star, ThumbsUp, ThumbsDown, Download, Volume2, VolumeX, Pause } from 'lucide-react';
-import { useParolesMusicales } from '@/hooks/useParolesMusicales';
-import { useGamification } from '@/hooks/useGamification';
+import { ENABLE_DEBUG } from '@/config/env';
+import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useAnalyticsTracking } from '@/hooks/useAnalyticsTracking';
 import { useAudioWithCache } from '@/hooks/useAudioWithCache';
-import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
-import { ENABLE_DEBUG } from '@/config/env';
+import { useGamification } from '@/hooks/useGamification';
+import { useParolesMusicales } from '@/hooks/useParolesMusicales';
+import { supabase } from '@/integrations/supabase/client';
+import { Download, Flame, Music, Pause, Star, ThumbsDown, ThumbsUp, Volume2 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { MusicGenerationWaveform } from './music/MusicGenerationWaveform';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
+import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
 import { ParolesMusicalesMainContent } from './music/ParolesMusicalesMainContent';
-import { MusicGenerationWaveform } from './music/MusicGenerationWaveform';
-import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 interface TableauRangData {
   title?: string;
   sections?: Array<{ title?: string; content?: string }>;
@@ -27,8 +27,8 @@ interface ParolesMusicalesProps {
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  tableauRangA?: TableauRangData;
-  tableauRangB?: TableauRangData;
+  _tableauRangA?: TableauRangData;
+  _tableauRangB?: TableauRangData;
 }
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
@@ -37,18 +37,18 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   paroles_rang_b,
   paroles_rang_ab,
   itemCode,
-  tableauRangA,
-  tableauRangB
+  _tableauRangA,
+  _tableauRangB
 }) => {
   const [musicCount, setMusicCount] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const { addPoints, unlockBadge, stats: gamificationStats, loadStats } = useGamification();
+  const { _addPoints, _unlockBadge, _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { trackMusicGeneration } = useAnalyticsTracking();
-  const { cacheAudio, isAudioCached, isCaching } = useAudioWithCache({ type: 'music' });
+  const { cacheAudio, _isAudioCached, isCaching } = useAudioWithCache({ type: 'music' });
   const { toast } = useToast();
 
   const toggleTTS = useCallback(() => {
@@ -85,14 +85,14 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       if (user) {
         loadStats(user.id);
         // Load previous feedback for this item
-        const { data } = await supabase
+        const { _data } = await supabase
           .from('music_feedback')
           .select('rating')
           .eq('user_id', user.id)
           .eq('item_code', itemCode)
           .maybeSingle();
-        if (data) {
-          setUserFeedback(data.rating > 3 ? 'like' : data.rating < 3 ? 'dislike' : null);
+        if (_data) {
+          setUserFeedback(_data.rating > 3 ? 'like' : _data.rating < 3 ? 'dislike' : null);
         }
       }
     };
@@ -136,7 +136,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     // Award points for music generation
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
       await logActivity({ 
         activity_type: 'study', 
         count: 1, 
@@ -152,10 +152,10 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       
       // Unlock music badges
       if (newCount === 1) {
-        await unlockBadge(user.id, 'music_first');
+        await _unlockBadge(user.id, 'music_first');
       }
       if (newCount >= 10) {
-        await unlockBadge(user.id, 'music_10');
+        await _unlockBadge(user.id, 'music_10');
       }
       // Track analytics
       trackMusicGeneration(itemCode, 'A', selectedStyle, 'complete');
@@ -167,7 +167,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
       await logActivity({ 
         activity_type: 'study', 
         count: 1, 

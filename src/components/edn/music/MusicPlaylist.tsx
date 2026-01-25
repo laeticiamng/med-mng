@@ -63,14 +63,14 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     }
 
     try {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_music_preferences' as any)
         .select('favorites, history, shuffle_enabled, repeat_mode, volume')
         .eq('user_id', user.id)
         .single();
 
-      if (data) {
-        const prefs = data as unknown as MusicPreferences;
+      if (_data) {
+        const prefs = _data as unknown as MusicPreferences;
         setFavorites(new Set(prefs.favorites || []));
         setShuffleEnabled(prefs.shuffle_enabled || false);
         setRepeatMode(prefs.repeat_mode || 'none');
@@ -123,7 +123,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ onPlayTrack }) => 
     try {
       setLoading(true);
       
-      const { data: itemsData } = await supabase
+      const { _data: itemsData } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, paroles_musicales')
         .not('paroles_musicales', 'is', null)

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Search, HelpCircle, ExternalLink, Code, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { AlertCircle, ChevronDown, Code, ExternalLink, HelpCircle, Search } from 'lucide-react';
+import { useState } from 'react';
 
 interface FAQItem {
   id: string;

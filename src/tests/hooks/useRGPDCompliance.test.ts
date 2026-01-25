@@ -10,7 +10,7 @@
  * - Edge cases & security
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // TYPES & INTERFACES
@@ -437,7 +437,6 @@ describe('RGPD Compliance Module - Unit Tests', () => {
     });
 
     it('should persist cookie preferences', () => {
-      const storageKey = 'cookie_preferences';
       const preferences: CookiePreferences = {
         essential: true,
         functional: true,
@@ -604,11 +603,6 @@ describe('RGPD Compliance Module - Unit Tests', () => {
     });
 
     it('should not expose sensitive data in errors', () => {
-      const internalError = {
-        message: 'Database connection failed at host 10.0.0.1',
-        code: 'DB_ERROR'
-      };
-      
       const safeError = 'Une erreur est survenue lors du traitement de votre demande';
       
       expect(safeError).not.toContain('10.0.0.1');
@@ -656,7 +650,6 @@ describe('RGPD Compliance Module - Unit Tests', () => {
     });
 
     it('should handle missing tables gracefully', () => {
-      const tablesToPurge = ['existing_table', 'non_existent_table'];
       const purgeResult: PurgeResult = {
         user_id: 'user-123',
         tables_processed: [{ table: 'existing_table', records_deleted: 5 }],

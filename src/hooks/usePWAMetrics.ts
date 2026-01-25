@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
+import { useEffect, useRef, useState } from 'react';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Sequential counter for deterministic session IDs
 let sessionCounter = 0;
@@ -147,7 +147,7 @@ export const usePWAMetrics = () => {
   }, [metrics.sessionStart]);
 
   // Fonction pour envoyer les métriques à Supabase
-  const sendMetricUpdate = async (data: any, immediate = false) => {
+  const sendMetricUpdate = async (data: any, _immediate = false) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -201,15 +201,5 @@ function getBrowser(): string {
   if (ua.includes('Safari')) return 'Safari';
   if (ua.includes('Firefox')) return 'Firefox';
   if (ua.includes('Edge')) return 'Edge';
-  return 'Other';
-}
-
-function getOS(): string {
-  const ua = navigator.userAgent;
-  if (ua.includes('Win')) return 'Windows';
-  if (ua.includes('Mac')) return 'macOS';
-  if (ua.includes('Linux')) return 'Linux';
-  if (ua.includes('Android')) return 'Android';
-  if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
   return 'Other';
 }

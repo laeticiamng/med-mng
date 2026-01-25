@@ -191,11 +191,11 @@ export const useContentCompletenessChecker = () => {
     console.log('🔍 Début de l\'analyse de complétude des compétences OIC...');
     
     try {
-      const { data: oicData, error } = await supabase
+      const { _data: oicData, _error } = await supabase
         .from('oic_competences')
         .select('*');
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       console.log(`📊 ${oicData.length} compétences OIC à analyser`);
 

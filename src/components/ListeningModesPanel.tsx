@@ -1,44 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Timer, 
-  Settings, 
-  Music,
-  Brain,
-  Zap,
-  Leaf,
-  Rocket,
-  Palette,
-  Target,
-  Flame,
-  Star,
-  Trophy
-} from 'lucide-react';
-import { useListeningModes, type ListeningMode } from '@/hooks/useListeningModes';
-import { useGamification } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
+import { useListeningModes, type ListeningMode } from '@/hooks/useListeningModes';
 import { supabase } from '@/integrations/supabase/client';
-
-
-const getModeIcon = (iconName: string) => {
-  const iconMap: Record<string, any> = {
-    '🎯': Target,
-    '⚡': Zap,
-    '🧠': Brain,
-    '🌿': Leaf,
-    '🚀': Rocket,
-    '🎨': Palette
-  };
-  
-  return iconMap[iconName] || Target;
-};
-
+import {
+    Brain,
+    Flame,
+    Music,
+    Pause,
+    Play,
+    Settings,
+    Square,
+    Star,
+    Timer,
+    Trophy
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 const getModeColor = (color: string) => {
   const colorMap: Record<string, string> = {
     blue: 'bg-primary/10 text-primary border-primary/20',
@@ -62,10 +42,9 @@ export const ListeningModesPanel = () => {
     endSession,
     pauseSession,
     resumeSession,
-    getRecommendedPlaylist
   } = useListeningModes();
 
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   const [selectedMode, setSelectedMode] = useState<ListeningMode | null>(null);
@@ -99,7 +78,7 @@ export const ListeningModesPanel = () => {
         activity_type: 'music_generation', 
         metadata: { action: 'listening_session_completed', duration_minutes: activeMode?.duration_minutes || 0 }
       });
-      await addPoints(user.id, 'itemReviewed');
+      await _addPoints(user.id, 'itemReviewed');
       await loadStats(user.id);
     }
   };
@@ -206,7 +185,6 @@ export const ListeningModesPanel = () => {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {predefinedModes.map((mode) => {
-              const IconComponent = getModeIcon(mode.icon);
               const isSelected = selectedMode?.id === mode.id;
               
               return (

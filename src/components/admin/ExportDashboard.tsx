@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Download, Calendar, Database, FileText, AlertCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, Calendar, Database, Download, FileText } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const AVAILABLE_TABLES = [
@@ -53,7 +53,7 @@ export const ExportDashboard = () => {
         includeMetadata
       });
 
-      const { data, error } = await supabase.functions.invoke('admin-export', {
+      const { _data, error } = await supabase.functions.invoke('admin-export', {
         body: {
           format,
           tables: selectedTables,
@@ -72,7 +72,7 @@ export const ExportDashboard = () => {
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `admin-export-${timestamp}.${format}`;
       
-      const blob = new Blob([data], { 
+      const blob = new Blob([_data], { 
         type: format === 'csv' ? 'text/csv' : 'application/json' 
       });
       

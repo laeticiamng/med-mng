@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { Play, Pause, AlertCircle, CheckCircle, Volume2, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, Pause, Play, RefreshCw, Volume2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export const AudioDebugger: React.FC<{ enabled?: boolean }> = ({ enabled = false }) => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [testResults, setTestResults] = useState<any>({});
-  const { currentTrack, isPlaying, play, pause, stop } = useGlobalAudio();
+  const { currentTrack, isPlaying, play, pause, _stop } = useGlobalAudio();
 
   // URL de test audio
   const testAudioUrl = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';

@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import { useAccessibility } from '@/components/ui/AccessibilityProvider';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Settings, Palette, Type, Volume2, VolumeX, 
-  Contrast, Eye, MousePointer, Keyboard,
-  Sun, Moon, Smartphone, Monitor, Laptop
-} from 'lucide-react';
-import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 import { useTheme } from '@/components/ui/theme-provider';
+import {
+    Contrast, Eye,
+    Keyboard,
+    Monitor,
+    Moon,
+    MousePointer,
+    Palette,
+    Settings,
+    Sun,
+    Type, Volume2, VolumeX
+} from 'lucide-react';
+import React, { useState } from 'react';
 
 /**
  * Contrôles globaux d'accessibilité et de personnalisation

@@ -1,14 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Save, Download, Upload, RotateCcw, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Textarea } from '@/components/ui/textarea';
 import { useSynchronizedLyrics, type LyricsLine } from '@/hooks/useSynchronizedLyrics';
+import { Download, Pause, Play, RotateCcw, Save, Volume2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface LyricsEditorProps {
   songId: string;
@@ -36,9 +35,9 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(70);
-  const [editingLine, setEditingLine] = useState<number | null>(null);
+  const [_editingLine, _setEditingLine] = useState<number | null>(null);
   const [rawLyrics, setRawLyrics] = useState('');
-  const [timeInput, setTimeInput] = useState('');
+  const [_timeInput, _setTimeInput] = useState('');
 
   const audioRef = useRef<HTMLAudioElement>(null);
 

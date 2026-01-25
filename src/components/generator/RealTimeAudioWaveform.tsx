@@ -3,8 +3,8 @@
  * Utilise l'API Web Audio pour analyser les fréquences audio réelles
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface RealTimeAudioWaveformProps {
   audioElement?: HTMLAudioElement | null;
@@ -40,9 +40,6 @@ export const RealTimeAudioWaveform: React.FC<RealTimeAudioWaveformProps> = ({
 
   // Couleurs selon le thème
   const getColors = useCallback(() => {
-    const root = document.documentElement;
-    const style = getComputedStyle(root);
-    
     switch (color) {
       case 'warning':
         return { 

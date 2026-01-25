@@ -1,41 +1,41 @@
-import React, { useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { useOnboarding } from '@/hooks/useOnboarding';
-import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { sanitizeHtml } from '@/utils/sanitize';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useOnboarding } from '@/hooks/useOnboarding';
+import { sanitizeHtml } from '@/utils/sanitize';
+import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
+import React, { useEffect } from 'react';
 
 export const OnboardingModal: React.FC = () => {
   const {
-    steps,
-    currentStep,
+    _steps,
+    _currentStep,
     isActive,
     nextStep,
     previousStep,
     completeStep,
-    completeOnboarding,
-    skipOnboarding,
-    isCompleted
+    _completeOnboarding,
+    _skipOnboarding,
+    _isCompleted
   } = useOnboarding();
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
-    if (isActive && steps.length > 0) {
+    if (isActive && _steps.length > 0) {
       logActivity({
         activity_type: 'study',
         count: 1,
-        metadata: { component: 'onboarding_modal', action: 'view', step: currentStep }
+        metadata: { component: 'onboarding_modal', action: 'view', step: _currentStep }
       });
     }
-  }, [isActive, currentStep, logActivity, steps.length]);
+  }, [isActive, _currentStep, logActivity, _steps.length]);
 
-  if (!isActive || steps.length === 0) return null;
+  if (!isActive || _steps.length === 0) return null;
 
-  const step = steps[currentStep];
-  const progress = ((currentStep + 1) / steps.length) * 100;
-  const isLastStep = currentStep === steps.length - 1;
+  const step = _steps[_currentStep];
+  const progress = ((_currentStep + 1) / _steps.length) * 100;
+  const isLastStep = _currentStep === _steps.length - 1;
 
   const handleNext = () => {
     if (step) {
@@ -53,14 +53,14 @@ export const OnboardingModal: React.FC = () => {
         count: 1,
         metadata: { component: 'onboarding_modal', action: 'complete_onboarding' }
       });
-      completeOnboarding();
+      _completeOnboarding();
     } else {
       nextStep();
     }
   };
 
   return (
-    <Dialog open={isActive} onOpenChange={(open) => !open && skipOnboarding()}>
+    <Dialog open={isActive} onOpenChange={(open) => !open && _skipOnboarding()}>
       <DialogContent className="bg-background border-border shadow-lg max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -70,7 +70,7 @@ export const OnboardingModal: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={skipOnboarding}
+              onClick={_skipOnboarding}
               className="text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
@@ -82,7 +82,7 @@ export const OnboardingModal: React.FC = () => {
           {/* Progress */}
           <div className="space-y-3">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Étape {currentStep + 1} sur {steps.length}</span>
+              <span>Étape {_currentStep + 1} sur {_steps.length}</span>
               <span className="font-medium text-primary">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="h-2" />
@@ -106,7 +106,7 @@ export const OnboardingModal: React.FC = () => {
             <Button
               variant="outline"
               onClick={previousStep}
-              disabled={currentStep === 0}
+              disabled={_currentStep === 0}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -116,7 +116,7 @@ export const OnboardingModal: React.FC = () => {
             <div className="flex gap-3">
               <Button
                 variant="ghost"
-                onClick={skipOnboarding}
+                onClick={_skipOnboarding}
                 className="text-muted-foreground hover:text-foreground"
               >
                 Passer

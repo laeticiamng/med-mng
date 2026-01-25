@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Trophy, Clock, Zap, Target, Flame, Brain, Star, Gift } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Brain, Clock, Flame, Gift, Star, Target, Trophy, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface WeeklyChallenge {
   id: string;
@@ -23,14 +23,14 @@ interface WeeklyChallenge {
 }
 
 export function WeeklyChallenges() {
-  const { stats, addPoints, unlockBadge } = useGamification();
+  const { _stats, _addPoints, _unlockBadge } = useGamification();
   const [challenges, setChallenges] = useState<WeeklyChallenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReward, setShowReward] = useState<string | null>(null);
 
   useEffect(() => {
     loadChallenges();
-  }, [stats]);
+  }, [_stats]);
 
   const loadChallenges = async () => {
     setLoading(true);
@@ -77,7 +77,7 @@ export function WeeklyChallenges() {
       }
     });
 
-    const streak = stats?.currentStreak || 0;
+    const streak = _stats?.currentStreak || 0;
 
     // Define weekly challenges
     const weekChallenges: WeeklyChallenge[] = [
@@ -172,7 +172,7 @@ export function WeeklyChallenges() {
     }
 
     // Award points
-    await addPoints(user.id, 'examCompleted', Math.round(challenge.xpReward / 100));
+    await _addPoints(user.id, 'examCompleted', Math.round(challenge.xpReward / 100));
     
     // Log the claim
     await (supabase as any).from('gamification_activities').insert({

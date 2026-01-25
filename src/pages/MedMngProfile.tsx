@@ -1,45 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { withAuth } from '@/components/med-mng/withAuth';
-import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { useMedMngApi } from '@/hooks/useMedMngApi';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { ProfileHeader } from '@/components/med-mng/profile/ProfileHeader';
-import { ProfileStats } from '@/components/med-mng/profile/ProfileStats';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
+import { ProfileSecurity } from '@/components/med-mng/profile/ProfileSecurity';
 import { ProfileSettings } from '@/components/med-mng/profile/ProfileSettings';
 import { ProfileSubscription } from '@/components/med-mng/profile/ProfileSubscription';
-import { ProfileSecurity } from '@/components/med-mng/profile/ProfileSecurity';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { withAuth } from '@/components/med-mng/withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { toast } from 'sonner';
-import { 
-  User, 
-  Settings, 
-  Crown, 
-  Shield, 
-  Camera, 
-  Mail, 
-  Calendar,
-  Music,
-  Activity,
-  TrendingUp,
-  Heart,
-  Loader2,
-  Flame,
-  Trophy,
-  Award
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+    Activity,
+    Award,
+    Calendar,
+    Camera,
+    Crown,
+    Flame,
+    Heart,
+    Loader2,
+    Mail,
+    Music,
+    Settings,
+    Shield,
+    TrendingUp,
+    Trophy,
+    User
 } from 'lucide-react';
-import { TranslatedText } from '@/components/TranslatedText';
-import { useGamification, XP_PER_LEVEL, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const MedMngProfileComponent = () => {
   const { user } = useAuth();
@@ -52,7 +49,7 @@ const MedMngProfileComponent = () => {
     email: '',
   });
 
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and log activity
   useEffect(() => {
@@ -69,14 +66,14 @@ const MedMngProfileComponent = () => {
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['user-profile', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .maybeSingle();
       
-      if (error) throw error;
-      return data;
+      if (_error) throw _error;
+      return _data;
     },
     enabled: !!user?.id,
   });
@@ -121,19 +118,19 @@ const MedMngProfileComponent = () => {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { name?: string; email?: string }) => {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('profiles')
         .update(data)
         .eq('id', user?.id);
       
-      if (error) throw error;
+      if (_error) throw _error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
       toast.success('Profil mis à jour avec succès !');
       setIsEditing(false);
     },
-    onError: (error: any) => {
+    onError: (_error: any) => {
       toast.error('Impossible de mettre à jour le profil');
     },
   });

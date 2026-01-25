@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  AlertTriangle, 
-  RefreshCw, 
-  Bug, 
-  ExternalLink, 
-  Copy, 
-  Send,
-  ChevronDown,
-  ChevronUp,
-  Wifi,
-  Database,
-  Server,
-  Clock
-} from 'lucide-react';
-import { toast } from 'sonner';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    AlertTriangle,
+    Bug,
+    ChevronDown,
+    ChevronUp,
+    Clock,
+    Copy,
+    Database,
+    ExternalLink,
+    RefreshCw,
+    Send,
+    Server,
+    Wifi
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface RobustErrorDisplayProps {
   error: string | Error;

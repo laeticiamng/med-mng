@@ -1,28 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Bell, 
-  BellOff,
-  Volume2,
-  VolumeX,
-  Clock,
-  Database,
-  Users,
-  Activity,
-  Zap,
-  Download,
-  RefreshCw
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import {
+    Activity,
+    AlertTriangle,
+    Bell,
+    CheckCircle,
+    Clock,
+    Database,
+    Download,
+    RefreshCw,
+    Users,
+    Volume2,
+    VolumeX,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface SystemAlert {
   id: string;
@@ -59,7 +57,7 @@ interface SystemHealth {
 
 export function SystemAlertManager() {
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
-  const [rules, setRules] = useState<AlertRule[]>([]);
+  const [_rules, setRules] = useState<AlertRule[]>([]);
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -226,7 +224,6 @@ export function SystemAlertManager() {
 
   const playNotificationSound = (type: 'critical' | 'warning') => {
     try {
-      const audio = new Audio();
       // Utiliser des fréquences différentes selon le type
       const oscillator = new (window.AudioContext || (window as any).webkitAudioContext)();
       const gainNode = oscillator.createGain();

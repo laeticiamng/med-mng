@@ -32,12 +32,12 @@ export function useExtractionMonitoring() {
 
   const fetchStats = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+      const { _data, error } = await supabase.functions.invoke('extraction-monitoring', {
         body: { action: 'get_stats' }
       });
 
       if (error) throw error;
-      if (data?.success) setStats(data.data);
+      if (_data?.success) setStats(_data.data);
     } catch (error) {
       console.error('Error fetching extraction stats:', error);
     }
@@ -45,12 +45,12 @@ export function useExtractionMonitoring() {
 
   const fetchRecentExtractions = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+      const { _data, error } = await supabase.functions.invoke('extraction-monitoring', {
         body: { action: 'get_recent' }
       });
 
       if (error) throw error;
-      if (data?.success) setRecentExtractions(data.data);
+      if (_data?.success) setRecentExtractions(_data.data);
     } catch (error) {
       console.error('Error fetching recent extractions:', error);
     }
@@ -58,12 +58,12 @@ export function useExtractionMonitoring() {
 
   const fetchRunningExtractions = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('extraction-monitoring', {
+      const { _data, error } = await supabase.functions.invoke('extraction-monitoring', {
         body: { action: 'get_running' }
       });
 
       if (error) throw error;
-      if (data?.success) setRunningExtractions(data.data);
+      if (_data?.success) setRunningExtractions(_data.data);
     } catch (error) {
       console.error('Error fetching running extractions:', error);
     }

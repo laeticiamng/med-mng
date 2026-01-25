@@ -10,7 +10,7 @@
  * - Performance & robustesse
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================
 // SRS ALGORITHM CONSTANTS
@@ -466,8 +466,6 @@ describe('Study Module - Extended Tests', () => {
     });
 
     it('should handle edge case of exam tomorrow', () => {
-      const daysUntilExam = 1;
-      
       const intensivePlan = {
         strategy: 'revision_only',
         focusOn: 'weak_topics',
@@ -478,8 +476,6 @@ describe('Study Module - Extended Tests', () => {
     });
 
     it('should handle edge case of 6+ months until exam', () => {
-      const daysUntilExam = 200;
-      
       const relaxedPlan = {
         strategy: 'balanced',
         newTopicsPerWeek: 3,

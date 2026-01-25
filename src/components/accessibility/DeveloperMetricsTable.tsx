@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, XCircle, Clock, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle } from 'lucide-react';
+import React from 'react';
 
 interface DeveloperMetrics {
   login: string;
@@ -18,12 +18,6 @@ interface DeveloperMetricsTableProps {
 }
 
 export const DeveloperMetricsTable: React.FC<DeveloperMetricsTableProps> = ({ developers }) => {
-  const getConformityColor = (rate: number) => {
-    if (rate >= 90) return 'text-success';
-    if (rate >= 70) return 'text-warning';
-    return 'text-destructive';
-  };
-
   const getConformityBadge = (rate: number) => {
     if (rate >= 90) return 'default';
     if (rate >= 70) return 'secondary';

@@ -63,10 +63,10 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
         exportDate: new Date().toISOString(),
         userId,
         userEmail,
-        profile: profileRes.data,
-        learningProgress: progressRes.data,
-        generatedMusic: musicRes.data,
-        flashcards: flashcardsRes.data,
+        profile: profileRes._data,
+        learningProgress: progressRes._data,
+        generatedMusic: musicRes._data,
+        flashcards: flashcardsRes._data,
         _meta: {
           exportVersion: '1.0',
           gdprCompliant: true,
@@ -110,7 +110,7 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
       // Ordre important: supprimer les dépendances d'abord
 
       // Supprimer les flashcards (cascade)
-      const { data: decks } = await supabase
+      const { _data: decks } = await supabase
         .from('flashcard_decks')
         .select('id')
         .eq('user_id', userId);
@@ -118,7 +118,7 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
       if (decks && decks.length > 0) {
         const deckIds = decks.map(d => d.id);
         
-        const { data: cards } = await supabase
+        const { _data: cards } = await supabase
           .from('flashcards')
           .select('id')
           .in('deck_id', deckIds);
@@ -135,7 +135,7 @@ export const AccountDeletionCard: React.FC<AccountDeletionCardProps> = ({
       await supabase.from('quiz_results').delete().eq('user_id', userId);
 
       // Supprimer les playlists musicales (cascade)
-      const { data: playlists } = await supabase
+      const { _data: playlists } = await supabase
         .from('med_mng_playlists')
         .select('id')
         .eq('user_id', userId);

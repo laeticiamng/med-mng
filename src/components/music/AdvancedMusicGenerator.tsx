@@ -1,40 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Music, 
-  Play, 
-  Pause, 
-  Volume2, 
-  VolumeX, 
-  Heart, 
-  Download,
-  Share2,
-  MoreHorizontal,
-  Shuffle,
-  Repeat,
-  SkipBack,
-  SkipForward,
-  Mic,
-  Settings,
-  Sparkles,
-  Brain,
-  Clock,
-  Headphones,
-  Activity,
-  Flame,
-  Star,
-  Zap
+import {
+    Brain,
+    Clock,
+    Download,
+    Headphones,
+    Heart,
+    Mic,
+    MoreHorizontal,
+    Music,
+    Pause,
+    Play,
+    Repeat,
+    Share2,
+    Shuffle,
+    SkipBack,
+    SkipForward,
+    Sparkles,
+    Volume2,
+    VolumeX
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface MusicTrack {
   id: string;
@@ -76,8 +69,8 @@ interface GenerationRequest {
 export const AdvancedMusicGenerator: React.FC = () => {
   const [currentTrack, setCurrentTrack] = useState<MusicTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(75);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, _setVolume] = useState(75);
+  const [currentTime, _setCurrentTime] = useState(0);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [recentTracks, setRecentTracks] = useState<MusicTrack[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -99,14 +92,14 @@ export const AdvancedMusicGenerator: React.FC = () => {
       if (!user) return;
 
       // Charger les morceaux générés depuis Supabase
-      const { data: songsData, error } = await supabase
+      const { _data: songsData, _error } = await supabase
         .from('med_mng_songs')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       const mappedTracks: MusicTrack[] = (songsData || []).map((song: any) => ({
         id: song.id,
@@ -135,7 +128,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       }
 
       // Charger les playlists depuis Supabase
-      const { data: playlistsData } = await supabase
+      const { _data: playlistsData } = await supabase
         .from('med_mng_playlists')
         .select('*')
         .eq('user_id', user.id)
@@ -166,7 +159,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       // Appel réel à l'Edge Function de génération musicale
-      const { data, error } = await supabase.functions.invoke('generate-music', {
+      const { _data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           prompt: generationRequest.prompt,
           style: generationRequest.style,
@@ -192,7 +185,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       });
 
       const newTrack: MusicTrack = {
-        id: data?.taskId || Date.now().toString(),
+        id: _data?.taskId || Date.now().toString(),
         title: `${generationRequest.prompt.slice(0, 30)}${generationRequest.prompt.length > 30 ? '...' : ''}`,
         artist: 'MED-AI',
         duration: generationRequest.duration,
@@ -207,11 +200,11 @@ export const AdvancedMusicGenerator: React.FC = () => {
       };
 
       // Sauvegarder dans Supabase si utilisateur connecté
-      if (user && data?.taskId) {
+      if (user && _data?.taskId) {
         await supabase.from('med_mng_songs').insert([{
           user_id: user.id,
           title: newTrack.title,
-          suno_audio_id: data.taskId,
+          suno_audio_id: _data.taskId,
           lyrics: generationRequest.lyrics?.join('\n') || '',
           meta: {
             style: generationRequest.style,

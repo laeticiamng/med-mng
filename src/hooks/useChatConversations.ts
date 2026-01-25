@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Conversation {
   id: string;
@@ -24,67 +24,37 @@ interface ChatResponse {
 }
 
 export const useChatConversations = () => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [_conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversation, _setCurrentConversation] = useState<Conversation | null>(null);
+  const [messages, _setMessages] = useState<ChatMessage[]>([]);
+  const [_isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
   // Charger les conversations
   const loadConversations = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('chat_conversations')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) {
-        console.error('Erreur lors du chargement des conversations:', error);
+      if (_error) {
+        console.error('Erreur lors du chargement des conversations:', _error);
         return;
       }
 
-      setConversations(data || []);
+      setConversations(_data || []);
     } catch (error) {
       console.error('Erreur:', error);
     }
   }, []);
 
   // Créer une nouvelle conversation
-  const createConversation = useCallback(async (title: string = 'Nouvelle conversation') => {
-    try {
-      const { data, error } = await supabase
-        .from('chat_conversations')
-        .insert({
-          title,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-        })
-        .select()
-        .maybeSingle();
-
-      if (error) {
-        console.error('Erreur lors de la création de la conversation:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de créer la conversation",
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      setCurrentConversation(data);
-      await loadConversations();
-      return data;
-    } catch (error) {
-      console.error('Erreur:', error);
-      return null;
-    }
-  }, [loadConversations, toast]);
-
   // Rechercher dans les cours pour enrichir la réponse
   const searchCourseContent = useCallback(async (query: string): Promise<string[]> => {
     try {
       // Rechercher dans les items immersifs (remplace edn_items_complete)
-      const { data: immersiveItems, error: immersiveError } = await supabase
+      const { _data: immersiveItems, _error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, payload_v2')
         .or(`title.ilike.%${query}%,payload_v2::text.ilike.%${query}%`)
@@ -95,7 +65,7 @@ export const useChatConversations = () => {
       }
 
       // Rechercher dans les situations ECOS
-      const { data: ecosItems, error: ecosError } = await supabase
+      const { _data: ecosItems, _error: ecosError } = await supabase
         .from('ecos_situations_complete')
         .select('situation_number, title, content')
         .or(`title.ilike.%${query}%,content::text.ilike.%${query}%`)
@@ -148,7 +118,7 @@ Utilise ces informations pour enrichir ta réponse si elles sont pertinentes.` :
 Réponds en français et de manière structurée.`;
 
       // Appeler l'API de chat via Lovable AI (Gemini)
-      const { data, error } = await supabase.functions.invoke('medical-chat-ai', {
+      const { _data, error } = await supabase.functions.invoke('medical-chat-ai', {
         body: {
           messages: [
             { role: 'system', content: systemPrompt },
@@ -168,7 +138,7 @@ Réponds en français et de manière structurée.`;
         : ['MED-MNG IA - Assistant médical basé sur les référentiels officiels EDN/ECOS'];
 
       const response: ChatResponse = {
-        content: data.content || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
+        content: _data.content || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
         courseCitations: finalCitations
       };
 
@@ -217,11 +187,11 @@ Réponds en français et de manière structurée.`;
   }, [loadConversations]);
 
   return {
-    conversations,
-    currentConversation,
+    _conversations,
+    _currentConversation,
     messages,
-    isGenerating,
-    createConversation,
+    _isGenerating,
+    _createConversation,
     sendMessage,
     loadConversations,
   };

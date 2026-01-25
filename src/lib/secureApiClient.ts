@@ -64,7 +64,7 @@ export interface SunoGenerationRequest {
 // Secure OpenAI API client using edge functions
 export class SecureOpenAIClient {
   async createChatCompletion(request: ChatCompletionRequest) {
-    const { data, error } = await supabase.functions.invoke('openai-chat', {
+    const { _data, error } = await supabase.functions.invoke('openai-chat', {
       body: request
     });
 
@@ -72,11 +72,11 @@ export class SecureOpenAIClient {
       throw new Error(`OpenAI API Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   async generateImage(request: ImageGenerationRequest) {
-    const { data, error } = await supabase.functions.invoke('openai-image', {
+    const { _data, error } = await supabase.functions.invoke('openai-image', {
       body: request
     });
 
@@ -84,14 +84,14 @@ export class SecureOpenAIClient {
       throw new Error(`OpenAI Image API Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 }
 
 // Secure Suno API client using edge functions
 export class SecureSunoClient {
   async generateMusic(request: SunoGenerationRequest) {
-    const { data, error } = await supabase.functions.invoke('generate-music', {
+    const { _data, error } = await supabase.functions.invoke('generate-music', {
       body: request
     });
 
@@ -99,11 +99,11 @@ export class SecureSunoClient {
       throw new Error(`Suno API Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   async getGenerationStatus(audioId: string) {
-    const { data, error } = await supabase.functions.invoke('music-status', {
+    const { _data, error } = await supabase.functions.invoke('music-status', {
       body: { taskId: audioId }
     });
 
@@ -111,13 +111,13 @@ export class SecureSunoClient {
       throw new Error(`Suno Status API Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   // Vocal extraction - removes vocals from a track
   // Selon doc Suno: requiert taskId + audioId (pas juste audioUrl)
   async extractVocals(taskId: string, audioId: string): Promise<{ vocalsUrl: string; instrumentalUrl: string; taskId?: string }> {
-    const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
+    const { _data, error } = await supabase.functions.invoke('suno-audio-processing', {
       body: { action: 'extract_vocals', taskId, audioId }
     });
 
@@ -125,12 +125,12 @@ export class SecureSunoClient {
       throw new Error(`Vocal Extraction Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   // WAV conversion - converts audio to WAV format
   async convertToWav(audioUrl: string): Promise<{ wavUrl: string; taskId?: string }> {
-    const { data, error } = await supabase.functions.invoke('suno-audio-processing', {
+    const { _data, error } = await supabase.functions.invoke('suno-audio-processing', {
       body: { action: 'convert_wav', audioUrl }
     });
 
@@ -138,13 +138,13 @@ export class SecureSunoClient {
       throw new Error(`WAV Conversion Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   // ✅ Vérifier les crédits Suno restants
   // Endpoint: GET /api/v1/get-credits
   async getRemainingCredits(): Promise<{ credits: number; plan?: string; used?: number; total?: number; remaining?: number }> {
-    const { data, error } = await supabase.functions.invoke('suno-credits', {
+    const { _data, error } = await supabase.functions.invoke('suno-credits', {
       body: {}
     });
 
@@ -153,7 +153,7 @@ export class SecureSunoClient {
       return { credits: -1 }; // -1 = inconnu
     }
 
-    return data;
+    return _data;
   }
 
   // ✅ NOUVEAU: Étendre une musique existante
@@ -163,7 +163,7 @@ export class SecureSunoClient {
     model?: SunoModel;
     defaultParamFlag?: boolean;
   }): Promise<{ taskId: string }> {
-    const { data, error } = await supabase.functions.invoke('suno-extend-music', {
+    const { _data, error } = await supabase.functions.invoke('suno-extend-music', {
       body: { audioId, ...options }
     });
 
@@ -171,12 +171,12 @@ export class SecureSunoClient {
       throw new Error(`Music Extension Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 
   // ✅ NOUVEAU: Générer des paroles avec Suno AI
   async generateLyrics(prompt: string): Promise<{ taskId: string; lyrics?: string }> {
-    const { data, error } = await supabase.functions.invoke('suno-generate-lyrics', {
+    const { _data, error } = await supabase.functions.invoke('suno-generate-lyrics', {
       body: { prompt }
     });
 
@@ -184,7 +184,7 @@ export class SecureSunoClient {
       throw new Error(`Lyrics Generation Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
   // ✅ NOUVEAU: Upload & Cover - Transformer un audio avec un nouveau style
   async uploadAndCover(options: {
@@ -195,7 +195,7 @@ export class SecureSunoClient {
     instrumental?: boolean;
     model?: SunoModel;
   }): Promise<{ taskId: string }> {
-    const { data, error } = await supabase.functions.invoke('suno-upload-cover', {
+    const { _data, error } = await supabase.functions.invoke('suno-upload-cover', {
       body: options
     });
 
@@ -203,7 +203,7 @@ export class SecureSunoClient {
       throw new Error(`Upload & Cover Error: ${error.message}`);
     }
 
-    return data;
+    return _data;
   }
 }
 

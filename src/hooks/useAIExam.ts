@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useState } from 'react';
 
 export interface AIQuestion {
   id: string;
@@ -43,7 +43,7 @@ export const useAIExam = () => {
     setGenerating(true);
     try {
       // Use edn_items_complete which is properly typed (not edn_items_immersive)
-      const { data: items, error: itemsError } = await supabase
+      const { _data: items, _error: itemsError } = await supabase
         .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .in('item_code', itemCodes);
@@ -72,7 +72,7 @@ export const useAIExam = () => {
       });
 
       // Call edge function
-      const { data, error } = await supabase.functions.invoke('generate-qcm', {
+      const { _data, error } = await supabase.functions.invoke('generate-qcm', {
         body: { 
           items: preparedItems,
           count,
@@ -90,7 +90,7 @@ export const useAIExam = () => {
         return [];
       }
 
-      return data?.questions || [];
+      return _data?.questions || [];
     } catch (error) {
       console.error('Error in generateAIQuestions:', error);
       return [];
@@ -132,7 +132,7 @@ export const useAIExam = () => {
       
       if (!itemCodes || itemCodes.length === 0) {
         // Use edn_items_complete which is properly typed
-        const { data: allItems } = await supabase
+        const { _data: allItems } = await supabase
           .from('edn_items_complete')
           .select('item_code, title')
           .limit(500);
@@ -172,7 +172,6 @@ export const useAIExam = () => {
       }
 
       // Adaptive difficulty: adjust based on user's past performance
-      let adaptedDifficulty = difficulty;
       try {
         const { data: history } = await (supabase as any)
           .from('ai_exam_history')
@@ -184,13 +183,13 @@ export const useAIExam = () => {
         if (history && history.length >= 3) {
           const avgScore = history.reduce((sum: number, h: any) => sum + (h.score || 0), 0) / history.length;
           if (avgScore >= 85 && difficulty !== 'hard') {
-            adaptedDifficulty = 'hard';
+            _adaptedDifficulty = 'hard';
             toast({
               title: "Difficulté adaptée",
               description: "Niveau augmenté suite à vos excellentes performances !",
             });
           } else if (avgScore < 50 && difficulty !== 'easy') {
-            adaptedDifficulty = 'easy';
+            _adaptedDifficulty = 'easy';
             toast({
               title: "Difficulté adaptée",
               description: "Niveau ajusté pour vous aider à progresser.",

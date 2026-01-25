@@ -23,7 +23,7 @@ const EcosIndex = () => {
   const [ecosScenarios, setEcosScenarios] = useState<EcosScenario[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const { stats, loadStats } = useGamification();
+  const { _stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
@@ -44,21 +44,21 @@ const EcosIndex = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('ecos_situations_uness')
         .select('sd_id, intitule_sd, competences_associees, contenu_complet_html')
         .order('sd_id')
         .limit(100);
 
-      if (error) {
-        console.error('Erreur Supabase:', error);
-        throw error;
+      if (_error) {
+        console.error('Erreur Supabase:', _error);
+        throw _error;
       }
 
-      console.log('✅ Situations ECOS chargées:', data?.length || 0);
-      setEcosScenarios(data || []);
+      console.log('✅ Situations ECOS chargées:', _data?.length || 0);
+      setEcosScenarios(_data || []);
       
-      if (!data || data.length === 0) {
+      if (!_data || _data.length === 0) {
         toast.info('Aucune situation ECOS trouvée. Veuillez d\'abord extraire les données depuis UNESS.', {
           duration: 5000
         });
@@ -93,25 +93,25 @@ const EcosIndex = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Gamification Stats Banner */}
-        {user && stats && (
+        {user && _stats && (
           <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-card/80 backdrop-blur-sm border-border">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
-                  <span className="font-medium text-sm sm:text-base">{stats.currentStreak} jours</span>
+                  <span className="font-medium text-sm sm:text-base">{_stats.currentStreak} jours</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <span className="font-medium text-sm sm:text-base">Niveau {stats.level}</span>
+                  <span className="font-medium text-sm sm:text-base">Niveau {_stats.level}</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Star className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-                  <span className="font-medium text-sm sm:text-base">{stats.totalPoints} XP</span>
+                  <span className="font-medium text-sm sm:text-base">{_stats.totalPoints} XP</span>
                 </div>
               </div>
               <div className="flex gap-2 flex-wrap">
-                {stats.badges.slice(0, 3).map(badge => (
+                {_stats.badges.slice(0, 3).map(badge => (
                   <Badge key={badge.id} variant="secondary" className="bg-accent/20 text-xs sm:text-sm">
                     {badge.icon} {badge.name}
                   </Badge>

@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { 
-  TrendingUp, Users, Clock, AlertTriangle, 
-  ChevronRight, Zap, Shield, Database,
-  RefreshCw, Eye, Download
-} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+    AlertTriangle,
+    ChevronRight,
+    Database,
+    Download,
+    RefreshCw,
+    Shield,
+    TrendingUp, Users,
+    Zap
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface MobileStats {
@@ -34,8 +39,8 @@ export default function MobileOptimizedDashboard() {
     try {
       // Requêtes parallèles pour les vraies données
       const [
-        { data: extractionLogs },
-        { data: integrityReports },
+        { _data: extractionLogs },
+        { _data: integrityReports },
         { count: profilesCount },
         { count: recentActivityCount }
       ] = await Promise.all([

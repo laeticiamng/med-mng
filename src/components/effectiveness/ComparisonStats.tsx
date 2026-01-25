@@ -1,6 +1,6 @@
-import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUp, ArrowDown, Minus, TrendingUp, Target, Award } from 'lucide-react';
+import { ArrowDown, ArrowUp, Award, Minus, Target, TrendingUp } from 'lucide-react';
+import React from 'react';
 
 interface ComparisonData {
   category: string;
@@ -45,8 +45,6 @@ export const ComparisonStats: React.FC<ComparisonStatsProps> = ({
   // Trouver la meilleure et la pire évolution
   const sortedByChange = [...data].sort((a, b) => b.difference - a.difference);
   const bestImprovement = sortedByChange[0];
-  const worstChange = sortedByChange[sortedByChange.length - 1];
-
   // Compter les améliorations et détériorations
   const improvements = data.filter((d) => d.difference > 0).length;
   const deteriorations = data.filter((d) => d.difference < 0).length;

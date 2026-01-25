@@ -2,14 +2,14 @@
  * Toast de succès de génération avec actions
  */
 
-import React from 'react';
-import { Music, Play, Download, Heart, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Download, Heart, Music, Play, Share2 } from 'lucide-react';
+import React from 'react';
 
 interface GenerationSuccessToastProps {
   title: string;
-  audioUrl: string;
+  _audioUrl: string;
   rang?: string;
   onPlay: () => void;
   onDownload: () => void;
@@ -20,7 +20,7 @@ interface GenerationSuccessToastProps {
 
 export const GenerationSuccessToast: React.FC<GenerationSuccessToastProps> = ({
   title,
-  audioUrl,
+  _audioUrl,
   rang,
   onPlay,
   onDownload,
@@ -98,7 +98,7 @@ export const showGenerationSuccessToast = (
   options: Omit<GenerationSuccessToastProps, 'className'>
 ) => {
   toast.custom(
-    (t: any) => (
+    (_t: any) => (
       <div className="bg-card border rounded-lg shadow-lg p-3 max-w-sm">
         <GenerationSuccessToast {...options} />
       </div>

@@ -1,18 +1,17 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { EcosHeader } from '@/components/ecos/EcosHeader';
 import { PatientCard } from '@/components/ecos/PatientCard';
-import { StepProgress } from '@/components/ecos/StepProgress';
-import { StepContent } from '@/components/ecos/StepContent';
 import { QuizSection } from '@/components/ecos/QuizSection';
-import { useEcosTimer } from '@/hooks/useEcosTimer';
-import { scenarioData as fallbackScenario, quizQuestions as fallbackQuestions } from '@/data/ecosData';
+import { StepContent } from '@/components/ecos/StepContent';
+import { StepProgress } from '@/components/ecos/StepProgress';
+import { Badge } from '@/components/ui/badge';
+import { quizQuestions as fallbackQuestions, scenarioData as fallbackScenario } from '@/data/ecosData';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useEcosTimer } from '@/hooks/useEcosTimer';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Flame, Star, Loader2 } from 'lucide-react';
-import { MessageCircle, HandIcon, FileText } from 'lucide-react';
+import { FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 interface EcosScenarioData {
   sd_id: number | string;
@@ -28,7 +27,6 @@ const parseHtmlToSteps = (html: string | null) => {
   const steps = [];
   
   // Extract "Je dis" section - questions from interrogatoire
-  const jeDis = html.match(/interrogatoire|anamnèse|questions?/gi);
   const questions = [];
   const questionMatches = html.matchAll(/<li[^>]*>([^<]+)<\/li>/gi);
   for (const match of questionMatches) {
@@ -89,7 +87,7 @@ const parseHtmlToSteps = (html: string | null) => {
 };
 
 // Generate quiz questions from competencies
-const generateQuizFromCompetences = (competences: string | null, title: string) => {
+const generateQuizFromCompetences = (competences: string | null, _title: string) => {
   if (!competences) return fallbackQuestions;
   
   const compList = competences.split(',').map(c => c.trim()).filter(Boolean);
@@ -109,7 +107,6 @@ const generateQuizFromCompetences = (competences: string | null, title: string) 
 
 const EcosScenario = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<{[key: string]: string}>({});
   const [showQuiz, setShowQuiz] = useState(false);
@@ -120,7 +117,7 @@ const EcosScenario = () => {
   
   const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
 
   // Fetch scenario from database
   useEffect(() => {
@@ -134,15 +131,15 @@ const EcosScenario = () => {
         // Try to find by sd_id first, then by slug pattern
         const sdId = slug.toUpperCase().startsWith('SD') ? slug.toUpperCase() : `SD${slug.padStart(3, '0')}`;
         
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('ecos_situations_uness')
           .select('sd_id, intitule_sd, competences_associees, contenu_complet_html')
           .or(`sd_id.eq.${sdId},sd_id.ilike.%${slug}%`)
           .limit(1)
           .maybeSingle();
         
-        if (!error && data) {
-          setDbScenario(data);
+        if (!_error && _data) {
+          setDbScenario(_data);
         }
       } catch (err) {
         console.error('Error fetching ECOS scenario:', err);
@@ -234,8 +231,8 @@ const EcosScenario = () => {
       setShowQuiz(true);
       
       if (user) {
-        await addPoints(user.id, 'clinicalCase');
-        await unlockBadge(user.id, 'clinical_master');
+        await _addPoints(user.id, 'clinicalCase');
+        await _unlockBadge(user.id, 'clinical_master');
         loadStats(user.id);
       }
     }

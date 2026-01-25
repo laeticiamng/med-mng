@@ -25,7 +25,7 @@ export const ImmersiveHeader = ({
   currentSectionName,
   onToggleAudio
 }: ImmersiveHeaderProps) => {
-  const { stats, loadStats } = useGamification();
+  const { _stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
@@ -54,12 +54,12 @@ export const ImmersiveHeader = ({
           </Link>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            {stats && (
+            {_stats && (
               <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-muted/30 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-bold text-warning">{stats.currentStreak}</span>
+                <span className="font-bold text-warning">{_stats.currentStreak}</span>
                 <Star className="h-3 w-3 text-primary ml-1" />
-                <span className="font-bold text-primary">Nv.{stats.level}</span>
+                <span className="font-bold text-primary">Nv.{_stats.level}</span>
               </div>
             )}
             <Button

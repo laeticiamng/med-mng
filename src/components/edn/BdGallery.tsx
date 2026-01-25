@@ -1,19 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Image, ChevronLeft, ChevronRight, Maximize2, Minimize2,
-  Download, Share2, Eye, BookOpen, Flame, Star, Loader2, Play, Pause, X
-} from 'lucide-react';
-import { useRef } from 'react';
-import { exportToPDF, shareContent } from '@/utils/exportUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
+import { exportToPDF, shareContent } from '@/utils/exportUtils';
+import {
+    BookOpen,
+    ChevronLeft, ChevronRight,
+    Download,
+    Eye,
+    Flame,
+    Image,
+    Loader2,
+    Maximize2, Minimize2,
+    Pause,
+    Play,
+    Share2,
+    Star
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface TableauRangData {
   sections?: Array<{ concepts?: Array<{ concept?: string; definition?: string }> }>;
@@ -37,16 +46,16 @@ interface BdPanel {
 interface BdGalleryProps {
   itemCode: string;
   title: string;
-  tableauRangA?: TableauRangData;
-  tableauRangB?: TableauRangData;
+  _tableauRangA?: TableauRangData;
+  _tableauRangB?: TableauRangData;
   bdPanels?: BdPanel[];
 }
 
 export const BdGallery: React.FC<BdGalleryProps> = ({ 
   itemCode, 
   title, 
-  tableauRangA, 
-  tableauRangB,
+  _tableauRangA, 
+  _tableauRangB,
   bdPanels: storedBdPanels 
 }) => {
   const [currentVignette, setCurrentVignette] = useState(0);
@@ -57,7 +66,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { stats, loadStats, addPoints } = useGamification();
+  const { _stats, loadStats, _addPoints } = useGamification();
   
   // Charger les vraies compétences OIC (seulement si pas de bdPanels stockés)
   const shouldLoadOic = !storedBdPanels || storedBdPanels.length === 0;
@@ -70,11 +79,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_bd_gallery', itemCode } });
-        addPoints(user.id, 'itemReviewed');
+        _addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [itemCode, loadStats, logActivity, addPoints]);
+  }, [itemCode, loadStats, logActivity, _addPoints]);
 
   // Générer des vignettes basées sur les vraies compétences OIC avec images pertinentes
   const generateVignettes = () => {
@@ -355,7 +364,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
                   title,
                   content: allContent,
                   itemCode,
-                  type: 'bd'
+                  _type: 'bd'
                 });
                 setIsExporting(false);
               }}
@@ -373,7 +382,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
                   title,
                   content: currentVig.description,
                   itemCode,
-                  type: 'bd'
+                  _type: 'bd'
                 });
                 setIsSharing(false);
               }}
@@ -451,15 +460,15 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               BD Interactive - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {stats && (
+              {_stats && (
                 <>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Flame className="h-3 w-3" />
-                    {stats.currentStreak ?? 0}j
+                    {_stats.currentStreak ?? 0}j
                   </Badge>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Star className="h-3 w-3" />
-                    Niv. {stats.level ?? 1}
+                    Niv. {_stats.level ?? 1}
                   </Badge>
                 </>
               )}

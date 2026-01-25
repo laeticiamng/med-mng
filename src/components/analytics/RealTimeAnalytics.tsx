@@ -1,17 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TrendingUp, Users, BookOpen, Music, Clock, 
-  Activity, Target, Award, Zap, Brain, Flame, Star, Trophy
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Activity,
+    Award,
+    BookOpen,
+    Brain,
+    Clock,
+    Flame,
+    Music,
+    Star,
+    Target,
+    TrendingUp,
+    Trophy,
+    Users,
+    Zap
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface UserActivity {
   id: string;
@@ -32,7 +41,7 @@ interface PerformanceMetric {
 
 export const RealTimeAnalytics = () => {
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const hasTrackedRef = useRef(false);
 
@@ -80,7 +89,7 @@ export const RealTimeAnalytics = () => {
       trend: 'up'
     }
   ]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [liveData, setLiveData] = useState({
     activeUsers: 47,
     currentSessions: 12,
@@ -131,7 +140,7 @@ export const RealTimeAnalytics = () => {
         .gte('created_at', today);
 
       // Progrès du jour (basé sur activités complétées)
-      const { data: todayActivities } = await supabase
+      const { _data: todayActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', today);
@@ -141,7 +150,7 @@ export const RealTimeAnalytics = () => {
       const todayProgress = Math.min(100, (todayPoints / dailyGoal) * 100);
 
       // Objectif hebdomadaire
-      const { data: weekActivities } = await supabase
+      const { _data: weekActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', weekStart);
@@ -203,14 +212,14 @@ export const RealTimeAnalytics = () => {
       }
 
       // Charger les activités récentes depuis Supabase
-      const { data: activitiesData, error } = await supabase
+      const { _data: activitiesData, _error } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       const mappedActivities: UserActivity[] = (activitiesData || []).map(a => ({
         id: a.id,

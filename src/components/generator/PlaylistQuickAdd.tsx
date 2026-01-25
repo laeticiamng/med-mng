@@ -3,21 +3,20 @@
  * Permet d'ajouter une piste à une playlist existante ou d'en créer une nouvelle
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { ListMusic, Plus, Check, Loader2, Folder } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import { Folder, ListMusic, Loader2, Plus } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Playlist {
@@ -28,9 +27,9 @@ interface Playlist {
 }
 
 interface PlaylistQuickAddProps {
-  trackId: string;
+  _trackId: string;
   trackTitle: string;
-  audioUrl?: string;
+  _audioUrl?: string;
   onAdded?: (playlistName: string) => void;
   variant?: 'icon' | 'button';
   size?: 'sm' | 'default';
@@ -38,9 +37,9 @@ interface PlaylistQuickAddProps {
 }
 
 export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
-  trackId,
+  _trackId,
   trackTitle,
-  audioUrl,
+  _audioUrl,
   onAdded,
   variant = 'button',
   size = 'default',
@@ -60,18 +59,18 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
     setLoading(true);
     
     try {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('music_playlists')
         .select('id, name, is_public')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       // Compter les tracks par playlist
       const playlistsWithCount = await Promise.all(
-        (data || []).map(async (playlist) => {
+        (_data || []).map(async (playlist) => {
           // Note: On simplifier ici car la table playlist_tracks peut ne pas exister
           return { ...playlist, track_count: 0 };
         })
@@ -119,7 +118,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
 
     try {
       // 1. Créer la playlist
-      const { data: newPlaylist, error: createError } = await supabase
+      const { _data: _newPlaylist, _error: createError } = await supabase
         .from('music_playlists')
         .insert({
           user_id: user.id,

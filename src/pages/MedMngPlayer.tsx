@@ -1,27 +1,27 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX, 
-  Heart,
-  ArrowLeft,
-  Music,
-  Download
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Slider } from '@/components/ui/slider';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useQuery } from '@tanstack/react-query';
+import {
+    ArrowLeft,
+    Download,
+    Heart,
+    Music,
+    Pause,
+    Play,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const MedMngPlayerComponent = () => {
   const { songId } = useParams<{ songId: string }>();

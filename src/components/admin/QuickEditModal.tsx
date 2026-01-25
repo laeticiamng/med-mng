@@ -41,7 +41,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('admin-quick-edit', {
+      const { _data, error } = await supabase.functions.invoke('admin-quick-edit', {
         body: {
           action: 'update',
           ...formData
@@ -50,7 +50,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
 
       if (error) throw error;
 
-      if (data.success) {
+      if (_data.success) {
         toast.success('Modification appliquée avec succès');
         if (formData.table_name === 'edn_items_immersive' || formData.table_name === 'edn_items_complete') {
           bumpEdnCacheBuster('admin-quick-edit');
@@ -58,7 +58,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
         onSuccess();
         onClose();
       } else {
-        throw new Error(data.error || 'Erreur inconnue');
+        throw new Error(_data.error || 'Erreur inconnue');
       }
     } catch (error) {
       console.error('Erreur quick edit:', error);

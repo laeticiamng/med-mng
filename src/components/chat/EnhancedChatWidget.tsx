@@ -54,7 +54,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
   } = useEnhancedChat();
 
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
+  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
 
   // Load user and stats
   useEffect(() => {
@@ -87,7 +87,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
         count: 1,
         metadata: { contextItems }
       });
-      await addPoints(user.id, 'aiQuestion');
+      await _addPoints(user.id, 'aiQuestion');
       loadStats(user.id);
     }
   };

@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslatedText } from '@/components/TranslatedText';
 import { getStylesByGenre } from '@/components/edn/music/MusicStylesData';
 import { Badge } from '@/components/ui/badge';
-import { Palette, Music2, Sparkles, Headphones, Zap, Volume2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Headphones, Music2, Palette, Sparkles, Zap } from 'lucide-react';
+import React, { useMemo } from 'react';
 import { StylePreviewButton } from './StylePreviewButton';
 
 interface StyleSelectorProps {

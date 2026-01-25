@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Shield, Calculator, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { calculateCVSS, getPatchPriority, CVSSMetrics, metricLabels } from '@/utils/cvssCalculator';
+import { Textarea } from '@/components/ui/textarea';
 import { useCVSSAssessments } from '@/hooks/useCVSSAssessments';
+import { calculateCVSS, CVSSMetrics, getPatchPriority, metricLabels } from '@/utils/cvssCalculator';
+import { Calculator, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export const CVSSCalculator = () => {
   const { createAssessment, isCreating } = useCVSSAssessments();

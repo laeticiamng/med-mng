@@ -1,13 +1,12 @@
 
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle,
-  BarChart3
-} from 'lucide-react';
 import type { AuditReport } from '@/scripts/audit/types';
+import {
+    AlertTriangle,
+    BarChart3,
+    CheckCircle,
+    XCircle
+} from 'lucide-react';
 
 interface AuditOverviewProps {
   report: AuditReport;

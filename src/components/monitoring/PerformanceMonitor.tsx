@@ -1,9 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useWebVitals } from '@/utils/webVitals';
-import { Activity, Zap, Eye, Clock, Wifi } from 'lucide-react';
+import { Activity, Clock, Eye, Wifi, Zap } from 'lucide-react';
 
 export const PerformanceMonitor = () => {
   const { metrics, performanceScore, isGood, generateReport } = useWebVitals();

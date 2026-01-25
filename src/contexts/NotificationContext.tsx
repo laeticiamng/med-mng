@@ -22,7 +22,7 @@ interface NotificationAction {
 }
 
 interface NotificationContextType {
-  notifications: Notification[];
+  _notifications: Notification[];
   addNotification: (notification: Omit<Notification, 'id' | 'timestamp'>) => string;
   removeNotification: (id: string) => void;
   updateNotification: (id: string, updates: Partial<Notification>) => void;
@@ -49,7 +49,7 @@ interface NotificationProviderProps {
 }
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [_notifications, setNotifications] = useState<Notification[]>([]);
 
   const addNotification = (notification: Omit<Notification, 'id' | 'timestamp'>): string => {
     const id = crypto.randomUUID();
@@ -239,7 +239,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   };
 
   const contextValue: NotificationContextType = {
-    notifications,
+    _notifications,
     addNotification,
     removeNotification,
     updateNotification,

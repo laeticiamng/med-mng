@@ -60,7 +60,7 @@ export function usePerformanceDegradationAlerts() {
         return;
       }
 
-      const { data, error: fetchError } = await supabase
+      const { _data, _error: fetchError } = await supabase
         .from('performance_degradation_alerts')
         .select('*')
         .eq('user_id', user.id)
@@ -69,7 +69,7 @@ export function usePerformanceDegradationAlerts() {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setAlerts((data || []) as PerformanceDegradationAlert[]);
+      setAlerts((_data || []) as PerformanceDegradationAlert[]);
     } catch (err: any) {
       console.error('Error loading performance alerts:', err);
       setError(err.message);
@@ -80,7 +80,7 @@ export function usePerformanceDegradationAlerts() {
 
   const acknowledgeAlert = async (alertId: string) => {
     try {
-      const { error: updateError } = await supabase
+      const { _error: updateError } = await supabase
         .from('performance_degradation_alerts')
         .update({
           acknowledged: true,
@@ -100,7 +100,7 @@ export function usePerformanceDegradationAlerts() {
 
   const dismissAlert = async (alertId: string) => {
     try {
-      const { error: updateError } = await supabase
+      const { _error: updateError } = await supabase
         .from('performance_degradation_alerts')
         .update({
           dismissed: true,

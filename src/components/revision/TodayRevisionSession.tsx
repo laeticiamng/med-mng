@@ -1,25 +1,22 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  ArrowRight, 
-  RotateCcw,
-  Clock,
-  Brain,
-  Target,
-  Zap,
-  Trophy,
-  Flame
-} from 'lucide-react';
-import { usePersonalizedRevision, RevisionItem } from '@/hooks/usePersonalizedRevision';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
+import { RevisionItem, usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowRight,
+    Brain,
+    CheckCircle2,
+    RotateCcw,
+    Target,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import React, { useState } from 'react';
 
 interface TodayRevisionSessionProps {
   items: RevisionItem[];
@@ -35,7 +32,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
   
   const { markItemAsReviewed } = usePersonalizedRevision();
   const { toast } = useToast();
-  const { addPoints, unlockBadge, stats: gamificationStats } = useGamification();
+  const { _addPoints, _unlockBadge, _stats: _gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // Get user on mount
@@ -61,7 +58,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
 
     // Award points for review
     if (userId) {
-      await addPoints(userId, 'itemReviewed');
+      await _addPoints(userId, 'itemReviewed');
       await logActivity({ 
         activity_type: 'srs_review', 
         score: success ? 100 : 50,
@@ -83,7 +80,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
       
       // Award bonus points for completion
       if (userId) {
-        await addPoints(userId, 'dailyStreak');
+        await _addPoints(userId, 'dailyStreak');
         await logActivity({
           activity_type: 'srs_review',
           count: items.length,
@@ -94,7 +91,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
         
         // Check for perfect session badge
         if (successRate === 100 && items.length >= 5) {
-          await unlockBadge(userId, 'perfect_exam');
+          await _unlockBadge(userId, 'perfect_exam');
         }
       }
       

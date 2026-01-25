@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle, Clock, Ban } from 'lucide-react';
+import { AlertTriangle, Ban, Clock, Shield } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface RateLimitConfig {
   endpoint: string;

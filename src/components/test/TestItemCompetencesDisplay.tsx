@@ -16,22 +16,22 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
 
   useEffect(() => {
     const fetchItem = async () => {
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
         .maybeSingle();
 
-      if (error) {
-        console.error('Erreur:', error);
+      if (_error) {
+        console.error('Erreur:', _error);
       } else {
-        setItem(data);
+        setItem(_data);
         console.log('✅ Item chargé:', {
-          item_code: data.item_code,
-          title: data.title,
-          sections_rang_a: (data.tableau_rang_a as any)?.sections?.length || 0,
-          sections_rang_b: (data.tableau_rang_b as any)?.sections?.length || 0,
-          paroles_count: data.paroles_musicales?.length || 0
+          item_code: _data.item_code,
+          title: _data.title,
+          sections_rang_a: (_data.tableau_rang_a as any)?.sections?.length || 0,
+          sections_rang_b: (_data.tableau_rang_b as any)?.sections?.length || 0,
+          paroles_count: _data.paroles_musicales?.length || 0
         });
       }
       setLoading(false);

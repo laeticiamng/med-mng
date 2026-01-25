@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LearningAnalytics } from '@/components/analytics/LearningAnalytics';
+import { StreakDisplay } from '@/components/gamification/StreakDisplay';
+import { SmartRecommendations } from '@/components/recommendations/SmartRecommendations';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { LearningAnalytics } from '@/components/analytics/LearningAnalytics';
-import { SmartRecommendations } from '@/components/recommendations/SmartRecommendations';
-import { StreakDisplay } from '@/components/gamification/StreakDisplay';
-import { useGamification } from '@/hooks/useGamification';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  BarChart3, Target, Lightbulb, Settings, Trophy, Flame, 
-  CheckCircle, Plus, Trash2, Calendar, BookOpen
+import {
+    BarChart3,
+    BookOpen,
+    CheckCircle,
+    Flame,
+    Lightbulb,
+    Plus,
+    Settings,
+    Target,
+    Trash2,
+    Trophy
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface LearningGoal {
   id: string;
@@ -29,7 +37,7 @@ interface LearningGoal {
 export default function LearningDashboard() {
   const [activeTab, setActiveTab] = useState('analytics');
   const [userId, setUserId] = useState<string | null>(null);
-  const { stats, loading: gamificationLoading, loadStats } = useGamification();
+  const { _stats, loading: _gamificationLoading, loadStats } = useGamification();
   const { getStreak, getTodayStats } = useActivityTracking();
   const [streak, setStreak] = useState<{ current: number; longest: number }>({ current: 0, longest: 0 });
   const [todayStats, setTodayStats] = useState<any>(null);
@@ -136,9 +144,9 @@ export default function LearningDashboard() {
           </div>
           
           {/* Quick stats */}
-          {stats && (
+          {_stats && (
             <div className="hidden md:block">
-              <StreakDisplay stats={stats} compact />
+              <StreakDisplay stats={_stats} compact />
             </div>
           )}
         </div>
@@ -175,7 +183,7 @@ export default function LearningDashboard() {
                 <Trophy className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats?.badges.length || 0}</p>
+                <p className="text-2xl font-bold">{_stats?.badges.length || 0}</p>
                 <p className="text-xs text-muted-foreground">Badges obtenus</p>
               </div>
             </CardContent>
@@ -187,8 +195,8 @@ export default function LearningDashboard() {
                 <BookOpen className="h-5 w-5 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold">Niv. {stats?.level || 1}</p>
-                <p className="text-xs text-muted-foreground">{stats?.totalPoints || 0} XP</p>
+                <p className="text-2xl font-bold">Niv. {_stats?.level || 1}</p>
+                <p className="text-xs text-muted-foreground">{_stats?.totalPoints || 0} XP</p>
               </div>
             </CardContent>
           </Card>

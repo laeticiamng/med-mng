@@ -1,39 +1,42 @@
 // @refresh reset
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { 
-  Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
-  Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
-  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle,
-  BarChart3, HelpCircle, Flame
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { RevisionGuide } from "@/components/edn/RevisionGuide";
+import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { PricingPlans } from "@/components/med-mng/PricingPlans";
+import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
+import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from "@/integrations/supabase/client";
+import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
-import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
-import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
-import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
-import { RevisionGuide } from "@/components/edn/RevisionGuide";
-import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
-import { PricingPlans } from "@/components/med-mng/PricingPlans";
+import { useEdnFavorites } from "@/hooks/useEdnFavorites";
+import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
+import { useGamification } from "@/hooks/useGamification";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
-import { transformTableauToSections } from "@/utils/tableauTransformations";
-import { TooltipInfo } from "@/components/ui/tooltip-info";
-import { FaqSection } from "@/components/help/FaqSection";
-import { useGamification, XP_PER_LEVEL } from "@/hooks/useGamification";
-import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
-import { useEdnFavorites } from "@/hooks/useEdnFavorites";
+import { supabase } from "@/integrations/supabase/client";
+import {
+    AlertTriangle,
+    BarChart3,
+    BookOpen,
+    Brain,
+    FileText,
+    Flame,
+    Gamepad2,
+    Grid, List,
+    Music,
+    Search,
+    Sparkles,
+    Star, Target
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface EdnItem {
   id: string;
@@ -79,14 +82,13 @@ export default function EdnComplete() {
   const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
   
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   
   // Hooks qui font des appels Supabase
-  const { stats: gamificationStats } = useGamification();
+  const { _stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
-  const { subscription, canGenerateMusic } = useSubscription();
+  const { _subscription, _canGenerateMusic } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
   
   // Alias pour compatibilité
@@ -173,11 +175,6 @@ export default function EdnComplete() {
     
     return Math.round((score / maxScore) * 100);
   };
-
-  const isItemComplete = (item: EdnItem) => {
-    return getCompletionPercentage(item) >= 80;
-  };
-
   // Liste des spécialités médicales
   const SPECIALTIES = [
     'Cardiologie', 'Pneumologie', 'Neurologie', 'Gastro-entérologie', 'Endocrinologie',
@@ -264,14 +261,14 @@ export default function EdnComplete() {
     
     // Puis fetch données complètes (tableaux, quiz, scène, etc.) via supabase
     try {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', item.item_code)
         .maybeSingle();
         
-      if (data) {
-        setSelectedItem({ ...item, ...data });
+      if (_data) {
+        setSelectedItem({ ...item, ..._data });
       }
     } catch (err) {
       // Silently ignore - partial data is still usable
@@ -629,19 +626,19 @@ export default function EdnComplete() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">
-                          {subscription?.plan_name || 'Plan Gratuit'}
+                          {_subscription?.plan_name || 'Plan Gratuit'}
                         </span>
-                        <Badge variant={subscription ? 'default' : 'secondary'}>
-                          {subscription ? 'Actif' : 'Gratuit'}
+                        <Badge variant={_subscription ? 'default' : 'secondary'}>
+                          {_subscription ? 'Actif' : 'Gratuit'}
                         </Badge>
                       </div>
-                      {subscription && (
+                      {_subscription && (
                         <div className="text-sm text-muted-foreground">
-                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
-                          <p>Statut: {subscription.status}</p>
+                          <p>Quota mensuel: {_subscription.monthly_quota} crédits</p>
+                          <p>Statut: {_subscription.status}</p>
                         </div>
                       )}
-                      {!subscription && (
+                      {!_subscription && (
                         <div className="space-y-2">
                           <p className="text-sm text-muted-foreground">
                             Vous utilisez le plan gratuit avec des fonctionnalités limitées.

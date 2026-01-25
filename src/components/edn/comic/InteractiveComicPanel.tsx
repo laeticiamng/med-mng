@@ -24,14 +24,14 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { addPoints } = useGamification();
+  const { _addPoints } = useGamification();
 
   const isPlaceholder = imageUrl.startsWith('placeholder-') || imageUrl.startsWith('data:image/svg+xml') || !imageUrl;
   
   const generateImage = async () => {
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-comic-images', {
+      const { _data, error } = await supabase.functions.invoke('generate-comic-images', {
         body: {
           scene_description: `Medical scenario: ${panel.text}. Show healthcare professionals in a clinical setting`,
           style: 'medical comic book illustration, professional healthcare art style',
@@ -41,7 +41,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
 
       if (error) throw error;
       
-      setImageUrl(data.imageUrl);
+      setImageUrl(_data.imageUrl);
       
       // Track image generation
       await logActivity({
@@ -53,7 +53,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
       // Award points for generating image
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await addPoints(user.id, 'itemReviewed');
+        await _addPoints(user.id, 'itemReviewed');
       }
       
       toast({

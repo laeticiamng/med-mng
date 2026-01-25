@@ -3,11 +3,11 @@
  * Joue un sample de 10s du style sélectionné
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { TranslatedText } from '@/components/TranslatedText';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Loader2, Pause, Volume2, VolumeX } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // ✅ URLs audio fonctionnelles - Samples libres de droits (Pixabay CDN public)
 // Note: Ces URLs utilisent l'ID du fichier audio Pixabay en format public

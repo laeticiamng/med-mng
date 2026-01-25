@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const MngPresentation = () => {
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const load = async () => {

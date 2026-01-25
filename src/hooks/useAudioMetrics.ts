@@ -97,7 +97,7 @@ export const useAudioMetrics = () => {
   }, []);
 
   return {
-    startTracking,
+    _startTracking,
     updateMetric,
     getMetrics,
     calculateBufferHealth,

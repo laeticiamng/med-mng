@@ -360,7 +360,7 @@ INSTRUCTIONS CONTEXTUELLES :
     error,
 
     // Actions principales
-    createSession,
+    _createSession,
     sendMessage,
     loadSession,
     

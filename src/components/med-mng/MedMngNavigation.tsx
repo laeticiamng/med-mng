@@ -1,32 +1,31 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Headphones, 
-  ListMusic, 
-  BookOpen, 
-  Brain, 
-  Star, 
-  Settings, 
-  LogOut, 
-  Home, 
-  Flame,
-  Music,
-  Heart
-} from 'lucide-react';
-import { useAuth } from './AuthProvider';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Button } from '@/components/ui/button';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
+import {
+    BookOpen,
+    Brain,
+    Flame,
+    Headphones,
+    Heart,
+    Home,
+    ListMusic,
+    LogOut,
+    Music,
+    Settings,
+    Star
+} from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, user } = useAuth();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     if (user?.id) {

@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { BookOpen, Users, CheckCircle2, Sparkles } from 'lucide-react';
-import { PremiumCard } from '@/components/ui/premium-card';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Badge } from '@/components/ui/badge';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { BookOpen, CheckCircle2, Sparkles, Users } from 'lucide-react';
+import React from 'react';
 
 interface ContentTypeSelectorProps {
   contentType: string;

@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { Crown, Shield, Users, Zap } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Users, Shield, Crown, Zap } from 'lucide-react';
 
 interface TestAccount {
   email: string;
@@ -25,7 +22,7 @@ export const SubscriptionTestPanel: React.FC = () => {
     { email: 'test-premium@example.com', password: 'TestPass123!', plan: 'premium', status: 'created' }
   ]);
   
-  const [currentTest, setCurrentTest] = useState<string>('');
+  const [_currentTest, _setCurrentTest] = useState<string>('');
   const [testResults, setTestResults] = useState<any[]>([]);
 
   const createTestAccount = async (account: TestAccount) => {
@@ -47,7 +44,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       if (authData.user) {
         // Créer l'abonnement pour les comptes payants
         if (account.plan !== 'free') {
-          const { error: subError } = await supabase
+          const { _error: subError } = await supabase
             .from('user_subscriptions')
             .insert({
               user_id: authData.user.id,
@@ -81,13 +78,13 @@ export const SubscriptionTestPanel: React.FC = () => {
       if (loginError) throw loginError;
 
       // Test des quotas de génération musicale
-      const { data: quotaData, error: quotaError } = await supabase
+      const { _data: quotaData, _error: quotaError } = await supabase
         .rpc('check_music_generation_quota', { user_uuid: loginData.user.id });
 
       if (quotaError) throw quotaError;
 
       // Test des fonctionnalités accessibles
-      const { data: subData, error: subError } = await supabase
+      const { _data: subData, _error: subError } = await supabase
         .rpc('get_user_subscription', { user_uuid: loginData.user.id });
 
       if (subError) throw subError;
@@ -134,10 +131,10 @@ export const SubscriptionTestPanel: React.FC = () => {
 
       // Simuler plusieurs générations
       for (let i = 0; i < generations; i++) {
-        const { error } = await supabase
+        const { _error } = await supabase
           .rpc('increment_music_usage', { user_uuid: loginData.user.id });
         
-        if (error) {
+        if (_error) {
           console.log(`Génération ${i + 1} bloquée pour ${account.plan} - Quota atteint`);
           break;
         }

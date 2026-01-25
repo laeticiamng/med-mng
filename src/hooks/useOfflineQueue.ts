@@ -122,7 +122,7 @@ export const useOfflineQueue = () => {
     try {
       await saveToQueue({ ...item, status: 'uploading' });
       
-      const { data, error } = await supabase.functions.invoke('generate-music', {
+      const { _data, error } = await supabase.functions.invoke('generate-music', {
         body: item.payload
       });
       
@@ -131,7 +131,7 @@ export const useOfflineQueue = () => {
       await removeFromQueue(item.id);
       
       toast.success('Génération synchronisée !', {
-        description: data.trackId ? 'Musique en cours de génération' : 'Requête traitée'
+        description: _data.trackId ? 'Musique en cours de génération' : 'Requête traitée'
       });
       
       return true;

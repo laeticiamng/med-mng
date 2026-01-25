@@ -1,8 +1,8 @@
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Shield, Users } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { FileText, Shield } from 'lucide-react';
+import React from 'react';
 
 interface TableauRangAFooterIC9Props {
   colonnesCount: number;

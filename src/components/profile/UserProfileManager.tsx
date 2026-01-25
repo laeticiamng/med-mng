@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  User, Settings, Shield, Bell, Palette, 
-  Upload, Save, Award, TrendingUp, Target,
-  Music, BookOpen, Clock, Brain
-} from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { supabase } from '@/integrations/supabase/client';
+import {
+    Award,
+    Bell,
+    BookOpen, Clock,
+    Save,
+    Settings,
+    Target,
+    TrendingUp,
+    Upload,
+    User
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface UserProfile {
   id: string;
@@ -93,7 +99,7 @@ export const UserProfileManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // Charger le profil depuis Supabase
-        const { data: profileData } = await supabase
+        const { _data: profileData } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -150,20 +156,20 @@ export const UserProfileManager = () => {
 
   const loadUserPreferences = async () => {
     try {
-      const { data } = await supabase
+      const { _data } = await supabase
         .from('user_preferences_extended')
         .select('*')
         .maybeSingle();
       
-      if (data) {
+      if (_data) {
         setPreferences(prev => ({
           ...prev,
-          theme: data.dark_mode ? 'dark' : 'light',
-          language: data.language || 'fr',
+          theme: _data.dark_mode ? 'dark' : 'light',
+          language: _data.language || 'fr',
           notifications: {
             ...prev.notifications,
-            email: data.notification_email ?? true,
-            study_reminders: data.study_reminders ?? true
+            email: _data.notification_email ?? true,
+            study_reminders: _data.study_reminders ?? true
           },
           music_quality: 'high'
         }));
@@ -211,7 +217,7 @@ export const UserProfileManager = () => {
   const savePreferences = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { _error } = await supabase
         .from('user_preferences_extended')
         .upsert({
           user_id: (await supabase.auth.getUser()).data.user?.id!,
@@ -222,7 +228,7 @@ export const UserProfileManager = () => {
           auto_play: preferences.auto_play
         }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (_error) throw _error;
 
       toast({
         title: "Préférences mises à jour",

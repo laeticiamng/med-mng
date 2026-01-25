@@ -91,11 +91,6 @@ export function useAudioWithCache(options: UseAudioWithCacheOptions = {}) {
   }, [type, cacheLoading, toast]);
 
   // Check if audio is cached
-  const isAudioCached = useCallback(async (audioId: string): Promise<boolean> => {
-    if (cachedUrls.has(audioId)) return true;
-    return audioCache.isAudioCached(audioId);
-  }, [cachedUrls]);
-
   // Remove from cache
   const removeFromCache = useCallback(async (audioId: string): Promise<boolean> => {
     const success = await audioCache.removeFromCache(audioId);
@@ -133,7 +128,7 @@ export function useAudioWithCache(options: UseAudioWithCacheOptions = {}) {
   return {
     getAudioUrl,
     cacheAudio,
-    isAudioCached,
+    _isAudioCached,
     removeFromCache,
     clearCache,
     getCachedItems,

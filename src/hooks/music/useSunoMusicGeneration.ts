@@ -3,19 +3,19 @@
  * ✅ CORRIGÉ: Timeout augmenté, polling BDD amélioré, rafraîchissement crédits
  */
 
-import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useMusicGenerationState } from '../useMusicGenerationState';
+import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useRef, useState } from 'react';
 import { callSunoApi } from '../musicGenerationApi';
-import { 
-  validateGenerationInput, 
-  prepareStyleConfiguration, 
-  createRequestBody, 
-  getSuccessMessage 
+import {
+    createRequestBody,
+    getSuccessMessage,
+    prepareStyleConfiguration,
+    validateGenerationInput
 } from '../musicGenerationUtils';
+import { useMusicGenerationState } from '../useMusicGenerationState';
 import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
-import { supabase } from '@/integrations/supabase/client';
 
 // ✅ Constantes alignées avec useMusicPolling.ts
 const MAX_POLL_ATTEMPTS = 120; // ~8 minutes max (120 * 4s en moyenne)
@@ -101,7 +101,7 @@ export const useSunoMusicGeneration = () => {
 
         try {
           // 1. ✅ AMÉLIORATION: Vérifier d'abord en BDD avec ORDER BY pour avoir le plus récent
-          const { data: dbTrack } = await supabase
+          const { _data: dbTrack } = await supabase
             .from('generated_music_tracks')
             .select('audio_url, stream_url, generation_status, metadata, updated_at')
             .eq('task_id', taskId)
@@ -135,7 +135,7 @@ export const useSunoMusicGeneration = () => {
           }
 
           // 2. Sinon appeler l'edge function music-status
-          const { data, error } = await supabase.functions.invoke('music-status', {
+          const { _data, error } = await supabase.functions.invoke('music-status', {
             body: { taskId }
           });
 
@@ -155,19 +155,19 @@ export const useSunoMusicGeneration = () => {
           } else {
             networkRetries = 0;
 
-            if (data?.status === 'completed' && data.audioUrl) {
+            if (_data?.status === 'completed' && _data.audioUrl) {
               setPollingProgress(100);
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
-              setAudioUrl(rang, data.audioUrl);
-              resolve(data.audioUrl);
+              setAudioUrl(rang, _data.audioUrl);
+              resolve(_data.audioUrl);
               return;
             }
 
-            if (data?.status === 'failed') {
+            if (_data?.status === 'failed') {
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
-              reject(new Error(data.error || 'Génération échouée'));
+              reject(new Error(_data.error || 'Génération échouée'));
               return;
             }
           }
@@ -248,7 +248,7 @@ export const useSunoMusicGeneration = () => {
       setPollingProgress(0);
       
       const translatedLyrics = await translateLyricsIfNeeded(parolesText);
-      const { isComposition, styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
+      const { isComposition, _styleDescription, adjustedDuration, durationText } = prepareStyleConfiguration(selectedStyle, duration);
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model, undefined, advancedParams);
 
       // Étape 1: Appeler l'API Suno pour démarrer la génération

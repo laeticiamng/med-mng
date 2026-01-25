@@ -39,13 +39,13 @@ export const useEdnItemsComplete = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { _data, _error } = await supabase
         .from('edn_items_complete')
         .select('*')
         .order('item_code');
 
-      if (error) throw error;
-      setItems(data || []);
+      if (_error) throw _error;
+      setItems(_data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -69,14 +69,14 @@ export const useEdnItemComplete = (slug: string) => {
     const fetchItem = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        const { _data, _error } = await supabase
           .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
 
-        if (error) throw error;
-        setItem(data);
+        if (_error) throw _error;
+        setItem(_data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Item non trouvé');
       } finally {

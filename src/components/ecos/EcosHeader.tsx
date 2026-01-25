@@ -14,7 +14,7 @@ interface EcosHeaderProps {
 }
 
 export const EcosHeader = ({ timeLeft, formatTime, scenarioId, specialty }: EcosHeaderProps) => {
-  const { stats: gamificationStats, loadStats } = useGamification();
+  const { _stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {

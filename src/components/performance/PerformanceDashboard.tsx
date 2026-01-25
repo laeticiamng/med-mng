@@ -1,25 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Zap, 
-  Globe, 
-  Eye, 
-  CheckCircle, 
-  AlertTriangle, 
-  Monitor,
-  Smartphone,
-  RefreshCw,
-  Download,
-  TrendingUp,
-  Clock,
-  Activity
-} from 'lucide-react';
-import { usePerformance } from '@/contexts/PerformanceContext';
 import { useInternationalization } from '@/contexts/InternationalizationContext';
+import { usePerformance } from '@/contexts/PerformanceContext';
+import {
+    Activity,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Eye,
+    Globe,
+    Monitor,
+    RefreshCw,
+    Smartphone,
+    TrendingUp,
+    Zap
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface LighthouseScore {
   performance: number;

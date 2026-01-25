@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Track } from '@/types/music';
-import { useSecureStreaming } from './useSecureStreaming';
+import { useEffect, useRef, useState } from 'react';
 
 interface PlayerState {
   currentTrack: Track | null;
@@ -143,18 +142,6 @@ export const usePlayer = () => {
       setState(prev => ({ ...prev, isPlaying: false }));
     }
   };
-
-  const play = async () => {
-    if (audioRef.current && state.currentTrack) {
-      try {
-        await audioRef.current.play();
-        setState(prev => ({ ...prev, isPlaying: true }));
-      } catch (error) {
-        console.error('Erreur play:', error);
-      }
-    }
-  };
-
   const seek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
@@ -278,7 +265,7 @@ export const usePlayer = () => {
     ...state,
     playTrack,
     pause,
-    play,
+    _play,
     seek,
     setVolume,
     toggleMute,

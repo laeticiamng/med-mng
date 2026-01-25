@@ -1,6 +1,4 @@
 
-import { Music } from 'lucide-react';
-
 export const MusicHeader = () => {
   return (
     <div className="text-center">
