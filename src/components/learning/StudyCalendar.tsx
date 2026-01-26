@@ -21,7 +21,7 @@ interface DayData {
 export const StudyCalendar: React.FC = () => {
   const { getSRSStats } = useAdaptiveSRS();
   const { _getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
-  const { _stats: gamificationStats } = useGamification();
+  const { stats: gamificationStats } = useGamification();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarData, setCalendarData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);

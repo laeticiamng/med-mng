@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -68,7 +68,7 @@ export default function SmartStudyPlanner() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { stats: srsStats, getStats: getSrsStats } = useSRS();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -123,7 +123,7 @@ export default function SmartStudyPlanner() {
       // Log activity and award points
       if (user) {
         await logActivity({ activity_type: 'study', metadata: { action: 'plan_generated' }, score: 100 });
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       }
       
       toast({ title: "Planning généré", description: "Votre planning personnalisé est prêt ! (+10 XP)" });

@@ -11,7 +11,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
     BarChart3,
@@ -40,7 +40,7 @@ export default function Flashcards() {
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
     generateFromItem, recordReview, getStats
   } = useFlashcards();
-  const { _addPoints, _unlockBadge, checkAndUnlockBadges, _stats: _gamificationStats } = useGamification();
+  const { addPoints, unlockBadge: _unlockBadge, checkAndUnlockBadges, stats: _gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -148,7 +148,7 @@ export default function Flashcards() {
     
     // Gamification: Award points for flashcard review
     if (user) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       await logActivity({ 
         activity_type: 'flashcard', 
         count: 1, 
@@ -189,7 +189,7 @@ export default function Flashcards() {
       
       // Bonus for perfect score
       if (user && score === 100) {
-        await _addPoints(user.id, 'perfectExam');
+        await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
         await _unlockBadge(user.id, 'perfect_exam');
       }
       

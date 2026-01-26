@@ -43,7 +43,7 @@ interface Achievement {
 export const UserProfile: React.FC = () => {
   const [_activeTab, _setActiveTab] = useState('overview');
   const [_user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const { getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
 

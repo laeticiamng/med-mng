@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
     AlertCircle,
@@ -50,7 +50,7 @@ const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
   const [user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
   const [_studyPlans, setStudyPlans] = useState<any[]>([]);
@@ -171,7 +171,7 @@ const StudyPlanner = () => {
         count: 1,
         metadata: { sessionId, action: 'start' }
       });
-      await _addPoints(user.id, 'dailyStreak');
+      await addPoints(user.id, POINTS_CONFIG.dailyStreak, 'dailyStreak');
       
       // Track sessions completed for badge
       const completedCount = studySessions.filter(s => s.completed).length + 1;

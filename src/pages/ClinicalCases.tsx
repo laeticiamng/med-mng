@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAIClinicalCases } from '@/hooks/useAIClinicalCases';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useClinicalCases } from '@/hooks/useClinicalCases';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
     ArrowRight, Award,
@@ -47,7 +47,7 @@ export default function ClinicalCases() {
   } = useClinicalCases();
   const { generateCase, loading: aiLoading } = useAIClinicalCases();
   const { logActivity } = useActivityTracking();
-  const { _stats: _gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: _gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('cases');
@@ -132,7 +132,7 @@ export default function ClinicalCases() {
     });
     
     // Award gamification points
-    await _addPoints(user.id, 'clinicalCase');
+    await addPoints(user.id, POINTS_CONFIG.clinicalCase, 'clinicalCase');
     
     // Check for clinical master badge
     const newStats = await getStats(user.id);

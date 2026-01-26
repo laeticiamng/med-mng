@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AIQuestion, useAIExam } from '@/hooks/useAIExam';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ExamQuestion, ExamSession, useExamMode } from '@/hooks/useExamMode';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
     AlertTriangle,
@@ -43,7 +43,7 @@ export default function ExamMode() {
     startAIExam, submitAnswer: submitAIAnswer, completeExam: completeAIExam, resetExam: resetAIExam 
   } = useAIExam();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -162,9 +162,9 @@ export default function ExamMode() {
       const result = await completeAIExam();
       if (result && user) {
         // Award points
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
         if (result.score === 100) {
-          await _addPoints(user.id, 'perfectExam');
+          await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
           await _unlockBadge(user.id, 'perfect_exam');
         }
         loadGamificationStats(user.id);
@@ -179,9 +179,9 @@ export default function ExamMode() {
           score: session?.score || 0,
           metadata: { exam_type: 'standard' }
         });
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
         if (session?.score === 100) {
-          await _addPoints(user.id, 'perfectExam');
+          await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
           await _unlockBadge(user.id, 'perfect_exam');
         }
         getStats(user.id).then(setStats);

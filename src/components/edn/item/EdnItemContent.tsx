@@ -133,11 +133,11 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         }
         
         return (
-          <ParolesMusicales 
-            paroles={item.paroles_musicales} 
+          <ParolesMusicales
+            paroles={item.paroles_musicales}
             itemCode={item.item_code}
-            _tableauRangA={item.tableau_rang_a}
-            _tableauRangB={item.tableau_rang_b}
+            tableauRangA={item.tableau_rang_a}
+            tableauRangB={item.tableau_rang_b}
           />
         );
       

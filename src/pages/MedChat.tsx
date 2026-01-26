@@ -9,7 +9,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useChatConversations } from '@/hooks/useChatConversations';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -59,7 +59,7 @@ export const MedChat: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>([
@@ -164,7 +164,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
           metadata: { question: textToSend.slice(0, 100) }
         });
         
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         

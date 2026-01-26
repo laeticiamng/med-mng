@@ -7,7 +7,7 @@ import { BookOpen, TrendingUp, Lightbulb, RotateCcw, ChevronRight, Flame, Star }
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 
 interface Recommendation {
   id: string;
@@ -24,7 +24,7 @@ export const SmartRecommendations: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   useEffect(() => {
     const load = async () => {
@@ -174,7 +174,7 @@ export const SmartRecommendations: React.FC = () => {
     });
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      _addPoints(user.id, 'itemReviewed');
+      addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
     }
     const slug = itemCode.toLowerCase().replace('ic-', 'ic-');
     navigate(`/edn-complete/item/${slug}`);

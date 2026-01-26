@@ -27,8 +27,8 @@ interface ParolesMusicalesProps {
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  _tableauRangA?: TableauRangData;
-  _tableauRangB?: TableauRangData;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
 }
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({

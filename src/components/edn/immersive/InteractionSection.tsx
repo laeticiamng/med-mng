@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertCircle, CheckCircle, Flame, Star } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -34,7 +34,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
   itemCode 
 }) => {
   const { logActivity } = useActivityTracking();
-  const { _addPoints, _stats, loadStats } = useGamification();
+  const { addPoints, stats, loadStats } = useGamification();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<string>('');
@@ -109,7 +109,7 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
     if (percentage >= 80) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       }
     }
   };
@@ -129,12 +129,12 @@ export const InteractionSection: React.FC<InteractionSectionProps> = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>{interactionConfig.title || `Interaction ${itemCode}`}</span>
-            {_stats && (
+            {stats && (
               <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-warning" />
-                <span className="font-bold text-warning">{_stats.currentStreak ?? 0}</span>
+                <span className="font-bold text-warning">{stats.currentStreak ?? 0}</span>
                 <Star className="h-3 w-3 text-primary ml-1" />
-                <span className="font-bold text-primary">Nv.{_stats.level ?? 1}</span>
+                <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
               </div>
             )}
           </div>

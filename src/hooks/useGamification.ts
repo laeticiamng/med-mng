@@ -445,7 +445,7 @@ export function useGamification() {
   // Get recent achievements
   const getRecentAchievements = useCallback(async (userId: string, limit: number = 5): Promise<Badge[]> => {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_badges')
         .select('badge_id, badge_name, badge_description, badge_icon, earned_at')
         .eq('user_id', userId)
@@ -453,7 +453,7 @@ export function useGamification() {
         .order('earned_at', { ascending: false })
         .limit(limit);
 
-      return (_data || []).map(b => {
+      return (data || []).map(b => {
         const def = BADGE_DEFINITIONS.find(d => d.id === b.badge_id);
         return {
           id: b.badge_id,
@@ -479,28 +479,28 @@ export function useGamification() {
     badges: number;
   }[]> => {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('gamification_activities')
         .select('user_id, points_earned')
         .limit(1000);
 
-      if (!_data) return [];
+      if (!data) return [];
 
       // Aggregate by user
       const userPoints = new Map<string, number>();
-      _data.forEach(d => {
+      data.forEach(d => {
         userPoints.set(d.user_id, (userPoints.get(d.user_id) || 0) + (d.points_earned || 0));
       });
 
       // Get user profiles
       const userIds = Array.from(userPoints.keys());
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, full_name')
         .in('id', userIds);
 
       // Get badge counts
-      const { _data: badges } = await supabase
+      const { data: badges } = await supabase
         .from('user_badges')
         .select('user_id')
         .eq('unlocked', true)
@@ -542,18 +542,18 @@ export function useGamification() {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('gamification_activities')
         .select('points_earned, created_at')
         .eq('user_id', userId)
         .gte('created_at', startDate.toISOString())
         .order('created_at', { ascending: true });
 
-      if (!_data) return [];
+      if (!data) return [];
 
       // Group by date
       const byDate = new Map<string, number>();
-      _data.forEach(d => {
+      data.forEach(d => {
         const date = d.created_at.split('T')[0];
         byDate.set(date, (byDate.get(date) || 0) + (d.points_earned || 0));
       });

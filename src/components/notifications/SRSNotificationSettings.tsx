@@ -47,7 +47,7 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
   const [_saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadStats(userId);

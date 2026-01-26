@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 // Composant de loading léger
 const Index = () => {
   const [user, setUser] = useState<any>(null);
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const Index = () => {
           <div className="pt-16 pb-16">
             <AntiPanicHero 
               showGamification={!!user}
-              stats={_stats || undefined}
+              stats={stats || undefined}
             />
           </div>
 

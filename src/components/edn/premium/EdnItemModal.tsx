@@ -153,52 +153,52 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       if (finalItem && isOpen) {
         try {
           // Toujours fetch les données complètes depuis Supabase pour avoir bd_panels et roman_story
-          const { _data } = await supabase
+          const { data } = await supabase
             .from('edn_items_immersive')
             .select('quiz_questions, scene_immersive, tableau_rang_a, tableau_rang_b, paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab, bd_panels, roman_story')
             .eq('item_code', finalItem.item_code)
             .maybeSingle();
-          
-          if (_data) {
+
+          if (data) {
             // Normaliser paroles_musicales: si c'est une string, la convertir en array
             let normalizedParoles: string[] = [];
-            if (_data.paroles_musicales) {
-              if (typeof _data.paroles_musicales === 'string') {
-                normalizedParoles = (_data.paroles_musicales as string)
+            if (data.paroles_musicales) {
+              if (typeof data.paroles_musicales === 'string') {
+                normalizedParoles = (data.paroles_musicales as string)
                   .split(/\n\n|\[.*?\]/)
                   .map(s => s.trim())
                   .filter(s => s.length > 0);
-              } else if (Array.isArray(_data.paroles_musicales)) {
-                normalizedParoles = _data.paroles_musicales as string[];
+              } else if (Array.isArray(data.paroles_musicales)) {
+                normalizedParoles = data.paroles_musicales as string[];
               }
             }
-            
+
             const normalizedRangA = transformTableauToSections(
-              _data.tableau_rang_a,
+              data.tableau_rang_a,
               finalItem.item_code,
               finalItem.title,
               'A'
-            ) || normalizeTableauData(_data.tableau_rang_a);
+            ) || normalizeTableauData(data.tableau_rang_a);
             const normalizedRangB = transformTableauToSections(
-              _data.tableau_rang_b,
+              data.tableau_rang_b,
               finalItem.item_code,
               finalItem.title,
               'B'
-            ) || normalizeTableauData(_data.tableau_rang_b);
+            ) || normalizeTableauData(data.tableau_rang_b);
 
             setCompleteItemData({
-              quiz_questions: _data.quiz_questions as unknown,
-              scene_immersive: _data.scene_immersive as unknown,
+              quiz_questions: data.quiz_questions as unknown,
+              scene_immersive: data.scene_immersive as unknown,
               tableau_rang_a: normalizedRangA as unknown,
               tableau_rang_b: normalizedRangB as unknown,
               paroles_musicales: normalizedParoles,
-              paroles_rang_a: _data.paroles_rang_a as string[],
-              paroles_rang_b: _data.paroles_rang_b as string[],
-              paroles_rang_ab: _data.paroles_rang_ab as string[],
+              paroles_rang_a: data.paroles_rang_a as string[],
+              paroles_rang_b: data.paroles_rang_b as string[],
+              paroles_rang_ab: data.paroles_rang_ab as string[],
               competences_oic_rang_a: oicCompetencesA,
               competences_oic_rang_b: oicCompetencesB,
-              bd_panels: _data.bd_panels as unknown,
-              roman_story: _data.roman_story as unknown,
+              bd_panels: data.bd_panels as unknown,
+              roman_story: data.roman_story as unknown,
             });
           }
         } catch {
@@ -660,14 +660,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </TabsContent>
 
               <TabsContent value="music" className="mt-0 p-6">
-                <ParolesMusicales 
+                <ParolesMusicales
                   paroles={completeItemData?.paroles_musicales || finalItem.paroles_musicales}
                   paroles_rang_a={finalItem.paroles_rang_a}
                   paroles_rang_b={finalItem.paroles_rang_b}
                   paroles_rang_ab={finalItem.paroles_rang_ab}
                   itemCode={finalItem.item_code}
-                  _tableauRangA={finalItem.tableau_rang_a}
-                  _tableauRangB={finalItem.tableau_rang_b}
+                  tableauRangA={finalItem.tableau_rang_a}
+                  tableauRangB={finalItem.tableau_rang_b}
                 />
               </TabsContent>
 
@@ -753,22 +753,22 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               {/* BD Gallery */}
               <TabsContent value="bd" className="mt-0 p-6">
-                <BdGallery 
+                <BdGallery
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  _tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  _tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                   bdPanels={completeItemData?.bd_panels as any || finalItem.bd_panels as any}
                 />
               </TabsContent>
 
               {/* Roman Narratif */}
               <TabsContent value="roman" className="mt-0 p-6">
-                <RomanNarratif 
+                <RomanNarratif
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
-                  _tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
-                  _tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                   romanStory={completeItemData?.roman_story as any || finalItem.roman_story as any}
                 />
               </TabsContent>

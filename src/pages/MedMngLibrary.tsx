@@ -47,7 +47,7 @@ const MedMngLibraryComponent = () => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
   
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');

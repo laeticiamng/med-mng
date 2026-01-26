@@ -48,7 +48,7 @@ export const MusicCardPlayer = ({
   return (
     <div className="space-y-3">
       <AudioPlayer
-        _audioUrl={generatedAudio}
+        audioUrl={generatedAudio}
         title={title}
         isPlaying={isPlaying}
         currentTime={isCurrentTrack ? currentTime : 0}

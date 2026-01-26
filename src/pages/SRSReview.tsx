@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { ReviewQuality, UserItemProgress, useSRS } from '@/hooks/useSRS';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -46,7 +46,7 @@ export default function SRSReview() {
     loading 
   } = useSRS();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -192,7 +192,7 @@ export default function SRSReview() {
 
     // Award gamification points
     if (quality >= 3) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       // Check for first item badge
       if (sessionStats.reviewed === 0) {
         await _unlockBadge(user.id, 'first_item');
@@ -230,7 +230,7 @@ export default function SRSReview() {
 
     // Award streak points
     if (user && sessionStats.reviewed > 0) {
-      await _addPoints(user.id, 'dailyStreak');
+      await addPoints(user.id, POINTS_CONFIG.dailyStreak, 'dailyStreak');
       await checkAndUnlockBadges(user.id);
       loadGamificationStats(user.id);
     }

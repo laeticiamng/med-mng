@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { Flame, Star, Trophy } from 'lucide-react';
@@ -37,7 +37,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   sections
 }) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
 
   // Reset tracking when item changes
@@ -72,12 +72,12 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         hasTrackedRef.current = true;
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
         }
       }
     };
     awardPoints();
-  }, [currentSection, item.item_code, sections, logActivity, _addPoints]);
+  }, [currentSection, item.item_code, sections, logActivity, addPoints]);
 
   const renderSection = () => {
     switch (currentSection) {
@@ -161,8 +161,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
             <ParolesMusicales
               paroles={item.paroles_musicales || []}
               itemCode={item.item_code}
-              _tableauRangA={item.tableau_rang_a as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
-              _tableauRangB={item.tableau_rang_b as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
+              tableauRangA={item.tableau_rang_a as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
+              tableauRangB={item.tableau_rang_b as { title?: string; sections?: Array<{ title?: string; content?: string }> } | undefined}
             />
             
             {/* Afficher un avertissement si les paroles sont insuffisantes */}
@@ -220,21 +220,21 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
 
   return (
     <div className="min-h-[600px]">
-      {_stats && (
+      {stats && (
         <div className="flex items-center gap-3 mb-4 p-2 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-1">
             <Flame className="h-4 w-4 text-warning" />
-            <span className="font-bold text-warning">{_stats.currentStreak ?? 0}j</span>
+            <span className="font-bold text-warning">{stats.currentStreak ?? 0}j</span>
           </div>
           <div className="w-px h-4 bg-border" />
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-primary" />
-            <span className="font-bold text-primary">Nv.{_stats.level ?? 1}</span>
+            <span className="font-bold text-primary">Nv.{stats.level ?? 1}</span>
           </div>
           <div className="w-px h-4 bg-border" />
           <div className="flex items-center gap-1">
             <Trophy className="h-4 w-4 text-success" />
-            <span className="text-sm text-muted-foreground">{_stats.badges?.length || 0} badges</span>
+            <span className="text-sm text-muted-foreground">{stats.badges?.length || 0} badges</span>
           </div>
         </div>
       )}

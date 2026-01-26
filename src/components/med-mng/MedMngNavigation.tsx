@@ -25,7 +25,7 @@ export const MedMngNavigation: React.FC = () => {
   const location = useLocation();
   const { signOut, user } = useAuth();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     if (user?.id) {

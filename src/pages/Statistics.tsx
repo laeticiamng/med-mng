@@ -48,7 +48,7 @@ const CHART_COLORS = {
 
 const Statistics = () => {
   const { _getHeatmapData, getWeeklySummary, getStreak } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [personalStats, setPersonalStats] = useState<any>(null);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [streakData, setStreakData] = useState({ current: 0, longest: 0 });
