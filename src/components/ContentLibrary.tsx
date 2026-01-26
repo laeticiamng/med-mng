@@ -39,7 +39,7 @@ interface GeneratedItem {
 export const ContentLibrary = () => {
   const { getUserGeneratedContent } = useContentGeneration();
   const { toast } = useToast();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   

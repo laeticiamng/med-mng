@@ -253,8 +253,8 @@ export const useOnboarding = () => {
     nextStep,
     previousStep,
     completeStep,
-    _completeOnboarding,
-    _skipOnboarding,
+    completeOnboarding,
+    skipOnboarding: completeOnboarding,
     goToStep,
     getCurrentStep,
     getProgress,
@@ -266,6 +266,6 @@ export const useOnboarding = () => {
     markTooltipAsSeen,
     isTooltipSeen,
     getOnboardingStats,
-    _isCompleted: (stepKey: string) => state.completedSteps.includes(stepKey)
+    isCompleted: (stepKey: string) => state.completedSteps.includes(stepKey)
   };
 };

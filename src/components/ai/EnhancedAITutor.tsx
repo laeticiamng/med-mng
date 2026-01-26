@@ -82,7 +82,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const [questionCount, setQuestionCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { _addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const CHAT_URL = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/ai-tutor`;
@@ -281,7 +281,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       // Gamification: Award points for AI questions
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await _addPoints(user.id, 'aiQuestion');
+        await addPoints(user.id, 5, 'ai_question');
         await logActivity({ 
           activity_type: 'study', 
           count: 1, 
@@ -294,7 +294,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
         
         // Unlock "Curieux" badge after 10 AI questions
         if (newCount >= 10) {
-          await _unlockBadge(user.id, 'ai_chat');
+          await unlockBadge(user.id, 'ai_chat');
         }
         
         await checkAndUnlockBadges(user.id);

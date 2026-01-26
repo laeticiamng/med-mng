@@ -558,7 +558,7 @@ export const useActivityTracking = () => {
 
   return {
     logActivity,
-    _getHeatmapData,
+    getHeatmapData,
     getStreak,
     getTodayStats,
     getWeeklySummary,

@@ -592,11 +592,11 @@ export function useGamification() {
   }, [loadStats]);
 
   return {
-    stats: _stats,
+    stats,
     loading,
     loadStats,
-    addPoints: _addPoints,
-    unlockBadge: _unlockBadge,
+    addPoints,
+    unlockBadge,
     checkAndUnlockBadges,
     getProgressToNextBadge,
     getMultiplier,

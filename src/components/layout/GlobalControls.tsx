@@ -22,7 +22,7 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
 }) => {
   const { user } = useAuth();
   const { logActivity } = useActivityTracking();
-  const { _stats } = useGamification();
+  const { stats } = useGamification();
 
   const handleNotifications = () => {
     logActivity({ activity_type: 'study', count: 1, metadata: { type: 'open_notifications' } });
