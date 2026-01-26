@@ -44,7 +44,7 @@ const navItems: BottomNavItem[] = [
 export const MobileBottomNav = () => {
   const location = useLocation();
   const [user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const init = async () => {

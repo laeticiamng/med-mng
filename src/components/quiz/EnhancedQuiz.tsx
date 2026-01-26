@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import {
@@ -80,7 +80,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [user, setUser] = useState<any>(null);
 
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, _addPoints, _unlockBadge, loadStats } = useGamification();
+  const { stats: gamificationStats, addPoints, unlockBadge, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -169,11 +169,11 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       
       // Award points based on score
       if (totalScore === 100) {
-        await _addPoints(user.id, 'perfectExam');
-        await _unlockBadge(user.id, 'perfect_exam');
+        await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
         toast.success('🏆 Badge "Sans Faute" débloqué !');
       } else {
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
       }
       
       loadStats(user.id);

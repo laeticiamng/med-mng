@@ -6,7 +6,7 @@ import { Loader2, Wand2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 
 interface InteractiveComicPanelProps {
   panel: {
@@ -24,14 +24,14 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _addPoints } = useGamification();
+  const { addPoints } = useGamification();
 
   const isPlaceholder = imageUrl.startsWith('placeholder-') || imageUrl.startsWith('data:image/svg+xml') || !imageUrl;
   
   const generateImage = async () => {
     setIsGenerating(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('generate-comic-images', {
+      const { data, error } = await supabase.functions.invoke('generate-comic-images', {
         body: {
           scene_description: `Medical scenario: ${panel.text}. Show healthcare professionals in a clinical setting`,
           style: 'medical comic book illustration, professional healthcare art style',
@@ -40,8 +40,8 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
       });
 
       if (error) throw error;
-      
-      setImageUrl(_data.imageUrl);
+
+      setImageUrl(data.imageUrl);
       
       // Track image generation
       await logActivity({
@@ -53,7 +53,7 @@ export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => 
       // Award points for generating image
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       }
       
       toast({

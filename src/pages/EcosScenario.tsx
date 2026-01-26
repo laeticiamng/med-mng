@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { quizQuestions as fallbackQuestions, scenarioData as fallbackScenario } from '@/data/ecosData';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useEcosTimer } from '@/hooks/useEcosTimer';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { FileText, Flame, HandIcon, Loader2, MessageCircle, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -117,7 +117,7 @@ const EcosScenario = () => {
   
   const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
 
   // Fetch scenario from database
   useEffect(() => {
@@ -231,7 +231,7 @@ const EcosScenario = () => {
       setShowQuiz(true);
       
       if (user) {
-        await _addPoints(user.id, 'clinicalCase');
+        await addPoints(user.id, POINTS_CONFIG.clinicalCase, 'clinicalCase');
         await _unlockBadge(user.id, 'clinical_master');
         loadStats(user.id);
       }

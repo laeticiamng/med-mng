@@ -32,7 +32,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
   
   const { markItemAsReviewed } = usePersonalizedRevision();
   const { toast } = useToast();
-  const { _addPoints, _unlockBadge, _stats: _gamificationStats } = useGamification();
+  const { addPoints, unlockBadge, stats: gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // Get user on mount
@@ -58,7 +58,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
 
     // Award points for review
     if (userId) {
-      await _addPoints(userId, 'itemReviewed');
+      await addPoints(userId, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       await logActivity({ 
         activity_type: 'srs_review', 
         score: success ? 100 : 50,
@@ -80,7 +80,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
       
       // Award bonus points for completion
       if (userId) {
-        await _addPoints(userId, 'dailyStreak');
+        await addPoints(userId, POINTS_CONFIG.dailyStreak, 'dailyStreak');
         await logActivity({
           activity_type: 'srs_review',
           count: items.length,
@@ -91,7 +91,7 @@ export const TodayRevisionSession: React.FC<TodayRevisionSessionProps> = ({ item
         
         // Check for perfect session badge
         if (successRate === 100 && items.length >= 5) {
-          await _unlockBadge(userId, 'perfect_exam');
+          await unlockBadge(userId, 'perfect_exam');
         }
       }
       

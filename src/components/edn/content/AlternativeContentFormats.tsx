@@ -30,7 +30,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
     try {
       const prompt = createPromptForFormat(format, itemData);
       
-      const { _data, error } = await supabase.functions.invoke('generate-content', {
+      const { data, error } = await supabase.functions.invoke('generate-content', {
         body: {
           prompt,
           format,
@@ -43,7 +43,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
 
       setGeneratedContent(prev => ({
         ...prev,
-        [format]: _data.content
+        [format]: data.content
       }));
 
       toast({

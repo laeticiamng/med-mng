@@ -142,7 +142,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
 
   const { competences: competencesA, loading: loadingA } = useOicCompetences(itemCode, 'A');
   const { competences: competencesB, loading: loadingB } = useOicCompetences(itemCode, 'B');
-  const { _addPoints, _unlockBadge } = useGamification();
+  const { addPoints, unlockBadge } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const questions = useMemo(() => {
@@ -187,7 +187,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
         // Erreur silencieuse
       }
 
-      await _addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
+      await addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
       await logActivity({
         activity_type: 'exam',
         count: 1,
@@ -196,7 +196,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
       });
 
       if (percentage === 100) {
-        await _unlockBadge(user.id, 'perfect_exam');
+        await unlockBadge(user.id, 'perfect_exam');
         toast.success('🏆 Score parfait ! Badge débloqué !');
       } else {
         toast.success(`Quiz terminé ! Score: ${score}/${questions.length}`);

@@ -27,9 +27,9 @@ interface Playlist {
 }
 
 interface PlaylistQuickAddProps {
-  _trackId?: string;
+  trackId?: string;
   trackTitle: string;
-  _audioUrl?: string;
+  audioUrl?: string;
   onAdded?: (playlistName: string) => void;
   variant?: 'icon' | 'button';
   size?: 'sm' | 'default';

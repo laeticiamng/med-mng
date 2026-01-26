@@ -47,7 +47,7 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
   onStyleChange,
   onGenerate
 }) => {
-  const { _stats } = useGamification();
+  const { stats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = React.useState<any>(null);
 
@@ -99,15 +99,15 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
               {completedCount}/{completionSteps.length} étapes complétées
             </p>
           </div>
-          {user && _stats && (
+          {user && stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1">
                 <Flame className="h-3 w-3 text-warning" />
-                {_stats.currentStreak}
+                {stats.currentStreak}
               </Badge>
               <Badge variant="outline" className="gap-1">
                 <Star className="h-3 w-3 text-primary" />
-                Nv.{_stats.level}
+                Nv.{stats.level}
               </Badge>
             </div>
           )}

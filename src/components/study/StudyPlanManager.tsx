@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { Book, Calendar, CheckCircle, Clock, Edit, Loader2, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -63,7 +63,7 @@ export const StudyPlanManager = () => {
   });
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user
   useEffect(() => {
@@ -168,7 +168,7 @@ export const StudyPlanManager = () => {
       });
       
       if (user?.id) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       }
 
       setNewPlan({

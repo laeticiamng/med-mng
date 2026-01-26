@@ -129,7 +129,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   const [onlineUsers, setOnlineUsers] = useState(127);
   const [user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const init = async () => {

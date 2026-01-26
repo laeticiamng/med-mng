@@ -259,7 +259,6 @@ const SharedMusic = () => {
                 <ShareMusicDialog
                   trackTitle={track.title || 'Musique générée'}
                   trackId={trackId || track.id}
-                  _audioUrl={track.audio_url}
                   trigger={
                     <Button variant="outline">
                       <Share2 className="h-4 w-4 mr-2" />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { exportToPDF, shareContent } from '@/utils/exportUtils';
@@ -76,7 +76,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_bd_gallery', itemCode } });
-        addPoints(user.id, 'itemReviewed');
+        addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       }
     };
     load();

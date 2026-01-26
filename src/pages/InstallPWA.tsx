@@ -21,7 +21,7 @@ const InstallPWA: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [_user, setUser] = useState<any>(null);
   
-  const { _stats: _gamificationStats, loadStats } = useGamification();
+  const { stats: _gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // Load user and gamification stats

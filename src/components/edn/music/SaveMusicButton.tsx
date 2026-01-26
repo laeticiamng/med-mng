@@ -48,7 +48,7 @@ export const SaveMusicButton = ({
       const musicId = `${itemCode}-${rang}-${Date.now()}`;
       
       // Sauvegarder dans la table de musiques personnelles
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .insert({
           user_id: user.id,
@@ -60,7 +60,7 @@ export const SaveMusicButton = ({
           music_id: musicId
         });
 
-      if (_error) {
+      if (error) {
         toast({
           title: "Erreur de sauvegarde",
           description: "Impossible de sauvegarder la musique. Réessayez plus tard.",

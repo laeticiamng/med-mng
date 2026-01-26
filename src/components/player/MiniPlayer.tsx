@@ -30,7 +30,7 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
   } = usePlayer();
 
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const [_isDragging, setIsDragging] = useState(false);
   const hasTrackedRef = useRef(false);
 
@@ -172,16 +172,16 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
         </div>
 
         {/* Gamification Stats */}
-        {_stats && (
+        {stats && (
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
             <div className="flex items-center gap-1 text-warning">
               <Flame className="h-3 w-3" />
-              <span className="text-xs font-bold">{_stats.currentStreak}</span>
+              <span className="text-xs font-bold">{stats.currentStreak}</span>
             </div>
             <div className="w-px h-3 bg-border" />
             <div className="flex items-center gap-1 text-primary">
               <Star className="h-3 w-3" />
-              <span className="text-xs font-bold">Nv.{_stats.level}</span>
+              <span className="text-xs font-bold">Nv.{stats.level}</span>
             </div>
           </div>
         )}

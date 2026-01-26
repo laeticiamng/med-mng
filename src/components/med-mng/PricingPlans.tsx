@@ -78,7 +78,7 @@ interface PricingPlansProps {
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const { logActivity } = useActivityTracking();
-  const { _stats } = useGamification();
+  const { stats } = useGamification();
 
   // Track page view
   useEffect(() => {
@@ -136,15 +136,15 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
   return (
     <div className="space-y-6">
       {/* Stats gamification */}
-      {_stats && (
+      {stats && (
         <div className="flex items-center justify-center gap-4 mb-6">
           <Badge variant="outline" className="gap-1">
             <Flame className="h-3 w-3 text-warning" />
-            Série: {_stats.currentStreak} jours
+            Série: {stats.currentStreak} jours
           </Badge>
           <Badge variant="outline" className="gap-1">
             <Trophy className="h-3 w-3 text-primary" />
-            Niveau {_stats.level}
+            Niveau {stats.level}
           </Badge>
         </div>
       )}

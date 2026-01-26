@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
     ArrowRight,
@@ -32,7 +32,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { _addPoints, loadStats } = useGamification();
+  const { addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -101,7 +101,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
           count: 1,
           metadata: { action: 'welcome_complete' }
         });
-        await _addPoints(user.id, 'dailyStreak');
+        await addPoints(user.id, POINTS_CONFIG.dailyStreak, 'dailyStreak');
         loadStats(user.id);
       }
       onComplete?.();

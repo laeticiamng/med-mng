@@ -49,7 +49,7 @@ const MedMngProfileComponent = () => {
     email: '',
   });
 
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and log activity
   useEffect(() => {

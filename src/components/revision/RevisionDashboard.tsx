@@ -40,7 +40,7 @@ export const RevisionDashboard: React.FC = () => {
     analyzeUserWeaknesses
   } = usePersonalizedRevision();
   
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and revision history from DB
   useEffect(() => {

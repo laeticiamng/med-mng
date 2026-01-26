@@ -9,7 +9,7 @@ import React from 'react';
 
 interface GenerationSuccessToastProps {
   title: string;
-  _audioUrl?: string;
+  audioUrl?: string;
   rang?: string;
   onPlay: () => void;
   onDownload: () => void;

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { usePersonalizedRevision } from '@/hooks/usePersonalizedRevision';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -31,7 +31,7 @@ export const RevisionPlanCreator: React.FC = () => {
   const { revisionItems, createRevisionPlan } = usePersonalizedRevision();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, _addPoints, loadStats } = useGamification();
+  const { stats: gamificationStats, addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -105,7 +105,7 @@ export const RevisionPlanCreator: React.FC = () => {
             dailyTarget: dailyTarget[0]
           }
         });
-        await _addPoints(user.id, 'dailyStreak');
+        await addPoints(user.id, POINTS_CONFIG.dailyStreak, 'dailyStreak');
         loadStats(user.id);
       }
       

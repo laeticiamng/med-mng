@@ -30,7 +30,7 @@ const Favorites: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { 
     loading, 
@@ -167,21 +167,21 @@ const Favorites: React.FC = () => {
           <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30">
             <CardContent className="p-4 text-center">
               <Flame className="h-5 w-5 text-orange-500 mx-auto mb-1" />
-              <div className="text-2xl font-bold text-foreground">{_stats?.currentStreak || 0}</div>
+              <div className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</div>
               <div className="text-sm text-muted-foreground">Jours Streak</div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
             <CardContent className="p-4 text-center">
               <Star className="h-5 w-5 text-warning mx-auto mb-1" />
-              <div className="text-2xl font-bold text-foreground">Niv. {_stats?.level || 1}</div>
+              <div className="text-2xl font-bold text-foreground">Niv. {stats?.level || 1}</div>
               <div className="text-sm text-muted-foreground">Niveau</div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30">
             <CardContent className="p-4 text-center">
               <Trophy className="h-5 w-5 text-primary mx-auto mb-1" />
-              <div className="text-2xl font-bold text-foreground">{_stats?.badges?.length || 0}</div>
+              <div className="text-2xl font-bold text-foreground">{stats?.badges?.length || 0}</div>
               <div className="text-sm text-muted-foreground">Badges</div>
             </CardContent>
           </Card>

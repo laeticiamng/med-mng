@@ -86,7 +86,7 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
   
   // Hooks qui font des appels Supabase
-  const { _stats: gamificationStats } = useGamification();
+  const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
   const { _subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();

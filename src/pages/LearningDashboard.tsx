@@ -37,7 +37,7 @@ interface LearningGoal {
 export default function LearningDashboard() {
   const [activeTab, setActiveTab] = useState('analytics');
   const [userId, setUserId] = useState<string | null>(null);
-  const { _stats, loading: _gamificationLoading, loadStats } = useGamification();
+  const { stats, loading: gamificationLoading, loadStats } = useGamification();
   const { getStreak, getTodayStats } = useActivityTracking();
   const [streak, setStreak] = useState<{ current: number; longest: number }>({ current: 0, longest: 0 });
   const [todayStats, setTodayStats] = useState<any>(null);
@@ -144,9 +144,9 @@ export default function LearningDashboard() {
           </div>
           
           {/* Quick stats */}
-          {_stats && (
+          {stats && (
             <div className="hidden md:block">
-              <StreakDisplay stats={_stats} compact />
+              <StreakDisplay stats={stats} compact />
             </div>
           )}
         </div>
@@ -183,7 +183,7 @@ export default function LearningDashboard() {
                 <Trophy className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{_stats?.badges.length || 0}</p>
+                <p className="text-2xl font-bold">{stats?.badges.length || 0}</p>
                 <p className="text-xs text-muted-foreground">Badges obtenus</p>
               </div>
             </CardContent>
@@ -195,8 +195,8 @@ export default function LearningDashboard() {
                 <BookOpen className="h-5 w-5 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold">Niv. {_stats?.level || 1}</p>
-                <p className="text-xs text-muted-foreground">{_stats?.totalPoints || 0} XP</p>
+                <p className="text-2xl font-bold">Niv. {stats?.level || 1}</p>
+                <p className="text-xs text-muted-foreground">{stats?.totalPoints || 0} XP</p>
               </div>
             </CardContent>
           </Card>

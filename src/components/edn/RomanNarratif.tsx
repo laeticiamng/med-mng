@@ -43,8 +43,8 @@ interface RomanChapter {
 interface RomanNarratifProps {
   itemCode: string;
   title: string;
-  _tableauRangA?: TableauRangData;
-  _tableauRangB?: TableauRangData;
+  tableauRangA?: TableauRangData;
+  tableauRangB?: TableauRangData;
   romanStory?: RomanChapter[];
 }
 

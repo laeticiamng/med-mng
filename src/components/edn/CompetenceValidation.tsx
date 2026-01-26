@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, Check, CheckCircle, Flame, Info, Loader2, RotateCcw, Star } from "lucide-react";
@@ -136,7 +136,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     
     // Ajouter des points si maîtrisé
     if (newMastered) {
-      await addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
     }
     
     // Mettre à jour le state local
@@ -217,7 +217,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     });
     
     if (setAsMastered) {
-      await addPoints(user.id, 'perfectExam');
+      await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
     }
     
     setSavingId(null);

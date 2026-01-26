@@ -37,7 +37,7 @@ const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   // État des paramètres du profil (chargé depuis la DB)

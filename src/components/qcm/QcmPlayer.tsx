@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { POINTS_CONFIG, useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { QcmQuestion, qcmService, QcmSession } from '@/services/qcmService';
 import {
@@ -41,7 +41,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
   className
 }) => {
   const { logActivity } = useActivityTracking();
-  const { _addPoints, _unlockBadge } = useGamification();
+  const { addPoints, unlockBadge } = useGamification();
   const [phase, setPhase] = useState<'setup' | 'loading' | 'playing' | 'results'>('setup');
   const [questions, setQuestions] = useState<QcmQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -125,7 +125,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       if (response.is_correct) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
         }
         toast.success('Bonne réponse ! 🎉');
       } else {
@@ -170,7 +170,7 @@ export const QcmPlayer: React.FC<QcmPlayerProps> = ({
       if (results.score >= 100) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _unlockBadge(user.id, 'perfect_exam');
+          await unlockBadge(user.id, 'perfect_exam');
         }
       }
       

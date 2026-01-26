@@ -22,7 +22,7 @@ interface ItemMastery {
 export const ItemMasteryGrid: React.FC = () => {
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [items, setItems] = useState<ItemMastery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { supabase } from '@/integrations/supabase/client';
 import { BookOpen, Music, RotateCcw, Settings, Trophy } from 'lucide-react';
@@ -105,11 +105,11 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     
     // Gamification rewards
     if (user) {
-      await addPoints(user.id, 'examCompleted');
+      await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
       await logActivity({ activity_type: 'exam', count: 1, score: finalScore, metadata: { itemCode, action: 'complete' } });
-      
+
       if (finalScore === 100) {
-        await addPoints(user.id, 'perfectExam');
+        await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
         await unlockBadge(user.id, 'perfect_exam');
       }
       

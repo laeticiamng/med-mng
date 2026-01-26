@@ -21,7 +21,7 @@ export const WelcomeDashboard: React.FC = () => {
     securityScore: '98.3%',
     uptime: '99.9%'
   });
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {

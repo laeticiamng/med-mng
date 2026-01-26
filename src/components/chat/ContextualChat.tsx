@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import {
@@ -173,7 +173,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
           count: 1,
           metadata: { currentItem, source: data.source }
         });
-        await addPoints(user.id, 'aiQuestion');
+        await addPoints(user.id, POINTS_CONFIG.aiQuestion, 'aiQuestion');
         loadStats(user.id);
       }
 
