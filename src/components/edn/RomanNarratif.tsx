@@ -54,7 +54,7 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   romanStory: storedRomanStory
 }) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   
@@ -334,7 +334,7 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
       if (currentChapter + 1 === chapters.length - 1) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemMastered');
+          await addPoints(user.id, 50, 'item_mastered');
         }
       }
     }
@@ -431,12 +431,12 @@ ${title} n'a plus de secrets pour elle. Elle est prête à affronter les défis 
               Roman Narratif - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {_stats && (
+              {stats && (
                 <div className="flex items-center gap-1 px-2 py-0.5 bg-background/20 rounded-full text-xs text-background">
                   <Flame className="h-3 w-3" />
-                  <span className="font-bold">{_stats.currentStreak ?? 0}j</span>
+                  <span className="font-bold">{stats.currentStreak ?? 0}j</span>
                   <Star className="h-3 w-3 ml-1" />
-                  <span className="font-bold">Nv.{_stats.level ?? 1}</span>
+                  <span className="font-bold">Nv.{stats.level ?? 1}</span>
                 </div>
               )}
               <Badge className="bg-background/20 text-background">

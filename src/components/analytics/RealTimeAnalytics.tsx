@@ -41,7 +41,7 @@ interface PerformanceMetric {
 
 export const RealTimeAnalytics = () => {
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const hasTrackedRef = useRef(false);
 

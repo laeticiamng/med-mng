@@ -12,7 +12,7 @@ interface StepProgressProps {
 
 export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasCompletedRef = useRef(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => 
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemMastered');
+          await addPoints(user.id, 50, 'item_mastered');
         }
       }
     };
@@ -48,12 +48,12 @@ export const StepProgress = ({ currentStep, totalSteps }: StepProgressProps) => 
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <span className="text-foreground font-medium">Progression</span>
-          {_stats && (
+          {stats && (
             <div className="flex items-center gap-2 px-2 py-0.5 bg-muted/30 rounded-full text-xs">
               <Flame className="h-3 w-3 text-warning" />
-              <span className="font-bold text-warning">{_stats.currentStreak}</span>
+              <span className="font-bold text-warning">{stats.currentStreak}</span>
               <Star className="h-3 w-3 text-primary ml-1" />
-              <span className="font-bold text-primary">Nv.{_stats.level}</span>
+              <span className="font-bold text-primary">Nv.{stats.level}</span>
             </div>
           )}
         </div>

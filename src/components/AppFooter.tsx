@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const AppFooter = () => {
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -25,19 +25,19 @@ export const AppFooter = () => {
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-8">
         {/* Quick Stats for logged-in users */}
-        {isLoggedIn && _stats && (
+        {isLoggedIn && stats && (
           <div className="flex justify-center gap-4 mb-6 pb-6 border-b border-border">
             <Badge variant="outline" className="gap-1 px-3 py-1">
-              <Flame className="h-3 w-3 text-orange-500" />
-              {_stats.currentStreak} jours
+              <Flame className="h-3 w-3 text-warning" />
+              {stats.currentStreak} jours
             </Badge>
             <Badge variant="outline" className="gap-1 px-3 py-1">
-              <Star className="h-3 w-3 text-yellow-500" />
-              Niveau {_stats.level}
+              <Star className="h-3 w-3 text-primary" />
+              Niveau {stats.level}
             </Badge>
             <Badge variant="outline" className="gap-1 px-3 py-1">
-              <Trophy className="h-3 w-3 text-amber-500" />
-              {_stats.badges?.length || 0} badges
+              <Trophy className="h-3 w-3 text-warning" />
+              {stats.badges?.length || 0} badges
             </Badge>
           </div>
         )}

@@ -45,7 +45,7 @@ interface ChatSession {
 
 export const AIChat = () => {
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -142,13 +142,13 @@ export const AIChat = () => {
           metadata: { question: currentInput.slice(0, 100), type: aiResponse.type }
         });
         
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 5, 'ai_question');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         
         // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
-          await _unlockBadge(user.id, 'ai_chat');
+          await unlockBadge(user.id, 'ai_chat');
         }
         
         loadStats(user.id);

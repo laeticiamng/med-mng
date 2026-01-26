@@ -73,7 +73,7 @@ const DAILY_CHALLENGES: Omit<Challenge, 'id' | 'current' | 'completed'>[] = [
 
 export const DailyChallengeCard: React.FC<DailyChallengeCardProps> = ({ className = '' }) => {
   useAuth();
-  const { _stats, _addPoints } = useGamification();
+  const { stats, addPoints } = useGamification();
   const { toast } = useToast();
   const navigate = useNavigate();
   

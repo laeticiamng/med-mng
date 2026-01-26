@@ -10,7 +10,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
 
 const MngMethod = () => {
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
 

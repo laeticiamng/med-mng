@@ -80,7 +80,7 @@ const getLevelTitle = (level: number): string => {
 };
 
 export const GamificationPanel: React.FC = () => {
-  const { _stats, loading, loadStats, BADGE_DEFINITIONS: _badges } = useGamification();
+  const { stats, loading, loadStats, BADGE_DEFINITIONS: badges } = useGamification();
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [_userId, setUserId] = useState<string | null>(null);
 

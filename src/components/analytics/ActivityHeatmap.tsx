@@ -37,7 +37,7 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({
   days = 90,
   className = '' 
 }) => {
-  const { _getHeatmapData, getStreak } = useActivityTracking();
+  const { getHeatmapData, getStreak } = useActivityTracking();
   const [heatmapData, setHeatmapData] = useState<HeatmapData[]>([]);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({
       setLoading(true);
       try {
         const [data, streakData] = await Promise.all([
-          _getHeatmapData(days),
+          getHeatmapData(days),
           getStreak()
         ]);
         setHeatmapData(data);
@@ -59,7 +59,7 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({
       }
     };
     loadData();
-  }, [days, _getHeatmapData, getStreak]);
+  }, [days, getHeatmapData, getStreak]);
 
   if (loading) {
     return (

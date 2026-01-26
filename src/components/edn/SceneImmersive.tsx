@@ -14,7 +14,7 @@ import { SceneCharacter, SceneImmersiveProps } from './scene/sceneTypes';
 
 export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersiveProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
