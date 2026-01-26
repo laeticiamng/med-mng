@@ -65,7 +65,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   
-  const { checkAndUnlockBadges } = useGamification();
+  const { checkAndUnlockBadges, addPoints, unlockBadge } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const {
@@ -105,13 +105,12 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     
     // Gamification rewards
     if (user) {
-      await _addPoints(user.id, 'examCompleted');
+      await addPoints(user.id, 'examCompleted');
       await logActivity({ activity_type: 'exam', count: 1, score: finalScore, metadata: { itemCode, action: 'complete' } });
       
-      // Perfect score bonus
       if (finalScore === 100) {
-        await _addPoints(user.id, 'perfectExam');
-        await _unlockBadge(user.id, 'perfect_exam');
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
       }
       
       await checkAndUnlockBadges(user.id);
@@ -224,7 +223,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
               </div>
             </div>
             
-            {_hasCurrentSession && (
+            {currentSession && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-card rounded-lg border border-warning/30">
                   <div className="text-lg font-bold text-warning">

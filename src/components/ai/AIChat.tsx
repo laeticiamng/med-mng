@@ -67,19 +67,19 @@ export const AIChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('chat_conversations')
         .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (!_error && _data) {
-        setSessions(_data.map(conv => ({
+      if (!error && data) {
+        setSessions(data.map(conv => ({
           id: conv.id,
           title: conv.title || 'Nouvelle conversation',
           created_at: new Date(conv.created_at),
-          message_count: 0, // Sera mis à jour si nécessaire
+          message_count: 0,
           last_activity: new Date(conv.updated_at)
         })));
       }
@@ -159,21 +159,21 @@ export const AIChat = () => {
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
     // Appeler l'Edge Function pour une vraie réponse IA
     try {
-      const { _data, error } = await supabase.functions.invoke('ai-chat', {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { message: userInput }
       });
 
       if (error) throw error;
 
-      if (_data?.response) {
+      if (data?.response) {
         return {
           id: Date.now().toString(),
-          content: _data.response,
+          content: data.response,
           role: 'assistant',
           timestamp: new Date(),
-          type: _data.type || 'general',
-          confidence: _data.confidence || 85,
-          tools_used: _data.toolsUsed
+          type: data.type || 'general',
+          confidence: data.confidence || 85,
+          tools_used: data.toolsUsed
         };
       }
     } catch (error) {

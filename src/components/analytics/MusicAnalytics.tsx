@@ -68,29 +68,26 @@ export const MusicAnalytics: React.FC = () => {
       setLoading(true);
 
       // Récupérer les données d'écoute utilisateur sans la relation
-      const { _data: analyticsData, _error } = await supabase
+      const { data: analyticsData, error } = await supabase
         .from('med_mng_user_analytics')
         .select('*')
         .eq('user_id', user.id)
         .order('last_played', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      // Récupérer les titres des chansons séparément
       const songIds = analyticsData?.map(item => item.song_id) || [];
-      const { _data: songsData } = await supabase
+      const { data: songsData } = await supabase
         .from('med_mng_songs')
         .select('id, title')
         .in('id', songIds);
 
-      // Combiner les données
       const analyticsWithSongs = analyticsData?.map(item => ({
         ...item,
         song_title: songsData?.find(song => song.id === item.song_id)?.title || 'Titre inconnu'
       })) || [];
 
-      // Récupérer les statistiques de playlists
-      const { _data: playlistsData, _error: playlistsError } = await supabase
+      const { data: playlistsData, error: playlistsError } = await supabase
         .from('med_mng_playlists')
         .select('id, created_at')
         .eq('user_id', user.id);

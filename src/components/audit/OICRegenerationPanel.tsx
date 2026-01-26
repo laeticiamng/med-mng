@@ -28,7 +28,7 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
       setProgress(30);
 
       // Appeler la fonction Edge avec authentification
-      const { _data, error } = await supabase.functions.invoke('regenerate-all-oic-content', {
+      const { data, error } = await supabase.functions.invoke('regenerate-all-oic-content', {
         body: {}
       });
 
@@ -38,10 +38,9 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setProgress(70);
 
-      console.log('✅ Régénération OIC terminée:', _data);
+      console.log('✅ Régénération OIC terminée:', data);
 
-      // Transformer en sections
-      const { _data: _transformData, error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
+      const { error: transformError } = await supabase.functions.invoke('transform-edn-sections', {
         body: {}
       });
 
@@ -53,14 +52,14 @@ export const OICRegenerationPanel = ({ onComplete }: { onComplete?: () => void }
 
       setResult({
         success: true,
-        itemsUpdated: _data?.updated || 0,
-        itemsProcessed: _data?.total_processed || 0,
-        errors: _data?.errors || []
+        itemsUpdated: data?.updated || 0,
+        itemsProcessed: data?.total_processed || 0,
+        errors: data?.errors || []
       });
 
       toast({
         title: "✅ Régénération terminée !",
-        description: `${_data?.updated || 0} items mis à jour avec compétences OIC réelles`,
+        description: `${data?.updated || 0} items mis à jour avec compétences OIC réelles`,
       });
 
       if (onComplete) {

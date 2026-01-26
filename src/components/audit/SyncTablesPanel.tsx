@@ -29,7 +29,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setProgress(30);
 
-      const { _data, error } = await supabase.functions.invoke('sync-edn-tables', {
+      const { data, error } = await supabase.functions.invoke('sync-edn-tables', {
         body: {}
       });
 
@@ -41,14 +41,14 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setResult({
         success: true,
-        itemsSynced: _data?.synced || 0,
-        itemsProcessed: _data?.total_processed || 0,
-        errors: _data?.errors || []
+        itemsSynced: data?.synced || 0,
+        itemsProcessed: data?.total_processed || 0,
+        errors: data?.errors || []
       });
 
       toast({
         title: "✅ Synchronisation terminée !",
-        description: `${_data?.synced || 0} items synchronisés avec succès`,
+        description: `${data?.synced || 0} items synchronisés avec succès`,
       });
 
       if (onComplete) {
@@ -83,7 +83,7 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
         description: "Création des paroles Rang A, B et A+B depuis les compétences OIC...",
       });
 
-      const { _data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+      const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
         body: {}
       });
 
@@ -93,14 +93,14 @@ export const SyncTablesPanel = ({ onComplete }: { onComplete?: () => void }) => 
 
       setLyricsResult({
         success: true,
-        updated: _data?.successCount || _data?.updated || 0,
-        processed: _data?.processedCount || _data?.total_processed || 0,
-        errors: _data?.errors || []
+        updated: data?.successCount || data?.updated || 0,
+        processed: data?.processedCount || data?.total_processed || 0,
+        errors: data?.errors || []
       });
 
       toast({
         title: "✅ Paroles générées !",
-        description: `${_data?.successCount || _data?.updated || 0} items mis à jour avec paroles`,
+        description: `${data?.successCount || data?.updated || 0} items mis à jour avec paroles`,
       });
 
       if (onComplete) {

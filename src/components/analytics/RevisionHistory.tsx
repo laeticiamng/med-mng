@@ -67,7 +67,7 @@ export const RevisionHistory: React.FC = () => {
       }
 
       // Charger les vraies données de révision depuis Supabase
-      const { _data: progressData } = await supabase
+      const { data: progressData } = await supabase
         .from('user_item_progress')
         .select('id, item_code, last_review_date, next_review_date, total_reviews, ease_factor, interval_days')
         .eq('user_id', user.id)
@@ -75,9 +75,8 @@ export const RevisionHistory: React.FC = () => {
         .order('last_review_date', { ascending: false })
         .limit(50);
 
-      // Récupérer les titres des items
       const itemCodes = progressData?.map(p => p.item_code) || [];
-      const { _data: itemsData } = await supabase
+      const { data: itemsData } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .in('item_code', itemCodes.length > 0 ? itemCodes : ['none']);
@@ -116,7 +115,7 @@ export const RevisionHistory: React.FC = () => {
       const weekEnd = endOfWeek(now, { locale: fr });
       const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-      const { _data: activityData } = await supabase
+      const { data: activityData } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, created_at')
         .eq('user_id', user.id)

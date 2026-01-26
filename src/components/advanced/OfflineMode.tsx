@@ -232,7 +232,7 @@ export const OfflineMode: React.FC = () => {
 
     try {
       // Charger les items EDN disponibles
-      const { _data: ednItems } = await supabase
+      const { data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .limit(20);
@@ -329,13 +329,13 @@ export const OfflineMode: React.FC = () => {
         setDownloadProgress(prev => ({ ...prev, [contentId]: 20 }));
 
         // Récupérer l'item EDN complet
-        const { _data: ednData, _error } = await supabase
+        const { data: ednData, error: ednError } = await supabase
           .from('edn_items_immersive')
           .select('*')
           .eq('item_code', itemCode)
           .maybeSingle();
 
-        if (_error) throw _error;
+        if (ednError) throw ednError;
 
         setDownloadProgress(prev => ({ ...prev, [contentId]: 60 }));
 

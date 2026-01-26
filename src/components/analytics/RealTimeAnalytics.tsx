@@ -140,23 +140,22 @@ export const RealTimeAnalytics = () => {
         .gte('created_at', today);
 
       // Progrès du jour (basé sur activités complétées)
-      const { _data: todayActivities } = await supabase
+      const { data: todayActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', today);
 
       const todayPoints = todayActivities?.reduce((sum, a) => sum + (a.points_earned || 0), 0) || 0;
-      const dailyGoal = 100; // Points cible par jour
+      const dailyGoal = 100;
       const todayProgress = Math.min(100, (todayPoints / dailyGoal) * 100);
 
-      // Objectif hebdomadaire
-      const { _data: weekActivities } = await supabase
+      const { data: weekActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', weekStart);
 
       const weekPoints = weekActivities?.reduce((sum, a) => sum + (a.points_earned || 0), 0) || 0;
-      const weeklyGoal = 500; // Points cible par semaine
+      const weeklyGoal = 500;
       const weeklyProgress = Math.min(100, (weekPoints / weeklyGoal) * 100);
 
       setLiveData({
@@ -212,14 +211,14 @@ export const RealTimeAnalytics = () => {
       }
 
       // Charger les activités récentes depuis Supabase
-      const { _data: activitiesData, _error } = await supabase
+      const { data: activitiesData, error } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const mappedActivities: UserActivity[] = (activitiesData || []).map(a => ({
         id: a.id,

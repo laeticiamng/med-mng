@@ -61,7 +61,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user and stats
   useEffect(() => {
@@ -138,13 +138,13 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
     setMessages(prev => [...prev, typingMessage]);
 
     try {
-      const { _data, error } = await supabase.functions.invoke('contextual-medical-chat', {
+      const { data, error } = await supabase.functions.invoke('contextual-medical-chat', {
         body: {
           message: content,
           currentItem,
           conversationId,
           context: {
-            previousMessages: messages.slice(-5), // Derniers 5 messages pour le contexte
+            previousMessages: messages.slice(-5),
             userId: (await supabase.auth.getUser()).data.user?.id
           }
         }
@@ -152,30 +152,28 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
 
       if (error) throw error;
 
-      // Retirer le message "typing"
       setMessages(prev => prev.filter(m => m.id !== 'typing'));
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        content: _data.response,
+        content: data.response,
         isUser: false,
         timestamp: new Date(),
-        source: _data.source || 'mixed',
-        relatedItems: _data.relatedItems || [],
-        suggestions: _data.suggestions || []
+        source: data.source || 'mixed',
+        relatedItems: data.relatedItems || [],
+        suggestions: data.suggestions || []
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      setConversationId(_data.conversationId);
+      setConversationId(data.conversationId);
 
-      // Track AI question and award points
       if (user) {
         await logActivity({
           activity_type: 'ai_question',
           count: 1,
-          metadata: { currentItem, source: _data.source }
+          metadata: { currentItem, source: data.source }
         });
-        await _addPoints(user.id, 'aiQuestion');
+        await addPoints(user.id, 'aiQuestion');
         loadStats(user.id);
       }
 
@@ -207,7 +205,7 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
     try {
       if (!conversationId) {
         // Créer une nouvelle conversation
-        const { _data: convData } = await supabase
+        const { data: convData } = await supabase
           .from('chat_conversations')
           .insert({
             user_id: (await supabase.auth.getUser()).data.user?.id,
