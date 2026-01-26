@@ -36,29 +36,26 @@ export const LearningAnalytics: React.FC = () => {
 
   const loadLearningStats = async () => {
     try {
-      const { _data: analyticsData, _error } = await supabase
+      const { data: analyticsData, error } = await supabase
         .from('edn_analytics_advanced')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       if (analyticsData && analyticsData.length > 0) {
-        // Calculer les statistiques
         const totalSessions = analyticsData.length;
         const avgProgress = analyticsData.reduce((sum, item) => sum + (item.completion_rate || 0), 0) / totalSessions;
         const avgEngagement = analyticsData.reduce((sum, item) => sum + (item.engagement_score || 0), 0) / totalSessions;
         const totalTime = analyticsData.reduce((sum, item) => sum + (item.time_spent_minutes || 0), 0);
         
-        // Identifier les domaines forts (>80% completion)
         const strongItems = analyticsData
           .filter(item => (item.completion_rate || 0) > 0.8)
-          .map(item => item.item_code);
+          .map(item => item.item_code) as string[];
         
-        // Identifier les domaines à améliorer (<50% completion)
         const improvementItems = analyticsData
           .filter(item => (item.completion_rate || 0) < 0.5)
-          .map(item => item.item_code);
+          .map(item => item.item_code) as string[];
 
         setStats({
           overall_progress: avgProgress * 100,

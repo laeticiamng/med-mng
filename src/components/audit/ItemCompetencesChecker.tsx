@@ -20,16 +20,16 @@ export const ItemCompetencesChecker = () => {
     setReport(null);
 
     try {
-      const { _data, error } = await supabase.functions.invoke('check-item-competences', {
+      const { data, error } = await supabase.functions.invoke('check-item-competences', {
         body: { item_code: itemCode }
       });
 
       if (error) throw error;
 
-      setReport(_data);
+      setReport(data);
       toast({
         title: '✅ Vérification terminée',
-        description: `Score de complétude: ${_data.analysis.score_completude}%`,
+        description: `Score de complétude: ${data.analysis.score_completude}%`,
       });
     } catch (error: any) {
       console.error('Erreur vérification:', error);
@@ -53,7 +53,7 @@ export const ItemCompetencesChecker = () => {
     });
 
     try {
-      const { _data, error } = await supabase.functions.invoke('regenerate-oic-with-ai-check', {
+      const { data, error } = await supabase.functions.invoke('regenerate-oic-with-ai-check', {
         body: {},
         headers: {
           'Content-Type': 'application/json',
@@ -62,10 +62,10 @@ export const ItemCompetencesChecker = () => {
 
       if (error) throw error;
 
-      setRegenResult(_data);
+      setRegenResult(data);
       toast({
         title: '✅ Régénération terminée',
-        description: `${_data.stats?.updated} items mis à jour avec vérification IA`,
+        description: `${data.stats?.updated} items mis à jour avec vérification IA`,
       });
     } catch (error: any) {
       console.error('Erreur régénération:', error);

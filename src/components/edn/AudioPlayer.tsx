@@ -45,7 +45,7 @@ export const AudioPlayer = ({
   const [previousVolume, setPreviousVolume] = useState(volume);
   const hasTrackedRef = useRef(false);
   const { logActivity } = useActivityTracking();
-  const { loadStats } = useGamification();
+  const { loadStats, stats } = useGamification();
   
   // Hook de buffering pour optimiser l'affichage
   const bufferingState = useAudioBuffering(audioElement || null);
@@ -119,15 +119,15 @@ export const AudioPlayer = ({
           {title}
         </h3>
         <div className="flex items-center gap-2">
-          {_stats && (
+          {stats && (
             <>
               <Badge variant="outline" className="gap-1 text-xs">
-                <Flame className="h-3 w-3 text-orange-500" />
-                {_stats.currentStreak ?? 0}j
+                <Flame className="h-3 w-3 text-warning" />
+                {stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
-                <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {_stats.level ?? 1}
+                <Star className="h-3 w-3 text-warning" />
+                Niv. {stats.level ?? 1}
               </Badge>
             </>
           )}

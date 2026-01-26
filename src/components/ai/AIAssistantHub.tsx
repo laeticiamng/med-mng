@@ -239,7 +239,7 @@ Comment puis-je vous assister aujourd'hui ?`,
 
     try {
       // Call the real AI tutor Edge Function
-      const { _data, error } = await supabase.functions.invoke('ai-tutor', {
+      const { data, error } = await supabase.functions.invoke('ai-tutor', {
         body: {
           message: userQuery,
           context: currentContext,
@@ -255,12 +255,12 @@ Comment puis-je vous assister aujourd'hui ?`,
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: _data?.response || 'Désolé, je n\'ai pas pu générer de réponse.',
+        content: data?.response || 'Désolé, je n\'ai pas pu générer de réponse.',
         timestamp: new Date(),
         metadata: {
-          confidence: _data?.confidence || 0.92,
-          sources: _data?.sources || ['Base de connaissances EDN'],
-          suggestions: _data?.suggestions || [
+          confidence: data?.confidence || 0.92,
+          sources: data?.sources || ['Base de connaissances EDN'],
+          suggestions: data?.suggestions || [
             'Générer un QCM',
             'Créer un plan d\'étude',
             'Expliquer plus en détail'

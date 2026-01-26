@@ -72,7 +72,7 @@ export const ExportDashboard = () => {
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `admin-export-${timestamp}.${format}`;
       
-      const blob = new Blob([_data], { 
+      const blob = new Blob([data], { 
         type: format === 'csv' ? 'text/csv' : 'application/json' 
       });
       

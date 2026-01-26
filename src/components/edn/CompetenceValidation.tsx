@@ -45,7 +45,7 @@ interface CompetenceMastery {
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { loadStats } = useGamification();
+  const { loadStats, addPoints, stats } = useGamification();
   const { toast } = useToast();
 
   const [masteryData, setMasteryData] = useState<Map<string, CompetenceMastery>>(new Map());
@@ -136,7 +136,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     
     // Ajouter des points si maîtrisé
     if (newMastered) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, 'itemReviewed');
     }
     
     // Mettre à jour le state local
@@ -217,7 +217,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
     });
     
     if (setAsMastered) {
-      await _addPoints(user.id, 'perfectExam');
+      await addPoints(user.id, 'perfectExam');
     }
     
     setSavingId(null);
@@ -334,15 +334,15 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             {getStatusIcon()}
             Validation des Compétences - {item.item_code}
           </CardTitle>
-          {_stats && (
+          {stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
-                <Flame className="h-3 w-3 text-orange-500" />
-                {_stats?.currentStreak ?? 0}j
+                <Flame className="h-3 w-3 text-warning" />
+                {stats?.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
-                <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {_stats?.level ?? 1}
+                <Star className="h-3 w-3 text-warning" />
+                Niv. {stats?.level ?? 1}
               </Badge>
             </div>
           )}

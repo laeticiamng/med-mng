@@ -151,13 +151,13 @@ export const AnalyticsTracker: React.FC = () => {
       if (!user) return;
 
       // Real activity data
-      const { _data: activities } = await supabase
+      const { data: activities } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
-      const { _data: sessions } = await supabase
+      const { data: sessions } = await supabase
         .from('activity_sessions')
         .select('*')
         .eq('user_id', user.id)

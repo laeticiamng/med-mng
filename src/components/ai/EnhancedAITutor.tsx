@@ -99,15 +99,15 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('chat_conversations')
         .select('id, title, created_at, updated_at, last_message')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(20);
 
-      if (_data) {
-        const mapped: Conversation[] = _data.map((c: any) => ({
+      if (data) {
+        const mapped: Conversation[] = data.map((c: any) => ({
           id: c.id,
           title: c.title,
           messages: [],
@@ -125,7 +125,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
 
     const title = itemContext ? `Item ${itemContext.itemCode}` : 'Nouvelle conversation';
     
-    const { _data, _error } = await supabase
+    const { data: newConvData, error } = await supabase
       .from('chat_conversations')
       .insert({
         user_id: user.id,
@@ -134,18 +134,18 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
       .select()
       .maybeSingle();
 
-    if (_error) {
-      console.error('Error creating conversation:', _error);
+    if (error || !newConvData) {
+      console.error('Error creating conversation:', error);
       return;
     }
 
     const newConv: Conversation = {
-      id: _data.id,
-      title: _data.title,
+      id: newConvData.id,
+      title: newConvData.title,
       messages: [],
       itemContext,
-      createdAt: _data.created_at,
-      updatedAt: _data.updated_at,
+      createdAt: newConvData.created_at,
+      updatedAt: newConvData.updated_at,
     };
     setCurrentConversationId(newConv.id);
     setMessages([]);
@@ -155,8 +155,7 @@ export function EnhancedAITutor({ itemContext }: EnhancedAITutorProps) {
   const loadConversation = async (conv: Conversation) => {
     setCurrentConversationId(conv.id);
     
-    // Load messages from Supabase
-    const { _data: messagesData } = await supabase
+    const { data: messagesData } = await supabase
       .from('chat_messages')
       .select('*')
       .eq('conversation_id', conv.id)
