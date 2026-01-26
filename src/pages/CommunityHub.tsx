@@ -77,7 +77,7 @@ const CommunityHub = () => {
     const loadUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { _data: profile } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('name, email')
           .eq('id', user.id)
@@ -102,12 +102,12 @@ const CommunityHub = () => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         
-        const { _data: activities, _error } = await supabase
+        const { data: activities, error } = await supabase
           .from('user_activity_log')
           .select('user_id, count')
           .gte('activity_date', weekAgo.toISOString().split('T')[0]);
-        
-        if (_error) throw _error;
+
+        if (error) throw error;
 
         // Aggregate by user
         const userScores: Record<string, number> = {};
@@ -118,7 +118,7 @@ const CommunityHub = () => {
         // Get user profiles for names
         const userIds = Object.keys(userScores);
         if (userIds.length > 0) {
-          const { _data: profiles } = await supabase
+          const { data: profiles } = await supabase
             .from('profiles')
             .select('id, name, email')
             .in('id', userIds);

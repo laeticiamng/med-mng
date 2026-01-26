@@ -59,7 +59,7 @@ export const MentorshipSystem: React.FC = () => {
     setLoading(true);
     try {
       // Charger les mentors depuis Supabase
-      const { _data: mentorsData, _error: mentorsError } = await supabase
+      const { data: mentorsData, error: mentorsError } = await supabase
         .from('mentors')
         .select('*')
         .eq('is_active', true)
@@ -69,7 +69,7 @@ export const MentorshipSystem: React.FC = () => {
 
       // Charger les profils des mentors
       const mentorUserIds = mentorsData?.map(m => m.user_id) || [];
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', mentorUserIds.length > 0 ? mentorUserIds : ['00000000-0000-0000-0000-000000000000']);
@@ -97,7 +97,7 @@ export const MentorshipSystem: React.FC = () => {
       // Charger les sessions de l'utilisateur connecté
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { _data: sessionsData } = await supabase
+        const { data: sessionsData } = await supabase
           .from('mentor_sessions')
           .select('*, mentors(id, specialty)')
           .eq('student_id', user.id)
@@ -123,7 +123,7 @@ export const MentorshipSystem: React.FC = () => {
         }
 
         // Vérifier si l'utilisateur est mentor
-        const { _data: mentorCheck } = await supabase
+        const { data: mentorCheck } = await supabase
           .from('mentors')
           .select('id')
           .eq('user_id', user.id)
@@ -163,7 +163,7 @@ export const MentorshipSystem: React.FC = () => {
         return;
       }
 
-      const { _error } = await supabase.from('mentor_sessions').insert({
+      const { error } = await supabase.from('mentor_sessions').insert({
         mentor_id: mentorId,
         student_id: user.id,
         topic: 'Session de mentorat',
@@ -172,7 +172,7 @@ export const MentorshipSystem: React.FC = () => {
         status: 'pending'
       });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: 'Demande envoyée ✅',
@@ -193,7 +193,7 @@ export const MentorshipSystem: React.FC = () => {
         return;
       }
 
-      const { _error } = await supabase.from('mentors').insert({
+      const { error } = await supabase.from('mentors').insert({
         user_id: user.id,
         specialty: 'Médecine générale',
         expertise: ['Items EDN', 'Méthodologie'],
@@ -201,7 +201,7 @@ export const MentorshipSystem: React.FC = () => {
         bio: 'Nouveau mentor sur la plateforme'
       });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: 'Bienvenue parmi les mentors ! 🎉',

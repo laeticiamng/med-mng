@@ -24,13 +24,13 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
   
   try {
     // 1. Récupérer tous les items EDN
-    const { _data: items, _error } = await supabase
+    const { data: items, error } = await supabase
       .from('edn_items_immersive')
       .select('id, item_code, title')
       .order('item_code');
-      
-    if (_error) {
-      throw new Error(`Erreur récupération items: ${_error.message}`);
+
+    if (error) {
+      throw new Error(`Erreur récupération items: ${error.message}`);
     }
     
     if (!items || items.length === 0) {
@@ -65,7 +65,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
           ]);
           
           // Mettre à jour l'item avec les nouvelles paroles
-          const { _error: updateError } = await supabase
+          const { error: updateError } = await supabase
             .from('edn_items_immersive')
             .update({
               paroles_rang_a: lyricsA,
@@ -75,7 +75,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
               updated_at: new Date().toISOString()
             })
             .eq('id', item.id);
-            
+
           if (updateError) {
             throw new Error(`Erreur mise à jour ${item.item_code}: ${updateError.message}`);
           }
@@ -118,12 +118,12 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
   
   try {
     // Récupérer l'item
-    const { _data: item, _error: fetchError } = await supabase
+    const { data: item, error: fetchError } = await supabase
       .from('edn_items_immersive')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
       .maybeSingle();
-      
+
     if (fetchError || !item) {
       throw new Error(`Item ${itemCode} non trouvé`);
     }
@@ -136,17 +136,17 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     ]);
     
     // Sauvegarder
-    const { _error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from('edn_items_immersive')
       .update({
         paroles_rang_a: lyricsA,
-        paroles_rang_b: lyricsB, 
+        paroles_rang_b: lyricsB,
         paroles_rang_ab: lyricsAB,
         paroles_musicales: lyricsAB,
         updated_at: new Date().toISOString()
       })
       .eq('id', item.id);
-      
+
     if (updateError) {
       throw new Error(`Erreur sauvegarde: ${updateError.message}`);
     }

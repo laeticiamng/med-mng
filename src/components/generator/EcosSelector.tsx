@@ -47,16 +47,16 @@ export const EcosSelector: React.FC<EcosSelectorProps> = ({
     try {
       setLoading(true);
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('ecos_scenarios')
         .select('id, scenario_code, title, speciality, clinical_case, difficulty_level')
         .eq('is_active', true)
         .order('scenario_code')
         .limit(50);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      setScenarios(_data || []);
+      setScenarios(data || []);
     } catch (err) {
       console.error('Erreur chargement ECOS:', err);
     } finally {

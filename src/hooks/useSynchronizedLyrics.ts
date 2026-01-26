@@ -27,21 +27,21 @@ export const useSynchronizedLyrics = (songId?: string) => {
 
     try {
       setLoading(true);
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('med_mng_synchronized_lyrics')
         .select('*')
         .eq('song_id', id)
         .maybeSingle();
 
-      if (_error && _error.code !== 'PGRST116') { // PGRST116 = no rows found
-        throw _error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        throw error;
       }
 
-      if (_data) {
+      if (data) {
         setLyricsData({
-          song_id: _data.song_id,
-          lyrics_data: (_data.lyrics_data as unknown) as LyricsLine[],
-          source: _data.source as 'suno' | 'manual' | 'ai_generated'
+          song_id: data.song_id,
+          lyrics_data: (data.lyrics_data as unknown) as LyricsLine[],
+          source: data.source as 'suno' | 'manual' | 'ai_generated'
         });
       } else {
         // Essayer de générer automatiquement depuis les métadonnées de la chanson
@@ -68,13 +68,13 @@ export const useSynchronizedLyrics = (songId?: string) => {
         return;
       }
       // Récupérer les métadonnées de la chanson
-      const { _data: song, _error } = await supabase
+      const { data: song, error } = await supabase
         .from('med_mng_songs')
         .select('meta, lyrics')
         .eq('id', targetSongId)
         .maybeSingle();
 
-      if (_error || !song) return;
+      if (error || !song) return;
 
       // Essayer d'extraire les paroles depuis différentes sources
       let rawLyrics = '';
@@ -130,7 +130,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
     source: 'suno' | 'manual' | 'ai_generated' = 'manual'
   ) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('med_mng_synchronized_lyrics')
         .upsert({
           song_id: targetSongId,
@@ -138,7 +138,7 @@ export const useSynchronizedLyrics = (songId?: string) => {
           source
         });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setLyricsData({
         song_id: targetSongId,

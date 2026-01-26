@@ -53,7 +53,7 @@ export const useMusicGeneration = () => {
       setGenerationProgress('Génération de la musique...');
 
       // Use Supabase edge function instead of /api endpoint
-      const { _data: result, error } = await supabase.functions.invoke('generate-music', {
+      const { data: result, error } = await supabase.functions.invoke('generate-music', {
         body: {
           title: `${itemCode} Rang ${rang} - Compétences Médicales`,
           suno_audio_id: `${itemCode}-${rang}-${Date.now()}`,

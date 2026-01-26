@@ -69,7 +69,7 @@ export function useForumThreads() {
 
       // Get profiles for authors
       const userIds: string[] = [...new Set((data || []).map((p: any) => p.user_id as string))] as string[];
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);

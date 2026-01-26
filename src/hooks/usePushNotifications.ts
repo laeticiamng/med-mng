@@ -76,17 +76,17 @@ export const usePushNotifications = () => {
 
     try {
       // Fetch VAPID public key from Edge Function
-      const { _data, error } = await supabase.functions.invoke('get-vapid-key');
-      
-      if (error || !_data?.publicKey) {
+      const { data, error } = await supabase.functions.invoke('get-vapid-key');
+
+      if (error || !data?.publicKey) {
         // Fallback: use local notification instead
         toast.info('Notifications locales activées (mode hors-ligne)');
         setIsSubscribed(true);
         setIsLoading(false);
         return;
       }
-      
-      const vapidPublicKey = _data.publicKey;
+
+      const vapidPublicKey = data.publicKey;
 
       const registration = await navigator.serviceWorker.ready;
       
@@ -140,7 +140,7 @@ export const usePushNotifications = () => {
 
     const subscriptionData = JSON.parse(JSON.stringify(subscription));
     
-    const { _error } = await supabase.from('push_subscriptions' as any).upsert({
+    const { error } = await supabase.from('push_subscriptions' as any).upsert({
       user_id: user.id,
       endpoint: subscriptionData.endpoint,
       p256dh: subscriptionData.keys.p256dh,
@@ -151,17 +151,17 @@ export const usePushNotifications = () => {
       onConflict: 'endpoint',
     });
 
-    if (_error) throw _error;
+    if (error) throw error;
   };
 
   // Supprimer l'abonnement de Supabase
   const removeSubscription = async (endpoint: string) => {
-    const { _error } = await supabase
+    const { error } = await supabase
       .from('push_subscriptions' as any)
       .delete()
       .eq('endpoint', endpoint);
 
-    if (_error) throw _error;
+    if (error) throw error;
   };
 
   // Envoyer une notification de test

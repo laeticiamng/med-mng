@@ -76,7 +76,7 @@ export class ComprehensiveSystemAuditor {
     console.log('🗄️ Audit de la base de données...');
     
     try {
-      const { _data: _testData, _error: testError } = await supabase
+      const { data: _testData, error: testError } = await supabase
         .from('edn_items_immersive')
         .select('id')
         .limit(1);
@@ -99,13 +99,13 @@ export class ComprehensiveSystemAuditor {
       
       for (const tableCheck of tableChecks) {
         try {
-          const { _error } = await tableCheck.query();
-          if (_error) {
+          const { error } = await tableCheck.query();
+          if (error) {
             result.systemHealth.database = 'warning';
             result.issues.push({
               category: 'warning',
               component: 'Database',
-              description: `Table ${tableCheck.name} inaccessible: ${_error.message}`,
+              description: `Table ${tableCheck.name} inaccessible: ${error.message}`,
               fixable: false
             });
           }
@@ -133,15 +133,15 @@ export class ComprehensiveSystemAuditor {
     console.log('📚 Audit des items EDN...');
     
     try {
-      const { _data: items, _error } = await supabase
+      const { data: items, error } = await supabase
         .from('edn_items_immersive')
         .select('*');
-        
-      if (_error) {
+
+      if (error) {
         result.issues.push({
           category: 'warning',
           component: 'EDN Items',
-          description: `Erreur récupération items EDN: ${_error.message}`,
+          description: `Erreur récupération items EDN: ${error.message}`,
           fixable: false
         });
         return;
@@ -308,7 +308,7 @@ export class ComprehensiveSystemAuditor {
     console.log('💳 Audit du système d\'abonnements...');
     
     try {
-      const { _data: plans, _error: plansError } = await supabase
+      const { data: plans, error: plansError } = await supabase
         .from('subscription_plans')
         .select('*');
         
@@ -428,21 +428,21 @@ export class ComprehensiveSystemAuditor {
         if (issue.component === 'EDN Item' && issue.description.includes('Titre manquant')) {
           const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
           if (itemCode) {
-            const { _error } = await supabase
+            const { error } = await supabase
               .from('edn_items_immersive')
               .update({ title: `Item ${itemCode} - Titre généré` })
               .eq('item_code', itemCode)
               .is('title', null);
-              
-            if (!_error) {
+
+            if (!error) {
               issue.fixed = true;
               fixedCount++;
             }
           }
         }
-        
-        if (issue.component === 'EDN Item' && 
-            (issue.description.includes('Paroles musicales manquantes') || 
+
+        if (issue.component === 'EDN Item' &&
+            (issue.description.includes('Paroles musicales manquantes') ||
              issue.description.includes('Paroles musicales trop génériques'))) {
           const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
           if (itemCode) {
@@ -450,13 +450,13 @@ export class ComprehensiveSystemAuditor {
               `${itemCode} Rang A: Connaissances de base essentielles pour cet item spécialisé`,
               `${itemCode} Rang B: Expertise avancée et prise en charge complexe spécialisée`
             ];
-            
-            const { _error } = await supabase
+
+            const { error } = await supabase
               .from('edn_items_immersive')
               .update({ paroles_musicales: specializedParoles })
               .eq('item_code', itemCode);
-              
-            if (!_error) {
+
+            if (!error) {
               issue.fixed = true;
               fixedCount++;
             }
@@ -478,12 +478,12 @@ export class ComprehensiveSystemAuditor {
     let fixedCount = 0;
     
     try {
-      const { _data: items, _error } = await supabase
+      const { data: items, error } = await supabase
         .from('edn_items_immersive')
         .select('*');
-        
-      if (_error) {
-        console.error('Erreur lors de la récupération des items:', _error);
+
+      if (error) {
+        console.error('Erreur lors de la récupération des items:', error);
         return 0;
       }
       
@@ -506,12 +506,12 @@ export class ComprehensiveSystemAuditor {
         
         if (needsUpdate) {
           updates.updated_at = new Date().toISOString();
-          
-          const { _error: updateError } = await supabase
+
+          const { error: updateError } = await supabase
             .from('edn_items_immersive')
             .update(updates)
             .eq('id', item.id);
-            
+
           if (!updateError) {
             fixedCount++;
           }

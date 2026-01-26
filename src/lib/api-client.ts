@@ -60,7 +60,7 @@ export class APIClient {
 
     try {
       // Get authentication token
-      const { _data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;

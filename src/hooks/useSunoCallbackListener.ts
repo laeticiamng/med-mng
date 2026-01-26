@@ -21,7 +21,7 @@ export const useSunoCallbackListener = () => {
       try {
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         
-        const { _data: recentTracks } = await supabase
+        const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .not('audio_url', 'is', null)

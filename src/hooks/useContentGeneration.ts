@@ -89,7 +89,7 @@ export const useContentGeneration = () => {
 
       console.log(`🎯 Génération ${request.type}:`, payload);
 
-      const { _data, error } = await supabase.functions.invoke(functionName, {
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: payload
       });
 
@@ -100,15 +100,15 @@ export const useContentGeneration = () => {
         throw error;
       }
 
-      if (!_data.success) {
-        throw new Error(_data.error || 'Erreur de génération');
+      if (!data.success) {
+        throw new Error(data.error || 'Erreur de génération');
       }
 
       const result: GeneratedContent = {
-        id: _data.trackId || crypto.randomUUID(),
+        id: data.trackId || crypto.randomUUID(),
         type: request.type,
-        content: _data.audioUrl || _data.audioBase64 || _data.imageBase64 || '',
-        metadata: _data.metadata || {},
+        content: data.audioUrl || data.audioBase64 || data.imageBase64 || '',
+        metadata: data.metadata || {},
         createdAt: new Date().toISOString()
       };
 
@@ -149,9 +149,9 @@ export const useContentGeneration = () => {
         ]);
 
         return [
-          ...(music._data || []).map(item => ({ ...item, type: 'music' as const })),
-          ...(voice._data || []).map(item => ({ ...item, type: 'voice' as const })),
-          ...(images._data || []).map(item => ({ ...item, type: 'image' as const }))
+          ...(music.data || []).map(item => ({ ...item, type: 'music' as const })),
+          ...(voice.data || []).map(item => ({ ...item, type: 'voice' as const })),
+          ...(images.data || []).map(item => ({ ...item, type: 'image' as const }))
         ];
       }
 

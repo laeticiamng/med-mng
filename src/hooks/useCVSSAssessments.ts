@@ -55,13 +55,13 @@ export function useCVSSAssessments() {
   const { data: assessments = [], isLoading } = useQuery({
     queryKey: ['cvss-assessments'],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('cvss_assessments')
         .select('*')
         .order('base_score', { ascending: false });
 
-      if (_error) throw _error;
-      return (_data || []) as CVSSAssessment[];
+      if (error) throw error;
+      return (data || []) as CVSSAssessment[];
     },
   });
 
@@ -85,13 +85,13 @@ export function useCVSSAssessments() {
       const deadline = new Date();
       deadline.setDate(deadline.getDate() + priority.deadline);
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('cvss_assessments')
         .insert({
           vulnerability_name: data.vulnerability_name,
           description: data.description,
           cve_id: data.cve_id,
-          
+
           attack_vector: data.metrics.attackVector,
           attack_complexity: data.metrics.attackComplexity,
           privileges_required: data.metrics.privilegesRequired,
@@ -100,28 +100,28 @@ export function useCVSSAssessments() {
           confidentiality_impact: data.metrics.confidentialityImpact,
           integrity_impact: data.metrics.integrityImpact,
           availability_impact: data.metrics.availabilityImpact,
-          
+
           exploit_code_maturity: data.metrics.exploitCodeMaturity || 'X',
           remediation_level: data.metrics.remediationLevel || 'X',
           report_confidence: data.metrics.reportConfidence || 'X',
-          
+
           confidentiality_requirement: data.metrics.confidentialityRequirement || 'X',
           integrity_requirement: data.metrics.integrityRequirement || 'X',
           availability_requirement: data.metrics.availabilityRequirement || 'X',
-          
+
           base_score: scores.baseScore,
           temporal_score: scores.temporalScore,
           environmental_score: scores.environmentalScore,
           base_severity: scores.baseSeverity,
           vector_string: scores.vectorString,
-          
+
           assessed_by: user.id,
           patch_priority: priority.priority,
           patch_deadline: deadline.toISOString().split('T')[0],
           notes: data.notes,
         } as any);
 
-      if (_error) throw _error;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -143,12 +143,12 @@ export function useCVSSAssessments() {
       if (data.patched !== undefined) updates.patched = data.patched;
       if (data.notes !== undefined) updates.notes = data.notes;
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('cvss_assessments')
         .update(updates)
         .eq('id', data.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -162,12 +162,12 @@ export function useCVSSAssessments() {
   // Delete assessment
   const deleteAssessment = useMutation({
     mutationFn: async (id: string) => {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('cvss_assessments')
         .delete()
         .eq('id', id);
 
-      if (_error) throw _error;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cvss-assessments'] });
@@ -180,6 +180,7 @@ export function useCVSSAssessments() {
 
   // Derived data
   const criticalVulns = assessments.filter(a => a.base_severity === 'Critical' && !a.patched);
+  const highVulns = assessments.filter(a => a.base_severity === 'High' && !a.patched);
   const unpatchedVulns = assessments.filter(a => !a.patched);
   const overdueVulns = assessments.filter(a => {
     if (a.patched || !a.patch_deadline) return false;
@@ -190,7 +191,7 @@ export function useCVSSAssessments() {
     assessments,
     isLoading,
     criticalVulns,
-    _highVulns,
+    highVulns,
     unpatchedVulns,
     overdueVulns,
     createAssessment: createAssessment.mutate,

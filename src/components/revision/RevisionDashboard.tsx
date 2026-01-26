@@ -50,7 +50,7 @@ export const RevisionDashboard: React.FC = () => {
         loadStats(user.id);
         
         // Load revision history from Supabase
-        const { _data: historyData } = await supabase
+        const { data: historyData } = await supabase
           .from('revision_history')
           .select('item_code, score, session_date, created_at')
           .eq('user_id', user.id)

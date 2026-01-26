@@ -47,15 +47,15 @@ export const MobileHistoryDrawer: React.FC<MobileHistoryDrawerProps> = ({
     setLoading(true);
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_generated_music')
         .select('id, item_code, rang, music_style, audio_url, created_at, title, is_favorite')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(maxItems);
 
-      if (_error) throw _error;
-      setTracks(_data || []);
+      if (error) throw error;
+      setTracks(data || []);
     } catch (err) {
       console.error('Erreur chargement tracks:', err);
     } finally {

@@ -88,7 +88,7 @@ export default function EdnComplete() {
   // Hooks qui font des appels Supabase
   const { stats: gamificationStats } = useGamification();
   const { quota } = useIAQuota();
-  const { _subscription } = useSubscription();
+  const { subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
   
   // Alias pour compatibilité
@@ -261,14 +261,14 @@ export default function EdnComplete() {
     
     // Puis fetch données complètes (tableaux, quiz, scène, etc.) via supabase
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', item.item_code)
         .maybeSingle();
-        
-      if (_data) {
-        setSelectedItem({ ...item, ..._data });
+
+      if (data) {
+        setSelectedItem({ ...item, ...data });
       }
     } catch (err) {
       // Silently ignore - partial data is still usable
@@ -626,19 +626,19 @@ export default function EdnComplete() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">
-                          {_subscription?.plan_name || 'Plan Gratuit'}
+                          {subscription?.plan_name || 'Plan Gratuit'}
                         </span>
-                        <Badge variant={_subscription ? 'default' : 'secondary'}>
-                          {_subscription ? 'Actif' : 'Gratuit'}
+                        <Badge variant={subscription ? 'default' : 'secondary'}>
+                          {subscription ? 'Actif' : 'Gratuit'}
                         </Badge>
                       </div>
-                      {_subscription && (
+                      {subscription && (
                         <div className="text-sm text-muted-foreground">
-                          <p>Quota mensuel: {_subscription.monthly_quota} crédits</p>
-                          <p>Statut: {_subscription.status}</p>
+                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
+                          <p>Statut: {subscription.status}</p>
                         </div>
                       )}
-                      {!_subscription && (
+                      {!subscription && (
                         <div className="space-y-2">
                           <p className="text-sm text-muted-foreground">
                             Vous utilisez le plan gratuit avec des fonctionnalités limitées.

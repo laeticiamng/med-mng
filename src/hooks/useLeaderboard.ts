@@ -53,7 +53,7 @@ export function useLeaderboard() {
         query = query.gte('created_at', startDate.toISOString());
       }
 
-      const { _data: activities } = await query;
+      const { data: activities } = await query;
 
       // Aggregate
       const userPoints: Record<string, number> = {};
@@ -69,13 +69,13 @@ export function useLeaderboard() {
       }
 
       // Get profiles
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, email, avatar_url')
         .in('id', userIds);
 
       // Get badges count
-      const { _data: badges } = await supabase
+      const { data: badges } = await supabase
         .from('user_badges')
         .select('user_id')
         .in('user_id', userIds)
@@ -87,7 +87,7 @@ export function useLeaderboard() {
       });
 
       // Get streaks
-      const { _data: streaks } = await supabase
+      const { data: streaks } = await supabase
         .from('user_gamification_stats')
         .select('user_id, longest_streak')
         .in('user_id', userIds);

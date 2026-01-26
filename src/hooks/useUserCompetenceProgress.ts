@@ -35,16 +35,16 @@ export const useUserCompetenceProgress = (itemCode: string, rang: 'A' | 'B') => 
         return;
       }
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_competence_progress')
         .select('competence_id, mastered')
         .eq('user_id', user.id)
         .eq('item_code', itemCode)
         .eq('rang', rang);
 
-      if (!_error && _data) {
+      if (!error && data) {
         const map = new Map<string, boolean>();
-        _data.forEach((row: CompetenceProgress) => {
+        data.forEach((row: CompetenceProgress) => {
           map.set(row.competence_id, row.mastered);
         });
         setProgress(map);

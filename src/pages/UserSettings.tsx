@@ -81,7 +81,7 @@ const UserSettings: React.FC = () => {
         logActivity({ activity_type: 'study', metadata: { action: 'view_user_settings' } });
 
         // Charger le profil depuis Supabase
-        const { _data: profile } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -124,7 +124,7 @@ const UserSettings: React.FC = () => {
     setIsLoading(true);
     try {
       if (section === 'profil') {
-        const { _error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,
@@ -139,29 +139,29 @@ const UserSettings: React.FC = () => {
             updated_at: new Date().toISOString()
           }, { onConflict: 'id' });
 
-        if (_error) throw _error;
+        if (error) throw error;
       } else {
         // Sauvegarder les préférences dans le champ preferences JSONB
-        const { _data: currentProfile } = await supabase
+        const { data: currentProfile } = await supabase
           .from('profiles')
           .select('preferences')
           .eq('id', user.id)
           .maybeSingle();
 
         const currentPrefs = (currentProfile?.preferences as Record<string, unknown>) || {};
-        
+
         const newPrefs: Record<string, unknown> = {
           ...currentPrefs,
           notifications: section === 'notifications' ? notificationSettings : currentPrefs.notifications,
           privacy: section === 'confidentialité' ? privacySettings : currentPrefs.privacy
         };
 
-        const { _error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .update({ preferences: newPrefs as any, updated_at: new Date().toISOString() })
           .eq('id', user.id);
 
-        if (_error) throw _error;
+        if (error) throw error;
       }
       
       toast.success('Paramètres sauvegardés !', {

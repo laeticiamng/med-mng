@@ -109,7 +109,7 @@ export const OfflineSyncManager: React.FC = () => {
 
       if (user) {
         // Progression utilisateur
-        const { _data: progress } = await supabase
+        const { data: progress } = await supabase
           .from('user_gamification_stats')
           .select('*')
           .eq('user_id', user.id)

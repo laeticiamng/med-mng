@@ -156,7 +156,7 @@ export function DataQualityMonitor() {
               .from(tableName)
               .select('objectif_id', { count: 'exact', head: true });
 
-            const { _data: distinctCheck } = await supabase
+            const { data: distinctCheck } = await supabase
               .from(tableName)
               .select('objectif_id')
               .limit(1000);

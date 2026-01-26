@@ -60,7 +60,7 @@ export function useRecommendationAlerts() {
         return;
       }
 
-      const { _data, _error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('recommendation_alerts')
         .select('*')
         .eq('user_id', user.id)
@@ -70,7 +70,7 @@ export function useRecommendationAlerts() {
         .order('historical_score', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setAlerts(_data || []);
+      setAlerts(data || []);
     } catch (err: any) {
       console.error('Error loading alerts:', err);
       setError(err.message);
@@ -92,7 +92,7 @@ export function useRecommendationAlerts() {
       if (!user) throw new Error('Non authentifié');
 
       // Vérifier si cette recommandation est déjà trackée
-      const { _data: existing } = await supabase
+      const { data: existing } = await supabase
         .from('recommendation_alerts')
         .select('id')
         .eq('user_id', user.id)
@@ -106,7 +106,7 @@ export function useRecommendationAlerts() {
       }
 
       // Créer une nouvelle alerte
-      const { _error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('recommendation_alerts')
         .insert({
           user_id: user.id,
@@ -126,7 +126,7 @@ export function useRecommendationAlerts() {
 
   const dismissAlert = async (alertId: string) => {
     try {
-      const { _error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('recommendation_alerts')
         .update({
           dismissed: true,

@@ -68,7 +68,7 @@ export const GlobalSearchBar: React.FC = () => {
 
     try {
       // Search EDN items
-      const { _data: ednItems } = await supabase
+      const { data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, slug')
         .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
@@ -87,7 +87,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search quizzes
-      const { _data: quizzes } = await supabase
+      const { data: quizzes } = await supabase
         .from('ai_exam_history')
         .select('id, exam_type, created_at')
         .ilike('exam_type', `%${searchQuery}%`)
@@ -107,7 +107,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search generated music
-      const { _data: music } = await supabase
+      const { data: music } = await supabase
         .from('generated_music_tracks')
         .select('id, title, item_code')
         .or(`title.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
@@ -126,7 +126,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search clinical cases
-      const { _data: cases } = await supabase
+      const { data: cases } = await supabase
         .from('ai_clinical_cases')
         .select('id, title, specialty')
         .or(`title.ilike.%${searchQuery}%,specialty.ilike.%${searchQuery}%`)
@@ -146,7 +146,7 @@ export const GlobalSearchBar: React.FC = () => {
       }
 
       // Search community posts
-      const { _data: posts } = await supabase
+      const { data: posts } = await supabase
         .from('community_posts')
         .select('id, title, content')
         .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)

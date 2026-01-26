@@ -16,7 +16,7 @@ async function launchEdnExtraction() {
       throw new Error('Credentials manquants - veuillez saisir vos identifiants CAS');
     }
     
-    const { _data, error } = await supabase.functions.invoke('extract-edn-uness', {
+    const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
       body: {
         action: 'start',
         credentials: {
@@ -32,9 +32,9 @@ async function launchEdnExtraction() {
     }
 
     console.log('✅ Extraction lancée avec succès!');
-    console.log('📊 Résultats:', _data);
-    
-    return _data;
+    console.log('📊 Résultats:', data);
+
+    return data;
     
   } catch (error) {
     console.error('❌ Échec du lancement de l\'extraction:', error);

@@ -33,7 +33,7 @@ export const useSunoPolling = () => {
   const checkTrackStatus = useCallback(async (track: PollingState) => {
     try {
       // 1. D'abord vérifier en BDD locale avec plusieurs critères
-      const { _data: dbTracks } = await supabase
+      const { data: dbTracks } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .or(`task_id.eq.${track.trackId},suno_track_id.eq.${track.trackId},original_task_id.eq.${track.trackId}`);
@@ -77,7 +77,7 @@ export const useSunoPolling = () => {
         }
       } else {
         // Chercher des tracks récents du même item_code et rang
-        const { _data: recentTracks } = await supabase
+        const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .eq('generation_status', 'completed')

@@ -37,20 +37,20 @@ export const useEcosLyrics = (scenarioCode: string | null) => {
 
     try {
       // Récupérer le scénario ECOS
-      const { _data, _error: dbError } = await supabase
+      const { data, error: dbError } = await supabase
         .from('ecos_scenarios')
         .select('scenario_code, title, speciality, clinical_case, difficulty_level')
         .eq('scenario_code', code)
         .single();
 
       if (dbError) throw dbError;
-      if (!_data) throw new Error('Scénario non trouvé');
+      if (!data) throw new Error('Scénario non trouvé');
 
       // Générer les paroles basées sur le cas clinique
-      const generatedLyrics = generateEcosLyrics(_data);
+      const generatedLyrics = generateEcosLyrics(data);
 
       const result: EcosLyrics = {
-        scenario: _data,
+        scenario: data,
         paroles: generatedLyrics,
         isGenerated: true
       };

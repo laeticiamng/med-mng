@@ -86,7 +86,7 @@ export const useSubscription = () => {
 
     try {
       // Get user subscription avec retry logic
-      const { _data: subData, _error: subError } = await supabase
+      const { data: subData, error: subError } = await supabase
         .rpc('get_user_subscription', { user_uuid: user.id });
 
       if (subError) {
@@ -126,7 +126,7 @@ export const useSubscription = () => {
       }
 
       // Get music quota depuis la nouvelle table user_quotas (musique uniquement)
-      const { _data: quotaData, _error: quotaError } = await supabase
+      const { data: quotaData, error: quotaError } = await supabase
         .rpc('get_music_quota', { p_user_id: user.id });
 
       if (quotaError) {
@@ -199,35 +199,35 @@ export const useSubscription = () => {
     }
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .rpc('increment_music_usage', { user_uuid: user.id });
 
-      if (_error) {
-        console.error('Error incrementing music usage:', _error);
+      if (error) {
+        console.error('Error incrementing music usage:', error);
         toast.error('Erreur lors de la mise à jour du quota');
         return false;
       }
 
       // Refresh quota après incrémentation (musique uniquement)
-      const { _data: quotaData, _error: quotaError } = await supabase
+      const { data: quotaData, error: quotaError } = await supabase
         .rpc('get_music_quota', { p_user_id: user.id });
 
       if (!quotaError && quotaData && quotaData.length > 0) {
         const quotaInfo = quotaData[0];
-        
+
         const adaptedQuota: MusicQuota = {
           can_generate: quotaInfo.can_generate || false,
           current_usage: quotaInfo.credits_used_this_period || 0,
           quota_limit: quotaInfo.total_credits || 0,
           plan_name: subscription?.plan_name || 'Standard'
         };
-        
+
         if (isValidMusicQuota(adaptedQuota)) {
           setMusicQuota(adaptedQuota);
         }
       }
 
-      return _data;
+      return data;
     } catch (error) {
       console.error('Error in incrementMusicUsage:', error);
       toast.error('Erreur lors de l\'incrément du quota');
@@ -455,14 +455,13 @@ export const useSubscription = () => {
   }, [subscription]);
 
   return {
-    _subscription,
+    subscription,
     musicQuota,
     loading,
     error,
     fetchSubscription,
     incrementMusicUsage,
     hasFeatureAccess,
-    _canGenerateMusic,
     canSaveMusic,
     getUsageDisplay,
     getSunoModel,

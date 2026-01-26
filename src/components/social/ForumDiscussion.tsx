@@ -102,18 +102,18 @@ export const ForumDiscussion: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       // Charger les topics depuis Supabase
-      const { _data: topicsData, _error } = await supabase
+      const { data: topicsData, error } = await supabase
         .from('forum_topics')
         .select('*')
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Charger les profils des auteurs
       const authorIds = [...new Set(topicsData?.map(t => t.author_id) || [])];
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', authorIds.length > 0 ? authorIds : ['00000000-0000-0000-0000-000000000000']);
@@ -124,14 +124,14 @@ export const ForumDiscussion: React.FC = () => {
       let userLikes: string[] = [];
       let userBookmarks: string[] = [];
       if (user) {
-        const { _data: likes } = await supabase
+        const { data: likes } = await supabase
           .from('forum_likes')
           .select('topic_id')
           .eq('user_id', user.id)
           .not('topic_id', 'is', null);
         userLikes = likes?.map(l => l.topic_id).filter(Boolean) as string[] || [];
 
-        const { _data: bookmarks } = await supabase
+        const { data: bookmarks } = await supabase
           .from('forum_bookmarks')
           .select('topic_id')
           .eq('user_id', user.id);
@@ -177,18 +177,18 @@ export const ForumDiscussion: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      const { _data: repliesData, _error } = await supabase
+      const { data: repliesData, error } = await supabase
         .from('forum_replies')
         .select('*')
         .eq('topic_id', topicId)
         .order('is_best_answer', { ascending: false })
         .order('created_at', { ascending: true });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Charger les profils des auteurs
       const authorIds = [...new Set(repliesData?.map(r => r.author_id) || [])];
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', authorIds.length > 0 ? authorIds : ['00000000-0000-0000-0000-000000000000']);
@@ -198,7 +198,7 @@ export const ForumDiscussion: React.FC = () => {
       // Charger les likes de l'utilisateur
       let userLikes: string[] = [];
       if (user) {
-        const { _data: likes } = await supabase
+        const { data: likes } = await supabase
           .from('forum_likes')
           .select('reply_id')
           .eq('user_id', user.id)
@@ -342,7 +342,7 @@ export const ForumDiscussion: React.FC = () => {
     }
 
     try {
-      const { _data, _error } = await supabase.from('forum_topics').insert({
+      const { data, error } = await supabase.from('forum_topics').insert({
         title: newTopic.title,
         content: newTopic.content,
         category: newTopic.category,
@@ -350,18 +350,18 @@ export const ForumDiscussion: React.FC = () => {
         author_id: user.id
       }).select().single();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const topic: ForumTopic = {
-        id: _data.id,
-        title: _data.title,
-        content: _data.content,
-        category: _data.category,
-        tags: _data.tags || [],
-        authorId: _data.author_id,
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        category: data.category,
+        tags: data.tags || [],
+        authorId: data.author_id,
         authorName: 'Vous',
-        createdAt: _data.created_at,
-        updatedAt: _data.updated_at,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
         views: 0,
         replies: 0,
         likes: 0,
@@ -391,13 +391,13 @@ export const ForumDiscussion: React.FC = () => {
     }
 
     try {
-      const { _data, _error } = await supabase.from('forum_replies').insert({
+      const { data, error } = await supabase.from('forum_replies').insert({
         topic_id: selectedTopic.id,
         content: newReply,
         author_id: user.id
       }).select().single();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Mettre à jour le compteur de réponses
       await supabase.from('forum_topics').update({
@@ -407,10 +407,10 @@ export const ForumDiscussion: React.FC = () => {
       }).eq('id', selectedTopic.id);
 
       const reply: ForumReply = {
-        id: _data.id,
-        topicId: _data.topic_id,
-        content: _data.content,
-        authorId: _data.author_id,
+        id: data.id,
+        topicId: data.topic_id,
+        content: data.content,
+        authorId: data.author_id,
         authorName: 'Vous',
         createdAt: _data.created_at,
         likes: 0,

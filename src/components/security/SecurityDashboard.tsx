@@ -25,27 +25,27 @@ export const SecurityDashboard = () => {
     try {
       toast.info('Génération du rapport PDF...');
       
-      const { _data, error } = await supabase.functions.invoke('generate-security-report');
-      
+      const { data, error } = await supabase.functions.invoke('generate-security-report');
+
       if (error) throw error;
-      
+
       // Generate PDF from HTML using jsPDF
       const doc = new jsPDF();
-      
+
       // Add content to PDF
       doc.setFontSize(20);
       doc.text('Rapport de Sécurité', 20, 20);
-      
+
       doc.setFontSize(12);
       doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 35);
-      
+
       doc.setFontSize(14);
-      doc.text(`Score de Sécurité: ${_data.metrics?.security_score || 0}/100`, 20, 50);
-      
+      doc.text(`Score de Sécurité: ${data.metrics?.security_score || 0}/100`, 20, 50);
+
       doc.setFontSize(12);
-      doc.text(`Tables avec RLS: ${_data.metrics?.tables_with_rls || 0}/${_data.metrics?.total_tables || 0}`, 20, 65);
-      doc.text(`Politiques RLS: ${_data.metrics?.total_policies || 0}`, 20, 75);
-      doc.text(`Alertes actives: ${_data.alerts?.filter((a: any) => a.status === 'open').length || 0}`, 20, 85);
+      doc.text(`Tables avec RLS: ${data.metrics?.tables_with_rls || 0}/${data.metrics?.total_tables || 0}`, 20, 65);
+      doc.text(`Politiques RLS: ${data.metrics?.total_policies || 0}`, 20, 75);
+      doc.text(`Alertes actives: ${data.alerts?.filter((a: any) => a.status === 'open').length || 0}`, 20, 85);
       
       // Save PDF
       doc.save(`rapport-securite-${new Date().toISOString().split('T')[0]}.pdf`);

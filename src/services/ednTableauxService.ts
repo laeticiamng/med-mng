@@ -38,13 +38,13 @@ class EdnTableauxService {
 
   async getTableauRangA(_itemId: string) {
     try {
-      const { _data, error } = await supabase.functions.invoke('edn-tableaux-api', {
+      const { data, error } = await supabase.functions.invoke('edn-tableaux-api', {
         body: null,
         method: 'GET'
       })
 
       if (error) throw error
-      return _data
+      return data
     } catch (error) {
       console.error('❌ Error fetching tableau Rang A:', error)
       throw error
@@ -56,7 +56,7 @@ class EdnTableauxService {
       const response = await fetch(`${this.baseUrl}/items/${itemId}/tableau-rang-b`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -77,7 +77,7 @@ class EdnTableauxService {
       const response = await fetch(`${this.baseUrl}/items/${itemId}/tableaux`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -98,7 +98,7 @@ class EdnTableauxService {
       const response = await fetch(`${this.baseUrl}/items/completeness-audit`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -139,14 +139,14 @@ class EdnTableauxService {
   // Obtenir tous les items avec leurs scores de complétion
   async getAllItemsCompleteness(): Promise<ItemCompleteness[]> {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('id, item_code, title, tableau_rang_a, tableau_rang_b')
         .order('item_code')
 
-      if (_error) throw _error
+      if (error) throw error
 
-      return (_data || []).map((item: any) => {
+      return (data || []).map((item: any) => {
         const hasRangA = Boolean(item.tableau_rang_a && Object.keys(item.tableau_rang_a).length > 0)
         const hasRangB = Boolean(item.tableau_rang_b && Object.keys(item.tableau_rang_b).length > 0)
 
@@ -218,17 +218,17 @@ class EdnTableauxService {
     matches: string[]
   }>> {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
 
-      if (_error) throw _error
-      if (!_data) return []
+      if (error) throw error
+      if (!data) return []
 
       const queryLower = query.toLowerCase()
       const results: Array<{ itemCode: string; title: string; matches: string[] }> = []
 
-      _data.forEach(item => {
+      data.forEach(item => {
         const matches: string[] = []
 
         const searchInObject = (obj: any, prefix: string) => {
@@ -268,22 +268,22 @@ class EdnTableauxService {
   // Exporter les données d'un item
   async exportItemData(itemCode: string, format: 'json' | 'csv' = 'json'): Promise<string> {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
         .maybeSingle()
 
-      if (_error) throw _error
-      if (!_data) throw new Error('Item non trouvé')
+      if (error) throw error
+      if (!data) throw new Error('Item non trouvé')
 
       if (format === 'json') {
-        return JSON.stringify(_data, null, 2)
+        return JSON.stringify(data, null, 2)
       }
 
       // Format CSV simplifié
-      const headers = Object.keys(_data)
-      const values = Object.values(_data).map(v =>
+      const headers = Object.keys(data)
+      const values = Object.values(data).map(v =>
         typeof v === 'object' ? JSON.stringify(v) : String(v)
       )
       return `${headers.join(',')}\n${values.join(',')}`
@@ -375,7 +375,7 @@ class EdnTableauxService {
       today.setHours(0, 0, 0, 0)
 
       // Récupérer les items complétés aujourd'hui depuis user_item_progress
-      const { _data: todayProgress, _error } = await supabase
+      const { data: todayProgress, error } = await supabase
         .from('user_item_progress')
         .select('item_code, updated_at')
         .eq('user_id', userId)
@@ -383,8 +383,8 @@ class EdnTableauxService {
         .gte('updated_at', today.toISOString())
         .order('updated_at', { ascending: false })
 
-      if (_error) {
-        console.error('Error fetching daily progress:', _error)
+      if (error) {
+        console.error('Error fetching daily progress:', error)
         return {
           completedToday: 0,
           targetReached: false,

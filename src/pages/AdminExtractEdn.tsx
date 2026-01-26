@@ -24,7 +24,7 @@ const AdminExtractEdn = () => {
       
       // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
       // Aucun credential n'est envoyé depuis le frontend
-      const { _data, error } = await supabase.functions.invoke('secure-edn-extraction', {
+      const { data, error } = await supabase.functions.invoke('secure-edn-extraction', {
         body: {
           action,
           resumeFromItem: action === 'resume' ? resumeFromItem : 1,
@@ -38,10 +38,10 @@ const AdminExtractEdn = () => {
         return;
       }
 
-      console.log('✅ Extraction terminée:', _data);
-      setStats(_data.stats);
+      console.log('✅ Extraction terminée:', data);
+      setStats(data.stats);
       setProgress(100);
-      toast.success(`Extraction terminée! ${_data.stats?.totalProcessed || 0} items traités`);
+      toast.success(`Extraction terminée! ${data.stats?.totalProcessed || 0} items traités`);
 
     } catch (error: any) {
       console.error('💥 Erreur critique:', error);
@@ -54,17 +54,17 @@ const AdminExtractEdn = () => {
 
   const checkExistingData = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, updated_at')
         .order('item_code');
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      console.log(`📊 ${_data?.length || 0} items EDN déjà en base`);
-      toast.info(`${_data?.length || 0} items EDN trouvés en base`);
-      
-      return _data;
+      console.log(`📊 ${data?.length || 0} items EDN déjà en base`);
+      toast.info(`${data?.length || 0} items EDN trouvés en base`);
+
+      return data;
     } catch (error: any) {
       console.error('Erreur vérification données:', error);
       toast.error('Erreur lors de la vérification des données');

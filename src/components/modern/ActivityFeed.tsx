@@ -70,14 +70,14 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { _data: activityLogs, _error } = await supabase
+        const { data: activityLogs, error } = await supabase
           .from('user_activity_log')
           .select('id, action_type, action_details, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(maxItems);
 
-        if (_error || !activityLogs) return;
+        if (error || !activityLogs) return;
 
         const mappedActivities: ActivityItem[] = activityLogs.map((log: any) => {
           const details = log.action_details || {};

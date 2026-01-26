@@ -1,16 +1,16 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export async function checkOICProgress() {
-  const { _data, _error } = await supabase
+  const { data, error } = await supabase
     .from('oic_competences')
     .select('description, intitule')
     .limit(10);
-    
-  if (_error) return null;
-  
+
+  if (error) return null;
+
   // Compter les problèmes dans l'échantillon
   let problems = 0;
-  _data?.forEach(comp => {
+  data?.forEach(comp => {
     if (comp.description?.includes('&lt;') || 
         comp.description?.includes('&gt;') ||
         comp.description?.startsWith('-') ||

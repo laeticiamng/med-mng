@@ -134,18 +134,18 @@ export const AdvancedMusicPlayer: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_preferences_extended')
         .select('music_volume, auto_play, binaural_enabled')
         .eq('user_id', user.user.id)
         .maybeSingle();
 
-      if (_data) {
-        setVolume(_data.music_volume || 75);
+      if (data) {
+        setVolume(data.music_volume || 75);
         setAudioSettings(prev => ({
           ...prev,
-          autoPlay: _data.auto_play,
-          binauralBeats: _data.binaural_enabled
+          autoPlay: data.auto_play,
+          binauralBeats: data.binaural_enabled
         }));
       }
     } catch {
@@ -188,7 +188,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_preferences_extended')
         .upsert({
           user_id: user.user.id,
@@ -197,7 +197,7 @@ export const AdvancedMusicPlayer: React.FC = () => {
           binaural_enabled: audioSettings.binauralBeats
         }, { onConflict: 'user_id' });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: "Paramètres sauvegardés",

@@ -48,30 +48,30 @@ const SharedMusic = () => {
 
       try {
         // Essayer de trouver par music_id d'abord
-        let { _data, _error: fetchError } = await supabase
+        let { data, error: fetchError } = await supabase
           .from('user_generated_music')
           .select('*')
           .eq('music_id', trackId)
           .maybeSingle();
 
         // Si pas trouvé, essayer par id
-        if (!_data && !fetchError) {
+        if (!data && !fetchError) {
           const result = await supabase
             .from('user_generated_music')
             .select('*')
             .eq('id', trackId)
             .maybeSingle();
-          _data = result._data;
-          fetchError = result._error;
+          data = result.data;
+          fetchError = result.error;
         }
 
         if (fetchError) throw fetchError;
-        if (!_data) throw new Error('Musique introuvable');
+        if (!data) throw new Error('Musique introuvable');
 
-        setTrack(_data);
-        
+        setTrack(data);
+
         // Créer l'audio element
-        const audio = new Audio(_data.audio_url);
+        const audio = new Audio(data.audio_url);
         audio.addEventListener('loadedmetadata', () => {
           setDuration(audio.duration);
         });

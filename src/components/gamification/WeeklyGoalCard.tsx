@@ -59,7 +59,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
       startOfWeek.setHours(0, 0, 0, 0);
 
       // Récupérer l'activité de la semaine
-      const { _data: activityData } = await supabase
+      const { data: activityData } = await supabase
         .from('user_activities')
         .select('activity_type, count, duration_seconds')
         .eq('user_id', user.id)
@@ -94,7 +94,7 @@ export const WeeklyGoalCard: React.FC<WeeklyGoalCardProps> = ({ className = '' }
       }
 
       // Charger les objectifs personnalisés depuis metadata si disponible
-      const { _data: profileData } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('metadata')
         .eq('id', user.id)

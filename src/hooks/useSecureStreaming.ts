@@ -56,9 +56,9 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
     try {
       setIsLoading(true);
 
-      const { _data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
-        body: { 
-          songId, 
+      const { data, error } = await supabase.functions.invoke('secure-streaming-proxy', {
+        body: {
+          songId,
           userId: user.id,
           action: 'create-session'
         }
@@ -68,7 +68,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
         throw error;
       }
 
-      const session: StreamingSession = _data;
+      const session: StreamingSession = data;
       setCurrentSession(session);
 
       // Programmer le nettoyage automatique de la session

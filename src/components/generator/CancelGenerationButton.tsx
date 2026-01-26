@@ -34,19 +34,19 @@ export const CancelGenerationButton: React.FC<CancelGenerationButtonProps> = ({
       
       // 2. Si on a un taskId, annuler côté backend aussi
       if (taskId) {
-        const { _data, error } = await supabase.functions.invoke('cancel-ia-task', {
+        const { data, error } = await supabase.functions.invoke('cancel-ia-task', {
           body: {
             task_id: taskId,
             task_type: 'music',
             reason: `Annulation manuelle par utilisateur - Rang ${rang || 'inconnu'}`
           }
         });
-        
+
         if (error) {
           console.warn('[CancelGenerationButton] Erreur annulation backend:', error);
           // On continue quand même - l'annulation frontend a eu lieu
-        } else if (_data?.credits_refunded > 0) {
-          toast.success(`Génération annulée - ${_data.credits_refunded} crédits remboursés`);
+        } else if (data?.credits_refunded > 0) {
+          toast.success(`Génération annulée - ${data.credits_refunded} crédits remboursés`);
           return;
         }
       }

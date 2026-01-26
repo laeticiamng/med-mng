@@ -59,15 +59,15 @@ export const useFlashcards = () => {
   const loadDecks = useCallback(async (userId: string) => {
     setLoading(true);
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('flashcard_decks')
         .select('*')
         .eq('user_id', userId)
         .order('updated_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const mappedDecks: FlashcardDeck[] = (_data || []).map((d: any) => ({
+      const mappedDecks: FlashcardDeck[] = (data || []).map((d: any) => ({
         id: d.id,
         userId: d.user_id,
         name: d.name,
@@ -106,7 +106,7 @@ export const useFlashcards = () => {
     icon: string = '📚'
   ): Promise<FlashcardDeck | null> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('flashcard_decks')
         .insert({
           user_id: userId,
@@ -119,18 +119,18 @@ export const useFlashcards = () => {
         .select()
         .maybeSingle();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const newDeck: FlashcardDeck = {
-        id: _data.id,
-        userId: _data.user_id,
-        name: _data.name,
-        description: _data.description || '',
+        id: data.id,
+        userId: data.user_id,
+        name: data.name,
+        description: data.description || '',
         category,
         cardCount: 0,
         isPublic: false,
-        createdAt: _data.created_at,
-        updatedAt: _data.updated_at,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
         color,
         icon
       };
@@ -164,12 +164,12 @@ export const useFlashcards = () => {
         .eq('deck_id', deckId);
 
       // Then delete deck
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('flashcard_decks')
         .delete()
         .eq('id', deckId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setDecks(prev => prev.filter(d => d.id !== deckId));
       
@@ -189,15 +189,15 @@ export const useFlashcards = () => {
   const loadCards = useCallback(async (deckId: string) => {
     setLoading(true);
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('flashcards')
         .select('*')
         .eq('deck_id', deckId)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const mappedCards: Flashcard[] = (_data || []).map((c: any) => ({
+      const mappedCards: Flashcard[] = (data || []).map((c: any) => ({
         id: c.id,
         deckId: c.deck_id,
         front: c.front_content,
@@ -236,7 +236,7 @@ export const useFlashcards = () => {
     difficulty: 'easy' | 'medium' | 'hard' = 'medium'
   ): Promise<Flashcard | null> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('flashcards')
         .insert({
           deck_id: deckId,
@@ -251,7 +251,7 @@ export const useFlashcards = () => {
         .select()
         .maybeSingle();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Update deck card count - fixed operator precedence bug
       const currentCount = decks.find(d => d.id === deckId)?.cardCount || 0;
@@ -264,14 +264,14 @@ export const useFlashcards = () => {
         .eq('id', deckId);
 
       const newCard: Flashcard = {
-        id: _data.id,
-        deckId: _data.deck_id,
-        front: _data.front_content,
-        back: _data.back_content,
-        tags: _data.tags || [],
-        itemCode: _data.item_code,
-        difficulty: (_data.difficulty as 'easy' | 'medium' | 'hard') || 'medium',
-        createdAt: _data.created_at,
+        id: data.id,
+        deckId: data.deck_id,
+        front: data.front_content,
+        back: data.back_content,
+        tags: data.tags || [],
+        itemCode: data.item_code,
+        difficulty: (data.difficulty as 'easy' | 'medium' | 'hard') || 'medium',
+        createdAt: data.created_at,
         reviewCount: 0,
         correctCount: 0
       };
@@ -289,12 +289,12 @@ export const useFlashcards = () => {
     try {
       const card = cards.find(c => c.id === cardId);
       
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('flashcards')
         .delete()
         .eq('id', cardId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Update deck card count
       if (card) {
@@ -326,7 +326,7 @@ export const useFlashcards = () => {
     setLoading(true);
     try {
       // Use edn_items_complete which is properly typed (not edn_items_immersive)
-      const { _data: item } = await supabase
+      const { data: item } = await supabase
         .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .eq('item_code', itemCode)
@@ -402,7 +402,7 @@ export const useFlashcards = () => {
       const card = cards.find(c => c.id === cardId);
       if (!card) return false;
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('flashcards')
         .update({
           review_count: card.reviewCount + 1,
@@ -411,7 +411,7 @@ export const useFlashcards = () => {
         } as any)
         .eq('id', cardId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Also log to flashcard_reviews
       await supabase.from('flashcard_reviews').insert({
@@ -449,7 +449,7 @@ export const useFlashcards = () => {
         .eq('user_id', userId);
 
       // Get total cards
-      const { _data: userDecks } = await supabase
+      const { data: userDecks } = await supabase
         .from('flashcard_decks')
         .select('id')
         .eq('user_id', userId);
@@ -461,7 +461,7 @@ export const useFlashcards = () => {
       let correctReviews = 0;
 
       if (deckIds.length > 0) {
-        const { _data: cardsData } = await supabase
+        const { data: cardsData } = await supabase
           .from('flashcards')
           .select('review_count, correct_count')
           .in('deck_id', deckIds);
@@ -482,12 +482,12 @@ export const useFlashcards = () => {
 
       // Calculate streak days from flashcard_reviews
       let streakDays = 0;
-      const { _data: recentReviews } = await supabase
+      const { data: recentReviews } = await supabase
         .from('flashcard_reviews')
         .select('reviewed_at')
         .order('reviewed_at', { ascending: false })
         .limit(30);
-      
+
       if (recentReviews && recentReviews.length > 0) {
         const uniqueDays = new Set(
           recentReviews.map((r: any) => new Date(r.reviewed_at).toDateString())
@@ -559,12 +559,12 @@ export const useFlashcards = () => {
       if (updates.tags) updateData.tags = updates.tags;
       if (updates.difficulty) updateData.difficulty = updates.difficulty;
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('flashcards')
         .update(updateData)
         .eq('id', cardId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setCards(prev => prev.map(c =>
         c.id === cardId ? { ...c, ...updates } : c
@@ -624,7 +624,7 @@ export const useFlashcards = () => {
           correct_count: 0
         }));
 
-        const { _error: batchError } = await supabase
+        const { error: batchError } = await supabase
           .from('flashcards')
           .insert(cardsToInsert as any);
 
@@ -876,16 +876,16 @@ export const useFlashcards = () => {
     wasCorrect: boolean;
   }[]> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('flashcard_reviews')
         .select('reviewed_at, quality')
         .eq('flashcard_id', cardId)
         .order('reviewed_at', { ascending: false })
         .limit(20);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      return (_data || []).map(r => ({
+      return (data || []).map(r => ({
         date: r.reviewed_at,
         wasCorrect: (r.quality || 0) >= 3 // quality >= 3 means correct
       }));
