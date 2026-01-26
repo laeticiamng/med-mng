@@ -43,7 +43,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const { _addPoints, _unlockBadge, _stats: gamificationStats, loadStats } = useGamification();
+  const { addPoints, unlockBadge, stats: gamificationStats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { trackMusicGeneration } = useAnalyticsTracking();
   const { cacheAudio, isCaching } = useAudioWithCache({ type: 'music' });
@@ -83,14 +83,14 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       if (user) {
         loadStats(user.id);
         // Load previous feedback for this item
-        const { _data } = await supabase
+        const { data } = await supabase
           .from('music_feedback')
           .select('rating')
           .eq('user_id', user.id)
           .eq('item_code', itemCode)
           .maybeSingle();
-        if (_data) {
-          setUserFeedback(_data.rating > 3 ? 'like' : _data.rating < 3 ? 'dislike' : null);
+        if (data) {
+          setUserFeedback(data.rating > 3 ? 'like' : data.rating < 3 ? 'dislike' : null);
         }
       }
     };
@@ -118,9 +118,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     handleGenerateMix: originalHandleGenerateMix,
     handlePlayAudio,
     seek,
-    changeVolume,
-    stop
-  } = useParolesMusicales(paroles, { 
+    changeVolume
+  } = useParolesMusicales(paroles, {
     paroles_rang_a, 
     paroles_rang_b, 
     paroles_rang_ab, 
@@ -134,7 +133,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     // Award points for music generation
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, 15, 'music_generation');
       await logActivity({ 
         activity_type: 'study', 
         count: 1, 
@@ -150,10 +149,10 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       
       // Unlock music badges
       if (newCount === 1) {
-        await _unlockBadge(user.id, 'music_first');
+        await unlockBadge(user.id, 'music_first');
       }
       if (newCount >= 10) {
-        await _unlockBadge(user.id, 'music_10');
+        await unlockBadge(user.id, 'music_10');
       }
       // Track analytics
       trackMusicGeneration(itemCode, 'A', selectedStyle, 'complete');
@@ -165,7 +164,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, 15, 'music_mix');
       await logActivity({ 
         activity_type: 'study', 
         count: 1, 

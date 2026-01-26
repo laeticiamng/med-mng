@@ -44,7 +44,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats } = useGamification();
+  const { stats: gamificationStats } = useGamification();
 
   // Track page view
   useEffect(() => {

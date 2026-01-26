@@ -21,7 +21,7 @@ export const CompletionProgress: React.FC<CompletionProgressProps> = ({
   pendingItems
 }) => {
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const load = async () => {

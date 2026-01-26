@@ -112,7 +112,7 @@ export function useGamification() {
     try {
       setLoading(true);
       // Charger les badges depuis Supabase
-      const { _data: userBadges } = await supabase
+      const { data: userBadges } = await supabase
         .from('user_badges')
         .select('badge_id, badge_name, badge_description, badge_icon, earned_at, unlocked')
         .eq('user_id', userId)
@@ -131,7 +131,7 @@ export function useGamification() {
       });
 
       // Charger les points totaux depuis gamification_activities
-      const { _data: activities } = await supabase
+      const { data: activities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .eq('user_id', userId);
@@ -139,7 +139,7 @@ export function useGamification() {
       const totalPoints = (activities || []).reduce((sum, a) => sum + (a.points_earned || 0), 0);
 
       // Calculate streak from user_activity_log
-      const { _data: activityLog } = await supabase
+      const { data: activityLog } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', userId)
@@ -174,7 +174,7 @@ export function useGamification() {
         .gte('activity_date', weekStart.toISOString().split('T')[0]);
 
       // Récupérer le longest streak depuis Supabase
-      const { _data: gamificationData } = await supabase
+      const { data: gamificationData } = await supabase
         .from('user_gamification_stats')
         .select('longest_streak')
         .eq('user_id', userId)
@@ -211,6 +211,28 @@ export function useGamification() {
       setLoading(false);
     }
   }, []);
+
+  // Add points function
+  const addPoints = useCallback(async (userId: string, points: number, reason: string = 'activity'): Promise<boolean> => {
+    if (!userId || userId === '00000000-0000-0000-0000-000000000000') return false;
+    
+    try {
+      await supabase.from('gamification_activities').insert({
+        user_id: userId,
+        activity_type: reason,
+        points_earned: points,
+        created_at: new Date().toISOString()
+      } as any);
+      
+      // Reload stats to reflect new points
+      await loadStats(userId);
+      return true;
+    } catch (error) {
+      console.error('Error adding points:', error);
+      return false;
+    }
+  }, [loadStats]);
+
   const unlockBadge = useCallback(async (userId: string, badgeId: string) => {
     if (!stats) return false;
 
@@ -219,7 +241,7 @@ export function useGamification() {
     if (stats.badges.some(b => b.id === badgeId)) return false;
 
     // Persister dans Supabase user_badges
-    const { _error } = await supabase.from('user_badges').insert({
+    const { error } = await supabase.from('user_badges').insert({
       user_id: userId,
       badge_id: badgeId,
       badge_name: badgeDef.name,
@@ -230,8 +252,8 @@ export function useGamification() {
       unlocked: true,
     } as any);
 
-    if (_error) {
-      console.error('Error saving badge:', _error);
+    if (error) {
+      console.error('Error saving badge:', error);
       return false;
     }
 
