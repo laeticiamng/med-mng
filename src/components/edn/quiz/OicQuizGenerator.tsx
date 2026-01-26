@@ -187,7 +187,7 @@ export const OicQuizGenerator: React.FC<OicQuizGeneratorProps> = ({
         // Erreur silencieuse
       }
 
-      await addPoints(user.id, percentage === 100 ? 'perfectExam' : 'examCompleted');
+      await addPoints(user.id, percentage === 100 ? 200 : 100, percentage === 100 ? 'perfectExam' : 'examCompleted');
       await logActivity({
         activity_type: 'exam',
         count: 1,

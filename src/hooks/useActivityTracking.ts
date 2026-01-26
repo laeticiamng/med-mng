@@ -24,7 +24,7 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_activity_log')
         .insert({
           user_id: user.id,
@@ -35,8 +35,8 @@ export const useActivityTracking = () => {
           metadata: activity.metadata || {}
         });
 
-      if (_error) {
-        console.error('Error logging activity:', _error);
+      if (error) {
+        console.error('Error logging activity:', error);
         return false;
       }
       return true;
@@ -55,19 +55,19 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('activity_date, activity_type, count')
         .eq('user_id', user.id)
         .gte('activity_date', startDate.toISOString().split('T')[0])
         .order('activity_date', { ascending: true });
 
-      if (_error || !_data) return [];
+      if (error || !data) return [];
 
       // Group by date
       const byDate: Record<string, HeatmapData> = {};
       
-      _data.forEach(log => {
+      data.forEach(log => {
         const dateStr = log.activity_date;
         if (!byDate[dateStr]) {
           byDate[dateStr] = {
@@ -119,16 +119,16 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { current: 0, longest: 0 };
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
         .order('activity_date', { ascending: false });
 
-      if (_error || !_data || _data.length === 0) return { current: 0, longest: 0 };
+      if (error || !data || data.length === 0) return { current: 0, longest: 0 };
 
       // Get unique dates
-      const uniqueDates = [...new Set(_data.map(d => d.activity_date))].sort().reverse();
+      const uniqueDates = [...new Set(data.map(d => d.activity_date))].sort().reverse();
       
       // Calculate current streak
       let currentStreak = 0;
@@ -185,26 +185,26 @@ export const useActivityTracking = () => {
 
       const today = new Date().toISOString().split('T')[0];
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score')
         .eq('user_id', user.id)
         .eq('activity_date', today);
 
-      if (_error || !_data) return null;
+      if (error || !data) return null;
 
       const stats = {
-        totalActivities: _data.reduce((sum, d) => sum + d.count, 0),
-        totalTime: _data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
-        averageScore: _data.filter(d => d.score).length > 0
-          ? Math.round(_data.filter(d => d.score).reduce((sum, d) => sum + (d.score || 0), 0) / _data.filter(d => d.score).length)
+        totalActivities: data.reduce((sum, d) => sum + d.count, 0),
+        totalTime: data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
+        averageScore: data.filter(d => d.score).length > 0
+          ? Math.round(data.filter(d => d.score).reduce((sum, d) => sum + (d.score || 0), 0) / data.filter(d => d.score).length)
           : null,
         byType: {
-          srs_review: _data.filter(d => d.activity_type === 'srs_review').reduce((sum, d) => sum + d.count, 0),
-          exam: _data.filter(d => d.activity_type === 'exam').reduce((sum, d) => sum + d.count, 0),
-          flashcard: _data.filter(d => d.activity_type === 'flashcard').reduce((sum, d) => sum + d.count, 0),
-          clinical_case: _data.filter(d => d.activity_type === 'clinical_case').reduce((sum, d) => sum + d.count, 0),
-          study: _data.filter(d => d.activity_type === 'study').reduce((sum, d) => sum + d.count, 0)
+          srs_review: data.filter(d => d.activity_type === 'srs_review').reduce((sum, d) => sum + d.count, 0),
+          exam: data.filter(d => d.activity_type === 'exam').reduce((sum, d) => sum + d.count, 0),
+          flashcard: data.filter(d => d.activity_type === 'flashcard').reduce((sum, d) => sum + d.count, 0),
+          clinical_case: data.filter(d => d.activity_type === 'clinical_case').reduce((sum, d) => sum + d.count, 0),
+          study: data.filter(d => d.activity_type === 'study').reduce((sum, d) => sum + d.count, 0)
         }
       };
 
@@ -227,14 +227,14 @@ export const useActivityTracking = () => {
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
       // Current week
-      const { _data: currentWeek } = await supabase
+      const { data: currentWeek } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score')
         .eq('user_id', user.id)
         .gte('activity_date', weekAgo.toISOString().split('T')[0]);
 
       // Previous week
-      const { _data: previousWeek } = await supabase
+      const { data: previousWeek } = await supabase
         .from('user_activity_log')
         .select('activity_type, count')
         .eq('user_id', user.id)
@@ -287,13 +287,13 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
         .gte('activity_date', startDate.toISOString().split('T')[0]);
 
-      const uniqueDays = new Set(_data?.map(d => d.activity_date) || []);
+      const uniqueDays = new Set(data?.map(d => d.activity_date) || []);
       return uniqueDays.size;
     } catch (error) {
       console.error('Error getting active days:', error);
@@ -311,14 +311,14 @@ export const useActivityTracking = () => {
       const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
       const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('activity_type, count, duration_seconds, score, activity_date')
         .eq('user_id', user.id)
         .gte('activity_date', startOfMonth.toISOString().split('T')[0])
         .lte('activity_date', endOfMonth.toISOString().split('T')[0]);
 
-      if (_error || !_data) return null;
+      if (error || !data) return null;
 
       const byType: Record<ActivityType, number> = {
         srs_review: 0, exam: 0, flashcard: 0, clinical_case: 0,
@@ -326,19 +326,19 @@ export const useActivityTracking = () => {
         review: 0, clinical: 0
       };
 
-      _data.forEach(d => {
+      data.forEach(d => {
         byType[d.activity_type as ActivityType] += d.count;
       });
 
-      const uniqueDays = new Set(_data.map(d => d.activity_date));
+      const uniqueDays = new Set(data.map(d => d.activity_date));
 
       return {
-        totalActivities: _data.reduce((sum, d) => sum + d.count, 0),
-        totalTime: _data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
+        totalActivities: data.reduce((sum, d) => sum + d.count, 0),
+        totalTime: data.reduce((sum, d) => sum + (d.duration_seconds || 0), 0),
         activeDays: uniqueDays.size,
         totalDaysInMonth: endOfMonth.getDate(),
         byType,
-        averagePerDay: _data.length > 0 ? Math.round(_data.reduce((sum, d) => sum + d.count, 0) / uniqueDays.size) : 0
+        averagePerDay: data.length > 0 ? Math.round(data.reduce((sum, d) => sum + d.count, 0) / uniqueDays.size) : 0
       };
     } catch (error) {
       console.error('Error getting monthly summary:', error);
@@ -355,7 +355,7 @@ export const useActivityTracking = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('*')
         .eq('user_id', user.id)
@@ -363,8 +363,8 @@ export const useActivityTracking = () => {
         .gte('activity_date', startDate.toISOString().split('T')[0])
         .order('activity_date', { ascending: false });
 
-      if (_error) return [];
-      return _data || [];
+      if (error) return [];
+      return data || [];
     } catch (error) {
       console.error('Error getting activity by type:', error);
       return [];
@@ -392,16 +392,16 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_activity_log')
         .select('created_at')
         .eq('user_id', user.id)
         .limit(500);
 
-      if (!_data || _data.length < 10) return null;
+      if (!data || data.length < 10) return null;
 
       const byHour: Record<number, number> = {};
-      _data.forEach(d => {
+      data.forEach(d => {
         const hour = new Date(d.created_at).getHours();
         byHour[hour] = (byHour[hour] || 0) + 1;
       });
