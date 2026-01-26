@@ -50,7 +50,7 @@ interface QuizFinalProps {
 }
 
 export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN', onQuizFinished }: QuizFinalProps) => {
-  const { _addPoints, _unlockBadge, _stats } = useGamification();
+  const { addPoints, unlockBadge, stats } = useGamification();
   const { logActivity } = useActivityTracking();
   const { toast } = useToast();
   const [pointsAwarded, setPointsAwarded] = useState(false);
@@ -282,7 +282,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       // Award points based on score
       const isPerfect = percentage === 100;
-      _addPoints(userId, isPerfect ? 'perfectExam' : 'examCompleted');
+      addPoints(userId, isPerfect ? 50 : 20, isPerfect ? 'perfect_quiz' : 'quiz_complete');
       
       // Log activity
       logActivity({
@@ -300,7 +300,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       // Check for perfect score badge
       if (isPerfect) {
-        _unlockBadge(userId, 'perfect_exam');
+        unlockBadge(userId, 'perfect_exam');
         toast({
           title: "🏆 Score parfait !",
           description: `Badge débloqué !`,
@@ -317,7 +317,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
       
       setPointsAwarded(true);
     }
-  }, [showResults, pointsAwarded, score, allQuestions.length, userId, startTime, _addPoints, logActivity, itemCode, itemTitle, _unlockBadge, toast, onQuizFinished]);
+  }, [showResults, pointsAwarded, score, allQuestions.length, userId, startTime, addPoints, logActivity, itemCode, itemTitle, unlockBadge, toast, onQuizFinished]);
 
   if (showResults) {
     const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
@@ -366,15 +366,15 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
         </div>
 
         {/* Gamification Stats */}
-        {_stats && (
+        {stats && (
           <div className="flex justify-center gap-4">
             <Badge variant="outline" className="gap-1 text-sm">
-              <Flame className="h-4 w-4 text-orange-500" />
-              Série: {_stats.currentStreak ?? 0} jours
+              <Flame className="h-4 w-4 text-warning" />
+              Série: {stats.currentStreak ?? 0} jours
             </Badge>
             <Badge variant="outline" className="gap-1 text-sm">
-              <Star className="h-4 w-4 text-yellow-500" />
-              Niveau {_stats.level ?? 1}
+              <Star className="h-4 w-4 text-primary" />
+              Niveau {stats.level ?? 1}
             </Badge>
           </div>
         )}

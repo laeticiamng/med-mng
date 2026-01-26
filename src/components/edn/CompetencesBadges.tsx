@@ -36,7 +36,7 @@ interface CompetencesBadgesProps {
 export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) => {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
@@ -181,14 +181,14 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
             {globalCompletion}% Complété
           </Badge>
         )}
-        {_stats && (
+        {stats && (
           <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
             <Flame className="h-4 w-4 text-warning" />
-            <span className="text-sm font-bold text-warning">{_stats.currentStreak ?? 0}j</span>
+            <span className="text-sm font-bold text-warning">{stats.currentStreak ?? 0}j</span>
             <Star className="h-4 w-4 text-primary ml-1" />
-            <span className="text-sm font-bold text-primary">Nv.{_stats.level ?? 1}</span>
+            <span className="text-sm font-bold text-primary">Nv.{stats.level ?? 1}</span>
             <Trophy className="h-4 w-4 text-accent ml-1" />
-            <span className="text-sm font-bold text-accent">{Array.isArray(_stats.badges) ? _stats.badges.length : 0}</span>
+            <span className="text-sm font-bold text-accent">{Array.isArray(stats.badges) ? stats.badges.length : 0}</span>
           </div>
         )}
       </div>

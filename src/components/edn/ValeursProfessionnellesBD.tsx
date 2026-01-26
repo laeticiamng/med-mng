@@ -29,7 +29,7 @@ interface ValeursProfessionnellesBDProps {
 
 export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesBDProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
@@ -52,12 +52,12 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, 10, 'valeurs_bd_view');
         }
       }
     };
     track();
-  }, [itemData.title, logActivity, _addPoints]);
+  }, [itemData.title, logActivity, addPoints]);
 
   // Données des vignettes spécifiques aux valeurs professionnelles
   const panelsData = [
@@ -103,17 +103,17 @@ export const ValeursProfessionnellesBD = ({ itemData }: ValeursProfessionnellesB
     <div className="space-y-8 bg-gradient-to-br from-primary/5 via-success/5 to-warning/10 p-6 rounded-xl">
       <div className="flex items-center justify-between">
         <ComicHeader title={itemData.title} />
-        {_stats && (
+        {stats && (
           <div className="flex items-center gap-3 px-4 py-2 bg-background/50 rounded-full">
             <BookOpen className="h-4 w-4 text-primary" />
             <div className="flex items-center gap-1 text-warning">
               <Flame className="h-4 w-4" />
-              <span className="font-bold">{_stats.currentStreak ?? 0}j</span>
+              <span className="font-bold">{stats.currentStreak ?? 0}j</span>
             </div>
             <div className="w-px h-4 bg-border" />
             <div className="flex items-center gap-1 text-primary">
               <Star className="h-4 w-4" />
-              <span className="font-bold">Nv.{_stats.level ?? 1}</span>
+              <span className="font-bold">Nv.{stats.level ?? 1}</span>
             </div>
           </div>
         )}

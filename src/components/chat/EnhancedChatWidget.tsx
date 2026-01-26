@@ -87,7 +87,7 @@ export const EnhancedChatWidget: React.FC<EnhancedChatWidgetProps> = ({
         count: 1,
         metadata: { contextItems }
       });
-      await _addPoints(user.id, 'aiQuestion');
+      await addPoints(user.id, 5, 'ai_question');
       loadStats(user.id);
     }
   };

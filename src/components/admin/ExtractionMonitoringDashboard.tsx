@@ -251,7 +251,7 @@ export function ExtractionMonitoringDashboard() {
         setRunningExtractions(prev => prev.filter(ext => ext.batch_id !== batchId));
         await fetchData();
       } else {
-        toast.error(_data?.error || 'Erreur lors de l\'arrêt');
+        toast.error(data?.error || 'Erreur lors de l\'arrêt');
       }
     } catch (error) {
       console.error('Erreur arrêt extraction:', error);
