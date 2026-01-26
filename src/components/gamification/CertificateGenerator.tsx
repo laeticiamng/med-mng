@@ -63,13 +63,13 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
       }
 
       // Charger les badges de l'utilisateur comme certificats
-      const { _data: userBadges, _error } = await supabase
+      const { data: userBadges, error } = await supabase
         .from('user_badges')
         .select('*, badge:badge_id(*)')
         .eq('user_id', user.id)
         .order('earned_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Mapper les badges vers des certificats
       const mappedCertificates: Certificate[] = (userBadges || []).map((ub: any) => ({

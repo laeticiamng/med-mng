@@ -42,17 +42,17 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
         quizQuery = quizQuery.eq('item_code', itemCode);
       }
 
-      const { _data: quizData } = await quizQuery;
+      const { data: quizData } = await quizQuery;
 
       // Fetch study activities
-      const { _data: activityData } = await supabase
+      const { data: activityDataResult } = await supabase
         .from('user_activities')
         .select('created_at, activity_type')
         .eq('user_id', user.id)
         .gte('created_at', startDate.toISOString());
 
       // Fetch mastery updates
-      const { _data: masteryData } = await supabase
+      const { data: masteryData } = await supabase
         .from('user_competence_mastery')
         .select('updated_at')
         .eq('user_id', user.id)
@@ -66,7 +66,7 @@ export const ProgressHeatmap: React.FC<ProgressHeatmapProps> = ({
         dayMap[day] = (dayMap[day] || 0) + 2; // Quiz = 2 points
       });
 
-      activityData?.forEach(activity => {
+      activityDataResult?.forEach(activity => {
         const day = new Date(activity.created_at).toISOString().split('T')[0];
         dayMap[day] = (dayMap[day] || 0) + 1; // Activity = 1 point
       });

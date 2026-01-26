@@ -99,7 +99,7 @@ export const GamificationPanel: React.FC = () => {
   const loadLeaderboard = async (currentUserId: string) => {
     try {
       // Charger les top utilisateurs par XP depuis user_activity_log
-      const { _data: activities } = await supabase
+      const { data: activities } = await supabase
         .from('user_activity_log')
         .select('user_id, score, count')
         .order('score', { ascending: false });
