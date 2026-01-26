@@ -64,7 +64,7 @@ interface Event {
 
 const CommunityHub = () => {
   const { toast } = useToast();
-  const { _stats, _addPoints } = useGamification();
+  const { stats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
   const [activeTab, setActiveTab] = useState('feed');
   const [_leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -77,7 +77,7 @@ const CommunityHub = () => {
     const loadUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { _data: profile } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('name, email')
           .eq('id', user.id)
@@ -85,13 +85,13 @@ const CommunityHub = () => {
         setCurrentUser({ ...user, profile });
         
         // Get badges count from stats
-        if (_stats?.badges) {
-          setUserBadgesCount(_stats.badges.length);
+        if (stats?.badges) {
+          setUserBadgesCount(stats.badges.length);
         }
       }
     };
     loadUser();
-  }, [_stats]);
+  }, [stats]);
 
   // Load real leaderboard data from user_activity_log
   useEffect(() => {
@@ -102,12 +102,12 @@ const CommunityHub = () => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         
-        const { _data: activities, _error } = await supabase
+        const { data: activities, error } = await supabase
           .from('user_activity_log')
           .select('user_id, count')
           .gte('activity_date', weekAgo.toISOString().split('T')[0]);
-        
-        if (_error) throw _error;
+
+        if (error) throw error;
 
         // Aggregate by user
         const userScores: Record<string, number> = {};
@@ -118,7 +118,7 @@ const CommunityHub = () => {
         // Get user profiles for names
         const userIds = Object.keys(userScores);
         if (userIds.length > 0) {
-          const { _data: profiles } = await supabase
+          const { data: profiles } = await supabase
             .from('profiles')
             .select('id, name, email')
             .in('id', userIds);
@@ -301,7 +301,7 @@ const CommunityHub = () => {
         count: 1,
         metadata: { action: 'community_like', postId }
       });
-      await _addPoints(currentUser.id, 'itemReviewed');
+      await addPoints(currentUser.id, 'itemReviewed');
     }
     
     toast({
@@ -318,7 +318,7 @@ const CommunityHub = () => {
         count: 1,
         metadata: { action: 'event_registration', eventId }
       });
-      await _addPoints(currentUser.id, 'dailyStreak');
+      await addPoints(currentUser.id, 'dailyStreak');
     }
     
     toast({
@@ -343,7 +343,7 @@ const CommunityHub = () => {
         </div>
 
         {/* User Profile Card */}
-        {currentUser && _stats && (
+        {currentUser && stats && (
           <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center gap-6">
@@ -360,11 +360,11 @@ const CommunityHub = () => {
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     <Badge variant="outline" className="gap-1">
                       <Flame className="h-3 w-3 text-orange-500" />
-                      {_stats.currentStreak} jours
+                      {stats.currentStreak} jours
                     </Badge>
                     <Badge variant="outline" className="gap-1">
                       <Star className="h-3 w-3 text-yellow-500" />
-                      Niveau {_stats.level}
+                      Niveau {stats.level}
                     </Badge>
                     <Badge variant="outline" className="gap-1">
                       <Trophy className="h-3 w-3 text-amber-500" />
@@ -376,10 +376,10 @@ const CommunityHub = () => {
                 <div className="w-full md:w-48 space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>XP</span>
-                    <span>{_stats.totalPoints % XP_PER_LEVEL} / {XP_PER_LEVEL}</span>
+                    <span>{stats.totalPoints % XP_PER_LEVEL} / {XP_PER_LEVEL}</span>
                   </div>
-                  <Progress 
-                    value={(_stats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} 
+                  <Progress
+                    value={(stats.totalPoints % XP_PER_LEVEL) / XP_PER_LEVEL * 100} 
                     className="h-2"
                   />
                 </div>

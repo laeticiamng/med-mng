@@ -103,20 +103,20 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
         return;
       }
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, subtitle')
         .or(`title.ilike.%${searchQuery}%,subtitle.ilike.%${searchQuery}%,item_code.ilike.%${searchQuery}%`)
         .limit(10);
 
-      if (_error) {
-        console.error('Search error:', _error);
+      if (error) {
+        console.error('Search error:', error);
         setResults([]);
         return;
       }
 
-      if (_data) {
-        const searchResults: SearchResult[] = _data.map((item: any) => ({
+      if (data) {
+        const searchResults: SearchResult[] = data.map((item: any) => ({
           id: item.id,
           title: `${item.item_code} - ${item.title}`,
           type: 'edn' as const,

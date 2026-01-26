@@ -31,31 +31,31 @@ export const ScheduledReports = () => {
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['scheduled-reports'],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('scheduled_reports')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
-      return (_data || []) as ScheduledReport[];
+      if (error) throw error;
+      return (data || []) as ScheduledReport[];
     },
   });
 
   // Create scheduled report
   const createReport = useMutation({
-    mutationFn: async (data: { reportType: string; recipients: string[] }) => {
-      const nextScheduled = getNextScheduledDate(data.reportType);
-      
-      const { _error } = await supabase
+    mutationFn: async (reportData: { reportType: string; recipients: string[] }) => {
+      const nextScheduled = getNextScheduledDate(reportData.reportType);
+
+      const { error } = await supabase
         .from('scheduled_reports')
         .insert({
-          report_type: data.reportType,
-          recipients: data.recipients,
+          report_type: reportData.reportType,
+          recipients: reportData.recipients,
           next_scheduled_at: nextScheduled.toISOString(),
           enabled: true,
         } as any);
 
-      if (_error) throw _error;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
@@ -72,12 +72,12 @@ export const ScheduledReports = () => {
   // Delete scheduled report
   const deleteReport = useMutation({
     mutationFn: async (id: string) => {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('scheduled_reports')
         .delete()
         .eq('id', id);
 
-      if (_error) throw _error;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });

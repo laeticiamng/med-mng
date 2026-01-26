@@ -175,10 +175,10 @@ export const useProgressData = () => {
         }
 
         // Charger les données réelles
-        const { _data: itemsData } = await supabase.from('user_item_progress').select('id').eq('user_id', user.id);
-        const { _data: sessionsData } = await supabase.from('activity_sessions').select('duration_seconds').eq('user_id', user.id);
-        const { _data: songsData } = await supabase.from('med_mng_songs').select('id').eq('user_id', user.id);
-        const { _data: quizData } = await supabase.from('quiz_sessions').select('score').eq('user_id', user.id);
+        const { data: itemsData } = await supabase.from('user_item_progress').select('id').eq('user_id', user.id);
+        const { data: sessionsData } = await supabase.from('activity_sessions').select('duration_seconds').eq('user_id', user.id);
+        const { data: songsData } = await supabase.from('med_mng_songs').select('id').eq('user_id', user.id);
+        const { data: quizData } = await supabase.from('quiz_sessions').select('score').eq('user_id', user.id);
 
         const completedItems = itemsData?.length || 0;
         const totalStudyMinutes = Math.round((sessionsData?.reduce((sum: number, s: any) => sum + (s.duration_seconds || 0), 0) || 0) / 60);

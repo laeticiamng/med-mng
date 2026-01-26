@@ -31,10 +31,10 @@ export const LearningInsights: React.FC = () => {
   const navigate = useNavigate();
   const { generateInsights, loading } = useLearningAnalytics();
   const { getTodayStats, logActivity } = useActivityTracking();
-  const { _stats: _gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [localInsights, setLocalInsights] = useState<LearningInsight[]>([]);
   const [todayStats, setTodayStats] = useState<any>(null);
-  const [_user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {

@@ -33,7 +33,7 @@ export const SubscriptionAudit: React.FC = () => {
 
     try {
       // Test 1: Vérification des plans d'abonnement
-      const { _data: plans, _error: plansError } = await supabase
+      const { data: plans, error: plansError } = await supabase
         .from('subscription_plans')
         .select('*');
 
@@ -100,11 +100,11 @@ export const SubscriptionAudit: React.FC = () => {
       }
 
       // Test 3: Statistiques d'utilisation
-      const { _data: subscriptions } = await supabase
+      const { data: subscriptions } = await supabase
         .from('user_subscriptions')
         .select('plan_id, status');
 
-      const { _data: usage } = await supabase
+      const { data: usage } = await supabase
         .from('music_generation_usage')
         .select('generated_count, quota_limit');
 

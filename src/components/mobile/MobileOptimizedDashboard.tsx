@@ -39,8 +39,8 @@ export default function MobileOptimizedDashboard() {
     try {
       // Requêtes parallèles pour les vraies données
       const [
-        { _data: extractionLogs },
-        { _data: integrityReports },
+        { data: extractionLogs },
+        { data: integrityReports },
         { count: profilesCount }
       ] = await Promise.all([
         supabase.from('extraction_logs').select('*').limit(50),

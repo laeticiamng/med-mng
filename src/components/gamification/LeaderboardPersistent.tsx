@@ -71,8 +71,8 @@ export function LeaderboardPersistent() {
         query = query.gte('created_at', startDate.toISOString());
       }
 
-      const { _data: activities, _error } = await query;
-      if (_error) throw _error;
+      const { data: activities, error } = await query;
+      if (error) throw error;
 
       // Aggregate by user
       const userPoints: Record<string, number> = {};
@@ -94,9 +94,9 @@ export function LeaderboardPersistent() {
         supabase.from('user_gamification_stats').select('user_id, longest_streak').in('user_id', userIds)
       ]);
 
-      const profiles = profilesResult._data || [];
-      const badges = badgesResult._data || [];
-      const streaks = streaksResult._data || [];
+      const profiles = profilesResult.data || [];
+      const badges = badgesResult.data || [];
+      const streaks = streaksResult.data || [];
 
       // Count badges per user
       const badgeCounts: Record<string, number> = {};

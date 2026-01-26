@@ -101,7 +101,7 @@ const DroppablePhrase = ({
 
 export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   
   const [matches, setMatches] = useState<{ [phrase: string]: string }>({});
@@ -226,12 +226,12 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
       });
       
       if (correctCount === config.exemples.length) {
-        await _addPoints(user.id, 'perfectExam');
+        await addPoints(user.id, 'perfectExam');
       } else if (correctCount > 0) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
       }
     }
-  }, [matches, config.exemples, config.type, logActivity, _addPoints]);
+  }, [matches, config.exemples, config.type, logActivity, addPoints]);
 
   const resetGame = useCallback(() => {
     setMatches({});
@@ -266,12 +266,12 @@ export const InteractionDragDrop = ({ config }: InteractionDragDropProps) => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
             <h2 className="text-3xl font-serif text-warning-foreground">Interaction Pratique</h2>
-            {_stats && (
+            {stats && (
               <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
                 <Flame className="h-4 w-4 text-warning" />
-                <span className="text-sm font-bold text-warning">{_stats.currentStreak}j</span>
+                <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
                 <Star className="h-4 w-4 text-primary ml-1" />
-                <span className="text-sm font-bold text-primary">Nv.{_stats.level}</span>
+                <span className="text-sm font-bold text-primary">Nv.{stats.level}</span>
               </div>
             )}
           </div>

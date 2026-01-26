@@ -69,7 +69,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     loadAdvancedAnalytics();
@@ -107,13 +107,13 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         .eq('user_id', user.id);
 
       // Charger les badges
-      const { _data: userBadges } = await supabase
+      const { data: userBadges } = await supabase
         .from('user_badges')
         .select('badge_id')
         .eq('user_id', user.id);
 
       // Charger les activités récentes pour weekly activity
-      const { _data: recentActivities } = await supabase
+      const { data: recentActivities } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
@@ -121,7 +121,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         .order('created_at', { ascending: false });
 
       // Fetch real genre distribution from generated music metadata
-      const { _data: genreData } = await supabase
+      const { data: genreData } = await supabase
         .from('generated_music_tracks')
         .select('metadata')
         .eq('user_id', user.id);

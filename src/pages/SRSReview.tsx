@@ -46,7 +46,7 @@ export default function SRSReview() {
     loading 
   } = useSRS();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -89,18 +89,18 @@ export default function SRSReview() {
     // Get new items if we have less than 20 due
     let newItemsToAdd: any[] = [];
     if (dueItems.length < 20) {
-      const { _data: userProgress } = await supabase
+      const { data: userProgress } = await supabase
         .from('user_item_progress')
         .select('item_code')
         .eq('user_id', user.id);
-      
+
       const allStudiedCodes = userProgress?.map(p => p.item_code) || [];
       newItemsToAdd = await getNewItems(user.id, allStudiedCodes, 20 - dueItems.length);
     }
 
     // Get item details for due items
     const allItemCodes = [...dueItemCodes, ...newItemsToAdd.map(n => n.item_code)];
-    const { _data: itemsData } = await supabase
+    const { data: itemsData } = await supabase
       .from('edn_items_immersive')
       .select('item_code, title')
       .in('item_code', allItemCodes);
@@ -134,15 +134,15 @@ export default function SRSReview() {
   useEffect(() => {
     const loadItemDetails = async () => {
       if (reviewQueue.length === 0 || currentIndex >= reviewQueue.length) return;
-      
+
       const currentItem = reviewQueue[currentIndex];
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', currentItem.item_code)
         .maybeSingle();
-      
-      setItemDetails(_data);
+
+      setItemDetails(data);
       setItemStartTime(new Date());
     };
 
@@ -192,10 +192,10 @@ export default function SRSReview() {
 
     // Award gamification points
     if (quality >= 3) {
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, 'itemReviewed');
       // Check for first item badge
       if (sessionStats.reviewed === 0) {
-        await _unlockBadge(user.id, 'first_item');
+        await unlockBadge(user.id, 'first_item');
       }
     }
 
@@ -230,7 +230,7 @@ export default function SRSReview() {
 
     // Award streak points
     if (user && sessionStats.reviewed > 0) {
-      await _addPoints(user.id, 'dailyStreak');
+      await addPoints(user.id, 'dailyStreak');
       await checkAndUnlockBadges(user.id);
       loadGamificationStats(user.id);
     }

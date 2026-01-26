@@ -69,8 +69,8 @@ export const PriorityMode: React.FC<PriorityModeProps> = ({ onComplete, embedded
         .select('id, item_code, title, slug')
         .limit(10);
 
-      const { _data } = await query;
-      const items = _data as any[] | null;
+      const { data } = await query;
+      const items = data as any[] | null;
       
       // Determine action based on user state
       let action: NextAction;

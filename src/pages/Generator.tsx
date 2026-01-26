@@ -51,7 +51,7 @@ const Generator = () => {
   const { musicQuota, incrementMusicUsage, _canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
-  const { _addPoints, loadStats } = useGamification();
+  const { addPoints, loadStats } = useGamification();
   const { preferences, savePreferences } = useGeneratorPreferences();
   
   // État avec restauration des préférences
@@ -288,16 +288,16 @@ const Generator = () => {
           }
         });
         
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
         loadStats(user.id);
       }
-      
+
     } catch (error) {
       console.error('Erreur génération:', error);
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
-  }, [canGenerate, user, remainingFree, _canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, _addPoints, loadStats]);
+  }, [canGenerate, user, remainingFree, _canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;

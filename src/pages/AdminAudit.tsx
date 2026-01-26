@@ -55,14 +55,14 @@ export default function AdminAudit() {
 
   const fetchAuditReports = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('audit_reports')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
-      setAuditReports(_data || []);
+      if (error) throw error;
+      setAuditReports(data || []);
     } catch (error) {
       console.error('Error fetching audit reports:', error);
     }
@@ -71,7 +71,7 @@ export default function AdminAudit() {
   const fetchOverallMetrics = async () => {
     try {
       // Récupérer les métriques depuis la dernière audit de base de données
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('audit_reports')
         .select('metrics')
         .eq('report_type', 'database')
@@ -79,10 +79,10 @@ export default function AdminAudit() {
         .order('created_at', { ascending: false })
         .limit(1);
 
-      if (_error) throw _error;
-      
-      if (_data && _data.length > 0) {
-        const reportMetrics = _data[0].metrics as any;
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const reportMetrics = data[0].metrics as any;
         setMetrics({
           totalItems: reportMetrics?.total_edn_items || 0,
           duplicates: reportMetrics?.duplicates_found || 0,
@@ -156,11 +156,11 @@ export default function AdminAudit() {
 
   const cleanupData = async () => {
     try {
-      const { _data, _error } = await supabase.rpc('cleanup_duplicates');
-      
-      if (_error) throw _error;
+      const { data, error } = await supabase.rpc('cleanup_duplicates');
 
-      const cleanupResult = _data as any;
+      if (error) throw error;
+
+      const cleanupResult = data as any;
       toast({
         title: "Nettoyage terminé",
         description: `${cleanupResult?.cleaned || 0} doublons supprimés`,

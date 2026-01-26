@@ -68,7 +68,7 @@ export default function SmartStudyPlanner() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { stats: srsStats, getStats: getSrsStats } = useSRS();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -98,7 +98,7 @@ export default function SmartStudyPlanner() {
     
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('study-planner', {
+      const { data, error } = await supabase.functions.invoke('study-planner', {
         body: {
           userProgress: {
             masteredCount: srsStats?.masteredItems || 0,
@@ -112,18 +112,18 @@ export default function SmartStudyPlanner() {
       });
 
       if (error) throw error;
-      
-      if (_data.error) {
-        toast({ title: "Erreur", description: _data.error, variant: "destructive" });
+
+      if (data.error) {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
         return;
       }
 
-      setPlan(_data);
+      setPlan(data);
       
       // Log activity and award points
       if (user) {
         await logActivity({ activity_type: 'study', metadata: { action: 'plan_generated' }, score: 100 });
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
       }
       
       toast({ title: "Planning généré", description: "Votre planning personnalisé est prêt ! (+10 XP)" });

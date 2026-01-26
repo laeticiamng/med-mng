@@ -78,7 +78,7 @@ interface PricingPlansProps {
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const { logActivity } = useActivityTracking();
-  const { _stats } = useGamification();
+  const { stats } = useGamification();
 
   // Track page view
   useEffect(() => {
@@ -100,13 +100,13 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         metadata: { type: 'subscribe_plan', planId }
       });
       
-      const { _data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Veuillez vous connecter pour vous abonner');
         return;
       }
 
-      const { _data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
         body: { planId },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -119,9 +119,9 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         return;
       }
 
-      if (_data?.url) {
+      if (data?.url) {
         // Ouvrir Stripe dans un nouvel onglet
-        window.open(_data.url, '_blank');
+        window.open(data.url, '_blank');
         toast.success('Redirection vers Stripe', { id: 'stripe-checkout' });
       }
     } catch (error) {
@@ -136,15 +136,15 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
   return (
     <div className="space-y-6">
       {/* Stats gamification */}
-      {_stats && (
+      {stats && (
         <div className="flex items-center justify-center gap-4 mb-6">
           <Badge variant="outline" className="gap-1">
             <Flame className="h-3 w-3 text-warning" />
-            Série: {_stats.currentStreak} jours
+            Série: {stats.currentStreak} jours
           </Badge>
           <Badge variant="outline" className="gap-1">
             <Trophy className="h-3 w-3 text-primary" />
-            Niveau {_stats.level}
+            Niveau {stats.level}
           </Badge>
         </div>
       )}

@@ -43,7 +43,7 @@ export default function ExamMode() {
     startAIExam, submitAnswer: submitAIAnswer, completeExam: completeAIExam, resetExam: resetAIExam 
   } = useAIExam();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats: loadGamificationStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -162,10 +162,10 @@ export default function ExamMode() {
       const result = await completeAIExam();
       if (result && user) {
         // Award points
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, 'examCompleted');
         if (result.score === 100) {
-          await _addPoints(user.id, 'perfectExam');
-          await _unlockBadge(user.id, 'perfect_exam');
+          await addPoints(user.id, 'perfectExam');
+          await unlockBadge(user.id, 'perfect_exam');
         }
         loadGamificationStats(user.id);
       }
@@ -179,10 +179,10 @@ export default function ExamMode() {
           score: session?.score || 0,
           metadata: { exam_type: 'standard' }
         });
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, 'examCompleted');
         if (session?.score === 100) {
-          await _addPoints(user.id, 'perfectExam');
-          await _unlockBadge(user.id, 'perfect_exam');
+          await addPoints(user.id, 'perfectExam');
+          await unlockBadge(user.id, 'perfect_exam');
         }
         getStats(user.id).then(setStats);
         loadGamificationStats(user.id);

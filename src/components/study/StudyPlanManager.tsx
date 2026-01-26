@@ -63,7 +63,7 @@ export const StudyPlanManager = () => {
   });
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user
   useEffect(() => {
@@ -83,14 +83,14 @@ export const StudyPlanManager = () => {
     if (!user?.id) return;
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('study_plans')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
-      setStudyPlans((_data || []) as unknown as StudyPlan[]);
+      if (error) throw error;
+      setStudyPlans((data || []) as unknown as StudyPlan[]);
     } catch (err) {
       console.error('Error fetching study plans:', err);
     }
@@ -101,14 +101,14 @@ export const StudyPlanManager = () => {
     if (!user?.id) return;
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('plan_sessions')
         .select('*')
         .eq('user_id', user.id)
         .order('scheduled_date', { ascending: true });
 
-      if (_error) throw _error;
-      setSessions((_data || []) as unknown as StudySession[]);
+      if (error) throw error;
+      setSessions((data || []) as unknown as StudySession[]);
     } catch (err) {
       console.error('Error fetching sessions:', err);
     }
@@ -144,7 +144,7 @@ export const StudyPlanManager = () => {
     setIsSaving(true);
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('study_plans')
         .insert({
           user_id: user.id,
@@ -157,18 +157,18 @@ export const StudyPlanManager = () => {
         .select()
         .maybeSingle();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      setStudyPlans(prev => [_data as unknown as StudyPlan, ...prev]);
+      setStudyPlans(prev => [data as unknown as StudyPlan, ...prev]);
 
       // Log activity and add points
       logActivity({
         activity_type: 'study',
-        metadata: { action: 'create_study_plan', plan_id: _data.id }
+        metadata: { action: 'create_study_plan', plan_id: data.id }
       });
-      
+
       if (user?.id) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
       }
 
       setNewPlan({
@@ -198,12 +198,12 @@ export const StudyPlanManager = () => {
 
   const updatePlan = async (planId: string, updates: Partial<StudyPlan>) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('study_plans')
         .update(updates)
         .eq('id', planId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setStudyPlans(prev => prev.map(plan =>
         plan.id === planId ? { ...plan, ...updates, updated_at: new Date().toISOString() } : plan
@@ -220,12 +220,12 @@ export const StudyPlanManager = () => {
 
   const deletePlan = async (planId: string) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('study_plans')
         .delete()
         .eq('id', planId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setStudyPlans(prev => prev.filter(plan => plan.id !== planId));
       setSessions(prev => prev.filter(session => session.plan_id !== planId));

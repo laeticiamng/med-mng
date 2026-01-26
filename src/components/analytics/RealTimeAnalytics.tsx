@@ -41,7 +41,7 @@ interface PerformanceMetric {
 
 export const RealTimeAnalytics = () => {
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const hasTrackedRef = useRef(false);
 
@@ -140,7 +140,7 @@ export const RealTimeAnalytics = () => {
         .gte('created_at', today);
 
       // Progrès du jour (basé sur activités complétées)
-      const { _data: todayActivities } = await supabase
+      const { data: todayActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', today);
@@ -150,7 +150,7 @@ export const RealTimeAnalytics = () => {
       const todayProgress = Math.min(100, (todayPoints / dailyGoal) * 100);
 
       // Objectif hebdomadaire
-      const { _data: weekActivities } = await supabase
+      const { data: weekActivities } = await supabase
         .from('gamification_activities')
         .select('points_earned')
         .gte('created_at', weekStart);
@@ -212,14 +212,14 @@ export const RealTimeAnalytics = () => {
       }
 
       // Charger les activités récentes depuis Supabase
-      const { _data: activitiesData, _error } = await supabase
+      const { data: activitiesData, error } = await supabase
         .from('gamification_activities')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const mappedActivities: UserActivity[] = (activitiesData || []).map(a => ({
         id: a.id,

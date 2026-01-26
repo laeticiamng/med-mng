@@ -44,13 +44,13 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   // Fetch available items for filter
   useEffect(() => {
     const fetchItems = async () => {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('quiz_results')
         .select('item_code')
         .order('item_code');
-      
-      if (_data) {
-        const uniqueItems = [...new Set(_data.map(d => d.item_code))].sort();
+
+      if (data) {
+        const uniqueItems = [...new Set(data.map(d => d.item_code))].sort();
         setAvailableItems(uniqueItems);
       }
     };
@@ -84,8 +84,8 @@ export const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           query = query.gte('created_at', startDate.toISOString());
         }
 
-        const { _data: results, _error } = await query;
-        if (_error) throw _error;
+        const { data: results, error } = await query;
+        if (error) throw error;
 
         // Aggregate by user
         const userScores: Record<string, { total: number; count: number; scores: number[] }> = {};

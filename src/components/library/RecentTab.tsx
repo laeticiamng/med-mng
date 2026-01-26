@@ -34,20 +34,20 @@ export const RecentTab = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_generated_music')
         .select('id, title, item_code, audio_url, rang, created_at, updated_at')
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (_error) {
-        console.error('Erreur récents:', _error);
+      if (error) {
+        console.error('Erreur récents:', error);
         setRecentTracks([]);
         return;
       }
 
-      setRecentTracks(_data || []);
+      setRecentTracks(data || []);
     } catch (error) {
       console.error('Erreur:', error);
       setRecentTracks([]);

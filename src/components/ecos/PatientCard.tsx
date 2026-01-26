@@ -19,7 +19,7 @@ interface PatientCardProps {
 
 export const PatientCard = ({ patient }: PatientCardProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, 'itemReviewed');
         }
       }
     };
@@ -60,11 +60,11 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
               <p className="text-success">{patient.age} ans • {patient.sex}</p>
             </div>
           </div>
-          {_stats && (
+          {stats && (
             <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
               <Stethoscope className="h-4 w-4 text-primary" />
               <Flame className="h-4 w-4 text-warning" />
-              <span className="text-sm font-bold text-warning">{_stats.currentStreak}j</span>
+              <span className="text-sm font-bold text-warning">{stats.currentStreak}j</span>
             </div>
           )}
         </div>

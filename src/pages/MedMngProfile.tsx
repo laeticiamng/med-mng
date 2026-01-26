@@ -49,7 +49,7 @@ const MedMngProfileComponent = () => {
     email: '',
   });
 
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and log activity
   useEffect(() => {
@@ -66,14 +66,14 @@ const MedMngProfileComponent = () => {
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['user-profile', user?.id],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .maybeSingle();
-      
-      if (_error) throw _error;
-      return _data;
+
+      if (error) throw error;
+      return data;
     },
     enabled: !!user?.id,
   });
@@ -118,12 +118,12 @@ const MedMngProfileComponent = () => {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { name?: string; email?: string }) => {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .update(data)
         .eq('id', user?.id);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });

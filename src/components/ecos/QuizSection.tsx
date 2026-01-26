@@ -21,7 +21,7 @@ interface QuizSectionProps {
 
 export const QuizSection = ({ questions, answers, onAnswerChange, scenarioId }: QuizSectionProps) => {
   const { logActivity } = useActivityTracking();
-  const { _addPoints } = useGamification();
+  const { addPoints } = useGamification();
 
   // Track quiz answer
   const handleAnswerWithTracking = async (questionIndex: number, answer: string) => {
@@ -44,7 +44,7 @@ export const QuizSection = ({ questions, answers, onAnswerChange, scenarioId }: 
       });
       
       if (isCorrect) {
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
       }
     }
   };

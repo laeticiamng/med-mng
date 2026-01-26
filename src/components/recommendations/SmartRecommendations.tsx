@@ -24,7 +24,7 @@ export const SmartRecommendations: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   useEffect(() => {
     const load = async () => {
@@ -40,7 +40,7 @@ export const SmartRecommendations: React.FC = () => {
 
   const loadRecommendations = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_smart_recommendations')
         .select('*')
         .eq('is_active', true)
@@ -48,10 +48,10 @@ export const SmartRecommendations: React.FC = () => {
         .order('confidence_score', { ascending: false })
         .limit(6);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      if (_data && _data.length > 0) {
-        setRecommendations(_data);
+      if (data && data.length > 0) {
+        setRecommendations(data);
       } else {
         // Générer des recommandations de démonstration
         await generateDemoRecommendations();
@@ -117,13 +117,13 @@ export const SmartRecommendations: React.FC = () => {
     ];
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_smart_recommendations')
         .insert(demoRecs)
         .select();
 
-      if (!_error && _data) {
-        setRecommendations(_data);
+      if (!error && data) {
+        setRecommendations(data);
       }
     } catch (error) {
       console.error('Erreur lors de la génération des recommandations:', error);
@@ -174,7 +174,7 @@ export const SmartRecommendations: React.FC = () => {
     });
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      _addPoints(user.id, 'itemReviewed');
+      addPoints(user.id, 'itemReviewed');
     }
     const slug = itemCode.toLowerCase().replace('ic-', 'ic-');
     navigate(`/edn-complete/item/${slug}`);

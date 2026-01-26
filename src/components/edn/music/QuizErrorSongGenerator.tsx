@@ -25,7 +25,7 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
   const { generateMusic, loading: isGenerating } = useSpotifyAI();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
 
   React.useEffect(() => {
     const load = async () => {
@@ -115,7 +115,7 @@ Grâce à mes erreurs... quelle surprise !`;
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await logActivity({ activity_type: 'study', count: 1, metadata: { itemCode, action: 'error_song_generated', errorsCount: currentErrors.length } });
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
       }
       
       toast({
@@ -157,15 +157,15 @@ Grâce à mes erreurs... quelle surprise !`;
             <Brain className="h-5 w-5" />
             Transformer vos erreurs en chanson
           </CardTitle>
-          {_stats && (
+          {stats && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1 text-xs">
                 <Flame className="h-3 w-3 text-orange-500" />
-                {_stats.currentStreak ?? 0}j
+                {stats.currentStreak ?? 0}j
               </Badge>
               <Badge variant="outline" className="gap-1 text-xs">
                 <Star className="h-3 w-3 text-yellow-500" />
-                Niv. {_stats.level ?? 1}
+                Niv. {stats.level ?? 1}
               </Badge>
             </div>
           )}

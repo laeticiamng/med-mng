@@ -32,7 +32,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
-  const { _addPoints, loadStats } = useGamification();
+  const { addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -101,7 +101,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
           count: 1,
           metadata: { action: 'welcome_complete' }
         });
-        await _addPoints(user.id, 'dailyStreak');
+        await addPoints(user.id, 'dailyStreak');
         loadStats(user.id);
       }
       onComplete?.();

@@ -46,14 +46,14 @@ export const LiveMigrationTracker: React.FC = () => {
   // Charger les données réelles depuis Supabase
   const loadRealMigrationData = useCallback(async () => {
     try {
-      const { _data: reports, _error } = await supabase
+      const { data: reports, error: reportsError } = await supabase
         .from('audit_reports')
         .select('*')
         .eq('report_type', 'migration')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
+      if (reportsError) throw reportsError;
 
       if (reports && reports.length > 0) {
         const processedFiles: FileProgress[] = reports.map((report: MigrationReport) => {

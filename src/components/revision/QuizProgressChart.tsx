@@ -31,15 +31,15 @@ export const QuizProgressChart: React.FC = () => {
         return;
       }
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('quiz_results')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (_data) {
-        setQuizResults(_data as QuizResult[]);
+      if (data) {
+        setQuizResults(data as QuizResult[]);
       }
       setLoading(false);
     };

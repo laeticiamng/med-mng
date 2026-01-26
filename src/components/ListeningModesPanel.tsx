@@ -35,7 +35,7 @@ const getModeColor = (color: string) => {
 export const ListeningModesPanel = () => {
   const {
     predefinedModes,
-    _activeMode: activeMode,
+    activeMode,
     timeRemaining,
     isSessionActive,
     startMode,
@@ -44,7 +44,7 @@ export const ListeningModesPanel = () => {
     resumeSession,
   } = useListeningModes();
 
-  const { loadStats, _stats: gamificationStats, _addPoints } = useGamification();
+  const { loadStats, stats: gamificationStats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
   const [user, setUser] = useState<any>(null);
   const [selectedMode, setSelectedMode] = useState<ListeningMode | null>(null);
@@ -78,7 +78,7 @@ export const ListeningModesPanel = () => {
         activity_type: 'music_generation', 
         metadata: { action: 'listening_session_completed', duration_minutes: activeMode?.duration_minutes || 0 }
       });
-      await _addPoints(user.id, 'itemReviewed');
+      await addPoints(user.id, 'itemReviewed');
       await loadStats(user.id);
     }
   };

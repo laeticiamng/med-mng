@@ -44,7 +44,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       if (authData.user) {
         // Créer l'abonnement pour les comptes payants
         if (account.plan !== 'free') {
-          const { _error: subError } = await supabase
+          const { error: subError } = await supabase
             .from('user_subscriptions')
             .insert({
               user_id: authData.user.id,
@@ -78,13 +78,13 @@ export const SubscriptionTestPanel: React.FC = () => {
       if (loginError) throw loginError;
 
       // Test des quotas de génération musicale
-      const { _data: quotaData, _error: quotaError } = await supabase
+      const { data: quotaData, error: quotaError } = await supabase
         .rpc('check_music_generation_quota', { user_uuid: loginData.user.id });
 
       if (quotaError) throw quotaError;
 
       // Test des fonctionnalités accessibles
-      const { _data: subData, _error: subError } = await supabase
+      const { data: subData, error: subError } = await supabase
         .rpc('get_user_subscription', { user_uuid: loginData.user.id });
 
       if (subError) throw subError;

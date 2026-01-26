@@ -80,7 +80,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
   const [user, setUser] = useState<any>(null);
 
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, _addPoints, _unlockBadge, loadStats } = useGamification();
+  const { stats: gamificationStats, addPoints, unlockBadge, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -169,11 +169,11 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
       
       // Award points based on score
       if (totalScore === 100) {
-        await _addPoints(user.id, 'perfectExam');
-        await _unlockBadge(user.id, 'perfect_exam');
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
         toast.success('🏆 Badge "Sans Faute" débloqué !');
       } else {
-        await _addPoints(user.id, 'examCompleted');
+        await addPoints(user.id, 'examCompleted');
       }
       
       loadStats(user.id);
@@ -262,7 +262,7 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
         };
       });
 
-      const { _data, error } = await supabase.functions.invoke('generate-error-correction-song', {
+      const { data, error } = await supabase.functions.invoke('generate-error-correction-song', {
         body: {
           itemCode,
           itemTitle,
@@ -273,15 +273,15 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
 
       if (error) throw error;
 
-      if (_data.success) {
+      if (data.success) {
         toast.success('🎵 Chanson de correction générée !', {
           description: 'La chanson a été ajoutée à votre bibliothèque.'
         });
-        
+
         // Ajouter à la bibliothèque utilisateur
         await supabase.from('med_mng_user_songs').insert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
-          song_id: _data.song_id
+          song_id: data.song_id
         });
       }
     } catch (error) {

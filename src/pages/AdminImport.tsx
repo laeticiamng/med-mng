@@ -73,14 +73,14 @@ export default function AdminImport() {
 
   const fetchImportBatches = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('import_batches')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (_error) throw _error;
-      setImportBatches(_data || []);
+      if (error) throw error;
+      setImportBatches(data || []);
     } catch (error) {
       console.error('Error fetching import batches:', error);
     }
@@ -88,13 +88,13 @@ export default function AdminImport() {
 
   const fetchGoogleIntegrations = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('google_sheets_integrations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
-      setGoogleIntegrations(_data || []);
+      if (error) throw error;
+      setGoogleIntegrations(data || []);
     } catch (error) {
       console.error('Error fetching Google integrations:', error);
     }
@@ -183,7 +183,7 @@ export default function AdminImport() {
 
     try {
       // Créer le batch d'import
-      const { _data: batch, _error: batchError } = await supabase
+      const { data: batch, error: batchError } = await supabase
         .from('import_batches')
         .insert({
           filename: selectedFile?.name || `csv-paste-${Date.now()}`,
@@ -195,7 +195,7 @@ export default function AdminImport() {
       if (batchError) throw batchError;
 
       // Appeler l'edge function d'import
-      const { _data: _importResult, error: importError } = await supabase.functions.invoke('import-edn-data', {
+      const { data: _importResult, error: importError } = await supabase.functions.invoke('import-edn-data', {
         body: {
           batchId: batch.id,
           csvData: csvData,

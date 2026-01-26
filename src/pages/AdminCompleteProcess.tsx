@@ -42,7 +42,7 @@ const AdminCompleteProcess = () => {
       // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
       const credentials = await getCredentials();
       
-      const { _data: extractionData, error: extractionError } = await supabase.functions.invoke('extract-edn-uness', {
+      const { data: extractionData, error: extractionError } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'start',
           credentials // Credentials sécurisés (pas de hardcodé)
@@ -50,7 +50,7 @@ const AdminCompleteProcess = () => {
       });
 
       if (extractionError) throw extractionError;
-      
+
       setExtractionStats(extractionData.stats);
       setProgress(20);
       toast.success(`Extraction terminée! ${extractionData.stats?.totalProcessed || 0} items traités`);
@@ -66,7 +66,7 @@ const AdminCompleteProcess = () => {
         setCurrentPhase(phaseName);
         console.log(`🔍 Audit ${auditType}...`);
         
-        const { _data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
+        const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-system', {
           body: {
             auditType: auditType,
             autoFix: true
@@ -117,15 +117,15 @@ const AdminCompleteProcess = () => {
         description: 'Mise à jour de tous les contenus avec données spécifiques'
       });
 
-      const { _data, error: reimportError } = await supabase.functions.invoke('reimport-edn-complete', {
+      const { data, error: reimportError } = await supabase.functions.invoke('reimport-edn-complete', {
         body: { action: 'reimport_all' }
       });
 
       if (reimportError) throw reimportError;
 
-      setReimportResults(_data);
+      setReimportResults(data);
       toast.success('Ré-importation terminée!', {
-        description: `${_data.stats?.success || 0} items mis à jour avec contenu spécifique`
+        description: `${data.stats?.success || 0} items mis à jour avec contenu spécifique`
       });
 
     } catch (error: any) {

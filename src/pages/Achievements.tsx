@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Achievements: React.FC = () => {
   const navigate = useNavigate();
-  const { _stats, loadStats } = useGamification();
+  const { stats, loadStats } = useGamification();
   const { logActivity } = useActivityTracking();
   const [_challengesCompleted, setChallengesCompleted] = useState(0);
 
@@ -34,14 +34,14 @@ const Achievements: React.FC = () => {
         
         // Count completed challenges based on achievements
         let completed = 0;
-        if (_stats?.currentStreak && _stats.currentStreak >= 7) completed++;
-        if (_stats?.weeklyGoalProgress && _stats.weeklyGoalProgress >= 100) completed++;
-        if (_stats?.badges && _stats.badges.length >= 5) completed++;
+        if (stats?.currentStreak && stats.currentStreak >= 7) completed++;
+        if (stats?.weeklyGoalProgress && stats.weeklyGoalProgress >= 100) completed++;
+        if (stats?.badges && stats.badges.length >= 5) completed++;
         setChallengesCompleted(completed);
       }
     };
     init();
-  }, [loadStats, logActivity, _stats?.currentStreak, _stats?.weeklyGoalProgress, _stats?.badges?.length]);
+  }, [loadStats, logActivity, stats?.currentStreak, stats?.weeklyGoalProgress, stats?.badges?.length]);
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -82,7 +82,7 @@ const Achievements: React.FC = () => {
           <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
             <CardContent className="p-6 text-center">
               <Trophy className="w-12 h-12 text-warning mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-foreground">{_stats?.badges?.length || 0}</h3>
+              <h3 className="text-2xl font-bold text-foreground">{stats?.badges?.length || 0}</h3>
               <p className="text-muted-foreground">Badges Obtenus</p>
             </CardContent>
           </Card>
@@ -90,7 +90,7 @@ const Achievements: React.FC = () => {
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30">
             <CardContent className="p-6 text-center">
               <Star className="w-12 h-12 text-primary mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-foreground">{_stats?.totalPoints?.toLocaleString() || 0}</h3>
+              <h3 className="text-2xl font-bold text-foreground">{stats?.totalPoints?.toLocaleString() || 0}</h3>
               <p className="text-muted-foreground">Points XP</p>
             </CardContent>
           </Card>
@@ -98,7 +98,7 @@ const Achievements: React.FC = () => {
           <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30">
             <CardContent className="p-6 text-center">
               <Flame className="w-12 h-12 text-orange-500 mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-foreground">{_stats?.currentStreak || 0}</h3>
+              <h3 className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</h3>
               <p className="text-muted-foreground">Jours de Streak</p>
             </CardContent>
           </Card>
@@ -106,7 +106,7 @@ const Achievements: React.FC = () => {
           <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success/30">
             <CardContent className="p-6 text-center">
               <Target className="w-12 h-12 text-success mx-auto mb-3" />
-              <h3 className="text-2xl font-bold text-foreground">Niv. {_stats?.level || 1}</h3>
+              <h3 className="text-2xl font-bold text-foreground">Niv. {stats?.level || 1}</h3>
               <p className="text-muted-foreground">Niveau Actuel</p>
             </CardContent>
           </Card>

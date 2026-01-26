@@ -45,7 +45,7 @@ interface ChatSession {
 
 export const AIChat = () => {
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -67,15 +67,15 @@ export const AIChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('chat_conversations')
         .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (!_error && _data) {
-        setSessions(_data.map(conv => ({
+      if (!error && data) {
+        setSessions(data.map(conv => ({
           id: conv.id,
           title: conv.title || 'Nouvelle conversation',
           created_at: new Date(conv.created_at),
@@ -142,13 +142,13 @@ export const AIChat = () => {
           metadata: { question: currentInput.slice(0, 100), type: aiResponse.type }
         });
         
-        await _addPoints(user.id, 'itemReviewed');
+        await addPoints(user.id, 'itemReviewed');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         
         // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
-          await _unlockBadge(user.id, 'ai_chat');
+          await unlockBadge(user.id, 'ai_chat');
         }
         
         loadStats(user.id);
@@ -159,21 +159,21 @@ export const AIChat = () => {
   const generateAIResponse = async (userInput: string): Promise<ChatMessage> => {
     // Appeler l'Edge Function pour une vraie réponse IA
     try {
-      const { _data, error } = await supabase.functions.invoke('ai-chat', {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { message: userInput }
       });
 
       if (error) throw error;
 
-      if (_data?.response) {
+      if (data?.response) {
         return {
           id: Date.now().toString(),
-          content: _data.response,
+          content: data.response,
           role: 'assistant',
           timestamp: new Date(),
-          type: _data.type || 'general',
-          confidence: _data.confidence || 85,
-          tools_used: _data.toolsUsed
+          type: data.type || 'general',
+          confidence: data.confidence || 85,
+          tools_used: data.toolsUsed
         };
       }
     } catch (error) {

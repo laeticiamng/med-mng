@@ -189,7 +189,7 @@ export default function MigrationDashboardPage() {
       });
 
       // Charger l'activité récente
-      const { _data: logs } = await supabase
+      const { data: logs } = await supabase
         .from('operation_logs')
         .select('*')
         .eq('type', 'migration')

@@ -29,7 +29,7 @@ interface TableauDisplayProps {
 
 export function TableauDisplay({ tableau, rang, isComplete, className }: TableauDisplayProps) {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const [isAccordionMode, setIsAccordionMode] = useState(false);
   const [openSections, setOpenSections] = useState<number[]>([0]);
   const [showAllKeywords, setShowAllKeywords] = useState<Record<number, boolean>>({});
@@ -50,11 +50,11 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_tableau', rang } });
-        _addPoints(user.id, 'itemReviewed');
+        addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [rang, loadStats, logActivity, _addPoints]);
+  }, [rang, loadStats, logActivity, addPoints]);
   if (!tableau || !tableau.sections || tableau.sections.length === 0) {
     return (
       <Card className={cn("border-0 shadow-lg bg-gradient-to-br from-destructive/5 to-warning/5", className)}>
@@ -147,15 +147,15 @@ export function TableauDisplay({ tableau, rang, isComplete, className }: Tableau
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {_stats && (
+            {stats && (
               <>
                 <Badge variant="outline" className="gap-1 text-xs">
                   <Flame className="h-3 w-3 text-orange-500" />
-                  {_stats?.currentStreak ?? 0}j
+                  {stats?.currentStreak ?? 0}j
                 </Badge>
                 <Badge variant="outline" className="gap-1 text-xs">
                   <Star className="h-3 w-3 text-yellow-500" />
-                  Niv. {_stats?.level ?? 1}
+                  Niv. {stats?.level ?? 1}
                 </Badge>
               </>
             )}

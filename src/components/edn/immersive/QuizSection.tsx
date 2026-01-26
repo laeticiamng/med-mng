@@ -38,7 +38,7 @@ const isQuizData = (data: unknown): data is QuizData => {
 
 export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) => {
   const { logActivity } = useActivityTracking();
-  const { _addPoints } = useGamification();
+  const { addPoints } = useGamification();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -117,7 +117,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
       if (isCorrect) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, 'itemReviewed');
         }
       }
     }

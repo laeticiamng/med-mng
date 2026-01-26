@@ -41,15 +41,15 @@ const SharedMusicIndex = () => {
 
   const loadPublicTracks = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_generated_music')
         .select('id, music_id, title, music_style, rang, item_code, created_at, audio_url')
         .not('audio_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (_error) throw _error;
-      setTracks(_data || []);
+      if (error) throw error;
+      setTracks(data || []);
     } catch (err) {
       console.error('Erreur chargement musiques:', err);
     } finally {

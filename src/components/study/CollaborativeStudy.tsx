@@ -52,7 +52,7 @@ export const CollaborativeStudy: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
   const { logActivity: _logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {

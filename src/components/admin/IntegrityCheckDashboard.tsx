@@ -84,7 +84,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         if (data.should_block) {
           toast.error(`🚨 CHECK BLOQUÉ: ${data.summary.critical_issues} problèmes critiques détectés!`);
         } else {
-          toast.success(`✅ Check terminé: ${_data.summary.total_issues} problèmes trouvés`);
+          toast.success(`✅ Check terminé: ${data.summary.total_issues} problèmes trouvés`);
         }
         
         await fetchChecks();

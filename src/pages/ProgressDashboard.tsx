@@ -57,7 +57,7 @@ export default function ProgressDashboard() {
   const { getStats: getExamStats } = useExamMode();
   const { getStats: getClinicalStats } = useClinicalCases();
   const { getStats: getFlashcardStats } = useFlashcards();
-  const { _stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
   const { _getHeatmapData } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);

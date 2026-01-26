@@ -64,7 +64,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
-  const { loadStats } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   
   // Charger les vraies compétences OIC (seulement si pas de bdPanels stockés)
   const shouldLoadOic = !storedBdPanels || storedBdPanels.length === 0;
@@ -77,11 +77,11 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_bd_gallery', itemCode } });
-        _addPoints(user.id, 'itemReviewed');
+        addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [itemCode, loadStats, logActivity, _addPoints]);
+  }, [itemCode, loadStats, logActivity, addPoints]);
 
   // Générer des vignettes basées sur les vraies compétences OIC avec images pertinentes
   const generateVignettes = () => {
@@ -458,15 +458,15 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
               BD Interactive - {itemCode}
             </CardTitle>
             <div className="flex items-center gap-2">
-              {_stats && (
+              {stats && (
                 <>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Flame className="h-3 w-3" />
-                    {_stats.currentStreak ?? 0}j
+                    {stats.currentStreak ?? 0}j
                   </Badge>
                   <Badge className="bg-primary-foreground/20 text-primary-foreground gap-1">
                     <Star className="h-3 w-3" />
-                    Niv. {_stats.level ?? 1}
+                    Niv. {stats.level ?? 1}
                   </Badge>
                 </>
               )}

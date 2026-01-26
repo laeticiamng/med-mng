@@ -26,7 +26,7 @@ interface EnhancedBandeDessineeProps {
 export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ itemData }) => {
   const [activeTab, setActiveTab] = useState('bande-dessinee');
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
 
   useEffect(() => {
     const load = async () => {
@@ -34,11 +34,11 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       if (user) {
         loadStats(user.id);
         logActivity({ activity_type: 'study', metadata: { action: 'view_enhanced_bd', itemCode: itemData.item_code } });
-        _addPoints(user.id, 'itemReviewed');
+        addPoints(user.id, 'itemReviewed');
       }
     };
     load();
-  }, [itemData.item_code, loadStats, logActivity, _addPoints]);
+  }, [itemData.item_code, loadStats, logActivity, addPoints]);
 
   const handleTabChange = async (tab: string) => {
     setActiveTab(tab);
@@ -65,15 +65,15 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
               <BookOpen className="h-6 w-6" />
               Contenu Éducatif Interactif - {itemData.title}
             </CardTitle>
-            {_stats && (
+            {stats && (
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="gap-1 text-xs bg-background/50">
                   <Flame className="h-3 w-3 text-orange-500" />
-                  {_stats.currentStreak ?? 0}j
+                  {stats.currentStreak ?? 0}j
                 </Badge>
                 <Badge variant="outline" className="gap-1 text-xs bg-background/50">
                   <Star className="h-3 w-3 text-yellow-500" />
-                  Niv. {_stats.level ?? 1}
+                  Niv. {stats.level ?? 1}
                 </Badge>
               </div>
             )}

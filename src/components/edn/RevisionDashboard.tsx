@@ -41,7 +41,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
 }) => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -64,7 +64,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         quizQuery = quizQuery.eq('item_code', itemCode);
       }
       
-      const { _data: quizResults } = await quizQuery.limit(100);
+      const { data: quizResults } = await quizQuery.limit(100);
 
       // Fetch mastery data - global or per item
       let masteryQuery = supabase
@@ -76,7 +76,7 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
         masteryQuery = masteryQuery.eq('item_code', itemCode);
       }
       
-      const { _data: masteryData } = await masteryQuery;
+      const { data: masteryData } = await masteryQuery;
 
       // Calcul comparaison temporelle (semaine actuelle vs précédente)
       const now = new Date();

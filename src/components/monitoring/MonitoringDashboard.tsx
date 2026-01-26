@@ -57,13 +57,13 @@ export const MonitoringDashboard = () => {
   const runHealthChecks = async () => {
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
         body: { action: 'health_check' }
       });
 
       if (error) throw error;
 
-      setHealthResults(_data.results || []);
+      setHealthResults(data.results || []);
       toast.success('Health checks completed');
     } catch (error) {
       console.error('Health check failed:', error);
@@ -76,13 +76,13 @@ export const MonitoringDashboard = () => {
 
   const fetchIncidents = async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('monitoring-alerts', {
+      const { data, error } = await supabase.functions.invoke('monitoring-alerts', {
         body: { action: 'get_incidents' }
       });
 
       if (error) throw error;
 
-      setIncidents(_data.incidents || []);
+      setIncidents(data.incidents || []);
     } catch (error) {
       console.error('Failed to fetch incidents:', error);
       toast.error('Failed to fetch incidents');

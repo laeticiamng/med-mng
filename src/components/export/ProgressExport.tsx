@@ -120,7 +120,7 @@ export function ProgressExport({ userId, stats }: ProgressExportProps) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - periodDays);
 
-        const { _data: activities } = await supabase
+        const { data: activities } = await supabase
           .from('user_activity_log')
           .select('*')
           .eq('user_id', userId)

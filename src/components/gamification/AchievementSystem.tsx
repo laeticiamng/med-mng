@@ -62,7 +62,7 @@ export const AchievementSystem = () => {
     rank: 'Débutant',
     title: 'Étudiant'
   });
-  const [_loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
@@ -83,19 +83,19 @@ export const AchievementSystem = () => {
     setLoading(true);
     try {
       // Charger les achievements depuis Supabase
-      const { _data: achievementsData, _error } = await supabase
+      const { data: achievementsData, error } = await supabase
         .from('achievements')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Charger les user_badges pour voir lesquels sont débloqués
       const { data: { user } } = await supabase.auth.getUser();
       let unlockedMap: Map<string, string> = new Map();
       
       if (user) {
-        const { _data: userBadges } = await supabase
+        const { data: userBadges } = await supabase
           .from('user_badges')
           .select('badge_id, earned_at')
           .eq('user_id', user.id);

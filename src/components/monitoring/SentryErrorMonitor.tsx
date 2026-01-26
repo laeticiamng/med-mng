@@ -34,14 +34,14 @@ export const SentryErrorMonitor = () => {
 
   const loadRealErrors = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('ai_monitoring_errors')
         .select('id, message, stack, created_at, severity, category, context')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (!_error && _data) {
-        setErrors(_data.map(err => ({
+      if (!error && data) {
+        setErrors(data.map(err => ({
           id: err.id,
           message: err.message,
           stack: err.stack || undefined,

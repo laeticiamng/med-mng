@@ -27,7 +27,7 @@ const EdnImmersive = () => {
   } = useImmersiveLogic();
 
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats, _addPoints } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints } = useGamification();
 
   // Load user and gamification stats
   useEffect(() => {
@@ -66,12 +66,12 @@ const EdnImmersive = () => {
             score: 100,
             metadata: { action: 'immersive_complete', item_code: item.item_code }
           });
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, 'itemReviewed');
         }
       }
     };
     trackCompletion();
-  }, [progress, item, logActivity, _addPoints]);
+  }, [progress, item, logActivity, addPoints]);
 
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 

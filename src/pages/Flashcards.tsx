@@ -40,7 +40,7 @@ export default function Flashcards() {
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
     generateFromItem, recordReview, getStats
   } = useFlashcards();
-  const { _addPoints, _unlockBadge, checkAndUnlockBadges, _stats: _gamificationStats } = useGamification();
+  const { addPoints, unlockBadge, checkAndUnlockBadges, stats: _gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -148,22 +148,22 @@ export default function Flashcards() {
     
     // Gamification: Award points for flashcard review
     if (user) {
-      await _addPoints(user.id, 'itemReviewed');
-      await logActivity({ 
-        activity_type: 'flashcard', 
-        count: 1, 
+      await addPoints(user.id, 'itemReviewed');
+      await logActivity({
+        activity_type: 'flashcard',
+        count: 1,
         score: wasCorrect ? 100 : 0,
         metadata: { deckId: currentDeck?.id }
       });
-      
+
       // Track total reviews for badge
       const newTotal = totalReviews + 1;
       setTotalReviews(newTotal);
-      
+
       // Unlock badges based on reviews
-      if (newTotal >= 10) await _unlockBadge(user.id, 'items_10');
-      if (newTotal >= 50) await _unlockBadge(user.id, 'items_50');
-      
+      if (newTotal >= 10) await unlockBadge(user.id, 'items_10');
+      if (newTotal >= 50) await unlockBadge(user.id, 'items_50');
+
       await checkAndUnlockBadges(user.id);
     }
     
@@ -189,8 +189,8 @@ export default function Flashcards() {
       
       // Bonus for perfect score
       if (user && score === 100) {
-        await _addPoints(user.id, 'perfectExam');
-        await _unlockBadge(user.id, 'perfect_exam');
+        await addPoints(user.id, 'perfectExam');
+        await unlockBadge(user.id, 'perfect_exam');
       }
       
       if (user) getStats(user.id).then(setStats);

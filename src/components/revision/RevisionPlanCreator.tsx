@@ -31,7 +31,7 @@ export const RevisionPlanCreator: React.FC = () => {
   const { revisionItems, createRevisionPlan } = usePersonalizedRevision();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, _addPoints, loadStats } = useGamification();
+  const { stats: gamificationStats, addPoints, loadStats } = useGamification();
 
   // Check user on mount
   useEffect(() => {
@@ -105,7 +105,7 @@ export const RevisionPlanCreator: React.FC = () => {
             dailyTarget: dailyTarget[0]
           }
         });
-        await _addPoints(user.id, 'dailyStreak');
+        await addPoints(user.id, 'dailyStreak');
         loadStats(user.id);
       }
       

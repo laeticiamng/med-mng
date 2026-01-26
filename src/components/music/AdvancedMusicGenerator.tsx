@@ -92,14 +92,14 @@ export const AdvancedMusicGenerator: React.FC = () => {
       if (!user) return;
 
       // Charger les morceaux générés depuis Supabase
-      const { _data: songsData, _error } = await supabase
+      const { data: songsData, error } = await supabase
         .from('med_mng_songs')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const mappedTracks: MusicTrack[] = (songsData || []).map((song: any) => ({
         id: song.id,
@@ -128,7 +128,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       }
 
       // Charger les playlists depuis Supabase
-      const { _data: playlistsData } = await supabase
+      const { data: playlistsData } = await supabase
         .from('med_mng_playlists')
         .select('*')
         .eq('user_id', user.id)
@@ -159,7 +159,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       // Appel réel à l'Edge Function de génération musicale
-      const { _data, error } = await supabase.functions.invoke('generate-music', {
+      const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           prompt: generationRequest.prompt,
           style: generationRequest.style,
@@ -185,7 +185,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       });
 
       const newTrack: MusicTrack = {
-        id: _data?.taskId || Date.now().toString(),
+        id: data?.taskId || Date.now().toString(),
         title: `${generationRequest.prompt.slice(0, 30)}${generationRequest.prompt.length > 30 ? '...' : ''}`,
         artist: 'MED-AI',
         duration: generationRequest.duration,
@@ -200,11 +200,11 @@ export const AdvancedMusicGenerator: React.FC = () => {
       };
 
       // Sauvegarder dans Supabase si utilisateur connecté
-      if (user && _data?.taskId) {
+      if (user && data?.taskId) {
         await supabase.from('med_mng_songs').insert([{
           user_id: user.id,
           title: newTrack.title,
-          suno_audio_id: _data.taskId,
+          suno_audio_id: data.taskId,
           lyrics: generationRequest.lyrics?.join('\n') || '',
           meta: {
             style: generationRequest.style,

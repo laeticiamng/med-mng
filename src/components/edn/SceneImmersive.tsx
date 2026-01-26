@@ -14,7 +14,7 @@ import { SceneCharacter, SceneImmersiveProps } from './scene/sceneTypes';
 
 export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersiveProps) => {
   const { logActivity } = useActivityTracking();
-  const { _stats, loadStats, _addPoints } = useGamification();
+  const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
   
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -44,12 +44,12 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
         
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await _addPoints(user.id, 'itemReviewed');
+          await addPoints(user.id, 'itemReviewed');
         }
       }
     };
     trackView();
-  }, [itemCode, logActivity, _addPoints]);
+  }, [itemCode, logActivity, addPoints]);
 
   // Contenu personnalisé basé sur les vraies données de l'item (format DB)
   // Structure DB: { theme, context, setting: {location, atmosphere, characters}, interactions, case_presentation, learning_outcomes }
@@ -205,12 +205,12 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
       </div>
       
       {/* Gamification Stats Banner */}
-      {_stats && (
+      {stats && (
         <div className="absolute top-4 right-4 z-10 flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-full border border-border/50">
           <Flame className="h-4 w-4 text-warning" />
-          <span className="text-sm font-bold text-warning">{_stats.currentStreak ?? 0}j</span>
+          <span className="text-sm font-bold text-warning">{stats.currentStreak ?? 0}j</span>
           <Star className="h-4 w-4 text-primary ml-1" />
-          <span className="text-sm font-bold text-primary">Nv.{_stats.level ?? 1}</span>
+          <span className="text-sm font-bold text-primary">Nv.{stats.level ?? 1}</span>
         </div>
       )}
       

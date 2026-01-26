@@ -40,7 +40,7 @@ export const RevisionDashboard: React.FC = () => {
     analyzeUserWeaknesses
   } = usePersonalizedRevision();
   
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   // Load gamification stats and revision history from DB
   useEffect(() => {
@@ -50,13 +50,13 @@ export const RevisionDashboard: React.FC = () => {
         loadStats(user.id);
         
         // Load revision history from Supabase
-        const { _data: historyData } = await supabase
+        const { data: historyData } = await supabase
           .from('revision_history')
           .select('item_code, score, session_date, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(50);
-        
+
         if (historyData && historyData.length > 0) {
           const formatted = historyData.map(h => ({
             itemCode: h.item_code,

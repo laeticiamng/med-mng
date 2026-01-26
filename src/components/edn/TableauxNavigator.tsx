@@ -42,7 +42,7 @@ export function TableauxNavigator({
   completeness 
 }: TableauxNavigatorProps) {
   const { logActivity } = useActivityTracking()
-  const { _stats, loadStats, _addPoints } = useGamification()
+  const { stats, loadStats, addPoints } = useGamification()
   const hasTrackedRef = useRef(false)
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a')
   const [_userProgress, setUserProgress] = useState({ rangA: 0, rangB: 0 })
@@ -52,16 +52,16 @@ export function TableauxNavigator({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { _data } = await supabase
+    const { data } = await supabase
       .from('user_competence_progress')
       .select('rang')
       .eq('user_id', user.id)
       .eq('item_code', itemCode)
       .eq('mastered', true)
 
-    if (_data) {
-      const rangACount = _data.filter(d => d.rang === 'A').length
-      const rangBCount = _data.filter(d => d.rang === 'B').length
+    if (data) {
+      const rangACount = data.filter(d => d.rang === 'A').length
+      const rangBCount = data.filter(d => d.rang === 'B').length
       setUserProgress({ rangA: rangACount, rangB: rangBCount })
     }
   }, [itemCode])
@@ -110,7 +110,7 @@ export function TableauxNavigator({
     
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      await _addPoints(user.id, 'itemReviewed')
+      await addPoints(user.id, 'itemReviewed')
     }
   }
   
@@ -135,12 +135,12 @@ export function TableauxNavigator({
             <p className="text-primary/70 text-sm mt-1">{itemTitle}</p>
           </div>
           <div className="flex items-center gap-4">
-            {_stats && (
+            {stats && (
               <div className="flex items-center gap-2 px-3 py-1 bg-background/50 rounded-full">
                 <Flame className="h-4 w-4 text-warning" />
-                <span className="text-sm font-bold text-warning">{_stats?.currentStreak ?? 0}j</span>
+                <span className="text-sm font-bold text-warning">{stats?.currentStreak ?? 0}j</span>
                 <Star className="h-4 w-4 text-primary ml-1" />
-                <span className="text-sm font-bold text-primary">Nv.{_stats?.level ?? 1}</span>
+                <span className="text-sm font-bold text-primary">Nv.{stats?.level ?? 1}</span>
               </div>
             )}
             <div className="text-right">

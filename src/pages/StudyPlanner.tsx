@@ -50,7 +50,7 @@ const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
   const [user, setUser] = useState<any>(null);
-  const { _stats: gamificationStats, loadStats, _addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
   const [_studyPlans, setStudyPlans] = useState<any[]>([]);
@@ -69,18 +69,18 @@ const StudyPlanner = () => {
         setWeeklySummary(summary);
         
         // Load study plans from Supabase
-        const { _data: plans } = await supabase
+        const { data: plans } = await supabase
           .from('study_plans')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
-        
+
         if (plans) {
           setStudyPlans(plans);
         }
 
         // Load study sessions from Supabase (plan_sessions table)
-        const { _data: sessionsData } = await supabase
+        const { data: sessionsData } = await supabase
           .from('plan_sessions')
           .select('*')
           .eq('user_id', user.id)
@@ -102,7 +102,7 @@ const StudyPlanner = () => {
         }
 
         // Load learning goals from Supabase
-        const { _data: goalsData } = await supabase
+        const { data: goalsData } = await supabase
           .from('learning_goals')
           .select('*')
           .eq('user_id', user.id)
@@ -171,12 +171,12 @@ const StudyPlanner = () => {
         count: 1,
         metadata: { sessionId, action: 'start' }
       });
-      await _addPoints(user.id, 'dailyStreak');
-      
+      await addPoints(user.id, 'dailyStreak');
+
       // Track sessions completed for badge
       const completedCount = studySessions.filter(s => s.completed).length + 1;
       if (completedCount >= 10) {
-        await _unlockBadge(user.id, 'items_10');
+        await unlockBadge(user.id, 'items_10');
       }
       
       loadStats(user.id);

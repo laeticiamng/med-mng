@@ -83,7 +83,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     clearAll
   } = useNotifications();
   const { logActivity } = useActivityTracking();
-  const { _stats: gamificationStats, loadStats } = useGamification();
+  const { stats: gamificationStats, loadStats } = useGamification();
 
   useEffect(() => {
     const init = async () => {

@@ -23,14 +23,14 @@ interface WeeklyChallenge {
 }
 
 export function WeeklyChallenges() {
-  const { _stats, _addPoints } = useGamification();
+  const { stats, addPoints } = useGamification();
   const [challenges, setChallenges] = useState<WeeklyChallenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReward, setShowReward] = useState<string | null>(null);
 
   useEffect(() => {
     loadChallenges();
-  }, [_stats]);
+  }, [stats]);
 
   const loadChallenges = async () => {
     setLoading(true);
@@ -77,7 +77,7 @@ export function WeeklyChallenges() {
       }
     });
 
-    const streak = _stats?.currentStreak || 0;
+    const streak = stats?.currentStreak || 0;
 
     // Define weekly challenges
     const weekChallenges: WeeklyChallenge[] = [
@@ -172,7 +172,7 @@ export function WeeklyChallenges() {
     }
 
     // Award points
-    await _addPoints(user.id, 'examCompleted', Math.round(challenge.xpReward / 100));
+    await addPoints(user.id, 'examCompleted', Math.round(challenge.xpReward / 100));
     
     // Log the claim
     await (supabase as any).from('gamification_activities').insert({

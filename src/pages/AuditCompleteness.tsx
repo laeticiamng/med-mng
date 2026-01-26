@@ -123,15 +123,15 @@ export default function AuditCompleteness() {
   // Charger les audits récents
   const loadRecentAudits = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('operation_logs')
         .select('*')
         .eq('type', 'audit')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (!_error && _data) {
-        setRecentAudits(_data);
+      if (!error && data) {
+        setRecentAudits(data);
       }
     } catch (err) {
       console.error('Error loading recent audits:', err);

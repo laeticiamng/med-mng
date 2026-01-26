@@ -22,7 +22,7 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
 }) => {
   const { user } = useAuth();
   const { logActivity } = useActivityTracking();
-  const { _stats } = useGamification();
+  const { stats } = useGamification();
 
   const handleNotifications = () => {
     logActivity({ activity_type: 'study', count: 1, metadata: { type: 'open_notifications' } });
@@ -37,12 +37,12 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
   return (
     <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
       {/* Stats gamification */}
-      {user && _stats && (
+      {user && stats && (
         <div className="flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border/50">
           <Flame className="w-4 h-4 text-warning" />
-          <span className="text-sm font-medium">{_stats.currentStreak}</span>
+          <span className="text-sm font-medium">{stats.currentStreak}</span>
           <Trophy className="w-4 h-4 text-primary ml-2" />
-          <span className="text-sm font-medium">Nv.{_stats.level}</span>
+          <span className="text-sm font-medium">Nv.{stats.level}</span>
         </div>
       )}
 

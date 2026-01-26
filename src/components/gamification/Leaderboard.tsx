@@ -64,7 +64,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       
       // Charger les vraies données depuis user_activity_log et profiles
-      const { _data: activityData, _error: activityError } = await supabase
+      const { data: activityData, error: activityError } = await supabase
         .from('user_activity_log')
         .select('user_id, score')
         .order('created_at', { ascending: false })
@@ -81,13 +81,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
       // Charger les profils
       const userIds = Array.from(userXpMap.keys()).slice(0, 20);
-      const { _data: profiles } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);
 
       // Charger les streaks
-      const { _data: streaks } = await supabase
+      const { data: streaks } = await supabase
         .from('activity_streaks')
         .select('user_id, current_streak, total_activities')
         .in('user_id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);
