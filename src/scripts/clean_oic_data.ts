@@ -82,7 +82,7 @@ class OICDataCleaner {
   }
 
   private async analyzeProblems() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id')
       .or(`
@@ -96,24 +96,24 @@ class OICDataCleaner {
         description.like.%{|%
       `);
 
-    if (_error) throw _error;
-    console.log(`   → ${_data?.length || 0} compétences avec problèmes détectés`);
+    if (error) throw error;
+    console.log(`   → ${data?.length || 0} compétences avec problèmes détectés`);
   }
 
   private async cleanHTMLEntities() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, intitule, description')
       .or(
         'description.like.%&lt;%, description.like.%&gt;%, description.like.%&nbsp;%, description.like.%&quot;%, description.like.%&apos;%, description.like.%&amp;%'
       );
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} compétences avec entités HTML à nettoyer`);
+    console.log(`   → ${data.length} compétences avec entités HTML à nettoyer`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         const cleanedDescription = this.decodeHTMLEntities(comp.description || '');
         const cleanedIntitule = this.decodeHTMLEntities(comp.intitule);
@@ -157,18 +157,18 @@ class OICDataCleaner {
   }
 
   private async fixFragments() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, description, raw_json')
       .or('description.like.-%, description.like.*%')
       .filter('description', 'not.is', null);
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} fragments à corriger`);
+    console.log(`   → ${data.length} fragments à corriger`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         let fixedDescription = comp.description || '';
 
@@ -257,17 +257,17 @@ class OICDataCleaner {
   }
 
   private async fixCorruptedTitles() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, intitule')
       .like('intitule', '%[[%]]%');
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} intitulés corrompus à corriger`);
+    console.log(`   → ${data.length} intitulés corrompus à corriger`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         const fixedIntitule = this.cleanMediaWikiLinks(comp.intitule);
 
@@ -291,7 +291,7 @@ class OICDataCleaner {
   }
 
   private async reExtractProblematicEntries() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, intitule, description, raw_json')
       .or(`
@@ -305,12 +305,12 @@ class OICDataCleaner {
         intitule.like.%[[%]]%
       `);
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} entrées à ré-extraire via raw_json`);
+    console.log(`   → ${data.length} entrées à ré-extraire via raw_json`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         const rawContent = this.extractContentFromRawJson(comp.raw_json);
         if (!rawContent) {
@@ -431,17 +431,17 @@ class OICDataCleaner {
   }
 
   private async convertMediaWikiTables() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, description')
       .like('description', '%{|%');
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} tables MediaWiki à convertir`);
+    console.log(`   → ${data.length} tables MediaWiki à convertir`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         const convertedDescription = this.convertMediaWikiTable(comp.description || '');
 
@@ -533,17 +533,17 @@ class OICDataCleaner {
   }
 
   private async handleEmptyDescriptions() {
-    const { _data, _error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('oic_competences')
       .select('objectif_id, intitule, rubrique')
       .or('description.is.null, description.eq.');
 
-    if (_error) throw _error;
-    if (!_data || _data.length === 0) return;
+    if (error) throw error;
+    if (!data || data.length === 0) return;
 
-    console.log(`   → ${_data.length} descriptions vides à gérer`);
+    console.log(`   → ${data.length} descriptions vides à gérer`);
 
-    for (const comp of _data) {
+    for (const comp of data) {
       try {
         const generatedDescription = `Compétence en ${comp.rubrique || 'médecine'}: ${comp.intitule}`;
 
@@ -571,7 +571,7 @@ class OICDataCleaner {
     await writeFile(filename, JSON.stringify(this.report, null, 2));
     console.log(`\n📄 Rapport de nettoyage sauvegardé: ${filename}`);
 
-    const { _data: finalStats } = await this.supabase
+    const { data: finalStats } = await this.supabase
       .from('oic_competences')
       .select('extraction_status')
       .order('extraction_status');

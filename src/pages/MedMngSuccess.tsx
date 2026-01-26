@@ -14,7 +14,7 @@ export const MedMngSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { user } = useAuth();
-  const { fetchSubscription, _subscription } = useSubscription();
+  const { fetchSubscription, subscription } = useSubscription();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,14 +40,14 @@ export const MedMngSuccess = () => {
     }
 
     try {
-      const { _data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession())._data.session?.access_token}` }
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
       });
 
       if (error) throw error;
 
-      if (_data?.url) {
-        window.open(_data.url, '_blank');
+      if (data?.url) {
+        window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error('Error opening customer portal:', error);
@@ -83,31 +83,31 @@ export const MedMngSuccess = () => {
           </CardHeader>
           
           <CardContent className="p-8">
-            {_subscription && (
+            {subscription && (
               <div className="bg-success/10 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-success mb-4">✨ Votre plan {_subscription.plan_name} est actif !</h3>
+                <h3 className="font-semibold text-success mb-4">✨ Votre plan {subscription.plan_name} est actif !</h3>
                 <ul className="space-y-2 text-success/90">
                   <li className="flex items-center gap-2">
                     <Music className="h-4 w-4 text-success" />
-                    <span>{_subscription.monthly_quota} générations musicales par mois</span>
+                    <span>{subscription.monthly_quota} générations musicales par mois</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-success" />
                     <span>Sauvegarde dans votre bibliothèque</span>
                   </li>
-                  {_subscription.features.tableaux && (
+                  {subscription.features.tableaux && (
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-success" />
                       <span>Accès aux tableaux Rang A et B</span>
                     </li>
                   )}
-                  {_subscription.features.quiz && (
+                  {subscription.features.quiz && (
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-success" />
                       <span>Quiz complets disponibles</span>
                     </li>
                   )}
-                  {_subscription.features.bande_dessinee && (
+                  {subscription.features.bande_dessinee && (
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-success" />
                       <span>Bandes dessinées éducatives</span>

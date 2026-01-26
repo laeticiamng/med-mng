@@ -57,18 +57,18 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
     setLoading(true);
     
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('music_playlists')
         .select('id, name, is_public')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Compter les tracks par playlist
       const playlistsWithCount = await Promise.all(
-        (_data || []).map(async (playlist) => {
+        (data || []).map(async (playlist) => {
           // Note: On simplifier ici car la table playlist_tracks peut ne pas exister
           return { ...playlist, track_count: 0 };
         })
@@ -116,7 +116,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
 
     try {
       // 1. Créer la playlist
-      const { _data: _newPlaylist, _error: createError } = await supabase
+      const { data: newPlaylist, error: createError } = await supabase
         .from('music_playlists')
         .insert({
           user_id: user.id,

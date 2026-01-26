@@ -49,7 +49,7 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🚀 Démarrage du test d'authentification UNESS...");
       
-      const { _data, error } = await supabase.functions.invoke('extract-edn-uness', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'test', // Test avec les nouveaux credentials
           resumeFromItem: 1,
@@ -61,8 +61,8 @@ export const EdnExtractionTest = () => {
         throw error;
       }
 
-      setExtractionResult(_data);
-      toast.success(`✅ Extraction terminée: ${_data.stats.totalProcessed} items traités`);
+      setExtractionResult(data);
+      toast.success(`✅ Extraction terminée: ${data.stats.totalProcessed} items traités`);
       
       // Récupérer les items extraits depuis la base
       await loadExtractedItems();
@@ -82,7 +82,7 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🚀 Démarrage de l'extraction COMPLÈTE (367 items)...");
       
-      const { _data, error } = await supabase.functions.invoke('extract-edn-uness', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'extract',
           resumeFromItem: 1,
@@ -95,8 +95,8 @@ export const EdnExtractionTest = () => {
         throw error;
       }
 
-      setExtractionResult(_data);
-      toast.success(`✅ Extraction complète terminée: ${_data.stats.totalProcessed} items traités`);
+      setExtractionResult(data);
+      toast.success(`✅ Extraction complète terminée: ${data.stats.totalProcessed} items traités`);
       
       // Récupérer les items extraits depuis la base
       await loadExtractedItems();
@@ -113,20 +113,20 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🔄 Chargement des items extraits...");
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (_error) {
-        console.error('Erreur Supabase:', _error);
-        toast.error(`❌ Erreur chargement: ${_error.message}`);
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        toast.error(`❌ Erreur chargement: ${error.message}`);
         return;
       }
 
       // Transform data to match expected interface
-      const transformedData = _data?.map(item => ({
+      const transformedData = data?.map(item => ({
         item_id: parseInt(item.item_code.replace('IC-', '')) || 0,
         intitule: item.title,
         rangs_a: [], // Legacy compatibility
@@ -145,14 +145,14 @@ export const EdnExtractionTest = () => {
 
   const loadCurrentItems = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b, paroles_musicales')
         .order('item_code')
         .limit(10);
 
-      if (_error) throw _error;
-      setCurrentItems(_data || []);
+      if (error) throw error;
+      setCurrentItems(data || []);
     } catch (error) {
       console.error('Erreur chargement items actuels:', error);
     }

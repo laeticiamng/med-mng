@@ -127,7 +127,7 @@ export const useSRS = () => {
     try {
       const now = new Date().toISOString();
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_item_progress')
         .select('*')
         .eq('user_id', userId)
@@ -135,8 +135,8 @@ export const useSRS = () => {
         .order('next_review_date', { ascending: true })
         .limit(limit);
 
-      if (_error) throw _error;
-      return _data as UserItemProgress[];
+      if (error) throw error;
+      return data as UserItemProgress[];
     } catch (error) {
       console.error('Error fetching due items:', error);
       return [];
@@ -149,7 +149,7 @@ export const useSRS = () => {
   const getNewItems = useCallback(async (_userId: string, existingItemCodes: string[], limit: number = 10) => {
     try {
       // Get all item codes from edn_items_immersive that user hasn't studied
-      const { _data: allItems } = await supabase
+      const { data: allItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .order('item_code')
@@ -179,7 +179,7 @@ export const useSRS = () => {
   ) => {
     try {
       // Get current progress
-      const { _data: currentProgress } = await supabase
+      const { data: currentProgress } = await supabase
         .from('user_item_progress')
         .select('*')
         .eq('user_id', userId)
@@ -205,7 +205,7 @@ export const useSRS = () => {
         calculateNextReview(quality, progress);
 
       // Upsert progress
-      const { _error: progressError } = await supabase
+      const { error: progressError } = await supabase
         .from('user_item_progress')
         .upsert({
           user_id: userId,
@@ -253,7 +253,7 @@ export const useSRS = () => {
     setLoading(true);
     try {
       // Get user's progress
-      const { _data: progress } = await supabase
+      const { data: progress } = await supabase
         .from('user_item_progress')
         .select('*')
         .eq('user_id', userId);
@@ -293,7 +293,7 @@ export const useSRS = () => {
   // Start a review session
   const startSession = useCallback(async (userId: string, sessionType: 'new' | 'review' | 'mixed' = 'mixed') => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('review_sessions')
         .insert({
           user_id: userId,
@@ -302,8 +302,8 @@ export const useSRS = () => {
         .select()
         .maybeSingle();
 
-      if (_error) throw _error;
-      return _data;
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Error starting session:', error);
       return null;
@@ -319,7 +319,7 @@ export const useSRS = () => {
     totalTimeSeconds: number
   ) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('review_sessions')
         .update({
           completed_at: new Date().toISOString(),
@@ -330,7 +330,7 @@ export const useSRS = () => {
         })
         .eq('id', sessionId);
 
-      if (_error) throw _error;
+      if (error) throw error;
       return true;
     } catch (error) {
       console.error('Error completing session:', error);
@@ -341,15 +341,15 @@ export const useSRS = () => {
   // Get item progress by item code
   const getItemProgress = useCallback(async (userId: string, itemCode: string): Promise<UserItemProgress | null> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_item_progress')
         .select('*')
         .eq('user_id', userId)
         .eq('item_code', itemCode)
         .maybeSingle();
 
-      if (_error && _error.code !== 'PGRST116') throw _error;
-      return _data as UserItemProgress | null;
+      if (error && error.code !== 'PGRST116') throw error;
+      return data as UserItemProgress | null;
     } catch (error) {
       console.error('Error fetching item progress:', error);
       return null;
@@ -359,14 +359,14 @@ export const useSRS = () => {
   // Get all user progress
   const getAllProgress = useCallback(async (userId: string): Promise<UserItemProgress[]> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_item_progress')
         .select('*')
         .eq('user_id', userId)
         .order('next_review_date', { ascending: true });
 
-      if (_error) throw _error;
-      return _data as UserItemProgress[];
+      if (error) throw error;
+      return data as UserItemProgress[];
     } catch (error) {
       console.error('Error fetching all progress:', error);
       return [];
@@ -376,13 +376,13 @@ export const useSRS = () => {
   // Reset item progress
   const resetItemProgress = useCallback(async (userId: string, itemCode: string): Promise<boolean> => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_item_progress')
         .delete()
         .eq('user_id', userId)
         .eq('item_code', itemCode);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: "Progression réinitialisée",
@@ -420,12 +420,12 @@ export const useSRS = () => {
   // Get review forecast
   const getReviewForecast = useCallback(async (userId: string, days: number = 7): Promise<{ date: string; count: number }[]> => {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_item_progress')
         .select('next_review_date')
         .eq('user_id', userId);
 
-      if (!_data) return [];
+      if (!data) return [];
 
       const forecast: Record<string, number> = {};
       const today = new Date();
@@ -437,7 +437,7 @@ export const useSRS = () => {
         forecast[dateStr] = 0;
       }
 
-      _data.forEach(item => {
+      data.forEach(item => {
         const reviewDate = new Date(item.next_review_date).toISOString().split('T')[0];
         if (forecast.hasOwnProperty(reviewDate)) {
           forecast[reviewDate]++;
@@ -454,7 +454,7 @@ export const useSRS = () => {
   // Get review sessions history
   const getSessionHistory = useCallback(async (userId: string, limit: number = 10): Promise<any[]> => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('review_sessions')
         .select('*')
         .eq('user_id', userId)
@@ -462,8 +462,8 @@ export const useSRS = () => {
         .order('completed_at', { ascending: false })
         .limit(limit);
 
-      if (_error) throw _error;
-      return _data || [];
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       console.error('Error fetching session history:', error);
       return [];
@@ -507,15 +507,15 @@ export const useSRS = () => {
   // Calculate retention rate
   const getRetentionRate = useCallback(async (userId: string): Promise<number> => {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_item_progress')
         .select('total_reviews, correct_reviews')
         .eq('user_id', userId);
 
-      if (!_data || _data.length === 0) return 0;
+      if (!data || data.length === 0) return 0;
 
-      const totalReviews = _data.reduce((sum, p) => sum + (p.total_reviews || 0), 0);
-      const correctReviews = _data.reduce((sum, p) => sum + (p.correct_reviews || 0), 0);
+      const totalReviews = data.reduce((sum, p) => sum + (p.total_reviews || 0), 0);
+      const correctReviews = data.reduce((sum, p) => sum + (p.correct_reviews || 0), 0);
 
       if (totalReviews === 0) return 0;
       return Math.round((correctReviews / totalReviews) * 100);

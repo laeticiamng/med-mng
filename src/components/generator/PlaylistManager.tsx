@@ -69,16 +69,16 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     
     try {
       // Note: Table music_playlists doit exister
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('music_playlists')
         .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
-      
-      if (_error) throw _error;
-      
+
+      if (error) throw error;
+
       // Mapper les données pour correspondre à notre interface
-      const mappedData: Playlist[] = (_data || []).map((p: any) => ({
+      const mappedData: Playlist[] = (data || []).map((p: any) => ({
         id: p.id,
         name: p.name,
         description: p.description,
@@ -106,7 +106,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     if (!user || !newPlaylistName.trim()) return;
     
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('music_playlists')
         .insert({
           user_id: user.id,
@@ -115,16 +115,16 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         })
         .select()
         .single();
-      
-      if (_error) throw _error;
-      
+
+      if (error) throw error;
+
       const newPlaylist: Playlist = {
-        id: _data.id,
-        name: _data.name,
-        description: _data.description,
+        id: data.id,
+        name: data.name,
+        description: data.description,
         track_count: 0,
-        created_at: _data.created_at,
-        updated_at: _data.updated_at
+        created_at: data.created_at,
+        updated_at: data.updated_at
       };
       
       setPlaylists(prev => [newPlaylist, ...prev]);
@@ -145,12 +145,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     }
     
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('music_playlists')
         .update({ name: editingName.trim(), updated_at: new Date().toISOString() })
         .eq('id', id);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
       
       setPlaylists(prev => prev.map(p => 
         p.id === id ? { ...p, name: editingName.trim() } : p
@@ -166,12 +166,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   // Supprimer une playlist
   const deletePlaylist = useCallback(async (id: string) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('music_playlists')
         .delete()
         .eq('id', id);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
       
       setPlaylists(prev => prev.filter(p => p.id !== id));
       toast.success('Playlist supprimée');
@@ -194,15 +194,15 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       const existingTracks = Array.isArray(playlist?.tracks) ? playlist.tracks : [];
       const newTracks = [...existingTracks, ...selectedTrackIds];
       
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('music_playlists')
-        .update({ 
+        .update({
           tracks: newTracks,
           updated_at: new Date().toISOString()
         })
         .eq('id', playlistId);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
       
       await loadPlaylists();
       toast.success(`${selectedTrackIds.length} piste(s) ajoutée(s)`);

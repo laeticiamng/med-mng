@@ -34,40 +34,40 @@ export const AlertsAnalyticsDashboard = () => {
   const { data: alerts } = useQuery({
     queryKey: ['unified-alerts-analytics', period],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('unified_alerts')
         .select('*')
         .gte('created_at', cutoffDate.toISOString())
         .order('created_at', { ascending: false });
-      if (_error) throw _error;
-      return _data || [];
+      if (error) throw error;
+      return data || [];
     },
   });
 
   const { data: comparisonAlerts } = useQuery({
     queryKey: ['unified-alerts-comparison', period],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('unified_alerts')
         .select('*')
         .gte('created_at', comparisonCutoffDate.toISOString())
         .lt('created_at', cutoffDate.toISOString())
         .order('created_at', { ascending: false });
-      if (_error) throw _error;
-      return _data || [];
+      if (error) throw error;
+      return data || [];
     },
   });
 
   const { data: scoreHistory } = useQuery({
     queryKey: ['alert-score-history', period],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('alert_score_history')
         .select('*')
         .gte('calculated_at', cutoffDate.toISOString())
         .order('calculated_at', { ascending: true });
-      if (_error) throw _error;
-      return _data || [];
+      if (error) throw error;
+      return data || [];
     },
   });
 

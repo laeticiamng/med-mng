@@ -150,16 +150,16 @@ export const useMusicGenerationOrchestrator = () => {
 
       // Démarrer la génération avec retry automatique
       const initialData = await executeWithRetry(async () => {
-        const { _data, error } = await supabase.functions.invoke('generate-music', {
+        const { data, error } = await supabase.functions.invoke('generate-music', {
           body: requestBody
         });
-        
+
         if (error) {
           console.error(`[Orchestrator] Erreur API:`, error);
           throw new Error(error.message || 'Erreur lors du démarrage de la génération');
         }
-        
-        return _data;
+
+        return data;
       });
 
       // Si c'est déjà un succès (peu probable), on termine

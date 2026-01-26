@@ -30,14 +30,14 @@ export function useAppliedRecommendations() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Non authentifié');
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('applied_recommendations')
         .select('*')
         .eq('user_id', user.id)
         .order('applied_at', { ascending: false });
 
-      if (_error) throw _error;
-      setAppliedRecommendations(_data || []);
+      if (error) throw error;
+      setAppliedRecommendations(data || []);
     } catch (err: any) {
       setError(err.message);
       console.error('Error loading applied recommendations:', err);
@@ -52,7 +52,7 @@ export function useAppliedRecommendations() {
     startDate.setDate(startDate.getDate() - 7);
 
     // Récupérer les données réelles depuis Supabase
-    const { _data: recommendationsData } = await supabase
+    const { data: recommendationsData } = await supabase
       .from('applied_recommendations')
       .select('status')
       .gte('created_at', startDate.toISOString());
@@ -92,7 +92,7 @@ export function useAppliedRecommendations() {
       // Capturer les métriques AVANT
       const metricsBefore = await getCurrentMetrics();
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('applied_recommendations')
         .insert({
           user_id: user.id,
@@ -110,14 +110,14 @@ export function useAppliedRecommendations() {
         .select()
         .maybeSingle();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast.success('Recommandation marquée comme appliquée', {
         description: 'Les métriques sont en cours de suivi',
       });
 
       await loadAppliedRecommendations();
-      return _data;
+      return data;
     } catch (err: any) {
       console.error('Error applying recommendation:', err);
       toast.error('Erreur lors de l\'application', {
@@ -139,7 +139,7 @@ export function useAppliedRecommendations() {
       const metricsAfter = await getCurrentMetrics();
 
       // Mettre à jour avec les nouvelles métriques
-      const { _error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('applied_recommendations')
         .update({
           metrics_after: metricsAfter as any,
@@ -152,18 +152,18 @@ export function useAppliedRecommendations() {
       if (updateError) throw updateError;
 
       // Calculer l'impact via la fonction SQL
-      const { _data, _error: rpcError } = await supabase.rpc('calculate_recommendation_impact', {
+      const { data, error: rpcError } = await supabase.rpc('calculate_recommendation_impact', {
         rec_id: recommendationId,
       });
 
       if (rpcError) throw rpcError;
 
       toast.success('Impact calculé avec succès', {
-        description: `Score d'impact: ${(_data as any)?.impactScore || 0}/100`,
+        description: `Score d'impact: ${(data as any)?.impactScore || 0}/100`,
       });
 
       await loadAppliedRecommendations();
-      return _data;
+      return data;
     } catch (err: any) {
       console.error('Error measuring impact:', err);
       toast.error('Erreur lors du calcul d\'impact', {
@@ -178,12 +178,12 @@ export function useAppliedRecommendations() {
   const updateRecommendation = async (id: string, updates: Partial<AppliedRecommendation>) => {
     try {
       setLoading(true);
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('applied_recommendations')
         .update(updates)
         .eq('id', id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast.success('Recommandation mise à jour');
       await loadAppliedRecommendations();
@@ -199,12 +199,12 @@ export function useAppliedRecommendations() {
   const deleteRecommendation = async (id: string) => {
     try {
       setLoading(true);
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('applied_recommendations')
         .delete()
         .eq('id', id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast.success('Recommandation supprimée');
       await loadAppliedRecommendations();

@@ -36,11 +36,11 @@ export const useEdnNotes = (itemCode?: string) => {
         query = query.eq('item_code', itemCode);
       }
 
-      const { _data, _error } = await query;
-      if (_error) throw _error;
+      const { data, error } = await query;
+      if (error) throw error;
 
       const notesMap: Record<string, EdnNote> = {};
-      _data?.forEach(note => {
+      data?.forEach(note => {
         notesMap[note.item_code] = note;
       });
       setNotes(notesMap);
@@ -87,7 +87,7 @@ export const useEdnNotes = (itemCode?: string) => {
           }
         } else {
           // Upsert note
-          const { _data, _error } = await supabase
+          const { data, error } = await supabase
             .from('user_edn_notes')
             .upsert({
               user_id: user.id,
@@ -99,11 +99,11 @@ export const useEdnNotes = (itemCode?: string) => {
             .select()
             .single();
 
-          if (_error) throw _error;
+          if (error) throw error;
 
           setNotes(prev => ({
             ...prev,
-            [itemCode]: _data
+            [itemCode]: data
           }));
         }
       } catch (error) {

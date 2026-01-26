@@ -10,13 +10,13 @@ export const useAnalytics = () => {
     if (!user) return;
     
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .rpc('med_mng_track_listening', {
           p_song_id: songId,
           p_listen_duration: duration
         });
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
     } catch (error) {
       console.error('Erreur tracking écoute:', error);
     }
@@ -31,15 +31,15 @@ export const useAnalytics = () => {
     if (!user) return;
     
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .rpc('med_mng_log_listening_event', {
           p_song_id: songId,
           p_event_type: eventType,
           p_listen_duration: duration,
           p_metadata: metadata
         });
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
     } catch (error) {
       console.error('Erreur log event:', error);
     }
@@ -50,13 +50,13 @@ export const useAnalytics = () => {
     
     try {
       setLoading(true);
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .rpc('med_mng_toggle_favorite', {
           song_id: songId
         });
-      
-      if (_error) throw _error;
-      return _data;
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Erreur toggle favorite:', error);
       return false;
@@ -69,7 +69,7 @@ export const useAnalytics = () => {
     if (!user) return [];
     
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('med_mng_user_favorites')
         .select(`
           song_id,
@@ -78,9 +78,9 @@ export const useAnalytics = () => {
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      
-      if (_error) throw _error;
-      return _data || [];
+
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       console.error('Erreur récupération favoris:', error);
       return [];
@@ -91,15 +91,15 @@ export const useAnalytics = () => {
     if (!user) return;
     
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .rpc('med_mng_log_listening_event', {
           p_song_id: '00000000-0000-0000-0000-000000000000', // UUID null pour les métriques de performance
           p_event_type: 'performance',
           p_listen_duration: Math.round(value),
           p_metadata: { metric, category }
         });
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
     } catch (error) {
       console.error('Erreur tracking performance:', error);
     }
@@ -113,23 +113,23 @@ export const useAnalytics = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('*')
         .eq('user_id', user.id)
         .eq('activity_type', 'music_generation')
         .gte('activity_date', startDate.toISOString().split('T')[0]);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const stats = {
-        totalListens: _data?.length || 0,
-        totalDuration: _data?.reduce((sum, d: any) => sum + ((d.metadata as any)?.duration || 0), 0) || 0,
-        uniqueSongs: new Set(_data?.map((d: any) => (d.metadata as any)?.song_id)).size,
+        totalListens: data?.length || 0,
+        totalDuration: data?.reduce((sum, d: any) => sum + ((d.metadata as any)?.duration || 0), 0) || 0,
+        uniqueSongs: new Set(data?.map((d: any) => (d.metadata as any)?.song_id)).size,
         byDay: {} as Record<string, number>
       };
 
-      _data?.forEach((d: any) => {
+      data?.forEach((d: any) => {
         const day = d.activity_date;
         stats.byDay[day] = (stats.byDay[day] || 0) + 1;
       });
@@ -181,15 +181,15 @@ export const useAnalytics = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_activity_log')
         .select('activity_date')
         .eq('user_id', user.id)
         .gte('activity_date', thirtyDaysAgo.toISOString().split('T')[0]);
 
-      if (!_data) return 0;
+      if (!data) return 0;
 
-      const uniqueDays = new Set(_data.map(d => d.activity_date)).size;
+      const uniqueDays = new Set(data.map(d => d.activity_date)).size;
       return Math.min(100, Math.round((uniqueDays / 30) * 100));
     } catch (error) {
       console.error('Error calculating engagement:', error);
@@ -202,7 +202,7 @@ export const useAnalytics = () => {
     if (!user) return [];
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('metadata')
         .eq('user_id', user.id)
@@ -210,10 +210,10 @@ export const useAnalytics = () => {
         .order('activity_date', { ascending: false })
         .limit(100);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const songCounts: Record<string, { count: number; title: string; artist: string }> = {};
-      _data?.forEach((d: any) => {
+      data?.forEach((d: any) => {
         const songId = (d.metadata as any)?.song_id;
         if (songId && !songCounts[songId]) {
           songCounts[songId] = {

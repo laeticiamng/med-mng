@@ -65,13 +65,13 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
     setLoading(true);
     try {
       // Mettre à jour is_favorite dans user_generated_music
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: true } as any)
         .in('id', selectedIds)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
       
       toast.success(`${selectedSongs.length} chansons ajoutées aux favoris`);
       onActionComplete();
@@ -94,13 +94,13 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
     
     setLoading(true);
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .delete()
         .in('id', selectedIds)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
       
       toast.success(`${selectedSongs.length} chansons supprimées`);
       onActionComplete();

@@ -52,13 +52,13 @@ export function UnifiedMonitoringDashboard() {
   const fetchSystemMetrics = async () => {
     try {
       // Fetch user activity stats using existing function
-      const { _data: userStats } = await supabase
+      const { data: userStats } = await supabase
         .rpc('get_activity_stats', {
           p_start_date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
         });
 
       // Fetch extraction logs for error checking
-      const { _data: extractionLogs } = await supabase
+      const { data: extractionLogs } = await supabase
         .from('extraction_logs')
         .select('status, started_at')
         .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())

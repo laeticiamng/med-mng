@@ -47,7 +47,7 @@ export const useExamMode = () => {
     count: number = 20
   ): Promise<ExamQuestion[]> => {
     try {
-      const { _data: items } = await supabase
+      const { data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .in('item_code', itemCodes)
@@ -103,7 +103,7 @@ export const useExamMode = () => {
     setLoading(true);
     try {
       // Get random items for the exam
-      const { _data: allItems } = await supabase
+      const { data: allItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code')
         .limit(100);

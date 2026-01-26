@@ -34,7 +34,7 @@ export const useMusicTransposition = () => {
       setProgress(30);
 
       // Étape 2: Appeler l'API de génération
-      const { _data, error } = await supabase.functions.invoke('generate-music', {
+      const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           lyrics: translatedLyrics,
           style: selectedStyle,
@@ -49,12 +49,12 @@ export const useMusicTransposition = () => {
       });
 
       if (error) throw error;
-      if (!_data?.trackId) throw new Error('Aucun taskId reçu');
+      if (!data?.trackId) throw new Error('Aucun taskId reçu');
 
       setProgress(50);
 
       // Étape 3: Polling pour l'audio
-      const audioUrl = await pollForAudio(_data.trackId);
+      const audioUrl = await pollForAudio(data.trackId);
       setProgress(100);
 
       toast({
@@ -62,7 +62,7 @@ export const useMusicTransposition = () => {
         description: `Musique transposée en ${getLanguageName(targetLanguage)} avec succès !`,
       });
 
-      return { audioUrl, taskId: _data.trackId };
+      return { audioUrl, taskId: data.trackId };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erreur lors de la transposition";
       toast({
@@ -81,7 +81,7 @@ export const useMusicTransposition = () => {
   const pollForAudio = async (taskId: string, maxAttempts = 40): Promise<string> => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       // Vérifier en BDD
-      const { _data: track } = await supabase
+      const { data: track } = await supabase
         .from('generated_music_tracks')
         .select('audio_url, generation_status')
         .eq('task_id', taskId)

@@ -117,7 +117,7 @@ const EcosScenario = () => {
   
   const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
 
   // Fetch scenario from database
   useEffect(() => {
@@ -131,15 +131,15 @@ const EcosScenario = () => {
         // Try to find by sd_id first, then by slug pattern
         const sdId = slug.toUpperCase().startsWith('SD') ? slug.toUpperCase() : `SD${slug.padStart(3, '0')}`;
         
-        const { _data, _error } = await supabase
+        const { data, error } = await supabase
           .from('ecos_situations_uness')
           .select('sd_id, intitule_sd, competences_associees, contenu_complet_html')
           .or(`sd_id.eq.${sdId},sd_id.ilike.%${slug}%`)
           .limit(1)
           .maybeSingle();
-        
-        if (!_error && _data) {
-          setDbScenario(_data);
+
+        if (!error && data) {
+          setDbScenario(data);
         }
       } catch (err) {
         console.error('Error fetching ECOS scenario:', err);
@@ -232,7 +232,7 @@ const EcosScenario = () => {
       
       if (user) {
         await addPoints(user.id, POINTS_CONFIG.clinicalCase, 'clinicalCase');
-        await _unlockBadge(user.id, 'clinical_master');
+        await unlockBadge(user.id, 'clinical_master');
         loadStats(user.id);
       }
     }

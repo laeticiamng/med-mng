@@ -52,17 +52,17 @@ export const EdnAuditDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadAuditResults = async () => {
-    const { _data, _error } = await supabase
+    const { data, error } = await supabase
       .from('edn_items_audit')
       .select('*')
       .order('completeness_score', { ascending: true });
 
-    if (_error) {
-      console.error('Error loading audit results:', _error);
+    if (error) {
+      console.error('Error loading audit results:', error);
       return;
     }
 
-    setAuditResults(_data || []);
+    setAuditResults(data || []);
   };
 
   const startAudit = async () => {
@@ -76,7 +76,7 @@ export const EdnAuditDashboard: React.FC = () => {
       });
       
       // Lancer l'audit global
-      const { _data, error } = await supabase.functions.invoke('audit-edn-completeness', {
+      const { data, error } = await supabase.functions.invoke('audit-edn-completeness', {
         body: { action: 'start-audit' }
       });
 
@@ -84,11 +84,11 @@ export const EdnAuditDashboard: React.FC = () => {
 
       toast({
         title: "✅ Audit lancé",
-        description: `Analyse de ${_data.itemCount} items en cours...`,
+        description: `Analyse de ${data.itemCount} items en cours...`,
       });
 
       // Récupérer tous les items à analyser
-      const { _data: items } = await supabase
+      const { data: items } = await supabase
         .from('edn_items_immersive')
         .select('item_code')
         .order('item_code');
@@ -151,20 +151,20 @@ export const EdnAuditDashboard: React.FC = () => {
       // Traiter par batch de 4 compétences
       while (hasMore && iterations < 20) { // Limite de sécurité à 20 itérations
         iterations++;
-        
-        const { _data, error } = await supabase.functions.invoke('complete-missing-competences', {
+
+        const { data, error } = await supabase.functions.invoke('complete-missing-competences', {
           body: { itemCode }
         });
 
         if (error) throw error;
-        
-        totalCompleted += _data.completedCompetences;
-        hasMore = _data.hasMore || false;
-        
+
+        totalCompleted += data.completedCompetences;
+        hasMore = data.hasMore || false;
+
         if (hasMore) {
           toast({
             title: `⏳ Progression ${iterations}/${maxIterations}`,
-            description: `${totalCompleted} compétences complétées, ${_data.remaining} restantes...`,
+            description: `${totalCompleted} compétences complétées, ${data.remaining} restantes...`,
           });
           
           // Petite pause entre les batchs

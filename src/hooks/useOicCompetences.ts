@@ -83,16 +83,16 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
 
     try {
       // Use direct padded item_parent for more reliable matching
-      const { _data, _error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('oic_competences')
         .select('objectif_id, intitule, description, rang, item_parent, rubrique')
         .eq('item_parent', paddedItemParent)
         .eq('rang', rang)
         .order('objectif_id');
-      
+
       // Ignore if a newer fetch was triggered
       if (currentFetch !== fetchCountRef.current) return;
-      
+
       if (fetchError) {
         console.warn(`[useOicCompetences] Error: ${fetchError.message}`);
         setError(fetchError.message);
@@ -101,7 +101,7 @@ export function useOicCompetences(itemCode: string, rang: 'A' | 'B') {
         return;
       }
 
-      const realCompetences = (_data || [])
+      const realCompetences = (data || [])
         .filter((comp): comp is typeof comp & { objectif_id: string; intitule: string } => 
           Boolean(comp.objectif_id && comp.intitule)
         )

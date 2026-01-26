@@ -58,14 +58,14 @@ const OicDataQualityManager = () => {
     try {
       console.log('🔍 Starting OIC data quality analysis...');
       
-      const { _data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
+      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'analyze' }
       });
-      
+
       if (error) throw error;
-      
-      setAnalysisResult(_data);
-      console.log('✅ Analysis completed:', _data);
+
+      setAnalysisResult(data);
+      console.log('✅ Analysis completed:', data);
       
     } catch (err: any) {
       console.error('❌ Analysis failed:', err);
@@ -82,14 +82,14 @@ const OicDataQualityManager = () => {
     try {
       console.log('🛠️ Starting OIC data quality fixes...');
       
-      const { _data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
+      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
         body: { action: 'fix' }
       });
-      
+
       if (error) throw error;
-      
-      setFixResult(_data);
-      console.log('✅ Fixes completed:', _data);
+
+      setFixResult(data);
+      console.log('✅ Fixes completed:', data);
       
       // Relancer l'analyse pour voir les améliorations
       setTimeout(() => {

@@ -43,7 +43,7 @@ export const useAIExam = () => {
     setGenerating(true);
     try {
       // Use edn_items_complete which is properly typed (not edn_items_immersive)
-      const { _data: items, _error: itemsError } = await supabase
+      const { data: items, error: itemsError } = await supabase
         .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .in('item_code', itemCodes);
@@ -72,8 +72,8 @@ export const useAIExam = () => {
       });
 
       // Call edge function
-      const { _data, error } = await supabase.functions.invoke('generate-qcm', {
-        body: { 
+      const { data, error } = await supabase.functions.invoke('generate-qcm', {
+        body: {
           items: preparedItems,
           count,
           difficulty
@@ -90,7 +90,7 @@ export const useAIExam = () => {
         return [];
       }
 
-      return _data?.questions || [];
+      return data?.questions || [];
     } catch (error) {
       console.error('Error in generateAIQuestions:', error);
       return [];
@@ -132,7 +132,7 @@ export const useAIExam = () => {
       
       if (!itemCodes || itemCodes.length === 0) {
         // Use edn_items_complete which is properly typed
-        const { _data: allItems } = await supabase
+        const { data: allItems } = await supabase
           .from('edn_items_complete')
           .select('item_code, title')
           .limit(500);

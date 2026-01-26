@@ -64,15 +64,15 @@ export const MedMngSubscribe = () => {
         navigate(ROUTE_PATHS.medMngLibrary);
       } else if (gateway === 'stripe') {
         // Stripe réel via Edge Function
-        const { _data: { session } } = await supabase.auth.getSession();
-        const { _data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
           body: { planId: planId, successUrl: `${window.location.origin}/med-mng/library`, cancelUrl: window.location.href },
           headers: { Authorization: `Bearer ${session?.access_token}` }
         });
-        
+
         if (error) throw error;
-        if (_data?.url) {
-          window.location.href = _data.url;
+        if (data?.url) {
+          window.location.href = data.url;
         }
       } else {
         // PayPal - redirection vers implémentation

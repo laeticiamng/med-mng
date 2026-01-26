@@ -36,7 +36,7 @@ export const FavoritesTab = () => {
       setLoading(true);
       
       // D'abord récupérer les favoris de l'utilisateur
-      const { _data: favoritesData, _error: favError } = await supabase
+      const { data: favoritesData, error: favError } = await supabase
         .from('med_mng_user_favorites')
         .select('id, song_id, created_at')
         .order('created_at', { ascending: false });
@@ -50,7 +50,7 @@ export const FavoritesTab = () => {
       // Puis récupérer les détails des chansons
       if (favoritesData && favoritesData.length > 0) {
         const songIds = favoritesData.map(f => f.song_id);
-        const { _data: songsData } = await supabase
+        const { data: songsData } = await supabase
           .from('user_generated_music')
           .select('id, title, item_code, audio_url, rang')
           .in('id', songIds);
@@ -74,12 +74,12 @@ export const FavoritesTab = () => {
 
   const removeFavorite = async (favoriteId: string) => {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('med_mng_user_favorites')
         .delete()
         .eq('id', favoriteId);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setFavorites(prev => prev.filter(f => f.id !== favoriteId));
       toast({

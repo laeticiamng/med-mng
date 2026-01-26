@@ -135,7 +135,7 @@ export class MigrationHelpers {
    */
   static async saveItemV2(itemV2: ItemEDNV2, originalId: string) {
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('edn_items_immersive')
         .update({
           // Nouveaux champs v2
@@ -144,8 +144,8 @@ export class MigrationHelpers {
           updated_at: new Date().toISOString()
         })
         .eq('id', originalId);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
       
       console.log('✅ Item v2 sauvegardé:', itemV2.item_metadata.code);
       return true;

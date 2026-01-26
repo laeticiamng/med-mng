@@ -83,7 +83,7 @@ export const useMusicPolling = () => {
     try {
       // ✅ CORRECTION: Chercher explicitement un track COMPLÉTÉ avec audio_url
       // Ordonner par updated_at DESC pour avoir la version la plus récente
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('generated_music_tracks')
         .select('audio_url, stream_url, generation_status, metadata, updated_at')
         .eq('task_id', taskId)
@@ -91,38 +91,38 @@ export const useMusicPolling = () => {
         .limit(1)
         .maybeSingle();
 
-      if (_error) {
-        console.warn('[useMusicPolling] Erreur BDD:', _error);
+      if (error) {
+        console.warn('[useMusicPolling] Erreur BDD:', error);
         return { found: false };
       }
 
-      if (!_data) {
+      if (!data) {
         return { found: false };
       }
 
-      console.log('[useMusicPolling] Données BDD:', { 
-        status: _data.generation_status, 
-        hasAudioUrl: !!_data.audio_url,
-        audioUrl: _data.audio_url?.substring(0, 50)
+      console.log('[useMusicPolling] Données BDD:', {
+        status: data.generation_status,
+        hasAudioUrl: !!data.audio_url,
+        audioUrl: data.audio_url?.substring(0, 50)
       });
 
-      if (_data.generation_status === 'completed' && _data.audio_url) {
-        return { 
-          found: true, 
-          audioUrl: _data.audio_url, 
-          streamUrl: _data.stream_url,
-          status: 'completed' 
+      if (data.generation_status === 'completed' && data.audio_url) {
+        return {
+          found: true,
+          audioUrl: data.audio_url,
+          streamUrl: data.stream_url,
+          status: 'completed'
         };
       }
 
-      if (_data.generation_status === 'failed') {
-        const errorMsg = typeof _data.metadata === 'object' && _data.metadata 
-          ? (_data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
+      if (data.generation_status === 'failed') {
+        const errorMsg = typeof data.metadata === 'object' && data.metadata
+          ? (data.metadata as Record<string, unknown>).error as string || 'Génération échouée'
           : 'Génération échouée';
         return { found: true, status: 'failed', error: errorMsg };
       }
 
-      if (_data.generation_status === 'cancelled') {
+      if (data.generation_status === 'cancelled') {
         return { found: true, status: 'cancelled', error: 'Génération annulée' };
       }
 
@@ -247,7 +247,7 @@ export const useMusicPolling = () => {
         }
 
         // Appeler l'edge function music-status
-        const { _data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
+        const { data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
           body: { taskId }
         });
 
@@ -369,7 +369,7 @@ export const useMusicPolling = () => {
     startPolling,
     stopPolling,
     stopAllPolling,
-    _getActivePollingTasks,
-    _isPolling
+    getActivePollingTasks,
+    isPolling
   };
 };

@@ -76,7 +76,7 @@ export const useEdnItem = (slug: string | undefined) => {
     setError(null);
 
     try {
-      const { _data, _error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('slug', slug)
@@ -87,26 +87,26 @@ export const useEdnItem = (slug: string | undefined) => {
         return;
       }
 
-      if (_data) {
+      if (data) {
         const mappedData: EdnItemData = {
-          id: _data.id,
-          item_code: _data.item_code,
-          title: _data.title,
-          subtitle: _data.subtitle,
-          slug: _data.slug,
-          paroles_musicales: _data.paroles_musicales as string[] | undefined,
-          tableau_rang_a: _data.tableau_rang_a,
-          tableau_rang_b: _data.tableau_rang_b,
-          scene_immersive: _data.scene_immersive,
-          quiz_questions: _data.quiz_questions,
-          created_at: _data.created_at,
-          updated_at: _data.updated_at,
-          payload_v2: 'payload_v2' in _data ? (_data as Record<string, Json>).payload_v2 : undefined,
+          id: data.id,
+          item_code: data.item_code,
+          title: data.title,
+          subtitle: data.subtitle,
+          slug: data.slug,
+          paroles_musicales: data.paroles_musicales as string[] | undefined,
+          tableau_rang_a: data.tableau_rang_a,
+          tableau_rang_b: data.tableau_rang_b,
+          scene_immersive: data.scene_immersive,
+          quiz_questions: data.quiz_questions,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
           // Computed fields from existing data
           category: 'EDN',
-          has_music: Boolean(_data.paroles_musicales),
-          has_lyrics: Boolean(_data.paroles_musicales),
-          competences_count: _data.competences_count_total || 0
+          has_music: Boolean(data.paroles_musicales),
+          has_lyrics: Boolean(data.paroles_musicales),
+          competences_count: data.competences_count_total || 0
         };
         setRawItem(mappedData);
         setStats(calculateStats(mappedData));
@@ -128,7 +128,7 @@ export const useEdnItem = (slug: string | undefined) => {
     setError(null);
 
     try {
-      const { _data, _error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
@@ -139,25 +139,25 @@ export const useEdnItem = (slug: string | undefined) => {
         return null;
       }
 
-      if (_data) {
+      if (data) {
         const mappedData: EdnItemData = {
-          id: _data.id,
-          item_code: _data.item_code,
-          title: _data.title,
-          subtitle: _data.subtitle,
-          slug: _data.slug,
-          paroles_musicales: _data.paroles_musicales as string[] | undefined,
-          tableau_rang_a: _data.tableau_rang_a,
-          tableau_rang_b: _data.tableau_rang_b,
-          scene_immersive: _data.scene_immersive,
-          quiz_questions: _data.quiz_questions,
-          created_at: _data.created_at,
-          updated_at: _data.updated_at,
-          payload_v2: 'payload_v2' in _data ? (_data as Record<string, Json>).payload_v2 : undefined,
+          id: data.id,
+          item_code: data.item_code,
+          title: data.title,
+          subtitle: data.subtitle,
+          slug: data.slug,
+          paroles_musicales: data.paroles_musicales as string[] | undefined,
+          tableau_rang_a: data.tableau_rang_a,
+          tableau_rang_b: data.tableau_rang_b,
+          scene_immersive: data.scene_immersive,
+          quiz_questions: data.quiz_questions,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+          payload_v2: 'payload_v2' in data ? (data as Record<string, Json>).payload_v2 : undefined,
           category: 'EDN',
-          has_music: Boolean(_data.paroles_musicales),
-          has_lyrics: Boolean(_data.paroles_musicales),
-          competences_count: _data.competences_count_total || 0
+          has_music: Boolean(data.paroles_musicales),
+          has_lyrics: Boolean(data.paroles_musicales),
+          competences_count: data.competences_count_total || 0
         };
         setRawItem(mappedData);
         setStats(calculateStats(mappedData));

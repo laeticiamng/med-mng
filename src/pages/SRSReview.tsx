@@ -89,7 +89,7 @@ export default function SRSReview() {
     // Get new items if we have less than 20 due
     let newItemsToAdd: any[] = [];
     if (dueItems.length < 20) {
-      const { _data: userProgress } = await supabase
+      const { data: userProgress } = await supabase
         .from('user_item_progress')
         .select('item_code')
         .eq('user_id', user.id);
@@ -100,7 +100,7 @@ export default function SRSReview() {
 
     // Get item details for due items
     const allItemCodes = [...dueItemCodes, ...newItemsToAdd.map(n => n.item_code)];
-    const { _data: itemsData } = await supabase
+    const { data: itemsData } = await supabase
       .from('edn_items_immersive')
       .select('item_code, title')
       .in('item_code', allItemCodes);
@@ -136,13 +136,13 @@ export default function SRSReview() {
       if (reviewQueue.length === 0 || currentIndex >= reviewQueue.length) return;
       
       const currentItem = reviewQueue[currentIndex];
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .eq('item_code', currentItem.item_code)
         .maybeSingle();
-      
-      setItemDetails(_data);
+
+      setItemDetails(data);
       setItemStartTime(new Date());
     };
 

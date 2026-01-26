@@ -78,7 +78,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({ postId, onCommentA
     }
 
     try {
-      const { _data: profile } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('name')
         .eq('id', user.id)

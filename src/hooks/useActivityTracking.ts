@@ -487,7 +487,7 @@ export const useActivityTracking = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { period1: { total: 0, average: 0 }, period2: { total: 0, average: 0 }, change: 0 };
 
-      const [{ _data: data1 }, { _data: data2 }] = await Promise.all([
+      const [{ data: data1 }, { data: data2 }] = await Promise.all([
         supabase
           .from('user_activity_log')
           .select('count')

@@ -10,13 +10,13 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
   
   try {
     // Récupération de l'item IC-2
-    const { _data: item, _error } = await supabase
+    const { data: item, error } = await supabase
       .from('edn_items_immersive')
       .select('*')
       .eq('item_code', 'IC-2')
       .maybeSingle();
 
-    if (_error || !item) {
+    if (error || !item) {
       console.log('❌ Item IC-2 non trouvé');
       return {
         exists: false,

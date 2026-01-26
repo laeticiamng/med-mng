@@ -45,13 +45,13 @@ export const useDirectMessages = () => {
     setLoading(true);
 
     try {
-      const { _data: dbMessages, _error } = await supabase
+      const { data: dbMessages, error } = await supabase
         .from('direct_messages')
         .select('*')
         .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Group by conversation partner
       const convMap = new Map<string, Conversation>();
@@ -79,7 +79,7 @@ export const useDirectMessages = () => {
 
       // Load profiles for partners
       if (partnerIds.size > 0) {
-        const { _data: profiles } = await supabase
+        const { data: profiles } = await supabase
           .from('profiles')
           .select('id, display_name, avatar_url')
           .in('id', Array.from(partnerIds));
@@ -108,15 +108,15 @@ export const useDirectMessages = () => {
     setSelectedConversation(partnerId);
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('direct_messages')
         .select('*')
         .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${currentUser.id})`)
         .order('created_at', { ascending: true });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const formattedMessages: DirectMessage[] = (_data || []).map((m: any) => ({
+      const formattedMessages: DirectMessage[] = (data || []).map((m: any) => ({
         id: m.id,
         senderId: m.sender_id,
         receiverId: m.receiver_id,
@@ -150,7 +150,7 @@ export const useDirectMessages = () => {
     if (!currentUser || !content.trim()) return null;
 
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('direct_messages')
         .insert({
           sender_id: currentUser.id,
@@ -161,15 +161,15 @@ export const useDirectMessages = () => {
         .select()
         .single();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       const newMessage: DirectMessage = {
-        id: _data.id,
-        senderId: _data.sender_id,
-        receiverId: _data.receiver_id,
-        content: _data.content,
-        isRead: _data.is_read,
-        createdAt: _data.created_at
+        id: data.id,
+        senderId: data.sender_id,
+        receiverId: data.receiver_id,
+        content: data.content,
+        isRead: data.is_read,
+        createdAt: data.created_at
       };
 
       setMessages(prev => [...prev, newMessage]);
@@ -180,7 +180,7 @@ export const useDirectMessages = () => {
         if (existing) {
           return prev.map(c =>
             c.participantId === receiverId
-              ? { ...c, lastMessage: content, lastMessageAt: _data.created_at }
+              ? { ...c, lastMessage: content, lastMessageAt: data.created_at }
               : c
           );
         }

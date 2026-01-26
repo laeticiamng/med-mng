@@ -53,12 +53,12 @@ export const DynamicOnboarding: React.FC = () => {
       
       // Try to load dynamic onboarding from Supabase edge function if available
       try {
-        const { _data, error } = await supabase.functions.invoke('get-onboarding-steps', {
+        const { data, error } = await supabase.functions.invoke('get-onboarding-steps', {
           body: {}
         });
 
-        if (!error && _data?.steps && _data.steps.length > 0) {
-          setOnboardingData(_data.steps);
+        if (!error && data?.steps && data.steps.length > 0) {
+          setOnboardingData(data.steps);
         }
       } catch {
         // Edge function not available, use static fallback (this is expected)

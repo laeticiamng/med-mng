@@ -40,7 +40,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
   };
 
   try {
-    const { _data, error } = await supabase.functions.invoke('generate-music', {
+    const { data, error } = await supabase.functions.invoke('generate-music', {
       body: optimizedRequest
     });
 
@@ -100,37 +100,37 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
       throw errorWithRetryInfo;
     }
 
-    if (!_data) {
+    if (!data) {
       throw new Error('Aucune donnée reçue');
     }
 
     // Gestion des timeouts côté serveur
-    if (_data.status === 'timeout') {
+    if (data.status === 'timeout') {
       throw new Error('⏰ La génération prend plus de temps que prévu. Réessayez dans 2-3 minutes.');
     }
 
-    if (_data.error || _data.status === 'error') {
-      let errorMessage = _data.error || _data.message || 'Erreur inconnue';
-      
-      if (_data.error_code === 429 || 
-          _data.details?.code === 429 || 
-          errorMessage.includes('insufficient') || 
+    if (data.error || data.status === 'error') {
+      let errorMessage = data.error || data.message || 'Erreur inconnue';
+
+      if (data.error_code === 429 ||
+          data.details?.code === 429 ||
+          errorMessage.includes('insufficient') ||
           errorMessage.includes('credits')) {
         errorMessage = '💳 Crédits Suno épuisés ! Veuillez recharger votre compte API Suno.';
-      } else if (_data.error_code === 408) {
+      } else if (data.error_code === 408) {
         errorMessage = '⏰ Timeout: La génération prend trop de temps. Réessayez plus tard.';
-      } else if (_data.error_code === 401) {
+      } else if (data.error_code === 401) {
         errorMessage = '🔑 Problème d\'authentication avec l\'API Suno.';
       }
-      
+
       throw new Error(errorMessage);
     }
 
     // L'API Suno peut retourner soit directement audioUrl, soit trackId pour polling
-    if (_data.audioUrl) {
-      return { audioUrl: _data.audioUrl, callDuration };
-    } else if (_data.trackId) {
-      return { trackId: _data.trackId, callDuration };
+    if (data.audioUrl) {
+      return { audioUrl: data.audioUrl, callDuration };
+    } else if (data.trackId) {
+      return { trackId: data.trackId, callDuration };
     } else {
       throw new Error('Aucune URL audio ni trackId généré par l\'API Suno');
     }

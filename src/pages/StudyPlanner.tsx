@@ -69,7 +69,7 @@ const StudyPlanner = () => {
         setWeeklySummary(summary);
         
         // Load study plans from Supabase
-        const { _data: plans } = await supabase
+        const { data: plans } = await supabase
           .from('study_plans')
           .select('*')
           .eq('user_id', user.id)
@@ -80,7 +80,7 @@ const StudyPlanner = () => {
         }
 
         // Load study sessions from Supabase (plan_sessions table)
-        const { _data: sessionsData } = await supabase
+        const { data: sessionsData } = await supabase
           .from('plan_sessions')
           .select('*')
           .eq('user_id', user.id)
@@ -102,7 +102,7 @@ const StudyPlanner = () => {
         }
 
         // Load learning goals from Supabase
-        const { _data: goalsData } = await supabase
+        const { data: goalsData } = await supabase
           .from('learning_goals')
           .select('*')
           .eq('user_id', user.id)

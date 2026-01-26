@@ -39,19 +39,19 @@ export const useLearningAnalytics = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('learning_analytics')
         .select('*')
         .eq('user_id', user.id)
         .order('week_start', { ascending: false })
         .limit(weeks);
 
-      if (_error) {
-        console.error('Error fetching analytics:', _error);
+      if (error) {
+        console.error('Error fetching analytics:', error);
         return [];
       }
 
-      return (_data || []).map(d => ({
+      return (data || []).map(d => ({
         weekStart: d.week_start,
         totalStudyTime: d.total_study_time || 0,
         itemsReviewed: d.items_reviewed || 0,
@@ -76,14 +76,14 @@ export const useLearningAnalytics = () => {
       if (!user) return [];
 
       // Get recent activity data
-      const { _data: activities } = await supabase
+      const { data: activities } = await supabase
         .from('user_activity_log')
         .select('*')
         .eq('user_id', user.id)
         .order('activity_date', { ascending: false })
         .limit(100);
 
-      const { _data: analytics } = await supabase
+      const { data: analytics } = await supabase
         .from('learning_analytics')
         .select('*')
         .eq('user_id', user.id)
@@ -226,7 +226,7 @@ export const useLearningAnalytics = () => {
       weekStart.setHours(0, 0, 0, 0);
       const weekStartStr = weekStart.toISOString().split('T')[0];
 
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('learning_analytics')
         .upsert({
           user_id: user.id,
@@ -243,8 +243,8 @@ export const useLearningAnalytics = () => {
           onConflict: 'user_id,week_start'
         });
 
-      if (_error) {
-        console.error('Error updating analytics:', _error);
+      if (error) {
+        console.error('Error updating analytics:', error);
         return false;
       }
       return true;
@@ -263,19 +263,19 @@ export const useLearningAnalytics = () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_activity_log')
         .select('activity_date, score, count, duration_seconds')
         .eq('user_id', user.id)
         .gte('activity_date', startDate.toISOString().split('T')[0])
         .order('activity_date', { ascending: true });
 
-      if (_error || !_data) return [];
+      if (error || !data) return [];
 
       // Group by date
       const byDate: Record<string, { scores: number[]; items: number; time: number }> = {};
-      
-      _data.forEach(log => {
+
+      data.forEach(log => {
         if (!byDate[log.activity_date]) {
           byDate[log.activity_date] = { scores: [], items: 0, time: 0 };
         }

@@ -49,7 +49,7 @@ export const ItemMasteryGrid: React.FC = () => {
       });
 
       // Get all EDN items
-      const { _data: ednItems } = await supabase
+      const { data: ednItems } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title')
         .order('item_code');
@@ -60,7 +60,7 @@ export const ItemMasteryGrid: React.FC = () => {
       }
 
       // Get user's progress from Supabase (real data)
-      const { _data: progressData } = await supabase
+      const { data: progressData } = await supabase
         .from('user_item_progress')
         .select('item_code, ease_factor, interval_days, review_count, last_reviewed, next_review')
         .eq('user_id', user.id);

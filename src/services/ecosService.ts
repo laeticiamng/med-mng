@@ -59,7 +59,7 @@ class EcosService {
     _search: string = '',
     _competences: string = ''
   ): Promise<EcosSearchResult> {
-    const { _data, error } = await supabase.functions.invoke('ecos-api', {
+    const { data, error } = await supabase.functions.invoke('ecos-api', {
       body: null,
       method: 'GET',
     });
@@ -69,11 +69,11 @@ class EcosService {
       throw new Error('Erreur lors de la récupération des situations ECOS');
     }
 
-    return _data;
+    return data;
   }
 
   async getSituation(_id: number): Promise<EcosSituation> {
-    const { _data, error } = await supabase.functions.invoke('ecos-api', {
+    const { data, error } = await supabase.functions.invoke('ecos-api', {
       body: null,
       method: 'GET',
     });
@@ -83,11 +83,11 @@ class EcosService {
       throw new Error('Erreur lors de la récupération de la situation ECOS');
     }
 
-    return _data;
+    return data;
   }
 
   async getCompetences(): Promise<string[]> {
-    const { _data, error } = await supabase.functions.invoke('ecos-api', {
+    const { data, error } = await supabase.functions.invoke('ecos-api', {
       body: null,
       method: 'GET',
     });
@@ -97,11 +97,11 @@ class EcosService {
       throw new Error('Erreur lors de la récupération des compétences');
     }
 
-    return _data.competences || [];
+    return data.competences || [];
   }
 
   async getAnalytics(): Promise<EcosAnalytics> {
-    const { _data, error } = await supabase.functions.invoke('ecos-api', {
+    const { data, error } = await supabase.functions.invoke('ecos-api', {
       body: null,
       method: 'GET',
     });
@@ -111,7 +111,7 @@ class EcosService {
       throw new Error('Erreur lors de la récupération des analytics ECOS');
     }
 
-    return _data;
+    return data;
   }
 
   async advancedSearch(
@@ -119,7 +119,7 @@ class EcosService {
     page: number = 1,
     limit: number = 20
   ): Promise<EcosSearchResult & { search_criteria: EcosSearchCriteria }> {
-    const { _data, error } = await supabase.functions.invoke('ecos-api', {
+    const { data, error } = await supabase.functions.invoke('ecos-api', {
       body: {
         ...criteria,
         page,
@@ -133,7 +133,7 @@ class EcosService {
       throw new Error('Erreur lors de la recherche avancée ECOS');
     }
 
-    return _data;
+    return data;
   }
 
   // Utilitaires
@@ -221,15 +221,15 @@ class EcosService {
   // Obtenir les situations étudiées par l'utilisateur
   async getStudiedSituations(userId: string): Promise<number[]> {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_activity_log')
         .select('metadata')
         .eq('user_id', userId)
         .eq('activity_type', 'ecos');
 
-      if (!_data) return [];
+      if (!data) return [];
 
-      return _data
+      return data
         .filter(d => d.metadata && (d.metadata as any).sd_id)
         .map(d => (d.metadata as any).sd_id);
     } catch (error) {
@@ -294,14 +294,14 @@ class EcosService {
     studyStreak: number;
   }> {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_activity_log')
         .select('activity_date, metadata')
         .eq('user_id', userId)
         .eq('activity_type', 'ecos')
         .order('activity_date', { ascending: false });
 
-      if (!_data || _data.length === 0) {
+      if (!data || data.length === 0) {
         return {
           totalStudied: 0,
           lastStudied: null,
@@ -313,7 +313,7 @@ class EcosService {
       // Calculer le streak
       let streak = 0;
       const today = new Date().toISOString().split('T')[0];
-      const dates = [...new Set(_data.map(d => d.activity_date))];
+      const dates = [...new Set(data.map(d => d.activity_date))];
 
       for (let i = 0; i < dates.length; i++) {
         const checkDate = new Date();
@@ -329,7 +329,7 @@ class EcosService {
 
       // Extraire les compétences favorites à partir des métadonnées
       const competenceCounts = new Map<string, number>();
-      _data.forEach(d => {
+      data.forEach(d => {
         const meta = d.metadata as any;
         if (meta?.competences && Array.isArray(meta.competences)) {
           meta.competences.forEach((c: string) => {
@@ -337,15 +337,15 @@ class EcosService {
           });
         }
       });
-      
+
       const favoriteCompetences = Array.from(competenceCounts.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([c]) => c);
 
       return {
-        totalStudied: _data.length,
-        lastStudied: _data[0]?.activity_date || null,
+        totalStudied: data.length,
+        lastStudied: data[0]?.activity_date || null,
         favoriteCompetences,
         studyStreak: streak
       };

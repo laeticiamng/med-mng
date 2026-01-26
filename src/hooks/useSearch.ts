@@ -76,7 +76,7 @@ export function useSearch() {
       }
 
       // Recherche via Supabase fonction
-      const { _data, error: searchError } = await supabase.functions.invoke('advanced-search', {
+      const { data, error: searchError } = await supabase.functions.invoke('advanced-search', {
         body: {
           query: query.trim(),
           filters,
@@ -92,10 +92,10 @@ export function useSearch() {
 
       if (searchError) throw searchError;
 
-      const searchResults: SearchResult[] = _data.results || [];
-      
+      const searchResults: SearchResult[] = data.results || [];
+
       setResults(searchResults);
-      setTotalResults(_data.totalCount || 0);
+      setTotalResults(data.totalCount || 0);
       
       // Mettre en cache
       cache.set(cacheKey, searchResults, { ttl: 5 * 60 * 1000 }); // 5 minutes
@@ -121,13 +121,13 @@ export function useSearch() {
     }
 
     try {
-      const { _data, error } = await supabase.functions.invoke('search-suggestions', {
+      const { data, error } = await supabase.functions.invoke('search-suggestions', {
         body: { query: query.trim() }
       });
 
       if (error) throw error;
 
-      setSuggestions(_data.suggestions || []);
+      setSuggestions(data.suggestions || []);
     } catch (error) {
       console.error('Erreur suggestions:', error);
       setSuggestions([]);
@@ -156,13 +156,13 @@ export function useSearch() {
 
   const searchSimilar = useCallback(async (itemId: string) => {
     try {
-      const { _data, error } = await supabase.functions.invoke('similar-search', {
+      const { data, error } = await supabase.functions.invoke('similar-search', {
         body: { itemId }
       });
 
       if (error) throw error;
 
-      return _data.results || [];
+      return data.results || [];
     } catch (error) {
       console.error('Erreur recherche similaire:', error);
       return [];
@@ -171,13 +171,13 @@ export function useSearch() {
 
   const getPopularSearches = useCallback(async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('popular-searches', {
+      const { data, error } = await supabase.functions.invoke('popular-searches', {
         body: { limit: 10 }
       });
 
       if (error) throw error;
 
-      return _data.searches || [];
+      return data.searches || [];
     } catch (error) {
       console.error('Erreur recherches populaires:', error);
       return [];

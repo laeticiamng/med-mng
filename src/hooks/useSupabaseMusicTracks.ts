@@ -24,7 +24,7 @@ export const useSupabaseMusicTracks = () => {
     try {
       setLoading(true);
       
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .not('audio_url', 'is', null)
@@ -32,9 +32,9 @@ export const useSupabaseMusicTracks = () => {
         .order('updated_at', { ascending: false })
         .limit(50);
 
-      if (_error) throw _error;
-      
-      setTracks(_data || []);
+      if (error) throw error;
+
+      setTracks(data || []);
       setError(null);
     } catch (err: any) {
       setError(err.message);
@@ -94,7 +94,7 @@ export const useSupabaseMusicTracks = () => {
   const testDatabaseConnectivity = async () => {
     try {
       // Test: Utiliser la fonction debug SQL créée
-      const { _data: allTracks } = await supabase
+      const { data: allTracks } = await supabase
         .rpc('get_all_music_tracks');
 
       // Test alternatif: Compter tous les tracks

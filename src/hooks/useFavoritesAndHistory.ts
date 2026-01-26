@@ -30,7 +30,7 @@ export const useFavoritesAndHistory = () => {
 
   const loadFavorites = async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('med_mng_user_favorites')
         .select(`
           id,
@@ -43,9 +43,9 @@ export const useFavoritesAndHistory = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const formattedFavorites: FavoriteSong[] = _data?.map(fav => ({
+      const formattedFavorites: FavoriteSong[] = data?.map(fav => ({
         id: fav.id,
         song_id: fav.song_id,
         title: (fav.med_mng_songs as any)?.title || 'Titre inconnu',
@@ -98,13 +98,13 @@ export const useFavoritesAndHistory = () => {
         return false;
       }
 
-      const { _data, _error } = await supabase.rpc('med_mng_toggle_favorite', {
+      const { data, error } = await supabase.rpc('med_mng_toggle_favorite', {
         song_id: songId
       });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const isAdded = _data; // true si ajouté, false si retiré
+      const isAdded = data; // true si ajouté, false si retiré
 
       toast({
         title: isAdded ? "❤️ Ajouté aux favoris" : "💔 Retiré des favoris",
@@ -131,14 +131,14 @@ export const useFavoritesAndHistory = () => {
     deviceType: string = 'web'
   ) => {
     try {
-      const { _error } = await supabase.rpc('med_mng_log_listen', {
+      const { error } = await supabase.rpc('med_mng_log_listen', {
         song_id: songId,
         duration_seconds: durationSeconds,
         completion_percentage: completionPercentage,
         device_type: deviceType
       });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       // Recharger l'historique silencieusement
       await loadHistory();

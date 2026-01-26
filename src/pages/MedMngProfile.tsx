@@ -66,14 +66,14 @@ const MedMngProfileComponent = () => {
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['user-profile', user?.id],
     queryFn: async () => {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .maybeSingle();
-      
-      if (_error) throw _error;
-      return _data;
+
+      if (error) throw error;
+      return data;
     },
     enabled: !!user?.id,
   });
@@ -117,20 +117,20 @@ const MedMngProfileComponent = () => {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { name?: string; email?: string }) => {
-      const { _error } = await supabase
+    mutationFn: async (updateData: { name?: string; email?: string }) => {
+      const { error } = await supabase
         .from('profiles')
-        .update(data)
+        .update(updateData)
         .eq('id', user?.id);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
       toast.success('Profil mis à jour avec succès !');
       setIsEditing(false);
     },
-    onError: (_error: any) => {
+    onError: () => {
       toast.error('Impossible de mettre à jour le profil');
     },
   });

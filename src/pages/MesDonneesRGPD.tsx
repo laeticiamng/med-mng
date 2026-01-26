@@ -42,8 +42,8 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
+      const { data, error } = await supabase.functions.invoke('med-mng-api', {
+        body: {
           path: '/rgpd/export',
           method: 'POST',
           body: { user_id: userId }
@@ -53,7 +53,7 @@ const MesDonneesRGPD = () => {
       if (error) throw error;
 
       // Télécharger le fichier JSON
-      const blob = new Blob([JSON.stringify(_data.data, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -65,7 +65,7 @@ const MesDonneesRGPD = () => {
 
       toast({
         title: "✅ Export réussi",
-        description: `${_data.summary.total_library_items} éléments exportés`,
+        description: `${data.summary.total_library_items} éléments exportés`,
       });
 
     } catch (error: any) {
@@ -149,8 +149,8 @@ const MesDonneesRGPD = () => {
         return;
       }
 
-      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
-        body: { 
+      const { data, error } = await supabase.functions.invoke('med-mng-api', {
+        body: {
           path: `/rgpd/status/${userId}`,
           method: 'GET'
         }
@@ -158,7 +158,7 @@ const MesDonneesRGPD = () => {
 
       if (error) throw error;
 
-      setDataStatus(_data);
+      setDataStatus(data);
 
     } catch (error: any) {
       console.error('Erreur statut:', error);

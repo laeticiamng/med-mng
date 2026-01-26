@@ -119,7 +119,7 @@ async function flushBuffer(): Promise<void> {
   logBuffer = [];
 
   try {
-    const { _error } = await client.from('operation_logs').insert(
+    const { error } = await client.from('operation_logs').insert(
       logsToFlush.map(log => ({
         id: log.id,
         type: log.level,
@@ -139,8 +139,8 @@ async function flushBuffer(): Promise<void> {
       }))
     );
 
-    if (_error) {
-      console.error('Failed to flush log buffer:', _error);
+    if (error) {
+      console.error('Failed to flush log buffer:', error);
       // Remettre les logs dans le buffer en cas d'échec
       logBuffer = [...logsToFlush, ...logBuffer].slice(0, BUFFER_SIZE * 2);
     }
@@ -328,14 +328,14 @@ export async function getLogs(filter: LogFilter = {}): Promise<LogEntry[]> {
       query = query.range(filter.offset, filter.offset + (filter.limit || 50) - 1);
     }
 
-    const { _data, _error: queryError } = await query;
+    const { data, error: queryError } = await query;
 
     if (queryError) {
       console.error('Failed to retrieve logs:', queryError);
       return [];
     }
 
-    return (_data || []).map(row => ({
+    return (data || []).map(row => ({
       id: row.id,
       level: row.type as LogLevel,
       category: row.category as LogCategory,
@@ -374,9 +374,9 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
       query = query.lte('created_at', endDate);
     }
 
-    const { _data, _error: queryError } = await query;
+    const { data, error: queryError } = await query;
 
-    if (queryError || !_data) {
+    if (queryError || !data) {
       console.error('Failed to get log stats:', queryError);
       return null;
     }
@@ -406,7 +406,7 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
     let totalDuration = 0;
     let durationCount = 0;
 
-    for (const row of _data) {
+    for (const row of data) {
       const level = row.type as LogLevel;
       const category = row.category as LogCategory;
 
@@ -420,10 +420,10 @@ export async function getLogStats(startDate?: string, endDate?: string): Promise
     }
 
     const errorCount = byLevel.error + byLevel.critical;
-    const errorRate = _data.length > 0 ? (errorCount / _data.length) * 100 : 0;
+    const errorRate = data.length > 0 ? (errorCount / data.length) * 100 : 0;
 
     return {
-      totalLogs: _data.length,
+      totalLogs: data.length,
       byLevel,
       byCategory,
       errorRate: Math.round(errorRate * 100) / 100,
@@ -446,7 +446,7 @@ export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-    const { _data, _error: deleteError } = await client
+    const { data, error: deleteError } = await client
       .from('operation_logs')
       .delete()
       .lt('created_at', cutoffDate.toISOString())
@@ -457,7 +457,7 @@ export async function deleteOldLogs(daysToKeep: number = 30): Promise<number> {
       return 0;
     }
 
-    return _data?.length || 0;
+    return data?.length || 0;
   } catch (err) {
     console.error('Error deleting old logs:', err);
     return 0;

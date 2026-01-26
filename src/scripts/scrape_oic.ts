@@ -506,20 +506,20 @@ function parseOICPage(page: any): OICCompetence | null {
 async function insertCompetencesBatch(competences: OICCompetence[]): Promise<number> {
   if (competences.length === 0) return 0;
   
-  const { _data, _error } = await supabase
+  const { data, error } = await supabase
     .from('oic_competences')
-    .upsert(competences, { 
+    .upsert(competences, {
       onConflict: 'objectif_id',
-      ignoreDuplicates: false 
+      ignoreDuplicates: false
     })
     .select();
-  
-  if (_error) {
-    console.error('❌ Erreur insertion Supabase:', _error);
-    throw _error;
+
+  if (error) {
+    console.error('❌ Erreur insertion Supabase:', error);
+    throw error;
   }
-  
-  return _data?.length || 0;
+
+  return data?.length || 0;
 }
 
 /**
@@ -534,14 +534,14 @@ async function generateCompletionReport(): Promise<void> {
     .select('*', { count: 'exact', head: true });
   
   // Répartition par item parent
-  const { _data: itemStats } = await supabase
+  const { data: itemStats } = await supabase
     .from('oic_competences')
     .select('item_parent, rang')
     .order('item_parent');
-  
+
   // Grouper par item
   const itemGroups: Record<string, { rang_a: number; rang_b: number }> = {};
-  
+
   itemStats?.forEach(stat => {
     if (!itemGroups[stat.item_parent]) {
       itemGroups[stat.item_parent] = { rang_a: 0, rang_b: 0 };

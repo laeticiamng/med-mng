@@ -100,13 +100,13 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         metadata: { type: 'subscribe_plan', planId }
       });
       
-      const { _data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Veuillez vous connecter pour vous abonner');
         return;
       }
 
-      const { _data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
         body: { planId },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -119,9 +119,9 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         return;
       }
 
-      if (_data?.url) {
+      if (data?.url) {
         // Ouvrir Stripe dans un nouvel onglet
-        window.open(_data.url, '_blank');
+        window.open(data.url, '_blank');
         toast.success('Redirection vers Stripe', { id: 'stripe-checkout' });
       }
     } catch (error) {

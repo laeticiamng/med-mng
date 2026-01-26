@@ -149,7 +149,7 @@ export const useListeningModes = () => {
   const startMode = useCallback(async (mode: ListeningMode) => {
     try {
       // Sauvegarder le mode actif
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('med_mng_listening_modes' as any)
         .upsert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -160,7 +160,7 @@ export const useListeningModes = () => {
           is_active: true
         }, { onConflict: 'user_id,mode_id' });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setActiveMode(mode);
       setSessionStartTime(new Date());
@@ -202,7 +202,7 @@ export const useListeningModes = () => {
       const sessionDuration = Math.round((Date.now() - sessionStartTime.getTime()) / 60000);
 
       // Mettre à jour la session
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('med_mng_listening_modes' as any)
         .update({
           is_active: false,
@@ -212,7 +212,7 @@ export const useListeningModes = () => {
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .eq('is_active', true);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: "Session terminée !",
@@ -245,7 +245,7 @@ export const useListeningModes = () => {
   }, [toast]);
   return {
     predefinedModes: PREDEFINED_MODES,
-    _activeMode,
+    activeMode,
     sessionStartTime,
     timeRemaining,
     isSessionActive,
@@ -253,6 +253,6 @@ export const useListeningModes = () => {
     endSession,
     pauseSession,
     resumeSession,
-    _getRecommendedPlaylist
+    getRecommendedPlaylist: undefined
   };
 };

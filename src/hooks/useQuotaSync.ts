@@ -18,7 +18,7 @@ export function useQuotaSync() {
 
   const fetchQuota = async () => {
     try {
-      const { _data, error } = await supabase.functions.invoke('med-mng-api', {
+      const { data, error } = await supabase.functions.invoke('med-mng-api', {
         body: { path: '/quota' },
         method: 'GET'
       });
@@ -26,12 +26,12 @@ export function useQuotaSync() {
       if (error) throw error;
 
       const newQuota: QuotaData = {
-        credits_left: _data.credits_left || 0,
-        total_credits: _data.total_credits || 0,
-        plan: _data.plan || 'free',
-        renews_at: _data.renews_at || '',
-        percentage_used: _data.total_credits > 0 ? 
-          ((_data.total_credits - _data.credits_left) / _data.total_credits) * 100 : 0
+        credits_left: data.credits_left || 0,
+        total_credits: data.total_credits || 0,
+        plan: data.plan || 'free',
+        renews_at: data.renews_at || '',
+        percentage_used: data.total_credits > 0 ?
+          ((data.total_credits - data.credits_left) / data.total_credits) * 100 : 0
       };
 
       // Check for quota changes and notify

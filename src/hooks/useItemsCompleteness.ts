@@ -52,7 +52,7 @@ export const useItemsCompleteness = () => {
     try {
       console.log('🔍 Starting automated completeness audit...');
       
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
         body: null,
         headers: {
@@ -62,18 +62,18 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
+      if (data.success) {
         toast({
           title: "✅ Audit terminé",
-          description: `Audit de complétude des ${_data.data.summary.total_items} items terminé avec succès`,
+          description: `Audit de complétude des ${data.data.summary.total_items} items terminé avec succès`,
         });
-        
+
         // Recharger les rapports
         await loadReports();
-        
-        return _data.data;
+
+        return data.data;
       } else {
-        throw new Error(_data.error);
+        throw new Error(data.error);
       }
     } catch (error) {
       console.error('❌ Error running audit:', error);
@@ -91,7 +91,7 @@ export const useItemsCompleteness = () => {
   // Charger les rapports
   const loadReports = useCallback(async (_limit = 10) => {
     try {
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
         body: null,
         headers: {
@@ -101,10 +101,10 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
-        setReports(_data.data);
-        if (_data.data.length > 0) {
-          setCurrentReport(_data.data[0]); // Le plus récent
+      if (data.success) {
+        setReports(data.data);
+        if (data.data.length > 0) {
+          setCurrentReport(data.data[0]); // Le plus récent
         }
       }
     } catch (error) {
@@ -129,7 +129,7 @@ export const useItemsCompleteness = () => {
         params.append('severity', severity);
       }
 
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
         body: null,
         headers: {
@@ -139,8 +139,8 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
-        setAlerts(_data.data);
+      if (data.success) {
+        setAlerts(data.data);
       }
     } catch (error) {
       console.error('❌ Error loading alerts:', error);
@@ -155,7 +155,7 @@ export const useItemsCompleteness = () => {
   // Obtenir le statut d'un item spécifique
   const getItemStatus = useCallback(async (_itemCode: string): Promise<CompletenessResult | null> => {
     try {
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
         body: null,
         headers: {
@@ -165,10 +165,10 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
-        return _data.data;
+      if (data.success) {
+        return data.data;
       }
-      
+
       return null;
     } catch (error) {
       console.error('❌ Error getting item status:', error);
@@ -179,7 +179,7 @@ export const useItemsCompleteness = () => {
   // Résoudre une alerte
   const resolveAlert = useCallback(async (alertId: string) => {
     try {
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'POST',
         body: { alert_id: alertId },
         headers: {
@@ -189,15 +189,15 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
+      if (data.success) {
         toast({
           title: "✅ Alerte résolue",
           description: "L'alerte a été marquée comme résolue",
         });
-        
+
         // Recharger les alertes
         await loadAlerts();
-        
+
         return true;
       }
       
@@ -225,7 +225,7 @@ export const useItemsCompleteness = () => {
         params.append('item_code', itemCode);
       }
 
-      const { _data, error } = await supabase.functions.invoke('items-completeness-api', {
+      const { data, error } = await supabase.functions.invoke('items-completeness-api', {
         method: 'GET',
         body: null,
         headers: {
@@ -235,10 +235,10 @@ export const useItemsCompleteness = () => {
 
       if (error) throw error;
 
-      if (_data.success) {
-        return _data.data;
+      if (data.success) {
+        return data.data;
       }
-      
+
       return [];
     } catch (error) {
       console.error('❌ Error loading history:', error);

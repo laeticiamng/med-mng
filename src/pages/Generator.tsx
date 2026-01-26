@@ -312,8 +312,8 @@ const Generator = () => {
 
     try {
       const musicId = `gen_${Date.now()}_${generatedSong.itemCode.replace(/[^a-zA-Z0-9]/g, '')}`;
-      
-      const { _error } = await supabase
+
+      const { error } = await supabase
         .from('user_generated_music')
         .insert({
           user_id: user.id,
@@ -326,7 +326,7 @@ const Generator = () => {
           is_favorite: false
         } as any);
 
-      if (_error) throw _error;
+      if (error) throw error;
       toast.success('✨ Chanson ajoutée à votre bibliothèque !');
     } catch (err) {
       console.error('Erreur sauvegarde bibliothèque:', err);

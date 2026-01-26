@@ -44,7 +44,7 @@ export class EdnObjectifsExtractor {
     try {
       console.log('🔍 DEBUG: Calling extract-edn-objectifs with action: start');
       
-      const { _data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'start'
         }
@@ -57,15 +57,15 @@ export class EdnObjectifsExtractor {
         throw new Error(`Erreur Edge Function: ${error.message || JSON.stringify(error)}`);
       }
 
-      if (!_data) {
+      if (!data) {
         throw new Error('Aucune donnée reçue de l\'edge function');
       }
 
-      this.session_id = _data.session_id;
+      this.session_id = data.session_id;
       console.log('✅ Extraction démarrée avec succès!');
       console.log('📊 Session ID:', this.session_id);
-      
-      return _data;
+
+      return data;
       
     } catch (error) {
       console.error('❌ Échec du démarrage de l\'extraction:', error);
@@ -87,7 +87,7 @@ export class EdnObjectifsExtractor {
     }
 
     try {
-      const { _data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'status',
           session_id: id
@@ -95,7 +95,7 @@ export class EdnObjectifsExtractor {
       });
 
       if (error) throw error;
-      return _data;
+      return data;
       
     } catch (error) {
       console.error('❌ Erreur lors de la récupération du statut:', error);
@@ -107,7 +107,7 @@ export class EdnObjectifsExtractor {
     console.log(`🔄 Reprise de l'extraction depuis la page ${resume_from || 'dernière'}...`);
     
     try {
-      const { _data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'resume',
           session_id,
@@ -116,11 +116,11 @@ export class EdnObjectifsExtractor {
       });
 
       if (error) throw error;
-      
+
       this.session_id = session_id;
       console.log('✅ Extraction reprise avec succès!');
-      
-      return _data;
+
+      return data;
       
     } catch (error) {
       console.error('❌ Échec de la reprise de l\'extraction:', error);
@@ -132,16 +132,16 @@ export class EdnObjectifsExtractor {
     console.log('📊 Génération du rapport de complétude...');
     
     try {
-      const { _data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'rapport'
         }
       });
 
       if (error) throw error;
-      
+
       console.log('✅ Rapport généré avec succès!');
-      return _data;
+      return data;
       
     } catch (error) {
       console.error('❌ Erreur lors de la génération du rapport:', error);
@@ -192,34 +192,34 @@ export class EdnObjectifsExtractor {
       query = query.eq('rang', rang);
     }
 
-    const { _data, _error } = await query;
+    const { data, error } = await query;
 
-    if (_error) {
-      throw new Error(`Erreur lors de la récupération des compétences: ${_error.message}`);
+    if (error) {
+      throw new Error(`Erreur lors de la récupération des compétences: ${error.message}`);
     }
 
-    return _data || [];
+    return data || [];
   }
 
   async getStatsByItem(item_parent: string) {
-    const { _data, _error } = await supabase
+    const { data, error } = await supabase
       .from('oic_competences')
       .select('rang, rubrique')
       .eq('item_parent', item_parent);
 
-    if (_error) {
-      throw new Error(`Erreur lors de la récupération des stats: ${_error.message}`);
+    if (error) {
+      throw new Error(`Erreur lors de la récupération des stats: ${error.message}`);
     }
 
     const stats = {
-      total: _data?.length || 0,
-      rang_a: _data?.filter(obj => obj.rang === 'A').length || 0,
-      rang_b: _data?.filter(obj => obj.rang === 'B').length || 0,
+      total: data?.length || 0,
+      rang_a: data?.filter(obj => obj.rang === 'A').length || 0,
+      rang_b: data?.filter(obj => obj.rang === 'B').length || 0,
       rubriques: {} as Record<string, number>
     };
 
     // Compter par rubrique
-    _data?.forEach(obj => {
+    data?.forEach(obj => {
       stats.rubriques[obj.rubrique] = (stats.rubriques[obj.rubrique] || 0) + 1;
     });
 

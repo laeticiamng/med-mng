@@ -20,14 +20,14 @@ export const useEdnFavorites = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_edn_favorites')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
-      setFavorites(_data || []);
+      if (error) throw error;
+      setFavorites(data || []);
     } catch (error) {
       console.error('Error fetching favorites:', error);
     } finally {
@@ -59,13 +59,13 @@ export const useEdnFavorites = () => {
 
       if (isCurrentlyFavorite) {
         // Remove from favorites
-        const { _error } = await supabase
+        const { error } = await supabase
           .from('user_edn_favorites')
           .delete()
           .eq('user_id', user.id)
           .eq('item_code', itemCode);
 
-        if (_error) throw _error;
+        if (error) throw error;
 
         setFavorites(prev => prev.filter(f => f.item_code !== itemCode));
         toast({
@@ -75,7 +75,7 @@ export const useEdnFavorites = () => {
         return false;
       } else {
         // Add to favorites
-        const { _data, _error } = await supabase
+        const { data, error } = await supabase
           .from('user_edn_favorites')
           .insert({
             user_id: user.id,
@@ -85,9 +85,9 @@ export const useEdnFavorites = () => {
           .select()
           .single();
 
-        if (_error) throw _error;
+        if (error) throw error;
 
-        setFavorites(prev => [_data, ...prev]);
+        setFavorites(prev => [data, ...prev]);
         toast({
           title: "❤️ Ajouté aux favoris",
           description: `Item ${itemCode} ajouté à vos favoris`,

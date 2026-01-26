@@ -49,16 +49,16 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
     
     setLoading(true);
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('user_playlists')
         .select('id, name, song_ids')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setPlaylists(
-        (_data || []).map((p: any) => ({
+        (data || []).map((p: any) => ({
           id: p.id,
           name: p.name,
           song_count: Array.isArray(p.song_ids) ? p.song_ids.length : 0,
@@ -77,7 +77,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
     setAdding(playlistId);
     try {
       // Récupérer la playlist actuelle
-      const { _data: playlist, _error: fetchError } = await supabase
+      const { data: playlist, error: fetchError } = await supabase
         .from('user_playlists')
         .select('song_ids')
         .eq('id', playlistId)
@@ -95,7 +95,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
       }
 
       // Ajouter la chanson
-      const { _error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('user_playlists')
         .update({ song_ids: [...currentSongs, songId] })
         .eq('id', playlistId);
@@ -118,7 +118,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
 
     setCreatingNew(true);
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_playlists')
         .insert({
           user_id: user.id,
@@ -128,7 +128,7 @@ export const PlaylistQuickAdd: React.FC<PlaylistQuickAddProps> = ({
         .select('id')
         .single();
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast.success(`Playlist "${newPlaylistName}" créée`);
       setNewPlaylistName('');

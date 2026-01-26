@@ -62,17 +62,17 @@ export async function generateAdvancedLyrics(
 }
 
 async function fetchItemData(itemCode: string): Promise<EdnItemData> {
-  const { _data, _error } = await supabase
+  const { data, error } = await supabase
     .from('edn_items_immersive')
     .select('item_code, title, tableau_rang_a, tableau_rang_b')
     .eq('item_code', itemCode)
     .maybeSingle();
-    
-  if (_error || !_data) {
+
+  if (error || !data) {
     throw new Error(`Item ${itemCode} non trouvé`);
   }
-  
-  return _data;
+
+  return data;
 }
 
 async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promise<CompetenceOIC[]> {
@@ -87,14 +87,14 @@ async function fetchCompetences(itemCode: string, rang: 'A' | 'B' | 'AB'): Promi
     query = query.eq('rang', rang);
   }
   
-  const { _data, _error } = await query.order('ordre');
-  
-  if (_error || !_data) {
+  const { data, error } = await query.order('ordre');
+
+  if (error || !data) {
     console.log(`Aucune compétence OIC pour ${itemCode}`);
     return [];
   }
-  
-  return _data;
+
+  return data;
 }
 
 function generateSongStructure(

@@ -62,13 +62,13 @@ const PWAAnalytics: React.FC = () => {
   const loadAnalytics = async () => {
     try {
       // Charger les stats depuis Supabase
-      const { _data: metricsData, _error } = await supabase
+      const { data: metricsData, error } = await supabase
         .from('pwa_metrics' as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(1000);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       if (metricsData) {
         // Calculer les statistiques

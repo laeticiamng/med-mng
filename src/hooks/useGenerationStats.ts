@@ -77,7 +77,7 @@ export const useGenerationStats = () => {
 
     try {
       // Charger les données avec une seule requête
-      const { _data: tracks, _error: tracksError } = await supabase
+      const { data: tracks, error: tracksError } = await supabase
         .from('user_generated_music')
         .select('rang, music_style, is_favorite, created_at')
         .eq('user_id', user.id);

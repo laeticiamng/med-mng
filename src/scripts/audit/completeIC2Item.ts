@@ -195,7 +195,7 @@ export async function completeIC2Item() {
     console.log('🔧 Mise à jour COMPLÈTE du contenu IC-2 selon E-LiSA (7 Rang A + 2 Rang B)...');
     
     // Mise à jour complète de l'item IC-2 avec TOUS les éléments
-    const { _error } = await supabase
+    const { error } = await supabase
       .from('edn_items_immersive')
       .upsert({
         id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', // ID fixe pour IC-2
@@ -212,7 +212,7 @@ export async function completeIC2Item() {
         },
         audio_ambiance: {
           style: "classical",
-          tempo: "moderate", 
+          tempo: "moderate",
           instruments: ["piano", "strings"],
           mood: "reflective"
         },
@@ -227,7 +227,7 @@ export async function completeIC2Item() {
               description: "Incarnation des valeurs professionnelles, mentore expérimentée"
             },
             {
-              name: "Dr. Thomas Dubois", 
+              name: "Dr. Thomas Dubois",
               role: "Interne en médecine",
               description: "Jeune médecin en formation, questionne les valeurs"
             },
@@ -260,7 +260,7 @@ export async function completeIC2Item() {
               title: "Classez les 7 connaissances Rang A",
               items: [
                 "Identifier professionnels",
-                "Définition pratique médicale et éthique", 
+                "Définition pratique médicale et éthique",
                 "Normes et valeurs",
                 "Organisation et régulation",
                 "EBM et responsabilité patient",
@@ -281,9 +281,9 @@ export async function completeIC2Item() {
         onConflict: 'slug'
       });
 
-    if (_error) {
-      console.error('❌ Erreur lors de la mise à jour:', _error);
-      throw _error;
+    if (error) {
+      console.error('❌ Erreur lors de la mise à jour:', error);
+      throw error;
     }
 
     console.log('✅ Item IC-2 mis à jour avec TOUS les éléments (tableaux 7A+2B, BD, paroles, quiz)');

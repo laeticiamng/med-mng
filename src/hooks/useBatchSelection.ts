@@ -60,12 +60,12 @@ export const useBatchSelection = <T extends SelectableTrack>(tracks: T[]) => {
     try {
       const ids = Array.from(selectedIds);
       
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('generated_music_tracks')
         .delete()
         .in('id', ids);
-      
-      if (_error) throw _error;
+
+      if (error) throw error;
       
       toast.success(`${ids.length} piste(s) supprimée(s)`);
       clearSelection();
@@ -88,7 +88,7 @@ export const useBatchSelection = <T extends SelectableTrack>(tracks: T[]) => {
       
       // Mettre à jour chaque track individuellement avec metadata
       for (const id of ids) {
-        const { _data: track } = await supabase
+        const { data: track } = await supabase
           .from('generated_music_tracks')
           .select('metadata')
           .eq('id', id)

@@ -10,13 +10,13 @@ export class EDNItemsAuditor {
     
     try {
       // Récupération de tous les items
-      const { _data: items, _error } = await supabase
+      const { data: items, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .order('item_code');
 
-      if (_error) {
-        throw new Error(`Erreur Supabase: ${_error.message}`);
+      if (error) {
+        throw new Error(`Erreur Supabase: ${error.message}`);
       }
 
       if (!items || items.length === 0) {

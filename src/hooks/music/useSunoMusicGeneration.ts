@@ -101,7 +101,7 @@ export const useSunoMusicGeneration = () => {
 
         try {
           // 1. ✅ AMÉLIORATION: Vérifier d'abord en BDD avec ORDER BY pour avoir le plus récent
-          const { _data: dbTrack } = await supabase
+          const { data: dbTrack } = await supabase
             .from('generated_music_tracks')
             .select('audio_url, stream_url, generation_status, metadata, updated_at')
             .eq('task_id', taskId)
@@ -135,17 +135,17 @@ export const useSunoMusicGeneration = () => {
           }
 
           // 2. Sinon appeler l'edge function music-status
-          const { _data, error } = await supabase.functions.invoke('music-status', {
+          const { data, error } = await supabase.functions.invoke('music-status', {
             body: { taskId }
           });
 
           if (error) {
             networkRetries++;
-            
+
             if (networkRetries >= RETRY_POLL_ATTEMPTS) {
               networkRetries = 0;
             }
-            
+
             if (attempts >= MAX_POLL_ATTEMPTS) {
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
@@ -155,19 +155,19 @@ export const useSunoMusicGeneration = () => {
           } else {
             networkRetries = 0;
 
-            if (_data?.status === 'completed' && _data.audioUrl) {
+            if (data?.status === 'completed' && data.audioUrl) {
               setPollingProgress(100);
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
-              setAudioUrl(rang, _data.audioUrl);
-              resolve(_data.audioUrl);
+              setAudioUrl(rang, data.audioUrl);
+              resolve(data.audioUrl);
               return;
             }
 
-            if (_data?.status === 'failed') {
+            if (data?.status === 'failed') {
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
-              reject(new Error(_data.error || 'Génération échouée'));
+              reject(new Error(data.error || 'Génération échouée'));
               return;
             }
           }

@@ -38,7 +38,7 @@ export const useQuizResults = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('quiz_results')
         .insert({
           user_id: user?.id || null,
@@ -53,7 +53,7 @@ export const useQuizResults = () => {
           answers: result.answers
         });
 
-      if (_error) throw _error;
+      if (error) throw error;
       
       console.log('✅ Résultat quiz sauvegardé');
       return true;
@@ -82,11 +82,11 @@ export const useQuizResults = () => {
         query = query.eq('item_code', itemCode);
       }
 
-      const { _data, _error } = await query.limit(50);
+      const { data, error } = await query.limit(50);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const formattedResults: QuizResult[] = (_data || []).map(r => ({
+      const formattedResults: QuizResult[] = (data || []).map(r => ({
         id: r.id,
         item_code: r.item_code,
         item_title: r.item_title,
@@ -114,22 +114,22 @@ export const useQuizResults = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('quiz_results')
         .select('score, correct_answers, total_questions')
         .eq('user_id', user.id)
         .eq('item_code', itemCode);
 
-      if (_error) throw _error;
-      if (!_data || _data.length === 0) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
 
-      const avgScore = _data.reduce((sum, r) => sum + r.score, 0) / _data.length;
-      const totalCorrect = _data.reduce((sum, r) => sum + r.correct_answers, 0);
-      const totalQuestions = _data.reduce((sum, r) => sum + r.total_questions, 0);
-      const bestScore = Math.max(..._data.map(r => r.score));
+      const avgScore = data.reduce((sum, r) => sum + r.score, 0) / data.length;
+      const totalCorrect = data.reduce((sum, r) => sum + r.correct_answers, 0);
+      const totalQuestions = data.reduce((sum, r) => sum + r.total_questions, 0);
+      const bestScore = Math.max(...data.map(r => r.score));
 
       return {
-        attempts: _data.length,
+        attempts: data.length,
         avgScore: Math.round(avgScore),
         bestScore,
         totalCorrect,

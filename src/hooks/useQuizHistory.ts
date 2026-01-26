@@ -38,7 +38,7 @@ export const useQuizHistory = (itemCode?: string) => {
         return;
       }
 
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('quiz_results')
         .select('id, score, total_questions, created_at, time_spent')
         .eq('user_id', user.id)
@@ -46,9 +46,9 @@ export const useQuizHistory = (itemCode?: string) => {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
-      const results = (_data || []) as QuizResult[];
+      const results = (data || []) as QuizResult[];
       setHistory(results);
 
       // Calculate summary

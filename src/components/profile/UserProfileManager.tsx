@@ -99,7 +99,7 @@ export const UserProfileManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // Charger le profil depuis Supabase
-        const { _data: profileData } = await supabase
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -156,20 +156,20 @@ export const UserProfileManager = () => {
 
   const loadUserPreferences = async () => {
     try {
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('user_preferences_extended')
         .select('*')
         .maybeSingle();
-      
-      if (_data) {
+
+      if (data) {
         setPreferences(prev => ({
           ...prev,
-          theme: _data.dark_mode ? 'dark' : 'light',
-          language: _data.language || 'fr',
+          theme: data.dark_mode ? 'dark' : 'light',
+          language: data.language || 'fr',
           notifications: {
             ...prev.notifications,
-            email: _data.notification_email ?? true,
-            study_reminders: _data.study_reminders ?? true
+            email: data.notification_email ?? true,
+            study_reminders: data.study_reminders ?? true
           },
           music_quality: 'high'
         }));
@@ -217,7 +217,7 @@ export const UserProfileManager = () => {
   const savePreferences = async () => {
     setSaving(true);
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_preferences_extended')
         .upsert({
           user_id: (await supabase.auth.getUser()).data.user?.id!,
@@ -228,7 +228,7 @@ export const UserProfileManager = () => {
           auto_play: preferences.auto_play
         }, { onConflict: 'user_id' });
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       toast({
         title: "Préférences mises à jour",

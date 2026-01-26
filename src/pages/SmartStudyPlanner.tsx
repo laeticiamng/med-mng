@@ -98,7 +98,7 @@ export default function SmartStudyPlanner() {
     
     setLoading(true);
     try {
-      const { _data, error } = await supabase.functions.invoke('study-planner', {
+      const { data, error } = await supabase.functions.invoke('study-planner', {
         body: {
           userProgress: {
             masteredCount: srsStats?.masteredItems || 0,
@@ -112,13 +112,13 @@ export default function SmartStudyPlanner() {
       });
 
       if (error) throw error;
-      
-      if (_data.error) {
-        toast({ title: "Erreur", description: _data.error, variant: "destructive" });
+
+      if (data.error) {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
         return;
       }
 
-      setPlan(_data);
+      setPlan(data);
       
       // Log activity and award points
       if (user) {

@@ -91,11 +91,11 @@ export const SystemSettings = () => {
   const fetchSystemStatus = async () => {
     try {
       // Check Supabase connection
-      const { _error } = await supabase.from('profiles').select('id').limit(1);
-      
+      const { error } = await supabase.from('profiles').select('id').limit(1);
+
       setSystemStatus(prev => ({
         ...prev,
-        database: _error ? 'error' : 'connected'
+        database: error ? 'error' : 'connected'
       }));
     } catch (error) {
       setSystemStatus(prev => ({
@@ -217,7 +217,7 @@ export const SystemSettings = () => {
         supabase.from('activity_sessions').select('id').limit(1)
       ]);
 
-      const allSuccessful = checks.every(result => !result._error);
+      const allSuccessful = checks.every(result => !result.error);
       
       toast({
         title: 'Vérification terminée',

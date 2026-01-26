@@ -31,7 +31,7 @@ export const useSongGeneration = () => {
       console.log('🎵 Lancement génération musique via Supabase Functions...');
       
       // Utiliser Supabase Functions pour la génération musicale
-      const { _data, error } = await supabase.functions.invoke('generate-music', {
+      const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           contentType,
           selectedItem: contentType === 'item' ? selectedItem : null,
@@ -48,7 +48,7 @@ export const useSongGeneration = () => {
 
       if (error) {
         console.error('❌ Erreur Supabase Functions:', error);
-        
+
         // Gestion d'erreurs spécifiques
         if (error.message?.includes('503') || error.message?.includes('Service Temporarily Unavailable')) {
           throw new Error('🚫 Service de génération musicale temporairement indisponible. Réessayez dans quelques minutes.');
@@ -57,25 +57,25 @@ export const useSongGeneration = () => {
         } else if (error.message?.includes('429')) {
           throw new Error('💳 Limite de génération atteinte. Réessayez plus tard.');
         }
-        
+
         throw new Error(error.message || 'Erreur lors de la génération musicale');
       }
 
-      if (!_data || _data.error) {
-        throw new Error(_data?.error || 'Aucune donnée reçue du service de génération');
+      if (!data || data.error) {
+        throw new Error(data?.error || 'Aucune donnée reçue du service de génération');
       }
 
-      console.log('✅ Génération réussie:', _data);
-      
+      console.log('✅ Génération réussie:', data);
+
       // Créer la chanson en base
-      const song = await medMngApi.createSong(title, _data.audioUrl || 'temp-audio-url', {
+      const song = await medMngApi.createSong(title, data.audioUrl || 'temp-audio-url', {
         style,
         contentType,
         selectedItem: contentType === 'item' ? selectedItem : undefined,
         selectedRang: contentType === 'item' ? selectedRang : undefined,
         selectedSituation: contentType === 'situation' ? selectedSituation : undefined,
-        duration: _data.duration || 240,
-        generationTime: _data.generationTime || 0
+        duration: data.duration || 240,
+        generationTime: data.generationTime || 0
       });
 
       // Ajouter automatiquement à la bibliothèque
@@ -83,7 +83,7 @@ export const useSongGeneration = () => {
 
       setGeneratedSong({
         ...song,
-        audioUrl: _data.audioUrl || _data.audio_url
+        audioUrl: data.audioUrl || data.audio_url
       });
 
       toast.success('🎵 Chanson générée avec succès !');

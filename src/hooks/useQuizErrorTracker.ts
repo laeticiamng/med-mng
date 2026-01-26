@@ -160,7 +160,7 @@ export const useQuizErrorTracker = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { _data } = await supabase
+      const { data } = await supabase
         .from('quiz_sessions')
         .select('*')
         .eq('user_id', user.id)
@@ -168,8 +168,8 @@ export const useQuizErrorTracker = () => {
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (_data) {
-        const sessions: QuizSession[] = _data.map((s) => {
+      if (data) {
+        const sessions: QuizSession[] = data.map((s) => {
           const sessionData = s.session_data as { errors?: QuizError[]; itemTitle?: string } | null;
           return {
             id: s.id,

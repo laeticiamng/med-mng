@@ -33,17 +33,17 @@ export const useChatConversations = () => {
   // Charger les conversations
   const loadConversations = useCallback(async () => {
     try {
-      const { _data, _error } = await supabase
+      const { data, error } = await supabase
         .from('chat_conversations')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (_error) {
-        console.error('Erreur lors du chargement des conversations:', _error);
+      if (error) {
+        console.error('Erreur lors du chargement des conversations:', error);
         return;
       }
 
-      setConversations(_data || []);
+      setConversations(data || []);
     } catch (error) {
       console.error('Erreur:', error);
     }
@@ -54,7 +54,7 @@ export const useChatConversations = () => {
   const searchCourseContent = useCallback(async (query: string): Promise<string[]> => {
     try {
       // Rechercher dans les items immersifs (remplace edn_items_complete)
-      const { _data: immersiveItems, _error: immersiveError } = await supabase
+      const { data: immersiveItems, error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, payload_v2')
         .or(`title.ilike.%${query}%,payload_v2::text.ilike.%${query}%`)
@@ -65,7 +65,7 @@ export const useChatConversations = () => {
       }
 
       // Rechercher dans les situations ECOS
-      const { _data: ecosItems, _error: ecosError } = await supabase
+      const { data: ecosItems, error: ecosError } = await supabase
         .from('ecos_situations_complete')
         .select('situation_number, title, content')
         .or(`title.ilike.%${query}%,content::text.ilike.%${query}%`)
@@ -118,7 +118,7 @@ Utilise ces informations pour enrichir ta réponse si elles sont pertinentes.` :
 Réponds en français et de manière structurée.`;
 
       // Appeler l'API de chat via Lovable AI (Gemini)
-      const { _data, error } = await supabase.functions.invoke('medical-chat-ai', {
+      const { data, error } = await supabase.functions.invoke('medical-chat-ai', {
         body: {
           messages: [
             { role: 'system', content: systemPrompt },
@@ -133,12 +133,12 @@ Réponds en français et de manière structurée.`;
       }
 
       // S'assurer qu'il y a toujours au moins une source
-      const finalCitations = courseCitations.length > 0 
-        ? courseCitations 
+      const finalCitations = courseCitations.length > 0
+        ? courseCitations
         : ['MED-MNG IA - Assistant médical basé sur les référentiels officiels EDN/ECOS'];
 
       const response: ChatResponse = {
-        content: _data.content || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
+        content: data.content || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
         courseCitations: finalCitations
       };
 

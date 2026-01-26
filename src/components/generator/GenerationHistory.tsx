@@ -144,8 +144,8 @@ export const GenerationHistory: React.FC = () => {
       ]);
 
       // Combiner les résultats en évitant les doublons par audio_url
-      const userMusic = userMusicResult._data || [];
-      const generatedTracks = (generatedTracksResult._data || [])
+      const userMusic = userMusicResult.data || [];
+      const generatedTracks = (generatedTracksResult.data || [])
         .map((track: any) => ({
           id: track.id,
           item_code: track.metadata?.itemCode || 'GEN',
@@ -311,13 +311,13 @@ export const GenerationHistory: React.FC = () => {
     if (!user || !trackToDelete) return;
 
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .delete()
         .eq('id', trackToDelete)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setHistory(prev => prev.filter(t => t.id !== trackToDelete));
       toast.success('Génération supprimée');
@@ -333,13 +333,13 @@ export const GenerationHistory: React.FC = () => {
     if (!user) return;
 
     try {
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: !currentFavorite })
         .eq('id', trackId)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setHistory(prev => prev.map(t => 
         t.id === trackId ? { ...t, is_favorite: !currentFavorite } : t
@@ -460,13 +460,13 @@ export const GenerationHistory: React.FC = () => {
     setIsBatchDeleting(true);
     try {
       const idsToDelete = Array.from(selectedIds);
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .delete()
         .in('id', idsToDelete)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setHistory(prev => prev.filter(t => !selectedIds.has(t.id)));
       toast.success(`${idsToDelete.length} génération(s) supprimée(s)`);
@@ -484,13 +484,13 @@ export const GenerationHistory: React.FC = () => {
     
     try {
       const idsToUpdate = Array.from(selectedIds);
-      const { _error } = await supabase
+      const { error } = await supabase
         .from('user_generated_music')
         .update({ is_favorite: true })
         .in('id', idsToUpdate)
         .eq('user_id', user.id);
 
-      if (_error) throw _error;
+      if (error) throw error;
 
       setHistory(prev => prev.map(t => 
         selectedIds.has(t.id) ? { ...t, is_favorite: true } : t
