@@ -47,7 +47,7 @@ export default function ClinicalCases() {
   } = useClinicalCases();
   const { generateCase, loading: aiLoading } = useAIClinicalCases();
   const { logActivity } = useActivityTracking();
-  const { stats: _gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('cases');

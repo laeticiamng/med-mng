@@ -21,7 +21,7 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
     duration,
     volume,
     isMuted,
-    _play,
+    play,
     pause,
     seek,
     setVolume,
@@ -102,7 +102,7 @@ export const MiniPlayer = ({ className = '' }: MiniPlayerProps) => {
               variant="default"
               size="sm"
               className="h-10 w-10 rounded-full"
-              onClick={isPlaying ? pause : _play}
+              onClick={isPlaying ? pause : play}
               disabled={isLoading}
             >
               {isLoading ? (

@@ -31,7 +31,7 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
   hasLowCredits: _externalHasLowCredits
 }) => {
   const {
-    _credits,
+    credits,
     loading,
     error,
     fetchCredits,

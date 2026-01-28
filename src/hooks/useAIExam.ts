@@ -172,6 +172,7 @@ export const useAIExam = () => {
       }
 
       // Adaptive difficulty: adjust based on user's past performance
+      let adaptedDifficulty = difficulty;
       try {
         const { data: history } = await (supabase as any)
           .from('ai_exam_history')
@@ -183,13 +184,13 @@ export const useAIExam = () => {
         if (history && history.length >= 3) {
           const avgScore = history.reduce((sum: number, h: any) => sum + (h.score || 0), 0) / history.length;
           if (avgScore >= 85 && difficulty !== 'hard') {
-            _adaptedDifficulty = 'hard';
+            adaptedDifficulty = 'hard';
             toast({
               title: "Difficulté adaptée",
               description: "Niveau augmenté suite à vos excellentes performances !",
             });
           } else if (avgScore < 50 && difficulty !== 'easy') {
-            _adaptedDifficulty = 'easy';
+            adaptedDifficulty = 'easy';
             toast({
               title: "Difficulté adaptée",
               description: "Niveau ajusté pour vous aider à progresser.",

@@ -31,7 +31,7 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Crédits Suno réels
-  const { _credits: _sunoCredits, loading: sunoLoading, fetchCredits, hasLowCredits, creditsUnknown, displayCredits } = useSunoCredits();
+  const { credits: sunoCredits, loading: sunoLoading, fetchCredits, hasLowCredits, creditsUnknown, displayCredits } = useSunoCredits();
 
   // Track quota view
   useEffect(() => {

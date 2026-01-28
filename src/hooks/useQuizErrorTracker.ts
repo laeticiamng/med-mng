@@ -50,6 +50,16 @@ export const useQuizErrorTracker = () => {
     
     setCurrentSession(session);
   }, []);
+
+  const addQuizError = useCallback((error: Omit<QuizError, 'timestamp'>) => {
+    setCurrentSession(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        errors: [...prev.errors, { ...error, timestamp: new Date() }]
+      };
+    });
+  }, []);
   const endQuizSession = useCallback(async (finalScore: number) => {
     if (!currentSession) {
       return null;
@@ -208,14 +218,14 @@ export const useQuizErrorTracker = () => {
     currentSession,
     allSessions,
     startQuizSession,
-    _addQuizError,
+    addQuizError,
     endQuizSession,
     getSessionErrors,
     getErrorsByTheme,
     clearCurrentSession,
     loadSavedSessions,
     getRecentErrors,
-    _hasCurrentSession: !!currentSession,
+    hasCurrentSession: !!currentSession,
     currentErrors: currentSession?.errors || []
   };
 };

@@ -24,11 +24,11 @@ interface ChatResponse {
 }
 
 export const useChatConversations = () => {
-  const [_conversations, setConversations] = useState<Conversation[]>([]);
-  const [currentConversation, _setCurrentConversation] = useState<Conversation | null>(null);
-  const [messages, _setMessages] = useState<ChatMessage[]>([]);
-  const [_isGenerating, setIsGenerating] = useState(false);
-  const { toast: _toast } = useToast();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
 
   // Charger les conversations
   const loadConversations = useCallback(async () => {
@@ -187,11 +187,11 @@ Réponds en français et de manière structurée.`;
   }, [loadConversations]);
 
   return {
-    _conversations,
-    _currentConversation,
+    conversations,
+    currentConversation,
     messages,
-    _isGenerating,
-    _createConversation,
+    isGenerating,
+    createConversation,
     sendMessage,
     loadConversations,
   };

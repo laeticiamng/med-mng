@@ -100,7 +100,7 @@ export function useRealTimeMonitoring() {
   };
 
   return {
-    _events,
+    events,
     isConnected,
     clearEvents,
     filterEventsByType,

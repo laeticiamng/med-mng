@@ -55,12 +55,12 @@ export function AudioPlayer({
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
   
-  const { cacheAudio, _isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' })
+  const { cacheAudio, isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' })
 
   // Check if audio is cached and get cached URL
   useEffect(() => {
     const checkCache = async () => {
-      const cached = await _isAudioCached(song.id)
+      const cached = await isAudioCached(song.id)
       setIsCached(cached)
       if (cached) {
         const cachedUrl = await getAudioUrl(song.id, song.audio_url)
@@ -70,7 +70,7 @@ export function AudioPlayer({
       }
     }
     checkCache()
-  }, [song.id, song.audio_url, _isAudioCached, getAudioUrl])
+  }, [song.id, song.audio_url, isAudioCached, getAudioUrl])
 
   const handleCacheAudio = async () => {
     const success = await cacheAudio(song.id, song.audio_url, song.title, song.duration)

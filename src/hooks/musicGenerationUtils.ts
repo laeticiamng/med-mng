@@ -52,7 +52,7 @@ export const prepareStyleConfiguration = (selectedStyle: string, duration: numbe
 
   return {
     isComposition,
-    _styleDescription,
+    styleDescription: selectedStyle,
     adjustedDuration,
     durationText
   };

@@ -413,7 +413,7 @@ export function useSearch() {
     searchHistory,
     suggestions,
     search,
-    _realtimeSearch,
+    realtimeSearch: search,
     searchSuggestions,
     clearHistory,
     removeFromHistory,

@@ -412,7 +412,7 @@ export const ForumDiscussion: React.FC = () => {
         content: data.content,
         authorId: data.author_id,
         authorName: 'Vous',
-        createdAt: _data.created_at,
+        createdAt: data.created_at,
         likes: 0,
         isLiked: false,
         isBestAnswer: false
