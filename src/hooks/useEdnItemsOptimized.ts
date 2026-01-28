@@ -68,8 +68,8 @@ export const useEdnItemsOptimized = () => {
         setLoading(true);
       }
 
-      // ✅ Requête unique optimisée - seulement les champs essentiels
-      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b&order=item_code`;
+      // ✅ Requête unique optimisée - inclut specialite et mots_cles pour la recherche
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&order=item_code`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
       const response = await fetch(url, {
         headers: getSupabaseHeaders(true),
@@ -104,6 +104,8 @@ export const useEdnItemsOptimized = () => {
         // ✅ Utiliser directement les champs pré-calculés si disponibles
         competences_count_rang_a: item.competences_count_rang_a || 0,
         competences_count_rang_b: item.competences_count_rang_b || 0,
+        specialite: item.specialite || undefined,
+        mots_cles: item.mots_cles || undefined,
       }));
 
       setItems(mappedItems);
