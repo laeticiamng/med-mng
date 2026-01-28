@@ -45,6 +45,6 @@ describe('MainNavigation coherence', () => {
     renderNavigation();
 
     // Check that at least the first nav item is rendered as a link
-    expect(_screen.getByRole('link', { name: /accueil/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /accueil/i })).toBeInTheDocument();
   });
 });

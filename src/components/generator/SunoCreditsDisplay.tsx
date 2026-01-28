@@ -82,7 +82,7 @@ export const SunoCreditsDisplay: React.FC<SunoCreditsDisplayProps> = ({
               {!creditsUnknown && (
                 <>
                   <p className="text-muted-foreground">
-                    Plan: {plan} • {_credits} crédits restants
+                    Plan: {plan} • {credits} crédits restants
                   </p>
                   {showProgress && total > 0 && (
                     <div className="mt-2">

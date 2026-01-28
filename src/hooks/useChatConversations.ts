@@ -50,6 +50,39 @@ export const useChatConversations = () => {
   }, []);
 
   // Créer une nouvelle conversation
+  const createConversation = useCallback(async (title?: string): Promise<Conversation | null> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Non connecté', description: 'Connectez-vous pour créer une conversation', variant: 'destructive' });
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .insert({
+          user_id: user.id,
+          title: title || `Conversation ${new Date().toLocaleDateString('fr-FR')}`,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erreur création conversation:', error);
+        toast({ title: 'Erreur', description: 'Impossible de créer la conversation', variant: 'destructive' });
+        return null;
+      }
+
+      setConversations(prev => [data, ...prev]);
+      setCurrentConversation(data);
+      setMessages([]);
+      return data;
+    } catch (error) {
+      console.error('Erreur:', error);
+      return null;
+    }
+  }, [toast]);
+
   // Rechercher dans les cours pour enrichir la réponse
   const searchCourseContent = useCallback(async (query: string): Promise<string[]> => {
     try {

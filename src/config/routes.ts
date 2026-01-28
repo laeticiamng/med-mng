@@ -71,6 +71,7 @@ export const ROUTE_PATHS = {
   mesDonneesRgpd: '/mes-donnees-rgpd',
   installPwa: '/install',
   pwaAnalytics: '/pwa-analytics',
+  diagnostics: '/diagnostics',
   ednLegacy: '/edn',
   ednLegacyWithSlug: '/edn/:slug',
   ednItemsLegacy: '/items-edn',
