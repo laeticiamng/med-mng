@@ -699,17 +699,19 @@ describe('🎵 Module Audio/Media', () => {
 
     it('should handle audio in background tab', () => {
       let wasPlayingBeforeHide = false;
+      let isVisible = true;
       
       const onVisibilityChange = (visible: boolean, isPlaying: boolean) => {
         if (!visible && isPlaying) {
           wasPlayingBeforeHide = true;
           // Could pause or continue based on settings
         }
-        _isVisible = visible;
+        isVisible = visible;
       };
 
       onVisibilityChange(false, true);
       expect(wasPlayingBeforeHide).toBe(true);
+      expect(isVisible).toBe(false);
     });
   });
 });

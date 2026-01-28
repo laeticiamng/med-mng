@@ -123,6 +123,7 @@ const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
+const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
 // 🛒 STORE PAGES - Lazy loaded
 const Store = lazy(() => import("./pages/Store"));
@@ -279,6 +280,7 @@ const App = () => {
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
             <Route path={ROUTE_PATHS.installPwa} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
             <Route path={ROUTE_PATHS.pwaAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PWAAnalytics /></Suspense>} />
+            <Route path={ROUTE_PATHS.diagnostics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Diagnostics /></Suspense>} />
                                 <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
                               </Routes>
                             </main>
