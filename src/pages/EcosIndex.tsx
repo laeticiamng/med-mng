@@ -184,7 +184,7 @@ const EcosIndex = () => {
             {filteredScenarios.map((scenario) => (
               <Link 
                 key={scenario.sd_id}
-                to={`${ROUTE_PATHS.ecosScenario}/${scenario.sd_id}`}
+                to={`/ecos/${scenario.sd_id}`}
                 onClick={() => handleScenarioClick(scenario)}
               >
                 <Card className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col">
