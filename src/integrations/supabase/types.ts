@@ -29509,6 +29509,7 @@ export type Database = {
         }[]
       }
       get_latest_quality_metrics: { Args: never; Returns: Json }
+      get_live_platform_stats: { Args: never; Returns: Json }
       get_medical_dashboard_stats: { Args: never; Returns: Json }
       get_ml_assignment_recommendation: {
         Args: {
