@@ -170,7 +170,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
         
         // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
-          await _unlockBadge(user.id, 'ai_chat');
+          await unlockBadge(user.id, 'ai_chat');
         }
         
         loadStats(user.id);

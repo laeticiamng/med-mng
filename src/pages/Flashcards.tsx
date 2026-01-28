@@ -40,7 +40,7 @@ export default function Flashcards() {
     loadDecks, createDeck, deleteDeck, loadCards, addCard, deleteCard,
     generateFromItem, recordReview, getStats
   } = useFlashcards();
-  const { addPoints, unlockBadge: _unlockBadge, checkAndUnlockBadges, stats: _gamificationStats } = useGamification();
+  const { addPoints, unlockBadge, checkAndUnlockBadges, stats: gamificationStats } = useGamification();
   const { logActivity } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
@@ -161,8 +161,8 @@ export default function Flashcards() {
       setTotalReviews(newTotal);
       
       // Unlock badges based on reviews
-      if (newTotal >= 10) await _unlockBadge(user.id, 'items_10');
-      if (newTotal >= 50) await _unlockBadge(user.id, 'items_50');
+      if (newTotal >= 10) await unlockBadge(user.id, 'items_10');
+      if (newTotal >= 50) await unlockBadge(user.id, 'items_50');
       
       await checkAndUnlockBadges(user.id);
     }
@@ -190,7 +190,7 @@ export default function Flashcards() {
       // Bonus for perfect score
       if (user && score === 100) {
         await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
-        await _unlockBadge(user.id, 'perfect_exam');
+        await unlockBadge(user.id, 'perfect_exam');
       }
       
       if (user) getStats(user.id).then(setStats);

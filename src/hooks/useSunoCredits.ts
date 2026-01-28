@@ -18,7 +18,7 @@ interface CachedCredits {
 }
 
 interface SunoCreditsState {
-  _credits: number;
+  credits: number;
   plan: string;
   used: number;
   total: number;
@@ -38,7 +38,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
         const isValid = Date.now() - parsed.timestamp < CACHE_DURATION_MS;
         if (isValid) {
           return {
-            _credits: parsed.credits,
+            credits: parsed.credits,
             plan: parsed.plan,
             used: parsed.used,
             total: parsed.total,
@@ -52,7 +52,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     } catch {}
     
     return {
-      _credits: -1,
+      credits: -1,
       plan: 'unknown',
       used: 0,
       total: 0,
@@ -100,7 +100,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
       
       setState({
-        _credits,
+        credits,
         plan,
         used,
         total,
@@ -116,9 +116,9 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
       // État "indisponible" sans spam - afficher gracieusement
       setState(prev => ({
         ...prev,
-        _credits: prev.isFromCache ? prev._credits : -1,
+        credits: prev.isFromCache ? prev.credits : -1,
         loading: false,
-        error: null, // Pas d'erreur affichée si service non disponible
+        error: null,
         isFromCache: prev.isFromCache
       }));
     }
@@ -141,7 +141,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
 
   // ✅ EFFETS APRÈS TOUS LES useCallback
   useEffect(() => {
-    if (state.isFromCache || state._credits < 0) {
+    if (state.isFromCache || state.credits < 0) {
       fetchCredits();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,9 +155,9 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
   }, [autoRefresh, fetchCredits]);
 
   // ✅ Variables dérivées (pas des hooks)
-  const hasLowCredits = state._credits >= 0 && state._credits < 10;
-  const hasNoCredits = state._credits === 0;
-  const creditsUnknown = state._credits < 0;
+  const hasLowCredits = state.credits >= 0 && state.credits < 10;
+  const hasNoCredits = state.credits === 0;
+  const creditsUnknown = state.credits < 0;
   const usagePercentage = state.total > 0 ? Math.round((state.used / state.total) * 100) : 0;
 
   return {
@@ -171,7 +171,7 @@ export const useSunoCredits = (autoRefresh: boolean = false) => {
     invalidateCache,
     refreshAfterGeneration,
     // Helper pour affichage
-    displayCredits: state._credits < 0 ? '—' : state._credits.toString(),
+    displayCredits: state.credits < 0 ? '—' : state.credits.toString(),
     // ✅ Helper pour formater le temps depuis dernière mise à jour
     lastUpdatedText: state.lastUpdated 
       ? `Mis à jour ${Math.round((Date.now() - state.lastUpdated.getTime()) / 1000 / 60)} min` 

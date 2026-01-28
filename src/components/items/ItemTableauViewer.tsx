@@ -56,7 +56,7 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
         const itemData = result.data;
 
         if (!itemData) {
-          throw itemError;
+          throw new Error('Item not found');
         }
 
         setItem(itemData);

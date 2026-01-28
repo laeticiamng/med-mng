@@ -389,7 +389,7 @@ const Generator = () => {
                 className="hidden sm:flex"
               />
               {/* ✅ Affichage des crédits Suno */}
-              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} compact className="hidden sm:flex" />
+              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} className="hidden sm:flex" />
               <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
             </div>
           </div>

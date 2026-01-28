@@ -31,7 +31,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
   const [score, setScore] = useState(0);
   const [startTime] = useState(Date.now());
   
-  const { _addQuizError, endQuizSession } = useQuizErrorTracker();
+  const { addQuizError, endQuizSession } = useQuizErrorTracker();
 
   const handleAnswer = useCallback((questionId: number, answer: UserAnswer) => {
     setAnswers(prev => ({
@@ -76,7 +76,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
     }
 
     if (!isCorrect) {
-      _addQuizError({
+      addQuizError({
         questionId: `${questionType}_${questionIndex}`,
         question: question.question || question.affirmation || '',
         userAnswer: typeof userAnswer === 'boolean' ? (userAnswer ? 'Vrai' : 'Faux') : String(userAnswer || ''),
@@ -87,7 +87,7 @@ export const useQuizWithErrorTracking = (itemCode: string, itemTitle: string) =>
     }
 
     return isCorrect;
-  }, [_addQuizError, itemCode]);
+  }, [addQuizError, itemCode]);
 
   const calculateScoreWithTracking = useCallback((questions: QuizQuestionsData) => {
     let totalScore = 0;

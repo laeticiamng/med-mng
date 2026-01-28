@@ -142,6 +142,13 @@ export const usePlayer = () => {
       setState(prev => ({ ...prev, isPlaying: false }));
     }
   };
+
+  const play = async () => {
+    if (audioRef.current && state.currentTrack) {
+      await audioRef.current.play();
+      setState(prev => ({ ...prev, isPlaying: true }));
+    }
+  };
   const seek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
@@ -265,7 +272,7 @@ export const usePlayer = () => {
     ...state,
     playTrack,
     pause,
-    _play,
+    play,
     seek,
     setVolume,
     toggleMute,

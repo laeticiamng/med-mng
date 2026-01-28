@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, _screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { MainNavigation } from '@/components/layout/MainNavigation';

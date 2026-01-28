@@ -165,7 +165,7 @@ export default function ExamMode() {
         await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
         if (result.score === 100) {
           await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
-          await _unlockBadge(user.id, 'perfect_exam');
+          await unlockBadge(user.id, 'perfect_exam');
         }
         loadGamificationStats(user.id);
       }
@@ -182,7 +182,7 @@ export default function ExamMode() {
         await addPoints(user.id, POINTS_CONFIG.examCompleted, 'examCompleted');
         if (session?.score === 100) {
           await addPoints(user.id, POINTS_CONFIG.perfectExam, 'perfectExam');
-          await _unlockBadge(user.id, 'perfect_exam');
+          await unlockBadge(user.id, 'perfect_exam');
         }
         getStats(user.id).then(setStats);
         loadGamificationStats(user.id);

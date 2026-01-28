@@ -37,12 +37,12 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [audioSrc, setAudioSrc] = useState(track.audio_url);
   const audioRef = useRef<HTMLAudioElement>(null);
   
-  const { cacheAudio, _isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' });
+  const { cacheAudio, isAudioCached, getAudioUrl, isCaching } = useAudioWithCache({ type: 'music' });
 
   // Check cache on mount and track change
   useEffect(() => {
     const checkCache = async () => {
-      const cached = await _isAudioCached(track.id);
+      const cached = await isAudioCached(track.id);
       setIsCached(cached);
       if (cached) {
         const cachedUrl = await getAudioUrl(track.id, track.audio_url);
@@ -52,7 +52,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
       }
     };
     checkCache();
-  }, [track.id, track.audio_url, _isAudioCached, getAudioUrl]);
+  }, [track.id, track.audio_url, isAudioCached, getAudioUrl]);
 
   const handleCacheTrack = async () => {
     const success = await cacheAudio(track.id, track.audio_url, track.title);

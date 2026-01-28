@@ -21,7 +21,7 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
   itemTitle
 }) => {
   const [selectedStyle, setSelectedStyle] = React.useState<string>('lofi-piano');
-  const { currentErrors, _hasCurrentSession } = useQuizErrorTracker();
+  const { currentErrors, hasCurrentSession } = useQuizErrorTracker();
   const { generateMusic, loading: isGenerating } = useSpotifyAI();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
@@ -133,7 +133,7 @@ Grâce à mes erreurs... quelle surprise !`;
     }
   };
 
-  if (!_hasCurrentSession || !currentErrors.length) {
+  if (!hasCurrentSession || !currentErrors.length) {
     return (
       <Card className="border-border">
         <CardHeader>

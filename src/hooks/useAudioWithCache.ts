@@ -128,7 +128,10 @@ export function useAudioWithCache(options: UseAudioWithCacheOptions = {}) {
   return {
     getAudioUrl,
     cacheAudio,
-    _isAudioCached,
+    isAudioCached: async (audioId: string) => {
+      const cached = await audioCache.getCachedAudio(audioId);
+      return cached !== null;
+    },
     removeFromCache,
     clearCache,
     getCachedItems,

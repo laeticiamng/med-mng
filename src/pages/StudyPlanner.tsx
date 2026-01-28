@@ -176,7 +176,7 @@ const StudyPlanner = () => {
       // Track sessions completed for badge
       const completedCount = studySessions.filter(s => s.completed).length + 1;
       if (completedCount >= 10) {
-        await _unlockBadge(user.id, 'items_10');
+        await unlockBadge(user.id, 'items_10');
       }
       
       loadStats(user.id);

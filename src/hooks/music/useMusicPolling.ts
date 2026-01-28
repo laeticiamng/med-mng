@@ -369,7 +369,7 @@ export const useMusicPolling = () => {
     startPolling,
     stopPolling,
     stopAllPolling,
-    getActivePollingTasks,
-    isPolling
+    getActivePollingTasks: () => Array.from(pollingStateRef.current.keys()),
+    isPolling: (taskId: string) => pollingStateRef.current.has(taskId)
   };
 };

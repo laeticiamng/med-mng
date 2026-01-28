@@ -195,7 +195,7 @@ export default function SRSReview() {
       await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
       // Check for first item badge
       if (sessionStats.reviewed === 0) {
-        await _unlockBadge(user.id, 'first_item');
+        await unlockBadge(user.id, 'first_item');
       }
     }
 
