@@ -172,7 +172,7 @@ export function WeeklyChallenges() {
     }
 
     // Award points
-    await addPoints(user.id, 'examCompleted', Math.round(challenge.xpReward / 100));
+    await addPoints(user.id, challenge.xpReward, `weekly_challenge_${challenge.id}`);
     
     // Log the claim
     await (supabase as any).from('gamification_activities').insert({

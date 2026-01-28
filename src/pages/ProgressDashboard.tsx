@@ -58,7 +58,7 @@ export default function ProgressDashboard() {
   const { getStats: getClinicalStats } = useClinicalCases();
   const { getStats: getFlashcardStats } = useFlashcards();
   const { stats: gamificationStats, loadStats: loadGamificationStats, BADGE_DEFINITIONS, checkAndUnlockBadges } = useGamification();
-  const { _getHeatmapData } = useActivityTracking();
+  const { getHeatmapData } = useActivityTracking();
 
   const [user, setUser] = useState<any>(null);
   const [examStats, setExamStats] = useState<any>(null);
@@ -85,7 +85,7 @@ export default function ProgressDashboard() {
       checkAndUnlockBadges(user.id);
       
       // Load weekly data
-      const heatmapData = await _getHeatmapData(14);
+      const heatmapData = await getHeatmapData(14);
       const thisWeek = heatmapData.slice(0, 7);
       const lastWeek = heatmapData.slice(7, 14);
       const thisWeekTotal = thisWeek.reduce((sum, d) => sum + d.count, 0);
@@ -93,14 +93,14 @@ export default function ProgressDashboard() {
       const byType: Record<string, number> = {};
       thisWeek.forEach(d => {
         Object.entries(d.activities).forEach(([type, count]) => {
-          byType[type] = (byType[type] || 0) + count;
+          byType[type] = (byType[type] || 0) + (count as number);
         });
       });
       const trend = lastWeekTotal > 0 ? Math.round(((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100) : 0;
       setWeeklyData({ total: thisWeekTotal, byType, trend });
     };
     loadData();
-  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, _getHeatmapData]);
+  }, [navigate, toast, getSrsStats, getExamStats, getClinicalStats, getFlashcardStats, loadGamificationStats, checkAndUnlockBadges, getHeatmapData]);
 
   const totalProgress = srsStats ? 
     Math.round((srsStats.masteredItems / srsStats.totalItems) * 100) : 0;

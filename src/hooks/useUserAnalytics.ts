@@ -105,7 +105,7 @@ export const useUserAnalytics = () => {
       // Calculs
       const totalItems = itemsResponse.count ?? 0;
       const progressData = progressResponse.data ?? [];
-      const profileData = profileResponse._data as any;
+      const profileData = profileResponse.data as any;
       const libraryData = libraryResponse.data ?? [];
       const sessionsData = sessionsResponse.data ?? [];
       const badgesData = badgesResponse.data ?? [];

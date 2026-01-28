@@ -62,7 +62,7 @@ export const ItemMasteryGrid: React.FC = () => {
       // Get user's progress from Supabase (real data)
       const { data: progressData } = await supabase
         .from('user_item_progress')
-        .select('item_code, ease_factor, interval_days, review_count, last_reviewed, next_review')
+        .select('item_code, ease_factor, interval_days, repetitions, last_reviewed, next_review')
         .eq('user_id', user.id);
 
       // Get review sessions for more detailed stats
@@ -90,7 +90,7 @@ export const ItemMasteryGrid: React.FC = () => {
         else if (intervalDays > 7) masteryLevel = 60;
         else if (intervalDays > 3) masteryLevel = 45;
         else if (intervalDays > 1) masteryLevel = 30;
-        else if (progress.review_count > 0) masteryLevel = 15;
+        else if (progress.repetitions > 0) masteryLevel = 15;
         
         // Adjust with ease factor
         if (easeFactor > 2.5) masteryLevel = Math.min(100, masteryLevel + 10);
@@ -98,7 +98,7 @@ export const ItemMasteryGrid: React.FC = () => {
         
         masteryMap[progress.item_code] = {
           masteryLevel,
-          reviewCount: progress.review_count || 0,
+          reviewCount: progress.repetitions || 0,
           lastReviewed: progress.last_reviewed
         };
       });

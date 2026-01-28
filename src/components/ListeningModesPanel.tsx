@@ -35,7 +35,7 @@ const getModeColor = (color: string) => {
 export const ListeningModesPanel = () => {
   const {
     predefinedModes,
-    _activeMode: activeMode,
+    activeMode,
     timeRemaining,
     isSessionActive,
     startMode,

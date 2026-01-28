@@ -48,7 +48,7 @@ const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
-  const { musicQuota, incrementMusicUsage, _canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
+  const { musicQuota, incrementMusicUsage, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   const { logActivity } = useActivityTracking();
   const { addPoints, loadStats } = useGamification();
@@ -197,7 +197,7 @@ const Generator = () => {
     }
 
     // ✅ Vérifier le quota (gratuit ou abonnement)
-    if (!_canGenerateMusic()) {
+    if (!musicQuota.can_generate) {
       if (remainingFree <= 0) {
         toast.error('Vous avez utilisé vos 3 générations gratuites. Passez à un abonnement pour continuer.', {
           action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
@@ -297,7 +297,7 @@ const Generator = () => {
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
-  }, [canGenerate, user, remainingFree, _canGenerateMusic, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, remainingFree, musicQuota.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;
@@ -389,7 +389,7 @@ const Generator = () => {
                 className="hidden sm:flex"
               />
               {/* ✅ Affichage des crédits Suno */}
-              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} _compact className="hidden sm:flex" />
+              <SunoCreditsDisplay showRefresh={true} autoRefresh={false} compact className="hidden sm:flex" />
               <NetworkStatusIndicator showLabel notifyOnChange className="hidden xs:flex" />
             </div>
           </div>
@@ -502,7 +502,7 @@ const Generator = () => {
             isGenerating={isGenerating}
             user={user}
             remainingFree={remainingFree}
-            canGenerateMusic={_canGenerateMusic}
+            canGenerateMusic={() => musicQuota.can_generate}
           />
 
           {/* Barre de progression pendant la génération */}

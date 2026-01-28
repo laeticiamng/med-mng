@@ -20,7 +20,7 @@ interface DayData {
 
 export const StudyCalendar: React.FC = () => {
   const { getSRSStats } = useAdaptiveSRS();
-  const { _getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
+  const { getHeatmapData, getStreak, getActiveDaysCount } = useActivityTracking();
   const { stats: gamificationStats } = useGamification();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarData, setCalendarData] = useState<DayData[]>([]);
@@ -53,7 +53,7 @@ export const StudyCalendar: React.FC = () => {
       setActiveDays(activeDaysCount);
 
       // Get past activity
-      const heatmapData = await _getHeatmapData(60);
+      const heatmapData = await getHeatmapData(60);
 
       // Build calendar data
       const year = currentMonth.getFullYear();
@@ -120,7 +120,7 @@ export const StudyCalendar: React.FC = () => {
     };
 
     loadData();
-  }, [currentMonth, getSRSStats, _getHeatmapData, getStreak, getActiveDaysCount]);
+  }, [currentMonth, getSRSStats, getHeatmapData, getStreak, getActiveDaysCount]);
 
   const { toast } = useToast();
 

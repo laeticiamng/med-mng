@@ -55,7 +55,7 @@ export function useNotifications() {
         const dbNotifications: Notification[] = [];
 
         // Convertir les extraction_logs en notifications
-        extractionLogs._data?.forEach((log: any) => {
+        extractionLogs.data?.forEach((log: any) => {
           dbNotifications.push({
             id: `extraction-${log.id}`,
             type: log.status === 'failed' ? 'error' : log.status === 'completed' ? 'success' : 'info',
@@ -76,7 +76,7 @@ export function useNotifications() {
         });
 
         // Convertir les operation_logs en notifications
-        operationLogs._data?.forEach((log: any) => {
+        operationLogs.data?.forEach((log: any) => {
           if (log.type === 'error' || log.type === 'warning') {
             dbNotifications.push({
               id: `operation-${log.id}`,

@@ -59,7 +59,7 @@ export const MedChat: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>([

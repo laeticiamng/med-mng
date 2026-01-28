@@ -29,7 +29,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
 };
 
 export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
-  const { _getHeatmapData, getStreak } = useActivityTracking();
+  const { getHeatmapData, getStreak } = useActivityTracking();
   const [data, setData] = useState<HeatmapData[]>([]);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
     const loadData = async () => {
       setLoading(true);
       const [heatmapData, streakData] = await Promise.all([
-        _getHeatmapData(days),
+        getHeatmapData(days),
         getStreak()
       ]);
       setData(heatmapData);
@@ -47,7 +47,7 @@ export const ActivityHeatmap: React.FC<{ days?: number }> = ({ days = 90 }) => {
       setLoading(false);
     };
     loadData();
-  }, [days, _getHeatmapData, getStreak]);
+  }, [days, getHeatmapData, getStreak]);
 
   const getIntensityClass = (count: number): string => {
     if (count === 0) return 'bg-muted';

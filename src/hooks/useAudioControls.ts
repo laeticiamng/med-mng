@@ -12,7 +12,7 @@ export const useAudioControls = () => {
     play,
     pause,
     resume,
-    _stop,
+    stop,
     seek,
     changeVolume,
     minimize,
@@ -44,7 +44,7 @@ export const useAudioControls = () => {
   };
 
   const handleStop = () => {
-    _stop();
+    stop();
   };
 
   const isCurrentTrackPlaying = (rang: 'rangA' | 'rangB', generatedAudio: { rangA?: string; rangB?: string }) => {
