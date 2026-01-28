@@ -46,7 +46,7 @@ export default function SRSReview() {
     loading 
   } = useSRS();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge, checkAndUnlockBadges } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge, checkAndUnlockBadges } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);

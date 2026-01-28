@@ -44,13 +44,18 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
         setError(null);
 
         // Charger l'item depuis Supabase
-        const { data: itemData, error: itemError } = await supabase
+        const result = await supabase
           .from('edn_items_immersive')
           .select('*')
           .eq('item_code', itemCode)
           .maybeSingle();
 
-        if (itemError) {
+        if (result.error) {
+          throw result.error;
+        }
+        const itemData = result.data;
+
+        if (!itemData) {
           throw itemError;
         }
 

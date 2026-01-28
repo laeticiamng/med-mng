@@ -50,7 +50,7 @@ const StudyPlanner = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('planning');
   const [user, setUser] = useState<any>(null);
-  const { stats: gamificationStats, loadStats, addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const { logActivity, getWeeklySummary } = useActivityTracking();
   const [weeklySummary, setWeeklySummary] = useState<any>(null);
   const [_studyPlans, setStudyPlans] = useState<any[]>([]);

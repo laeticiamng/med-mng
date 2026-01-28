@@ -43,7 +43,7 @@ export default function ExamMode() {
     startAIExam, submitAnswer: submitAIAnswer, completeExam: completeAIExam, resetExam: resetAIExam 
   } = useAIExam();
   const { logActivity } = useActivityTracking();
-  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge } = useGamification();
+  const { stats: gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);

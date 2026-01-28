@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { PlaylistSearch } from './PlaylistSearch';
 
 export const PlaylistManager = () => {
-  const { playlists, loading, _createPlaylist, updatePlaylist, deletePlaylist } = usePlaylists();
+  const { playlists, loading, createPlaylist, updatePlaylist, deletePlaylist } = usePlaylists();
   const navigate = useNavigate();
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -85,7 +85,7 @@ export const PlaylistManager = () => {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
-    const result = await _createPlaylist(formData.name, formData.description, formData.is_public);
+    const result = await createPlaylist(formData.name, formData.description, formData.is_public);
     if (result) {
       setIsCreateDialogOpen(false);
       setFormData({ name: '', description: '', is_public: false });

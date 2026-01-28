@@ -47,7 +47,7 @@ const CHART_COLORS = {
 };
 
 const Statistics = () => {
-  const { _getHeatmapData, getWeeklySummary, getStreak } = useActivityTracking();
+  const { getHeatmapData, getWeeklySummary, getStreak } = useActivityTracking();
   const { stats: gamificationStats, loadStats } = useGamification();
   const [personalStats, setPersonalStats] = useState<any>(null);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
@@ -61,7 +61,7 @@ const Statistics = () => {
         await loadStats(user.id);
         
         const [heatmap, weekly, streak] = await Promise.all([
-          _getHeatmapData(30),
+          getHeatmapData(30),
           getWeeklySummary(),
           getStreak()
         ]);
@@ -78,7 +78,7 @@ const Statistics = () => {
       setLoading(false);
     };
     load();
-  }, [_getHeatmapData, getWeeklySummary, getStreak, loadStats]);
+  }, [getHeatmapData, getWeeklySummary, getStreak, loadStats]);
 
   // Données de spécialités basées sur l'activité réelle
   const activityTypeData = personalStats?.byType ? Object.entries(personalStats.byType)

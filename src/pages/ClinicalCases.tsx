@@ -47,7 +47,7 @@ export default function ClinicalCases() {
   } = useClinicalCases();
   const { generateCase, loading: aiLoading } = useAIClinicalCases();
   const { logActivity } = useActivityTracking();
-  const { stats: _gamificationStats, loadStats: loadGamificationStats, addPoints, _unlockBadge } = useGamification();
+  const { stats: _gamificationStats, loadStats: loadGamificationStats, addPoints, unlockBadge } = useGamification();
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('cases');
@@ -137,7 +137,7 @@ export default function ClinicalCases() {
     // Check for clinical master badge
     const newStats = await getStats(user.id);
     if ((newStats?.totalCasesCompleted || 0) >= 10) {
-      await _unlockBadge(user.id, 'clinical_master');
+      await unlockBadge(user.id, 'clinical_master');
     }
     
     setStats(newStats);

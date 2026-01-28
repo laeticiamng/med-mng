@@ -1413,6 +1413,118 @@ export type Database = {
         }
         Relationships: []
       }
+      anatomical_landmarks: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          detection_method: string | null
+          id: string
+          landmark_code: string
+          landmark_name: string
+          position: number[]
+          scan_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          detection_method?: string | null
+          id?: string
+          landmark_code: string
+          landmark_name: string
+          position: number[]
+          scan_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          detection_method?: string | null
+          id?: string
+          landmark_code?: string
+          landmark_name?: string
+          position?: number[]
+          scan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anatomical_landmarks_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "wholebody_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anatomical_structures: {
+        Row: {
+          body_zone: string
+          bounding_box: number[] | null
+          centroid: number[] | null
+          created_at: string | null
+          default_color: string
+          id: string
+          laterality: string | null
+          mask_file_path: string | null
+          mesh_file_path_high: string | null
+          mesh_file_path_low: string | null
+          mesh_file_path_medium: string | null
+          metadata: Json | null
+          priority: number | null
+          scan_id: string
+          structure_category: string
+          structure_code: string
+          structure_name: string
+          volume_ml: number | null
+        }
+        Insert: {
+          body_zone: string
+          bounding_box?: number[] | null
+          centroid?: number[] | null
+          created_at?: string | null
+          default_color?: string
+          id?: string
+          laterality?: string | null
+          mask_file_path?: string | null
+          mesh_file_path_high?: string | null
+          mesh_file_path_low?: string | null
+          mesh_file_path_medium?: string | null
+          metadata?: Json | null
+          priority?: number | null
+          scan_id: string
+          structure_category: string
+          structure_code: string
+          structure_name: string
+          volume_ml?: number | null
+        }
+        Update: {
+          body_zone?: string
+          bounding_box?: number[] | null
+          centroid?: number[] | null
+          created_at?: string | null
+          default_color?: string
+          id?: string
+          laterality?: string | null
+          mask_file_path?: string | null
+          mesh_file_path_high?: string | null
+          mesh_file_path_low?: string | null
+          mesh_file_path_medium?: string | null
+          metadata?: Json | null
+          priority?: number | null
+          scan_id?: string
+          structure_category?: string
+          structure_code?: string
+          structure_name?: string
+          volume_ml?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anatomical_structures_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "wholebody_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_integrations: {
         Row: {
           base_url: string
@@ -1553,6 +1665,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ar_registration_matrices: {
+        Row: {
+          calibration_accuracy: number | null
+          calibration_method: string | null
+          created_at: string | null
+          id: string
+          scale_factor: number | null
+          scan_id: string
+          session_id: string | null
+          transformation_matrix: number[] | null
+        }
+        Insert: {
+          calibration_accuracy?: number | null
+          calibration_method?: string | null
+          created_at?: string | null
+          id?: string
+          scale_factor?: number | null
+          scan_id: string
+          session_id?: string | null
+          transformation_matrix?: number[] | null
+        }
+        Update: {
+          calibration_accuracy?: number | null
+          calibration_method?: string | null
+          created_at?: string | null
+          id?: string
+          scale_factor?: number | null
+          scan_id?: string
+          session_id?: string | null
+          transformation_matrix?: number[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ar_registration_matrices_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "wholebody_scans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       assessment_sessions: {
         Row: {
@@ -3062,6 +3215,242 @@ export type Database = {
             columns: ["battle_id"]
             isOneToOne: false
             referencedRelation: "bounce_battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_annotations: {
+        Row: {
+          annotation_type: string
+          author_id: string | null
+          content: string
+          created_at: string
+          id: string
+          position: Json | null
+          region_id: string | null
+          scan_id: string
+          updated_at: string
+        }
+        Insert: {
+          annotation_type?: string
+          author_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          position?: Json | null
+          region_id?: string | null
+          scan_id: string
+          updated_at?: string
+        }
+        Update: {
+          annotation_type?: string
+          author_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          position?: Json | null
+          region_id?: string | null
+          scan_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_annotations_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_annotations_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_annotations_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "brain_regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_annotations_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "brain_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_regions: {
+        Row: {
+          created_at: string
+          default_color: string
+          hemisphere: string | null
+          id: string
+          mesh_data: Json | null
+          region_code: string
+          region_name: string
+          scan_id: string
+          volume_mm3: number | null
+        }
+        Insert: {
+          created_at?: string
+          default_color?: string
+          hemisphere?: string | null
+          id?: string
+          mesh_data?: Json | null
+          region_code: string
+          region_name: string
+          scan_id: string
+          volume_mm3?: number | null
+        }
+        Update: {
+          created_at?: string
+          default_color?: string
+          hemisphere?: string | null
+          id?: string
+          mesh_data?: Json | null
+          region_code?: string
+          region_name?: string
+          scan_id?: string
+          volume_mm3?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_regions_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "brain_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_scans: {
+        Row: {
+          created_at: string
+          dimensions: number[] | null
+          id: string
+          is_anonymized: boolean | null
+          mesh_file_path: string | null
+          metadata: Json | null
+          modality: string
+          original_file_path: string | null
+          patient_id: string
+          series_description: string | null
+          status: string
+          study_date: string | null
+          thumbnail_url: string | null
+          updated_at: string
+          voxel_size: number[] | null
+        }
+        Insert: {
+          created_at?: string
+          dimensions?: number[] | null
+          id?: string
+          is_anonymized?: boolean | null
+          mesh_file_path?: string | null
+          metadata?: Json | null
+          modality: string
+          original_file_path?: string | null
+          patient_id: string
+          series_description?: string | null
+          status?: string
+          study_date?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          voxel_size?: number[] | null
+        }
+        Update: {
+          created_at?: string
+          dimensions?: number[] | null
+          id?: string
+          is_anonymized?: boolean | null
+          mesh_file_path?: string | null
+          metadata?: Json | null
+          modality?: string
+          original_file_path?: string | null
+          patient_id?: string
+          series_description?: string | null
+          status?: string
+          study_date?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          voxel_size?: number[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_scans_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_scans_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_view_sessions: {
+        Row: {
+          duration_seconds: number | null
+          emotions_overlaid: boolean | null
+          ended_at: string | null
+          export_formats: string[] | null
+          id: string
+          regions_viewed: string[] | null
+          scan_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          duration_seconds?: number | null
+          emotions_overlaid?: boolean | null
+          ended_at?: string | null
+          export_formats?: string[] | null
+          id?: string
+          regions_viewed?: string[] | null
+          scan_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          duration_seconds?: number | null
+          emotions_overlaid?: boolean | null
+          ended_at?: string | null
+          export_formats?: string[] | null
+          id?: string
+          regions_viewed?: string[] | null
+          scan_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_view_sessions_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "brain_scans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_view_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_view_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -7383,6 +7772,61 @@ export type Database = {
         }
         Relationships: []
       }
+      emotion_brain_mappings: {
+        Row: {
+          created_at: string
+          hume_session_id: string | null
+          id: string
+          mappings: Json
+          patient_id: string
+          scan_id: string | null
+          source: string | null
+          timestamp: string
+        }
+        Insert: {
+          created_at?: string
+          hume_session_id?: string | null
+          id?: string
+          mappings?: Json
+          patient_id: string
+          scan_id?: string | null
+          source?: string | null
+          timestamp?: string
+        }
+        Update: {
+          created_at?: string
+          hume_session_id?: string | null
+          id?: string
+          mappings?: Json
+          patient_id?: string
+          scan_id?: string | null
+          source?: string | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotion_brain_mappings_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emotion_brain_mappings_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emotion_brain_mappings_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "brain_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emotion_cards: {
         Row: {
           animation_config: Json | null
@@ -10224,6 +10668,198 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           webhook_token?: string
+        }
+        Relationships: []
+      }
+      group_meditation_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          invited_by: string
+          invited_email: string | null
+          invited_user_id: string | null
+          session_id: string
+          status: string | null
+          token: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by: string
+          invited_email?: string | null
+          invited_user_id?: string | null
+          session_id: string
+          status?: string | null
+          token?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string
+          invited_email?: string | null
+          invited_user_id?: string | null
+          session_id?: string
+          status?: string | null
+          token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_meditation_invitations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_meditation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_meditation_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_type: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_meditation_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_meditation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_meditation_participants: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          id: string
+          joined_at: string
+          left_at: string | null
+          meditation_duration_seconds: number | null
+          metadata: Json | null
+          mood_after: number | null
+          mood_before: number | null
+          session_id: string
+          status: string
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          display_name?: string | null
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          meditation_duration_seconds?: number | null
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          session_id: string
+          status?: string
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          display_name?: string | null
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          meditation_duration_seconds?: number | null
+          metadata?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          session_id?: string
+          status?: string
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_meditation_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_meditation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_meditation_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          ended_at: string | null
+          host_id: string
+          id: string
+          is_public: boolean | null
+          join_code: string | null
+          max_participants: number | null
+          scheduled_at: string | null
+          settings: Json | null
+          started_at: string | null
+          status: string
+          technique: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          is_public?: boolean | null
+          join_code?: string | null
+          max_participants?: number | null
+          scheduled_at?: string | null
+          settings?: Json | null
+          started_at?: string | null
+          status?: string
+          technique?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          is_public?: boolean | null
+          join_code?: string | null
+          max_participants?: number | null
+          scheduled_at?: string | null
+          settings?: Json | null
+          started_at?: string | null
+          status?: string
+          technique?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -27622,6 +28258,65 @@ export type Database = {
         }
         Relationships: []
       }
+      wholebody_scans: {
+        Row: {
+          body_region: string | null
+          brain_scan_id: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          modality: string
+          nifti_file_path: string | null
+          original_file_path: string
+          patient_id: string
+          processing_error: string | null
+          scan_date: string | null
+          segmentation_model: string | null
+          segmentation_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body_region?: string | null
+          brain_scan_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          modality: string
+          nifti_file_path?: string | null
+          original_file_path: string
+          patient_id: string
+          processing_error?: string | null
+          scan_date?: string | null
+          segmentation_model?: string | null
+          segmentation_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body_region?: string | null
+          brain_scan_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          modality?: string
+          nifti_file_path?: string | null
+          original_file_path?: string
+          patient_id?: string
+          processing_error?: string | null
+          scan_date?: string | null
+          segmentation_model?: string | null
+          segmentation_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wholebody_scans_brain_scan_id_fkey"
+            columns: ["brain_scan_id"]
+            isOneToOne: false
+            referencedRelation: "brain_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       ai_monitoring_stats: {
@@ -27882,7 +28577,9 @@ export type Database = {
       }
     }
     Functions: {
-      accept_invitation: { Args: { invitation_token: string }; Returns: Json }
+      accept_invitation:
+        | { Args: { invitation_id: string }; Returns: boolean }
+        | { Args: { invitation_token: string }; Returns: Json }
       archive_expired_data: {
         Args: { p_entity_type: string; p_retention_days: number }
         Returns: {
@@ -27903,7 +28600,18 @@ export type Database = {
           updated_count: number
         }[]
       }
-      audit_consent_compliance: { Args: never; Returns: Json }
+      audit_consent_compliance:
+        | { Args: never; Returns: Json }
+        | {
+            Args: { p_user_id?: string }
+            Returns: {
+              consent_scope: string
+              issues: string[]
+              status: string
+              user_email: string
+              user_id: string
+            }[]
+          }
       audit_retention_compliance: { Args: never; Returns: Json }
       audit_security_compliance: { Args: never; Returns: Json }
       audit_tableau_duplicates: {
@@ -28311,19 +29019,35 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_all_role_audit_logs: {
-        Args: { _limit?: number; _offset?: number }
-        Returns: {
-          action: string
-          changed_at: string
-          changed_by_email: string
-          id: string
-          new_role: string
-          old_role: string
-          role: string
-          user_email: string
-        }[]
-      }
+      get_all_role_audit_logs:
+        | {
+            Args: never
+            Returns: {
+              changed_by: string
+              changed_by_email: string
+              created_at: string
+              id: string
+              new_role: string
+              old_role: string
+              reason: string
+              user_email: string
+              user_id: string
+            }[]
+          }
+        | {
+            Args: { p_limit?: number; p_offset?: number }
+            Returns: {
+              action: string
+              created_at: string
+              id: string
+              performed_by: string
+              performed_by_email: string
+              reason: string
+              role: string
+              user_email: string
+              user_id: string
+            }[]
+          }
       get_anonymous_activity_logs: {
         Args: {
           p_activity_type?: string
@@ -28814,19 +29538,31 @@ export type Database = {
           total_credits: number
         }[]
       }
-      get_user_role_audit_history: {
-        Args: { _limit?: number; _user_id: string }
-        Returns: {
-          action: string
-          changed_at: string
-          changed_by_email: string
-          id: string
-          metadata: Json
-          new_role: string
-          old_role: string
-          role: string
-        }[]
-      }
+      get_user_role_audit_history:
+        | {
+            Args: { p_user_id: string }
+            Returns: {
+              changed_by: string
+              changed_by_email: string
+              created_at: string
+              id: string
+              new_role: string
+              old_role: string
+              reason: string
+            }[]
+          }
+        | {
+            Args: { p_limit?: number; p_user_id: string }
+            Returns: {
+              action: string
+              created_at: string
+              id: string
+              performed_by: string
+              performed_by_email: string
+              reason: string
+              role: string
+            }[]
+          }
       get_user_statistics: { Args: { user_uuid: string }; Returns: Json }
       get_user_subscription: {
         Args: { user_uuid: string }
@@ -28898,14 +29634,20 @@ export type Database = {
             Returns: boolean
           }
         | { Args: { _role: string; _user_id: string }; Returns: boolean }
-      has_sitemap_access: {
-        Args: {
-          _min_permission?: Database["public"]["Enums"]["share_permission"]
-          _target_user_id: string
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      has_sitemap_access:
+        | {
+            Args: {
+              _min_permission?: Database["public"]["Enums"]["share_permission"]
+              _target_user_id: string
+              _user_id: string
+            }
+            Returns: boolean
+          }
+        | { Args: { p_user_id: string }; Returns: boolean }
+        | {
+            Args: { p_sitemap_id: string; p_user_id: string }
+            Returns: boolean
+          }
       increment_aura_interaction: {
         Args: { p_user_id: string }
         Returns: undefined
@@ -29354,10 +30096,20 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      share_filter_template: {
-        Args: { template_id: string; user_emails: string[] }
-        Returns: undefined
-      }
+      share_filter_template:
+        | {
+            Args: {
+              p_permission?: string
+              p_shared_with_email?: string
+              p_shared_with_user_id?: string
+              p_template_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: { template_id: string; user_emails: string[] }
+            Returns: undefined
+          }
       snapshot_aura_weekly: { Args: never; Returns: undefined }
       start_extraction_batch: {
         Args: {
@@ -29431,8 +30183,9 @@ export type Database = {
       validate_campaign_consents: {
         Args: { p_campaign_id: string }
         Returns: {
-          can_contact: boolean
-          reason: string
+          consent_scope: string
+          has_consent: boolean
+          user_email: string
           user_id: string
         }[]
       }
