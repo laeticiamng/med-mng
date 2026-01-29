@@ -84,6 +84,9 @@ Tu n'as pas besoin de tout chercher toi-même.`,
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load user and gamification stats
@@ -96,7 +99,43 @@ Tu n'as pas besoin de tout chercher toi-même.`,
       }
     };
     checkUser();
-  }, [loadStats]);
+    
+    // Check for Web Speech API support
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setSpeechSupported(true);
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'fr-FR';
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join('');
+        setCurrentMessage(transcript);
+        
+        // If final result, auto-send
+        if (event.results[0].isFinal) {
+          setIsListening(false);
+        }
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast({
+          title: "Erreur micro",
+          description: "Impossible d'accéder au microphone. Vérifiez les permissions.",
+          variant: "destructive"
+        });
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, [loadStats, toast]);
 
   const {
     sendMessage,
@@ -207,6 +246,38 @@ Tu n'as pas besoin de tout chercher toi-même.`,
     setMessages([messages[0]]); // Garder le message d'accueil
     setShowSuggestions(true);
     setCurrentMessage('');
+  };
+
+  const toggleVoiceInput = () => {
+    if (!speechSupported) {
+      toast({
+        title: "Non supporté",
+        description: "Votre navigateur ne supporte pas la reconnaissance vocale.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current?.start();
+        setIsListening(true);
+        toast({
+          title: "🎤 Écoute en cours...",
+          description: "Parlez maintenant, je vous écoute.",
+        });
+      } catch (error) {
+        console.error('Failed to start speech recognition:', error);
+        toast({
+          title: "Erreur micro",
+          description: "Impossible de démarrer la reconnaissance vocale.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -528,7 +599,14 @@ Tu n'as pas besoin de tout chercher toi-même.`,
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                      onClick={toggleVoiceInput}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 transition-colors ${
+                        isListening 
+                          ? 'text-destructive bg-destructive/10 animate-pulse' 
+                          : 'text-muted-foreground hover:text-primary'
+                      }`}
+                      disabled={isLoading || !speechSupported}
+                      title={speechSupported ? (isListening ? "Arrêter l'écoute" : "Parler") : "Non supporté"}
                     >
                       <Mic className="h-4 w-4" />
                     </Button>
@@ -550,10 +628,18 @@ Tu n'as pas besoin de tout chercher toi-même.`,
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground flex items-center gap-2">
                   <Sparkles className="h-3 w-3" />
                   <TranslatedText text="Appuyez sur Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne" />
                 </p>
+                {speechSupported && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Mic className="h-3 w-3" />
+                    Mode vocal disponible
+                  </p>
+                )}
+              </div>
               </div>
             </CardContent>
           </Card>
