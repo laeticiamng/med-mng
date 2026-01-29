@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 
 interface ConfettiExplosionProps {
@@ -7,8 +7,17 @@ interface ConfettiExplosionProps {
 }
 
 export function ConfettiExplosion({ trigger, type = "celebration" }: ConfettiExplosionProps) {
+  const hasTriggered = useRef(false);
+
   useEffect(() => {
-    if (!trigger) return;
+    // Only trigger once per true transition, prevent re-triggering on re-renders
+    if (!trigger) {
+      hasTriggered.current = false;
+      return;
+    }
+    
+    if (hasTriggered.current) return;
+    hasTriggered.current = true;
 
     const colors = {
       success: ["#22c55e", "#16a34a", "#4ade80"],
@@ -28,7 +37,7 @@ export function ConfettiExplosion({ trigger, type = "celebration" }: ConfettiExp
 
     // Second burst for celebration
     if (type === "celebration" || type === "gold") {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         confetti({
           particleCount: 50,
           angle: 60,
@@ -46,6 +55,8 @@ export function ConfettiExplosion({ trigger, type = "celebration" }: ConfettiExp
           disableForReducedMotion: true
         });
       }, 150);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [trigger, type]);
 

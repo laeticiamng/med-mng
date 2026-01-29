@@ -1,5 +1,5 @@
 import { motion, useSpring, useTransform } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface AnimatedCounterProps {
   value: number;
@@ -16,7 +16,9 @@ export function AnimatedCounter({
   suffix = "",
   prefix = ""
 }: AnimatedCounterProps) {
-  const spring = useSpring(0, { 
+  const prevValue = useRef(value);
+  
+  const spring = useSpring(value, { 
     mass: 0.8, 
     stiffness: 75, 
     damping: 15,
@@ -28,7 +30,11 @@ export function AnimatedCounter({
   );
 
   useEffect(() => {
-    spring.set(value);
+    // Only animate if value actually changed
+    if (prevValue.current !== value) {
+      spring.set(value);
+      prevValue.current = value;
+    }
   }, [spring, value]);
 
   return (
