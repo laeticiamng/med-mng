@@ -24,6 +24,10 @@ import {
   Timer,
   Heart,
   Flag,
+  Share2,
+  Headphones,
+  TrendingUp,
+  Smile,
 } from 'lucide-react';
 
 import { ROUTE_PATHS } from './routes';
@@ -35,6 +39,14 @@ export interface NavItem {
   icon: ComponentType<{ className?: string }>;
   badge?: number;
   children?: NavItem[];
+  description?: string;
+}
+
+export interface NavGroup {
+  id: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  items: NavItem[];
 }
 
 // Navigation principale simplifiée (6 items max visibles)
@@ -47,43 +59,79 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
 ];
 
-// Navigation secondaire (menu "Plus") - Toutes les pages accessibles
-export const SECONDARY_NAV_ITEMS: NavItem[] = [
-  // 🎯 Productivité & Motivation (nouveaux!)
-  { path: ROUTE_PATHS.dailyChallenges, label: 'Défis du jour', icon: Zap },
-  { path: ROUTE_PATHS.leaderboard, label: 'Classement', icon: Crown },
-  { path: ROUTE_PATHS.myGoals, label: 'Mes Objectifs', icon: Flag },
-  { path: ROUTE_PATHS.pomodoro, label: 'Pomodoro', icon: Timer },
-  { path: ROUTE_PATHS.moodTracker, label: 'Suivi humeur', icon: Heart },
-  // Apprentissage
-  { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
-  { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
-  { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse },
-  // Gamification
-  { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Trophy },
-  // Musique
-  { path: ROUTE_PATHS.generator, label: 'Créer Musique', icon: Music },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Music },
-  { path: ROUTE_PATHS.sharedMusicIndex, label: 'Musiques Partagées', icon: Music },
-  { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes Playlists', icon: Music },
-  // Planning
-  { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning IA', icon: Zap },
-  { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar },
-  // Analytics
-  { path: ROUTE_PATHS.learningDashboard, label: 'Dashboard Avancé', icon: BarChart3 },
-  { path: ROUTE_PATHS.medMngAnalytics, label: 'Analytics Musique', icon: BarChart3 },
-  { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
-  // Ressources
-  { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library },
-  { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag },
-  { path: ROUTE_PATHS.favorites, label: 'Favoris', icon: Sparkles },
-  // Communauté
-  { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
-  // Info
-  { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap },
-  { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag },
-  { path: ROUTE_PATHS.installPwa, label: 'Installer l\'app', icon: Sparkles },
+// 🆕 Navigation secondaire GROUPÉE par catégorie
+export const SECONDARY_NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'motivation',
+    label: '🎯 Motivation',
+    icon: Zap,
+    items: [
+      { path: ROUTE_PATHS.dailyChallenges, label: 'Défis du jour', icon: Zap, description: 'Challenges quotidiens' },
+      { path: ROUTE_PATHS.leaderboard, label: 'Classement', icon: Crown, description: 'Top étudiants' },
+      { path: ROUTE_PATHS.myGoals, label: 'Mes Objectifs', icon: Flag, description: 'Suivi des objectifs' },
+      { path: ROUTE_PATHS.pomodoro, label: 'Pomodoro', icon: Timer, description: 'Sessions focus' },
+      { path: ROUTE_PATHS.moodTracker, label: 'Suivi humeur', icon: Smile, description: 'Bien-être' },
+      { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Trophy, description: 'Badges & récompenses' },
+    ]
+  },
+  {
+    id: 'learning',
+    label: '📚 Apprentissage',
+    icon: BookOpen,
+    items: [
+      { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers, description: 'Mémorisation active' },
+      { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar, description: 'Algorithme SM-2' },
+      { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', icon: HeartPulse, description: 'Simulations patients' },
+      { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', icon: GraduationCap, description: 'Notre pédagogie' },
+    ]
+  },
+  {
+    id: 'music',
+    label: '🎵 Musique',
+    icon: Music,
+    items: [
+      { path: ROUTE_PATHS.generator, label: 'Créer Musique', icon: Music, description: 'Générateur IA' },
+      { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Headphones, description: 'Bibliothèque audio' },
+      { path: ROUTE_PATHS.sharedMusicIndex, label: 'Partagées', icon: Share2, description: 'Communauté' },
+      { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes Playlists', icon: Music, description: 'Favoris audio' },
+    ]
+  },
+  {
+    id: 'planning',
+    label: '📅 Planning',
+    icon: Calendar,
+    items: [
+      { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning IA', icon: Zap, description: 'Optimisé par IA' },
+      { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', icon: Calendar, description: 'Manuel' },
+    ]
+  },
+  {
+    id: 'analytics',
+    label: '📊 Statistiques',
+    icon: BarChart3,
+    items: [
+      { path: ROUTE_PATHS.learningDashboard, label: 'Dashboard Avancé', icon: LayoutDashboard, description: 'Vue détaillée' },
+      { path: ROUTE_PATHS.medMngAnalytics, label: 'Analytics Musique', icon: BarChart3, description: 'Écoutes' },
+      { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: TrendingUp, description: 'Progression globale' },
+    ]
+  },
+  {
+    id: 'resources',
+    label: '📦 Ressources',
+    icon: Library,
+    items: [
+      { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library, description: 'Tous les contenus' },
+      { path: ROUTE_PATHS.store, label: 'Boutique', icon: ShoppingBag, description: 'Produits' },
+      { path: ROUTE_PATHS.favorites, label: 'Favoris', icon: Sparkles, description: 'Mes sélections' },
+      { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users, description: 'Entraide' },
+      { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag, description: 'Abonnements' },
+      { path: ROUTE_PATHS.installPwa, label: 'Installer l\'app', icon: Sparkles, description: 'PWA' },
+    ]
+  },
 ];
+
+// Flatten pour compatibilité avec l'ancien système
+export const SECONDARY_NAV_ITEMS: NavItem[] = SECONDARY_NAV_GROUPS.flatMap(group => group.items);
 
 // Navigation utilisateur (menu profil)
 export const USER_NAV_ITEMS: NavItem[] = [
@@ -96,45 +144,37 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.settings, label: 'Paramètres', icon: Settings },
 ];
 
-// Navigation admin (toutes les pages admin) - COMPLÈTE
+// Navigation admin (toutes les pages admin)
 export const ADMIN_NAV_ITEMS: NavItem[] = [
-  // Dashboard principal
   { path: ROUTE_PATHS.adminPanel, label: 'Panneau Admin', icon: LayoutDashboard },
   { path: ROUTE_PATHS.dashboard, label: 'Dashboard', icon: LayoutDashboard },
   { path: ROUTE_PATHS.modularDashboard, label: 'Dashboard Modulaire', icon: LayoutDashboard },
-  // Import/Export
   { path: ROUTE_PATHS.adminImport, label: 'Import données', icon: FileText },
   { path: ROUTE_PATHS.adminExtractEdn, label: 'Extraction EDN', icon: FileText },
   { path: ROUTE_PATHS.adminExtractEcos, label: 'Extraction ECOS', icon: FileText },
   { path: ROUTE_PATHS.adminExtractObjectifs, label: 'Extraction Objectifs', icon: FileText },
-  // Qualité
   { path: ROUTE_PATHS.adminOicQuality, label: 'Qualité OIC', icon: Target },
   { path: ROUTE_PATHS.adminExtractionQuality, label: 'Qualité Extraction', icon: Target },
   { path: ROUTE_PATHS.adminComplete, label: 'Process Complet', icon: LayoutDashboard },
-  // Audit
   { path: ROUTE_PATHS.adminAudit, label: 'Audit Admin', icon: BarChart3 },
   { path: ROUTE_PATHS.audit, label: 'Audit Global', icon: BarChart3 },
   { path: ROUTE_PATHS.auditCompleteness, label: 'Audit Complétude', icon: BarChart3 },
   { path: ROUTE_PATHS.ednAudit, label: 'Audit EDN', icon: BarChart3 },
-  // Monitoring
   { path: ROUTE_PATHS.monitoring, label: 'Monitoring', icon: Target },
   { path: ROUTE_PATHS.securityMonitoring, label: 'Sécurité', icon: Settings },
   { path: ROUTE_PATHS.rlsDocumentation, label: 'Doc RLS', icon: FileText },
   { path: ROUTE_PATHS.diagnostics, label: 'Diagnostics', icon: Settings },
-  // Platform
   { path: ROUTE_PATHS.migrationDashboard, label: 'Migrations', icon: LayoutDashboard },
   { path: ROUTE_PATHS.platformStatus, label: 'Status Plateforme', icon: Target },
   { path: ROUTE_PATHS.systemManagement, label: 'Gestion Système', icon: Settings },
   { path: ROUTE_PATHS.platformSettings, label: 'Config Plateforme', icon: Settings },
-  // Analytics
   { path: ROUTE_PATHS.accessibilityDashboard, label: 'Accessibilité', icon: Target },
   { path: ROUTE_PATHS.effectivenessDashboard, label: 'Efficacité', icon: BarChart3 },
   { path: ROUTE_PATHS.pwaAnalytics, label: 'PWA Analytics', icon: BarChart3 },
-  // Dev tools
   { path: ROUTE_PATHS.designSystem, label: 'Design System', icon: Sparkles },
 ];
 
-// Pages publiques (accessibles sans connexion) - Vérifiées existantes
+// Pages publiques
 export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', icon: Home },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', icon: BookOpen },
@@ -156,7 +196,7 @@ export const PUBLIC_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
 ];
 
-// Pages légales (footer)
+// Pages légales
 export const LEGAL_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.mentionsLegales, label: 'Mentions légales', icon: FileText },
   { path: ROUTE_PATHS.politiqueConfidentialite, label: 'Confidentialité', icon: FileText },
@@ -165,59 +205,42 @@ export const LEGAL_PAGES: NavItem[] = [
   { path: ROUTE_PATHS.mesDonneesRgpd, label: 'Mes données RGPD', icon: FileText },
 ];
 
-// Toutes les pages accessibles (pour sitemap/recherche globale) - Validées
+// Toutes les pages (pour sitemap/recherche)
 export const ALL_ACCESSIBLE_PAGES = [
-  // Principales
   { path: ROUTE_PATHS.home, label: 'Accueil', category: 'Principal' },
   { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', category: 'Apprentissage' },
   { path: ROUTE_PATHS.examMode, label: 'Mode examen', category: 'Entraînement' },
   { path: ROUTE_PATHS.ecosIndex, label: 'Simulations ECOS', category: 'Entraînement' },
   { path: ROUTE_PATHS.chat, label: 'Chat IA', category: 'Outils' },
-  
-  // 🆕 Productivité & Motivation
   { path: ROUTE_PATHS.dailyChallenges, label: 'Défis du jour', category: 'Motivation' },
   { path: ROUTE_PATHS.leaderboard, label: 'Classement', category: 'Motivation' },
   { path: ROUTE_PATHS.myGoals, label: 'Mes Objectifs', category: 'Motivation' },
   { path: ROUTE_PATHS.pomodoro, label: 'Pomodoro', category: 'Productivité' },
   { path: ROUTE_PATHS.moodTracker, label: 'Suivi humeur', category: 'Bien-être' },
-  
-  // Apprentissage
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', category: 'Apprentissage' },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', category: 'Apprentissage' },
   { path: ROUTE_PATHS.clinicalCases, label: 'Cas cliniques', category: 'Apprentissage' },
   { path: ROUTE_PATHS.ednImmersive, label: 'Mode immersif', category: 'Apprentissage' },
   { path: ROUTE_PATHS.mngMethod, label: 'Méthode MNG', category: 'Apprentissage' },
-  
-  // Musique & Création
-  { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Outils' },
-  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Outils' },
-  
-  // Progression
+  { path: ROUTE_PATHS.generator, label: 'Générateur de musique', category: 'Musique' },
+  { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', category: 'Musique' },
   { path: ROUTE_PATHS.progressDashboard, label: 'Ma progression', category: 'Suivi' },
   { path: ROUTE_PATHS.achievements, label: 'Succès & Badges', category: 'Suivi' },
   { path: ROUTE_PATHS.smartStudyPlanner, label: 'Planning IA', category: 'Suivi' },
   { path: ROUTE_PATHS.studyPlanner, label: 'Planificateur', category: 'Suivi' },
   { path: ROUTE_PATHS.statistics, label: 'Statistiques', category: 'Suivi' },
   { path: ROUTE_PATHS.favorites, label: 'Favoris', category: 'Suivi' },
-  
-  // Ressources
   { path: ROUTE_PATHS.library, label: 'Bibliothèque', category: 'Ressources' },
   { path: ROUTE_PATHS.store, label: 'Boutique', category: 'Ressources' },
   { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', category: 'Ressources' },
   { path: ROUTE_PATHS.installPwa, label: 'Installer App', category: 'Ressources' },
-  
-  // Communauté
   { path: ROUTE_PATHS.community, label: 'Communauté', category: 'Social' },
-  
-  // Compte utilisateur
   { path: ROUTE_PATHS.medMngProfile, label: 'Mon profil', category: 'Compte' },
   { path: ROUTE_PATHS.medMngLibrary, label: 'Ma bibliothèque', category: 'Compte' },
   { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes playlists', category: 'Compte' },
   { path: ROUTE_PATHS.medMngFavorites, label: 'Mes favoris', category: 'Compte' },
   { path: ROUTE_PATHS.medMngProgress, label: 'Ma progression musique', category: 'Compte' },
   { path: ROUTE_PATHS.settings, label: 'Paramètres', category: 'Compte' },
-  
-  // Légal
   { path: ROUTE_PATHS.mentionsLegales, label: 'Mentions légales', category: 'Légal' },
   { path: ROUTE_PATHS.politiqueConfidentialite, label: 'Confidentialité', category: 'Légal' },
   { path: ROUTE_PATHS.cgu, label: 'CGU', category: 'Légal' },

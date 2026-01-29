@@ -8,10 +8,15 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
+    DropdownMenuGroup,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+    DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from '@/config/navigation';
+import { ADMIN_NAV_ITEMS, MAIN_NAV_ITEMS, SECONDARY_NAV_GROUPS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification, XP_PER_LEVEL } from '@/hooks/useGamification';
@@ -45,10 +50,10 @@ export const MainNavigation: React.FC = () => {
   useEffect(() => {
     if (user?.id) {
       loadStats(user.id);
-      // Check admin status (simplified check)
       setIsAdmin(user.email?.includes('admin') || false);
     }
   }, [user?.id, loadStats, user?.email]);
+  
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
   const isActive = (path: string) => {
@@ -97,7 +102,7 @@ export const MainNavigation: React.FC = () => {
               </Link>
             ))}
             
-            {/* Menu "Plus" pour pages secondaires */}
+            {/* Menu "Plus" avec sous-catégories */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -106,19 +111,45 @@ export const MainNavigation: React.FC = () => {
                   <ChevronDown className="w-3 h-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Outils d'apprentissage</DropdownMenuLabel>
-                {SECONDARY_NAV_ITEMS.map((item) => (
-                  <DropdownMenuItem key={item.path} onClick={() => navigate(item.path)}>
-                    <item.icon className="w-4 h-4 mr-2" />
-                    {item.label}
-                  </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-64">
+                {SECONDARY_NAV_GROUPS.map((group, index) => (
+                  <React.Fragment key={group.id}>
+                    {index > 0 && <DropdownMenuSeparator />}
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="font-medium">
+                        <group.icon className="w-4 h-4 mr-2" />
+                        {group.label}
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent className="w-52">
+                          {group.items.map((item) => (
+                            <DropdownMenuItem 
+                              key={item.path} 
+                              onClick={() => navigate(item.path)}
+                              className="flex flex-col items-start"
+                            >
+                              <div className="flex items-center w-full">
+                                <item.icon className="w-4 h-4 mr-2" />
+                                <span>{item.label}</span>
+                              </div>
+                              {item.description && (
+                                <span className="text-xs text-muted-foreground ml-6">{item.description}</span>
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  </React.Fragment>
                 ))}
                 
                 {isAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                    <DropdownMenuLabel className="flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Administration
+                    </DropdownMenuLabel>
                     {ADMIN_NAV_ITEMS.slice(0, 3).map((item) => (
                       <DropdownMenuItem key={item.path} onClick={() => navigate(item.path)}>
                         <item.icon className="w-4 h-4 mr-2" />
@@ -133,12 +164,10 @@ export const MainNavigation: React.FC = () => {
 
           {/* Actions utilisateur */}
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
-            {/* Global Search - hidden on very small screens */}
             <div className="hidden md:block">
               <GlobalSearchBar />
             </div>
             
-            {/* Gamification stats for logged in users */}
             {user && gamificationStats && (
               <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
                 <Badge variant="outline" className="gap-1 py-0.5 sm:py-1 text-xs">
@@ -152,10 +181,8 @@ export const MainNavigation: React.FC = () => {
               </div>
             )}
             
-            {/* Toggle thème */}
             <ThemeToggle />
             
-            {/* Notifications */}
             <Button 
               variant="ghost" 
               size="sm" 
@@ -165,7 +192,6 @@ export const MainNavigation: React.FC = () => {
               <Bell className="w-4 h-4" />
             </Button>
 
-            {/* Profil utilisateur */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -176,26 +202,28 @@ export const MainNavigation: React.FC = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
-                    <User className="w-4 h-4 mr-2" />
-                    Mon Profil
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
-                    <Music className="w-4 h-4 mr-2" />
-                    Ma Bibliothèque
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngFavorites)}>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Mes Favoris
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Ma Progression
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.achievements)}>
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Mes Succès
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Mon Profil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
+                      <Music className="w-4 h-4 mr-2" />
+                      Ma Bibliothèque
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngFavorites)}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Mes Favoris
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.progressDashboard)}>
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Ma Progression
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.achievements)}>
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Mes Succès
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.settings)}>
                     <Settings className="w-4 h-4 mr-2" />
@@ -237,31 +265,32 @@ export const MainNavigation: React.FC = () => {
               size="sm"
               className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 p-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
           </div>
         </div>
 
-        {/* Menu mobile */}
+        {/* Menu mobile amélioré avec catégories */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-3 sm:py-4 border-t border-border/50 safe-area-bottom max-h-[70vh] overflow-y-auto">
-            <div className="flex flex-col space-y-1.5 sm:space-y-2">
+            <div className="flex flex-col space-y-1">
               {/* Mobile search */}
-              <div className="px-2 pb-2 sm:hidden">
+              <div className="px-2 pb-3 sm:hidden">
                 <GlobalSearchBar />
               </div>
               
               {/* Navigation principale */}
               <div className="px-2 pb-2">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Navigation</p>
+                <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide">Navigation</p>
               </div>
               {MAIN_NAV_ITEMS.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center px-3 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive(item.path)
                       ? 'bg-primary/10 text-primary'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
@@ -272,29 +301,41 @@ export const MainNavigation: React.FC = () => {
                 </Link>
               ))}
               
-              {/* Outils secondaires */}
-              <div className="px-2 pt-3 pb-2 border-t border-border/50">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Outils</p>
-              </div>
-              {SECONDARY_NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center px-3 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(item.path)
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                  }`}
-                >
-                  <item.icon className="w-4 h-4 mr-3" />
-                  {item.label}
-                </Link>
+              {/* Catégories secondaires */}
+              {SECONDARY_NAV_GROUPS.map((group) => (
+                <div key={group.id} className="pt-3">
+                  <div className="px-2 pb-2 border-t border-border/50 pt-3">
+                    <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide flex items-center gap-2">
+                      <group.icon className="w-3 h-3" />
+                      {group.label.replace(/^[^\s]+\s/, '')}
+                    </p>
+                  </div>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive(item.path)
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <item.icon className="w-4 h-4 mr-3" />
+                        {item.label}
+                      </div>
+                      {item.description && (
+                        <span className="text-xs text-muted-foreground/70">{item.description}</span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
               ))}
               
-              {/* Boutons de connexion pour mobile */}
+              {/* Connexion pour mobile */}
               {!user && (
-                <div className="flex flex-col space-y-1.5 sm:space-y-2 pt-3 sm:pt-4 border-t border-border/50">
+                <div className="flex flex-col space-y-2 pt-4 px-2 border-t border-border/50">
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -302,7 +343,7 @@ export const MainNavigation: React.FC = () => {
                       navigate(ROUTE_PATHS.medMngLogin);
                       setIsMobileMenuOpen(false);
                     }}
-                    className="justify-start h-10 sm:h-9"
+                    className="justify-start h-10"
                   >
                     Connexion
                   </Button>
@@ -312,7 +353,7 @@ export const MainNavigation: React.FC = () => {
                       navigate(ROUTE_PATHS.medMngSignup);
                       setIsMobileMenuOpen(false);
                     }}
-                    className="h-10 sm:h-9"
+                    className="h-10"
                   >
                     S'inscrire
                   </Button>
