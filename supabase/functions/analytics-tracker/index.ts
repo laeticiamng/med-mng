@@ -32,17 +32,19 @@ serve(async (req) => {
     };
 
     // Enregistrer dans user_activity_logs
+    const sessionId = properties?.sessionId || crypto.randomUUID();
+    
     const { error: logError } = await supabase
       .from('user_activity_logs')
       .insert({
-        user_id: userId,
-        session_id: properties.sessionId || crypto.randomUUID(),
+        user_id: userId || null,
+        session_id: sessionId,
         activity_type: event,
         activity_details: enrichedProperties,
-        ip_address: req.headers.get('x-forwarded-for') || 'unknown',
+        ip_address: (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim(),
         user_agent: req.headers.get('user-agent') || 'unknown',
-        url: properties.url || 'unknown',
-        performance_metrics: properties.performance || {}
+        url: properties?.url || 'unknown',
+        performance_metrics: properties?.performance || {}
       });
 
     if (logError) {
