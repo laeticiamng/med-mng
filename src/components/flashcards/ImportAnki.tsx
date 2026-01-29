@@ -57,19 +57,114 @@ export const ImportAnki = ({ deckId, onImportComplete }: ImportAnkiProps) => {
     setImportedCount(0);
 
     try {
-      // Note: Full .apkg parsing requires a library like ankiconnect or server-side processing
-      // For now, we'll show a message about the format
-      toast({
-        title: "Format .apkg détecté",
-        description: "L'import de fichiers Anki natifs nécessite un traitement côté serveur. Utilisez un export texte (.txt) pour l'instant.",
-      });
+      // Import JSZip dynamically
+      const JSZip = (await import('jszip')).default;
       
-      setProgress(100);
+      // Read the .apkg file (it's a zip archive)
+      const zip = await JSZip.loadAsync(file);
+      setProgress(10);
+      
+      // Look for the collection.anki2 SQLite database or media files
+      const files = Object.keys(zip.files);
+      
+      // Try to find and parse the collection data
+      // .apkg contains: collection.anki2 (SQLite), media (JSON), and media files
+      
+      // For now, try to extract from any text-based content
+      let extractedCards: AnkiCard[] = [];
+      
+      // Check for media JSON which maps media files
+      const mediaFile = zip.file('media');
+      if (mediaFile) {
+        const mediaContent = await mediaFile.async('text');
+        console.log('Media mapping found:', mediaContent.substring(0, 200));
+      }
+      
+      setProgress(30);
+      
+      // Try to find any readable content
+      // Some .apkg exports include readable formats
+      for (const fileName of files) {
+        if (fileName.endsWith('.txt') || fileName.endsWith('.csv')) {
+          const content = await zip.file(fileName)?.async('text');
+          if (content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            for (const line of lines) {
+              const parts = line.includes('\t') ? line.split('\t') : line.split(';');
+              if (parts.length >= 2) {
+                extractedCards.push({
+                  front: parts[0].trim(),
+                  back: parts[1].trim(),
+                  tags: parts[2]?.split(',').map(t => t.trim()) || []
+                });
+              }
+            }
+          }
+        }
+      }
+      
+      setProgress(50);
+      
+      // If no direct text found, provide guidance
+      if (extractedCards.length === 0) {
+        toast({
+          title: "Format .apkg complexe",
+          description: "Ce fichier utilise le format SQLite d'Anki. Exportez vos cartes en format texte depuis Anki (Fichier > Exporter > Notes en texte brut) pour un import complet.",
+          variant: "default"
+        });
+        
+        // Show what was found in the archive
+        toast({
+          title: `Archive analysée`,
+          description: `${files.length} fichiers trouvés dans l'archive. Formats détectés: ${files.slice(0, 3).join(', ')}...`,
+        });
+        
+        setProgress(100);
+        setIsImporting(false);
+        return;
+      }
+      
+      // Import extracted cards
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
+      let imported = 0;
+      const batchSize = 10;
+      
+      for (let i = 0; i < extractedCards.length; i += batchSize) {
+        const batch = extractedCards.slice(i, i + batchSize);
+        
+        const cardsToInsert = batch.map(card => ({
+          deck_id: deckId,
+          front_content: card.front,
+          back_content: card.back,
+          tags: card.tags
+        }));
+
+        const { error: insertError } = await supabase
+          .from('flashcards')
+          .insert(cardsToInsert);
+
+        if (!insertError) {
+          imported += batch.length;
+        }
+
+        setProgress(50 + Math.round(((i + batch.length) / extractedCards.length) * 50));
+        setImportedCount(imported);
+      }
+
+      toast({
+        title: "Import terminé",
+        description: `${imported} cartes importées depuis l'archive Anki`,
+      });
+
+      onImportComplete();
     } catch (err: any) {
+      console.error('APKG import error:', err);
       setError(err.message || "Erreur lors de l'import");
       toast({
         title: "Erreur d'import",
-        description: err.message,
+        description: "Impossible de lire le fichier .apkg. Essayez un export texte depuis Anki.",
         variant: "destructive"
       });
     } finally {
