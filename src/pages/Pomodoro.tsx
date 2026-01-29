@@ -1,13 +1,17 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   BarChart3,
   BookOpen, 
   Coffee, 
+  Edit2,
   Flame, 
   Pause, 
   Play, 
@@ -18,6 +22,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 
 const PRESETS = {
@@ -28,15 +33,30 @@ const PRESETS = {
 
 const Pomodoro = () => {
   const { sessions, logSession, todayWorkSessions, todayMinutes } = usePomodoroSessions();
+  const { stats, loadStats } = useGamification();
   const [preset, setPreset] = useState<'classic' | 'extended' | 'short'>('classic');
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<'work' | 'short_break' | 'long_break'>('work');
   const [timeLeft, setTimeLeft] = useState(PRESETS.classic.work * 60);
   const [completedSessions, setCompletedSessions] = useState(0);
   const [taskName, setTaskName] = useState('Étude EDN');
+  const [isEditingTask, setIsEditingTask] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const settings = PRESETS[preset];
+
+  // Charger le streak dynamiquement
+  useEffect(() => {
+    const loadUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+      }
+    };
+    loadUserStats();
+  }, [loadStats]);
+
+  const streak = stats?.currentStreak || 0;
 
   const playNotification = useCallback(() => {
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -134,17 +154,30 @@ const Pomodoro = () => {
   const progress = ((getSessionDuration() - timeLeft) / getSessionDuration()) * 100;
 
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <Timer className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Pomodoro</h1>
+    <>
+      <Helmet>
+        <title>Pomodoro Timer | MED-MNG</title>
+        <meta name="description" content="Améliorez votre productivité avec la technique Pomodoro. Sessions de travail focalisé et pauses optimisées pour les étudiants en médecine." />
+        <meta name="keywords" content="pomodoro, productivité, timer, étude, concentration, médecine" />
+        <link rel="canonical" href="/pomodoro" />
+      </Helmet>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        {/* Header avec streak dynamique */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Timer className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Pomodoro</h1>
+            {streak > 0 && (
+              <Badge variant="outline" className="gap-1 ml-2">
+                <Flame className="h-3 w-3 text-orange-500" />
+                {streak} jours
+              </Badge>
+            )}
+          </div>
+          <p className="text-muted-foreground">
+            Technique de productivité par sessions de travail focalisé
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          Technique de productivité par sessions de travail focalisé
-        </p>
-      </div>
 
       {/* Main Timer */}
       <Card className={`max-w-md mx-auto overflow-hidden ${
@@ -351,6 +384,7 @@ const Pomodoro = () => {
         </Card>
       )}
     </div>
+    </>
   );
 };
 
