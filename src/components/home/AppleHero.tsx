@@ -27,7 +27,7 @@ export const AppleHero = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
 
   return (
-    <div ref={containerRef} className="relative min-h-[100vh] flex flex-col items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative min-h-[85vh] flex flex-col items-center justify-center overflow-hidden pt-8 md:pt-0">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10" />
       
