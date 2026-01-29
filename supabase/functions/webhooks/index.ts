@@ -66,11 +66,15 @@ serve(async (req) => {
       
       default:
         // Log unknown webhooks for debugging
-        await supabase.from('webhook_logs').insert({
-          webhook_type: action,
-          payload: parsedBody,
-          received_at: new Date().toISOString()
-        }).catch(() => {});
+        try {
+          await supabase.from('webhook_logs').insert({
+            webhook_type: action,
+            payload: parsedBody,
+            received_at: new Date().toISOString()
+          });
+        } catch (e) {
+          console.log('Webhook log skipped:', e.message);
+        }
 
         return new Response(JSON.stringify({ 
           received: true, 
