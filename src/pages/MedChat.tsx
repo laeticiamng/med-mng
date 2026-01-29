@@ -46,6 +46,7 @@ interface Message {
   timestamp: Date;
   courseCitations?: string[];
   isTyping?: boolean;
+  feedback?: 'positive' | 'negative' | null;
 }
 
 const quickSuggestions = [
@@ -212,6 +213,34 @@ Tu n'as pas besoin de tout chercher toi-même.`,
     toast({
       title: "✅ Copié",
       description: "Le message a été copié dans le presse-papiers",
+    });
+  };
+
+  const handleFeedback = async (messageId: string, type: 'positive' | 'negative') => {
+    // Update local state
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, feedback: type } : msg
+    ));
+
+    // Log feedback to database
+    if (user) {
+      try {
+        await supabase.from('ai_chat_feedback' as any).insert({
+          user_id: user.id,
+          message_id: messageId,
+          feedback_type: type,
+          created_at: new Date().toISOString()
+        });
+      } catch (error) {
+        console.debug('Feedback table may not exist yet');
+      }
+    }
+
+    toast({
+      title: type === 'positive' ? "👍 Merci !" : "👎 Noté",
+      description: type === 'positive' 
+        ? "Votre retour positif a été enregistré" 
+        : "Nous améliorerons nos réponses",
     });
   };
 
@@ -406,10 +435,22 @@ Tu n'as pas besoin de tout chercher toi-même.`,
                                     >
                                       <Copy className="h-3 w-3" />
                                     </Button>
-                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-success/10">
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className={`h-6 w-6 p-0 ${message.feedback === 'positive' ? 'bg-success/20 text-success' : 'hover:bg-success/10'}`}
+                                      onClick={() => handleFeedback(message.id, 'positive')}
+                                      disabled={message.feedback !== undefined}
+                                    >
                                       <ThumbsUp className="h-3 w-3" />
                                     </Button>
-                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-destructive/10">
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className={`h-6 w-6 p-0 ${message.feedback === 'negative' ? 'bg-destructive/20 text-destructive' : 'hover:bg-destructive/10'}`}
+                                      onClick={() => handleFeedback(message.id, 'negative')}
+                                      disabled={message.feedback !== undefined}
+                                    >
                                       <ThumbsDown className="h-3 w-3" />
                                     </Button>
                                   </div>
