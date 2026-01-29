@@ -10,6 +10,7 @@ export { CancelGenerationButton } from './CancelGenerationButton';
 export { CompactHistoryItem } from './CompactHistoryItem';
 export { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 export { ContentTypeSelector } from './ContentTypeSelector';
+export { CustomModeCreator } from './CustomModeCreator';
 export { EcosLyricsStatusDisplay } from './EcosLyricsStatusDisplay';
 export { EcosSelector } from './EcosSelector';
 export { EdnItemSelector } from './EdnItemSelector';
