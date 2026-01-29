@@ -1,7 +1,10 @@
+import { AnimatedProgressRing } from '@/components/ui/animated-progress-ring';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfettiExplosion } from '@/components/ui/confetti-explosion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { FlipCard } from '@/components/ui/flip-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +16,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 import {
     BarChart3,
     BookOpen,
@@ -221,70 +225,102 @@ export default function Flashcards() {
           </div>
         </div>
 
-        {/* Review Mode */}
+        {/* Review Mode - Amélioré avec FlipCard */}
         {reviewMode && currentCard && (
           <div className="space-y-6">
+            {/* Confetti pour les bonnes réponses */}
+            <ConfettiExplosion 
+              trigger={reviewStats.correct > 0 && reviewStats.correct === cards.length} 
+              type="gold" 
+            />
+
             <div className="flex items-center justify-between">
               <Button variant="ghost" onClick={() => setReviewMode(false)}>
                 <XCircle className="h-4 w-4 mr-2" />
                 Quitter
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <Badge variant="outline" className="gap-2">
+                <Sparkles className="h-3 w-3" />
                 {currentCardIndex + 1} / {cards.length}
-              </span>
+              </Badge>
             </div>
             
             <Progress value={((currentCardIndex + 1) / cards.length) * 100} className="h-2" />
 
-            <Card className="min-h-[300px] flex flex-col">
-              <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
-                {!showAnswer ? (
-                  <>
-                    <p className="text-xl text-center mb-8">{currentCard.front}</p>
-                    <Button onClick={() => setShowAnswer(true)} className="gap-2">
-                      <Eye className="h-4 w-4" />
-                      Voir la réponse
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-muted-foreground mb-2">Question:</p>
-                    <p className="text-center mb-4">{currentCard.front}</p>
-                    <div className="w-full h-px bg-border my-4" />
-                    <p className="text-sm text-muted-foreground mb-2">Réponse:</p>
-                    <p className="text-xl text-center font-medium mb-8">{currentCard.back}</p>
-                    
-                    <div className="flex gap-4">
+            {/* FlipCard animée */}
+            <motion.div
+              key={currentCardIndex}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FlipCard
+                isFlipped={showAnswer}
+                onFlip={(flipped) => setShowAnswer(flipped)}
+                className="min-h-[350px] w-full cursor-pointer"
+                front={
+                  <Card className="min-h-[350px] flex flex-col bg-gradient-to-br from-warning/5 to-primary/5 border-warning/20">
+                    <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
+                      <Badge variant="secondary" className="mb-4">Question</Badge>
+                      <p className="text-xl text-center font-medium">{currentCard.front}</p>
                       <Button 
-                        variant="destructive" 
-                        onClick={() => handleReviewAnswer(false)}
-                        className="gap-2"
+                        onClick={(e) => { e.stopPropagation(); setShowAnswer(true); }} 
+                        className="gap-2 mt-8"
+                        variant="outline"
                       >
-                        <XCircle className="h-4 w-4" />
-                        Incorrect
+                        <Eye className="h-4 w-4" />
+                        Voir la réponse
                       </Button>
-                      <Button 
-                        onClick={() => handleReviewAnswer(true)}
-                        className="gap-2 bg-success hover:bg-success/90"
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        Correct
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                }
+                back={
+                  <Card className="min-h-[350px] flex flex-col bg-gradient-to-br from-success/5 to-accent/5 border-success/20">
+                    <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
+                      <Badge variant="secondary" className="mb-2 bg-success/10 text-success">Réponse</Badge>
+                      <p className="text-xl text-center font-bold mb-8">{currentCard.back}</p>
+                      
+                      <div className="flex gap-4" onClick={(e) => e.stopPropagation()}>
+                        <Button 
+                          variant="destructive" 
+                          onClick={() => handleReviewAnswer(false)}
+                          className="gap-2"
+                          size="lg"
+                        >
+                          <XCircle className="h-5 w-5" />
+                          Incorrect
+                        </Button>
+                        <Button 
+                          onClick={() => handleReviewAnswer(true)}
+                          className="gap-2 bg-success hover:bg-success/90"
+                          size="lg"
+                        >
+                          <CheckCircle className="h-5 w-5" />
+                          Correct
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                }
+              />
+            </motion.div>
 
-            <div className="flex justify-center gap-4 text-sm">
-              <span className="flex items-center gap-1 text-success">
-                <CheckCircle className="h-4 w-4" />
-                {reviewStats.correct}
-              </span>
-              <span className="flex items-center gap-1 text-destructive">
-                <XCircle className="h-4 w-4" />
-                {reviewStats.incorrect}
-              </span>
+            {/* Score stats améliorés */}
+            <div className="flex justify-center gap-6 text-sm">
+              <motion.div 
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-success/10"
+                animate={{ scale: reviewStats.correct > 0 ? [1, 1.1, 1] : 1 }}
+              >
+                <CheckCircle className="h-5 w-5 text-success" />
+                <span className="font-bold text-success">{reviewStats.correct}</span>
+              </motion.div>
+              <motion.div 
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10"
+                animate={{ scale: reviewStats.incorrect > 0 ? [1, 1.1, 1] : 1 }}
+              >
+                <XCircle className="h-5 w-5 text-destructive" />
+                <span className="font-bold text-destructive">{reviewStats.incorrect}</span>
+              </motion.div>
             </div>
           </div>
         )}

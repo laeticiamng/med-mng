@@ -1,6 +1,9 @@
+import { QuizResultsCard } from '@/components/quiz/QuizResultsCard';
+import { AnimatedProgressRing } from '@/components/ui/animated-progress-ring';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfettiExplosion } from '@/components/ui/confetti-explosion';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +14,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ExamQuestion, ExamSession, useExamMode } from '@/hooks/useExamMode';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 import {
     AlertTriangle,
     Award, BarChart3, Brain,
@@ -439,8 +443,11 @@ export default function ExamMode() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {currentQuestion.options.map((option, index) => (
-                      <button
+                      <motion.button
                         key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
                         onClick={() => handleSelectAnswer(index)}
                         disabled={showResult}
                         className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
@@ -451,23 +458,42 @@ export default function ExamMode() {
                                 ? 'border-destructive bg-destructive/10'
                                 : 'border-muted'
                             : selectedAnswer === index
-                              ? 'border-primary bg-primary/10'
-                              : 'border-muted hover:border-primary/50'
+                              ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                              : 'border-muted hover:border-primary/50 hover:bg-muted/30'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-medium">
+                          <motion.span 
+                            className={`w-8 h-8 rounded-full flex items-center justify-center font-medium ${
+                              selectedAnswer === index 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'bg-muted'
+                            }`}
+                            animate={selectedAnswer === index ? { scale: [1, 1.1, 1] } : {}}
+                          >
                             {String.fromCharCode(65 + index)}
-                          </span>
+                          </motion.span>
                           <span className="flex-1">{option}</span>
                           {showResult && isCorrectAnswer(index) && (
-                            <CheckCircle className="h-5 w-5 text-success" />
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 200 }}
+                            >
+                              <CheckCircle className="h-5 w-5 text-success" />
+                            </motion.div>
                           )}
                           {showResult && selectedAnswer === index && !isCorrectAnswer(index) && (
-                            <XCircle className="h-5 w-5 text-destructive" />
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 200 }}
+                            >
+                              <XCircle className="h-5 w-5 text-destructive" />
+                            </motion.div>
                           )}
                         </div>
-                      </button>
+                      </motion.button>
                     ))}
 
                     {/* Explanation */}
@@ -498,52 +524,15 @@ export default function ExamMode() {
               </div>
             )}
 
-            {/* Exam completed */}
+            {/* Exam completed - Avec animations améliorées */}
             {currentSession?.completed_at && (
-              <Card className="text-center">
-                <CardContent className="p-12">
-                  {(currentSession.score ?? 0) >= 70 ? (
-                    <Trophy className="h-20 w-20 mx-auto mb-6 text-success" />
-                  ) : (currentSession.score ?? 0) >= 50 ? (
-                    <Target className="h-20 w-20 mx-auto mb-6 text-warning" />
-                  ) : (
-                    <AlertTriangle className="h-20 w-20 mx-auto mb-6 text-destructive" />
-                  )}
-                  
-                  <h2 className="text-3xl font-bold mb-2">
-                    {currentSession.score}%
-                  </h2>
-                  <p className="text-muted-foreground mb-8">
-                    {getAnswerStatus(currentSession).correct} / {getAnswerStatus(currentSession).total} réponses correctes
-                  </p>
-
-                  {/* Results breakdown */}
-                  <div className="grid grid-cols-2 gap-4 mb-8 max-w-md mx-auto">
-                    <div className="bg-success/10 rounded-lg p-4">
-                      <CheckCircle className="h-6 w-6 mx-auto mb-2 text-success" />
-                      <p className="text-2xl font-bold text-success">{getAnswerStatus(currentSession).correct}</p>
-                      <p className="text-sm text-muted-foreground">Correctes</p>
-                    </div>
-                    <div className="bg-destructive/10 rounded-lg p-4">
-                      <XCircle className="h-6 w-6 mx-auto mb-2 text-destructive" />
-                      <p className="text-2xl font-bold text-destructive">
-                        {getAnswerStatus(currentSession).total - getAnswerStatus(currentSession).correct}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Incorrectes</p>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center gap-4">
-                    <Button variant="outline" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
-                      Retour aux items
-                    </Button>
-                    <Button onClick={handleNewExam} className="gap-2">
-                      <RotateCcw className="h-4 w-4" />
-                      Nouvel examen
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuizResultsCard
+                score={currentSession.score ?? 0}
+                totalQuestions={getAnswerStatus(currentSession).total}
+                correctAnswers={getAnswerStatus(currentSession).correct}
+                onRestart={handleNewExam}
+                onViewStats={() => setActiveTab('stats')}
+              />
             )}
           </TabsContent>
 

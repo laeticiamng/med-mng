@@ -1,11 +1,11 @@
 # 🧪 AUDIT TESTS COMPLET - MED-MNG
 
 **Date:** 2026-01-29  
-**Méthode:** Tests manuels browser automation E2E
+**Méthode:** Tests E2E + Améliorations UX
 
 ---
 
-## 📊 ÉVALUATIONS PAR PAGE
+## 📊 ÉVALUATIONS PAR PAGE (APRÈS AMÉLIORATION)
 
 | Page | Utilité /20 | UX/Ergonomie /20 | Statut |
 |------|-------------|------------------|--------|
