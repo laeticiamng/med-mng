@@ -47,8 +47,9 @@ export const useExamMode = () => {
     count: number = 20
   ): Promise<ExamQuestion[]> => {
     try {
+      // Use edn_items_complete which is properly typed (not edn_items_immersive)
       const { data: items } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .in('item_code', itemCodes)
         .limit(count);
@@ -103,8 +104,9 @@ export const useExamMode = () => {
     setLoading(true);
     try {
       // Get random items for the exam
+      // Use edn_items_complete for typed queries
       const { data: allItems } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code')
         .limit(100);
 
