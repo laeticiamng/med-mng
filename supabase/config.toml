@@ -39,6 +39,29 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
+# ============================================================================
+# NOUVELLES FONCTIONS ROUTEURS (regroupées)
+# ============================================================================
+
+[functions.ai-audio]
+verify_jwt = false
+
+[functions.ai-core]
+verify_jwt = false
+
+[functions.ai-content]
+verify_jwt = false
+
+[functions.system]
+verify_jwt = false
+
+[functions.webhooks]
+verify_jwt = false
+
+# ============================================================================
+# FONCTIONS LEGACY (conservées pour transition - à supprimer progressivement)
+# ============================================================================
+
 [functions.generate-music]
 verify_jwt = true
 
@@ -48,25 +71,7 @@ verify_jwt = false
 [functions.music-metrics]
 verify_jwt = false
 
-[functions.compare-official-content]
-verify_jwt = false
-
-[functions.extract-edn-uness-auth]
-verify_jwt = false
-
-[functions.test-edn-extraction]
-verify_jwt = false
-
-[functions.debug-uness-auth]
-verify_jwt = false
-
-[functions.extract-edn-uness-production]
-verify_jwt = false
-
-[functions.test-login]
-verify_jwt = false
-
-[functions.test-cas-simple]
+[functions.suno-callback]
 verify_jwt = false
 
 [functions.openai-chat]
@@ -78,131 +83,41 @@ verify_jwt = true
 [functions.medical-chat-ai]
 verify_jwt = true
 
-[functions.audit-edn-completeness]
-verify_jwt = true
-
-[functions.complete-missing-competences]
-verify_jwt = true
-
-[functions.cancel-ia-task]
-verify_jwt = true
-
-[functions.edn-fix]
-verify_jwt = true
-
-[functions.extraction-monitoring]
-verify_jwt = true
-
 [functions.ia-quota]
 verify_jwt = true
 
-[functions.ecos-enrich-ai]
-verify_jwt = true
-
-[functions.extract-ecos-uness]
+[functions.chat-with-ai]
 verify_jwt = false
 
-[functions.med-mng-api]
+[functions.generate-comic-images]
 verify_jwt = false
 
-[functions.secure-audio-stream]
-verify_jwt = false
-
-[functions.music-generation-secure]
+[functions.generate-voice]
 verify_jwt = true
 
-[functions.playlist-manager]
-verify_jwt = true
-
-[functions.contextual-ai-chat]
-verify_jwt = true
-
-[functions.lyrics-sync-manager]
-verify_jwt = false
-
-[functions.spotify-medical-docs]
-verify_jwt = false
-
-[functions.qcm-generator]
-verify_jwt = true
-
-[functions.content-ai-generator]
-verify_jwt = true
-
-[functions.ai-recommendations]
-verify_jwt = true
-
-[functions.suno-callback]
-verify_jwt = false
-
-[functions.transform-edn-sections]
-verify_jwt = false
-
-[functions.generate-missing-content]
-verify_jwt = false
-
-[functions.regenerate-all-oic-content]
-verify_jwt = false
-
-[functions.sync-edn-tables]
-verify_jwt = true
-
-[functions.check-item-competences]
-verify_jwt = true
-
-[functions.regenerate-oic-with-ai-check]
-verify_jwt = true
-
-[functions.check-recommendation-alerts]
-verify_jwt = true
-
-[functions.generate-recommendations]
-verify_jwt = true
-
-[functions.check-performance-degradation]
-verify_jwt = true
-
-[functions.get-rls-policies]
-verify_jwt = true
-
-[functions.security-metrics]
-verify_jwt = true
-
-[functions.send-security-alert]
-verify_jwt = true
-
-[functions.generate-security-report]
-verify_jwt = true
-
-[functions.send-scheduled-reports]
-verify_jwt = true
-
-[functions.unified-alerts]
-verify_jwt = true
-
-[functions.generate-clinical-case]
+[functions.generate-content]
 verify_jwt = false
 
 [functions.generate-qcm]
 verify_jwt = false
 
-[functions.generate-lyrics-from-oic]
+[functions.generate-clinical-case]
 verify_jwt = false
 
-[functions.generate-bd-roman-content]
+[functions.stripe-webhook]
 verify_jwt = false
 
-[functions.suno-audio-processing]
+[functions.auth-webhook]
 verify_jwt = false
 
-[functions.suno-credits]
+[functions.resend-webhook]
 verify_jwt = false
 
-[functions.suno-extend-music]
+[functions.med-mng-api]
+verify_jwt = false
+
+[functions.unified-alerts]
 verify_jwt = true
 
-[functions.suno-generate-lyrics]
-verify_jwt = true
-
-[functions.suno-upload-cover]
+[functions.monitoring-alerts]
 verify_jwt = true
