@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
 import { 
   BarChart3,
   BookOpen, 
@@ -19,14 +20,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-interface PomodoroSession {
-  id: string;
-  session_type: 'work' | 'short_break' | 'long_break';
-  duration_minutes: number;
-  task_name: string;
-  created_at: string;
-}
-
 const PRESETS = {
   classic: { work: 25, shortBreak: 5, longBreak: 15, sessionsBeforeLong: 4 },
   extended: { work: 50, shortBreak: 10, longBreak: 30, sessionsBeforeLong: 2 },
@@ -34,13 +27,13 @@ const PRESETS = {
 };
 
 const Pomodoro = () => {
+  const { sessions, logSession, todayWorkSessions, todayMinutes } = usePomodoroSessions();
   const [preset, setPreset] = useState<'classic' | 'extended' | 'short'>('classic');
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<'work' | 'short_break' | 'long_break'>('work');
   const [timeLeft, setTimeLeft] = useState(PRESETS.classic.work * 60);
   const [completedSessions, setCompletedSessions] = useState(0);
-  const [taskName] = useState('Étude EDN');
-  const [todaySessions, setTodaySessions] = useState<PomodoroSession[]>([]);
+  const [taskName, setTaskName] = useState('Étude EDN');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const settings = PRESETS[preset];
@@ -59,14 +52,14 @@ const Pomodoro = () => {
     playNotification();
     
     if (sessionType === 'work') {
-      const newSession: PomodoroSession = {
-        id: Date.now().toString(),
+      // Log la session au backend
+      logSession({
         session_type: 'work',
         duration_minutes: settings.work,
         task_name: taskName,
-        created_at: new Date().toISOString(),
-      };
-      setTodaySessions(prev => [newSession, ...prev]);
+        preset,
+        completed: true,
+      });
       
       const newCompleted = completedSessions + 1;
       setCompletedSessions(newCompleted);
@@ -84,7 +77,7 @@ const Pomodoro = () => {
     }
     
     setIsRunning(false);
-  }, [sessionType, completedSessions, settings, playNotification, taskName]);
+  }, [sessionType, completedSessions, settings, playNotification, taskName, preset, logSession]);
 
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
@@ -132,19 +125,13 @@ const Pomodoro = () => {
 
   const getSessionDuration = () => {
     switch (sessionType) {
-      case 'work':
-        return settings.work * 60;
-      case 'short_break':
-        return settings.shortBreak * 60;
-      case 'long_break':
-        return settings.longBreak * 60;
+      case 'work': return settings.work * 60;
+      case 'short_break': return settings.shortBreak * 60;
+      case 'long_break': return settings.longBreak * 60;
     }
   };
 
   const progress = ((getSessionDuration() - timeLeft) / getSessionDuration()) * 100;
-
-  const todayWorkSessions = todaySessions.filter(s => s.session_type === 'work').length;
-  const todayMinutes = todaySessions.reduce((acc, s) => acc + s.duration_minutes, 0);
 
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
@@ -334,14 +321,14 @@ const Pomodoro = () => {
       </div>
 
       {/* Today's Sessions */}
-      {todaySessions.length > 0 && (
+      {sessions.length > 0 && (
         <Card className="max-w-md mx-auto">
           <CardHeader>
             <CardTitle className="text-lg">Sessions du jour</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {todaySessions.slice(0, 5).map((session) => (
+              {sessions.slice(0, 5).map((session) => (
                 <div 
                   key={session.id}
                   className="flex items-center justify-between p-2 rounded bg-muted/50"
