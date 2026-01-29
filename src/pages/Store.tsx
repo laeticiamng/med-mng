@@ -13,6 +13,7 @@ import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export default function Store() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -176,12 +177,18 @@ export default function Store() {
                 >
                   <Link to={`/product/${product.node.handle}`}>
                     <div className="h-64 bg-muted overflow-hidden">
-                      {image && (
-                        <img 
+                      {image ? (
+                        <OptimizedImage 
                           src={image.url} 
                           alt={image.altText || product.node.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="w-full h-full"
+                          placeholderClassName="object-cover group-hover:scale-110 transition-transform duration-300"
                         />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Package className="h-12 w-12 text-muted-foreground/50" />
+                        </div>
                       )}
                     </div>
                   </Link>

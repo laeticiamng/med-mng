@@ -11,6 +11,7 @@ import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export default function ProductDetail() {
   const { handle } = useParams<{ handle: string }>();
@@ -125,12 +126,18 @@ export default function ProductDetail() {
           <div className="space-y-4">
             <PremiumCard variant="elevated" className="overflow-hidden">
               <div className="aspect-square bg-muted">
-                {product.node.images.edges[0]?.node && (
-                  <img
+                {product.node.images.edges[0]?.node ? (
+                  <OptimizedImage
                     src={product.node.images.edges[0].node.url}
                     alt={product.node.images.edges[0].node.altText || product.node.title}
-                    className="w-full h-full object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="w-full h-full"
+                    placeholderClassName="object-cover"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="h-16 w-16 text-muted-foreground/50" />
+                  </div>
                 )}
               </div>
             </PremiumCard>
@@ -140,10 +147,13 @@ export default function ProductDetail() {
                 {product.node.images.edges.slice(1, 5).map((image, idx) => (
                   <PremiumCard key={idx} variant="elevated" className="overflow-hidden">
                     <div className="aspect-square bg-muted">
-                      <img
+                      <OptimizedImage
                         src={image.node.url}
                         alt={image.node.altText || `${product.node.title} ${idx + 2}`}
-                        className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 25vw, 12vw"
+                        responsiveWidths={[150, 300, 450]}
+                        className="w-full h-full"
+                        placeholderClassName="object-cover"
                       />
                     </div>
                   </PremiumCard>
