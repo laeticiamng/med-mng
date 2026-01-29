@@ -281,3 +281,4 @@ export { useStudyGroups } from './useStudyGroups';
 export { useAnkiImport } from './useAnkiImport';
 export { useCalendarSync } from './useCalendarSync';
 export { useDiagnosticLogs } from './useDiagnosticLogs';
+export { useVoiceChat } from './useVoiceChat';
