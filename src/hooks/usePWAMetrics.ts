@@ -146,7 +146,7 @@ export const usePWAMetrics = () => {
     };
   }, [metrics.sessionStart]);
 
-  // Fonction pour envoyer les métriques à Supabase
+  // Fonction pour envoyer les métriques à Supabase via UPSERT to avoid duplicate key errors
   const sendMetricUpdate = async (data: any, _immediate = false) => {
     try {
       // Skip if offline or no session ID yet
@@ -175,15 +175,18 @@ export const usePWAMetrics = () => {
         install_date: data.install_date as string | undefined,
       };
 
-      // Envoyer les métriques via INSERT (cast as any pour éviter les erreurs de type générées)
+      // Use UPSERT (insert with ON CONFLICT DO UPDATE) to avoid duplicate key errors
       try {
-        const { error } = await supabase.from('pwa_metrics').insert(metricPayload as any);
-        if (error) {
-          console.debug('PWA metrics insert error:', error.message);
+        const { error } = await supabase.from('pwa_metrics').upsert(
+          metricPayload as any,
+          { onConflict: 'session_id', ignoreDuplicates: false }
+        );
+        if (error && !error.message.includes('duplicate')) {
+          console.debug('PWA metrics upsert error:', error.message);
         }
       } catch (err) {
         // Silencieux pour ne pas bloquer l'app
-        console.debug('PWA metrics insert failed:', err);
+        console.debug('PWA metrics upsert failed:', err);
       }
     } catch (error) {
       // Silencieux pour ne pas perturber l'expérience utilisateur
