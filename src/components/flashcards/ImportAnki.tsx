@@ -1,0 +1,225 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Upload, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+
+interface AnkiCard {
+  front: string;
+  back: string;
+  tags?: string[];
+}
+
+interface ImportAnkiProps {
+  deckId: string;
+  onImportComplete: () => void;
+}
+
+export const ImportAnki = ({ deckId, onImportComplete }: ImportAnkiProps) => {
+  const [isImporting, setIsImporting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [importedCount, setImportedCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file extension
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (extension === 'apkg') {
+      await handleApkgImport(file);
+    } else if (extension === 'txt' || extension === 'csv') {
+      await handleTextImport(file);
+    } else {
+      toast({
+        title: "Format non supporté",
+        description: "Utilisez un fichier .apkg, .txt ou .csv",
+        variant: "destructive"
+      });
+    }
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleApkgImport = async (file: File) => {
+    setIsImporting(true);
+    setProgress(0);
+    setError(null);
+    setImportedCount(0);
+
+    try {
+      // Note: Full .apkg parsing requires a library like ankiconnect or server-side processing
+      // For now, we'll show a message about the format
+      toast({
+        title: "Format .apkg détecté",
+        description: "L'import de fichiers Anki natifs nécessite un traitement côté serveur. Utilisez un export texte (.txt) pour l'instant.",
+      });
+      
+      setProgress(100);
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de l'import");
+      toast({
+        title: "Erreur d'import",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleTextImport = async (file: File) => {
+    setIsImporting(true);
+    setProgress(0);
+    setError(null);
+    setImportedCount(0);
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      const cards: AnkiCard[] = [];
+      
+      for (const line of lines) {
+        // Support tab-separated or semicolon-separated format
+        const parts = line.includes('\t') 
+          ? line.split('\t') 
+          : line.split(';');
+        
+        if (parts.length >= 2) {
+          cards.push({
+            front: parts[0].trim(),
+            back: parts[1].trim(),
+            tags: parts[2]?.split(',').map(t => t.trim()) || []
+          });
+        }
+      }
+
+      if (cards.length === 0) {
+        throw new Error("Aucune carte trouvée dans le fichier");
+      }
+
+      // Import cards to database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
+      let imported = 0;
+      const batchSize = 10;
+      
+      for (let i = 0; i < cards.length; i += batchSize) {
+        const batch = cards.slice(i, i + batchSize);
+        
+        // Use correct column names from schema: front_content and back_content
+        const cardsToInsert = batch.map(card => ({
+          deck_id: deckId,
+          front_content: card.front,
+          back_content: card.back,
+          tags: card.tags
+        }));
+
+        const { error: insertError } = await supabase
+          .from('flashcards')
+          .insert(cardsToInsert);
+
+        if (insertError) {
+          console.error('Batch insert error:', insertError);
+          // Continue with other batches
+        } else {
+          imported += batch.length;
+        }
+
+        setProgress(Math.round(((i + batch.length) / cards.length) * 100));
+        setImportedCount(imported);
+      }
+
+      toast({
+        title: "Import terminé",
+        description: `${imported} cartes importées sur ${cards.length}`,
+      });
+
+      onImportComplete();
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de l'import");
+      toast({
+        title: "Erreur d'import",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  return (
+    <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Upload className="h-5 w-5" />
+          Importer depuis Anki
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Importez vos flashcards depuis un fichier Anki (.apkg) ou texte (.txt, .csv).
+          Format texte : une carte par ligne, question et réponse séparées par une tabulation ou un point-virgule.
+        </p>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept=".apkg,.txt,.csv"
+          className="hidden"
+        />
+
+        {isImporting ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Import en cours...</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              {importedCount} cartes importées
+            </p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        ) : importedCount > 0 ? (
+          <div className="flex items-center gap-2 text-success">
+            <CheckCircle className="h-4 w-4" />
+            <span className="text-sm">{importedCount} cartes importées</span>
+          </div>
+        ) : null}
+
+        <Button 
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isImporting}
+          className="w-full gap-2"
+          variant="outline"
+        >
+          <FileText className="h-4 w-4" />
+          Sélectionner un fichier
+        </Button>
+
+        <p className="text-xs text-muted-foreground text-center">
+          Formats supportés : .txt, .csv (tab ou ; séparateur)
+        </p>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ImportAnki;
