@@ -81,22 +81,43 @@ export default function ExamMode() {
     checkAuth();
   }, [navigate, toast, getStats, loadGamificationStats]);
 
-  // Timer for standard exam
+  // Timer for exam with localStorage persistence
   useEffect(() => {
     const activeSession = examMode === 'ai' ? aiSession : currentSession;
-    if (!activeSession) return;
+    if (!activeSession) {
+      // Clear persisted timer if no active session
+      localStorage.removeItem('examMode_endTime');
+      return;
+    }
     
     const timeLimit = examMode === 'ai' ? aiSession?.timeLimitMinutes : currentSession?.time_limit_minutes;
     if (!timeLimit) return;
     
-    const startTime = new Date(examMode === 'ai' ? aiSession!.startedAt : currentSession!.started_at).getTime();
-    const endTime = startTime + (timeLimit * 60 * 1000);
+    // Check if we have a persisted end time
+    const persistedEndTime = localStorage.getItem('examMode_endTime');
+    const sessionId = examMode === 'ai' ? aiSession?.id : currentSession?.id;
+    const persistedSessionId = localStorage.getItem('examMode_sessionId');
+    
+    let endTime: number;
+    if (persistedEndTime && persistedSessionId === sessionId) {
+      // Use persisted end time (survives page refresh)
+      endTime = parseInt(persistedEndTime, 10);
+    } else {
+      // Calculate new end time
+      const startTime = new Date(examMode === 'ai' ? aiSession!.startedAt : currentSession!.started_at).getTime();
+      endTime = startTime + (timeLimit * 60 * 1000);
+      // Persist to localStorage
+      localStorage.setItem('examMode_endTime', endTime.toString());
+      localStorage.setItem('examMode_sessionId', sessionId || '');
+    }
     
     const interval = setInterval(() => {
       const remaining = Math.max(0, endTime - Date.now());
       setTimeRemaining(remaining);
       
       if (remaining === 0) {
+        localStorage.removeItem('examMode_endTime');
+        localStorage.removeItem('examMode_sessionId');
         handleCompleteExam();
       }
     }, 1000);
