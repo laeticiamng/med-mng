@@ -8,3 +8,10 @@ export { MusicGenerationHeader } from './MusicGenerationHeader';
 export { MusicGenerationHowItWorks } from './MusicGenerationHowItWorks';
 export { QuickActions } from './QuickActions';
 export { ReassuranceSection } from './ReassuranceSection';
+
+// Apple-style components
+export { AppleHero } from './AppleHero';
+export { AppleMusicPlayer } from './AppleMusicPlayer';
+export { AppleFeatureShowcase } from './AppleFeatureShowcase';
+export { AppleTestimonials } from './AppleTestimonials';
+export { AppleFinalCTA } from './AppleFinalCTA';
