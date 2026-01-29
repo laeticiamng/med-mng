@@ -61,6 +61,7 @@ const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
 const MyGoals = lazy(() => import("./pages/MyGoals"));
 const MoodTracker = lazy(() => import("./pages/MoodTracker"));
 const Pomodoro = lazy(() => import("./pages/Pomodoro"));
+const KaraokePage = lazy(() => import("./pages/KaraokePage"));
 
 // 🎯 ECOS PAGES - Lazy loaded
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -224,6 +225,7 @@ const App = () => {
           <Route path={ROUTE_PATHS.myGoals} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MyGoals /></Suspense>} />
           <Route path={ROUTE_PATHS.moodTracker} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MoodTracker /></Suspense>} />
           <Route path={ROUTE_PATHS.pomodoro} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Pomodoro /></Suspense>} />
+          <Route path="/karaoke/:songId?" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><KaraokePage /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
