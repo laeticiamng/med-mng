@@ -1,9 +1,12 @@
 import { EcosHeader } from '@/components/ecos/EcosHeader';
+import { EcosEvaluationGrid } from '@/components/ecos/EcosEvaluationGrid';
+import { EcosRealTimeTimer } from '@/components/ecos/EcosRealTimeTimer';
 import { PatientCard } from '@/components/ecos/PatientCard';
 import { QuizSection } from '@/components/ecos/QuizSection';
 import { StepContent } from '@/components/ecos/StepContent';
 import { StepProgress } from '@/components/ecos/StepProgress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { quizQuestions as fallbackQuestions, scenarioData as fallbackScenario } from '@/data/ecosData';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useEcosTimer } from '@/hooks/useEcosTimer';
@@ -110,10 +113,12 @@ const EcosScenario = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<{[key: string]: string}>({});
   const [showQuiz, setShowQuiz] = useState(false);
+  const [showEvaluation, setShowEvaluation] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<{[key: number]: string}>({});
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dbScenario, setDbScenario] = useState<EcosScenarioData | null>(null);
+  const [timerPaused, setTimerPaused] = useState(true);
   
   const { timeLeft, formatTime } = useEcosTimer({ initialTime: 900 });
   const { logActivity } = useActivityTracking();
@@ -303,6 +308,15 @@ const EcosScenario = () => {
             </p>
           </div>
 
+          {/* Real-time Timer */}
+          <div className="mb-8">
+            <EcosRealTimeTimer 
+              durationMinutes={7}
+              autoStart={false}
+              onTimeUp={() => setShowQuiz(true)}
+            />
+          </div>
+
           <PatientCard patient={scenarioData.patient} />
           
           <StepProgress 
@@ -310,7 +324,7 @@ const EcosScenario = () => {
             totalSteps={scenarioData.steps.length}
           />
 
-          {!showQuiz ? (
+          {!showQuiz && !showEvaluation ? (
             <StepContent
               step={scenarioData.steps[currentStep]}
               currentStep={currentStep}
@@ -319,11 +333,31 @@ const EcosScenario = () => {
               onResponseChange={handleResponse}
               onNext={nextStep}
             />
+          ) : showQuiz && !showEvaluation ? (
+            <div className="space-y-6">
+              <QuizSection
+                questions={quizQuestions}
+                answers={quizAnswers}
+                onAnswerChange={handleQuizAnswer}
+              />
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => setShowEvaluation(true)}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <FileText className="h-5 w-5" />
+                  Accéder à la grille d'évaluation ECOS
+                </Button>
+              </div>
+            </div>
           ) : (
-            <QuizSection
-              questions={quizQuestions}
-              answers={quizAnswers}
-              onAnswerChange={handleQuizAnswer}
+            <EcosEvaluationGrid
+              scenarioId={scenarioData.id}
+              scenarioTitle={scenarioData.title}
+              onComplete={(score, total, items) => {
+                console.log('Evaluation complete:', { score, total, items });
+              }}
             />
           )}
         </div>

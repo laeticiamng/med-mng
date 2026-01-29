@@ -5,3 +5,5 @@ export { PatientCard } from './PatientCard';
 export { QuizSection } from './QuizSection';
 export { StepContent } from './StepContent';
 export { StepProgress } from './StepProgress';
+export { EcosEvaluationGrid } from './EcosEvaluationGrid';
+export { EcosRealTimeTimer } from './EcosRealTimeTimer';

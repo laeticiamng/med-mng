@@ -1,5 +1,5 @@
+import { ExamResultsPDF } from '@/components/exam/ExamResultsPDF';
 import { QuizResultsCard } from '@/components/quiz/QuizResultsCard';
-import { AnimatedProgressRing } from '@/components/ui/animated-progress-ring';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -526,13 +526,30 @@ export default function ExamMode() {
 
             {/* Exam completed - Avec animations améliorées */}
             {currentSession?.completed_at && (
-              <QuizResultsCard
-                score={currentSession.score ?? 0}
-                totalQuestions={getAnswerStatus(currentSession).total}
-                correctAnswers={getAnswerStatus(currentSession).correct}
-                onRestart={handleNewExam}
-                onViewStats={() => setActiveTab('stats')}
-              />
+              <div className="space-y-6">
+                <QuizResultsCard
+                  score={currentSession.score ?? 0}
+                  totalQuestions={getAnswerStatus(currentSession).total}
+                  correctAnswers={getAnswerStatus(currentSession).correct}
+                  onRestart={handleNewExam}
+                  onViewStats={() => setActiveTab('stats')}
+                />
+                <ExamResultsPDF
+                  result={{
+                    totalQuestions: getAnswerStatus(currentSession).total,
+                    correctAnswers: getAnswerStatus(currentSession).correct,
+                    score: currentSession.score ?? 0,
+                    duration: Math.floor((new Date(currentSession.completed_at).getTime() - new Date(currentSession.started_at).getTime()) / 1000),
+                    examType: currentSession.exam_type || 'Standard',
+                    completedAt: new Date(currentSession.completed_at),
+                    weakTopics: stats?.weakTopics?.slice(0, 5).map(t => ({
+                      itemCode: t.item_code,
+                      title: t.title,
+                      errorRate: t.errorRate
+                    }))
+                  }}
+                />
+              </div>
             )}
           </TabsContent>
 
