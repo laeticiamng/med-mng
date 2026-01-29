@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { OptimizedImage, PLACEHOLDER_IMAGE_URL } from '@/components/ui/optimized-image';
 import { Book, ChevronLeft, ChevronRight, FileText, Palette, ZoomIn, ZoomOut } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -213,7 +214,7 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ content, itemCode,
 export const ContentLibrary: React.FC<{ itemCode: string }> = ({ itemCode }) => {
   const [selectedContent, setSelectedContent] = useState<StoryContent | null>(null);
   
-  // Données exemple - en réel, viendraient de l'API
+  // Données exemple - utilisant des placeholders locaux
   const contents: StoryContent[] = [
     {
       type: 'bd',
@@ -221,13 +222,13 @@ export const ContentLibrary: React.FC<{ itemCode: string }> = ({ itemCode }) => 
       content: [
         {
           id: 1,
-          image_url: 'https://via.placeholder.com/500x700/4f46e5/white?text=Panel+1',
+          image_url: PLACEHOLDER_IMAGE_URL,
           text: "Notre histoire commence dans le service d'urgences...",
           dialogue: "Docteur, nous avons un cas urgent !"
         },
         {
           id: 2,
-          image_url: 'https://via.placeholder.com/500x700/7c3aed/white?text=Panel+2',
+          image_url: PLACEHOLDER_IMAGE_URL,
           text: "Le médecin analyse rapidement la situation...",
           dialogue: "Voyons les symptômes..."
         },

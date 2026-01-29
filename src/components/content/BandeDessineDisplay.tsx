@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { OptimizedImage, ImagePlaceholder } from '@/components/ui/optimized-image';
 import { 
   ZoomIn, 
   ZoomOut, 
@@ -164,15 +165,17 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                     maxHeight: isFullscreen ? '70vh' : '400px'
                   }}
                 >
-                  <img
-                    src={data.panels[currentPanel]?.image_url || '/placeholder-bd-panel.png'}
-                    alt={`Panel ${currentPanel + 1}`}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder-bd-panel.png';
-                    }}
-                  />
+                  {data.panels[currentPanel]?.image_url ? (
+                    <OptimizedImage
+                      src={data.panels[currentPanel].image_url}
+                      alt={`Panel ${currentPanel + 1}`}
+                      className="w-full h-full"
+                      placeholderClassName="object-contain"
+                      sizes="(max-width: 768px) 100vw, 600px"
+                    />
+                  ) : (
+                    <ImagePlaceholder className="w-full h-full min-h-[300px]" />
+                  )}
                   
                   {/* Texte du panel */}
                   {data.panels[currentPanel]?.text && (
@@ -206,15 +209,18 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                         setViewMode('single');
                       }}
                     >
-                      <img
-                        src={panel.image_url || '/placeholder-bd-panel.png'}
-                        alt={`Panel ${index + 1}`}
-                        className="w-full h-32 object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder-bd-panel.png';
-                        }}
-                      />
+                      {panel.image_url ? (
+                        <OptimizedImage
+                          src={panel.image_url}
+                          alt={`Panel ${index + 1}`}
+                          className="w-full h-32"
+                          placeholderClassName="object-cover"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          responsiveWidths={[150, 300, 450]}
+                        />
+                      ) : (
+                        <ImagePlaceholder className="w-full h-32" />
+                      )}
                       <div className="absolute top-2 left-2">
                         <Badge className="bg-foreground/70 text-background">
                           {index + 1}
