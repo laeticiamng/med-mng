@@ -182,11 +182,11 @@ export default function PlatformStatusPage() {
   const getStatusConfig = (status: 'operational' | 'degraded' | 'down') => {
     switch (status) {
       case 'operational':
-        return { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', label: 'Opérationnel' };
+        return { icon: CheckCircle2, color: 'text-success', bg: 'bg-success/10', label: 'Opérationnel' };
       case 'degraded':
-        return { icon: AlertTriangle, color: 'text-yellow-500', bg: 'bg-yellow-500/10', label: 'Dégradé' };
+        return { icon: AlertTriangle, color: 'text-warning', bg: 'bg-warning/10', label: 'Dégradé' };
       case 'down':
-        return { icon: XCircle, color: 'text-red-500', bg: 'bg-red-500/10', label: 'Hors service' };
+        return { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'Hors service' };
     }
   };
 
@@ -228,7 +228,7 @@ export default function PlatformStatusPage() {
             >
               {autoRefresh ? (
                 <>
-                  <Wifi className="h-4 w-4 mr-2 text-green-500" />
+                  <Wifi className="h-4 w-4 mr-2 text-success" />
                   Auto-refresh ON
                 </>
               ) : (
@@ -382,8 +382,8 @@ export default function PlatformStatusPage() {
                         <Progress
                           value={service.uptime}
                           className={`h-1.5 ${
-                            service.status === 'operational' ? '[&>div]:bg-green-500' :
-                            service.status === 'degraded' ? '[&>div]:bg-yellow-500' : '[&>div]:bg-red-500'
+                            service.status === 'operational' ? '[&>div]:bg-success' :
+                            service.status === 'degraded' ? '[&>div]:bg-warning' : '[&>div]:bg-destructive'
                           }`}
                         />
                       </div>

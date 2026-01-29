@@ -357,15 +357,15 @@ export default function AuditCompleteness() {
                       />
                       <div className="grid grid-cols-3 gap-2 text-sm">
                         <div className="text-center">
-                          <p className="text-green-500 font-medium">{category.complete}</p>
+                          <p className="text-success font-medium">{category.complete}</p>
                           <p className="text-xs text-muted-foreground">Complets</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-yellow-500 font-medium">{category.partial}</p>
+                          <p className="text-warning font-medium">{category.partial}</p>
                           <p className="text-xs text-muted-foreground">Partiels</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-red-500 font-medium">{category.incomplete}</p>
+                          <p className="text-destructive font-medium">{category.incomplete}</p>
                           <p className="text-xs text-muted-foreground">Incomplets</p>
                         </div>
                       </div>
@@ -397,15 +397,15 @@ export default function AuditCompleteness() {
                       </div>
                       <div className="flex gap-2 h-4 rounded-full overflow-hidden bg-muted">
                         <div
-                          className="bg-green-500 transition-all"
+                          className="bg-success transition-all"
                           style={{ width: `${(category.complete / category.total) * 100}%` }}
                         />
                         <div
-                          className="bg-yellow-500 transition-all"
+                          className="bg-warning transition-all"
                           style={{ width: `${(category.partial / category.total) * 100}%` }}
                         />
                         <div
-                          className="bg-red-500 transition-all"
+                          className="bg-destructive transition-all"
                           style={{ width: `${(category.incomplete / category.total) * 100}%` }}
                         />
                       </div>
