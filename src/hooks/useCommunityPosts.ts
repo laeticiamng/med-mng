@@ -150,24 +150,118 @@ export function useCommunityPosts() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch posts - uses mock data until real tables are created
+  // Fetch posts from real database
   const postsQuery = useQuery({
     queryKey: ['community-posts'],
     queryFn: async (): Promise<CommunityPost[]> => {
-      // For now, return mock data
-      // When community_posts table is created, this will fetch from DB
-      return MOCK_POSTS;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { data: posts, error } = await supabase
+          .from('community_posts')
+          .select(`
+            id,
+            user_id,
+            content,
+            type,
+            tags,
+            likes_count,
+            comments_count,
+            created_at,
+            profiles:user_id (
+              full_name,
+              avatar_url
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) throw error;
+
+        if (!posts || posts.length === 0) {
+          return MOCK_POSTS; // Fallback to mock data
+        }
+
+        // Check which posts the user has liked
+        let likedPostIds: string[] = [];
+        if (user) {
+          const { data: likes } = await supabase
+            .from('community_post_likes')
+            .select('post_id')
+            .eq('user_id', user.id);
+          likedPostIds = likes?.map(l => l.post_id) || [];
+        }
+
+        return posts.map((post: any) => ({
+          id: post.id,
+          author: {
+            id: post.user_id,
+            name: post.profiles?.full_name || 'Utilisateur anonyme',
+            avatar: post.profiles?.avatar_url || '',
+            specialty: 'Médecine',
+            level: 'Membre'
+          },
+          content: post.content,
+          type: post.type as CommunityPost['type'],
+          tags: post.tags || [],
+          timestamp: new Date(post.created_at),
+          likes: post.likes_count || 0,
+          comments: post.comments_count || 0,
+          isLiked: likedPostIds.includes(post.id)
+        }));
+      } catch (error) {
+        console.warn('Failed to load posts, using mock data:', error);
+        return MOCK_POSTS;
+      }
     },
     staleTime: 30000,
   });
 
-  // Fetch events - uses mock data until real tables are created
+  // Fetch events from real database
   const eventsQuery = useQuery({
     queryKey: ['community-events'],
     queryFn: async (): Promise<CommunityEvent[]> => {
-      // For now, return mock data
-      // When community_events table is created, this will fetch from DB
-      return MOCK_EVENTS;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { data: events, error } = await supabase
+          .from('community_events')
+          .select('*')
+          .gte('event_date', new Date().toISOString())
+          .order('event_date', { ascending: true })
+          .limit(20);
+
+        if (error) throw error;
+
+        if (!events || events.length === 0) {
+          return MOCK_EVENTS;
+        }
+
+        // Get registration counts and user's registrations
+        let userRegistrations: string[] = [];
+        if (user) {
+          const { data: regs } = await supabase
+            .from('community_event_registrations' as any)
+            .select('event_id')
+            .eq('user_id', user.id);
+          userRegistrations = (regs as any[])?.map(r => r.event_id) || [];
+        }
+
+        return events.map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          description: event.description || '',
+          type: event.type as CommunityEvent['type'],
+          date: new Date(event.event_date),
+          participants: 0, // Would need a count query
+          maxParticipants: event.max_participants || 0,
+          isRegistered: userRegistrations.includes(event.id),
+          location: event.location
+        }));
+      } catch (error) {
+        console.warn('Failed to load events, using mock data:', error);
+        return MOCK_EVENTS;
+      }
     },
     staleTime: 60000,
   });
