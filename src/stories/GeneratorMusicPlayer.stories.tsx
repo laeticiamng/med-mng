@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
+import { GeneratorMusicPlayer } from '@/components/music/GeneratorMusicPlayer';
 
 const meta: Meta<typeof GeneratorMusicPlayer> = {
   title: 'Music/GeneratorMusicPlayer',

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 
 const MesDonneesRGPD = () => {
   const { toast } = useToast();
@@ -173,7 +174,7 @@ const MesDonneesRGPD = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+    <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">
@@ -365,7 +366,7 @@ const MesDonneesRGPD = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </PremiumPageLayout>
   );
 };
 

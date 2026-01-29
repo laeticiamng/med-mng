@@ -5,6 +5,7 @@ import { ArrowLeft, Building, Globe, Shield, Scale, Mail, FileText } from 'lucid
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 
 const MentionsLegales = () => {
   const { logActivity } = useActivityTracking();
@@ -14,7 +15,7 @@ const MentionsLegales = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+    <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -220,7 +221,7 @@ const MentionsLegales = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PremiumPageLayout>
   );
 };
 
