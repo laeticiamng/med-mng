@@ -203,6 +203,39 @@ export default function Flashcards() {
 
   const currentCard = cards[currentCardIndex];
 
+  // Keyboard shortcuts for review mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!reviewMode || !cards[currentCardIndex]) return;
+      
+      // Space or Enter to flip card
+      if ((e.key === ' ' || e.key === 'Enter') && !showAnswer) {
+        e.preventDefault();
+        setShowAnswer(true);
+        return;
+      }
+      
+      // Number keys for response when answer is shown
+      if (showAnswer) {
+        if (e.key === '1' || e.key === 'j') {
+          // 1 or J = Incorrect
+          handleReviewAnswer(false);
+        } else if (e.key === '2' || e.key === 'k' || e.key === ' ' || e.key === 'Enter') {
+          // 2 or K or Space or Enter = Correct
+          handleReviewAnswer(true);
+        }
+      }
+      
+      // Escape to exit review mode
+      if (e.key === 'Escape') {
+        setReviewMode(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [reviewMode, showAnswer, cards, currentCardIndex]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Animated gradient background */}
