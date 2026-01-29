@@ -8,7 +8,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Award, Flame, Medal, Star, Target, Trophy, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Award, Flame, Medal, Star, Sparkles, Target, Trophy, Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -44,28 +45,52 @@ const Achievements: React.FC = () => {
   }, [loadStats, logActivity, stats?.currentStreak, stats?.weeklyGoalProgress, stats?.badges?.length]);
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-warning/5 to-accent/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-warning/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <Helmet>
         <title>Succès et Gamification - MED MNG</title>
         <meta name="description" content="Suivez votre progression, débloquez des succès et relevez des défis dans votre apprentissage médical." />
         <meta name="keywords" content="succès, badges, gamification, progression, apprentissage médical" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        {/* Header Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex items-center justify-between mb-8"
+        >
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 backdrop-blur-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               Retour
             </Button>
             
             <div>
+              <div className="inline-flex items-center gap-2 bg-warning/10 backdrop-blur-sm border border-warning/20 rounded-full px-3 py-1 mb-2">
+                <Sparkles className="h-3 w-3 text-warning" />
+                <span className="text-xs font-medium text-warning">Gamification</span>
+              </div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <Trophy className="w-8 h-8 text-warning" />
                 Succès & Progression
@@ -75,11 +100,16 @@ const Achievements: React.FC = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Statistiques réelles */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30">
+        {/* Statistiques réelles Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+        >
+          <Card className="bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30 backdrop-blur-xl rounded-2xl shadow-soft">
             <CardContent className="p-6 text-center">
               <Trophy className="w-12 h-12 text-warning mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-foreground">{stats?.badges?.length || 0}</h3>
@@ -87,7 +117,7 @@ const Achievements: React.FC = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30">
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30 backdrop-blur-xl rounded-2xl shadow-soft">
             <CardContent className="p-6 text-center">
               <Star className="w-12 h-12 text-primary mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-foreground">{stats?.totalPoints?.toLocaleString() || 0}</h3>
@@ -95,7 +125,7 @@ const Achievements: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30">
+          <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/30 backdrop-blur-xl rounded-2xl shadow-soft">
             <CardContent className="p-6 text-center">
               <Flame className="w-12 h-12 text-orange-500 mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-foreground">{stats?.currentStreak || 0}</h3>
@@ -103,14 +133,14 @@ const Achievements: React.FC = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success/30">
+          <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success/30 backdrop-blur-xl rounded-2xl shadow-soft">
             <CardContent className="p-6 text-center">
               <Target className="w-12 h-12 text-success mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-foreground">Niv. {stats?.level || 1}</h3>
               <p className="text-muted-foreground">Niveau Actuel</p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Tabs pour les différentes sections */}
         <Tabs defaultValue="gamification" className="mb-8">

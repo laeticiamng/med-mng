@@ -12,7 +12,8 @@ import { fetchItemsWithMeta } from '@/services/medMngItemsService';
 import type { ItemStatus } from '@/types/medMngItems';
 import { normalizeSearchText } from '@/utils/searchNormalization';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Heart, LayoutGrid, List, Music2, Search, SlidersHorizontal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { BookOpen, Heart, LayoutGrid, List, Music2, Search, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -162,36 +163,73 @@ const MedMngItemsLibraryComponent = () => {
   }, [items, debouncedSearch, specialtyFilter, tagFilter, typeFilter, rangFilter, statusFilter, sortBy]);
 
   return (
-    <MedMngLayout className="bg-background">
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header - Simplifié */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">
-            Bibliothèque des items
+    <MedMngLayout className="relative">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-10">
+        {/* Header Premium */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">367 items EDN</span>
+          </div>
+          
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+              Bibliothèque des items
+            </span>
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-lg max-w-2xl">
             Filtre par spécialité, type ou mots-clés pour aller vite.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Barre de recherche principale - Mise en avant */}
-        <div className="relative">
+        {/* Barre de recherche principale Premium */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="relative"
+        >
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Rechercher un item, un code, une spécialité..."
-            className="pl-12 h-12 text-base rounded-xl border-border/50 bg-card/50"
+            className="pl-12 h-14 text-base rounded-2xl border-border/50 bg-card/60 backdrop-blur-xl shadow-soft focus:shadow-medium transition-all"
           />
           {searchTerm.length > 0 && searchTerm.length < 3 && (
             <p className="text-xs text-muted-foreground mt-1.5 ml-1">
               Saisissez au moins 3 caractères
             </p>
           )}
-        </div>
+        </motion.div>
 
-        {/* Filtres - Présentés comme outils */}
-        <Card className="border-border/30 bg-card/40 backdrop-blur-sm">
+        {/* Filtres Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+        <Card className="border-border/30 bg-card/60 backdrop-blur-xl rounded-2xl shadow-soft">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -360,6 +398,7 @@ const MedMngItemsLibraryComponent = () => {
             </div>
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* États loading/error/empty */}
         {isLoading && (

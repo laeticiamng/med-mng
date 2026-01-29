@@ -204,26 +204,50 @@ export default function Flashcards() {
   const currentCard = cards[currentCardIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-warning/5">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-warning/5 to-accent/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-warning/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <Helmet>
         <title>Flashcards | MED-MNG</title>
         <meta name="description" content="Flashcards personnalisées pour mémoriser le référentiel EDN" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)}>
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10">
+        {/* Header Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex items-center gap-4 mb-8"
+        >
+          <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.ednComplete)} className="backdrop-blur-sm">
             <ChevronLeft className="h-4 w-4 mr-1" />
             Retour
           </Button>
           <div className="flex-1">
+            <div className="inline-flex items-center gap-2 bg-warning/10 backdrop-blur-sm border border-warning/20 rounded-full px-3 py-1 mb-2">
+              <Sparkles className="h-3 w-3 text-warning" />
+              <span className="text-xs font-medium text-warning">Révision intelligente</span>
+            </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-warning to-primary bg-clip-text text-transparent">
               Révision flash
             </h1>
             <p className="text-muted-foreground">Pour les moments de fatigue. 5 minutes, c'est déjà avancer.</p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Review Mode - Amélioré avec FlipCard */}
         {reviewMode && currentCard && (

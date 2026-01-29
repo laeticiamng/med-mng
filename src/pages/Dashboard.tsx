@@ -5,7 +5,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
-import { Flame, Star, Trophy, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Flame, Star, Sparkles, Trophy, Zap } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
@@ -44,13 +45,37 @@ const Dashboard: React.FC = () => {
         <link rel="canonical" href="/dashboard" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
+        
+        {/* Floating orbs */}
+        <motion.div 
+          className="fixed top-20 left-10 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+          animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none -z-10"
+          animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         {/* Enhanced Gamification header for logged-in users */}
         {user && stats && (
-          <div className="container mx-auto px-4 pt-6">
-            <Card className="bg-gradient-to-r from-primary/5 via-warning/5 to-accent/5 border-primary/20 mb-6">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="container mx-auto px-4 pt-6 relative z-10"
+          >
+            <Card className="bg-card/60 backdrop-blur-xl border-primary/20 mb-6 rounded-2xl shadow-soft">
               <CardContent className="p-4">
                 <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">Progression</span>
+                  </div>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <Flame className="h-5 w-5 text-warning" />
@@ -83,7 +108,7 @@ const Dashboard: React.FC = () => {
                   {stats.badges.length > 0 && (
                     <div className="flex gap-1">
                       {stats.badges.slice(-3).map((badge) => (
-                        <Badge key={badge.id} variant="outline" className="text-lg">
+                        <Badge key={badge.id} variant="outline" className="text-lg backdrop-blur-sm">
                           {badge.icon}
                         </Badge>
                       ))}
@@ -92,9 +117,11 @@ const Dashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         )}
-        <DashboardOverview />
+        <div className="relative z-10">
+          <DashboardOverview />
+        </div>
       </div>
     </LanguageProvider>
   );
