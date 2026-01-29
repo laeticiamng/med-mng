@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { ChatPDFExport } from '@/components/chat/ChatPDFExport';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
@@ -327,6 +328,12 @@ Tu n'as pas besoin de tout chercher toi-même.`,
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* PDF Export Button */}
+            <ChatPDFExport 
+              messages={messages} 
+              conversationTitle="Conversation MedChat IA"
+            />
 
             <Button 
               variant="outline" 
