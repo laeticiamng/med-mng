@@ -79,14 +79,17 @@ export const AppFooter = () => {
             </div>
           </div>
           
-          {/* Progression */}
+          {/* Motivation & Progression */}
           <div>
-            <h3 className="font-semibold mb-3 text-foreground text-sm">Progression</h3>
+            <h3 className="font-semibold mb-3 text-foreground text-sm">Motivation</h3>
             <div className="space-y-1.5">
+              <Link to={ROUTE_PATHS.dailyChallenges} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Défis du jour</Link>
+              <Link to={ROUTE_PATHS.leaderboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Classement</Link>
+              <Link to={ROUTE_PATHS.myGoals} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mes Objectifs</Link>
+              <Link to={ROUTE_PATHS.pomodoro} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Pomodoro</Link>
+              <Link to={ROUTE_PATHS.moodTracker} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Suivi humeur</Link>
               <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Ma progression</Link>
               <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Succès & Badges</Link>
-              <Link to={ROUTE_PATHS.statistics} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Statistiques</Link>
-              <Link to={ROUTE_PATHS.favorites} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Favoris</Link>
             </div>
           </div>
 

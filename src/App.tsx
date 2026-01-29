@@ -55,6 +55,13 @@ const Flashcards = lazy(() => import("./pages/Flashcards"));
 const ProgressDashboard = lazy(() => import("./pages/ProgressDashboard"));
 const SmartStudyPlanner = lazy(() => import("./pages/SmartStudyPlanner"));
 
+// 🆕 NOUVELLES PAGES PRIORITAIRES
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
+const MyGoals = lazy(() => import("./pages/MyGoals"));
+const MoodTracker = lazy(() => import("./pages/MoodTracker"));
+const Pomodoro = lazy(() => import("./pages/Pomodoro"));
+
 // 🎯 ECOS PAGES - Lazy loaded
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
@@ -210,6 +217,13 @@ const App = () => {
           <Route path={ROUTE_PATHS.flashcards} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Flashcards /></Suspense>} />
           <Route path={ROUTE_PATHS.progressDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProgressDashboard /></Suspense>} />
           <Route path={ROUTE_PATHS.smartStudyPlanner} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SmartStudyPlanner /></Suspense>} />
+          
+          {/* Nouvelles pages prioritaires */}
+          <Route path={ROUTE_PATHS.leaderboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Leaderboard /></Suspense>} />
+          <Route path={ROUTE_PATHS.dailyChallenges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DailyChallenges /></Suspense>} />
+          <Route path={ROUTE_PATHS.myGoals} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MyGoals /></Suspense>} />
+          <Route path={ROUTE_PATHS.moodTracker} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MoodTracker /></Suspense>} />
+          <Route path={ROUTE_PATHS.pomodoro} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Pomodoro /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />

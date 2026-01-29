@@ -20,6 +20,10 @@ import {
   Layers,
   FileText,
   LayoutDashboard,
+  Crown,
+  Timer,
+  Heart,
+  Flag,
 } from 'lucide-react';
 
 import { ROUTE_PATHS } from './routes';
@@ -45,6 +49,12 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 
 // Navigation secondaire (menu "Plus") - Toutes les pages accessibles
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
+  // 🎯 Productivité & Motivation (nouveaux!)
+  { path: ROUTE_PATHS.dailyChallenges, label: 'Défis du jour', icon: Zap },
+  { path: ROUTE_PATHS.leaderboard, label: 'Classement', icon: Crown },
+  { path: ROUTE_PATHS.myGoals, label: 'Mes Objectifs', icon: Flag },
+  { path: ROUTE_PATHS.pomodoro, label: 'Pomodoro', icon: Timer },
+  { path: ROUTE_PATHS.moodTracker, label: 'Suivi humeur', icon: Heart },
   // Apprentissage
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', icon: Layers },
   { path: ROUTE_PATHS.srsReview, label: 'Révision espacée', icon: Calendar },
@@ -163,6 +173,13 @@ export const ALL_ACCESSIBLE_PAGES = [
   { path: ROUTE_PATHS.examMode, label: 'Mode examen', category: 'Entraînement' },
   { path: ROUTE_PATHS.ecosIndex, label: 'Simulations ECOS', category: 'Entraînement' },
   { path: ROUTE_PATHS.chat, label: 'Chat IA', category: 'Outils' },
+  
+  // 🆕 Productivité & Motivation
+  { path: ROUTE_PATHS.dailyChallenges, label: 'Défis du jour', category: 'Motivation' },
+  { path: ROUTE_PATHS.leaderboard, label: 'Classement', category: 'Motivation' },
+  { path: ROUTE_PATHS.myGoals, label: 'Mes Objectifs', category: 'Motivation' },
+  { path: ROUTE_PATHS.pomodoro, label: 'Pomodoro', category: 'Productivité' },
+  { path: ROUTE_PATHS.moodTracker, label: 'Suivi humeur', category: 'Bien-être' },
   
   // Apprentissage
   { path: ROUTE_PATHS.flashcards, label: 'Flashcards', category: 'Apprentissage' },
