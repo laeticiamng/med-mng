@@ -197,7 +197,7 @@ const Generator = () => {
     }
 
     // ✅ Vérifier le quota (gratuit ou abonnement)
-    if (!musicQuota.can_generate) {
+    if (musicQuota && !musicQuota.can_generate) {
       if (remainingFree <= 0) {
         toast.error('Vous avez utilisé vos 3 générations gratuites. Passez à un abonnement pour continuer.', {
           action: { label: 'Voir les offres', onClick: () => navigate(ROUTE_PATHS.medMngPricing) }
@@ -297,7 +297,7 @@ const Generator = () => {
       setGenerationStartTime(null);
       toast.error('Échec de la génération musicale. Veuillez réessayer.');
     }
-  }, [canGenerate, user, remainingFree, musicQuota.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
+  }, [canGenerate, user, remainingFree, musicQuota?.can_generate, contentType, ednLyrics, ecosLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate, logActivity, addPoints, loadStats]);
 
   const handleAddToLibrary = useCallback(async () => {
     if (!generatedSong) return;
@@ -502,7 +502,7 @@ const Generator = () => {
             isGenerating={isGenerating}
             user={user}
             remainingFree={remainingFree}
-            canGenerateMusic={() => musicQuota.can_generate}
+            canGenerateMusic={() => musicQuota?.can_generate ?? false}
           />
 
           {/* Barre de progression pendant la génération */}
