@@ -13,25 +13,33 @@ const Index = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Check onboarding status from Supabase
-        const { data } = await (supabase as any)
-          .from('user_onboarding')
-          .select('onboarding_completed')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (!data?.onboarding_completed) {
-          setShowOnboarding(true);
+        if (user) {
+          // Check onboarding status from Supabase
+          const { data, error } = await supabase
+            .from('user_onboarding')
+            .select('onboarding_completed')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (error) {
+            console.warn('Onboarding check failed:', error.message);
+          }
+          
+          if (!data?.onboarding_completed) {
+            setShowOnboarding(true);
+          }
+        } else {
+          // Anonymous users - check sessionStorage
+          const hasSeenOnboarding = sessionStorage.getItem('med-mng-onboarding-seen');
+          if (!hasSeenOnboarding) {
+            setShowOnboarding(true);
+          }
         }
-      } else {
-        // Anonymous users - check sessionStorage
-        const hasSeenOnboarding = sessionStorage.getItem('med-mng-onboarding-seen');
-        if (!hasSeenOnboarding) {
-          setShowOnboarding(true);
-        }
+      } catch (err) {
+        console.error('Error checking user:', err);
       }
     };
     checkUser();
@@ -40,14 +48,23 @@ const Index = () => {
   const handleOnboardingComplete = async () => {
     setShowOnboarding(false);
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await (supabase as any).from('user_onboarding').upsert({
-        user_id: user.id,
-        onboarding_completed: true,
-        completed_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-    } else {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('user_onboarding').upsert({
+          user_id: user.id,
+          onboarding_completed: true,
+          completed_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+        
+        if (error) {
+          console.warn('Failed to save onboarding status:', error.message);
+        }
+      } else {
+        sessionStorage.setItem('med-mng-onboarding-seen', 'true');
+      }
+    } catch (err) {
+      console.error('Error saving onboarding:', err);
       sessionStorage.setItem('med-mng-onboarding-seen', 'true');
     }
   };
