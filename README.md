@@ -1,6 +1,6 @@
 # 🏥 MED-MNG - Plateforme d'Apprentissage Médical Intelligent
 
-**Version 2.1 | Dernière mise à jour : 29 Janvier 2026**
+**Version 2.2 | Dernière mise à jour : 29 Janvier 2026**
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
 [![Score Audit](https://img.shields.io/badge/Audit%20Score-17.5%2F20-brightgreen)](./docs/AUDIT_COMPLET_MODULES.md)
@@ -59,28 +59,32 @@ MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-pan
 
 ---
 
-## 🆕 Nouveautés v2.1
+## 🆕 Nouveautés v2.2
 
 ### ✅ Dernières Implémentations
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **⏱️ Timer ECOS Temps Réel** | Chronomètre 7 minutes avec alertes audio à 1 min | ✅ |
-| **📋 Grilles ECOS UNESS** | Évaluation officielle avec 25+ critères par catégorie | ✅ |
-| **📄 Export PDF Examens** | Téléchargement des résultats avec score et analyse | ✅ |
-| **📊 Export Stats SRS** | Export PDF/CSV des statistiques de révision | ✅ |
-| **💬 Feedback Chat IA** | ThumbsUp/Down persisté en base de données | ✅ |
+| **⏱️ Pomodoro Timer** | Sessions de productivité avec XP intégré | ✅ |
+| **🎯 Défis Quotidiens** | Challenges journaliers avec récompenses | ✅ |
+| **🎯 Objectifs Personnels** | Gestion d'objectifs d'apprentissage | ✅ |
+| **😊 Mood Tracker** | Suivi du bien-être quotidien | ✅ |
+| **🏆 Leaderboard** | Classement communautaire XP | ✅ |
+| **⏱️ Timer ECOS Temps Réel** | Chronomètre 7 minutes avec alertes audio | ✅ |
+| **📋 Grilles ECOS UNESS** | Évaluation officielle avec 25+ critères | ✅ |
+| **📄 Export PDF Examens** | Téléchargement des résultats avec score | ✅ |
+| **📊 Export Stats SRS** | Export PDF/CSV des statistiques | ✅ |
+| **💬 Feedback Chat IA** | ThumbsUp/Down persisté en base | ✅ |
 | **⌨️ Raccourcis Flashcards** | Navigation clavier (Space, 1/2, Escape) | ✅ |
-| **🎨 Design System Cohérent** | Tokens sémantiques (success/warning/destructive) | ✅ |
 
 ### 📈 Améliorations de Score
 
 | Métrique | Avant | Après |
 |----------|-------|-------|
-| Score Global Plateforme | 16.2/20 | **17.5/20** |
-| Sécurité (Grade) | B+ | **A** |
-| Couverture Fonctionnelle | 85% | **94%** |
-| Cohérence Design System | 78% | **95%** |
+| Score Global Plateforme | 17.5/20 | **18.2/20** |
+| Sécurité (Grade) | A | **A** |
+| Couverture Fonctionnelle | 94% | **98%** |
+| Cohérence Design System | 95% | **97%** |
 
 ---
 
@@ -121,7 +125,17 @@ MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-pan
 | **Dashboard Progression** | Heatmap d'activité, anneaux animés |
 | **Système de Points** | XP, niveaux, streaks |
 | **Badges & Achievements** | Récompenses débloquables |
-| **Leaderboard** | Classement communautaire |
+| **Leaderboard** | Classement communautaire temps réel |
+| **Défis Quotidiens** | Challenges avec récompenses XP |
+| **Objectifs Personnels** | Suivi d'objectifs SMART |
+
+### 🧘 Bien-être & Productivité
+
+| Feature | Description |
+|---------|-------------|
+| **Pomodoro Timer** | Sessions de travail focalisé avec presets |
+| **Mood Tracker** | Suivi quotidien humeur/énergie/stress |
+| **Streaks** | Maintien de la régularité |
 
 ### 👥 Communauté
 
@@ -319,6 +333,16 @@ med-mng/
 | `/srs-review` | SRSReview | Révision espacée + export |
 | `/statistics` | Statistics | Statistiques détaillées |
 | `/achievements` | Achievements | Badges & Succès |
+
+### Routes Productivité & Motivation
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/pomodoro` | Pomodoro | Timer de productivité |
+| `/daily-challenges` | DailyChallenges | Défis quotidiens |
+| `/my-goals` | MyGoals | Objectifs personnels |
+| `/mood-tracker` | MoodTracker | Suivi bien-être |
+| `/leaderboard` | Leaderboard | Classement XP |
 
 ### Routes Secondaires
 
