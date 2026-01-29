@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { useMoodTracker } from '@/hooks/useMoodTracker';
 import { 
   Calendar, 
   Heart, 
@@ -9,24 +10,13 @@ import {
   Smile, 
   Frown, 
   Angry, 
+  Loader2,
   Sparkles,
   TrendingUp,
   Brain,
-  Moon,
   Sun
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
-
-interface MoodEntry {
-  id: string;
-  mood_score: number;
-  energy_level: number;
-  stress_level: number;
-  notes: string;
-  factors: string[];
-  created_at: string;
-}
 
 const moodEmojis = [
   { score: 1, icon: Angry, label: 'Très mauvais', color: 'text-destructive' },
@@ -46,49 +36,23 @@ const factors = [
 ];
 
 const MoodTracker = () => {
+  const { moodHistory, isLoading, logMood, isLogging, todayEntry, averageMood, last7Days, moodTrend } = useMoodTracker();
   const [selectedMood, setSelectedMood] = useState<number>(3);
   const [energyLevel, setEnergyLevel] = useState<number>(3);
   const [stressLevel, setStressLevel] = useState<number>(3);
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
 
-  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([
-    {
-      id: '1',
-      mood_score: 4,
-      energy_level: 4,
-      stress_level: 2,
-      notes: 'Bonne journée de révision',
-      factors: ['study', 'sleep'],
-      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: '2',
-      mood_score: 3,
-      energy_level: 2,
-      stress_level: 4,
-      notes: 'Examen demain...',
-      factors: ['stress', 'study'],
-      created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-    },
-  ]);
-
-  const logMood = () => {
-    const newEntry: MoodEntry = {
-      id: Date.now().toString(),
+  const handleLogMood = () => {
+    logMood({
       mood_score: selectedMood,
       energy_level: energyLevel,
       stress_level: stressLevel,
       notes,
       factors: selectedFactors,
-      created_at: new Date().toISOString(),
-    };
-    setMoodHistory(prev => [newEntry, ...prev]);
+    });
     setNotes('');
     setSelectedFactors([]);
-    toast.success('Humeur enregistrée !', {
-      description: 'Continue à suivre ton bien-être chaque jour'
-    });
   };
 
   const toggleFactor = (factorId: string) => {
@@ -105,16 +69,6 @@ const MoodTracker = () => {
     const Icon = mood.icon;
     return <Icon className={`h-6 w-6 ${mood.color}`} />;
   };
-
-  const averageMood = moodHistory.length > 0
-    ? (moodHistory.reduce((acc, e) => acc + e.mood_score, 0) / moodHistory.length).toFixed(1)
-    : '0';
-
-  const todayEntry = moodHistory.find(e => 
-    new Date(e.created_at).toDateString() === new Date().toDateString()
-  );
-
-  const last7Days = moodHistory.slice(0, 7);
 
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
@@ -242,9 +196,14 @@ const MoodTracker = () => {
 
           <Button 
             className="w-full gap-2" 
-            onClick={logMood}
+            onClick={handleLogMood}
+            disabled={isLogging}
           >
-            <Sparkles className="h-4 w-4" />
+            {isLogging ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
             Enregistrer mon humeur
           </Button>
         </CardContent>
@@ -261,8 +220,8 @@ const MoodTracker = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Humeur moyenne</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-2xl font-bold">{averageMood}</p>
-                  {getMoodIcon(Math.round(Number(averageMood)))}
+                  <p className="text-2xl font-bold">{averageMood.toFixed(1)}</p>
+                  {getMoodIcon(Math.round(averageMood))}
                 </div>
               </div>
             </div>
@@ -292,11 +251,7 @@ const MoodTracker = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Tendance</p>
                 <p className="text-2xl font-bold">
-                  {last7Days.length >= 2
-                    ? last7Days[0].mood_score >= last7Days[last7Days.length - 1].mood_score
-                      ? '📈'
-                      : '📉'
-                    : '➡️'}
+                  {moodTrend === 'up' ? '📈' : moodTrend === 'down' ? '📉' : '➡️'}
                 </p>
               </div>
             </div>
@@ -311,7 +266,11 @@ const MoodTracker = () => {
           <CardDescription>Tes 7 derniers jours</CardDescription>
         </CardHeader>
         <CardContent>
-          {last7Days.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : last7Days.length > 0 ? (
             <div className="space-y-3">
               {last7Days.map((entry) => (
                 <div 

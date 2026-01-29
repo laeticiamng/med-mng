@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useUserGoals } from '@/hooks/useUserGoals';
 import { 
   Calendar, 
   CheckCircle2, 
   Flag, 
+  Loader2,
   Plus, 
   Target, 
   Trash2, 
@@ -18,82 +20,30 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
-
-interface UserGoal {
-  id: string;
-  title: string;
-  description: string;
-  target_value: number;
-  current_value: number;
-  category: string;
-  priority: 'low' | 'medium' | 'high';
-  deadline: string;
-  is_completed: boolean;
-}
 
 const MyGoals = () => {
+  const { goals, isLoading, createGoal, deleteGoal, completeGoal, isCreating } = useUserGoals();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     target_value: 100,
     category: 'study',
-    priority: 'medium',
+    priority: 'medium' as 'low' | 'medium' | 'high',
     deadline: '',
   });
 
-  const [goals, setGoals] = useState<UserGoal[]>([
-    {
-      id: '1',
-      title: 'Maîtriser 50 items EDN',
-      description: 'Atteindre 80% de maîtrise sur 50 items prioritaires',
-      target_value: 50,
-      current_value: 32,
-      category: 'study',
-      priority: 'high',
-      deadline: '2026-03-01',
-      is_completed: false,
-    },
-    {
-      id: '2',
-      title: 'Score 15/20 aux QCM',
-      description: 'Maintenir une moyenne de 15/20 sur les examens blancs',
-      target_value: 100,
-      current_value: 75,
-      category: 'exam',
-      priority: 'medium',
-      deadline: '2026-02-15',
-      is_completed: false,
-    },
-  ]);
-
-  const createGoal = () => {
-    const newGoal: UserGoal = {
-      id: Date.now().toString(),
+  const handleCreateGoal = () => {
+    createGoal({
       title: formData.title,
       description: formData.description,
       target_value: formData.target_value,
-      current_value: 0,
       category: formData.category,
-      priority: formData.priority as 'low' | 'medium' | 'high',
+      priority: formData.priority,
       deadline: formData.deadline,
-      is_completed: false,
-    };
-    setGoals(prev => [...prev, newGoal]);
+    });
     setIsDialogOpen(false);
     resetForm();
-    toast.success('Objectif créé !');
-  };
-
-  const deleteGoal = (id: string) => {
-    setGoals(prev => prev.filter(g => g.id !== id));
-    toast.success('Objectif supprimé');
-  };
-
-  const completeGoal = (id: string) => {
-    setGoals(prev => prev.map(g => g.id === id ? { ...g, is_completed: true } : g));
-    toast.success('Objectif complété !');
   };
 
   const resetForm = () => {
@@ -109,37 +59,27 @@ const MyGoals = () => {
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return <Badge variant="destructive">Haute</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="bg-warning/20 text-warning">Moyenne</Badge>;
-      case 'low':
-        return <Badge variant="outline">Basse</Badge>;
-      default:
-        return <Badge variant="secondary">Normal</Badge>;
+      case 'high': return <Badge variant="destructive">Haute</Badge>;
+      case 'medium': return <Badge variant="secondary" className="bg-warning/20 text-warning">Moyenne</Badge>;
+      case 'low': return <Badge variant="outline">Basse</Badge>;
+      default: return <Badge variant="secondary">Normal</Badge>;
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'study':
-        return '📚';
-      case 'exam':
-        return '🎯';
-      case 'music':
-        return '🎵';
-      case 'health':
-        return '💪';
-      default:
-        return '⭐';
+      case 'study': return '📚';
+      case 'exam': return '🎯';
+      case 'music': return '🎵';
+      case 'health': return '💪';
+      default: return '⭐';
     }
   };
 
   const getDaysRemaining = (deadline: string) => {
     if (!deadline) return null;
     const diff = new Date(deadline).getTime() - Date.now();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
   const activeGoals = goals.filter(g => !g.is_completed);
@@ -225,7 +165,7 @@ const MyGoals = () => {
                   <Label>Priorité</Label>
                   <Select 
                     value={formData.priority} 
-                    onValueChange={(v) => setFormData({ ...formData, priority: v })}
+                    onValueChange={(v) => setFormData({ ...formData, priority: v as 'low' | 'medium' | 'high' })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -249,9 +189,10 @@ const MyGoals = () => {
               </div>
               <Button 
                 className="w-full" 
-                onClick={createGoal}
-                disabled={!formData.title}
+                onClick={handleCreateGoal}
+                disabled={!formData.title || isCreating}
               >
+                {isCreating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Créer l'objectif
               </Button>
             </div>
@@ -318,7 +259,11 @@ const MyGoals = () => {
           Objectifs en cours
         </h2>
 
-        {activeGoals.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : activeGoals.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {activeGoals.map((goal) => {
               const progress = (goal.current_value / goal.target_value) * 100;
@@ -335,15 +280,13 @@ const MyGoals = () => {
                           <CardDescription>{goal.description}</CardDescription>
                         </div>
                       </div>
-                      <div className="flex gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteGoal(goal.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => deleteGoal(goal.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">

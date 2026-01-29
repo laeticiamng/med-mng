@@ -119,6 +119,13 @@ export * from './useOfflineHistory';
 // Gamification & Badges
 export * from './useBadgeUnlockTrigger';
 export * from './useGamification';
+export * from './useLeaderboard';
+
+// Productivity & Wellness (NEW)
+export * from './useDailyChallenges';
+export * from './useUserGoals';
+export * from './useMoodTracker';
+export * from './usePomodoroSessions';
 
 // Generation & Filters
 export * from './useGenerationFilters';

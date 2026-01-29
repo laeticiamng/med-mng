@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useDailyChallenges } from '@/hooks/useDailyChallenges';
 import { 
   BookOpen, 
   Brain, 
@@ -10,6 +11,7 @@ import {
   Clock, 
   Flame, 
   Gift, 
+  Loader2,
   Music, 
   Sparkles, 
   Target, 
@@ -18,102 +20,29 @@ import {
   Zap
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
-
-interface DailyChallenge {
-  id: string;
-  title: string;
-  description: string;
-  challenge_type: string;
-  target_value: number;
-  current_value: number;
-  reward_xp: number;
-  expires_at: string;
-  is_completed: boolean;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-// Mock data for now - will be connected to real backend when tables are ready
-const mockChallenges: DailyChallenge[] = [
-  {
-    id: '1',
-    title: 'Réviser 10 items EDN',
-    description: 'Étudiez au moins 10 items de la base EDN',
-    challenge_type: 'study',
-    target_value: 10,
-    current_value: 6,
-    reward_xp: 50,
-    expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
-    is_completed: false,
-    difficulty: 'easy',
-  },
-  {
-    id: '2',
-    title: 'Compléter 5 QCM',
-    description: 'Répondez à 5 séries de QCM en mode examen',
-    challenge_type: 'quiz',
-    target_value: 5,
-    current_value: 5,
-    reward_xp: 75,
-    expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
-    is_completed: false,
-    difficulty: 'medium',
-  },
-  {
-    id: '3',
-    title: 'Générer une chanson',
-    description: 'Créez une chanson médicale personnalisée',
-    challenge_type: 'music',
-    target_value: 1,
-    current_value: 0,
-    reward_xp: 100,
-    expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
-    is_completed: false,
-    difficulty: 'hard',
-  },
-];
 
 const DailyChallenges = () => {
-  const [challenges, setChallenges] = useState<DailyChallenge[]>(mockChallenges);
+  const { challenges, isLoading, claimReward, isClaimingReward } = useDailyChallenges();
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [streak] = useState(7);
-
-  const claimReward = (challengeId: string) => {
-    setChallenges(prev => 
-      prev.map(c => c.id === challengeId ? { ...c, is_completed: true } : c)
-    );
-    toast.success('Récompense réclamée !', {
-      description: 'XP ajoutés à votre compte'
-    });
-  };
+  const streak = 7;
 
   const getChallengeIcon = (type: string) => {
     switch (type) {
-      case 'study':
-        return <BookOpen className="h-5 w-5" />;
-      case 'quiz':
-        return <Brain className="h-5 w-5" />;
-      case 'music':
-        return <Music className="h-5 w-5" />;
-      case 'streak':
-        return <Flame className="h-5 w-5" />;
-      case 'time':
-        return <Clock className="h-5 w-5" />;
-      default:
-        return <Target className="h-5 w-5" />;
+      case 'study': return <BookOpen className="h-5 w-5" />;
+      case 'quiz': return <Brain className="h-5 w-5" />;
+      case 'music': return <Music className="h-5 w-5" />;
+      case 'streak': return <Flame className="h-5 w-5" />;
+      case 'time': return <Clock className="h-5 w-5" />;
+      default: return <Target className="h-5 w-5" />;
     }
   };
 
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy':
-        return <Badge variant="secondary" className="bg-success/20 text-success">Facile</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="bg-warning/20 text-warning">Moyen</Badge>;
-      case 'hard':
-        return <Badge variant="secondary" className="bg-destructive/20 text-destructive">Difficile</Badge>;
-      default:
-        return <Badge variant="secondary">Normal</Badge>;
+      case 'easy': return <Badge variant="secondary" className="bg-success/20 text-success">Facile</Badge>;
+      case 'medium': return <Badge variant="secondary" className="bg-warning/20 text-warning">Moyen</Badge>;
+      case 'hard': return <Badge variant="secondary" className="bg-destructive/20 text-destructive">Difficile</Badge>;
+      default: return <Badge variant="secondary">Normal</Badge>;
     }
   };
 
@@ -226,7 +155,11 @@ const DailyChallenges = () => {
 
       {/* Challenges List */}
       <div className="space-y-4">
-        {filteredChallenges.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : filteredChallenges.length > 0 ? (
           filteredChallenges.map((challenge) => (
             <Card 
               key={challenge.id}
@@ -285,8 +218,13 @@ const DailyChallenges = () => {
                         size="sm" 
                         onClick={() => claimReward(challenge.id)}
                         className="gap-2"
+                        disabled={isClaimingReward}
                       >
-                        <Gift className="h-4 w-4" />
+                        {isClaimingReward ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Gift className="h-4 w-4" />
+                        )}
                         Réclamer
                       </Button>
                     ) : !challenge.is_completed ? (
