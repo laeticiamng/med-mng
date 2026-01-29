@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Stethoscope, Search, Users, Clock, Sparkles, Loader2, Flame, Trophy, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,63 +91,99 @@ const EcosIndex = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Gamification Stats Banner */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 relative z-10">
+        {/* Gamification Stats Banner Premium */}
         {user && stats && (
-          <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-card/80 backdrop-blur-sm border-border">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
-                  <span className="font-medium text-sm sm:text-base">{stats.currentStreak} jours</span>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="p-3 sm:p-4 mb-4 sm:mb-6 bg-card/60 backdrop-blur-xl border-border/50 rounded-2xl shadow-soft">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+                    <span className="font-medium text-sm sm:text-base">{stats.currentStreak} jours</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    <span className="font-medium text-sm sm:text-base">Niveau {stats.level}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Star className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+                    <span className="font-medium text-sm sm:text-base">{stats.totalPoints} XP</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <span className="font-medium text-sm sm:text-base">Niveau {stats.level}</span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Star className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-                  <span className="font-medium text-sm sm:text-base">{stats.totalPoints} XP</span>
+                <div className="flex gap-2 flex-wrap">
+                  {stats.badges.slice(0, 3).map(badge => (
+                    <Badge key={badge.id} variant="secondary" className="bg-accent/20 text-xs sm:text-sm backdrop-blur-sm">
+                      {badge.icon} {badge.name}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                {stats.badges.slice(0, 3).map(badge => (
-                  <Badge key={badge.id} variant="secondary" className="bg-accent/20 text-xs sm:text-sm">
-                    {badge.icon} {badge.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         )}
 
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 px-2">
+        {/* Header Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8 sm:mb-12 px-2"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-4">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Simulations ECOS</span>
+          </div>
+          
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Stethoscope className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
               Simuler un ECOS
             </h1>
           </div>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
             Mets-toi en situation. C'est le meilleur moyen d'être prêt le jour J.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Search */}
-        <div className="max-w-md mx-auto mb-6 sm:mb-8 px-2">
+        {/* Search Premium */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="max-w-md mx-auto mb-6 sm:mb-8 px-2"
+        >
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Rechercher une situation..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-11 h-12 rounded-2xl border-border/50 bg-card/60 backdrop-blur-xl shadow-soft"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats */}
         <div className="flex justify-center gap-4 sm:gap-8 mb-6 sm:mb-8 flex-wrap">

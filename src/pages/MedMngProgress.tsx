@@ -54,18 +54,44 @@ const MedMngProgressComponent = () => {
   }, [data]);
 
   return (
-    <MedMngLayout className="bg-background">
-      <div className="container mx-auto px-4 py-6 space-y-6 max-w-4xl">
-        {/* Header - Rassurant */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Ma progression</h1>
+    <MedMngLayout className="relative">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-accent/5 to-primary/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-accent/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-4xl relative z-10">
+        {/* Header Premium */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Suivi intelligent</span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+              Ma progression
+            </span>
+          </h1>
+          <p className="text-muted-foreground text-lg">
             Une vision claire de ce que tu as déjà vu. La régularité fait la différence.
           </p>
-        </div>
+        </motion.div>
 
         {/* Statistiques utilisateur détaillées */}
         <UserStatsCard compact />
@@ -95,15 +121,20 @@ const MedMngProgressComponent = () => {
 
         {/* Stats cards - Avec animation */}
         {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          >
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
               >
-                <Card className="border-border/30 bg-card/60 hover:bg-card/80 transition-colors">
+                <Card className="border-border/30 bg-card/60 backdrop-blur-xl hover:bg-card/80 transition-all rounded-2xl shadow-soft hover:shadow-medium">
                   <CardContent className="p-4 text-center">
                     <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" />
                     <p className="text-2xl font-bold text-foreground">{stat.value}</p>
@@ -112,11 +143,16 @@ const MedMngProgressComponent = () => {
                 </Card>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {data && (
-          <div className="space-y-5">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-5"
+          >
             {/* Progression globale - Anneau animé amélioré */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -308,7 +344,7 @@ const MedMngProgressComponent = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         )}
       </div>
     </MedMngLayout>
