@@ -121,3 +121,12 @@ verify_jwt = true
 
 [functions.monitoring-alerts]
 verify_jwt = true
+
+[functions.study-planner]
+verify_jwt = false
+
+[functions.ai-tutor]
+verify_jwt = false
+
+[functions.generate-recommendations]
+verify_jwt = false

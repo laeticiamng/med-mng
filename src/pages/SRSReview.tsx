@@ -101,8 +101,9 @@ export default function SRSReview() {
 
     // Get item details for due items
     const allItemCodes = [...dueItemCodes, ...newItemsToAdd.map(n => n.item_code)];
+    // Use edn_items_complete for proper typing (not edn_items_immersive)
     const { data: itemsData } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('item_code, title')
       .in('item_code', allItemCodes);
 
@@ -137,8 +138,9 @@ export default function SRSReview() {
       if (reviewQueue.length === 0 || currentIndex >= reviewQueue.length) return;
       
       const currentItem = reviewQueue[currentIndex];
+      // Use edn_items_complete for proper OIC competences
       const { data } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .eq('item_code', currentItem.item_code)
         .maybeSingle();
