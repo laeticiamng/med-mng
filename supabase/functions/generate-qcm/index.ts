@@ -18,8 +18,19 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Validation des items - évite l'erreur .map() sur undefined
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return new Response(JSON.stringify({ 
+        error: "Le paramètre 'items' est requis et doit être un tableau non vide",
+        questions: [] 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const itemsContext = items.map((item: any) => `
-Item ${item.item_code}: ${item.title}
+Item ${item.item_code || 'N/A'}: ${item.title || 'Sans titre'}
 Compétences Rang A: ${item.competences_a?.slice(0, 5).join(', ') || 'Non disponibles'}
 Compétences Rang B: ${item.competences_b?.slice(0, 3).join(', ') || 'Non disponibles'}
 `).join('\n');
