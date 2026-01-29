@@ -1,23 +1,46 @@
-// Hooks Central Index - Complete Hooks Library
+// ============================================
+// HOOKS - Central Index (Organized by Domain)
+// ============================================
+// 150+ hooks organisés par catégorie thématique
+// Pour imports ciblés: import { useX } from '@/hooks/learning'
 
-// Sub-modules
+// ────────────────────────────────────────────
+// 📦 SUB-MODULES (imports groupés disponibles)
+// ────────────────────────────────────────────
+// import * from '@/hooks/learning'  → EDN, flashcards, SRS
+// import * from '@/hooks/audio'     → Audio, music, playlists
+// import * from '@/hooks/gamification' → Badges, challenges
+// import * from '@/hooks/analytics' → Stats, monitoring
+// import * from '@/hooks/auth'      → Auth, security
+// import * from '@/hooks/ui'        → Accessibilité, responsive
+// import * from '@/hooks/social'    → Communauté, chat
+// import * from '@/hooks/data'      → Cache, offline
+
 export * from './ai';
 export * from './music';
 
-// Mobile & UI
+// ────────────────────────────────────────────
+// 🖥️ MOBILE & UI
+// ────────────────────────────────────────────
 export * from './use-mobile';
 export * from './use-toast';
 
-// AI & Recommendations
+// ────────────────────────────────────────────
+// 🤖 AI & RECOMMENDATIONS
+// ────────────────────────────────────────────
 export * from './useAIClinicalCases';
 export * from './useAIExam';
 export * from './useAIRecommendations';
 
-// Accessibility
+// ────────────────────────────────────────────
+// ♿ ACCESSIBILITY
+// ────────────────────────────────────────────
 export * from './useAccessibilityAnnouncement';
 export * from './useAdvancedAccessibility';
 
-// Activity & Analytics
+// ────────────────────────────────────────────
+// 📊 ACTIVITY & ANALYTICS
+// ────────────────────────────────────────────
 export * from './useActivityTracking';
 export * from './useAnalytics';
 export * from './useAnalyticsTracking';
@@ -26,7 +49,9 @@ export * from './useUserAnalytics';
 export * from './useLearningAnalytics';
 export * from './usePerformanceAnalytics';
 
-// Audio & Music (excluding conflicting exports)
+// ────────────────────────────────────────────
+// 🎵 AUDIO & MUSIC
+// ────────────────────────────────────────────
 export * from './useAudioBuffering';
 export * from './useAudioCache';
 export * from './useAudioControls';
@@ -34,7 +59,6 @@ export * from './useAudioMetrics';
 export * from './useAudioPlayer';
 export * from './useAudioWithCache';
 export * from './useEnhancedAudioPlayer';
-// useMusicGeneration exports RangType, avoid re-exporting
 export { useMusicGeneration, type RangType } from './useMusicGeneration';
 export * from './useMusicGenerationState';
 export * from './useMusicGenerationStatus';
@@ -49,26 +73,32 @@ export * from './useSpotifyAI';
 export * from './useSupabaseMusicTracks';
 export * from './useSynchronizedLyrics';
 
-// Cache & Performance
+// ────────────────────────────────────────────
+// ⚡ CACHE & PERFORMANCE
+// ────────────────────────────────────────────
 export * from './useCache';
 export * from './useDebounce';
 export * from './useQueryCache';
 export * from './usePerformanceOptimization';
 export * from './usePerformanceDegradationAlerts';
 
-// Chat & Communication
+// ────────────────────────────────────────────
+// 💬 CHAT & COMMUNICATION
+// ────────────────────────────────────────────
 export * from './useChatConversations';
 export * from './useEnhancedChat';
 export * from './useDirectMessages';
-
-// Social & Community
 export * from './useSharedResources';
 
-// Clinical & Medical
+// ────────────────────────────────────────────
+// 🏥 CLINICAL & MEDICAL
+// ────────────────────────────────────────────
 export * from './useClinicalCases';
 export * from './useCVSSAssessments';
 
-// Content & EDN
+// ────────────────────────────────────────────
+// 📚 CONTENT & EDN
+// ────────────────────────────────────────────
 export * from './useAllEdnItems';
 export * from './useAuditItems';
 export * from './useComprehensiveAudit';
@@ -95,7 +125,9 @@ export * from './useOptimizedTableau';
 export * from './useParolesMusicales';
 export * from './useTableauNavigation';
 
-// Errors & Monitoring
+// ────────────────────────────────────────────
+// 🚨 ERRORS & MONITORING
+// ────────────────────────────────────────────
 export * from './useErrorHandling';
 export * from './useExtractionMonitoring';
 export * from './useRealTimeMonitoring';
@@ -103,7 +135,9 @@ export * from './useSystemAlerts';
 export * from './useSystemStatus';
 export * from './useUnifiedAlerts';
 
-// Exam & Quiz
+// ────────────────────────────────────────────
+// 📝 EXAM & QUIZ
+// ────────────────────────────────────────────
 export * from './useExamMode';
 export * from './useFlashcards';
 export * from './useTimedFlashcards';
@@ -112,22 +146,27 @@ export * from './useQuizHistory';
 export * from './useQuizResults';
 export * from './useQuizWithErrorTracking';
 
-// Favorites & History
+// ────────────────────────────────────────────
+// ⭐ FAVORITES & HISTORY
+// ────────────────────────────────────────────
 export * from './useFavoritesAndHistory';
 export * from './useOfflineHistory';
 
-// Gamification & Badges
+// ────────────────────────────────────────────
+// 🎯 GAMIFICATION & BADGES
+// ────────────────────────────────────────────
 export * from './useBadgeUnlockTrigger';
 export * from './useGamification';
 export * from './useLeaderboard';
-
-// Productivity & Wellness (NEW)
 export * from './useDailyChallenges';
 export * from './useUserGoals';
 export * from './useMoodTracker';
 export * from './usePomodoroSessions';
+export * from './useWeeklyChallenges';
 
-// Generation & Filters
+// ────────────────────────────────────────────
+// 🎨 GENERATION & FILTERS
+// ────────────────────────────────────────────
 export * from './useGenerationFilters';
 export * from './useGenerationNotifications';
 export * from './useGenerationQueue';
@@ -138,80 +177,103 @@ export * from './useRealtimeGeneration';
 export * from './useRetryGeneration';
 export * from './useOpenAIGeneration';
 
-// Global & State
+// ────────────────────────────────────────────
+// 🌐 GLOBAL & STATE
+// ────────────────────────────────────────────
 export * from './useGlobalState';
 export * from './useTypeSafeState';
 export * from './useBatchSelection';
-
-// Keyboard & Navigation
 export * from './useKeyboardNavigation';
-
-// Localization
 export * from './useGlobalTranslation';
 export * from './useTranslation';
 
-// MED MNG API
+// ────────────────────────────────────────────
+// 🔌 API & NETWORK
+// ────────────────────────────────────────────
 export * from './useMedMngApi';
-
-// Network & Offline
 export * from './useNetworkStatus';
 export * from './useOfflineQueue';
+export * from './useOfflineSync';
 export * from './useRetryWithBackoff';
+export * from './useRateLimiting';
 
-// Notifications
+// ────────────────────────────────────────────
+// 🔔 NOTIFICATIONS
+// ────────────────────────────────────────────
 export * from './useEmailNotifications';
 export * from './useNotifications';
 export * from './usePushNotifications';
 
-// Onboarding
+// ────────────────────────────────────────────
+// 🚀 ONBOARDING & PWA
+// ────────────────────────────────────────────
 export * from './useOnboarding';
-
-// PWA
 export * from './usePWA';
 export * from './usePWAMetrics';
 
-// Quota & Subscription
+// ────────────────────────────────────────────
+// 💳 QUOTA & SUBSCRIPTION
+// ────────────────────────────────────────────
 export * from './useFreeTrialLimit';
 export * from './useIAQuota';
 export * from './useQuotaRefresh';
 export * from './useQuotaSync';
 export * from './useSubscription';
 
-// Recommendations
-export * from './useRecommendationAlerts';
+// ────────────────────────────────────────────
+// 🎓 SRS & LEARNING
+// ────────────────────────────────────────────
+export * from './useAdaptiveSRS';
+export * from './useSRS';
 export * from './usePersonalizedRevision';
+export * from './useBKTKnowledge';
+export * from './useECNPrediction';
 
-// Roles & Preferences
-export * from './useUserCompetenceProgress';
-export * from './useUserPreferences';
-export * from './useUserRoles';
-
-// Search
+// ────────────────────────────────────────────
+// 🔍 SEARCH & FILTERS
+// ────────────────────────────────────────────
 export * from './useSearch';
 export * from './useSavedFilters';
+export * from './useRecommendationAlerts';
 
-// Security
+// ────────────────────────────────────────────
+// 🔒 SECURITY
+// ────────────────────────────────────────────
 export * from './useSecureStreaming';
 export * from './useSecurityIncidents';
 export * from './useSecurityMonitoring';
 export * from './useSecurityValidation';
 
-// SRS & Learning
-export * from './useAdaptiveSRS';
-export * from './useSRS';
-
-// Suno API
+// ────────────────────────────────────────────
+// 🎵 SUNO API
+// ────────────────────────────────────────────
 export * from './useSunoCallbackListener';
 export * from './useSunoCredits';
 export * from './useSunoGeneration';
 export * from './useSunoPolling';
 
-// GitHub
-export * from './useGitHubAccessibilityMetrics';
+// ────────────────────────────────────────────
+// 👤 USER & PREFERENCES
+// ────────────────────────────────────────────
+export * from './useUserCompetenceProgress';
+export * from './useUserPreferences';
+export * from './useUserRoles';
+export * from './useFavorites';
 
-// Library Realtime
+// ────────────────────────────────────────────
+// 📊 MISC
+// ────────────────────────────────────────────
+export * from './useGitHubAccessibilityMetrics';
 export * from './useLibraryRealtime';
 export * from './useListeningModes';
-
-// Window
 export * from './useWindowSize';
+export * from './useKaraokeSession';
+// Note: useCommunityEvents, useCommunityPosts, useForumThreads, 
+// useMentorshipMatching, useCollaborativeStudy, useStudySessions
+// have conflicting exports - import directly from specific files if needed
+export { useCommunityEvents } from './useCommunityEvents';
+export { useCommunityPosts } from './useCommunityPosts';
+export { useForumThreads } from './useForumThreads';
+export { useMentorshipMatching } from './useMentorshipMatching';
+export { useCollaborativeStudy } from './useCollaborativeStudy';
+export { useStudySessions } from './useStudySessions';
