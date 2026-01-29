@@ -50,7 +50,8 @@ export default function Flashcards() {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('decks');
   const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(null);
-  const [totalReviews, setTotalReviews] = useState(0);
+  // totalReviews is now persisted via stats.cardsReviewed from Supabase
+  const totalReviews = stats?.cardsReviewed || 0;
   
   // New deck form
   const [newDeckName, setNewDeckName] = useState('');
@@ -160,15 +161,17 @@ export default function Flashcards() {
         metadata: { deckId: currentDeck?.id }
       });
       
-      // Track total reviews for badge
+      // Badge unlocking based on cumulative reviews (persisted via stats)
       const newTotal = totalReviews + 1;
-      setTotalReviews(newTotal);
       
       // Unlock badges based on reviews
       if (newTotal >= 10) await unlockBadge(user.id, 'items_10');
       if (newTotal >= 50) await unlockBadge(user.id, 'items_50');
       
       await checkAndUnlockBadges(user.id);
+      
+      // Refresh stats to update totalReviews from DB
+      getStats(user.id).then(setStats);
     }
     
     setReviewStats(prev => ({
