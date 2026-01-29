@@ -149,6 +149,9 @@ export const usePWAMetrics = () => {
   // Fonction pour envoyer les métriques à Supabase
   const sendMetricUpdate = async (data: any, _immediate = false) => {
     try {
+      // Skip if offline
+      if (!navigator.onLine) return;
+      
       const { data: { user } } = await supabase.auth.getUser();
 
       // Collecter les infos du device
@@ -157,8 +160,7 @@ export const usePWAMetrics = () => {
         browser: getBrowser(),
       };
 
-      const payload = {
-        user_id: user?.id || null,
+      const metricValue = {
         session_id: sessionIdRef.current,
         is_installed: metrics.isInstalled,
         is_offline: metrics.isOffline,
@@ -167,16 +169,21 @@ export const usePWAMetrics = () => {
         ...data,
       };
 
-      // Envoyer les métriques
+      // Envoyer les métriques via INSERT (pas d'upsert car pas de contrainte unique)
       try {
-        await supabase.from('pwa_metrics').upsert(payload, {
-          onConflict: 'session_id',
-        });
+        await supabase.from('pwa_metrics').insert({
+          user_id: user?.id || null,
+          metric_type: 'session',
+          metric_value: metricValue,
+          user_agent: navigator.userAgent,
+        } as any);
       } catch (err) {
         // Silencieux pour ne pas bloquer l'app
+        console.debug('PWA metrics insert failed:', err);
       }
     } catch (error) {
       // Silencieux pour ne pas perturber l'expérience utilisateur
+      console.debug('PWA metrics error:', error);
     }
   };
 
