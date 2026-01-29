@@ -7,9 +7,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Mapping des product IDs vers les tiers
+const PRODUCT_TO_TIER: Record<string, string> = {
+  "plan_standard": "standard",
+  "plan_pro": "pro",
+  "plan_premium": "premium",
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CUSTOMER-PORTAL] ${step}${detailsStr}`);
+  console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -17,17 +24,17 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
+  );
+
   try {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -42,23 +49,70 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
+
     if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found for this user. Please subscribe first.");
+      logStep("No customer found");
+      return new Response(JSON.stringify({ 
+        subscribed: false,
+        tier: null,
+        subscription_end: null,
+        generations_limit: 5, // Limite gratuite
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
-    
+
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    const origin = req.headers.get("origin") || "https://med-mng.lovable.app";
-    const portalSession = await stripe.billingPortal.sessions.create({
+    const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      return_url: `${origin}/med-mng/dashboard`,
+      status: "active",
+      limit: 1,
     });
-    
-    logStep("Customer portal session created", { sessionId: portalSession.id, url: portalSession.url });
 
-    return new Response(JSON.stringify({ url: portalSession.url }), {
+    const hasActiveSub = subscriptions.data.length > 0;
+    let tier = null;
+    let subscriptionEnd = null;
+    let generationsLimit = 5; // Free tier
+
+    if (hasActiveSub) {
+      const subscription = subscriptions.data[0];
+      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      
+      const productId = subscription.items.data[0].price.product as string;
+      tier = PRODUCT_TO_TIER[productId] || null;
+      
+      // Limites de génération par tier
+      switch (tier) {
+        case "standard":
+          generationsLimit = 30;
+          break;
+        case "pro":
+          generationsLimit = 300;
+          break;
+        case "premium":
+          generationsLimit = 3000;
+          break;
+      }
+      
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        tier, 
+        endDate: subscriptionEnd,
+        generationsLimit 
+      });
+    } else {
+      logStep("No active subscription found");
+    }
+
+    return new Response(JSON.stringify({
+      subscribed: hasActiveSub,
+      tier,
+      subscription_end: subscriptionEnd,
+      generations_limit: generationsLimit,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
