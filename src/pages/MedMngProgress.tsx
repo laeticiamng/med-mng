@@ -2,16 +2,21 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { UserStatsCard } from '@/components/med-mng/profile/UserStatsCard';
 import { withAuth } from '@/components/med-mng/withAuth';
+import { ProgressHeatmap } from '@/components/progress/ProgressHeatmap';
+import { AnimatedProgressRing } from '@/components/ui/animated-progress-ring';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { ConfettiExplosion } from '@/components/ui/confetti-explosion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchProgressOverview } from '@/services/medMngItemsService';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target, TrendingUp } from 'lucide-react';
-import { useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle, Clock, Flame, ListTodo, Loader2, Target, TrendingUp, Award } from 'lucide-react';
+import { useMemo, useState } from 'react';
 const MedMngProgressComponent = () => {
   const { user } = useAuth();
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['med-mng-progress', user?.id],
@@ -85,68 +90,71 @@ const MedMngProgressComponent = () => {
           </Card>
         )}
 
-        {/* Stats cards - Mise en avant régularité */}
+        {/* Celebration confetti */}
+        <ConfettiExplosion trigger={showCelebration} type="celebration" />
+
+        {/* Stats cards - Avec animation */}
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {stats.map((stat) => (
-              <Card key={stat.label} className="border-border/30 bg-card/60">
-                <CardContent className="p-4 text-center">
-                  <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </CardContent>
-              </Card>
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="border-border/30 bg-card/60 hover:bg-card/80 transition-colors">
+                  <CardContent className="p-4 text-center">
+                    <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         )}
 
         {data && (
           <div className="space-y-5">
-            {/* Progression globale - Cercle visuel */}
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-6">
-                  {/* Cercle de progression */}
-                  <div className="relative w-24 h-24 shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        className="text-muted/30"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeLinecap="round"
-                        className="text-primary transition-all duration-500"
-                        strokeDasharray={`${(data.revisedCount / data.totalItems) * 251.2} 251.2`}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-foreground">
-                        {Math.round((data.revisedCount / data.totalItems) * 100)}%
-                      </span>
+            {/* Progression globale - Anneau animé amélioré */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-6">
+                    {/* Anneau de progression animé */}
+                    <AnimatedProgressRing
+                      value={data.revisedCount}
+                      max={data.totalItems}
+                      size={96}
+                      strokeWidth={8}
+                      color="primary"
+                      label="complété"
+                    />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Award className="h-5 w-5 text-warning" />
+                        <p className="text-lg font-semibold text-foreground">
+                          Tu avances à ton rythme — bravo !
+                        </p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {data.revisedCount} items révisés sur {data.totalItems}
+                      </p>
+                      {data.revisedCount >= data.totalItems * 0.5 && (
+                        <Badge className="bg-success/10 text-success border-success/20">
+                          Plus de 50% complété !
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-lg font-semibold text-foreground">
-                      Tu avances à ton rythme — bravo !
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {data.revisedCount} items révisés sur {data.totalItems}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Streak - Mise en valeur */}
             <div className="grid grid-cols-2 gap-3">
@@ -255,6 +263,19 @@ const MedMngProgressComponent = () => {
               </CardContent>
             </Card>
 
+            {/* Heatmap d'activité */}
+            <Card className="border-border/30">
+              <CardContent className="p-5 space-y-3">
+                <h2 className="font-semibold text-foreground">Heatmap d'activité (12 semaines)</h2>
+                <ProgressHeatmap 
+                  data={data.recentActivity.map(a => ({ 
+                    date: a.date, 
+                    count: a.revisedCount 
+                  }))} 
+                />
+              </CardContent>
+            </Card>
+
             {/* Activité récente */}
             <Card className="border-border/30">
               <CardContent className="p-5 space-y-3">
@@ -263,11 +284,25 @@ const MedMngProgressComponent = () => {
                   <p className="text-sm text-muted-foreground">Pas d'activité récente.</p>
                 ) : (
                   <div className="space-y-2">
-                    {data.recentActivity.map(activity => (
-                      <div key={activity.date} className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{new Date(activity.date).toLocaleDateString('fr-FR')}</span>
-                        <Badge variant="outline" className="text-xs">{activity.revisedCount} révisés</Badge>
-                      </div>
+                    {data.recentActivity.slice(0, 5).map(activity => (
+                      <motion.div 
+                        key={activity.date} 
+                        className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-muted/30 transition-colors"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                      >
+                        <span className="text-muted-foreground">
+                          {new Date(activity.date).toLocaleDateString('fr-FR', { 
+                            weekday: 'short', 
+                            day: 'numeric', 
+                            month: 'short' 
+                          })}
+                        </span>
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <CheckCircle className="h-3 w-3 text-success" />
+                          {activity.revisedCount} révisés
+                        </Badge>
+                      </motion.div>
                     ))}
                   </div>
                 )}

@@ -1,5 +1,7 @@
 import { TranslatedText } from '@/components/TranslatedText';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { PricingFAQ } from '@/components/pricing/PricingFAQ';
+import { PricingTestimonials } from '@/components/pricing/PricingTestimonials';
 import { Badge } from '@/components/ui/badge';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PremiumBackground } from '@/components/ui/premium-background';
@@ -502,6 +504,12 @@ export const MedMngPricing = () => {
             </div>
           </CardContent>
         </PremiumCard>
+
+        {/* Testimonials */}
+        <PricingTestimonials />
+
+        {/* FAQ */}
+        <PricingFAQ />
 
         {/* Call to Action */}
         <div className="mt-12 text-center">
