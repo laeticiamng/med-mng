@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 
 const CGU = () => {
   const { logActivity } = useActivityTracking();
@@ -15,7 +16,7 @@ const CGU = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+    <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -493,7 +494,7 @@ const CGU = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PremiumPageLayout>
   );
 };
 

@@ -4,10 +4,11 @@ import { Card } from '@/components/ui/card';
 import { ROUTE_PATHS } from '@/config/routes';
 import { AlertTriangle, ArrowLeft, CheckCircle, Eye, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
 
 const DeclarationAccessibilite = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+    <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -395,7 +396,7 @@ const DeclarationAccessibilite = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PremiumPageLayout>
   );
 };
 

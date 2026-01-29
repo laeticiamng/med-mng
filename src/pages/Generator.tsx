@@ -18,7 +18,7 @@ import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { QuotaWarningBanner } from '@/components/generator/QuotaWarningBanner';
 import { RealtimeIndicator } from '@/components/generator/RealtimeIndicator';
 import { SunoCreditsDisplay } from '@/components/generator/SunoCreditsDisplay';
-import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
+import { GeneratorMusicPlayer } from '@/components/music/GeneratorMusicPlayer';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 import { PremiumBackground } from '@/components/ui/premium-background';

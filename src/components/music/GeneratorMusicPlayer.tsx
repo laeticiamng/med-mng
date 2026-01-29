@@ -10,7 +10,7 @@ import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { supabase } from '@/integrations/supabase/client';
 import { Bug, Clock, Download, Heart, Library, Loader2, Music, Pause, Play, RefreshCw, Share2 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { DebugAudioButton } from './DebugAudioButton';
+import { DebugAudioButton } from '@/components/DebugAudioButton';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
