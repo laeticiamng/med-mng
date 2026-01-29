@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useDailyChallenges } from '@/hooks/useDailyChallenges';
+import { useGamification } from '@/hooks/useGamification';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   BookOpen, 
   Brain, 
@@ -19,12 +21,26 @@ import {
   Trophy,
   Zap
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const DailyChallenges = () => {
   const { challenges, isLoading, claimReward, isClaimingReward } = useDailyChallenges();
+  const { stats, loadStats } = useGamification();
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const streak = 7;
+
+  // Charger le streak dynamiquement depuis gamification
+  useEffect(() => {
+    const loadUserStats = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loadStats(user.id);
+      }
+    };
+    loadUserStats();
+  }, [loadStats]);
+
+  const streak = stats?.currentStreak || 0;
 
   const getChallengeIcon = (type: string) => {
     switch (type) {
@@ -61,17 +77,24 @@ const DailyChallenges = () => {
   const totalCount = challenges.length;
 
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <Zap className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Défis du jour</h1>
+    <>
+      <Helmet>
+        <title>Défis du jour | MED-MNG</title>
+        <meta name="description" content="Relevez des défis quotidiens et gagnez des XP. Maintenez votre série et débloquez des récompenses en révisant chaque jour." />
+        <meta name="keywords" content="défis, challenges, gamification, XP, révisions, médecine" />
+        <link rel="canonical" href="/challenges" />
+      </Helmet>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Zap className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Défis du jour</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Complétez des défis quotidiens pour gagner des récompenses
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          Complétez des défis quotidiens pour gagner des récompenses
-        </p>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -253,6 +276,7 @@ const DailyChallenges = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

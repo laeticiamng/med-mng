@@ -17,6 +17,7 @@ import {
   Sun
 } from 'lucide-react';
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const moodEmojis = [
   { score: 1, icon: Angry, label: 'Très mauvais', color: 'text-destructive' },
@@ -71,17 +72,24 @@ const MoodTracker = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <Heart className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Suivi d'humeur</h1>
+    <>
+      <Helmet>
+        <title>Suivi d'humeur | MED-MNG</title>
+        <meta name="description" content="Suivez votre bien-être mental au quotidien avec le tracker d'humeur MED-MNG. Analysez vos tendances et identifiez les facteurs influençant votre état." />
+        <meta name="keywords" content="humeur, bien-être, stress, énergie, suivi quotidien, médecine, étudiant" />
+        <link rel="canonical" href="/mood" />
+      </Helmet>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Heart className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Suivi d'humeur</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Prenez soin de votre bien-être mental au quotidien
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          Prenez soin de votre bien-être mental au quotidien
-        </p>
-      </div>
 
       {/* Today's Check-in */}
       <Card className="border-primary/50">
@@ -315,6 +323,7 @@ const MoodTracker = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
 

@@ -5,8 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Award, Crown, Medal, Sparkles, Star, Trophy, TrendingUp, Users } from 'lucide-react';
-import { useState } from 'react';
+import { Award, Crown, Medal, Sparkles, Star, Trophy, TrendingUp, Users, RefreshCw } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Button } from '@/components/ui/button';
 
 interface LeaderboardEntry {
   id: string;
@@ -92,18 +94,56 @@ const Leaderboard = () => {
     }
   };
 
+  // Calculer la distribution des scores dynamiquement
+  const scoreDistribution = useMemo(() => {
+    if (!leaderboardData || leaderboardData.length === 0) {
+      return [
+        { label: 'Top 10%', value: 0, color: 'bg-success' },
+        { label: 'Top 25%', value: 0, color: 'bg-primary' },
+        { label: 'Top 50%', value: 0, color: 'bg-warning' },
+        { label: 'Autres', value: 0, color: 'bg-muted' },
+      ];
+    }
+    
+    const total = leaderboardData.length;
+    const top10Threshold = Math.max(1, Math.floor(total * 0.1));
+    const top25Threshold = Math.max(1, Math.floor(total * 0.25));
+    const top50Threshold = Math.max(1, Math.floor(total * 0.5));
+    
+    const top10Avg = leaderboardData.slice(0, top10Threshold).reduce((acc, e) => acc + getScore(e), 0) / top10Threshold;
+    const top25Avg = leaderboardData.slice(0, top25Threshold).reduce((acc, e) => acc + getScore(e), 0) / top25Threshold;
+    const top50Avg = leaderboardData.slice(0, top50Threshold).reduce((acc, e) => acc + getScore(e), 0) / top50Threshold;
+    const allAvg = leaderboardData.reduce((acc, e) => acc + getScore(e), 0) / total;
+    
+    const maxScore = leaderboardData[0] ? getScore(leaderboardData[0]) : 1;
+    
+    return [
+      { label: 'Top 10%', value: Math.round((top10Avg / maxScore) * 100), color: 'bg-success' },
+      { label: 'Top 25%', value: Math.round((top25Avg / maxScore) * 100), color: 'bg-primary' },
+      { label: 'Top 50%', value: Math.round((top50Avg / maxScore) * 100), color: 'bg-warning' },
+      { label: 'Moyenne', value: Math.round((allAvg / maxScore) * 100), color: 'bg-muted' },
+    ];
+  }, [leaderboardData, period]);
+
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <Trophy className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Classement</h1>
+    <>
+      <Helmet>
+        <title>Classement | MED-MNG</title>
+        <meta name="description" content="Comparez vos performances avec la communauté MED-MNG. Classement hebdomadaire, mensuel et général." />
+        <meta name="keywords" content="classement, leaderboard, compétition, XP, médecine" />
+        <link rel="canonical" href="/leaderboard" />
+      </Helmet>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Trophy className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Classement</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Comparez vos performances avec la communauté MED-MNG
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          Comparez vos performances avec la communauté MED-MNG
-        </p>
-      </div>
 
       {/* User Rank Card */}
       {userRank && (
@@ -266,12 +306,7 @@ const Leaderboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { label: 'Top 10%', value: 90, color: 'bg-success' },
-                { label: 'Top 25%', value: 65, color: 'bg-primary' },
-                { label: 'Top 50%', value: 45, color: 'bg-warning' },
-                { label: 'Autres', value: 25, color: 'bg-muted' },
-              ].map((item) => (
+              {scoreDistribution.map((item) => (
                 <div key={item.label} className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span>{item.label}</span>
@@ -285,6 +320,7 @@ const Leaderboard = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 };
 
