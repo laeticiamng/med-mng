@@ -5335,6 +5335,57 @@ export type Database = {
           },
         ]
       }
+      community_events: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          current_participants: number | null
+          description: string | null
+          end_date: string | null
+          event_date: string
+          event_type: string
+          id: string
+          is_active: boolean | null
+          location: string | null
+          max_participants: number | null
+          metadata: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          max_participants?: number | null
+          metadata?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          max_participants?: number | null
+          metadata?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       community_group_members: {
         Row: {
           group_id: string
@@ -9355,6 +9406,38 @@ export type Database = {
             columns: ["rule_id"]
             isOneToOne: false
             referencedRelation: "alert_escalation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_registrations: {
+        Row: {
+          event_id: string | null
+          id: string
+          registered_at: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          registered_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          registered_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "community_events"
             referencedColumns: ["id"]
           },
         ]
@@ -13506,6 +13589,275 @@ export type Database = {
             columns: ["purpose_id"]
             isOneToOne: false
             referencedRelation: "consent_purposes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_creators: {
+        Row: {
+          avatar_url: string | null
+          badges: Json | null
+          bio: string | null
+          commission_rate: number | null
+          created_at: string | null
+          credentials: Json | null
+          display_name: string
+          id: string
+          rating: number | null
+          review_count: number | null
+          status: string
+          stripe_account_id: string | null
+          total_earnings: number | null
+          total_sales: number | null
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          badges?: Json | null
+          bio?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          credentials?: Json | null
+          display_name: string
+          id?: string
+          rating?: number | null
+          review_count?: number | null
+          status?: string
+          stripe_account_id?: string | null
+          total_earnings?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          badges?: Json | null
+          bio?: string | null
+          commission_rate?: number | null
+          created_at?: string | null
+          credentials?: Json | null
+          display_name?: string
+          id?: string
+          rating?: number | null
+          review_count?: number | null
+          status?: string
+          stripe_account_id?: string | null
+          total_earnings?: number | null
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_payouts: {
+        Row: {
+          amount_cents: number
+          completed_at: string | null
+          created_at: string | null
+          creator_id: string
+          currency: string | null
+          id: string
+          status: string
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          completed_at?: string | null
+          created_at?: string | null
+          creator_id: string
+          currency?: string | null
+          id?: string
+          status?: string
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          completed_at?: string | null
+          created_at?: string | null
+          creator_id?: string
+          currency?: string | null
+          id?: string
+          status?: string
+          stripe_transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_payouts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_programs: {
+        Row: {
+          category: string
+          cover_image_url: string | null
+          created_at: string | null
+          creator_id: string
+          currency: string | null
+          description: string | null
+          duration_minutes: number | null
+          format: string
+          id: string
+          is_featured: boolean | null
+          modules: Json | null
+          preview_url: string | null
+          price_cents: number
+          published_at: string | null
+          rating: number | null
+          review_count: number | null
+          short_description: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          total_purchases: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          creator_id: string
+          currency?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          format: string
+          id?: string
+          is_featured?: boolean | null
+          modules?: Json | null
+          preview_url?: string | null
+          price_cents?: number
+          published_at?: string | null
+          rating?: number | null
+          review_count?: number | null
+          short_description?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          total_purchases?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          creator_id?: string
+          currency?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          format?: string
+          id?: string
+          is_featured?: boolean | null
+          modules?: Json | null
+          preview_url?: string | null
+          price_cents?: number
+          published_at?: string | null
+          rating?: number | null
+          review_count?: number | null
+          short_description?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          total_purchases?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_programs_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_purchases: {
+        Row: {
+          amount_cents: number
+          completed_modules: string[] | null
+          currency: string | null
+          id: string
+          program_id: string
+          progress_percent: number | null
+          purchased_at: string | null
+          status: string
+          stripe_payment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          completed_modules?: string[] | null
+          currency?: string | null
+          id?: string
+          program_id: string
+          progress_percent?: number | null
+          purchased_at?: string | null
+          status?: string
+          stripe_payment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          completed_modules?: string[] | null
+          currency?: string | null
+          id?: string
+          program_id?: string
+          progress_percent?: number | null
+          purchased_at?: string | null
+          status?: string
+          stripe_payment_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_purchases_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          program_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          program_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          program_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_reviews_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_programs"
             referencedColumns: ["id"]
           },
         ]
@@ -30823,6 +31175,7 @@ export type Database = {
       refresh_analytics_dashboards: { Args: never; Returns: undefined }
       refresh_dashboard_stats: { Args: never; Returns: undefined }
       refresh_edn_items_unified: { Args: never; Returns: undefined }
+      refresh_leaderboard: { Args: never; Returns: undefined }
       refresh_leaderboard_entries: { Args: never; Returns: undefined }
       regenerate_hearts: { Args: never; Returns: undefined }
       reset_monthly_quotas: { Args: never; Returns: undefined }
