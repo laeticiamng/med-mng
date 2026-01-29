@@ -31,7 +31,7 @@ const testimonials = [
     id: 4,
     quote: "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.",
     author: "Lucas P.",
-    role: "D5 - Marseille",
+    role: "DFASM3 - Marseille",
     rating: 5,
     avatar: "LP"
   },
