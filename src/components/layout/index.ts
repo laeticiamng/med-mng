@@ -1,4 +1,5 @@
 // Layout components
+export { AppFooter } from './AppFooter';
 export { GlobalControls } from './GlobalControls';
 export { MainNavigation } from './MainNavigation';
 

@@ -1,11 +1,17 @@
 // Music components
+export { AdvancedMixer } from './AdvancedMixer';
 export { AdvancedMusicGenerator } from './AdvancedMusicGenerator';
 export { AdvancedMusicPlayer } from './AdvancedMusicPlayer';
 export { AudioPlayer } from './AudioPlayer';
+export { CreativeStudio } from './CreativeStudio';
 export { EnhancedMusicPlayerControls } from './EnhancedMusicPlayerControls';
+export { GeneratorMusicPlayer } from './GeneratorMusicPlayer';
+export { GlobalMiniPlayer } from './GlobalMiniPlayer';
+export { ListeningModesPanel } from './ListeningModesPanel';
 export { LyricsEditor } from './LyricsEditor';
 export { LyricsViewer } from './LyricsViewer';
 export { MusicGenerator } from './MusicGenerator';
+export { default as MusicGenerationSection } from './MusicGenerationSection';
 export { MusicLibrary } from './MusicLibrary';
 export { MusicPlayer } from './MusicPlayer';
 export { MusicVersionDisplay } from './MusicVersionDisplay';
