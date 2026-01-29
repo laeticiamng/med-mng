@@ -1,10 +1,11 @@
-// App.tsx - Force rebuild v2026.01.12
+// App.tsx - Force rebuild v2026.01.29
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
 import { CookieBanner } from "@/components/common/CookieBanner";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
+import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary';
 import { HelpCenter } from "@/components/help/HelpCenter";
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
@@ -163,23 +164,24 @@ const App = () => {
   usePWAMetrics();
   
   return (
-    <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-        <HelmetProvider>
-          <AuthProvider>
-            <LanguageProvider>
-              <GlobalAudioProvider>
-                <TooltipProvider>
-                  <ViewportProvider>
-                    <AccessibilityProvider>
-                      <InternationalizationProvider>
-                        <PerformanceProvider>
-                          <SkipLinks />
-                          <div id="app-root" className="min-h-screen bg-background">
-                            <MainNavigation />
-                            <main id="main-content" tabIndex={-1} className="pt-16">
-                              <Routes>
+    <GlobalErrorBoundary>
+      <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+          <HelmetProvider>
+            <AuthProvider>
+              <LanguageProvider>
+                <GlobalAudioProvider>
+                  <TooltipProvider>
+                    <ViewportProvider>
+                      <AccessibilityProvider>
+                        <InternationalizationProvider>
+                          <PerformanceProvider>
+                            <SkipLinks />
+                            <div id="app-root" className="min-h-screen bg-background">
+                              <MainNavigation />
+                              <main id="main-content" tabIndex={-1} className="pt-16">
+                                <Routes>
         <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.dashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.learningDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningDashboard /></Suspense>} />
@@ -330,17 +332,18 @@ const App = () => {
                           <Toaster />
                           <Sonner />
                         </PerformanceProvider>
-                      </InternationalizationProvider>
-                    </AccessibilityProvider>
-                  </ViewportProvider>
-                </TooltipProvider>
-              </GlobalAudioProvider>
-            </LanguageProvider>
-          </AuthProvider>
-        </HelmetProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ThemeProvider>
+                        </InternationalizationProvider>
+                      </AccessibilityProvider>
+                    </ViewportProvider>
+                  </TooltipProvider>
+                </GlobalAudioProvider>
+              </LanguageProvider>
+            </AuthProvider>
+          </HelmetProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </GlobalErrorBoundary>
   );
 };
 
