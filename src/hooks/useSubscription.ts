@@ -3,6 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 
+// Plans MED-MNG avec prix et limites Stripe
+export const SUBSCRIPTION_TIERS = {
+  free: { name: 'Gratuit', price: 0, generations: 5, price_id: null },
+  standard: { name: 'Standard', price: 19, generations: 30, price_id: 'price_1RqGSeDFa5Y9NR1IbOwa1TGy' },
+  pro: { name: 'Pro', price: 29, generations: 300, price_id: 'price_1RqGT0DFa5Y9NR1IegoELBi8' },
+  premium: { name: 'Premium', price: 39, generations: 3000, price_id: 'price_1RqGTHDFa5Y9NR1IcGxsiIP8' },
+} as const;
+
 interface SubscriptionPlan {
   plan_id: string;
   plan_name: string;
@@ -454,6 +462,62 @@ export const useSubscription = () => {
     return 'free';
   }, [subscription]);
 
+  // Créer une session de checkout Stripe
+  const createCheckout = useCallback(async (plan: 'standard' | 'pro' | 'premium'): Promise<string | null> => {
+    if (!user) {
+      toast.error('Veuillez vous connecter pour souscrire à un abonnement');
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan },
+      });
+
+      if (error) {
+        toast.error(error.message || 'Impossible de créer la session de paiement');
+        return null;
+      }
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        return data.url;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast.error('Une erreur est survenue lors de la création du paiement');
+      return null;
+    }
+  }, [user]);
+
+  // Ouvrir le portail client Stripe
+  const openCustomerPortal = useCallback(async (): Promise<string | null> => {
+    if (!user) {
+      toast.error('Veuillez vous connecter pour gérer votre abonnement');
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+
+      if (error) {
+        toast.error(error.message || 'Impossible d\'ouvrir le portail client');
+        return null;
+      }
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        return data.url;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast.error('Une erreur est survenue');
+      return null;
+    }
+  }, [user]);
+
   return {
     subscription,
     musicQuota,
@@ -479,6 +543,8 @@ export const useSubscription = () => {
     getDaysUntilReset,
     formatQuotaDisplay,
     canUpgrade,
-    getPlanTier
+    getPlanTier,
+    createCheckout,
+    openCustomerPortal,
   };
 };
