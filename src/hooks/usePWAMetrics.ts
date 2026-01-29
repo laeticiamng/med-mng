@@ -149,34 +149,38 @@ export const usePWAMetrics = () => {
   // Fonction pour envoyer les métriques à Supabase
   const sendMetricUpdate = async (data: any, _immediate = false) => {
     try {
-      // Skip if offline
-      if (!navigator.onLine) return;
+      // Skip if offline or no session ID yet
+      if (!navigator.onLine || !sessionIdRef.current) return;
       
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Collecter les infos du device
-      const deviceInfo = {
+      // Mapper les données vers les colonnes correctes de la table pwa_metrics
+      const metricPayload = {
+        session_id: sessionIdRef.current,
+        user_id: user?.id || null,
         device_type: getDeviceType(),
         browser: getBrowser(),
-      };
-
-      const metricValue = {
-        session_id: sessionIdRef.current,
         is_installed: metrics.isInstalled,
         is_offline: metrics.isOffline,
         page_views: metrics.pageViews,
-        ...deviceInfo,
-        ...data,
+        screen_width: window.innerWidth,
+        screen_height: window.innerHeight,
+        is_pwa: metrics.isInstalled,
+        fcp: data.fcp as number | undefined,
+        lcp: data.lcp as number | undefined,
+        cls: data.cls as number | undefined,
+        ttfb: data.ttfb as number | undefined,
+        inp: data.inp as number | undefined,
+        session_duration: data.session_duration as number | undefined,
+        install_date: data.install_date as string | undefined,
       };
 
-      // Envoyer les métriques via INSERT (pas d'upsert car pas de contrainte unique)
+      // Envoyer les métriques via INSERT (cast as any pour éviter les erreurs de type générées)
       try {
-        await supabase.from('pwa_metrics').insert({
-          user_id: user?.id || null,
-          metric_type: 'session',
-          metric_value: metricValue,
-          user_agent: navigator.userAgent,
-        } as any);
+        const { error } = await supabase.from('pwa_metrics').insert(metricPayload as any);
+        if (error) {
+          console.debug('PWA metrics insert error:', error.message);
+        }
       } catch (err) {
         // Silencieux pour ne pas bloquer l'app
         console.debug('PWA metrics insert failed:', err);
