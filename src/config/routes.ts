@@ -88,6 +88,12 @@ export const ROUTE_PATHS = {
   flashcards: '/flashcards',
   progressDashboard: '/progress-dashboard',
   smartStudyPlanner: '/smart-study-planner',
+  // Nouvelles pages prioritaires
+  leaderboard: '/leaderboard',
+  dailyChallenges: '/daily-challenges',
+  myGoals: '/my-goals',
+  moodTracker: '/mood-tracker',
+  pomodoro: '/pomodoro',
   notFound: '*',
 } as const;
 
