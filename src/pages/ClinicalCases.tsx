@@ -36,6 +36,16 @@ const SPECIALTY_ICONS: Record<string, React.ReactNode> = {
   'Pédiatrie': <Baby className="h-5 w-5" />,
   'Orthopédie': <Bone className="h-5 w-5" />,
   'Neurologie': <Brain className="h-5 w-5" />,
+  'Pneumologie': <Stethoscope className="h-5 w-5" />,
+  'Gastro-entérologie': <Stethoscope className="h-5 w-5" />,
+  'Néphrologie': <Stethoscope className="h-5 w-5" />,
+  'Endocrinologie': <Stethoscope className="h-5 w-5" />,
+  'Rhumatologie': <Bone className="h-5 w-5" />,
+  'Dermatologie': <Stethoscope className="h-5 w-5" />,
+  'Gynécologie': <Stethoscope className="h-5 w-5" />,
+  'Psychiatrie': <Brain className="h-5 w-5" />,
+  'Urgences': <Stethoscope className="h-5 w-5" />,
+  'Médecine générale': <Stethoscope className="h-5 w-5" />,
 };
 
 export default function ClinicalCases() {

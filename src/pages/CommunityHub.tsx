@@ -33,40 +33,14 @@ import { Leaderboard } from '@/components/gamification/Leaderboard';
 import { MentorshipSystem } from '@/components/mentorship/MentorshipSystem';
 import { ForumDiscussion } from '@/components/social/ForumDiscussion';
 import { ResourceSharing } from '@/components/social/ResourceSharing';
-
-interface Post {
-  id: string;
-  author: {
-    name: string;
-    avatar: string;
-    specialty: string;
-    level: string;
-  };
-  content: string;
-  type: 'discussion' | 'question' | 'resource' | 'success';
-  tags: string[];
-  timestamp: Date;
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  type: 'webinar' | 'workshop' | 'meetup' | 'competition';
-  date: Date;
-  participants: number;
-  maxParticipants: number;
-  isRegistered: boolean;
-  location?: string;
-}
+import { useCommunityPosts } from '@/hooks/useCommunityPosts';
+// Post and Event types are now imported from useCommunityPosts hook
 
 const CommunityHub = () => {
   const { toast } = useToast();
   const { stats, addPoints } = useGamification();
   const { logActivity } = useActivityTracking();
+  const { posts, events, stats: communityStats, likePost, registerForEvent, isLoading } = useCommunityPosts();
   const [activeTab, setActiveTab] = useState('feed');
   const [_leaderboard, setLeaderboard] = useState<any[]>([]);
   const [_loadingLeaderboard, setLoadingLeaderboard] = useState(false);
@@ -152,107 +126,7 @@ const CommunityHub = () => {
     }
   }, [activeTab]);
 
-  const [posts, _setPosts] = useState<Post[]>([
-    {
-      id: '1',
-      author: {
-        name: 'Dr. Sarah Martin',
-        avatar: '',
-        specialty: 'Cardiologie',
-        level: 'Expert'
-      },
-      content: 'Excellente session sur l\'IC-78 aujourd\'hui ! Les nouvelles approches musicales pour mémoriser les algorithmes de prise en charge sont vraiment efficaces. Quelqu\'un a-t-il testé la méthode sur d\'autres pathologies ?',
-      type: 'discussion',
-      tags: ['IC-78', 'cardiologie', 'mémorisation'],
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      likes: 24,
-      comments: 8,
-      isLiked: false
-    },
-    {
-      id: '2',
-      author: {
-        name: 'Marie Dubois',
-        avatar: '',
-        specialty: 'Pédiatrie',
-        level: 'Étudiant'
-      },
-      content: 'Question sur l\'IC-23 : quelqu\'un peut-il m\'expliquer la différence entre les approches de rang A et rang B pour la contraception chez l\'adolescente ? Les tableaux sont un peu confus pour moi 🤔',
-      type: 'question',
-      tags: ['IC-23', 'pédiatrie', 'aide'],
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      likes: 12,
-      comments: 15,
-      isLiked: true
-    },
-    {
-      id: '3',
-      author: {
-        name: 'Prof. Laurent Chen',
-        avatar: '',
-        specialty: 'Neurologie',
-        level: 'Professeur'
-      },
-      content: 'Nouveau ressource disponible : J\'ai créé une playlist de 15 musiques mnémotechniques pour les items de neurologie (IC-87 à IC-102). Parfait pour les révisions ! 🎵🧠',
-      type: 'resource',
-      tags: ['neurologie', 'musique', 'ressource'],
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      likes: 56,
-      comments: 23,
-      isLiked: true
-    },
-    {
-      id: '4',
-      author: {
-        name: 'Thomas Leroux',
-        avatar: '',
-        specialty: 'Médecine générale',
-        level: 'Résident'
-      },
-      content: '🎉 Victoire ! J\'ai enfin validé tous les items de rang A ! La méthode MED-MNG m\'a vraiment aidé à structurer mes révisions. Merci à toute la communauté pour le soutien !',
-      type: 'success',
-      tags: ['réussite', 'rang-a', 'motivation'],
-      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-      likes: 89,
-      comments: 34,
-      isLiked: false
-    }
-  ]);
-
-  const [events, _setEvents] = useState<Event[]>([
-    {
-      id: '1',
-      title: 'Webinaire : Nouvelles Approches Pédagogiques',
-      description: 'Découvrez les dernières innovations en pédagogie médicale et l\'utilisation de la musique dans l\'apprentissage',
-      type: 'webinar',
-      date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      participants: 187,
-      maxParticipants: 500,
-      isRegistered: false,
-      location: 'En ligne'
-    },
-    {
-      id: '2',
-      title: 'Atelier Pratique : Mémorisation Musicale',
-      description: 'Session pratique pour apprendre à créer ses propres mnémotechniques musicales',
-      type: 'workshop',
-      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      participants: 23,
-      maxParticipants: 30,
-      isRegistered: true,
-      location: 'Paris, Faculté de Médecine'
-    },
-    {
-      id: '3',
-      title: 'Concours : Meilleure Chanson EDN',
-      description: 'Participez au concours de création musicale pour les items EDN. Prix : 500€ !',
-      type: 'competition',
-      date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      participants: 78,
-      maxParticipants: 0,
-      isRegistered: false
-    }
-  ]);
+  // Posts and events are now provided by useCommunityPosts hook
 
   const getPostTypeIcon = (type: string) => {
     switch (type) {
@@ -295,7 +169,10 @@ const CommunityHub = () => {
   };
 
   const handleLike = async (postId: string) => {
-    // Track like activity
+    // Use the hook's likePost function
+    likePost(postId);
+    
+    // Track activity and add points
     if (currentUser) {
       await logActivity({
         activity_type: 'study',
@@ -304,15 +181,13 @@ const CommunityHub = () => {
       });
       await addPoints(currentUser.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
     }
-    
-    toast({
-      title: "👍 Post liké",
-      description: "Votre réaction a été enregistrée",
-    });
   };
 
   const handleRegister = async (eventId: string) => {
-    // Track event registration
+    // Use the hook's registerForEvent function
+    registerForEvent(eventId);
+    
+    // Track activity and add points
     if (currentUser) {
       await logActivity({
         activity_type: 'study',
@@ -321,11 +196,6 @@ const CommunityHub = () => {
       });
       await addPoints(currentUser.id, POINTS_CONFIG.dailyStreak, 'dailyStreak');
     }
-    
-    toast({
-      title: "✅ Inscription confirmée",
-      description: "Vous êtes maintenant inscrit à cet événement",
-    });
   };
 
   return (
@@ -384,15 +254,15 @@ const CommunityHub = () => {
                   </h3>
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     <Badge variant="outline" className="gap-1">
-                      <Flame className="h-3 w-3 text-orange-500" />
+                      <Flame className="h-3 w-3 text-warning" />
                       {stats.currentStreak} jours
                     </Badge>
                     <Badge variant="outline" className="gap-1">
-                      <Star className="h-3 w-3 text-yellow-500" />
+                      <Star className="h-3 w-3 text-primary" />
                       Niveau {stats.level}
                     </Badge>
                     <Badge variant="outline" className="gap-1">
-                      <Trophy className="h-3 w-3 text-amber-500" />
+                      <Trophy className="h-3 w-3 text-success" />
                       {userBadgesCount} badges
                     </Badge>
                   </div>
@@ -413,12 +283,12 @@ const CommunityHub = () => {
           </Card>
         )}
 
-        {/* Statistiques de la communauté */}
+        {/* Statistiques de la communauté - Dynamiques */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
               <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-              <div className="text-2xl font-bold">2,847</div>
+              <div className="text-2xl font-bold">{communityStats.totalMembers.toLocaleString()}</div>
               <p className="text-sm text-muted-foreground">Membres actifs</p>
             </CardContent>
           </Card>
@@ -426,7 +296,7 @@ const CommunityHub = () => {
           <Card>
             <CardContent className="p-4 text-center">
               <MessageCircle className="h-8 w-8 mx-auto mb-2 text-success" />
-              <div className="text-2xl font-bold">1,523</div>
+              <div className="text-2xl font-bold">{communityStats.totalDiscussions.toLocaleString()}</div>
               <p className="text-sm text-muted-foreground">Discussions</p>
             </CardContent>
           </Card>
@@ -434,7 +304,7 @@ const CommunityHub = () => {
           <Card>
             <CardContent className="p-4 text-center">
               <BookOpen className="h-8 w-8 mx-auto mb-2 text-accent" />
-              <div className="text-2xl font-bold">456</div>
+              <div className="text-2xl font-bold">{communityStats.totalResources.toLocaleString()}</div>
               <p className="text-sm text-muted-foreground">Ressources partagées</p>
             </CardContent>
           </Card>
@@ -442,7 +312,7 @@ const CommunityHub = () => {
           <Card>
             <CardContent className="p-4 text-center">
               <Calendar className="h-8 w-8 mx-auto mb-2 text-warning" />
-              <div className="text-2xl font-bold">23</div>
+              <div className="text-2xl font-bold">{communityStats.eventsThisMonth}</div>
               <p className="text-sm text-muted-foreground">Événements ce mois</p>
             </CardContent>
           </Card>
