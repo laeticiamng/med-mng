@@ -277,7 +277,34 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { action, files, buildContent } = await req.json()
+    // Handle GET requests for health check
+    if (req.method === 'GET') {
+      const { data: recentIncidents, error } = await supabase
+        .from('security_incidents')
+        .select('severity')
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+      return new Response(
+        JSON.stringify({
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+          incidents_24h: recentIncidents?.length || 0,
+          critical_count: recentIncidents?.filter((i: any) => i.severity === 'critical').length || 0,
+          patterns_loaded: SECRET_PATTERNS.length
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const body = await req.text();
+    if (!body) {
+      return new Response(
+        JSON.stringify({ error: 'Request body is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    const { action, files, buildContent } = JSON.parse(body)
     
     switch (action) {
       case 'scan_files': {
