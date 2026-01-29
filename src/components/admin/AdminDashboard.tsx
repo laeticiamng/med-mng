@@ -37,6 +37,7 @@ import { AdminSubscriptionsManager } from './AdminSubscriptionsManager';
 // Import des nouveaux composants développés
 import { AdminSecurityAudit } from './AdminSecurityAudit';
 import { AdminChatMonitoring } from './AdminChatMonitoring';
+import { AdminQuickLinks } from './AdminQuickLinks';
 
 interface SystemStats {
   totalUsers: number;
@@ -470,6 +471,10 @@ export const AdminDashboard: React.FC = () => {
                 <Edit className="h-4 w-4" />
                 <span className="hidden sm:inline">Outils</span>
               </TabsTrigger>
+              <TabsTrigger value="quicklinks" className="flex items-center gap-1">
+                <Gauge className="h-4 w-4" />
+                <span className="hidden sm:inline">Accès Rapide</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -635,6 +640,11 @@ export const AdminDashboard: React.FC = () => {
                   </Button>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Tab Accès Rapide - Toutes les pages admin */}
+            <TabsContent value="quicklinks" className="space-y-6">
+              <AdminQuickLinks />
             </TabsContent>
           </Tabs>
         </CardContent>

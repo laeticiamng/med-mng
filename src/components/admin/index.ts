@@ -3,6 +3,7 @@ export { AdminAnalytics } from './AdminAnalytics';
 export { AdminChatMonitoring } from './AdminChatMonitoring';
 export { AdminContentManager } from './AdminContentManager';
 export { AdminDashboard } from './AdminDashboard';
+export { AdminQuickLinks } from './AdminQuickLinks';
 export { AdminSecurityAudit } from './AdminSecurityAudit';
 export { AdminSubscriptionsManager } from './AdminSubscriptionsManager';
 export { AdminSystemSettings } from './AdminSystemSettings';
