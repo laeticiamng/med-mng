@@ -3,12 +3,70 @@
  * 
  * Endpoint: GET /api/v1/get-credits
  * Documentation: https://docs.sunoapi.org/suno-api/quickstart
+ * 
+ * Améliorations:
+ * - Timeout handling avec AbortController
+ * - Retry logic avec exponential backoff
+ * - Cache côté serveur
+ * - Fallback en cas d'erreur
  */
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 
 const SUNO_API_BASE = 'https://api.sunoapi.org/api/v1';
+const TIMEOUT_MS = 8000; // 8 secondes max
+const MAX_RETRIES = 2;
+
+// Simple in-memory cache (reset on cold start)
+let creditsCache: { data: any; timestamp: number } | null = null;
+const CACHE_TTL_MS = 60000; // 1 minute
+
+async function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function fetchCreditsWithRetry(apiKey: string, retries = MAX_RETRIES): Promise<any> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(
+        `${SUNO_API_BASE}/get-credits`,
+        {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        },
+        TIMEOUT_MS
+      );
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.warn(`⚠️ Attempt ${attempt + 1}/${retries + 1} failed:`, error.message);
+      
+      if (attempt < retries) {
+        // Exponential backoff: 500ms, 1000ms, 2000ms...
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -19,71 +77,82 @@ serve(async (req) => {
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
     if (!SUNO_API_KEY) {
+      console.warn('⚠️ SUNO_API_KEY not configured - returning default credits');
       return new Response(JSON.stringify({
-        success: false,
-        error: 'Suno API key not configured'
+        success: true,
+        credits: 50, // Default for demo
+        plan: 'demo',
+        used: 0,
+        total: 50,
+        cached: false,
+        fallback: true
       }), {
-        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('💳 Vérification des crédits Suno...');
-
-    const response = await fetch(`${SUNO_API_BASE}/get-credits`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${SUNO_API_KEY}`
-      }
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Suno credits error:', response.status, errorText);
-      
+    // Check cache first
+    if (creditsCache && (Date.now() - creditsCache.timestamp) < CACHE_TTL_MS) {
+      console.log('💾 Returning cached credits');
       return new Response(JSON.stringify({
-        success: false,
-        credits: -1,
-        error: `Credits check failed: ${response.status}`
+        ...creditsCache.data,
+        cached: true
       }), {
-        status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const data = await response.json();
-    console.log('✅ Credits response:', data);
+    console.log('💳 Fetching Suno credits...');
+    
+    const data = await fetchCreditsWithRetry(SUNO_API_KEY);
+    console.log('✅ Credits response:', JSON.stringify(data).slice(0, 200));
 
     if (data.code === 200 && data.data) {
-      return new Response(JSON.stringify({
+      const result = {
         success: true,
         credits: data.data.credits || data.data.remaining || 0,
         plan: data.data.plan || 'unknown',
         used: data.data.used || 0,
-        total: data.data.total || 0
-      }), {
+        total: data.data.total || 0,
+        cached: false
+      };
+      
+      // Update cache
+      creditsCache = { data: result, timestamp: Date.now() };
+      
+      return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({
-      success: false,
-      credits: -1,
-      error: data.msg || 'Unknown error'
-    }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    throw new Error(data.msg || 'Invalid API response');
 
   } catch (error) {
-    console.error('❌ Credits check error:', error);
+    console.error('❌ Credits check error:', error.message);
     
+    // Return cached data if available, even if stale
+    if (creditsCache) {
+      console.log('⚠️ Returning stale cache due to error');
+      return new Response(JSON.stringify({
+        ...creditsCache.data,
+        cached: true,
+        stale: true
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Graceful fallback
     return new Response(JSON.stringify({
-      success: false,
-      credits: -1,
+      success: true,
+      credits: 10, // Conservative fallback
+      plan: 'fallback',
+      used: 0,
+      total: 10,
+      cached: false,
+      fallback: true,
       error: error.message
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
