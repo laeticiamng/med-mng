@@ -132,9 +132,9 @@ export const MainNavigation: React.FC = () => {
           </div>
 
           {/* Actions utilisateur */}
-          <div className="flex items-center space-x-1.5 sm:space-x-3">
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
             {/* Global Search - hidden on very small screens */}
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <GlobalSearchBar />
             </div>
             
@@ -221,11 +221,11 @@ export const MainNavigation: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="hidden sm:flex items-center space-x-1.5 sm:space-x-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.medMngLogin)} className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
+              <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+                <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.medMngLogin)} className="text-sm h-9 px-3 whitespace-nowrap">
                   Connexion
                 </Button>
-                <Button size="sm" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
+                <Button size="sm" onClick={() => navigate(ROUTE_PATHS.medMngSignup)} className="text-sm h-9 px-4 whitespace-nowrap">
                   S'inscrire
                 </Button>
               </div>

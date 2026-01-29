@@ -30,9 +30,9 @@
     --secondary-foreground: 222 47% 20%;
     --secondary-hover: 220 14% 90%;
 
-    /* Muted Colors - Softer grays */
+    /* Muted Colors - Improved contrast */
     --muted: 220 14% 95%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 220 9% 38%;
 
     /* Accent Colors - Vibrant Emerald */
     --accent: 160 84% 39%;
@@ -44,8 +44,8 @@
     --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;
     
-    /* Warning - Warm Amber */
-    --warning: 43 96% 56%;
+    /* Warning - Warm Amber with better contrast */
+    --warning: 38 92% 50%;
     --warning-foreground: 222 47% 11%;
     
     /* Destructive - Soft Coral */
@@ -200,30 +200,64 @@
     padding-right: clamp(1rem, 4vw, 2rem);
   }
 
-  /* Fluid typography for headings */
+  /* Fluid typography for headings - Enhanced hierarchy */
   h1 {
-    font-size: clamp(1.75rem, 5vw + 0.5rem, 3rem);
-    line-height: 1.2;
+    font-size: clamp(2rem, 5vw + 0.5rem, 3.5rem);
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   h2 {
-    font-size: clamp(1.5rem, 4vw + 0.25rem, 2.25rem);
-    line-height: 1.25;
+    font-size: clamp(1.5rem, 4vw + 0.25rem, 2.5rem);
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   h3 {
-    font-size: clamp(1.25rem, 3vw + 0.25rem, 1.75rem);
-    line-height: 1.3;
+    font-size: clamp(1.25rem, 3vw + 0.25rem, 1.875rem);
+    line-height: 1.25;
+    font-weight: 600;
   }
 
   h4 {
     font-size: clamp(1.125rem, 2.5vw + 0.125rem, 1.5rem);
-    line-height: 1.35;
+    line-height: 1.3;
+    font-weight: 500;
   }
 
-  p, li, span {
+  p, li {
     font-size: clamp(0.875rem, 1.5vw + 0.25rem, 1rem);
-    line-height: 1.6;
+    line-height: 1.7;
+  }
+
+  /* Improved focus states for accessibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Minimum touch target size for accessibility */
+  button, 
+  a, 
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline links */
+  p a, li a, span a {
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* Dark mode image filter for reduced eye strain */
+  .dark img:not([data-no-filter]):not(.logo):not([src*="avatar"]) {
+    filter: brightness(0.92) contrast(1.02);
   }
 
   /* Ensure images are responsive */
