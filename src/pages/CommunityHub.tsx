@@ -25,6 +25,7 @@ import {
     Trophy,
     Users
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 // Import new community components
@@ -328,19 +329,43 @@ const CommunityHub = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
+      
+      {/* Floating orbs */}
+      <motion.div 
+        className="fixed top-20 left-10 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed bottom-20 right-10 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none -z-10"
+        animate={{ x: [0, -40, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <Helmet>
         <title>Hub Communautaire | MED-MNG</title>
         <meta name="description" content="Rejoignez la communauté MED-MNG, partagez vos expériences et participez aux événements" />
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-8">
-        <div className="text-center space-y-4">
+      <div className="container mx-auto p-6 space-y-8 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-2">
+            <Users className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Communauté MED-MNG</span>
+          </div>
           <h1 className="text-4xl font-bold text-foreground">Hub Communautaire</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Connectez-vous avec d'autres étudiants et professionnels de santé, partagez vos expériences et apprenez ensemble
           </p>
-        </div>
+        </motion.div>
 
         {/* User Profile Card */}
         {currentUser && stats && (
@@ -633,7 +658,7 @@ const CommunityHub = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </>
+    </div>
   );
 };
 
