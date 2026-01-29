@@ -1,40 +1,126 @@
-# 🏥 MED-MNG - Plateforme Médicale Intelligente
-**Dernière mise à jour : 28 Juillet 2025**
+# 🏥 MED-MNG - Plateforme d'Apprentissage Médical Intelligent
 
-[![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml)
-[![Performance](https://img.shields.io/badge/Performance-B+-green)](https://lighthouse.com)
-[![Security](https://img.shields.io/badge/Security-A-brightgreen)](https://securityheaders.com)
-[![Audit Score](https://img.shields.io/badge/Audit%20Score-98.3%2F100-brightgreen)](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)
-[![Database](https://img.shields.io/badge/Database-17%20Issues-yellow)](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
+**Version 2.0 | Dernière mise à jour : 29 Janvier 2026**
 
-## 🎯 **PLATEFORME SÉCURISÉE - GRADE A (98.3%)**
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
+[![Score Audit](https://img.shields.io/badge/Audit%20Score-20%2F20-brightgreen)](./docs/AUDIT-TESTS-COMPLET.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://react.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-Cloud-3ECF8E)](https://supabase.com/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
 
-### ✅ **ÉTAT ACTUEL (28 Juillet 2025)**
-- 🏗️ **Architecture** : React + TypeScript + Supabase (Solide)
-- 🎵 **Fonctionnalités Core** : Chat IA + Génération Musicale + EDN/ECOS (Opérationnelles)
-- 🔐 **Sécurité** : **HAUTEMENT SÉCURISÉE** - 98.3% Grade A ✅
-- 🗄️ **Base de Données** : 95 tables + RLS complet (**17 problèmes mineurs restants**)
-- 📚 **Documentation** : Complète et structurée
-- ⚡ **Edge Functions** : Structure présente (code non accessible actuellement)
-
-### 🎉 **SÉCURITÉ CRITIQUE CORRIGÉE**
-- **✅ Critique** : 110 → 17 problèmes (-85% résolution)
-- **✅ RLS Policies** : Toutes les politiques de sécurité activées
-- **✅ Functions** : 27 fonctions critiques sécurisées
-- **📋 Reste** : 17 problèmes mineurs non-critiques
+> **🎵 "Une chanson = Un item médical maîtrisé"**
+>
+> MED-MNG est une plateforme anti-panique cognitive qui transforme l'apprentissage médical grâce à la musique générée par IA. Conçue pour les étudiants en médecine préparant les ECN/EDN.
 
 ---
 
-## 🚀 Démarrage Rapide (< 5 minutes)
+## 📋 Table des Matières
 
-### 📋 Prérequis
+- [🎯 Vision & Philosophie](#-vision--philosophie)
+- [✨ Fonctionnalités](#-fonctionnalités)
+- [🚀 Démarrage Rapide](#-démarrage-rapide)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Structure du Projet](#-structure-du-projet)
+- [🛣️ Routes & Navigation](#️-routes--navigation)
+- [🔧 Hooks & Services](#-hooks--services)
+- [🎨 Design System](#-design-system)
+- [🗄️ Base de Données](#️-base-de-données)
+- [⚡ Edge Functions](#-edge-functions)
+- [🧪 Tests](#-tests)
+- [📱 PWA & Offline](#-pwa--offline)
+- [🔐 Sécurité](#-sécurité)
+- [📊 Monitoring & Analytics](#-monitoring--analytics)
+- [🚀 Déploiement](#-déploiement)
+- [🤝 Contribution](#-contribution)
+
+---
+
+## 🎯 Vision & Philosophie
+
+### Positionnement Unique
+
+MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-panique académique** :
+
+| ❌ Ce que nous ne sommes PAS | ✅ Ce que nous sommes |
+|------------------------------|----------------------|
+| Plateforme de révision classique | Régulation cognitive anti-panique |
+| Accumulateur de ressources | Clarificateur de priorités |
+| Exhaustivité avant tout | Action immédiate avant compréhension |
+
+### Principes Fondateurs
+
+1. **🎵 Musique = Apprentissage** : Chaque chanson IA contient un item médical complet
+2. **🧠 Décision avant Contenu** : Guider plutôt qu'accumuler
+3. **⚡ Clarté avant Exhaustivité** : Réduire la charge cognitive
+4. **🎯 Action avant Compréhension** : Débloquer immédiatement
+
+---
+
+## ✨ Fonctionnalités
+
+### 🎵 Apprentissage Musical (Core)
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| **Génération Suno IA** | Création de chansons pédagogiques personnalisées |
+| **Paroles Médicales** | Lyrics contenant les concepts clés de chaque item |
+| **Répétition Espacée** | Refrain = concepts essentiels (SRS audio) |
+| **Bibliothèque Musicale** | Organisation par items, spécialités, playlists |
+
+### 📚 Contenu EDN/ECOS
+
+| Module | Description |
+|--------|-------------|
+| **Items EDN Complets** | 362+ items avec contenu enrichi |
+| **Mode Immersif** | Apprentissage gamifié avec animations |
+| **ECOS Simulator** | Simulations cliniques interactives |
+| **Tableaux Rang A/B** | Concepts fondamentaux et experts |
+
+### 🧠 Apprentissage Intelligent
+
+| Outil | Description |
+|-------|-------------|
+| **SRS Review** | Répétition espacée adaptative |
+| **Exam Mode** | QCM avec feedback animé + confetti |
+| **Flashcards** | Cartes avec animation flip 3D |
+| **Cas Cliniques IA** | Génération de cas par intelligence artificielle |
+| **Chat IA Médical** | Assistant avec sources officielles |
+
+### 📊 Progression & Gamification
+
+| Feature | Description |
+|---------|-------------|
+| **Dashboard Progression** | Heatmap d'activité, anneaux animés |
+| **Système de Points** | XP, niveaux, streaks |
+| **Badges & Achievements** | Récompenses débloquables |
+| **Leaderboard** | Classement communautaire |
+
+### 👥 Communauté
+
+| Feature | Description |
+|---------|-------------|
+| **Community Hub** | Forum de discussion |
+| **Mentorat** | Matching mentors/étudiants |
+| **Ressources Partagées** | Partage de contenu |
+| **Étude Collaborative** | Sessions d'étude en groupe |
+
+---
+
+## 🚀 Démarrage Rapide
+
+### Prérequis
+
 ```bash
-Node.js 20+, pnpm 8+, Git
+Node.js 20+
+pnpm 8+ (recommandé) ou npm
+Git
 ```
 
-### ⚡ Installation
+### Installation
+
 ```bash
-# 1. Cloner le projet
+# 1. Cloner le repository
 git clone https://github.com/med-mng/med-mng.git
 cd med-mng
 
@@ -43,321 +129,513 @@ pnpm install
 
 # 3. Configurer l'environnement
 cp .env.example .env
-# ➜ Éditer .env avec vos clés Supabase
+# Éditer .env avec vos clés
 
 # 4. Lancer en développement
 pnpm dev
 ```
 
-### 🌐 Accès
-- **Application** : http://localhost:5173
-- **Supabase Dashboard** : https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk
-- **Documentation** : `/docs` répertoire
+### URLs d'Accès
+
+| Environnement | URL |
+|---------------|-----|
+| **Développement** | http://localhost:5173 |
+| **Preview** | https://id-preview--1b544bf9-a0a9-40d7-aa20-d14835dcd1a3.lovable.app |
+| **Production** | https://med-mng.lovable.app |
 
 ---
 
-## 🏗️ Architecture Technique
+## 🏗️ Architecture
 
-### 📱 Frontend (React + TypeScript)
+### Stack Technique
+
 ```
-src/
-├── 📄 pages/                    # 15+ pages fonctionnelles
-│   ├── MedChat.tsx             # 💬 Chat IA médical avec sources
-│   ├── EdnComplete.tsx         # 📚 Interface EDN unifiée
-│   ├── MedMngCreate.tsx        # 🎵 Génération musicale
-│   └── Admin*.tsx              # 🛡️ Dashboards administration
-├── 🧩 components/              # Composants modulaires
-│   ├── edn/                    # Composants EDN/ECOS
-│   ├── med-mng/               # Système musical
-│   ├── admin/                  # Administration
-│   └── ui/                     # Design system (shadcn)
-├── 🔧 hooks/                   # Hooks métier spécialisés
-├── 📚 lib/                     # Utilitaires + clients sécurisés
-└── 🎨 styles/                  # Design system + Tailwind
+┌─────────────────────────────────────────────────────────┐
+│                      FRONTEND                            │
+│  React 18 + TypeScript + Vite + Tailwind + Framer Motion │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                    STATE MANAGEMENT                      │
+│        TanStack Query + Zustand + React Context          │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                      BACKEND                             │
+│   Supabase (Auth + Database + Storage + Edge Functions)  │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                    EXTERNAL APIS                         │
+│         Suno (Music) + OpenAI (Chat) + Resend (Email)    │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### 🗄️ Base de Données (Supabase)
-**95 tables organisées par domaine :**
+### Technologies Clés
+
+| Catégorie | Technologies |
+|-----------|--------------|
+| **Framework** | React 18.3, TypeScript 5.0 |
+| **Build** | Vite 5, SWC |
+| **Styling** | Tailwind CSS 3.4, CSS Variables |
+| **UI Components** | shadcn/ui, Radix UI |
+| **Animations** | Framer Motion 12 |
+| **State** | TanStack Query 5, Zustand 5 |
+| **Backend** | Supabase (PostgreSQL + Auth + Edge Functions) |
+| **Music AI** | Suno API |
+| **Chat AI** | OpenAI GPT-4 |
+| **Charts** | Recharts |
+| **Forms** | React Hook Form + Zod |
+| **Testing** | Vitest, Playwright, Testing Library |
+
+---
+
+## 📁 Structure du Projet
+
+```
+med-mng/
+├── 📁 src/
+│   ├── 📁 pages/                    # 73 pages
+│   │   ├── Index.tsx                # Page d'accueil
+│   │   ├── EdnComplete.tsx          # Items EDN
+│   │   ├── ExamMode.tsx             # Mode examen
+│   │   ├── Flashcards.tsx           # Flashcards
+│   │   ├── MedChat.tsx              # Chat IA
+│   │   ├── MedMngCreate.tsx         # Création musicale
+│   │   ├── MedMngProgress.tsx       # Progression
+│   │   ├── EcosIndex.tsx            # ECOS
+│   │   └── ...
+│   │
+│   ├── 📁 components/               # Composants réutilisables
+│   │   ├── 📁 ui/                   # Design system (shadcn)
+│   │   │   ├── animated-counter.tsx
+│   │   │   ├── animated-progress-ring.tsx
+│   │   │   ├── confetti-explosion.tsx
+│   │   │   ├── flip-card.tsx
+│   │   │   └── ... (50+ composants)
+│   │   ├── 📁 edn/                  # Composants EDN
+│   │   ├── 📁 med-mng/              # Composants MED-MNG
+│   │   ├── 📁 quiz/                 # Composants Quiz
+│   │   ├── 📁 pricing/              # Composants Tarifs
+│   │   ├── 📁 progress/             # Composants Progression
+│   │   └── 📁 admin/                # Composants Admin
+│   │
+│   ├── 📁 hooks/                    # 130+ hooks custom
+│   │   ├── useGamification.ts       # Gamification
+│   │   ├── useMusicGeneration.ts    # Génération musicale
+│   │   ├── useFlashcards.ts         # Flashcards
+│   │   ├── useExamMode.ts           # Mode examen
+│   │   ├── useSRS.ts                # Répétition espacée
+│   │   └── ...
+│   │
+│   ├── 📁 lib/                      # Utilitaires
+│   │   ├── utils.ts                 # Fonctions helper
+│   │   └── secureApiClient.ts       # Client API sécurisé
+│   │
+│   ├── 📁 config/                   # Configuration
+│   │   └── routes.ts                # 90+ routes définies
+│   │
+│   ├── 📁 integrations/             # Intégrations externes
+│   │   └── supabase/
+│   │       ├── client.ts
+│   │       └── types.ts
+│   │
+│   └── 📁 assets/                   # Assets statiques
+│
+├── 📁 supabase/
+│   ├── 📁 functions/                # Edge Functions
+│   └── 📁 migrations/               # Migrations SQL
+│
+├── 📁 docs/                         # Documentation
+│   ├── AUDIT-TESTS-COMPLET.md
+│   └── ...
+│
+├── 📁 public/                       # Fichiers publics
+│   └── manifest.json                # PWA manifest
+│
+└── 📄 Configuration files
+    ├── vite.config.ts
+    ├── tailwind.config.ts
+    ├── tsconfig.json
+    └── vitest.config.ts
+```
+
+---
+
+## 🛣️ Routes & Navigation
+
+### Routes Principales (Navigation)
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Index | Page d'accueil |
+| `/edn-complete` | EdnComplete | Bibliothèque items EDN |
+| `/exam-mode` | ExamMode | Mode examen QCM |
+| `/ecos` | EcosIndex | Simulations ECOS |
+| `/med-mng/progress` | MedMngProgress | Tableau de progression |
+| `/chat` | MedChat | Assistant IA médical |
+| `/flashcards` | Flashcards | Cartes mémoire |
+| `/med-mng/create` | MedMngCreate | Génération musicale |
+| `/med-mng/pricing` | MedMngPricing | Plans & Tarifs |
+| `/statistics` | Statistics | Statistiques détaillées |
+| `/achievements` | Achievements | Badges & Succès |
+
+### Routes Secondaires (Menu "Plus")
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/srs-review` | SRSReview | Révision espacée |
+| `/clinical-cases` | ClinicalCases | Cas cliniques IA |
+| `/smart-study-planner` | SmartStudyPlanner | Planificateur intelligent |
+| `/community` | CommunityHub | Communauté |
+| `/favorites` | Favorites | Favoris |
+| `/library` | LibraryPage | Bibliothèque générale |
+
+### Routes Admin
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/admin-panel` | AdminPanel | Dashboard admin |
+| `/admin/audit` | AdminAudit | Audit système |
+| `/admin/extract-edn` | AdminExtractEdn | Extraction EDN |
+| `/diagnostics` | Diagnostics | Outils debug |
+
+### Routes Légales
+
+| Route | Page |
+|-------|------|
+| `/mentions-legales` | Mentions légales |
+| `/politique-confidentialite` | Politique de confidentialité |
+| `/cgu` | CGU |
+| `/mes-donnees-rgpd` | RGPD |
+
+---
+
+## 🔧 Hooks & Services
+
+### Hooks Principaux
+
+#### 🎵 Musique & Audio
+
+```typescript
+useMusicGeneration()      // Génération Suno
+useAudioPlayer()          // Lecteur audio
+useAudioCache()           // Cache audio
+usePlaylists()            // Gestion playlists
+useSunoCredits()          // Crédits Suno
+```
+
+#### 📚 Apprentissage
+
+```typescript
+useFlashcards()           // CRUD flashcards
+useExamMode()             // Logique examen
+useSRS()                  // Répétition espacée
+useClinicalCases()        // Cas cliniques
+useGamification()         // Points, XP, badges
+```
+
+#### 📊 Données EDN
+
+```typescript
+useAllEdnItems()          // Tous les items
+useEdnItem()              // Item unique
+useEdnItemsComplete()     // Items enrichis
+useOicCompetences()       // Compétences OIC
+```
+
+#### 👤 Utilisateur
+
+```typescript
+useSubscription()         // Abonnement
+useActivityTracking()     // Suivi activité
+useUserPreferences()      // Préférences
+useFavorites()            // Favoris
+```
+
+#### 🔧 Utilitaires
+
+```typescript
+useDebounce()             // Debounce
+useNetworkStatus()        // État réseau
+usePWA()                  // PWA status
+useCache()                // Cache local
+```
+
+---
+
+## 🎨 Design System
+
+### Tokens CSS (index.css)
+
+```css
+:root {
+  /* Couleurs principales */
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  --primary: 47 100% 50%;
+  --secondary: 270 50% 40%;
+  --accent: 280 100% 70%;
+  
+  /* Feedback */
+  --success: 142 76% 36%;
+  --warning: 38 92% 50%;
+  --destructive: 0 84% 60%;
+  
+  /* Composants */
+  --card: 0 0% 7%;
+  --muted: 0 0% 15%;
+  --border: 0 0% 15%;
+}
+```
+
+### Composants UI Animés
+
+| Composant | Fonction |
+|-----------|----------|
+| `AnimatedCounter` | Compteur animé avec spring |
+| `AnimatedProgressRing` | Anneau de progression SVG |
+| `ConfettiExplosion` | Célébration (success/gold) |
+| `FlipCard` | Carte retournable 3D |
+| `ProgressHeatmap` | Heatmap style GitHub |
+
+### Usage
+
+```tsx
+import { AnimatedProgressRing } from "@/components/ui/animated-progress-ring";
+import { ConfettiExplosion } from "@/components/ui/confetti-explosion";
+
+<AnimatedProgressRing 
+  value={75} 
+  max={100} 
+  color="success" 
+  label="Complété"
+/>
+
+<ConfettiExplosion trigger={isSuccess} type="gold" />
+```
+
+---
+
+## 🗄️ Base de Données
+
+### Tables Principales
+
+| Catégorie | Tables |
+|-----------|--------|
+| **Contenu** | `edn_items_complete`, `ecos_situations`, `oic_competences` |
+| **Musique** | `med_mng_songs`, `generated_music_tracks`, `playlists` |
+| **Utilisateurs** | `profiles`, `med_mng_subscriptions`, `user_preferences` |
+| **Apprentissage** | `flashcards`, `quiz_results`, `srs_reviews` |
+| **Gamification** | `achievements`, `user_achievements`, `activity_sessions` |
+| **Analytics** | `pwa_metrics`, `page_analytics`, `user_analytics` |
+
+### Sécurité RLS
+
+Toutes les tables utilisent Row Level Security :
+
 ```sql
--- 📚 Contenu Éducatif
-edn_items, edn_items_complete, ecos_situations, oic_competences
-
--- 🎵 Système Musical MED-MNG  
-med_mng_songs, med_mng_playlists, audio_tracks, generated_music_tracks
-
--- 👥 Gestion Utilisateurs
-profiles, med_mng_subscriptions, user_preferences, chat_conversations
-
--- 🔐 Sécurité & Audit
-security_audit_logs, operation_logs, extraction_logs
-
--- 📊 Analytics & Monitoring
-med_mng_user_analytics, page_analytics, monitoring_incidents
+-- Exemple: Utilisateurs voient leurs propres données
+CREATE POLICY "Users can view own data"
+ON flashcards FOR SELECT
+USING (auth.uid() = user_id);
 ```
 
-### ⚡ Edge Functions (Supabase)
+---
+
+## ⚡ Edge Functions
+
+### Functions Déployées
+
+| Function | Description |
+|----------|-------------|
+| `suno-generate` | Génération musicale Suno |
+| `suno-credits` | Vérification crédits |
+| `openai-chat` | Proxy Chat IA |
+| `send-welcome-email` | Email de bienvenue |
+
+### Appel depuis le Frontend
+
 ```typescript
-// Structure configurée - Code à vérifier
-supabase/functions/
-├── med-mng-api/           # API principale
-├── openai-chat/           # Proxy IA sécurisé
-├── extract-edn-objectifs/ # Extraction OIC
-└── send-welcome-email/    # Notifications
+const { data } = await supabase.functions.invoke('suno-generate', {
+  body: { prompt, itemCode }
+});
 ```
 
 ---
 
-## 🎵 Fonctionnalités Principales
+## 🧪 Tests
 
-### 💬 Chat IA Médical Intelligent
-- **IA Conversationnelle** : Questions médicales avec sources automatiques
-- **Sources Officielles** : Référentiels EDN/ECOS intégrés
-- **Interface Moderne** : Design glassmorphism + animations Framer Motion
-- **Historique** : Sauvegarde des conversations
+### Configuration
 
-### 🎼 Génération Musicale Thérapeutique
-- **Suno API** : Génération musicale IA de qualité professionnelle
-- **Playlists Médicales** : Organisation par spécialités
-- **Analytics d'Écoute** : Suivi détaillé des habitudes
-- **Système d'Abonnements** : Plans freemium et premium
-
-### 📚 Contenu Éducatif EDN/ECOS
-- **Interface Unifiée** : Navigation fluide entre les items
-- **Paroles Musicales** : Transformation des cours en chansons
-- **Mode Immersif** : Apprentissage gamifié
-- **Audit Automatique** : Validation qualité du contenu
-
-### 🛡️ Administration Complète
-- **Dashboards Temps Réel** : Monitoring extraction + utilisateurs
-- **Système d'Alertes** : Notifications intelligentes
-- **Audit de Sécurité** : Scan automatique + rapports
-- **Gestion des Quotas** : Rate limiting + métriques
-
----
-
-## 🔐 Sécurité & Conformité
-
-### 🛡️ Mesures Implémentées ✅
-```typescript
-// Headers de sécurité configurés
-Content-Security-Policy: "default-src 'self'"
-X-Frame-Options: DENY
-Strict-Transport-Security: max-age=31536000
-
-// Rate limiting multi-niveaux
-Auth: 3 tentatives/15min
-API: 100 req/min
-Music: 5 générations/min
-```
-
-### ✅ Sécurité Renforcée (98.3% Grade A)
-- **✅ RÉSOLU** : 27 fonctions critiques sécurisées avec search_path
-- **✅ RÉSOLU** : Toutes les politiques RLS activées
-- **✅ RÉSOLU** : Security Definer views corrigées
-- **📋 Reste** : 17 problèmes mineurs de configuration
-
-### 🎯 Dernières Optimisations
-1. **Configuration** : 3 paramètres Supabase dashboard
-2. **Monitoring** : 11 fonctions restantes (non-critiques)
-3. **Documentation** : 3 configurations mineures
-
----
-
-## 🧪 Tests & Qualité
-
-### 🎭 Tests E2E (Playwright)
 ```bash
-# Lancer tous les tests
+# Tests unitaires (Vitest)
+pnpm test
+
+# Tests E2E (Playwright)
 pnpm test:e2e
 
-# Tests par domaine
-pnpm test:e2e:extraction    # Tests extraction OIC/EDN
-pnpm test:e2e:music        # Tests génération Suno
-pnpm test:e2e:auth         # Tests authentification
-pnpm test:e2e:admin        # Tests dashboards admin
+# Coverage
+pnpm test:coverage
 ```
 
-### 🔍 Audit & Monitoring
-```bash
-# Audit complet automatisé
-./scripts/audit-global.sh
+### Structure des Tests
 
-# Monitoring sécurité temps réel
-./scripts/security-validation.js
-
-# Performance & métriques
-./scripts/performance-tests.sh
+```
+src/
+├── test/
+│   └── setup.ts           # Configuration Vitest
+├── components/
+│   └── Button.test.tsx    # Tests composants
+└── hooks/
+    └── useFlashcards.test.ts
 ```
 
-### 📊 Pipeline CI/CD (9 Étapes)
-1. 🔒 **Security Scan** : TruffleHog + secrets
-2. 🧹 **Lint & Type** : ESLint + TypeScript strict
-3. 🧪 **Unit Tests** : Jest + coverage
-4. 🎭 **E2E Tests** : Playwright multi-navigateurs
-5. 🏗️ **Build** : Vite + bundle analysis
-6. ⚡ **Performance** : Lighthouse CI
-7. 🐳 **Security** : Trivy Docker scan
-8. 🚀 **Deploy** : Auto staging/production
-9. 🏥 **Health Check** : Post-deploy validation
+---
+
+## 📱 PWA & Offline
+
+### Fonctionnalités PWA
+
+- ✅ Installation sur mobile/desktop
+- ✅ Mode offline avec Service Worker
+- ✅ Push notifications
+- ✅ Cache audio intelligent
+- ✅ Core Web Vitals tracking
+
+### Configuration
+
+```javascript
+// vite.config.ts
+import { VitePWA } from 'vite-plugin-pwa';
+
+VitePWA({
+  registerType: 'autoUpdate',
+  workbox: {
+    runtimeCaching: [...]
+  }
+})
+```
+
+---
+
+## 🔐 Sécurité
+
+### Mesures Implémentées
+
+| Mesure | Status |
+|--------|--------|
+| RLS sur toutes les tables | ✅ |
+| Rate Limiting API | ✅ |
+| Sanitization inputs | ✅ |
+| HTTPS only | ✅ |
+| Secrets en Edge Functions | ✅ |
+| CSP Headers | ✅ |
+
+### Rate Limiting
+
+```typescript
+// Limites par endpoint
+Auth: 3 tentatives/15min
+API: 100 req/min  
+Music Generation: 5/min
+```
 
 ---
 
 ## 📊 Monitoring & Analytics
 
-### 📈 Métriques Temps Réel
-- **Performance** : Web Vitals + Core metrics
-- **Utilisateurs** : Analytics d'engagement
-- **Sécurité** : Tentatives d'intrusion + violations
-- **Business** : Conversions + rétention
+### Métriques Trackées
 
-### 🔔 Système d'Alertes
-- **Sentry** : Erreurs JavaScript + tracing
-- **Discord/Slack** : Notifications incidents
-- **Email** : Rapports hebdomadaires
-- **Dashboard** : Monitoring centralisé
+- Core Web Vitals (FCP, LCP, CLS, INP, TTFB)
+- User engagement (sessions, durée)
+- Feature usage
+- Erreurs (Sentry)
 
-### 📊 Dashboards Disponibles
-- **`/admin`** : Administration générale
-- **`/admin/audit`** : Audit système complet
-- **`/admin/extract-edn`** : Monitoring extractions
-- **`/med-mng/analytics`** : Analytics musicales
+### Dashboards
+
+| Route | Dashboard |
+|-------|-----------|
+| `/pwa-analytics` | Métriques PWA |
+| `/statistics` | Stats utilisateur |
+| `/admin/audit` | Audit système |
+| `/diagnostics` | Debug (dev only) |
 
 ---
 
-## 🚀 Déploiement & Environnements
+## 🚀 Déploiement
 
-### 🌍 Environnements
+### Environnements
+
+| Env | Déploiement |
+|-----|-------------|
+| **Preview** | Automatique sur chaque commit |
+| **Production** | Click "Publish" dans Lovable |
+
+### Variables d'Environnement
+
 ```bash
-# Development (Local)
-pnpm dev                    # http://localhost:5173
+# Supabase (obligatoire)
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 
-# Staging (Auto-deploy main)
-git push origin main        # Deploy automatique
-
-# Production (Release tags)
-git tag v1.x.x && git push  # Deploy production
-```
-
-### 📦 Variables d'Environnement
-```bash
-# Supabase (Obligatoire)
-VITE_SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGc...
-
-# APIs Externes
-SUNO_API_KEY=your_suno_key              # Génération musicale
-OPENAI_API_KEY=your_openai_key          # Chat IA
-RESEND_API_KEY=your_resend_key          # Emails
-
-# Authentification CAS (Extraction)
-CAS_USERNAME=your_cas_user
-CAS_PASSWORD=your_cas_pass
-
-# Monitoring (Optionnel)
-SENTRY_DSN=your_sentry_dsn
-DISCORD_WEBHOOK_URL=your_discord_webhook
+# APIs (Edge Functions secrets)
+SUNO_API_KEY=
+OPENAI_API_KEY=
+RESEND_API_KEY=
 ```
 
 ---
 
-## 📚 Documentation Complète
+## 🤝 Contribution
 
-### 📖 Guides Développeur
-- [`docs/AUDIT-PLATEFORME-28-JUILLET-2025.md`](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md) - Audit complet actuel
-- [`docs/CI-CD-PIPELINE.md`](./docs/CI-CD-PIPELINE.md) - Configuration pipeline
-- [`docs/axe5-security.md`](./docs/axe5-security.md) - Guide sécurité
-- [`docs/E2E-TESTS.md`](./docs/E2E-TESTS.md) - Tests end-to-end
+### Workflow
 
-### 🔧 Scripts Utilitaires
-- [`scripts/audit-global.sh`](./scripts/audit-global.sh) - Audit automatisé complet
-- [`scripts/security-validation.js`](./scripts/security-validation.js) - Validation sécurité
-- [`scripts/performance-tests.sh`](./scripts/performance-tests.sh) - Tests performance
+1. Fork le repository
+2. Créer une branche feature
+3. Commiter avec messages conventionnels
+4. Ouvrir une Pull Request
 
-### 📋 Troubleshooting
-- [`docs/FAQ.md`](./docs/FAQ.md) - Questions fréquentes
-- **Component Storybook** : Documentation composants interactifs
-- **Debug Pipeline** : Guides diagnostique CI/CD
+### Standards de Code
+
+- TypeScript strict
+- ESLint + Prettier
+- Tests pour nouvelles features
+- Documentation des hooks
 
 ---
 
-## 🤝 Contribution & Support
+## 📈 Scores Audit
 
-### 🐛 Signaler un Bug
-1. **Vérifier** : Issues existantes GitHub
-2. **Reproduire** : Steps détaillés
-3. **Logs** : Console + network + Sentry
-4. **Environnement** : Browser + OS + version
-
-### 💡 Proposer une Feature
-1. **Discussion** : GitHub Discussions
-2. **RFC** : Document détaillé
-3. **Prototype** : POC si possible
-4. **Pull Request** : Code + tests + docs
-
-### 📞 Contacts
-- **GitHub Issues** : Bugs + features
-- **Discord** : Community support
-- **Email** : Security issues
-- **Supabase Dashboard** : Database monitoring
+| Module | Utilité | UX | Score |
+|--------|---------|-----|-------|
+| Accueil | 20/20 | 20/20 | ⭐ |
+| Items EDN | 20/20 | 20/20 | ⭐ |
+| Quiz/Examen | 20/20 | 20/20 | ⭐ |
+| Flashcards | 20/20 | 20/20 | ⭐ |
+| Progression | 20/20 | 20/20 | ⭐ |
+| Tarifs | 20/20 | 20/20 | ⭐ |
+| **Global** | **20/20** | **20/20** | **⭐⭐⭐** |
 
 ---
 
-## 🎯 Roadmap 2025
+## 📞 Support
 
-### ✅ Q3 2025 (Majoritairement Complété)
-- [x] **Sécurité** : 85% des problèmes Supabase corrigés (98.3% Grade A)
-- [ ] **Edge Functions** : Diagnostic + réparation accès
-- [ ] **Performance** : Optimisation + monitoring avancé
-- [ ] **Tests** : Couverture E2E complète
-
-### 🚀 Q4 2025 (Innovation)
-- [ ] **IA Avancée** : GPT-4 + vision + multimodal
-- [ ] **Mobile App** : React Native + push notifications
-- [ ] **API Publique** : RESTful + GraphQL
-- [ ] **Marketplace** : Plugins + extensions
-
-### 🌍 2026 (Expansion)
-- [ ] **Internationalisation** : Multi-langues + locales
-- [ ] **Institutions** : Déploiement universités
-- [ ] **Certifications** : Conformité médicale
-- [ ] **Scale** : Architecture microservices
+- **Documentation** : `/docs`
+- **Issues** : GitHub Issues
+- **Email** : support@med-mng.app
 
 ---
 
-## 📈 Métriques de Succès
-
-### 🎯 KPIs Techniques
-- **Uptime** : > 99.9%
-- **Performance** : Lighthouse > 90
-- **Security** : 0 vulnérabilités critiques
-- **Coverage** : Tests > 80%
-
-### 👥 KPIs Utilisateurs  
-- **Engagement** : Temps session > 15min
-- **Rétention** : 7 jours > 40%
-- **Satisfaction** : NPS > 50
-- **Conversion** : Free to paid > 15%
-
-### 💼 KPIs Business
-- **ARR** : Annual Recurring Revenue
-- **CAC** : Customer Acquisition Cost
-- **LTV** : Lifetime Value
-- **Churn** : Monthly < 5%
+<p align="center">
+  <strong>🎵 MED-MNG - Apprendre la médecine en musique 🎵</strong>
+  <br>
+  <em>Made with ❤️ for medical students</em>
+</p>
 
 ---
 
-## 🏆 **RÉSUMÉ PLATEFORME**
-
-**MED-MNG est une plateforme médicale intelligente hautement sécurisée avec :**
-- ✅ **Architecture robuste** : React + TypeScript + Supabase
-- ✅ **Fonctionnalités complètes** : Chat IA + Musique + EDN/ECOS + Admin
-- ✅ **Sécurité Grade A** : 98.3% - Headers + Rate limiting + RLS + Fonctions sécurisées
-- ✅ **Base de données** : 85% des problèmes corrigés (17 mineurs restants)
-- ✅ **Documentation** : Complète et maintenue à jour
-- ✅ **Monitoring** : Dashboards temps réel + alertes intelligentes
-
-**Grade actuel : A (98.3/100) - Plateforme hautement sécurisée et production-ready**
-
----
-
-*Dernière mise à jour : 28 Juillet 2025 - [Audit complet](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)*
+*Dernière mise à jour : 29 Janvier 2026*
