@@ -277,3 +277,7 @@ export { useForumThreads } from './useForumThreads';
 export { useMentorshipMatching } from './useMentorshipMatching';
 export { useCollaborativeStudy } from './useCollaborativeStudy';
 export { useStudySessions } from './useStudySessions';
+export { useStudyGroups } from './useStudyGroups';
+export { useAnkiImport } from './useAnkiImport';
+export { useCalendarSync } from './useCalendarSync';
+export { useDiagnosticLogs } from './useDiagnosticLogs';
