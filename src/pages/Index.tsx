@@ -1,4 +1,5 @@
 import { AntiPanicHero } from "@/components/home/AntiPanicHero";
+import { ContinueWhereYouLeft } from "@/components/home/ContinueWhereYouLeft";
 import { QuickActions } from "@/components/home/QuickActions";
 import { ReassuranceSection } from "@/components/home/ReassuranceSection";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
@@ -84,6 +85,13 @@ const Index = () => {
               stats={stats || undefined}
             />
           </div>
+
+          {/* Continue Where You Left - Pour utilisateurs connectés */}
+          {user && (
+            <div className="pb-8">
+              <ContinueWhereYouLeft />
+            </div>
+          )}
 
           {/* Quick Actions - Decision-first */}
           <div className="pb-20">
