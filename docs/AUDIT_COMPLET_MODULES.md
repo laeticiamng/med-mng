@@ -314,21 +314,22 @@
 
 ## ✅ PLAN D'ACTION IMMÉDIAT
 
-### Phase 1 : Corrections Critiques (Cette semaine)
+### Phase 1 : Corrections Critiques (COMPLÉTÉES ✅)
 1. ✅ Corriger feedback ThumbsUp/Down dans MedChat
 2. ✅ Persister historique conversations
 3. ✅ Ajouter raccourcis clavier Flashcards
 
-### Phase 2 : Enrichissements Prioritaires (Ce mois)
-4. Timer ECOS avec grilles
-5. Export PDF examens
-6. Mode vocal Chat IA
+### Phase 2 : Enrichissements Prioritaires (COMPLÉTÉES ✅)
+4. ✅ Timer ECOS temps réel (7 min/station) avec audio
+5. ✅ Grilles d'évaluation ECOS officielles UNESS
+6. ✅ Export PDF résultats examens
+7. ✅ Export stats SRS (PDF + CSV)
 
 ### Phase 3 : Fonctionnalités Avancées (Trimestre)
-7. Import Anki
-8. Dashboard personnalisable
-9. Sync calendrier externe
+8. Import Anki (.apkg)
+9. Mode vocal Chat IA
+10. Dashboard personnalisable drag-drop
 
 ---
 
-*Audit réalisé automatiquement - MED-MNG Platform v2.0*
+*Audit réalisé et enrichissements implémentés - MED-MNG Platform v2.1*
