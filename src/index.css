@@ -9,150 +9,160 @@
 
 @layer base {
   :root {
-    /* Core Colors - Medical Theme */
-    --background: 0 0% 98%;
-    --foreground: 213 32% 19%;
+    /* Core Colors - Premium Medical Theme */
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 213 32% 19%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 32% 19%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Medical Primary - Professional Blue */
-    --primary: 213 94% 68%;
+    /* Medical Primary - Refined Ocean Blue */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 94% 58%;
-    --primary-muted: 213 94% 85%;
+    --primary-hover: 217 91% 50%;
+    --primary-muted: 217 91% 92%;
 
-    /* Medical Secondary - Soft Blue */
-    --secondary: 213 27% 95%;
-    --secondary-foreground: 51 65% 20%;
-    --secondary-hover: 213 27% 88%;
+    /* Medical Secondary - Elegant Slate */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 20%;
+    --secondary-hover: 220 14% 90%;
 
-    /* Muted Colors */
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted Colors - Softer grays */
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 9% 46%;
 
-    /* Accent Colors - Healing Green */
-    --accent: 142 76% 36%;
-    --accent-foreground: 355 7% 97%;
-    --accent-hover: 142 76% 31%;
-    --accent-muted: 142 76% 85%;
+    /* Accent Colors - Vibrant Emerald */
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 160 84% 34%;
+    --accent-muted: 160 84% 90%;
 
-    /* Success/Warning/Error */
-    --success: 142 71% 45%;
-    --success-foreground: 355 7% 97%;
-    --warning: 48 96% 53%;
-    --warning-foreground: 213 32% 19%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Success - Fresh Green */
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning - Warm Amber */
+    --warning: 43 96% 56%;
+    --warning-foreground: 222 47% 11%;
+    
+    /* Destructive - Soft Coral */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs */
-    --border: 213 27% 84%;
-    --input: 213 27% 84%;
-    --ring: 213 94% 68%;
+    /* Borders & Inputs - Refined */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
 
-    /* Gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(213 94% 68%) 0%, hsl(142 76% 36%) 100%);
-    --gradient-header: linear-gradient(135deg, hsl(213 94% 95%) 0%, hsl(213 94% 98%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(213 27% 98%) 100%);
+    /* Premium Gradients */
+    --gradient-medical: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(160 84% 39%) 100%);
+    --gradient-header: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(217 91% 97%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 97%) 0%, hsl(160 84% 97%) 50%, hsl(43 96% 97%) 100%);
 
-    /* Shadows */
-    --shadow-soft: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
-    --shadow-medium: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05);
-    --shadow-large: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+    /* Enhanced Shadows */
+    --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-glow: 0 0 20px -5px rgba(99, 102, 241, 0.2);
 
-    /* Radius */
-    --radius: 0.75rem;
+    /* Radius - Slightly larger for modern feel */
+    --radius: 0.875rem;
     --radius-sm: 0.5rem;
-    --radius-lg: 1rem;
+    --radius-lg: 1.25rem;
 
-    /* Chart Colors */
-    --chart-1: 213 94% 68%;
-    --chart-2: 142 76% 45%;
-    --chart-3: 48 96% 53%;
-    --chart-4: 290 70% 60%;
+    /* Chart Colors - Harmonious palette */
+    --chart-1: 217 91% 60%;
+    --chart-2: 160 84% 45%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 280 75% 60%;
+    --chart-5: 340 82% 52%;
 
-    /* Sidebar - Medical Professional */
+    /* Sidebar - Clean Professional */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 51 65% 20%;
-    --sidebar-primary: 213 94% 68%;
+    --sidebar-foreground: 222 47% 20%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 213 27% 95%;
-    --sidebar-accent-foreground: 51 65% 20%;
-    --sidebar-border: 213 27% 84%;
-    --sidebar-ring: 213 94% 68%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 20%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
-    /* Dark Mode - Medical Professional with Enhanced Contrast */
-    --background: 213 32% 12%;
-    --foreground: 0 0% 98%;
+    /* Dark Mode - Premium Medical with Perfect Contrast */
+    --background: 222 47% 9%;
+    --foreground: 220 14% 96%;
 
-    --card: 215 28% 16%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 47% 12%;
+    --card-foreground: 220 14% 96%;
 
-    --popover: 215 28% 16%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 47% 12%;
+    --popover-foreground: 220 14% 96%;
 
-    /* Medical Primary - Enhanced contrast for dark mode */
-    --primary: 213 94% 75%;
-    --primary-foreground: 213 32% 12%;
-    --primary-hover: 213 94% 88%;
-    --primary-muted: 213 94% 25%;
+    /* Medical Primary - Vibrant for dark */
+    --primary: 217 91% 70%;
+    --primary-foreground: 222 47% 9%;
+    --primary-hover: 217 91% 80%;
+    --primary-muted: 217 91% 20%;
 
-    /* Secondary - Better contrast */
-    --secondary: 215 25% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --secondary-hover: 215 25% 18%;
+    /* Secondary - Elevated surface */
+    --secondary: 222 47% 15%;
+    --secondary-foreground: 220 14% 96%;
+    --secondary-hover: 222 47% 20%;
 
-    --muted: 215 25% 12%;
-    --muted-foreground: 217 33% 75%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 220 9% 60%;
 
-    /* Accent - Enhanced contrast */
-    --accent: 142 76% 50%;
-    --accent-foreground: 0 0% 98%;
-    --accent-hover: 142 76% 60%;
-    --accent-muted: 142 76% 25%;
+    /* Accent - Bright Emerald */
+    --accent: 160 84% 50%;
+    --accent-foreground: 222 47% 9%;
+    --accent-hover: 160 84% 60%;
+    --accent-muted: 160 84% 20%;
 
-    /* Status colors with better contrast */
-    --success: 142 71% 60%;
-    --success-foreground: 213 32% 12%;
-    --warning: 48 96% 68%;
-    --warning-foreground: 213 32% 12%;
-    --destructive: 0 70% 60%;
-    --destructive-foreground: 0 0% 98%;
+    /* Status colors - Luminous */
+    --success: 158 64% 58%;
+    --success-foreground: 222 47% 9%;
+    --warning: 43 96% 64%;
+    --warning-foreground: 222 47% 9%;
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 22%;
-    --input: 215 25% 22%;
-    --ring: 213 94% 80%;
+    --border: 222 47% 18%;
+    --input: 222 47% 18%;
+    --ring: 217 91% 70%;
 
-    /* Dark gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(213 94% 75%) 0%, hsl(142 76% 45%) 100%);
-    --gradient-header: linear-gradient(135deg, hsl(215 28% 17%) 0%, hsl(215 25% 10%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(215 28% 17%) 0%, hsl(215 25% 8%) 100%);
+    /* Dark gradients - Refined */
+    --gradient-medical: linear-gradient(135deg, hsl(217 91% 70%) 0%, hsl(160 84% 50%) 100%);
+    --gradient-header: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(222 47% 8%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(222 47% 13%) 0%, hsl(222 47% 10%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 15%) 0%, hsl(160 84% 12%) 50%, hsl(43 96% 12%) 100%);
 
-    /* Dark shadows */
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-    --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    /* Dark shadows - Subtle glow */
+    --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 1px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 30px -5px rgba(99, 102, 241, 0.3);
 
     /* Chart Colors for dark mode */
-    --chart-1: 213 94% 75%;
-    --chart-2: 142 76% 55%;
-    --chart-3: 48 96% 63%;
-    --chart-4: 290 70% 65%;
+    --chart-1: 217 91% 70%;
+    --chart-2: 160 84% 55%;
+    --chart-3: 43 96% 62%;
+    --chart-4: 280 75% 65%;
+    --chart-5: 340 82% 60%;
 
-    /* Dark Sidebar */
-    --sidebar-background: 215 28% 17%;
-    --sidebar-foreground: 226 71% 93%;
-    --sidebar-primary: 213 94% 75%;
-    --sidebar-primary-foreground: 213 32% 19%;
-    --sidebar-accent: 215 25% 15%;
-    --sidebar-accent-foreground: 226 71% 93%;
-    --sidebar-border: 215 25% 18%;
-    --sidebar-ring: 213 94% 75%;
+    /* Dark Sidebar - Clean */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 220 14% 90%;
+    --sidebar-primary: 217 91% 70%;
+    --sidebar-primary-foreground: 222 47% 9%;
+    --sidebar-accent: 222 47% 15%;
+    --sidebar-accent-foreground: 220 14% 90%;
+    --sidebar-border: 222 47% 18%;
+    --sidebar-ring: 217 91% 70%;
   }
 }
 
