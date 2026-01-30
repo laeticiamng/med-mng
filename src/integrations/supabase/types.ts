@@ -30585,20 +30585,21 @@ export type Database = {
       get_rls_policies: {
         Args: never
         Returns: {
-          cmd: string
-          policyname: string
-          qual: string
-          schemaname: string
-          tablename: string
-          with_check: string
+          policy_cmd: string
+          policy_name: string
+          policy_qual: string
+          policy_roles: string[]
+          policy_with_check: string
+          table_name: string
+          table_schema: string
         }[]
       }
       get_rls_table_summaries: {
         Args: never
         Returns: {
-          has_rls: boolean
           policy_count: number
-          tablename: string
+          rls_enabled: boolean
+          table_name: string
         }[]
       }
       get_secure_platform_stats: {
@@ -31001,6 +31002,18 @@ export type Database = {
       is_room_member: {
         Args: { p_room_id: string; p_user_id: string }
         Returns: boolean
+      }
+      list_rls_policies: {
+        Args: never
+        Returns: {
+          command: string
+          policy_name: string
+          roles: string[]
+          schema_name: string
+          table_name: string
+          using_expr: string
+          with_check_expr: string
+        }[]
       }
       log_admin_change: {
         Args: {

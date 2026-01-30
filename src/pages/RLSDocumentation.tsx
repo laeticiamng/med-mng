@@ -10,18 +10,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // Interface pour les données brutes retournées par la fonction SQL
+// Aligné avec get_rls_policies() qui retourne table_schema, table_name, policy_name, policy_cmd, policy_roles, policy_qual, policy_with_check
 interface RawPolicy {
-  schemaname: string;
-  tablename: string;
-  policyname: string;
-  cmd: string;
-  qual: string | null;
-  with_check: string | null;
+  table_schema: string;
+  table_name: string;
+  policy_name: string;
+  policy_cmd: string;
+  policy_roles: string[];
+  policy_qual: string | null;
+  policy_with_check: string | null;
 }
 
+// Aligné avec get_rls_table_summaries() qui retourne table_name, rls_enabled, policy_count
 interface RawTableSummary {
-  tablename: string;
-  has_rls: boolean;
+  table_name: string;
+  rls_enabled: boolean;
   policy_count: number;
 }
 
@@ -52,9 +55,14 @@ const RLSDocumentation = () => {
       const { data, error } = await supabase.rpc("get_rls_policies");
       if (error) throw error;
       // Transformer les données brutes en format enrichi
-      return (data as RawPolicy[]).map(p => ({
-        ...p,
-        roles: ['authenticated'] // Valeur par défaut puisque non retournée par la fonction
+      const rawData = data as RawPolicy[];
+      return rawData.map(p => ({
+        tablename: p.table_name,
+        policyname: p.policy_name,
+        cmd: p.policy_cmd,
+        roles: p.policy_roles || ['authenticated'],
+        qual: p.policy_qual,
+        with_check: p.policy_with_check,
       })) as Policy[];
     },
   });
@@ -65,9 +73,11 @@ const RLSDocumentation = () => {
       const { data, error } = await supabase.rpc("get_rls_table_summaries");
       if (error) throw error;
       const rawData = data as RawTableSummary[];
-      // Enrichir avec les commandes à partir des policies
+      // Transformer vers TableSummary
       return rawData.map(t => ({
-        ...t,
+        tablename: t.table_name,
+        policy_count: t.policy_count,
+        has_rls: t.rls_enabled,
         commands: [] // Sera rempli après le chargement des policies
       })) as TableSummary[];
     },
