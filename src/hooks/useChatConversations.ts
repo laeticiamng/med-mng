@@ -87,10 +87,11 @@ export const useChatConversations = () => {
   const searchCourseContent = useCallback(async (query: string): Promise<string[]> => {
     try {
       // Rechercher dans les items immersifs (remplace edn_items_complete)
+      // Note: PostgREST ne supporte pas ::text cast dans .or(), on filtre sur title uniquement
       const { data: immersiveItems, error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, payload_v2')
-        .or(`title.ilike.%${query}%,payload_v2::text.ilike.%${query}%`)
+        .ilike('title', `%${query}%`)
         .limit(5);
 
       if (immersiveError) {
@@ -101,7 +102,7 @@ export const useChatConversations = () => {
       const { data: ecosItems, error: ecosError } = await supabase
         .from('ecos_situations_complete')
         .select('situation_number, title, content')
-        .or(`title.ilike.%${query}%,content::text.ilike.%${query}%`)
+        .ilike('title', `%${query}%`)
         .limit(2);
 
       if (ecosError) {
