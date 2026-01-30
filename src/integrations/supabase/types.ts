@@ -699,6 +699,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_chat_feedback: {
+        Row: {
+          created_at: string | null
+          feedback_type: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback_type: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback_type?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_chat_messages: {
         Row: {
           content: string
@@ -30564,7 +30588,7 @@ export type Database = {
           cmd: string
           policyname: string
           qual: string
-          roles: string[]
+          schemaname: string
           tablename: string
           with_check: string
         }[]
@@ -30572,7 +30596,7 @@ export type Database = {
       get_rls_table_summaries: {
         Args: never
         Returns: {
-          commands: string[]
+          has_rls: boolean
           policy_count: number
           tablename: string
         }[]
