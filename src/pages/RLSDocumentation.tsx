@@ -9,6 +9,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
+// Interface pour les données brutes retournées par la fonction SQL
+interface RawPolicy {
+  schemaname: string;
+  tablename: string;
+  policyname: string;
+  cmd: string;
+  qual: string | null;
+  with_check: string | null;
+}
+
+interface RawTableSummary {
+  tablename: string;
+  has_rls: boolean;
+  policy_count: number;
+}
+
+// Interfaces enrichies utilisées dans le composant
 interface Policy {
   tablename: string;
   policyname: string;
@@ -21,6 +38,7 @@ interface Policy {
 interface TableSummary {
   tablename: string;
   policy_count: number;
+  has_rls: boolean;
   commands: string[];
 }
 
@@ -33,7 +51,11 @@ const RLSDocumentation = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rls_policies");
       if (error) throw error;
-      return data as Policy[];
+      // Transformer les données brutes en format enrichi
+      return (data as RawPolicy[]).map(p => ({
+        ...p,
+        roles: ['authenticated'] // Valeur par défaut puisque non retournée par la fonction
+      })) as Policy[];
     },
   });
 
@@ -42,7 +64,12 @@ const RLSDocumentation = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_rls_table_summaries");
       if (error) throw error;
-      return data as TableSummary[];
+      const rawData = data as RawTableSummary[];
+      // Enrichir avec les commandes à partir des policies
+      return rawData.map(t => ({
+        ...t,
+        commands: [] // Sera rempli après le chargement des policies
+      })) as TableSummary[];
     },
   });
 
@@ -89,12 +116,6 @@ const RLSDocumentation = () => {
     }
   };
 
-  const filteredTables = tableSummaries?.filter(table => {
-    const matchesSearch = table.tablename.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || getCategoryFromTable(table.tablename) === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
   const categories = [
     { value: "all", label: "Toutes", icon: Database },
     { value: "communication", label: "Communication", icon: Users },
@@ -105,8 +126,21 @@ const RLSDocumentation = () => {
     { value: "education", label: "Éducation", icon: Database },
   ];
 
-  const securityScore = tableSummaries ? 
-    Math.round((tableSummaries.filter(t => t.policy_count > 0).length / tableSummaries.length) * 100) : 0;
+  // Enrichir les tableSummaries avec les commandes des policies
+  const enrichedTableSummaries = tableSummaries?.map(table => {
+    const tablePolicies = policies?.filter(p => p.tablename === table.tablename) || [];
+    const commands = [...new Set(tablePolicies.map(p => p.cmd))];
+    return { ...table, commands };
+  });
+
+  const filteredTables = enrichedTableSummaries?.filter(table => {
+    const matchesSearch = table.tablename.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || getCategoryFromTable(table.tablename) === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const securityScore = enrichedTableSummaries ? 
+    Math.round((enrichedTableSummaries.filter(t => t.policy_count > 0).length / enrichedTableSummaries.length) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -136,7 +170,7 @@ const RLSDocumentation = () => {
             <div className="flex items-center gap-3">
               <Database className="h-8 w-8 text-primary" />
               <div>
-                <div className="text-2xl font-bold">{tableSummaries?.length || 0}</div>
+                <div className="text-2xl font-bold">{enrichedTableSummaries?.length || 0}</div>
                 <div className="text-sm text-muted-foreground">Tables totales</div>
               </div>
             </div>
@@ -146,7 +180,7 @@ const RLSDocumentation = () => {
               <Shield className="h-8 w-8 text-success" />
               <div>
                 <div className="text-2xl font-bold">
-                  {tableSummaries?.filter(t => t.policy_count > 0).length || 0}
+                  {enrichedTableSummaries?.filter(t => t.policy_count > 0).length || 0}
                 </div>
                 <div className="text-sm text-muted-foreground">Tables protégées</div>
               </div>
@@ -166,7 +200,7 @@ const RLSDocumentation = () => {
               <AlertCircle className="h-8 w-8 text-warning" />
               <div>
                 <div className="text-2xl font-bold">
-                  {tableSummaries?.filter(t => t.policy_count === 0).length || 0}
+                  {enrichedTableSummaries?.filter(t => t.policy_count === 0).length || 0}
                 </div>
                 <div className="text-sm text-muted-foreground">Sans policies</div>
               </div>

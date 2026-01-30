@@ -14,10 +14,13 @@ import {
   Sparkles,
   TrendingUp,
   Brain,
-  Sun
+  Sun,
+  Activity,
+  BarChart3
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from 'recharts';
 
 const moodEmojis = [
   { score: 1, icon: Angry, label: 'Très mauvais', color: 'text-destructive' },
@@ -70,6 +73,43 @@ const MoodTracker = () => {
     const Icon = mood.icon;
     return <Icon className={`h-6 w-6 ${mood.color}`} />;
   };
+
+  // Préparer les données pour le graphique d'évolution
+  const chartData = useMemo(() => {
+    return last7Days
+      .slice()
+      .reverse()
+      .map(entry => ({
+        date: new Date(entry.created_at).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
+        humeur: entry.mood_score,
+        énergie: entry.energy_level,
+        stress: entry.stress_level,
+      }));
+  }, [last7Days]);
+
+  // Calculer la corrélation entre stress et performance (simplifiée)
+  const stressImpactAnalysis = useMemo(() => {
+    if (moodHistory.length < 3) return null;
+    
+    const highStressDays = moodHistory.filter(e => e.stress_level >= 4);
+    const lowStressDays = moodHistory.filter(e => e.stress_level <= 2);
+    
+    const avgMoodHighStress = highStressDays.length > 0 
+      ? highStressDays.reduce((sum, e) => sum + e.mood_score, 0) / highStressDays.length 
+      : 0;
+    const avgMoodLowStress = lowStressDays.length > 0 
+      ? lowStressDays.reduce((sum, e) => sum + e.mood_score, 0) / lowStressDays.length 
+      : 0;
+    
+    return {
+      highStressAvgMood: avgMoodHighStress.toFixed(1),
+      lowStressAvgMood: avgMoodLowStress.toFixed(1),
+      stressCorrelation: avgMoodLowStress > avgMoodHighStress ? 'negative' : 'neutral',
+      recommendation: avgMoodLowStress > avgMoodHighStress + 0.5 
+        ? 'Ton humeur est meilleure quand tu es moins stressé. Essaie de prendre des pauses régulières !' 
+        : 'Continue à observer les facteurs qui influencent ton bien-être.'
+    };
+  }, [moodHistory]);
 
   return (
     <>
@@ -266,6 +306,111 @@ const MoodTracker = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Graphique d'évolution */}
+      {chartData.length >= 2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Évolution sur 7 jours
+            </CardTitle>
+            <CardDescription>
+              Visualise tes tendances d'humeur, énergie et stress
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorEnergy" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorStress" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--warning))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--warning))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} className="text-muted-foreground" />
+                  <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend />
+                  <Area 
+                    type="monotone" 
+                    dataKey="humeur" 
+                    stroke="hsl(var(--primary))" 
+                    fill="url(#colorMood)"
+                    strokeWidth={2}
+                    name="😊 Humeur"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="énergie" 
+                    stroke="hsl(var(--success))" 
+                    fill="url(#colorEnergy)"
+                    strokeWidth={2}
+                    name="⚡ Énergie"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="stress" 
+                    stroke="hsl(var(--warning))" 
+                    fill="url(#colorStress)"
+                    strokeWidth={2}
+                    name="😰 Stress"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Analyse d'impact du stress */}
+      {stressImpactAnalysis && (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Analyse Stress / Performance
+            </CardTitle>
+            <CardDescription>
+              Impact du stress sur ton bien-être
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-success/10 border border-success/20">
+                <p className="text-sm text-muted-foreground">Humeur (stress faible)</p>
+                <p className="text-3xl font-bold text-success">{stressImpactAnalysis.lowStressAvgMood}/5</p>
+              </div>
+              <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
+                <p className="text-sm text-muted-foreground">Humeur (stress élevé)</p>
+                <p className="text-3xl font-bold text-warning">{stressImpactAnalysis.highStressAvgMood}/5</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-lg bg-muted">
+              <p className="text-sm flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <span>{stressImpactAnalysis.recommendation}</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* History */}
       <Card>
