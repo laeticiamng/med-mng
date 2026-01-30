@@ -1,8 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
-
+import { exportToXlsx } from './excelExport';
 interface ComparisonData {
   category: string;
   period1: number;
@@ -186,7 +185,7 @@ export const exportComparisonToPDF = async (
 };
 
 // Export Excel détaillé
-export const exportComparisonToExcel = (
+export const exportComparisonToExcel = async (
   data: ComparisonData[],
   period1Label: string,
   period2Label: string
@@ -235,51 +234,20 @@ export const exportComparisonToExcel = (
     [period2Label]: item.period2,
     Différence: item.difference,
     'Évolution (%)': parseFloat(item.percentageChange.toFixed(1)),
-    Tendance: item.difference > 0 ? '📈 Amélioration' : item.difference < 0 ? '📉 Détérioration' : '➡️ Stable',
+    Tendance: item.difference > 0 ? 'Amélioration' : item.difference < 0 ? 'Détérioration' : 'Stable',
   }));
   
-  // Créer le workbook
-  const wb = XLSX.utils.book_new();
-  
-  const ws1 = XLSX.utils.json_to_sheet(comparisonSheet);
-  const ws2 = XLSX.utils.json_to_sheet(statsSheet);
-  const ws3 = XLSX.utils.json_to_sheet(detailsSheet);
-  
-  // Définir la largeur des colonnes
-  ws1['!cols'] = [
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 12 },
-    { wch: 15 },
-  ];
-  
-  ws2['!cols'] = [
-    { wch: 30 },
-    { wch: 15 },
-  ];
-  
-  ws3['!cols'] = [
-    { wch: 8 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 12 },
-    { wch: 15 },
-    { wch: 20 },
-  ];
-  
-  XLSX.utils.book_append_sheet(wb, ws1, 'Comparaison');
-  XLSX.utils.book_append_sheet(wb, ws2, 'Statistiques');
-  XLSX.utils.book_append_sheet(wb, ws3, 'Détails');
-  
-  // Sauvegarder
+  // Sauvegarder avec notre utilitaire natif
   const fileName = `comparaison-${period1Label.replace(/\s+/g, '-')}-vs-${period2Label.replace(
     /\s+/g,
     '-'
-  )}-${new Date().toISOString().split('T')[0]}.xlsx`;
+  )}-${new Date().toISOString().split('T')[0]}`;
   
-  XLSX.writeFile(wb, fileName);
+  await exportToXlsx([
+    { name: 'Comparaison', data: comparisonSheet, columnWidths: [15, 15, 15, 12, 15] },
+    { name: 'Statistiques', data: statsSheet, columnWidths: [30, 15] },
+    { name: 'Détails', data: detailsSheet, columnWidths: [8, 15, 15, 15, 12, 15, 20] },
+  ], fileName);
 };
 
 // Export CSV simple
