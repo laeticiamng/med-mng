@@ -8,7 +8,7 @@ import { ArrowDown, ArrowUp, Calendar, Download, FileSpreadsheet, FileText, Tren
 import { useRef, useState } from 'react';
 import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
-import * as XLSX from 'xlsx';
+import { exportSingleSheetToXlsx } from '@/utils/excelExport';
 
 const COLORS = [
   'hsl(var(--destructive))',
@@ -114,31 +114,32 @@ export const AlertsAnalyticsDashboard = () => {
   })) || [];
 
   // Export Excel
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!alerts || alerts.length === 0) {
       toast.error('Aucune donnée à exporter');
       return;
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(
-      alerts.map(a => ({
+    try {
+      const data = alerts.map(a => ({
         'ID Externe': a.external_id,
         'Source': a.source,
         'Sévérité': a.severity,
         'Titre': a.title,
         'Score Unifié': a.unified_score,
-        'Score CVSS': a.cvss_score,
+        'Score CVSS': a.cvss_score ?? '',
         'Occurrences': a.occurrence_count,
         'Statut': a.status,
         'Créé le': new Date(a.created_at).toLocaleString('fr-FR'),
-        'URL': a.url,
-      }))
-    );
+        'URL': a.url ?? '',
+      }));
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Alertes');
-    XLSX.writeFile(workbook, `alertes-${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('Export Excel réussi');
+      await exportSingleSheetToXlsx(data, 'Alertes', `alertes-${new Date().toISOString().split('T')[0]}`);
+      toast.success('Export Excel réussi');
+    } catch (error) {
+      console.error('Erreur export Excel:', error);
+      toast.error('Erreur lors de l\'export Excel');
+    }
   };
 
   // Export CSV
