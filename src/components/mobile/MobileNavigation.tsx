@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import {
   BookOpen, Activity, Shield, Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/med-mng/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NavItem {
   title: string;
@@ -15,6 +17,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
   description?: string;
+  adminOnly?: boolean;
 }
 
 const navigationItems: NavItem[] = [
@@ -48,7 +51,8 @@ const navigationItems: NavItem[] = [
     href: "/admin", 
     icon: Shield,
     badge: "Admin",
-    description: "Administration"
+    description: "Administration",
+    adminOnly: true
   },
   { 
     title: "Export", 
@@ -61,6 +65,44 @@ const navigationItems: NavItem[] = [
 export function MobileNavigation() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Vérification sécurisée du rôle admin via Supabase RLS
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user?.id) {
+        setIsAdmin(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Erreur vérification admin:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
+      } catch (error) {
+        console.error('Erreur vérification admin:', error);
+        setIsAdmin(false);
+      }
+    };
+    
+    checkAdminRole();
+  }, [user?.id]);
+
+  // Filtrer les items de navigation selon les permissions
+  const visibleItems = navigationItems.filter(item => 
+    !item.adminOnly || (item.adminOnly && isAdmin)
+  );
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
@@ -87,7 +129,7 @@ export function MobileNavigation() {
                     MedMNG Platform
                   </h2>
                   <div className="space-y-1">
-                    {navigationItems.map((item) => (
+                    {visibleItems.map((item) => (
                       <NavLink
                         key={item.href}
                         to={item.href}
