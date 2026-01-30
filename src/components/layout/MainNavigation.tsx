@@ -48,11 +48,41 @@ export const MainNavigation: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user?.id) {
+        setIsAdmin(false);
+        return;
+      }
+      
+      try {
+        // Import dynamique pour éviter les problèmes de bundling
+        const { supabase } = await import('@/integrations/supabase/client');
+        
+        // Vérification sécurisée via la table user_roles (RLS protégée)
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Erreur vérification admin:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
+      } catch (error) {
+        console.error('Erreur vérification admin:', error);
+        setIsAdmin(false);
+      }
+    };
+    
+    checkAdminRole();
     if (user?.id) {
       loadStats(user.id);
-      setIsAdmin(user.email?.includes('admin') || false);
     }
-  }, [user?.id, loadStats, user?.email]);
+  }, [user?.id, loadStats]);
   
   const level = gamificationStats ? Math.floor((gamificationStats.currentXP || 0) / XP_PER_LEVEL) + 1 : 1;
 
