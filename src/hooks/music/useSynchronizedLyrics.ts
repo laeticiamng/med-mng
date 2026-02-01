@@ -33,7 +33,7 @@ export const useSynchronizedLyrics = ({
     setError(null);
 
     try {
-      const result = await secureSunoClient.getGenerationStatus(taskId || audioId || '');
+      const result = await secureSunoClient.getGenerationStatus(taskId || audioId || '') as any;
 
       if (result?.timestamped_lyrics) {
         const parsedLyrics = parseTimestampedLyrics(result.timestamped_lyrics);
