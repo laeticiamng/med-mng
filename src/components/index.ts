@@ -220,8 +220,11 @@ export {
   KeyboardShortcuts as ShortcutsDisplay
 } from './shortcuts';
 
-// Audio
-export * from './audio';
+// Audio (selective to avoid conflicts with ./edn AudioPlayer)
+export { 
+  UnifiedAudioPlayer,
+  SecureAudioPlayer 
+} from './audio';
 
 // System (unique exports only)
 export { 
