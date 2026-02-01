@@ -40,8 +40,10 @@ double_confirm_changes = true
 enable_confirmations = false
 
 # ============================================================================
-# NOUVELLES FONCTIONS ROUTEURS (regroupées)
+# ROUTEURS CONSOLIDÉS (Architecture v2)
 # ============================================================================
+# 5 routeurs principaux remplacent ~65 fonctions legacy
+# Voir docs/ARCHITECTURE_PLATEFORME.md pour le mapping complet
 
 [functions.ai-audio]
 verify_jwt = false
@@ -59,50 +61,8 @@ verify_jwt = false
 verify_jwt = false
 
 # ============================================================================
-# FONCTIONS LEGACY (conservées pour transition - à supprimer progressivement)
+# FONCTIONS SPÉCIALISÉES (non migrées - cas particuliers)
 # ============================================================================
-
-[functions.generate-music]
-verify_jwt = true
-
-[functions.music-status]
-verify_jwt = false
-
-[functions.music-metrics]
-verify_jwt = false
-
-[functions.suno-callback]
-verify_jwt = false
-
-[functions.openai-chat]
-verify_jwt = true
-
-[functions.openai-image]
-verify_jwt = true
-
-[functions.medical-chat-ai]
-verify_jwt = true
-
-[functions.ia-quota]
-verify_jwt = true
-
-[functions.chat-with-ai]
-verify_jwt = false
-
-[functions.generate-comic-images]
-verify_jwt = false
-
-[functions.generate-voice]
-verify_jwt = true
-
-[functions.generate-content]
-verify_jwt = false
-
-[functions.generate-qcm]
-verify_jwt = false
-
-[functions.generate-clinical-case]
-verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
@@ -111,24 +71,6 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.resend-webhook]
-verify_jwt = false
-
-[functions.med-mng-api]
-verify_jwt = false
-
-[functions.unified-alerts]
-verify_jwt = true
-
-[functions.monitoring-alerts]
-verify_jwt = true
-
-[functions.study-planner]
-verify_jwt = false
-
-[functions.ai-tutor]
-verify_jwt = false
-
-[functions.generate-recommendations]
 verify_jwt = false
 
 [functions.create-checkout]
