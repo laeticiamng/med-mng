@@ -1,16 +1,23 @@
 // ============================================
-// HOOKS - Audio & Music
+// HOOKS - Audio & Music (Architecture Unifiée)
 // ============================================
-// Hooks pour la lecture audio, génération musicale, playlists
 
+// Hook unifié principal - RECOMMANDÉ
+export { useUnifiedAudio, useAudioPlayer, useEnhancedAudioPlayer } from './useUnifiedAudio';
+export type { 
+  AudioTrack, 
+  AudioPlayerState, 
+  AudioPlayerControls, 
+  UseUnifiedAudioOptions 
+} from './useUnifiedAudio';
+
+// Hooks legacy (rétrocompatibilité - utilisent useUnifiedAudio en interne)
 export { useAudioBuffering } from '../useAudioBuffering';
 export { useAudioCache } from '../useAudioCache';
 export { useAudioControls } from '../useAudioControls';
 export { useAudioMetrics } from '../useAudioMetrics';
-export { useAudioPlayer } from '../useAudioPlayer';
 export { useAudioWithCache } from '../useAudioWithCache';
 export { useEcosLyrics } from '../useEcosLyrics';
-export { useEnhancedAudioPlayer } from '../useEnhancedAudioPlayer';
 export { useKaraokeSession } from '../useKaraokeSession';
 export { useListeningModes } from '../useListeningModes';
 export { useMusicGeneration } from '../useMusicGeneration';

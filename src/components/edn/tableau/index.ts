@@ -28,18 +28,24 @@ export * from './TableauRangADataIC3Config';
 export * from './TableauRangADataIC4';
 export * from './TableauRangADataIC5';
 
-// Footer Components (all ICs)
-export { TableauRangAFooterIC1 } from './TableauRangAFooterIC1';
-export { TableauRangAFooterIC10 } from './TableauRangAFooterIC10';
-export { TableauRangAFooterIC2 } from './TableauRangAFooterIC2';
-export { TableauRangAFooterIC3 } from './TableauRangAFooterIC3';
-export { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
-export { TableauRangAFooterIC5 } from './TableauRangAFooterIC5';
-export { TableauRangAFooterIC6 } from './TableauRangAFooterIC6';
-export { TableauRangAFooterIC7 } from './TableauRangAFooterIC7';
-export { TableauRangAFooterIC8 } from './TableauRangAFooterIC8';
-export { TableauRangAFooterIC9 } from './TableauRangAFooterIC9';
-export { TableauRangAFooterOIC010 } from './TableauRangAFooterOIC010';
+// Footer Components - UNIFIED (remplace les 11 fichiers individuels)
+export { 
+  TableauRangAFooterGeneric,
+  TableauRangAFooterIC1,
+  TableauRangAFooterIC2,
+  TableauRangAFooterIC3,
+  TableauRangAFooterIC4,
+  TableauRangAFooterIC5,
+  TableauRangAFooterIC6,
+  TableauRangAFooterIC7,
+  TableauRangAFooterIC8,
+  TableauRangAFooterIC9,
+  TableauRangAFooterIC10,
+  TableauRangAFooterOIC010
+} from './TableauRangAFooterGeneric';
+
+// Footer Config
+export * from './config/footerConfig';
 
 // Utils
 export * from './TableauRangAUtils';
