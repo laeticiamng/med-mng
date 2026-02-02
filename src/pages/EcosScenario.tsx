@@ -109,7 +109,7 @@ const generateQuizFromCompetences = (competences: string | null, _title: string)
 };
 
 const EcosScenario = () => {
-  const { slug } = useParams();
+  const { scenarioId: slug } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<{[key: string]: string}>({});
   const [showQuiz, setShowQuiz] = useState(false);
