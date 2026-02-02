@@ -94,38 +94,6 @@ export const MedMngPricing = () => {
     }
   };
 
-  const handlePlanActivation = async (planId: string) => {
-    if (!user) {
-      toast.error('Veuillez vous connecter');
-      navigate(ROUTE_PATHS.medMngLogin);
-      return;
-    }
-
-    setProcessingPlan(planId);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke('activate-simulation', {
-        body: { planId },
-        headers: { Authorization: `Bearer ${session?.access_token}` }
-      });
-
-      if (error) throw error;
-
-      toast.success(`🎉 Plan ${planId} activé !`, {
-        description: data?.message || `${data?.quota} générations/mois disponibles`
-      });
-      
-      // Recharger la page pour voir les changements après un court délai UX
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      console.error('Error activating plan:', error);
-      toast.error('Erreur lors de l\'activation du plan');
-    } finally {
-      setProcessingPlan(null);
-    }
-  };
-
   const getPlanIcon = (planName: string) => {
     switch (planName.toLowerCase()) {
       case 'free': return <Star className="h-6 w-6" />;
@@ -435,15 +403,6 @@ export const MedMngPricing = () => {
                             ) : (
                               <TranslatedText text="S'abonner" />
                             )}
-                          </PremiumButton>
-                          <PremiumButton
-                            variant="glass"
-                            size="sm"
-                            className="w-full"
-                            onClick={() => handlePlanActivation(plan.id.toLowerCase())}
-                            disabled={processingPlan === plan.id}
-                          >
-                            🎭 Simuler ce plan
                           </PremiumButton>
                         </>
                       )}

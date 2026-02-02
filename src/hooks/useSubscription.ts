@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 // Plans MED-MNG avec prix et limites Stripe
 export const SUBSCRIPTION_TIERS = {
-  free: { name: 'Gratuit', price: 0, generations: 5, price_id: null },
+  free: { name: 'Gratuit', price: 0, generations: 3, price_id: null },
   standard: { name: 'Standard', price: 19, generations: 30, price_id: 'price_1RqGSeDFa5Y9NR1IbOwa1TGy' },
   pro: { name: 'Pro', price: 29, generations: 300, price_id: 'price_1RqGT0DFa5Y9NR1IegoELBi8' },
   premium: { name: 'Premium', price: 39, generations: 3000, price_id: 'price_1RqGTHDFa5Y9NR1IcGxsiIP8' },
@@ -357,9 +357,9 @@ export const useSubscription = () => {
     price: number;
   }[] => {
     const allPlans = [
-      { planId: 'basic', planName: 'Plan Standard', monthlyQuota: 10, price: 19 },
-      { planId: 'pro', planName: 'Plan Pro', monthlyQuota: 30, price: 29 },
-      { planId: 'premium', planName: 'Plan Premium', monthlyQuota: 100, price: 39 }
+      { planId: 'standard', planName: 'Plan Standard', monthlyQuota: SUBSCRIPTION_TIERS.standard.generations, price: SUBSCRIPTION_TIERS.standard.price },
+      { planId: 'pro', planName: 'Plan Pro', monthlyQuota: SUBSCRIPTION_TIERS.pro.generations, price: SUBSCRIPTION_TIERS.pro.price },
+      { planId: 'premium', planName: 'Plan Premium', monthlyQuota: SUBSCRIPTION_TIERS.premium.generations, price: SUBSCRIPTION_TIERS.premium.price }
     ];
 
     const currentQuota = subscription?.monthly_quota || 0;

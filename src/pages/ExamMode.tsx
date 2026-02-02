@@ -432,7 +432,7 @@ export default function ExamMode() {
             )}
 
             {/* Active exam */}
-            {currentSession && !currentSession.completed_at && currentQuestion && (
+            {isExamActive && currentQuestion && (
               <div className="space-y-6">
                 {/* Timer and progress */}
                 <div className="flex items-center justify-between">
@@ -441,7 +441,7 @@ export default function ExamMode() {
                     {formatTime(timeRemaining)}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
-                    Question {currentQuestionIndex + 1} / {questions.length}
+                    Question {currentQuestionIndex + 1} / {totalQuestions}
                   </span>
                 </div>
                 
@@ -536,7 +536,7 @@ export default function ExamMode() {
                         </Button>
                       ) : (
                         <Button onClick={handleNextQuestion}>
-                          {currentQuestionIndex < questions.length - 1 ? 'Question suivante' : 'Terminer'}
+                          {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer'}
                         </Button>
                       )}
                     </div>
@@ -545,8 +545,8 @@ export default function ExamMode() {
               </div>
             )}
 
-            {/* Exam completed - Avec animations améliorées */}
-            {currentSession?.completed_at && (
+            {/* Exam completed - Standard mode */}
+            {examMode === 'standard' && currentSession?.completed_at && (
               <div className="space-y-6">
                 <QuizResultsCard
                   score={currentSession.score ?? 0}
@@ -569,6 +569,19 @@ export default function ExamMode() {
                       errorRate: t.errorRate
                     }))
                   }}
+                />
+              </div>
+            )}
+
+            {/* Exam completed - AI mode */}
+            {examMode === 'ai' && aiSession?.completedAt && (
+              <div className="space-y-6">
+                <QuizResultsCard
+                  score={aiSession.score ?? 0}
+                  totalQuestions={aiSession.questions.length}
+                  correctAnswers={Object.values(aiSession.answers).filter(a => a.correct).length}
+                  onRestart={handleNewExam}
+                  onViewStats={() => setActiveTab('stats')}
                 />
               </div>
             )}
