@@ -21,3 +21,19 @@ export {
   contentApi, 
   unifiedApi 
 } from './unifiedApiClient';
+
+// ============================================================================
+// NOUVELLES INTÉGRATIONS PREMIUM (v9.4)
+// ============================================================================
+
+// Firecrawl - Web scraping IA
+export { firecrawlApi } from './api/firecrawl';
+export type { ScrapeOptions, SearchOptions, FirecrawlResponse } from './api/firecrawl';
+
+// Perplexity - Chat IA avec recherche web temps réel
+export { perplexityApi } from './api/perplexity';
+export type { PerplexityModel, PerplexityMessage, PerplexityOptions, PerplexityResponse } from './api/perplexity';
+
+// Whisper - Transcription audio
+export { whisperApi } from './api/whisper';
+export type { TranscribeOptions, TranscribeResponse } from './api/whisper';

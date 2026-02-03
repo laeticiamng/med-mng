@@ -81,3 +81,19 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
+
+# ============================================================================
+# NOUVELLES INTÉGRATIONS PREMIUM (v9.4)
+# ============================================================================
+
+[functions.firecrawl-scrape]
+verify_jwt = false
+
+[functions.firecrawl-search]
+verify_jwt = false
+
+[functions.perplexity-search]
+verify_jwt = false
+
+[functions.whisper-transcribe]
+verify_jwt = false
