@@ -14,6 +14,7 @@ import { useChatConversations } from '@/hooks/useChatConversations';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { medicalCopilot } from '@/lib';
+import { MedicalDisclaimer, MedicalDisclaimerFooter } from '@/components/legal';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Activity,
@@ -728,6 +729,9 @@ Tu n'as pas besoin de tout chercher toi-même.`,
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Disclaimer médical obligatoire */}
+        <MedicalDisclaimerFooter className="mt-6" />
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useClinicalCases } from '@/hooks/useClinicalCases';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { MedicalDisclaimer } from '@/components/legal';
 import {
     ArrowRight, Award,
     Baby,
@@ -196,6 +197,9 @@ export default function ClinicalCases() {
             <p className="text-muted-foreground">Scénarios médicaux interactifs</p>
           </div>
         </div>
+
+        {/* Disclaimer médical obligatoire */}
+        <MedicalDisclaimer variant="banner" className="mb-6" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-3 w-full max-w-md mb-6">
