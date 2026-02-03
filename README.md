@@ -254,7 +254,7 @@ pnpm dev
                             ▼
 ┌─────────────────────────────────────────────────────────┐
 │                    BACKEND SERVICES                      │
-│   Supabase (Auth + 723 Tables + Storage + Functions)     │
+│   Supabase (Auth + 135+ Tables + Storage + Functions)    │
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
