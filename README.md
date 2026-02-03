@@ -1,12 +1,13 @@
 # 🏥 MED-MNG - Plateforme d'Apprentissage Médical
 
-**Version 9.5 | Dernière mise à jour : 3 Février 2026**
+**Version 9.6.1 | Dernière mise à jour : 3 Février 2026**
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://react.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-Cloud-3ECF8E)](https://supabase.com/)
 [![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
+[![Accessibility](https://img.shields.io/badge/a11y-WCAG_2.1-blue)](https://www.w3.org/WAI/standards-guidelines/wcag/)
 
 > **🎵 "Une chanson = Un item médical maîtrisé"**
 >
@@ -59,7 +60,7 @@ MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-pan
 
 ---
 
-## 🆕 Nouveautés v9.5 — Medical AI Copilot & Streaming
+## 🆕 Nouveautés v9.6.1 — Accessibilité & Stabilisation
 
 ### 🏥 Medical AI Copilot (Révolution v9.5)
 

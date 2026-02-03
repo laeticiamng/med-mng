@@ -91,7 +91,9 @@
 17. ✅ **Offline Mode Manager** - OfflineModeManager component
 18. ✅ **Accessibility Settings** - accessibility_settings table + useAccessibilitySettings
 19. ✅ **Learning Preferences** - user_learning_preferences table + useLearningPreferences
-20. ✅ **RLS Policies Corrigées** - Plus de policies permissives (USING true)
+20. ✅ **RLS Policies Corrigées** - Plus de policies permissives (USING true) pour users
+21. ✅ **VisuallyHidden Component** - Support a11y pour Dialog sans titre visible
+22. ✅ **Environment Virtuel** - Gestion .env.example avec __TO_DEFINE__ placeholders
 
 ---
 
