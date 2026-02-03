@@ -282,3 +282,11 @@ export { useAnkiImport } from './useAnkiImport';
 export { useCalendarSync } from './useCalendarSync';
 export { useDiagnosticLogs } from './useDiagnosticLogs';
 export { useVoiceChat } from './useVoiceChat';
+export { useStudyGoals } from './useStudyGoals';
+
+// ────────────────────────────────────────────
+// 🔒 VALIDATION & CONFORMITÉ (v9.6)
+// ────────────────────────────────────────────
+export { useContentValidation } from './useContentValidation';
+export { useAccessibilitySettings } from './useAccessibilitySettings';
+export { useLearningPreferences } from './useLearningPreferences';

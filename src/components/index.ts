@@ -250,3 +250,6 @@ export {
   SongCard, 
   withAuth 
 } from './med-mng';
+
+// Validation & Conformité médicale (v9.6)
+export * from './validation';
