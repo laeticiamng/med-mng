@@ -117,6 +117,7 @@ const PlatformSettings = lazy(() => import("./pages/PlatformSettings"));
 // OptimizedIndex supprimé (doublon de Index)
 const AccessibilityDashboard = lazy(() => import("./pages/AccessibilityDashboard"));
 const EffectivenessDashboard = lazy(() => import("./pages/EffectivenessDashboard"));
+const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 
 // 📚 CONTENT PAGES - Lazy loaded
 const Generator = lazy(() => import("./pages/Generator"));
@@ -284,6 +285,7 @@ const App = () => {
              <Route path={ROUTE_PATHS.effectivenessDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EffectivenessDashboard /></Suspense>} />
              <Route path={ROUTE_PATHS.rlsDocumentation} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><RLSDocumentation /></Suspense>} />
              <Route path={ROUTE_PATHS.securityMonitoring} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SecurityMonitoring /></Suspense>} />
+             <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ExecutiveDashboard /></Suspense></AdminRoute>} />
            
            {/* Nouvelles pages complètes avec lazy loading */}
            <Route path={ROUTE_PATHS.statistics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />

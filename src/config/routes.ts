@@ -94,6 +94,7 @@ export const ROUTE_PATHS = {
   myGoals: '/my-goals',
   moodTracker: '/mood-tracker',
   pomodoro: '/pomodoro',
+  executiveDashboard: '/executive-dashboard',
   notFound: '*',
 } as const;
 
