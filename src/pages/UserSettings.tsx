@@ -11,11 +11,14 @@ import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import {
+    Accessibility,
     AlertTriangle,
     Bell,
     Database,
     Download,
     Flame,
+    HelpCircle,
+    Layers,
     Mail,
     MapPin,
     Palette,
@@ -32,6 +35,12 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
+
+// Nouveaux composants d'amélioration
+import { AccessibilityPreferencesPanel } from '@/components/settings/AccessibilityPreferencesPanel';
+import { ModulePreferencesPanel } from '@/components/settings/ModulePreferencesPanel';
+import { SupportTicketSystem } from '@/components/support/SupportTicketSystem';
+import { DataExportManager } from '@/components/export/DataExportManager';
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -200,10 +209,13 @@ const UserSettings: React.FC = () => {
 
   const sections = [
     { id: 'profile', label: 'Profil', icon: User },
+    { id: 'modules', label: 'Modules', icon: Layers },
+    { id: 'accessibility', label: 'Accessibilité', icon: Accessibility },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Confidentialité', icon: Shield },
     { id: 'appearance', label: 'Apparence', icon: Palette },
-    { id: 'data', label: 'Données', icon: Database },
+    { id: 'data', label: 'Export données', icon: Database },
+    { id: 'support', label: 'Aide & Support', icon: HelpCircle },
     { id: 'feedback', label: 'Feedback', icon: Mail }
   ];
 
@@ -526,87 +538,49 @@ const UserSettings: React.FC = () => {
                 </Card>
               )}
 
-              {/* Data Management Section */}
+              {/* Data Management Section - Nouveau composant avancé */}
               {activeSection === 'data' && (
-                <Card className="medical-card">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Database className="w-5 h-5 text-primary" />
-                      Gestion des Données
-                    </CardTitle>
-                    <CardDescription>
-                      Exportez, importez ou supprimez vos données personnelles
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Card className="border-2 border-dashed border-muted">
-                        <CardContent className="p-6 text-center">
-                          <Download className="w-8 h-8 text-primary mx-auto mb-3" />
-                          <h4 className="font-medium mb-2">Exporter mes données</h4>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Téléchargez toutes vos données dans un fichier JSON
-                          </p>
-                          <Button
-                            onClick={handleExportData}
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Exporter
-                          </Button>
-                        </CardContent>
-                      </Card>
+                <div className="space-y-6">
+                  <DataExportManager />
+                  
+                  {/* Zone dangereuse */}
+                  <Card className="medical-card border-destructive/30">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="w-5 h-5" />
+                        Zone Dangereuse
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        La suppression de votre compte est irréversible. Toutes vos données,
+                        progression et créations seront définitivement perdues.
+                      </p>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Supprimer mon compte
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-                      <Card className="border-2 border-dashed border-muted">
-                        <CardContent className="p-6 text-center">
-                          <Upload className="w-8 h-8 text-primary mx-auto mb-3" />
-                          <h4 className="font-medium mb-2">Importer des données</h4>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Restaurez vos données depuis un fichier de sauvegarde
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            disabled
-                          >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Bientôt disponible
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
+              {/* Modules Section */}
+              {activeSection === 'modules' && (
+                <ModulePreferencesPanel />
+              )}
 
-                    <Separator />
+              {/* Accessibility Section */}
+              {activeSection === 'accessibility' && (
+                <AccessibilityPreferencesPanel />
+              )}
 
-                    <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive/40 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="w-5 h-5 text-destructive" />
-                        <h4 className="font-medium text-destructive">
-                          Zone Dangereuse
-                        </h4>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <p className="text-sm text-destructive">
-                          La suppression de votre compte est irréversible. Toutes vos données,
-                          progression et créations seront définitivement perdues.
-                        </p>
-                        
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="w-full md:w-auto"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Supprimer mon compte
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Support Section */}
+              {activeSection === 'support' && (
+                <SupportTicketSystem />
               )}
 
               {/* Feedback Section */}
