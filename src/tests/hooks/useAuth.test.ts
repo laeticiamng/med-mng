@@ -624,12 +624,17 @@ describe('Auth Module - Unit Tests', () => {
 
   describe('Edge Cases', () => {
     it('should handle unicode characters in email', async () => {
+      const unicodeEmail = 'tëst@éxample.com';
       mockSignIn.mockResolvedValue({
         data: { user: null, session: null },
         error: { message: 'Invalid email format' }
       });
+      
       // Les emails avec unicode devraient être rejetés ou normalisés
+      const result = await mockSignIn({ email: unicodeEmail, password: 'password123' });
+      
       expect(mockSignIn).toHaveBeenCalled();
+      expect(result.error).not.toBeNull();
     });
 
     it('should handle very long email addresses', async () => {
