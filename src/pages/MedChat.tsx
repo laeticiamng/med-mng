@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -12,6 +13,7 @@ import { ChatPDFExport } from '@/components/chat/ChatPDFExport';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
+import { medicalCopilot } from '@/lib';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Activity,
@@ -33,11 +35,13 @@ import {
     Send,
     Sparkles,
     Star,
+    Stethoscope,
     ThumbsDown,
     ThumbsUp,
-    User
+    User,
+    Zap
 } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Message {
@@ -47,14 +51,23 @@ interface Message {
   timestamp: Date;
   courseCitations?: string[];
   isTyping?: boolean;
+  isStreaming?: boolean;
   feedback?: 'positive' | 'negative' | null;
 }
+
+type ChatMode = 'quick' | 'research' | 'clinical';
 
 const quickSuggestions = [
   { icon: Heart, text: "Expliquez-moi l'insuffisance cardiaque", category: "Cardiologie" },
   { icon: Brain, text: "Différence entre AVC ischémique et hémorragique", category: "Neurologie" },
   { icon: Activity, text: "Signes cliniques de l'infarctus du myocarde", category: "Urgences" },
   { icon: BookOpen, text: "Protocole de prise en charge de l'hypertension", category: "Médecine générale" },
+];
+
+const CHAT_MODES = [
+  { value: 'quick' as ChatMode, label: '⚡ Rapide', description: '2-3 phrases' },
+  { value: 'research' as ChatMode, label: '🔬 Recherche', description: 'Approfondi avec sources' },
+  { value: 'clinical' as ChatMode, label: '🏥 Clinique', description: 'Raisonnement médical complet' },
 ];
 
 export const MedChat: React.FC = () => {
@@ -64,6 +77,8 @@ export const MedChat: React.FC = () => {
   const { stats: gamificationStats, loadStats, addPoints, unlockBadge } = useGamification();
   const [user, setUser] = useState<any>(null);
   const [questionCount, setQuestionCount] = useState(0);
+  const [chatMode, setChatMode] = useState<ChatMode>('quick');
+  const [useStreaming, setUseStreaming] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -149,7 +164,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (messageText?: string) => {
+  const handleSendMessage = useCallback(async (messageText?: string) => {
     const textToSend = messageText || currentMessage;
     if (!textToSend.trim() || isLoading) return;
 
@@ -168,57 +183,87 @@ Tu n'as pas besoin de tout chercher toi-même.`,
     // Ajouter à l'historique de recherche
     setSearchHistory(prev => {
       const newHistory = [textToSend, ...prev.filter(item => item !== textToSend)];
-      return newHistory.slice(0, 10); // Garder seulement les 10 dernières
+      return newHistory.slice(0, 10);
     });
 
-    // Message de frappe temporaire
-    const typingMessage: Message = {
-      id: 'typing',
-      role: 'assistant',
-      content: '...',
-      timestamp: new Date(),
-      isTyping: true,
-    };
-    setMessages(prev => [...prev, typingMessage]);
+    const streamingMessageId = (Date.now() + 1).toString();
 
     try {
-      const response = await sendMessage(textToSend);
-      
-      // Retirer le message de frappe
-      setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
-      
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response.content,
-        timestamp: new Date(),
-        courseCitations: response.courseCitations,
-      };
+      if (useStreaming) {
+        // 🆕 STREAMING MODE - Token-par-token révolutionnaire
+        const streamingMessage: Message = {
+          id: streamingMessageId,
+          role: 'assistant',
+          content: '',
+          timestamp: new Date(),
+          isStreaming: true,
+        };
+        setMessages(prev => [...prev, streamingMessage]);
 
-      setMessages(prev => [...prev, assistantMessage]);
+        await medicalCopilot.stream(
+          textToSend,
+          chatMode,
+          // onDelta: append each token
+          (delta: string) => {
+            setMessages(prev => prev.map(msg => 
+              msg.id === streamingMessageId 
+                ? { ...msg, content: msg.content + delta }
+                : msg
+            ));
+          },
+          // onDone: mark complete
+          () => {
+            setMessages(prev => prev.map(msg => 
+              msg.id === streamingMessageId 
+                ? { ...msg, isStreaming: false }
+                : msg
+            ));
+          }
+        );
+      } else {
+        // Mode classique (non-streaming)
+        const typingMessage: Message = {
+          id: 'typing',
+          role: 'assistant',
+          content: '...',
+          timestamp: new Date(),
+          isTyping: true,
+        };
+        setMessages(prev => [...prev, typingMessage]);
+
+        const response = await sendMessage(textToSend);
+        setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
+        
+        const assistantMessage: Message = {
+          id: streamingMessageId,
+          role: 'assistant',
+          content: response.content,
+          timestamp: new Date(),
+          courseCitations: response.courseCitations,
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }
 
       // Track activity and award points
       if (user) {
         await logActivity({
           activity_type: 'ai_question',
           count: 1,
-          metadata: { question: textToSend.slice(0, 100) }
+          metadata: { question: textToSend.slice(0, 100), mode: chatMode, streaming: useStreaming }
         });
         
         await addPoints(user.id, POINTS_CONFIG.itemReviewed, 'itemReviewed');
         const newCount = questionCount + 1;
         setQuestionCount(newCount);
         
-        // Unlock AI chat badge after 10 questions
         if (newCount >= 10) {
           await unlockBadge(user.id, 'ai_chat');
         }
-        
         loadStats(user.id);
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
-      setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
+      setMessages(prev => prev.filter(msg => msg.id !== 'typing' && msg.id !== streamingMessageId));
       
       toast({
         title: "❌ Erreur",
@@ -228,7 +273,7 @@ Tu n'as pas besoin de tout chercher toi-même.`,
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentMessage, isLoading, useStreaming, chatMode, user, questionCount, sendMessage, logActivity, addPoints, unlockBadge, loadStats, toast]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -353,7 +398,38 @@ Tu n'as pas besoin de tout chercher toi-même.`,
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+            {/* 🆕 Mode Selector - Révolutionnaire */}
+            <Select value={chatMode} onValueChange={(v) => setChatMode(v as ChatMode)}>
+              <SelectTrigger className="w-[140px] h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CHAT_MODES.map(mode => (
+                  <SelectItem key={mode.value} value={mode.value}>
+                    <div className="flex flex-col">
+                      <span>{mode.label}</span>
+                      <span className="text-xs text-muted-foreground">{mode.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Streaming Toggle */}
+            <Button
+              variant={useStreaming ? "default" : "outline"}
+              size="sm"
+              onClick={() => setUseStreaming(!useStreaming)}
+              className="gap-1.5 h-9"
+              title={useStreaming ? "Streaming activé" : "Mode classique"}
+            >
+              <Zap className={`h-3.5 w-3.5 ${useStreaming ? 'text-yellow-300' : ''}`} />
+              <span className="hidden sm:inline text-xs">
+                {useStreaming ? 'Stream' : 'Classic'}
+              </span>
+            </Button>
+
             {/* Gamification Quick Stats */}
             {user && gamificationStats && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
@@ -470,6 +546,14 @@ Tu n'as pas besoin de tout chercher toi-même.`,
                               <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                               <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                             </div>
+                          ) : message.isStreaming ? (
+                            <>
+                              <p className="whitespace-pre-wrap leading-relaxed">{message.content}<span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1" /></p>
+                              <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
+                                <Zap className="h-3 w-3 text-warning animate-pulse" />
+                                <span>Streaming en cours...</span>
+                              </div>
+                            </>
                           ) : (
                             <>
                               <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
