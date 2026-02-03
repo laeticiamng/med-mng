@@ -1,4 +1,5 @@
 import { SRSStatsExport } from '@/components/srs/SRSStatsExport';
+import { MedicalDisclaimerFooter } from '@/components/legal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -596,6 +597,9 @@ export default function SRSReview() {
             </div>
           </Card>
         )}
+
+        {/* Disclaimer médical */}
+        <MedicalDisclaimerFooter className="mt-8" />
       </div>
     </div>
   );
