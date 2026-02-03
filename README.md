@@ -1,11 +1,8 @@
-# 🏥 MED-MNG - Plateforme d'Apprentissage Médical Intelligent
+# 🏥 MED-MNG - Plateforme d'Apprentissage Médical
 
 **Version 9.5 | Dernière mise à jour : 3 Février 2026**
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
-[![Score Audit](https://img.shields.io/badge/Audit%20Score-20%2F20-brightgreen)](./docs/AUDIT_COMPLET_MODULES.md)
-[![Security Grade](https://img.shields.io/badge/Security-Grade%20A+-brightgreen)](./docs/STATUT-PLATEFORME-RESUME.md)
-[![Production Ready](https://img.shields.io/badge/Production-100%25%20Ready-brightgreen)](./docs/ARCHITECTURE_PLATEFORME.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://react.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-Cloud-3ECF8E)](https://supabase.com/)
@@ -13,7 +10,9 @@
 
 > **🎵 "Une chanson = Un item médical maîtrisé"**
 >
-> MED-MNG est une plateforme anti-panique cognitive qui transforme l'apprentissage médical grâce à la musique générée par IA. Conçue pour les étudiants en médecine préparant les ECN/EDN.
+> MED-MNG est un outil pédagogique expérimental qui explore l'apprentissage médical par la musique générée par IA. Conçue pour les étudiants en médecine.
+
+> ⚠️ **IMPORTANT** : Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour les limites, risques et transparence sur les métriques.
 
 ---
 
@@ -99,18 +98,17 @@ await medicalCopilot.stream(
 | **📊 Excel Export** | Export natif sécurisé | ✅ |
 | **🤖 Medical Copilot** | Orchestrateur IA avec streaming | ✅ |
 
-### 📈 Scores Production-Ready
+### 📈 Métriques Actuelles
 
-| Métrique | Score |
-|----------|-------|
-| Score Global Plateforme | **20/20** |
-| Sécurité (Grade) | **A+** |
-| Organisation Fichiers | **20/20** |
-| Couverture Fonctionnelle | **100%** |
-| Tables Supabase | **723** |
-| Edge Functions | **130+** (5 routeurs) |
-| Hooks React | **160+** |
-| Pages | **80+** |
+> **Note** : Ces métriques sont des estimations internes, non validées par un audit externe.
+> Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour plus de détails.
+
+| Métrique | Estimation | Contexte |
+|----------|------------|----------|
+| Pages React | ~80 | Interface utilisateur |
+| Hooks React | ~100 | Logique métier |
+| Tables Supabase | ~50-80 | Schéma actif |
+| Edge Functions | ~15-20 | APIs backend |
 
 ---
 
@@ -174,14 +172,16 @@ await medicalCopilot.stream(
 | **Mood Tracker** | Suivi quotidien humeur/énergie/stress |
 | **Smart Study Planner** | Planification intelligente avec sync calendrier |
 
-### 👥 Communauté
+### 👥 Communauté (Planifié)
 
-| Feature | Description |
-|---------|-------------|
-| **Community Hub** | Forum de discussion |
-| **Mentorat** | Matching mentors/étudiants |
-| **Ressources Partagées** | Partage de contenu |
-| **Étude Collaborative** | Sessions d'étude en groupe |
+> ⚠️ **Note** : Ces fonctionnalités sont **planifiées mais non implémentées**.
+
+| Feature | Status |
+|---------|--------|
+| **Community Hub** | 📋 Planifié |
+| **Mentorat** | 📋 Planifié |
+| **Ressources Partagées** | 📋 Planifié |
+| **Étude Collaborative** | 📋 Planifié |
 
 ---
 

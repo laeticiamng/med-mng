@@ -39,6 +39,7 @@ import { useRealtimeGeneration } from '@/hooks/useRealtimeGeneration';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useSunoCredits } from '@/hooks/useSunoCredits';
 import { supabase } from '@/integrations/supabase/client';
+import { MedicalDisclaimer } from '@/components/legal';
 import { ArrowLeft, Music, Settings2, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -593,6 +594,11 @@ const Generator = () => {
               </div>
             </div>
           </PremiumCard>
+        </div>
+        
+        {/* Disclaimer médical */}
+        <div className="max-w-6xl mx-auto mt-6 px-2 md:px-4">
+          <MedicalDisclaimer variant="minimal" />
         </div>
       </main>
     </PremiumBackground>

@@ -10,6 +10,7 @@ export { DeveloperMetricsTable } from './DeveloperMetricsTable';
 export { EmailPreview } from './EmailPreview';
 export { EmailReportConfig } from './EmailReportConfig';
 export { EmailStatistics } from './EmailStatistics';
+export { EnhancedAccessibilityPanel } from './EnhancedAccessibilityPanel';
 export { ExportMetricsCard } from './ExportMetricsCard';
 export { NotificationAnalytics } from './NotificationAnalytics';
 export { NotificationHistory } from './NotificationHistory';
