@@ -6,6 +6,8 @@
  * - Firecrawl: Extraction de contenu médical officiel
  * - Whisper: Transcription vocale médicale
  * 
+ * ✨ NOUVEAU: Streaming token-par-token pour UX révolutionnaire
+ * 
  * @example
  * // Recherche médicale approfondie
  * const result = await medicalCopilot.research('Traitement insuffisance cardiaque 2024');
@@ -15,6 +17,9 @@
  * 
  * // Analyse d'une guideline
  * const result = await medicalCopilot.analyzeGuideline('https://has-sante.fr/...');
+ * 
+ * // 🆕 Streaming temps réel
+ * await medicalCopilot.stream('Diagnostic HTA', 'clinical', (chunk) => console.log(chunk));
  */
 
 import { supabase } from '@/integrations/supabase/client';
@@ -29,6 +34,8 @@ export type CopilotMode =
   | 'voice-query'        // Audio → Texte → Réponse
   | 'clinical-assistant' // Assistant clinique complet
   | 'quick-answer';      // Réponse rapide
+
+export type StreamMode = 'research' | 'clinical' | 'quick';
 
 export interface CopilotContext {
   specialty?: string;
@@ -234,6 +241,105 @@ export const medicalCopilot = {
     }
     
     return results;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🆕 STREAMING API - Token-par-token révolutionnaire
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * ✨ Streaming temps réel - Tokens affichés au fur et à mesure
+   * 
+   * @example
+   * await medicalCopilot.stream(
+   *   'Diagnostic différentiel douleur thoracique',
+   *   'clinical',
+   *   (chunk) => setResponse(prev => prev + chunk),
+   *   () => console.log('Done!')
+   * );
+   */
+  async stream(
+    query: string,
+    mode: StreamMode = 'quick',
+    onDelta: (deltaText: string) => void,
+    onDone?: () => void,
+    specialty?: string
+  ): Promise<void> {
+    const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+    
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/medical-ai-copilot-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ query, mode, specialty }),
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error('Failed to start stream');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process SSE lines
+      let newlineIdx: number;
+      while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+        let line = buffer.slice(0, newlineIdx);
+        buffer = buffer.slice(newlineIdx + 1);
+
+        if (line.endsWith('\r')) line = line.slice(0, -1);
+        if (line.startsWith(':') || line.trim() === '') continue;
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) onDelta(content);
+        } catch {
+          // Incomplete JSON, wait for more data
+          buffer = line + '\n' + buffer;
+          break;
+        }
+      }
+    }
+
+    onDone?.();
+  },
+
+  /**
+   * 🔬 Streaming recherche approfondie
+   */
+  async streamResearch(
+    query: string,
+    onDelta: (text: string) => void,
+    onDone?: () => void,
+    specialty?: string
+  ): Promise<void> {
+    return this.stream(query, 'research', onDelta, onDone, specialty);
+  },
+
+  /**
+   * 🏥 Streaming assistant clinique
+   */
+  async streamClinical(
+    query: string,
+    onDelta: (text: string) => void,
+    onDone?: () => void
+  ): Promise<void> {
+    return this.stream(query, 'clinical', onDelta, onDone);
   },
 };
 

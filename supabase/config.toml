@@ -105,3 +105,6 @@ verify_jwt = false
 [functions.medical-ai-copilot]
 verify_jwt = false
 
+[functions.medical-ai-copilot-stream]
+verify_jwt = false
+
