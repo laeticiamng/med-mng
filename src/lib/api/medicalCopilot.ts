@@ -35,7 +35,7 @@ export type CopilotMode =
   | 'clinical-assistant' // Assistant clinique complet
   | 'quick-answer';      // Réponse rapide
 
-export type StreamMode = 'research' | 'clinical' | 'quick';
+export type StreamMode = 'research' | 'clinical' | 'quick' | 'quick-answer';
 
 export interface CopilotContext {
   specialty?: string;

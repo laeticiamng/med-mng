@@ -14,7 +14,7 @@ const corsHeaders = {
 
 interface StreamRequest {
   query: string;
-  mode?: 'research' | 'clinical' | 'quick';
+  mode?: 'research' | 'clinical' | 'quick' | 'quick-answer';
   specialty?: string;
 }
 
@@ -43,22 +43,26 @@ serve(async (req) => {
 
     console.log(`🏥 Medical Copilot Stream - Mode: ${mode}`);
 
-    // Build system prompt based on mode
+    // Build system prompt based on mode - normalize 'quick' to 'quick-answer'
+    const normalizedMode = mode === 'quick' ? 'quick-answer' : mode;
     let systemPrompt = 'Tu es un assistant médical expert pour étudiants en médecine français.';
     let model = 'sonar';
     
-    if (mode === 'research') {
+    if (normalizedMode === 'research') {
       systemPrompt = specialty 
         ? `Tu es un expert en ${specialty}. Fournis une réponse détaillée et structurée avec sources pour les EDN/ECOS.`
         : 'Tu es un médecin expert. Fournis des réponses complètes avec sources académiques.';
       model = 'sonar-pro';
-    } else if (mode === 'clinical') {
+    } else if (normalizedMode === 'clinical') {
       systemPrompt = `Tu es un assistant clinique expert. Fournis:
 1. Réponse structurée
 2. Diagnostics différentiels 
 3. Examens complémentaires
 4. Références actuelles`;
       model = 'sonar-reasoning-pro';
+    } else if (normalizedMode === 'quick-answer') {
+      systemPrompt = 'Tu es un assistant médical concis. Réponds en 2-3 phrases maximum.';
+      model = 'sonar';
     }
 
     // Call Perplexity with streaming enabled
@@ -75,9 +79,9 @@ serve(async (req) => {
           { role: 'user', content: query }
         ],
         stream: true,
-        max_tokens: mode === 'quick' ? 500 : 3000,
+        max_tokens: normalizedMode === 'quick-answer' ? 500 : 3000,
         temperature: 0.1,
-        ...(mode === 'research' && { 
+        ...(normalizedMode === 'research' && { 
           search_mode: 'academic',
           search_domain_filter: ['pubmed.ncbi.nlm.nih.gov', 'has-sante.fr', 'sfcardio.fr']
         }),
