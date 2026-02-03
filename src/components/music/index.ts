@@ -15,6 +15,7 @@ export { default as MusicGenerationSection } from './MusicGenerationSection';
 export { MusicLibrary } from './MusicLibrary';
 export { MusicPlayer } from './MusicPlayer';
 export { MusicVersionDisplay } from './MusicVersionDisplay';
+export { SongTranscription } from './SongTranscription';
 export { SpotifyAIPlayer } from './SpotifyAIPlayer';
 export { SpotifyLibrary } from './SpotifyLibrary';
 export { SynchronizedLyricsDisplay } from './SynchronizedLyricsDisplay';

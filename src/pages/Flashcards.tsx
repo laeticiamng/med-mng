@@ -1,4 +1,5 @@
 import { AnimatedProgressRing } from '@/components/ui/animated-progress-ring';
+import { MedicalDisclaimerFooter } from '@/components/legal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -716,6 +717,9 @@ export default function Flashcards() {
             </TabsContent>
           </Tabs>
         )}
+
+        {/* Disclaimer médical */}
+        <MedicalDisclaimerFooter className="mt-8" />
       </div>
     </div>
   );
