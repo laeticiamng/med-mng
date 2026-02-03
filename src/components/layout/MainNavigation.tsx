@@ -143,7 +143,7 @@ export const MainNavigation: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
                 {SECONDARY_NAV_GROUPS.map((group, index) => (
-                  <React.Fragment key={group.id}>
+                  <DropdownMenuGroup key={group.id}>
                     {index > 0 && <DropdownMenuSeparator />}
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger className="font-medium">
@@ -170,7 +170,7 @@ export const MainNavigation: React.FC = () => {
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
                     </DropdownMenuSub>
-                  </React.Fragment>
+                  </DropdownMenuGroup>
                 ))}
                 
                 {isAdmin && (
@@ -332,36 +332,42 @@ export const MainNavigation: React.FC = () => {
               ))}
               
               {/* Catégories secondaires */}
-              {SECONDARY_NAV_GROUPS.map((group) => (
-                <div key={group.id} className="pt-3">
-                  <div className="px-2 pb-2 border-t border-border/50 pt-3">
-                    <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide flex items-center gap-2">
-                      <group.icon className="w-3 h-3" />
-                      {group.label.replace(/^[^\s]+\s/, '')}
-                    </p>
+              {SECONDARY_NAV_GROUPS.map((group) => {
+                const IconComponent = group.icon;
+                return (
+                  <div key={group.id} className="pt-3">
+                    <div className="px-2 pb-2 border-t border-border/50 pt-3">
+                      <p className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide flex items-center gap-2">
+                        <IconComponent className="w-3 h-3" />
+                        {group.label.replace(/^[^\s]+\s/, '')}
+                      </p>
+                    </div>
+                    {group.items.map((item) => {
+                      const ItemIcon = item.icon;
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isActive(item.path)
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <ItemIcon className="w-4 h-4 mr-3" />
+                            {item.label}
+                          </div>
+                          {item.description && (
+                            <span className="text-xs text-muted-foreground/70">{item.description}</span>
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
-                  {group.items.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                        isActive(item.path)
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <item.icon className="w-4 h-4 mr-3" />
-                        {item.label}
-                      </div>
-                      {item.description && (
-                        <span className="text-xs text-muted-foreground/70">{item.description}</span>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              ))}
+                );
+              })}
               
               {/* Connexion pour mobile */}
               {!user && (
