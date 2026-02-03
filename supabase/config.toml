@@ -97,3 +97,11 @@ verify_jwt = false
 
 [functions.whisper-transcribe]
 verify_jwt = false
+
+# ============================================================================
+# MEDICAL AI COPILOT (v9.5 - Révolutionnaire)
+# ============================================================================
+
+[functions.medical-ai-copilot]
+verify_jwt = false
+
