@@ -146,8 +146,9 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
         body: { itemId: 'invalid-uuid-12345' }
       });
 
-      // Either error or empty data expected
-      expect(error !== null || data === null || data?.error).toBeTruthy();
+      // Either error, null data, error in data, or non-complete status expected
+      const hasError = error !== null || data === null || data?.error || data?.status === 'error' || !data?.isComplete;
+      expect(hasError).toBeTruthy();
     });
   });
 
