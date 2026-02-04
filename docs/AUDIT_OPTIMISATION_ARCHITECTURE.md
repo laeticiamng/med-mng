@@ -1,5 +1,5 @@
-# 🔍 AUDIT D'OPTIMISATION ARCHITECTURE - MED-MNG v9.5
-**Date :** 3 février 2026  
+# 🔍 AUDIT D'OPTIMISATION ARCHITECTURE - MED-MNG v9.6.3
+**Date :** 4 février 2026  
 **Objectif :** Identifier les tables/fonctions non utilisées et proposer des consolidations
 
 ---
@@ -206,4 +206,4 @@ Pour exécuter le nettoyage :
 
 ---
 
-*Audit réalisé par Lovable AI - MED-MNG Platform v9.5*
+*Audit réalisé par Lovable AI - MED-MNG Platform v9.6.3*
