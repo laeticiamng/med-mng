@@ -20,7 +20,7 @@
 ## 📋 Table des Matières
 
 - [🎯 Vision & Philosophie](#-vision--philosophie)
-- [🆕 Nouveautés v9.5](#-nouveautés-v95)
+- [🆕 Nouveautés v9.6.3](#-nouveautés-v963)
 - [✨ Fonctionnalités](#-fonctionnalités)
 - [🚀 Démarrage Rapide](#-démarrage-rapide)
 - [🏗️ Architecture](#️-architecture)
@@ -60,7 +60,7 @@ MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-pan
 
 ---
 
-## 🆕 Nouveautés v9.6.1 — Accessibilité & Stabilisation
+## 🆕 Nouveautés v9.6.3 — Production Ready
 
 ### 🏥 Medical AI Copilot (Révolution v9.5)
 
@@ -101,15 +101,16 @@ await medicalCopilot.stream(
 
 ### 📈 Métriques Actuelles
 
-> **Note** : Ces métriques sont des estimations internes, non validées par un audit externe.
+> **Note** : Ces métriques sont basées sur le code source actuel (v9.6.3).
 > Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour plus de détails.
 
-| Métrique | Estimation | Contexte |
-|----------|------------|----------|
-| Pages React | ~80 | Interface utilisateur |
-| Hooks React | ~100 | Logique métier |
-| Tables Supabase | ~50-80 | Schéma actif |
-| Edge Functions | ~15-20 | APIs backend |
+| Métrique | Valeur | Contexte |
+|----------|--------|----------|
+| Pages React | 82 | Interface utilisateur |
+| Composants | 295+ | UI components |
+| Hooks React | 165+ | Logique métier organisée en 8 domaines |
+| Tables Supabase | 135+ actives | Schéma public (hors systèmes) |
+| Edge Functions | 120+ | APIs backend + routeurs unifiés |
 
 ---
 
@@ -173,16 +174,17 @@ await medicalCopilot.stream(
 | **Mood Tracker** | Suivi quotidien humeur/énergie/stress |
 | **Smart Study Planner** | Planification intelligente avec sync calendrier |
 
-### 👥 Communauté (Planifié)
+### 👥 Communauté
 
-> ⚠️ **Note** : Ces fonctionnalités sont **planifiées mais non implémentées**.
-
-| Feature | Status |
-|---------|--------|
-| **Community Hub** | 📋 Planifié |
-| **Mentorat** | 📋 Planifié |
-| **Ressources Partagées** | 📋 Planifié |
-| **Étude Collaborative** | 📋 Planifié |
+| Fonctionnalité | Description | Status |
+|----------------|-------------|--------|
+| **Community Hub** | Forum discussions, posts, likes, bookmarks | ✅ Implémenté |
+| **Forum Topics** | Sujets thématiques avec réponses et likes | ✅ Implémenté |
+| **Mentorat** | Système de matching mentor/étudiant | ✅ Implémenté |
+| **Ressources Partagées** | Partage de documents et ressources | ✅ Implémenté |
+| **Étude Collaborative** | Sessions d'étude en groupe | ✅ Implémenté |
+| **Événements** | Inscriptions aux événements communautaires | ✅ Implémenté |
+| **Modération** | Signalements et outils modération | ⚠️ Basique |
 
 ---
 
@@ -643,7 +645,7 @@ RESEND_API_KEY=
 
 ---
 
-## 📈 Scores Audit v9.5
+## 📈 Scores Audit v9.6.3
 
 | Module | Score | Status |
 |--------|-------|--------|
@@ -678,7 +680,7 @@ RESEND_API_KEY=
 ---
 
 <p align="center">
-  <strong>🎵 MED-MNG v9.5 - Apprendre la médecine en musique 🎵</strong>
+  <strong>🎵 MED-MNG v9.6.3 - Apprendre la médecine en musique 🎵</strong>
   <br>
   <em>Made with ❤️ for medical students</em>
   <br><br>
@@ -687,4 +689,4 @@ RESEND_API_KEY=
 
 ---
 
-*Dernière mise à jour : 3 Février 2026 - Version 9.5 (Medical AI Copilot & Streaming)*
+*Dernière mise à jour : 4 Février 2026 - Version 9.6.3 (Production Ready)*
