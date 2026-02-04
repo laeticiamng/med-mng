@@ -186,7 +186,7 @@ RLS Coverage: 99% ✅
 
 ---
 
-## 🔐 SECRETS CONFIGURÉS (v9.6.2)
+## 🔐 SECRETS CONFIGURÉS (v9.6.3)
 
 | Secret | Provider | Status |
 |--------|----------|--------|
@@ -213,7 +213,7 @@ RLS Coverage: 99% ✅
 
 ---
 
-## 📋 CHECKLIST DÉPLOIEMENT v9.6.2
+## 📋 CHECKLIST DÉPLOIEMENT v9.6.3
 
 - [x] Secrets configurés (10/10)
 - [x] Tests smoke passants (9/9)
@@ -226,4 +226,4 @@ RLS Coverage: 99% ✅
 
 ---
 
-*Document généré automatiquement - MED-MNG v9.6.2 - Audit Final Complet - 4 Février 2026*
+*Document généré automatiquement - MED-MNG v9.6.3 - Audit Final Complet - 4 Février 2026*
