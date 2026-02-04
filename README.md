@@ -1,6 +1,6 @@
 # 🏥 MED-MNG - Plateforme d'Apprentissage Médical
 
-**Version 9.6.1 | Dernière mise à jour : 3 Février 2026**
+**Version 9.6.2 | Dernière mise à jour : 4 Février 2026**
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
