@@ -285,8 +285,17 @@ export { useVoiceChat } from './useVoiceChat';
 export { useStudyGoals } from './useStudyGoals';
 
 // ────────────────────────────────────────────
-// 🔒 VALIDATION & CONFORMITÉ (v9.6)
+// 🔒 VALIDATION & CONFORMITÉ (v9.6.1)
 // ────────────────────────────────────────────
 export { useContentValidation } from './useContentValidation';
 export { useAccessibilitySettings } from './useAccessibilitySettings';
 export { useLearningPreferences } from './useLearningPreferences';
+
+// ────────────────────────────────────────────
+// 📦 MODULES COMPLÉMENTAIRES (v9.6.1)
+// ────────────────────────────────────────────
+export { useAccessibilityPreferences } from './useAccessibilityPreferences';
+export { useModulePreferences } from './useModulePreferences';
+export { useWorkflowEngine } from './useWorkflowEngine';
+export { useMultiTenancy } from './useMultiTenancy';
+export { usePlatformConnectors } from './usePlatformConnectors';
