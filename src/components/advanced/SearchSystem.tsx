@@ -13,6 +13,16 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+// Helper to safely update state only when mounted
+const useMountedState = () => {
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+  return mountedRef;
+};
+
 interface SearchResult {
   id: string;
   title: string;
@@ -47,14 +57,25 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
     'Cardiologie ECG', 'ECOS urgences', 'Neurologie items', 'Pédiatrie quiz'
   ]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useMountedState();
 
+  // Safe state updates (only when mounted)
+  const safeSetResults = useCallback((value: SearchResult[]) => {
+    if (mountedRef.current) setResults(value);
+  }, []);
+  const safeSetIsLoading = useCallback((value: boolean) => {
+    if (mountedRef.current) setIsLoading(value);
+  }, []);
+  const safeSetRecentSearches = useCallback((value: string[]) => {
+    if (mountedRef.current) setRecentSearches(value);
+  }, []);
   // Load recent searches from Supabase (no localStorage fallback)
   const loadRecentSearches = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     
     // Anonymous users don't persist searches
     if (!user) {
-      setRecentSearches([]);
+      safeSetRecentSearches([]);
       return;
     }
 
@@ -66,9 +87,9 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
       .limit(5);
 
     if (data) {
-      setRecentSearches(data.map((d: any) => d.query));
+      safeSetRecentSearches(data.map((d: any) => d.query));
     }
-  }, []);
+  }, [safeSetRecentSearches]);
 
   useEffect(() => {
     loadRecentSearches();
@@ -87,19 +108,19 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
 
   const handleSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
-      setResults([]);
+      safeSetResults([]);
       return;
     }
 
-    setIsLoading(true);
+    safeSetIsLoading(true);
     
     // Real search from Supabase edn_items_complete (properly typed table)
     try {
       // Guard against undefined supabase client (test environment)
       if (!supabase || typeof supabase.from !== 'function') {
         console.warn('Supabase client not available');
-        setResults([]);
-        setIsLoading(false);
+        safeSetResults([]);
+        safeSetIsLoading(false);
         return;
       }
       
@@ -111,7 +132,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
 
       if (error) {
         console.error('Search error:', error);
-        setResults([]);
+        safeSetResults([]);
         return;
       }
 
@@ -128,13 +149,13 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
           tags: ['EDN', item.item_code],
           new: false
         }));
-        setResults(searchResults);
+        safeSetResults(searchResults);
       }
     } catch (error) {
       console.error('Search error:', error);
-      setResults([]);
+      safeSetResults([]);
     } finally {
-      setIsLoading(false);
+      safeSetIsLoading(false);
     }
 
     // Save to recent searches
@@ -143,7 +164,7 @@ export const SearchSystem: React.FC<SearchSystemProps> = ({
 
   const saveRecentSearch = async (searchQuery: string) => {
     const newRecent = [searchQuery, ...recentSearches.filter(s => s !== searchQuery)].slice(0, 5);
-    setRecentSearches(newRecent);
+    safeSetRecentSearches(newRecent);
 
     // Only save for authenticated users - Supabase is source of truth
     const { data: { user } } = await supabase.auth.getUser();
