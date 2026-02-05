@@ -1,6 +1,6 @@
 # 🏥 MED-MNG - Plateforme d'Apprentissage Médical
 
-**Version 9.6.3 | Dernière mise à jour : 4 Février 2026**
+**Version 9.6.3 | Dernière mise à jour : 4 Février 2026 | Statut : MVP en consolidation**
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/med-mng/med-mng)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
@@ -20,7 +20,7 @@
 ## 📋 Table des Matières
 
 - [🎯 Vision & Philosophie](#-vision--philosophie)
-- [🆕 Nouveautés v9.6.3](#-nouveautés-v963)
+- [🧭 Priorités MVP](#-priorités-mvp-avant-lancement)
 - [✨ Fonctionnalités](#-fonctionnalités)
 - [🚀 Démarrage Rapide](#-démarrage-rapide)
 - [🏗️ Architecture](#️-architecture)
@@ -60,61 +60,27 @@ MED-MNG n'est **pas** une banque de fiches de plus. C'est un **système anti-pan
 
 ---
 
-## 🆕 Nouveautés v9.6.3 — Production Ready
+## 🧭 Priorités MVP (avant lancement)
 
-### 🏥 Medical AI Copilot (Révolution v9.5)
+Objectif : livrer **3 parcours clés parfaitement stables** avant de ré-ouvrir le reste des modules.
 
-Le cœur de la plateforme est désormais un **orchestrateur IA médical intelligent** qui intègre des services premium :
+1. **Inscription → Item EDN → Écoute audio**
+2. **Chat IA → Réponse sourcée**
+3. **Générer une chanson → Écouter → Sauvegarder**
 
-| Mode | Description | Services |
-|------|-------------|----------|
-| **⚡ Rapide** | Réponses concises en 2-3s | OpenAI GPT-4o |
-| **🔬 Recherche** | Analyse académique approfondie avec citations | Perplexity AI |
-| **🏥 Clinique** | Raisonnement médical avancé | OpenAI + Guidelines |
-| **📄 Analyse Web** | Extraction et analyse de guidelines | Firecrawl |
-| **🎙️ Vocal** | Requêtes audio-to-answer | Whisper + GPT-4o |
+Ce README décrit le socle technique, mais l'interface expose volontairement un périmètre réduit en MVP. Les fonctionnalités secondaires sont mises en arrière-plan jusqu'à validation des parcours essentiels et de la qualité des données. Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour le détail des limites connues.
 
-### ⚡ Streaming Temps Réel (SSE)
+### 🔎 Inventaire technique (indicatif)
 
-```typescript
-// Réponses token-by-token en temps réel
-await medicalCopilot.stream(
-  "Prise en charge d'une pneumopathie communautaire",
-  "research",
-  (delta) => appendToUI(delta),  // Chaque token affiché immédiatement
-  () => finalizeResponse()
-);
-```
-
-### 🏆 Jalons Majeurs Accomplis (v9.0 → v9.5)
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **📦 Import Anki** | Import .apkg natif avec JSZip | ✅ |
-| **🎙️ Voice Mode** | ElevenLabs TTS intégré | ✅ |
-| **📋 Grilles UNESS** | Évaluation ECOS officielle | ✅ |
-| **🧩 Dashboard Widgets** | Drag-and-drop personnalisable | ✅ |
-| **📅 Sync Calendrier** | iCal + Google Calendar | ✅ |
-| **💳 Stripe Subscriptions** | Paiements récurrents | ✅ |
-| **📊 Excel Export** | Export natif sécurisé | ✅ |
-| **🤖 Medical Copilot** | Orchestrateur IA avec streaming | ✅ |
-
-### 📈 Métriques Actuelles
-
-> **Note** : Ces métriques sont basées sur le code source actuel (v9.6.3).
-> Voir [KNOWN_LIMITATIONS.md](./docs/KNOWN_LIMITATIONS.md) pour plus de détails.
-
-| Métrique | Valeur | Contexte |
-|----------|--------|----------|
-| Pages React | 82 | Interface utilisateur |
-| Composants | 295+ | UI components |
-| Hooks React | 165+ | Logique métier organisée en 8 domaines |
-| Tables Supabase | 135+ actives | Schéma public (hors systèmes) |
-| Edge Functions | 120+ | APIs backend + routeurs unifiés |
+- 80+ pages React (toutes ne sont pas exposées en MVP)
+- 130+ edge functions (seules les routes critiques sont activées pour le lancement)
+- 5 routeurs unifiés côté backend (audio, core, content, system, webhooks)
 
 ---
 
 ## ✨ Fonctionnalités
+
+> **MVP** : seules les fonctionnalités liées aux parcours clés sont mises en avant dans l'interface. Les modules annexes restent présents dans le code mais sont volontairement masqués.
 
 ### 🎵 Apprentissage Musical (Core)
 
@@ -380,32 +346,12 @@ med-mng/
 |-------|------|-------------|
 | `/` | Index | Page d'accueil |
 | `/edn-complete` | EdnComplete | Bibliothèque items EDN |
-| `/exam-mode` | ExamMode | Mode examen QCM + PDF |
-| `/ecos` | EcosIndex | Simulations ECOS |
-| `/ecos/:id` | EcosScenario | Scénario ECOS avec timer |
 | `/chat` | MedChat | Assistant IA streaming |
-| `/flashcards` | Flashcards | Cartes mémoire + Anki |
 | `/med-mng/create` | MedMngCreate | Génération musicale |
-| `/srs-review` | SRSReview | Révision espacée |
-| `/clinical-cases` | ClinicalCases | Cas cliniques IA |
+| `/med-mng/music-library` | MedMngLibrary | Bibliothèque audio |
+| `/med-mng/signup` | MedMngSignup | Inscription |
 
-### Routes Productivité
-
-| Route | Page | Description |
-|-------|------|-------------|
-| `/pomodoro` | Pomodoro | Timer productivité |
-| `/daily-challenges` | DailyChallenges | Défis quotidiens |
-| `/smart-study-planner` | SmartStudyPlanner | Planification + Calendar |
-| `/mood-tracker` | MoodTracker | Suivi bien-être |
-
-### Routes Admin
-
-| Route | Page | Description |
-|-------|------|-------------|
-| `/admin-panel` | AdminPanel | Dashboard admin |
-| `/diagnostics` | Diagnostics | Outils debug |
-| `/platform-status` | PlatformStatus | Statut plateforme |
-| `/rls-documentation` | RLSDocumentation | Audit sécurité RLS |
+Les routes d'administration et les modules secondaires restent disponibles pour l'équipe, mais ne sont pas exposés dans la navigation MVP.
 
 ---
 
@@ -492,7 +438,7 @@ const health = await systemApi.health();
 |----------|--------|
 | **Tables** | 723 |
 | **RLS Enabled** | ✅ Toutes |
-| **Security Grade** | A+ |
+| **Security Grade** | En validation |
 
 ### Tables Principales
 
@@ -582,7 +528,7 @@ pnpm test:coverage
 
 ## 🔐 Sécurité
 
-### Grade A+ Certifié
+### Mesures en place (à valider avant lancement public)
 
 | Mesure | Status |
 |--------|--------|
@@ -645,22 +591,6 @@ RESEND_API_KEY=
 
 ---
 
-## 📈 Scores Audit v9.6.3
-
-| Module | Score | Status |
-|--------|-------|--------|
-| Medical AI Copilot | 20/20 | ⭐⭐⭐ |
-| Streaming SSE | 20/20 | ⭐⭐⭐ |
-| Items EDN | 20/20 | ⭐⭐⭐ |
-| ECOS (Grilles UNESS) | 20/20 | ⭐⭐⭐ |
-| Flashcards (Anki) | 20/20 | ⭐⭐⭐ |
-| SRS Review | 20/20 | ⭐⭐⭐ |
-| Gamification | 20/20 | ⭐⭐⭐ |
-| Sécurité (RLS) | 20/20 | ⭐⭐⭐ |
-| **Global** | **20/20** | **⭐⭐⭐** |
-
----
-
 ## 📚 Documentation
 
 | Document | Description |
@@ -689,4 +619,4 @@ RESEND_API_KEY=
 
 ---
 
-*Dernière mise à jour : 4 Février 2026 - Version 9.6.3 (Production Ready)*
+*Dernière mise à jour : 4 Février 2026 - Version 9.6.3 (MVP en consolidation)*
