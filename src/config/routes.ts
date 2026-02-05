@@ -95,6 +95,8 @@ export const ROUTE_PATHS = {
   moodTracker: '/mood-tracker',
   pomodoro: '/pomodoro',
   executiveDashboard: '/executive-dashboard',
+  // Raccourcis publics
+  createShortcut: '/create',
   notFound: '*',
 } as const;
 
