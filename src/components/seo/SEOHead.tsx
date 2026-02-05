@@ -36,7 +36,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const siteUrl = 'https://med-mng.lovable.app';
   const fullTitle = `${title} - MED-MNG`;
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : undefined;
-  const defaultImage = `${siteUrl}/og-image.jpg`; // À créer
+  const defaultImage = `${siteUrl}/og-image.png`;
 
   return (
     <Helmet>
