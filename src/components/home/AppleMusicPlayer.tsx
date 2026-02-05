@@ -1,14 +1,17 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Repeat } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Repeat, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(35);
+  
+  // Mode démo - pas d'audio réel disponible
+  const isDemoMode = true;
 
   return (
     <section ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-b from-muted/20 to-background">
@@ -44,21 +47,27 @@ export const AppleMusicPlayer = () => {
           {/* Player card */}
           <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl">
             {/* Now playing header */}
-            <div className="flex items-center gap-2 text-primary mb-6">
-              <Music className="h-5 w-5" />
-              <span className="text-sm font-medium">EN LECTURE</span>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2 text-primary">
+                <Music className="h-5 w-5" />
+                <span className="text-sm font-medium">APERÇU</span>
+              </div>
+              {isDemoMode && (
+                <Badge variant="secondary" className="gap-1.5 bg-muted/80 text-muted-foreground">
+                  <Eye className="h-3 w-3" />
+                  Démo visuelle
+                </Badge>
+              )}
             </div>
 
             {/* Track info */}
             <div className="flex items-start gap-6 mb-8">
               {/* Album art */}
-              <motion.div
-                animate={isPlaying ? { scale: [1, 1.02, 1] } : {}}
-                transition={{ duration: 2, repeat: Infinity }}
+              <div
                 className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary via-accent to-warning flex items-center justify-center shadow-lg flex-shrink-0"
               >
                 <Music className="h-12 w-12 text-primary-foreground" />
-              </motion.div>
+              </div>
 
               {/* Track details */}
               <div className="flex-1 min-w-0">
@@ -104,17 +113,14 @@ export const AppleMusicPlayer = () => {
               <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full">
                 <SkipBack className="h-6 w-6" />
               </Button>
-              <motion.div whileTap={{ scale: 0.95 }}>
+              <motion.div whileTap={isDemoMode ? {} : { scale: 0.95 }}>
                 <Button 
                   size="icon" 
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30"
+                  disabled={isDemoMode}
+                  className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={isDemoMode ? "Créez un compte pour écouter" : "Lecture"}
                 >
-                  {isPlaying ? (
-                    <Pause className="h-8 w-8" />
-                  ) : (
-                    <Play className="h-8 w-8 ml-1" />
-                  )}
+                  <Play className="h-8 w-8 ml-1" />
                 </Button>
               </motion.div>
               <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full">
@@ -125,21 +131,13 @@ export const AppleMusicPlayer = () => {
               </Button>
             </div>
 
-            {/* Waveform visualization */}
+            {/* Waveform visualization - static in demo mode */}
             <div className="mt-8 flex items-end justify-center gap-1 h-12">
               {[...Array(40)].map((_, i) => (
-                <motion.div
+                <div
                   key={i}
                   className="w-1 bg-gradient-to-t from-primary/40 to-primary rounded-full"
-                  initial={{ height: 8 }}
-                  animate={isPlaying ? {
-                    height: [8, Math.random() * 40 + 8, 8]
-                  } : { height: 8 }}
-                  transition={{
-                    duration: 0.5,
-                    repeat: Infinity,
-                    delay: i * 0.02,
-                  }}
+                  style={{ height: `${8 + Math.sin(i * 0.5) * 12 + 8}px` }}
                 />
               ))}
             </div>

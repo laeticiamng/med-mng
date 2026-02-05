@@ -35,26 +35,24 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Navigation principale simplifiée (6 items max visibles)
+// Navigation principale MVP (7 liens uniquement)
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.home, label: 'Accueil', shortLabel: 'Accueil', icon: Home },
-  { path: ROUTE_PATHS.ednComplete, label: 'Items EDN', shortLabel: 'EDN', icon: BookOpen },
+  { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
+  { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Target },
   { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
-  { path: ROUTE_PATHS.medMngCreate, label: 'Créer une chanson', shortLabel: 'Créer', icon: Music },
-  { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Bibliothèque audio', shortLabel: 'Audio', icon: Headphones },
+  { path: ROUTE_PATHS.medMngPricing, label: 'Pricing', shortLabel: 'Pricing', icon: ShoppingBag },
 ];
 
-// 🆕 Navigation secondaire GROUPÉE par catégorie
+// Navigation secondaire pour utilisateurs connectés uniquement
 export const SECONDARY_NAV_GROUPS: NavGroup[] = [
   {
-    id: 'essentials',
-    label: '🎯 Essentiels',
-    icon: Library,
+    id: 'creation',
+    label: '🎵 Création',
+    icon: Music,
     items: [
-      { path: ROUTE_PATHS.generator, label: 'Générateur IA', icon: Music, description: 'Créer une chanson' },
-      { path: ROUTE_PATHS.ednMusicLibrary, label: 'Musiques EDN', icon: Headphones, description: 'Écouter et réviser' },
-      { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', icon: ShoppingBag, description: 'Comparer les offres' },
-      { path: ROUTE_PATHS.library, label: 'Bibliothèque', icon: Library, description: 'Tous les contenus' },
+      { path: ROUTE_PATHS.medMngCreate, label: 'Créer', icon: Music, description: 'Générer une chanson' },
+      { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Bibliothèque', icon: Headphones, description: 'Mes créations' },
     ],
   },
 ];
