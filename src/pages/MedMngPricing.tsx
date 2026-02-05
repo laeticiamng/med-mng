@@ -1,7 +1,9 @@
 import { TranslatedText } from '@/components/TranslatedText';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { MVPFooter } from '@/components/layout/MVPFooter';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
 import { PricingTestimonials } from '@/components/pricing/PricingTestimonials';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PremiumBackground } from '@/components/ui/premium-background';
@@ -172,20 +174,27 @@ export const MedMngPricing = () => {
   ];
 
   return (
-    <PremiumBackground variant="blue" className="min-h-screen">
-      <div className="container mx-auto px-4 pt-20">
-        <PremiumButton
-          variant="glass"
-          size="sm"
-          onClick={() => navigate(ROUTE_PATHS.home)}
-          className="flex items-center gap-2 mb-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <TranslatedText text="Retour à l'accueil" />
-        </PremiumButton>
-      </div>
+    <>
+      <SEOHead
+        title="Tarifs & Abonnements"
+        description="Découvrez nos offres d'abonnement MED-MNG. Générez de la musique pédagogique IA à partir de 0€/mois."
+        keywords="tarifs, abonnement, premium, musique, IA"
+        canonical="/med-mng/pricing"
+      />
+      <PremiumBackground variant="blue" className="min-h-screen flex flex-col">
+        <div className="container mx-auto px-4 pt-20">
+          <PremiumButton
+            variant="glass"
+            size="sm"
+            onClick={() => navigate(ROUTE_PATHS.home)}
+            className="flex items-center gap-2 mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <TranslatedText text="Retour à l'accueil" />
+          </PremiumButton>
+        </div>
 
-      <div className="container mx-auto px-4 py-4 sm:py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-8 flex-1">
         
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">
@@ -515,6 +524,8 @@ export const MedMngPricing = () => {
           </PremiumCard>
         </div>
       </div>
+      <MVPFooter />
     </PremiumBackground>
+    </>
   );
 };

@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MVPFooter } from '@/components/layout/MVPFooter';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
@@ -372,8 +374,15 @@ Tu n'as pas besoin de tout chercher toi-même.`,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-muted/50">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+    <>
+      <SEOHead
+        title="Chat IA Médical"
+        description="Posez vos questions médicales à notre assistant IA. Réponses sourcées et adaptées à l'EDN."
+        keywords="IA, chat, médecine, assistant, questions, EDN"
+        canonical="/chat"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted to-muted/50 flex flex-col">
+        <div className="container mx-auto px-4 py-6 max-w-4xl flex-1">
         {/* Header Enhanced */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -742,6 +751,8 @@ Tu n'as pas besoin de tout chercher toi-même.`,
         {/* Disclaimer médical obligatoire */}
         <MedicalDisclaimerFooter className="mt-6" />
       </div>
+      <MVPFooter />
     </div>
+    </>
   );
 };

@@ -3,7 +3,9 @@ import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { MVPFooter } from "@/components/layout/MVPFooter";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -307,9 +309,16 @@ export default function EdnComplete() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      {/* Wrapper Tabs Principal */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="min-h-screen">
+    <>
+      <SEOHead
+        title="Items EDN"
+        description="Maîtrisez les 367 items EDN grâce à la musique IA. Tableaux Rang A/B, compétences OIC et chansons pédagogiques."
+        keywords="EDN, items, médecine, révision, musique, apprentissage"
+        canonical="/edn-complete"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 flex flex-col">
+        {/* Wrapper Tabs Principal */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         {/* Header simplifié - responsive */}
         <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
@@ -742,6 +751,8 @@ export default function EdnComplete() {
           initialTab={selectedItemTab}
         />
       </Tabs>
+      <MVPFooter />
     </div>
+    </>
   );
 }

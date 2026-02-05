@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { MVPFooter } from '@/components/layout/MVPFooter';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -91,9 +93,16 @@ const EcosIndex = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
+    <>
+      <SEOHead
+        title="Simulations ECOS"
+        description="Entraînez-vous aux ECOS avec des situations cliniques réalistes. Préparez l'examen clinique en musique."
+        keywords="ECOS, simulation, clinique, médecine, examen"
+        canonical="/ecos"
+      />
+      <div className="min-h-screen relative overflow-hidden flex flex-col">
+        {/* Animated gradient background */}
+        <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-accent/10 pointer-events-none -z-10" />
       
       {/* Floating orbs */}
       <motion.div 
@@ -266,8 +275,10 @@ const EcosIndex = () => {
             ))}
           </div>
         )}
+        <MVPFooter />
       </div>
     </div>
+    </>
   );
 };
 

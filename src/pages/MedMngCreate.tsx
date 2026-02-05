@@ -1,4 +1,3 @@
-
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
 import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
@@ -6,6 +5,7 @@ import { InformationCard } from '@/components/med-mng/create/InformationCard';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
@@ -198,8 +198,15 @@ const MedMngCreateComponent = () => {
   }
 
   return (
-    <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
-      <div className="container mx-auto px-4 py-8">
+    <>
+      <SEOHead
+        title="Créer une chanson"
+        description="Générez des chansons pédagogiques personnalisées pour mémoriser les items EDN grâce à l'IA."
+        keywords="musique, IA, génération, EDN, apprentissage"
+        canonical="/med-mng/create"
+      />
+      <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
+        <div className="container mx-auto px-4 py-8">
         <CreateSongHeader remainingCredits={quota?.remaining_credits} />
 
         <div className="max-w-4xl mx-auto">
@@ -227,6 +234,7 @@ const MedMngCreateComponent = () => {
         </div>
       </div>
     </MedMngLayout>
+    </>
   );
 };
 
