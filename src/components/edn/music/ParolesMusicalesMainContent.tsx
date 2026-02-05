@@ -1,8 +1,10 @@
 import { SynchronizedLyricsDisplay } from '@/components/music/SynchronizedLyricsDisplay';
 import { Button } from '@/components/ui/button';
+import { ROUTE_PATHS } from '@/config/routes';
 import { useSynchronizedLyrics } from '@/hooks/music/useSynchronizedLyrics';
-import { Music } from 'lucide-react';
+import { Music, Sparkles } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
 import { SunoGenerationStatus } from './SunoGenerationStatus';
 
@@ -65,6 +67,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
+  const navigate = useNavigate();
   const [showSyncLyrics, setShowSyncLyrics] = useState<'A' | 'B' | null>(null);
   
   // Normaliser les paroles en format attendu
@@ -102,9 +105,9 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             <Music className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Paroles à générer</h3>
+            <h3 className="font-semibold text-foreground">Chanson en cours de génération</h3>
             <p className="text-sm text-muted-foreground">
-              Les paroles musicales pour <strong>{itemCode}</strong> n'ont pas encore été créées.
+              La chanson pour <strong>{itemCode}</strong> n'est pas encore disponible.
             </p>
           </div>
         </div>
@@ -118,11 +121,17 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           </ol>
         </div>
         
-        <div className="flex items-center gap-2 pt-2">
-          <span className="text-xs text-muted-foreground">
-            💡 Revenez plus tard ou consultez les onglets Rang A/B pour voir les compétences disponibles.
-          </span>
-        </div>
+        <Button 
+          onClick={() => navigate(`${ROUTE_PATHS.medMngCreate}?itemCode=${itemCode}`)}
+          className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+        >
+          <Sparkles className="h-4 w-4" />
+          Générer cette chanson
+        </Button>
+        
+        <p className="text-xs text-center text-muted-foreground">
+          💡 Vous serez redirigé vers le générateur de musique avec cet item pré-sélectionné
+        </p>
       </div>
     );
   }

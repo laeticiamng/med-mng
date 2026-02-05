@@ -263,12 +263,21 @@ Tu n'as pas besoin de tout chercher toi-même.`,
         loadStats(user.id);
       }
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      console.error('[Chat IA] Erreur envoi message:', error);
       setMessages(prev => prev.filter(msg => msg.id !== 'typing' && msg.id !== streamingMessageId));
       
+      // Message user-friendly selon le type d'erreur
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isRateLimit = errorMessage.includes('rate') || errorMessage.includes('429');
+      const isApiError = errorMessage.includes('API') || errorMessage.includes('key') || errorMessage.includes('401');
+      
       toast({
-        title: "❌ Erreur",
-        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        title: "🤖 Assistant temporairement indisponible",
+        description: isRateLimit 
+          ? "Trop de requêtes. Veuillez patienter quelques secondes."
+          : isApiError 
+            ? "Le service IA est en maintenance. Réessayez dans quelques instants."
+            : "Une erreur s'est produite. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
