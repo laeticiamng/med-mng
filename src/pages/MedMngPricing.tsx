@@ -76,19 +76,36 @@ export const MedMngPricing = () => {
     setProcessingPlan(planId);
 
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        toast.error('Session expirée. Veuillez vous reconnecter.');
+        navigate(ROUTE_PATHS.medMngLogin);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
         body: { planId },
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+        headers: { Authorization: `Bearer ${session.data.session.access_token}` }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Stripe] Checkout error:', error);
+        throw error;
+      }
 
       if (data?.url) {
         window.open(data.url, '_blank');
+      } else {
+        throw new Error('URL de paiement non reçue');
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
-      toast.error('Erreur lors de la création du checkout');
+      // Log technique pour debug
+      console.error('[Stripe] Erreur création checkout:', error);
+      
+      // Message user-friendly - pas de stacktrace
+      toast.info('💳 Paiement en cours de configuration', {
+        description: 'Le système de paiement sera bientôt disponible. Merci de réessayer dans quelques instants.'
+      });
     } finally {
       setProcessingPlan(null);
     }
