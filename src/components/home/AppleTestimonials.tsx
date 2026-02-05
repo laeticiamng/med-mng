@@ -126,10 +126,10 @@ export const AppleTestimonials = () => {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
         >
           {[
-            { value: '15k+', label: 'Étudiants actifs' },
-            { value: '4.9/5', label: 'Note moyenne' },
+            { value: 'Gratuit', label: 'Pour commencer' },
+            { value: '⭐', label: 'Noté par nos beta-testeurs' },
             { value: '367', label: 'Items EDN couverts' },
-            { value: '93%', label: 'Taux de rétention' },
+            { value: '🧠', label: 'Basé sur la neuroscience' },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
