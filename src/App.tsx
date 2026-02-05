@@ -267,6 +267,10 @@ const App = () => {
           <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProgress /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngFavorites /></Suspense></ProtectedRoute>} />
+          
+          {/* Raccourci /create → /med-mng/create */}
+          <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
+          
            <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
            
