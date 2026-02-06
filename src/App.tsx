@@ -1,12 +1,12 @@
-// App.tsx - Force rebuild v2026.01.29
+// App.tsx - Force rebuild v2026.02.06
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
 import { CookieBanner } from "@/components/common/CookieBanner";
+import { PageLoader } from "@/components/common/PageLoader";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary';
-
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
@@ -43,7 +43,7 @@ const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-// 🎵 EDN PAGES - Lazy loaded
+// 🎵 EDN PAGES
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
@@ -63,15 +63,15 @@ const MoodTracker = lazy(() => import("./pages/MoodTracker"));
 const Pomodoro = lazy(() => import("./pages/Pomodoro"));
 const KaraokePage = lazy(() => import("./pages/KaraokePage"));
 
-// 🎯 ECOS PAGES - Lazy loaded
+// 🎯 ECOS PAGES
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 
-// 🔒 SECURITY PAGES - Lazy loaded
+// 🔒 SECURITY PAGES
 const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 
-// 👨‍💼 ADMIN PAGES - Lazy loaded
+// 👨‍💼 ADMIN PAGES
 const AdminPanel = lazy(() => import("./pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
 const AdminImport = lazy(() => import("./pages/AdminImport"));
 const AdminAudit = lazy(() => import("./pages/AdminAudit"));
@@ -82,7 +82,7 @@ const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtrac
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
 const AdminExtractionQualityDashboard = lazy(() => import("./pages/AdminExtractionQualityDashboard"));
 
-// 🏥 MEDMNG PAGES - Lazy loaded
+// 🏥 MEDMNG PAGES
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(m => ({ default: m.MedMngLogin })));
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(m => ({ default: m.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(m => ({ default: m.MedMngPricing })));
@@ -101,12 +101,12 @@ const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.Med
 const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
 const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
 
-// 📊 AUDIT PAGES - Lazy loaded
+// 📊 AUDIT PAGES
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
 const MigrationDashboardPage = lazy(() => import("./pages/MigrationDashboard"));
 
-// ⚙️ PLATFORM PAGES - Lazy loaded
+// ⚙️ PLATFORM PAGES
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const ModularDashboard = lazy(() => import("./pages/ModularDashboard"));
 const LearningDashboard = lazy(() => import("./pages/LearningDashboard"));
@@ -114,12 +114,11 @@ const PlatformStatusPage = lazy(() => import("./pages/PlatformStatusPage"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const SystemManagement = lazy(() => import("./pages/SystemManagement"));
 const PlatformSettings = lazy(() => import("./pages/PlatformSettings"));
-// OptimizedIndex supprimé (doublon de Index)
 const AccessibilityDashboard = lazy(() => import("./pages/AccessibilityDashboard"));
 const EffectivenessDashboard = lazy(() => import("./pages/EffectivenessDashboard"));
 const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 
-// 📚 CONTENT PAGES - Lazy loaded
+// 📚 CONTENT PAGES
 const Generator = lazy(() => import("./pages/Generator"));
 const SharedMusic = lazy(() => import("./pages/SharedMusic"));
 const SharedMusicIndex = lazy(() => import("./pages/SharedMusicIndex"));
@@ -128,18 +127,17 @@ const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const CommunityHub = lazy(() => import("./pages/CommunityHub"));
-// ModernHomepage supprimé (doublon de Index)
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
-// 🛒 STORE PAGES - Lazy loaded
+// 🛒 STORE PAGES
 const Store = lazy(() => import("./pages/Store"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 
-// 📄 LEGAL PAGES - Lazy loaded
+// 📄 LEGAL PAGES
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const CGU = lazy(() => import("./pages/CGU"));
@@ -148,220 +146,221 @@ const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
 
-// ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
+// ⚡ Helper: Suspense wrapper for lazy routes
+const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+);
+
+// ⚡ QueryClient Configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      // Pas de retry au chargement initial pour plus de rapidité
       staleTime: 10 * 60 * 1000,
-      // 10 minutes - Garde les données plus longtemps
       gcTime: 15 * 60 * 1000,
-      // 15 minutes - Garde en cache plus longtemps
       refetchOnWindowFocus: false,
-      // Évite les requêtes inutiles
-      refetchOnMount: false // Ne pas refetch si les données sont récentes
-    }
-  }
+      refetchOnMount: false,
+    },
+  },
 });
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-  
-  
+
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
-  
+
   return (
     <GlobalErrorBoundary>
       <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <HelmetProvider>
-            <AuthProvider>
-              <LanguageProvider>
-                <GlobalAudioProvider>
-                  <TooltipProvider>
-                    <ViewportProvider>
-                      <AccessibilityProvider>
-                        <InternationalizationProvider>
-                          <PerformanceProvider>
-                            <SkipLinks />
-                            <div id="app-root" className="min-h-screen bg-background">
-                              <MainNavigation />
-                              <main id="main-content" tabIndex={-1} className="pt-16">
-                                <Routes>
-        <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
-           <Route path={ROUTE_PATHS.dashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
-           <Route path={ROUTE_PATHS.learningDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningDashboard /></Suspense>} />
-           <Route path={ROUTE_PATHS.platformStatus} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformStatusPage /></Suspense>} />
-           <Route path={ROUTE_PATHS.monitoring} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Monitoring /></Suspense>} />
-           <Route path={ROUTE_PATHS.systemManagement} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SystemManagement /></Suspense>} />
-          <Route path={ROUTE_PATHS.platformSettings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformSettings /></Suspense>} />
-          <Route path={ROUTE_PATHS.optimizedIndex} element={<Navigate to={ROUTE_PATHS.home} replace />} />
-          <Route path={ROUTE_PATHS.home} element={<Index />} />
-          <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
-          <Route path={ROUTE_PATHS.sharedMusic} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedMusic /></Suspense>} />
-          <Route path={ROUTE_PATHS.sharedMusicIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedMusicIndex /></Suspense>} />
-          {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-          <Route path={ROUTE_PATHS.ednComplete} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
-          <Route path={ROUTE_PATHS.ednCompleteDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
-          
-          {/* Redirections vers l'interface unifiée */}
-          <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
-          <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<Navigate to={ROUTE_PATHS.ednCompleteDetail} replace />} />
-          <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
-          <Route path={ROUTE_PATHS.ednImmersive} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnImmersive /></Suspense>} />
-          <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
-          <Route path={ROUTE_PATHS.srsReview} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SRSReview /></Suspense>} />
-          <Route path={ROUTE_PATHS.examMode} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ExamMode /></Suspense>} />
-          <Route path={ROUTE_PATHS.clinicalCases} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ClinicalCases /></Suspense>} />
-          <Route path={ROUTE_PATHS.flashcards} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Flashcards /></Suspense>} />
-          <Route path={ROUTE_PATHS.progressDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProgressDashboard /></Suspense>} />
-          <Route path={ROUTE_PATHS.smartStudyPlanner} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SmartStudyPlanner /></Suspense>} />
-          
-          {/* Nouvelles pages prioritaires */}
-          <Route path={ROUTE_PATHS.leaderboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Leaderboard /></Suspense>} />
-          <Route path={ROUTE_PATHS.dailyChallenges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DailyChallenges /></Suspense>} />
-          <Route path={ROUTE_PATHS.myGoals} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MyGoals /></Suspense>} />
-          <Route path={ROUTE_PATHS.moodTracker} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MoodTracker /></Suspense>} />
-          <Route path={ROUTE_PATHS.pomodoro} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Pomodoro /></Suspense>} />
-          <Route path="/karaoke/:songId?" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><KaraokePage /></Suspense>} />
-          <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
-          <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
-          <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
-          <Route path={ROUTE_PATHS.productDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProductDetail /></Suspense>} />
-          
-          {/* Unified audit page */}
-          <Route path={ROUTE_PATHS.audit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditComplete /></Suspense>} />
-          <Route path={ROUTE_PATHS.auditCompleteness} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditCompleteness /></Suspense>} />
-          <Route path={ROUTE_PATHS.migrationDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MigrationDashboardPage /></Suspense>} />
-         
-          {/* Redirect all old audit routes to new unified page */}
-          <Route path={ROUTE_PATHS.auditGeneral} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditEdn} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditUnified} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditIc1} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditIc2} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditIc4} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          <Route path={ROUTE_PATHS.auditCompleteLegacy} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
-          
-          <Route path={ROUTE_PATHS.mngMethod} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MngMethod /></Suspense>} />
-          <Route path={ROUTE_PATHS.mentionsLegales} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MentionsLegales /></Suspense>} />
-          <Route path={ROUTE_PATHS.politiqueConfidentialite} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PolitiqueConfidentialite /></Suspense>} />
-          <Route path={ROUTE_PATHS.cgu} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CGU /></Suspense>} />
-          <Route path={ROUTE_PATHS.declarationAccessibilite} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DeclarationAccessibilite /></Suspense>} />
-          <Route path={ROUTE_PATHS.medMngLogin} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLogin /></Suspense>} />
-          <Route path={ROUTE_PATHS.medMngSignup} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSignup /></Suspense>} />
-          <Route path={ROUTE_PATHS.medMngPricing} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPricing /></Suspense>} />
-          <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSubscribe /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngSuccess} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSuccess /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngCreate /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngMusicLibrary} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLibrary /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngItemsLibrary /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngItemDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngItemDetail /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngProfile} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProfile /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngPlayer} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPlayer /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngPlaylists} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistManager /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngPlaylistDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistDetail /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProgress /></Suspense></ProtectedRoute>} />
-          <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngFavorites /></Suspense></ProtectedRoute>} />
-          
-          {/* Raccourci /create → /med-mng/create */}
-          <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
-          
-           <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
-           <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
-           
-           {/* Routes Admin - Protégées par AdminRoute */}
-            <Route path={ROUTE_PATHS.adminImport} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminImport /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminAudit} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminAudit /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminExtractEdn} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEdn /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminExtractEcos} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEcos /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminExtractObjectifs} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnObjectifsExtractionPage /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminOicQuality} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OicDataQualityManager /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminExtractionQuality} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractionQualityDashboard /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminComplete} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminCompleteProcess /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.adminPanel} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminPanel /></Suspense></AdminRoute>} />
-            <Route path={ROUTE_PATHS.library} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LibraryPage /></Suspense>} />
-             <Route path={ROUTE_PATHS.accessibilityDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AccessibilityDashboard /></Suspense>} />
-             <Route path={ROUTE_PATHS.effectivenessDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EffectivenessDashboard /></Suspense>} />
-             <Route path={ROUTE_PATHS.rlsDocumentation} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><RLSDocumentation /></Suspense>} />
-             <Route path={ROUTE_PATHS.securityMonitoring} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SecurityMonitoring /></Suspense>} />
-             <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ExecutiveDashboard /></Suspense></AdminRoute>} />
-           
-           {/* Nouvelles pages complètes avec lazy loading */}
-           <Route path={ROUTE_PATHS.statistics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
-           <Route path={ROUTE_PATHS.studyPlanner} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudyPlanner /></Suspense>} />
-           <Route path={ROUTE_PATHS.community} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityHub /></Suspense>} />
-            <Route path={ROUTE_PATHS.homepage} element={<Navigate to={ROUTE_PATHS.home} replace />} />
-            <Route path={ROUTE_PATHS.achievements} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
-            <Route path={ROUTE_PATHS.favorites} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
-             <Route path={ROUTE_PATHS.settings} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
-             <Route path={ROUTE_PATHS.designSystem} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DesignSystemPage /></Suspense>} />
-             {/* Page RGPD - DOIT être publique selon la loi */}
-             <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
-            <Route path={ROUTE_PATHS.installPwa} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
-            <Route path={ROUTE_PATHS.pwaAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PWAAnalytics /></Suspense>} />
-            <Route path={ROUTE_PATHS.diagnostics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Diagnostics /></Suspense>} />
-                                <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
-                              </Routes>
-                            </main>
-                            
-                            {/* Footer Global */}
-                            <Suspense fallback={<div className="h-20 bg-card border-t border-border" />}>
-                              <AppFooter />
-                            </Suspense>
-                            
-                            {/* Global UI Components */}
-                            <HelpButton />
-                            <NotificationSystem 
-                              isOpen={isNotificationCenterOpen} 
-                              onClose={() => setIsNotificationCenterOpen(false)} 
-                            />
-                            
-                            
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => setIsNotificationCenterOpen(true)} 
-                              className="fixed bottom-4 right-4 z-40 my-[36px]"
-                            >
-                              <Bell className="w-4 h-4 mr-2" />
-                              Notifications
-                            </Button>
-                            
-                            {/* Raccourcis Clavier Globaux */}
-                            <KeyboardShortcuts />
-                            
-                            {/* Centre d'Accessibilité */}
-                            <AccessibilityCenter />
-                            
-                            {/* Bannière Cookies RGPD */}
-                            <CookieBanner />
-                            
-                            {/* DevTools pour inspection du design system */}
-                            <DesignSystemDevTools />
-                            
-                            {/* Tuteur IA */}
-                            <EnhancedAITutor />
-                            
-                            {/* PWA Notifications */}
-                            <PWAPrompt />
-                            <OfflineIndicator />
-                          </div>
-                          <Toaster />
-                          <Sonner />
-                        </PerformanceProvider>
-                        </InternationalizationProvider>
-                      </AccessibilityProvider>
-                    </ViewportProvider>
-                  </TooltipProvider>
-                </GlobalAudioProvider>
-              </LanguageProvider>
-            </AuthProvider>
-          </HelmetProvider>
+              <AuthProvider>
+                <LanguageProvider>
+                  <GlobalAudioProvider>
+                    <TooltipProvider>
+                      <ViewportProvider>
+                        <AccessibilityProvider>
+                          <InternationalizationProvider>
+                            <PerformanceProvider>
+                              <SkipLinks />
+                              <div id="app-root" className="min-h-screen bg-background">
+                                <MainNavigation />
+                                <main id="main-content" tabIndex={-1} className="pt-16">
+                                  <Routes>
+                                    {/* Platform */}
+                                    <Route path={ROUTE_PATHS.home} element={<Index />} />
+                                    <Route path={ROUTE_PATHS.modularDashboard} element={<S><ModularDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.dashboard} element={<S><Dashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.learningDashboard} element={<S><LearningDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.platformStatus} element={<S><PlatformStatusPage /></S>} />
+                                    <Route path={ROUTE_PATHS.monitoring} element={<S><Monitoring /></S>} />
+                                    <Route path={ROUTE_PATHS.systemManagement} element={<S><SystemManagement /></S>} />
+                                    <Route path={ROUTE_PATHS.platformSettings} element={<S><PlatformSettings /></S>} />
+
+                                    {/* Redirects */}
+                                    <Route path={ROUTE_PATHS.optimizedIndex} element={<Navigate to={ROUTE_PATHS.home} replace />} />
+                                    <Route path={ROUTE_PATHS.homepage} element={<Navigate to={ROUTE_PATHS.home} replace />} />
+
+                                    {/* Content */}
+                                    <Route path={ROUTE_PATHS.generator} element={<S><Generator /></S>} />
+                                    <Route path={ROUTE_PATHS.sharedMusic} element={<S><SharedMusic /></S>} />
+                                    <Route path={ROUTE_PATHS.sharedMusicIndex} element={<S><SharedMusicIndex /></S>} />
+
+                                    {/* EDN */}
+                                    <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
+                                    <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnComplete /></S>} />
+                                    <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
+                                    <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<Navigate to={ROUTE_PATHS.ednCompleteDetail} replace />} />
+                                    <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
+                                    <Route path={ROUTE_PATHS.ednImmersive} element={<S><EdnImmersive /></S>} />
+                                    <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
+
+                                    {/* Learning */}
+                                    <Route path={ROUTE_PATHS.srsReview} element={<S><SRSReview /></S>} />
+                                    <Route path={ROUTE_PATHS.examMode} element={<S><ExamMode /></S>} />
+                                    <Route path={ROUTE_PATHS.clinicalCases} element={<S><ClinicalCases /></S>} />
+                                    <Route path={ROUTE_PATHS.flashcards} element={<S><Flashcards /></S>} />
+                                    <Route path={ROUTE_PATHS.progressDashboard} element={<S><ProgressDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.smartStudyPlanner} element={<S><SmartStudyPlanner /></S>} />
+
+                                    {/* Gamification */}
+                                    <Route path={ROUTE_PATHS.leaderboard} element={<S><Leaderboard /></S>} />
+                                    <Route path={ROUTE_PATHS.dailyChallenges} element={<S><DailyChallenges /></S>} />
+                                    <Route path={ROUTE_PATHS.myGoals} element={<S><MyGoals /></S>} />
+                                    <Route path={ROUTE_PATHS.moodTracker} element={<S><MoodTracker /></S>} />
+                                    <Route path={ROUTE_PATHS.pomodoro} element={<S><Pomodoro /></S>} />
+                                    <Route path="/karaoke/:songId?" element={<S><KaraokePage /></S>} />
+
+                                    {/* ECOS */}
+                                    <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
+                                    <Route path={ROUTE_PATHS.ecosScenario} element={<S><EcosScenario /></S>} />
+
+                                    {/* Store */}
+                                    <Route path={ROUTE_PATHS.store} element={<S><Store /></S>} />
+                                    <Route path={ROUTE_PATHS.productDetail} element={<S><ProductDetail /></S>} />
+
+                                    {/* Audit */}
+                                    <Route path={ROUTE_PATHS.audit} element={<S><AuditComplete /></S>} />
+                                    <Route path={ROUTE_PATHS.auditCompleteness} element={<S><AuditCompleteness /></S>} />
+                                    <Route path={ROUTE_PATHS.migrationDashboard} element={<S><MigrationDashboardPage /></S>} />
+                                    <Route path={ROUTE_PATHS.auditGeneral} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditEdn} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditUnified} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditIc1} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditIc2} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditIc4} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+                                    <Route path={ROUTE_PATHS.auditCompleteLegacy} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
+
+                                    {/* Legal */}
+                                    <Route path={ROUTE_PATHS.mngMethod} element={<S><MngMethod /></S>} />
+                                    <Route path={ROUTE_PATHS.mentionsLegales} element={<S><MentionsLegales /></S>} />
+                                    <Route path={ROUTE_PATHS.politiqueConfidentialite} element={<S><PolitiqueConfidentialite /></S>} />
+                                    <Route path={ROUTE_PATHS.cgu} element={<S><CGU /></S>} />
+                                    <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
+
+                                    {/* Auth (public) */}
+                                    <Route path={ROUTE_PATHS.medMngLogin} element={<S><MedMngLogin /></S>} />
+                                    <Route path={ROUTE_PATHS.medMngSignup} element={<S><MedMngSignup /></S>} />
+                                    <Route path={ROUTE_PATHS.medMngPricing} element={<S><MedMngPricing /></S>} />
+
+                                    {/* Med-MNG (protected) */}
+                                    <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><S><MedMngSubscribe /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngSuccess} element={<ProtectedRoute><S><MedMngSuccess /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><S><MedMngCreate /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngMusicLibrary} element={<ProtectedRoute><S><MedMngLibrary /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<ProtectedRoute><S><MedMngItemsLibrary /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngItemDetail} element={<ProtectedRoute><S><MedMngItemDetail /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngProfile} element={<ProtectedRoute><S><MedMngProfile /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngPlayer} element={<ProtectedRoute><S><MedMngPlayer /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngPlaylists} element={<ProtectedRoute><S><PlaylistManager /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngPlaylistDetail} element={<ProtectedRoute><S><PlaylistDetail /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><S><MusicAnalytics /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><S><MedMngProgress /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
+
+                                    {/* Raccourci /create */}
+                                    <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />
+
+                                    {/* Chat & Audit */}
+                                    <Route path={ROUTE_PATHS.chat} element={<S><MedChat /></S>} />
+                                    <Route path={ROUTE_PATHS.ednAudit} element={<S><EdnAuditDashboard /></S>} />
+
+                                    {/* Admin */}
+                                    <Route path={ROUTE_PATHS.adminImport} element={<AdminRoute><S><AdminImport /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminAudit} element={<AdminRoute><S><AdminAudit /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminExtractEdn} element={<AdminRoute><S><AdminExtractEdn /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminExtractEcos} element={<AdminRoute><S><AdminExtractEcos /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminExtractObjectifs} element={<AdminRoute><S><EdnObjectifsExtractionPage /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminOicQuality} element={<AdminRoute><S><OicDataQualityManager /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminExtractionQuality} element={<AdminRoute><S><AdminExtractionQualityDashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminComplete} element={<AdminRoute><S><AdminCompleteProcess /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.adminPanel} element={<AdminRoute><S><AdminPanel /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><S><ExecutiveDashboard /></S></AdminRoute>} />
+
+                                    {/* Misc pages */}
+                                    <Route path={ROUTE_PATHS.library} element={<S><LibraryPage /></S>} />
+                                    <Route path={ROUTE_PATHS.accessibilityDashboard} element={<S><AccessibilityDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.effectivenessDashboard} element={<S><EffectivenessDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.rlsDocumentation} element={<S><RLSDocumentation /></S>} />
+                                    <Route path={ROUTE_PATHS.securityMonitoring} element={<S><SecurityMonitoring /></S>} />
+                                    <Route path={ROUTE_PATHS.statistics} element={<S><Statistics /></S>} />
+                                    <Route path={ROUTE_PATHS.studyPlanner} element={<S><StudyPlanner /></S>} />
+                                    <Route path={ROUTE_PATHS.community} element={<S><CommunityHub /></S>} />
+                                    <Route path={ROUTE_PATHS.achievements} element={<S><Achievements /></S>} />
+                                    <Route path={ROUTE_PATHS.favorites} element={<S><Favorites /></S>} />
+                                    <Route path={ROUTE_PATHS.settings} element={<S><UserSettings /></S>} />
+                                    <Route path={ROUTE_PATHS.designSystem} element={<S><DesignSystemPage /></S>} />
+                                    <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<S><MesDonneesRGPD /></S>} />
+                                    <Route path={ROUTE_PATHS.installPwa} element={<S><InstallPWA /></S>} />
+                                    <Route path={ROUTE_PATHS.pwaAnalytics} element={<S><PWAAnalytics /></S>} />
+                                    <Route path={ROUTE_PATHS.diagnostics} element={<S><Diagnostics /></S>} />
+
+                                    {/* 404 */}
+                                    <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
+                                  </Routes>
+                                </main>
+
+                                {/* Footer */}
+                                <Suspense fallback={<div className="h-20 bg-card border-t border-border" />}>
+                                  <AppFooter />
+                                </Suspense>
+
+                                {/* Global UI */}
+                                <HelpButton />
+                                <NotificationSystem
+                                  isOpen={isNotificationCenterOpen}
+                                  onClose={() => setIsNotificationCenterOpen(false)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setIsNotificationCenterOpen(true)}
+                                  className="fixed bottom-4 right-4 z-40 my-[36px]"
+                                >
+                                  <Bell className="w-4 h-4 mr-2" />
+                                  Notifications
+                                </Button>
+                                <KeyboardShortcuts />
+                                <AccessibilityCenter />
+                                <CookieBanner />
+                                <DesignSystemDevTools />
+                                <EnhancedAITutor />
+                                <PWAPrompt />
+                                <OfflineIndicator />
+                              </div>
+                              <Toaster />
+                              <Sonner />
+                            </PerformanceProvider>
+                          </InternationalizationProvider>
+                        </AccessibilityProvider>
+                      </ViewportProvider>
+                    </TooltipProvider>
+                  </GlobalAudioProvider>
+                </LanguageProvider>
+              </AuthProvider>
+            </HelmetProvider>
           </BrowserRouter>
         </QueryClientProvider>
       </ThemeProvider>
