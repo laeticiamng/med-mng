@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/supabaseConstants';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Brain, FileText, Loader2, Microscope, Scale, Search, Settings, Shield, Users, AlertTriangle } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface ItemSelectorProps {
   selectedItem: string | null;
@@ -60,28 +60,45 @@ const getIconForItem = (code: string) => {
 
 export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItemSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [timedOut, setTimedOut] = useState(false);
 
-  // Charger les items depuis la base de données
-  const { data: dbItems, isLoading, error } = useQuery({
+  // Charger les items depuis la base de données (fetch direct, comme useEdnItems)
+  const { data: dbItems, isLoading, error, isError } = useQuery({
     queryKey: ['edn-items-for-creation'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('edn_items_complete')
-        .select('id, item_code, title, subtitle')
-        .order('item_code', { ascending: true })
-        .limit(400);
+      console.log('[ItemSelector] Fetching edn_items_complete via REST...');
+      const url = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=id,item_code,title,subtitle&order=item_code&limit=400`;
+      const response = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
       
-      if (error) {
-        console.error('[ItemSelector] Supabase error:', error.message);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
+      const data = await response.json();
+      console.log('[ItemSelector] Loaded', data?.length, 'items');
       return data || [];
     },
     staleTime: 5 * 60 * 1000,
     retry: 1,
+    gcTime: 10 * 60 * 1000,
   });
 
-  // Utiliser les items DB ou le fallback
+  // Timeout: si le chargement dépasse 8s, forcer le fallback
+  useEffect(() => {
+    if (!isLoading) return;
+    const timer = setTimeout(() => {
+      console.warn('[ItemSelector] Timeout — using fallback items');
+      setTimedOut(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  // Utiliser les items DB ou le fallback en cas d'erreur/timeout
   const items = useMemo(() => {
     if (dbItems && dbItems.length > 0) {
       return dbItems.map((item: any) => ({
@@ -90,8 +107,13 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItem
         description: item.subtitle || 'Item de formation médicale',
       }));
     }
-    return FALLBACK_EDN_ITEMS;
-  }, [dbItems]);
+    // Fallback si erreur, timeout, ou pas de données
+    if (isError || error || timedOut) {
+      console.warn('[ItemSelector] Using fallback items');
+      return FALLBACK_EDN_ITEMS;
+    }
+    return [];
+  }, [dbItems, isError, error, timedOut]);
 
   // Filtrer les items
   const filteredItems = useMemo(() => {
@@ -102,11 +124,20 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItem
     });
   }, [items, searchQuery]);
 
-  if (isLoading) {
+  // Si loading ET pas de fallback items ET pas de timeout, afficher le spinner
+  if (isLoading && items.length === 0 && !timedOut) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Chargement des items...</span>
+        <span className="text-muted-foreground">Chargement des 367 items EDN...</span>
+        <Button 
+          variant="link" 
+          size="sm"
+          onClick={() => setTimedOut(true)}
+          className="text-xs text-muted-foreground"
+        >
+          Utiliser les items de base
+        </Button>
       </div>
     );
   }
