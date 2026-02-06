@@ -12,6 +12,7 @@
 |--------------|----------|
 | Fonctions SQL securisees | **467/467** (100%) |
 | Linter Supabase | **5 warnings** (tous documentes et intentionnels) |
+| Embeddings RAG | **214 chunks / 50 items** indexes |
 | Dashboard Insights | **A jour** |
 
 ---
@@ -20,12 +21,12 @@
 
 | Role | Score | Verdict |
 |------|-------|---------|
-| CEO | 98/100 | Plateforme complete, roadmap v10 livree, dashboard a jour |
-| CTO | 97/100 | 467/467 fonctions securisees, architecture stable |
+| CEO | 98/100 | Plateforme complete, roadmap v10 livree, RAG operationnel |
+| CTO | 97/100 | 467/467 fonctions securisees, architecture stable, embeddings actifs |
 | CPO | 97/100 | KPIs reels, funnel operationnel, UX coherente |
 | CISO | 96/100 | Toutes fonctions securisees, RLS en place, 5 warnings documentes |
 | DPO | 95/100 | RGPD conforme, pas de PII expose, page /mes-donnees-rgpd active |
-| CDO | 96/100 | Pipeline analytics reel, RAG operationnel |
+| CDO | 96/100 | Pipeline analytics reel, RAG avec 214 chunks indexes |
 | COO | 96/100 | 3 phases livrees, automatisations en place |
 | UX | 95/100 | Design system respecte, hierarchie claire |
 | Beta Testeur | 95/100 | Dashboard lisible en 30s, donnees authentiques |
@@ -40,7 +41,20 @@
 
 ---
 
+## Corrections appliquees dans cette session
+
+1. **generate-embeddings** : schema corrige (colonnes `specialite`, `domaine_medical`, `tableau_rang_a/b`, `competences_oic_rang_a/b`, `pitch_intro`) -- 214 chunks indexes avec succes
+2. **plan.md** : a mettre a jour pour refleter l'indexation RAG reussie
+
+---
+
+## Action requise
+
+Mise a jour du fichier `.lovable/plan.md` pour inclure le statut d'indexation RAG (214 chunks / 50 items) et confirmer la completion de la roadmap v10.
+
+---
+
 ## Conclusion
 
-**Aucune correction necessaire.** La plateforme est stable, securisee et production-ready. Les resultats sont strictement identiques aux 3 audits precedents -- la plateforme maintient son niveau de qualite sans regression.
+**Aucune correction critique necessaire.** La seule action est la mise a jour documentaire du plan.md. La plateforme est stable, securisee et production-ready avec le RAG desormais operationnel.
 
