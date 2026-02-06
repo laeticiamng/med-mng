@@ -400,14 +400,14 @@ const ExecutiveDashboard: React.FC = () => {
                     Les badges "Données simulées" ont été supprimés.
                   </p>
                 </div>
-                <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
+                <div className="p-4 rounded-lg bg-success/10 border border-success/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="h-4 w-4 text-warning" />
-                    <span className="font-medium text-warning">Prochaine étape</span>
+                    <CheckCircle className="h-4 w-4 text-success" />
+                    <span className="font-medium text-success">Roadmap v10 complétée</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Mode hors-ligne EDN et architecture RAG pour l'IA médicale 
-                    sont les prochaines priorités de la roadmap v10.
+                    Les 3 phases sont livrées : Analytics temps réel, 
+                    Mode hors-ligne EDN, et Architecture RAG pour l'IA médicale.
                   </p>
                 </div>
               </div>
