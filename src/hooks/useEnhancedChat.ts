@@ -9,6 +9,7 @@ interface ChatMessage {
   timestamp: Date;
   source?: 'edn_local' | 'web_fallback' | 'edn_limited';
   suggestions?: ChatSuggestion[];
+  ragSources?: RagSource[];
 }
 
 interface ChatSuggestion {
@@ -19,14 +20,23 @@ interface ChatSuggestion {
   item_code?: string;
 }
 
+interface RagSource {
+  item_code: string;
+  title: string;
+  similarity: number;
+  chunk_preview: string;
+}
+
 interface ChatContext {
   edn_items_found: number;
+  rag_results_found: number;
   web_fallback_used: boolean;
   items: Array<{
     item_code: string;
     title: string;
     relevance: number;
   }>;
+  rag_sources: RagSource[];
 }
 
 interface ChatResponse {
@@ -91,7 +101,8 @@ export const useEnhancedChat = () => {
         content: response.response,
         timestamp: new Date(),
         source: response.source,
-        suggestions: response.suggestions
+        suggestions: response.suggestions,
+        ragSources: response.context.rag_sources
       };
 
       setMessages(prev => [...prev, assistantMessage]);

@@ -74,28 +74,102 @@ serve(async (req) => {
 
     console.log('💬 Question utilisateur:', message);
 
-    // 1. RECHERCHE PRIORITAIRE DANS LA BASE EDN/COURS
+    // 1. RECHERCHE SÉMANTIQUE RAG (prioritaire)
+    let ragResults: any[] = [];
+    let ragSources: any[] = [];
+    
+    try {
+      const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+      if (openaiApiKey) {
+        // Generate query embedding
+        const embResponse = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-3-small',
+            input: message.slice(0, 8000)
+          })
+        });
+
+        if (embResponse.ok) {
+          const embData = await embResponse.json();
+          const queryEmbedding = embData.data[0].embedding;
+
+          // Semantic search via pgvector
+          const { data: matches, error: matchError } = await supabase
+            .rpc('match_edn_embeddings', {
+              query_embedding: queryEmbedding,
+              match_threshold: 0.65,
+              match_count: 5
+            });
+
+          if (!matchError && matches && matches.length > 0) {
+            ragResults = matches;
+            ragSources = matches.map((m: any) => ({
+              item_code: m.item_code,
+              title: m.title,
+              similarity: Math.round(m.similarity * 100) / 100,
+              chunk_preview: m.content_chunk.slice(0, 150) + '...'
+            }));
+            console.log(`🧬 RAG: ${ragResults.length} résultats sémantiques trouvés`);
+          }
+        }
+      }
+    } catch (ragError) {
+      console.error('⚠️ RAG search failed, falling back to keyword:', ragError);
+    }
+
+    // 2. RECHERCHE KEYWORD EDN (fallback si RAG insuffisant)
     const ednContext = await searchEdnKnowledgeBase(supabase, message, context_items);
-    console.log(`📚 Contexte EDN trouvé: ${ednContext.length} items`);
+    console.log(`📚 Contexte EDN keyword: ${ednContext.length} items`);
 
     let finalResponse = '';
     let responseSource = 'edn_local';
     let suggestions: any[] = [];
     let webFallbackUsed = false;
 
-    // 2. SI CONTEXTE EDN SUFFISANT -> RÉPONSE DIRECTE
-    if (ednContext.length > 0 && ednContext[0].relevance_score >= 0.8) {
-      console.log('✅ Contexte EDN suffisant, génération réponse directe');
+    // 3. CHOIX DE LA STRATÉGIE DE RÉPONSE
+    if (ragResults.length > 0) {
+      // RAG sémantique disponible → réponse enrichie
+      console.log('✅ RAG sémantique actif, génération réponse enrichie');
+      
+      const ragContext = ragResults.map((r: any) => 
+        `**[${r.item_code}] ${r.title}** (similarité: ${Math.round(r.similarity * 100)}%)\n${r.content_chunk}`
+      ).join('\n\n---\n\n');
+
+      const systemPrompt = `Tu es un assistant IA expert en médecine EDN utilisant le système RAG.
+
+**SOURCES EDN VÉRIFIÉES (recherche sémantique):**
+${ragContext}
+
+**INSTRUCTIONS:**
+1. Base tes réponses EXCLUSIVEMENT sur les sources EDN ci-dessus
+2. Cite toujours les items sources entre crochets [IC-XXX]
+3. Sois précis, pédagogique et structuré
+4. Si plusieurs sources sont pertinentes, synthétise-les
+5. Termine par une section "📚 Sources:" listant les items utilisés`;
+
+      finalResponse = await generateOpenAIResponse(systemPrompt, conversation_history, message);
+      responseSource = 'edn_local';
+      suggestions = generateContextualSuggestions(ednContext.length > 0 ? ednContext : ragResults.map((r: any) => ({
+        item_code: r.item_code,
+        title: r.title,
+        relevance_score: r.similarity,
+        source: 'edn_local'
+      })));
+
+    } else if (ednContext.length > 0 && ednContext[0].relevance_score >= 0.8) {
+      console.log('✅ Contexte EDN keyword suffisant');
       
       const systemPrompt = buildEdnContextualPrompt(ednContext);
       finalResponse = await generateOpenAIResponse(systemPrompt, conversation_history, message);
-      
-      // Générer des suggestions contextuelles
       suggestions = generateContextualSuggestions(ednContext);
       
     } else if (enable_web_fallback) {
-      // 3. FALLBACK WEB SI NOTION NON TROUVÉE DANS EDN
-      console.log('🌐 Contexte EDN insuffisant, activation fallback web');
+      console.log('🌐 Contexte insuffisant, activation fallback web');
       
       const webResult = await performWebFallback(message);
       if (webResult && webResult.confidence > 0.6) {
@@ -104,12 +178,10 @@ serve(async (req) => {
         responseSource = 'web_fallback';
         webFallbackUsed = true;
       } else {
-        // Réponse basée sur le contexte EDN limité disponible
         const systemPrompt = buildLimitedEdnPrompt(ednContext);
         finalResponse = await generateOpenAIResponse(systemPrompt, conversation_history, message);
       }
     } else {
-      // Réponse basée uniquement sur EDN (mode strict)
       const systemPrompt = buildLimitedEdnPrompt(ednContext);
       finalResponse = await generateOpenAIResponse(systemPrompt, conversation_history, message);
     }
@@ -133,12 +205,14 @@ serve(async (req) => {
       source: responseSource,
       context: {
         edn_items_found: ednContext.length,
+        rag_results_found: ragResults.length,
         web_fallback_used: webFallbackUsed,
         items: ednContext.map(c => ({
           item_code: c.item_code,
           title: c.title,
           relevance: c.relevance_score
-        }))
+        })),
+        rag_sources: ragSources
       },
       suggestions,
       conversation_id: `enhanced_chat_${user.id}_${Date.now()}`

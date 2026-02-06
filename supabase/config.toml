@@ -108,3 +108,13 @@ verify_jwt = false
 [functions.medical-ai-copilot-stream]
 verify_jwt = false
 
+# ============================================================================
+# RAG & EMBEDDINGS (v10 - Phase 3)
+# ============================================================================
+
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.enhanced-contextual-chat]
+verify_jwt = false
+
