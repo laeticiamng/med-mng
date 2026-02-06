@@ -1,111 +1,155 @@
 
 
-# Audit UX Senior - MED-MNG
+# Audit Complet 3 Phases - MED-MNG
 **Date**: 6 Fevrier 2026
 
 ---
 
-## Synthese des Problemes Identifies
+## Phase 1 : Audit Technique (Dev Senior)
 
-Apres inspection visuelle de toutes les pages principales (Home, EDN, ECOS, Chat, Pricing, Login, Generator, Items Library) et analyse du code des composants de navigation, layout et onboarding.
+### 1.1 Redirections OAuth/Signup vers route obsolete (CRITIQUE)
 
----
+**Probleme** : Dans `AuthProvider.tsx`, les 4 redirections post-authentification (signUp emailRedirectTo, signInWithGoogle, signInWithFacebook, signInWithApple) pointent vers `/med-mng/library` (lignes 153, 180, 194, 208). Or dans `App.tsx` ligne 279, cette route est un `<Navigate>` vers `/med-mng/music-library`. L'utilisateur subit un double redirect apres login OAuth.
 
-## 1. Bouton "Notifications" Flottant en Conflit avec le Cookie Banner (CRITIQUE)
+De plus, dans `MedMngLogin.tsx` ligne 49 et `MedMngSignup.tsx` ligne 32, la redirection post-login pointe aussi vers `medMngLibrary` (qui redirige).
 
-**Probleme**: Dans `App.tsx` (lignes 337-345), un bouton "Notifications" est fixe en `fixed bottom-4 right-4 z-40` avec un `my-[36px]` arbitraire. Il chevauche visuellement :
-- Le cookie banner (`fixed bottom-4 right-4 z-[100]`)
-- La bottom nav mobile (`fixed bottom-0 z-50`)
-- Le bouton HelpButton
+**Correction** : Remplacer toutes les occurrences de `/med-mng/library` par `/med-mng/music-library` dans AuthProvider, MedMngLogin et MedMngSignup.
 
-**Impact UX**: Superposition de 3 elements flottants dans le meme coin, clics accidentels, confusion visuelle.
+**Fichiers** : `AuthProvider.tsx` (4 endroits), `MedMngLogin.tsx`, `MedMngSignup.tsx`
 
-**Correction**: Supprimer ce bouton flottant orphelin. La navigation desktop a deja une icone Bell dans `MainNavigation.tsx` (ligne 216-223) qui fait exactement la meme chose visuellement mais ne declenche rien. Connecter cette icone Bell au `NotificationSystem` et supprimer le bouton flottant.
+### 1.2 HelpButton ouvre des routes inexistantes (IMPORTANT)
 
-**Fichiers**: `App.tsx`, `MainNavigation.tsx`
+**Probleme** : `HelpButton.tsx` appelle `window.open('/help', '_blank')` et `window.open('/tutorials', '_blank')`. Ces routes n'existent pas dans `routes.ts` ni dans `App.tsx`. L'utilisateur tombe sur une page 404 dans un nouvel onglet.
 
----
+**Correction** : Remplacer par des routes existantes ou des liens vers la documentation, ou desactiver les boutons avec un toast "Bientot disponible".
 
-## 2. Cookie Banner Chevauche la Bottom Nav Mobile (IMPORTANT)
+**Fichier** : `src/components/onboarding/HelpButton.tsx`
 
-**Probleme**: Le cookie banner utilise `fixed bottom-4 left-4 right-4` (ligne 91 de CookieBanner.tsx). Sur mobile, la MobileBottomNav est `fixed bottom-0`. Le banner recouvre partiellement la navigation, bloquant l'acces aux boutons.
+### 1.3 QueryClient `retry: false` en production (MOYEN)
 
-**Correction**: Ajouter une classe `md:bottom-4 bottom-20` au cookie banner pour le positionner au-dessus de la bottom nav sur mobile.
+**Probleme** : Le QueryClient dans `App.tsx` (ligne 157) a `retry: false`. En production, une requete reseau qui echoue a cause d'un timeout momentane ne sera jamais retentee. Cela cause des pages vides inutiles.
 
-**Fichier**: `src/components/common/CookieBanner.tsx`
+**Correction** : Mettre `retry: 1` (ou `retry: (count, error) => count < 2 && error?.status >= 500`) pour retenter une fois sur erreur serveur.
 
----
+**Fichier** : `App.tsx`
 
-## 3. Double Navigation Bell - Icone Inactive (IMPORTANT)
+### 1.4 `refetchOnMount: false` empeche les donnees fraiches (MOYEN)
 
-**Probleme**: Le bouton Bell dans `MainNavigation.tsx` (lignes 216-223) n'a aucun `onClick` handler. C'est un bouton decoratif qui ne fait rien au clic. L'utilisateur voit une icone cloche, clique, et rien ne se passe.
+**Probleme** : `refetchOnMount: false` dans le QueryClient (ligne 163) signifie que naviguer vers une page deja visitee ne rafraichit jamais les donnees. Si un utilisateur cree du contenu puis revient a une liste, la liste reste obsolete.
 
-**Correction**: Remonter le state `isNotificationCenterOpen` via props ou context pour connecter le Bell de la nav au `NotificationSystem`.
+**Correction** : Changer en `refetchOnMount: 'always'` ou supprimer cette option (le `staleTime` de 10 min protege deja contre les refetch excessifs).
 
-**Fichier**: `MainNavigation.tsx`, `App.tsx`
+**Fichier** : `App.tsx`
 
----
+### 1.5 Onboarding fait un upsert sur une table potentiellement inexistante (BAS)
 
-## 4. MobileBottomNav Pointe vers une Route Redirigee (MOYEN)
+**Probleme** : Dans `AntiAnxietyOnboarding.tsx` ligne 68 et `Index.tsx` ligne 54, le code fait un upsert/select sur `user_onboarding` avec un cast `(supabase as any)` dans le onboarding. Ce `as any` masque les erreurs TypeScript et pourrait indiquer que la table n'est pas dans les types generes.
 
-**Probleme**: Le lien "Bibliotheque" dans la bottom nav (ligne 23) pointe vers `ROUTE_PATHS.medMngLibrary` (`/med-mng/library`), qui est une redirection vers `/med-mng/music-library`. Cela provoque un flash de navigation (redirection visible) et le lien n'est jamais considere "actif" par le router car le pathname final est different.
+**Correction** : Verifier que `user_onboarding` est dans les types Supabase generes. Si oui, retirer le `as any`. Si non, ajouter la table aux types.
 
-**Correction**: Changer `navItems[1].to` pour pointer directement vers `ROUTE_PATHS.medMngMusicLibrary`.
+**Fichiers** : `AntiAnxietyOnboarding.tsx`, `Index.tsx`
 
-**Fichier**: `src/components/navigation/MobileBottomNav.tsx`
+### 1.6 Pas de route `/med-mng/reset-password` (BAS)
 
----
+**Probleme** : `AuthProvider.tsx` ligne 221 definit `redirectTo` vers `/med-mng/reset-password` pour le reset de mot de passe, mais cette route n'existe pas dans `routes.ts` ni `App.tsx`. L'utilisateur qui clique le lien de reset dans son email arrive sur une 404.
 
-## 5. Player Demo Home - Bouton Play Desactive sans Explication Claire (MOYEN)
+**Correction** : Ajouter une page/route `/med-mng/reset-password` ou rediriger vers le login avec un parametre.
 
-**Probleme**: Dans `AppleMusicPlayer.tsx`, le bouton Play principal est `disabled={isDemoMode}` avec un simple `title` tooltip. Le titre n'est visible qu'au hover (pas tactile). L'utilisateur mobile ne comprend pas pourquoi le bouton est grise.
-
-**Correction**: Ajouter un texte visible sous les controles : "Creez un compte pour ecouter" avec un lien vers l'inscription, au lieu de s'appuyer uniquement sur un tooltip.
-
-**Fichier**: `src/components/home/AppleMusicPlayer.tsx`
+**Fichiers** : `routes.ts`, `App.tsx`, nouveau fichier page potentiel
 
 ---
 
-## 6. Boutons de Controle (Skip, Repeat, Volume) Non Fonctionnels en Mode Demo (BAS)
+## Phase 2 : Audit UX (Designer Senior)
 
-**Probleme**: Seul le bouton Play est desactive dans le player demo. Les boutons SkipBack, SkipForward, Repeat et Volume sont cliquables mais ne font rien. Cela cree une fausse affordance.
+### 2.1 CTA Hero "Commencer gratuitement" mene vers une page protegee (CRITIQUE)
 
-**Correction**: Desactiver egalement ces boutons ou les griser visuellement en mode demo.
+**Probleme** : Le bouton principal du Hero (`AppleHero.tsx` ligne 113) navigue vers `medMngItemsLibrary`, qui est une route `<ProtectedRoute>` (ligne 281 de App.tsx). Un visiteur non connecte clique sur "Commencer gratuitement" et se retrouve redirige vers la page de login sans explication. C'est la premiere interaction du visiteur avec le produit : elle doit etre fluide.
 
-**Fichier**: `src/components/home/AppleMusicPlayer.tsx`
+**Correction** : Changer le CTA pour pointer vers la page EDN publique (`ednComplete`) ou la page de signup. Ou rendre `medMngItemsLibrary` partiellement accessible aux visiteurs.
+
+**Fichier** : `src/components/home/AppleHero.tsx`
+
+### 2.2 Second CTA Hero "Ecouter un extrait" mene a une page vide sans contenu audio (IMPORTANT)
+
+**Probleme** : Le bouton "Ecouter un extrait" navigue vers `/generator` qui est la page de generation de musique IA. Il n'y a rien a "ecouter" directement -- l'utilisateur doit generer du contenu d'abord. La promesse du bouton est en decalage avec la realite.
+
+**Correction** : Renommer le bouton "Generer une musique" ou pointer vers une page avec du contenu audio de demonstration pre-genere.
+
+**Fichier** : `src/components/home/AppleHero.tsx`
+
+### 2.3 CTA Final "Commencer maintenant" mene aussi vers une page protegee (IMPORTANT)
+
+**Probleme** : Le bouton final (`AppleFinalCTA.tsx` ligne 85) pointe egalement vers `medMngItemsLibrary` (protege). Meme probleme que le Hero.
+
+**Correction** : Pointer vers la page signup ou ednComplete.
+
+**Fichier** : `src/components/home/AppleFinalCTA.tsx`
+
+### 2.4 HelpButton chevauche la bottom nav mobile (MOYEN)
+
+**Probleme** : Le `HelpButton` est positionne `fixed bottom-6 right-6 z-50`. La `MobileBottomNav` est `fixed bottom-0 z-50`. Sur mobile, le bouton d'aide flotte au-dessus de la bottom nav, mais son z-index egal et sa proximite creent un risque de chevauchement visuel, surtout avec la barre de gamification.
+
+**Correction** : Masquer le HelpButton sur mobile (`hidden md:flex`) puisque le menu mobile a deja des options d'aide, ou le remonter au-dessus de la bottom nav.
+
+**Fichier** : `src/components/onboarding/HelpButton.tsx`
+
+### 2.5 Page EDN sticky header avec z-40 conflicte avec le header principal (BAS)
+
+**Probleme** : La page `EdnComplete.tsx` (ligne 332) a un header sticky avec `z-40` et `sticky top-0`. Or le header principal `MainNavigation` est aussi `sticky top-0 z-50`. Le header EDN passe SOUS le header principal quand on scroll, ce qui est correct, mais le `top-0` fait qu'il se cache derriere la nav au lieu d'etre visible en dessous.
+
+**Correction** : Changer le `top-0` du header EDN en `top-16` (hauteur de la nav principale) pour qu'il colle juste sous la navbar.
+
+**Fichier** : `src/pages/EdnComplete.tsx`
 
 ---
 
-## 7. Footer Trop Dense - Liens vers des Pages Auth-Protected sans Indication (BAS)
+## Phase 3 : Audit Utilisateur Final (Beta Testeur)
 
-**Probleme**: Le footer contient des liens vers Flashcards, Revision espacee, Cas cliniques, Mode examen, etc. qui necessitent tous une authentification. Un visiteur non connecte qui clique est redirige vers le login sans comprendre pourquoi.
+### 3.1 "Commencer gratuitement" demande un login : contradiction (CRITIQUE)
 
-**Correction**: Ajouter un petit indicateur visuel (icone cadenas ou badge "Pro") a cote des liens qui necessitent un compte.
+En tant que visiteur, je vois "Commencer gratuitement" et "Aucune carte requise". Je clique et je suis redirige vers un formulaire de connexion. C'est trompeur. Je ne comprends pas pourquoi je dois me connecter si c'est "gratuit et instantane".
 
-**Fichier**: `src/components/layout/AppFooter.tsx`
+**Resolution** : Pointer les CTA vers le contenu EDN public (deja accessible sans login) au lieu de la bibliotheque protegee. Ou ajouter une etape intermediaire qui explique la creation de compte avant de rediriger.
 
----
+### 3.2 Les boutons d'aide ouvrent des pages vides (IMPORTANT)
 
-## 8. Onboarding Saute l'Etape Action (BAS)
+Je clique "Centre d'aide" ou "Videos tutorielles" dans le bouton d'aide -- un nouvel onglet s'ouvre sur une page 404 "Page introuvable". C'est decevant et donne une impression de produit inacheve.
 
-**Probleme**: Dans `AntiAnxietyOnboarding.tsx`, apres la selection du style musical (step 2), `onComplete()` est appele immediatement (ligne 48) sans passer par le step `action`. L'etape `action` (qui offre des boutons d'orientation vers EDN/ECOS/Chat) n'est jamais montree.
+**Resolution** : Soit creer les pages `/help` et `/tutorials`, soit remplacer par un toast "Bientot disponible" ou un lien mailto.
 
-**Correction**: Passer par le step `action` avant de fermer, ou supprimer le step inutilise.
+### 3.3 Apres inscription, le message dit "Verifiez votre email" mais pas de lien de renvoi (MOYEN)
 
-**Fichier**: `src/components/onboarding/AntiAnxietyOnboarding.tsx`
+Apres le signup reussi, je vois "Verifiez votre email" avec un seul bouton "Retour a la connexion". Mais si je n'ai pas recu l'email ? Il n'y a aucun bouton "Renvoyer l'email de verification".
+
+**Resolution** : Ajouter un bouton "Renvoyer l'email" sur la page de succes d'inscription.
+
+### 3.4 Mot de passe oublie : flux casse (MOYEN)
+
+La page login n'a pas de lien "Mot de passe oublie" visible. La fonctionnalite `resetPassword` existe dans AuthProvider mais n'est pas exposee dans l'interface utilisateur. Et meme si elle l'etait, la redirection pointe vers `/med-mng/reset-password` qui n'existe pas.
+
+**Resolution** : Ajouter un lien "Mot de passe oublie ?" sur la page login, creer la page de reset, ou utiliser le formulaire de login comme fallback.
+
+### 3.5 Le footer sur mobile est coupe par la bottom nav (BAS)
+
+Le footer apparait normalement, mais les derniers liens sont caches derriere la bottom nav mobile. Il faut scroller tres loin pour voir les mentions legales.
+
+**Resolution** : S'assurer que le spacer `h-20` de la MobileBottomNav s'applique correctement au-dessus du footer.
 
 ---
 
 ## Plan d'Implementation
 
-| Ordre | Correction | Fichier(s) | Impact |
-|-------|-----------|------------|--------|
-| 1 | Supprimer bouton Notifications flottant orphelin | App.tsx | Critique - elimine chevauchement |
-| 2 | Connecter Bell de la nav au NotificationSystem | MainNavigation.tsx, App.tsx | Important - repare bouton inactif |
-| 3 | Cookie banner au-dessus de la bottom nav mobile | CookieBanner.tsx | Important - debloque navigation mobile |
-| 4 | Bottom nav pointe vers la route finale (pas la redirection) | MobileBottomNav.tsx | Moyen - supprime flash de redirection |
-| 5 | Player demo : texte visible pour CTA inscription | AppleMusicPlayer.tsx | Moyen - guide l'utilisateur |
-| 6 | Desactiver tous les controles du player en mode demo | AppleMusicPlayer.tsx | Bas - coherence UI |
-| 7 | Indicateurs visuels sur liens auth-protected du footer | AppFooter.tsx | Bas - transparence |
-| 8 | Corriger le flux onboarding (step action manquant) | AntiAnxietyOnboarding.tsx | Bas - parcours complet |
+| Ordre | Phase | Correction | Fichier(s) | Impact |
+|-------|-------|-----------|------------|--------|
+| 1 | P2+P3 | CTA Hero : pointer vers ednComplete au lieu de medMngItemsLibrary | AppleHero.tsx | Critique - premiere impression |
+| 2 | P2 | CTA Final : pointer vers signup au lieu de medMngItemsLibrary | AppleFinalCTA.tsx | Important - conversion |
+| 3 | P1 | OAuth/Signup redirects : /med-mng/library vers /med-mng/music-library | AuthProvider.tsx, MedMngLogin.tsx, MedMngSignup.tsx | Critique - double redirect |
+| 4 | P1+P3 | HelpButton : remplacer /help et /tutorials par toast "bientot" | HelpButton.tsx | Important - 404 evitees |
+| 5 | P1 | QueryClient retry:1 et refetchOnMount par defaut | App.tsx | Moyen - resilience reseau |
+| 6 | P2 | HelpButton masque sur mobile | HelpButton.tsx | Moyen - chevauchement |
+| 7 | P2 | Header EDN sticky top-16 | EdnComplete.tsx | Bas - alignement visuel |
+| 8 | P3 | Lien "Mot de passe oublie" sur login | MedMngLogin.tsx | Moyen - flux utilisateur |
+| 9 | P3 | Bouton "Renvoyer email" sur page succes signup | MedMngSignup.tsx | Moyen - flux utilisateur |
+| 10 | P1 | Route /med-mng/reset-password manquante | routes.ts, App.tsx | Bas - flux reset password |
+| 11 | P1 | Retirer `as any` sur user_onboarding | AntiAnxietyOnboarding.tsx | Bas - typage |
 
