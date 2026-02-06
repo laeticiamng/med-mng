@@ -287,9 +287,9 @@ class OfflineSyncService {
     return this.getCachedData(`user_progress_${userId}`);
   }
 
-  // IndexedDB for larger data (audio files, etc.)
+  // IndexedDB for larger data (audio files, full EDN items, etc.)
   private dbName = 'med_mng_offline_db';
-  private dbVersion = 1;
+  private dbVersion = 2;
   private db: IDBDatabase | null = null;
 
   public async initIndexedDB(): Promise<void> {
@@ -318,6 +318,18 @@ class OfflineSyncService {
         // User data store
         if (!db.objectStoreNames.contains('user_data')) {
           db.createObjectStore('user_data', { keyPath: 'key' });
+        }
+
+        // Full EDN items for offline mode (v2)
+        if (!db.objectStoreNames.contains('edn_items_offline')) {
+          const store = db.createObjectStore('edn_items_offline', { keyPath: 'item_code' });
+          store.createIndex('downloaded_at', 'downloaded_at', { unique: false });
+        }
+
+        // Offline progress queue (quiz results, flashcard reviews done offline)
+        if (!db.objectStoreNames.contains('offline_progress')) {
+          const progressStore = db.createObjectStore('offline_progress', { keyPath: 'id' });
+          progressStore.createIndex('synced', 'synced', { unique: false });
         }
       };
     });
@@ -383,11 +395,191 @@ class OfflineSyncService {
     });
   }
 
+  // ===== Full EDN Item Offline Storage (Phase 2) =====
+
+  /** Download a full EDN item for offline access */
+  public async downloadEdnItemOffline(item: any): Promise<void> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) throw new Error('IndexedDB not available');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['edn_items_offline'], 'readwrite');
+      const store = transaction.objectStore('edn_items_offline');
+
+      const record = {
+        item_code: item.item_code,
+        data: item,
+        downloaded_at: Date.now(),
+      };
+
+      const request = store.put(record);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Get a downloaded EDN item */
+  public async getOfflineEdnItem(itemCode: string): Promise<any | null> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return null;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['edn_items_offline'], 'readonly');
+      const store = transaction.objectStore('edn_items_offline');
+      const request = store.get(itemCode);
+      request.onsuccess = () => resolve(request.result?.data || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Remove a downloaded EDN item */
+  public async removeOfflineEdnItem(itemCode: string): Promise<void> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['edn_items_offline'], 'readwrite');
+      const store = transaction.objectStore('edn_items_offline');
+      const request = store.delete(itemCode);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Get all downloaded item codes */
+  public async getDownloadedItemCodes(): Promise<string[]> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return [];
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['edn_items_offline'], 'readonly');
+      const store = transaction.objectStore('edn_items_offline');
+      const request = store.getAllKeys();
+      request.onsuccess = () => resolve(request.result as string[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Get count of downloaded items */
+  public async getDownloadedCount(): Promise<number> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return 0;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['edn_items_offline'], 'readonly');
+      const store = transaction.objectStore('edn_items_offline');
+      const request = store.count();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // ===== Offline Progress Tracking =====
+
+  /** Store progress made while offline (quiz, flashcard results) */
+  public async storeOfflineProgress(progressData: {
+    type: 'quiz' | 'flashcard' | 'study';
+    itemCode: string;
+    data: any;
+  }): Promise<void> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['offline_progress'], 'readwrite');
+      const store = transaction.objectStore('offline_progress');
+      const record = {
+        id: crypto.randomUUID?.() ?? `prog_${Date.now()}`,
+        ...progressData,
+        timestamp: Date.now(),
+        synced: false,
+      };
+      const request = store.put(record);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Get all unsynced progress entries */
+  public async getUnsyncedProgress(): Promise<any[]> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return [];
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['offline_progress'], 'readonly');
+      const store = transaction.objectStore('offline_progress');
+      const results: any[] = [];
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (cursor) {
+          if (cursor.value.synced === false) {
+            results.push(cursor.value);
+          }
+          cursor.continue();
+        } else {
+          resolve(results);
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /** Mark progress as synced */
+  public async markProgressSynced(id: string): Promise<void> {
+    if (!this.db) await this.initIndexedDB();
+    if (!this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['offline_progress'], 'readwrite');
+      const store = transaction.objectStore('offline_progress');
+      const getReq = store.get(id);
+      getReq.onsuccess = () => {
+        if (getReq.result) {
+          getReq.result.synced = true;
+          store.put(getReq.result);
+        }
+        resolve();
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  }
+
+  /** Sync all offline progress to Supabase */
+  public async syncOfflineProgress(): Promise<{ success: number; failed: number }> {
+    const unsyncedItems = await this.getUnsyncedProgress();
+    let success = 0;
+    let failed = 0;
+
+    for (const item of unsyncedItems) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) break;
+
+        await (supabase as any).from('user_activity_log').insert({
+          user_id: user.id,
+          activity_type: item.type,
+          action: `offline_${item.type}`,
+          metadata: { ...item.data, item_code: item.itemCode, offline: true },
+          session_id: `offline_${item.timestamp}`,
+        });
+
+        await this.markProgressSynced(item.id);
+        success++;
+      } catch {
+        failed++;
+      }
+    }
+
+    return { success, failed };
+  }
+
   // Get storage usage stats
   public async getStorageStats(): Promise<{
     localStorage: { used: number; available: number };
     indexedDB: { used: number };
     queueLength: number;
+    downloadedEdnItems: number;
   }> {
     let localStorageUsed = 0;
     for (let i = 0; i < localStorage.length; i++) {
@@ -403,13 +595,16 @@ class OfflineSyncService {
       indexedDBUsed = estimate.usage || 0;
     }
 
+    const downloadedEdnItems = await this.getDownloadedCount();
+
     return {
       localStorage: {
         used: localStorageUsed,
         available: 5 * 1024 * 1024 - localStorageUsed // ~5MB typical limit
       },
       indexedDB: { used: indexedDBUsed },
-      queueLength: this.syncQueue.length
+      queueLength: this.syncQueue.length,
+      downloadedEdnItems,
     };
   }
 }

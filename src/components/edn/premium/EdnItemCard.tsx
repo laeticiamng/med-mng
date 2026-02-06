@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { OfflineDownloadButton } from "@/components/edn/OfflineDownloadButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { useEdnNotes } from "@/hooks/useEdnNotes";
@@ -62,6 +63,10 @@ interface EdnItemCardProps {
   onOpen: (tab?: string) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  isOfflineAvailable?: boolean;
+  isDownloading?: boolean;
+  onDownloadOffline?: (item: any) => void;
+  onRemoveOffline?: (itemCode: string) => void;
 }
 
 export const EdnItemCard: React.FC<EdnItemCardProps> = ({
@@ -69,7 +74,11 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   completionPercentage,
   onOpen,
   isFavorite = false,
-  onToggleFavorite
+  onToggleFavorite,
+  isOfflineAvailable = false,
+  isDownloading = false,
+  onDownloadOffline,
+  onRemoveOffline,
 }) => {
   const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
@@ -290,6 +299,19 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             >
               <Music className="h-4 w-4" />
             </Button>
+          )}
+
+          {/* Offline download button */}
+          {onDownloadOffline && onRemoveOffline && (
+            <OfflineDownloadButton
+              itemCode={finalItem.item_code}
+              item={finalItem}
+              isDownloaded={isOfflineAvailable}
+              isDownloading={isDownloading}
+              onDownload={onDownloadOffline}
+              onRemove={onRemoveOffline}
+              compact={!isMobile}
+            />
           )}
         </div>
       </CardContent>
