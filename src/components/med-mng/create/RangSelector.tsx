@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Lightbulb } from 'lucide-react';
+import { Star, Lightbulb, Layers } from 'lucide-react';
 
 interface RangSelectorProps {
-  selectedRang: 'A' | 'B' | '';
-  onRangChange: (rang: 'A' | 'B') => void;
+  selectedRang: 'A' | 'B' | 'A+B' | '';
+  onRangChange: (rang: 'A' | 'B' | 'A+B') => void;
   disabled?: boolean;
 }
 
@@ -33,6 +33,15 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
       color: 'bg-accent',
       borderColor: 'border-accent',
     },
+    {
+      value: 'A+B' as const,
+      title: 'Rang A+B',
+      subtitle: 'Couverture complète',
+      description: 'Combine les connaissances fondamentales et approfondies en une seule chanson',
+      icon: Layers,
+      color: 'bg-secondary',
+      borderColor: 'border-secondary',
+    },
   ];
 
   return (
@@ -40,7 +49,7 @@ export const RangSelector: React.FC<RangSelectorProps> = ({
       <label className="text-sm font-medium text-foreground">
         Sélectionnez le rang de connaissances
       </label>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {rangs.map((rang) => {
           const Icon = rang.icon;
           const isSelected = selectedRang === rang.value;
