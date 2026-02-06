@@ -1,8 +1,7 @@
 import { TranslatedText } from '@/components/TranslatedText';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { MVPFooter } from '@/components/layout/MVPFooter';
+import { AppFooter } from '@/components/layout/AppFooter';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
-import { PricingTestimonials } from '@/components/pricing/PricingTestimonials';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,7 +54,11 @@ export const MedMngPricing = () => {
       const processedPlans: SubscriptionPlan[] = (data || []).map(plan => ({
         id: plan.id,
         name: plan.name,
-        description: `Plan ${plan.name.toLowerCase()}`,
+        description: plan.name.toLowerCase() === 'free' ? 'Découvrez gratuitement' :
+          plan.name.toLowerCase() === 'basic' ? 'Pour commencer sérieusement' :
+          plan.name.toLowerCase() === 'premium' ? 'L\'expérience complète' :
+          plan.name.toLowerCase() === 'enterprise' ? 'Pour les institutions' :
+          `Plan ${plan.name.toLowerCase()}`,
         price: plan.price,
         monthly_music_quota: plan.monthly_music_quota,
         features: plan.features
@@ -366,60 +369,9 @@ export const MedMngPricing = () => {
         </div>
 
         {/* FAQ Section */}
-        <PremiumCard variant="glass" className="mt-8 sm:mt-12 max-w-4xl mx-auto">
-          <CardHeader className="text-center">
-            <CardTitle className="text-lg sm:text-xl">
-              <TranslatedText text="Questions Fréquentes" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              
-              <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
-                  <TranslatedText text="Comment fonctionne la version gratuite ?" />
-                </h4>
-                <p className="text-muted-foreground">
-                  <TranslatedText text="Vous pouvez générer jusqu'à 3 chansons gratuitement pour tester notre technologie d'IA musicale. Aucune carte bancaire requise." />
-                </p>
-              </div>
-
-              <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
-                  <TranslatedText text="Puis-je annuler mon abonnement ?" />
-                </h4>
-                <p className="text-muted-foreground">
-                  <TranslatedText text="Oui, vous pouvez annuler votre abonnement à tout moment. Vos crédits restants resteront valides jusqu'à la fin de votre période." />
-                </p>
-              </div>
-
-              <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
-                  <TranslatedText text="Les musiques sont-elles téléchargeables ?" />
-                </h4>
-                <p className="text-muted-foreground">
-                  <TranslatedText text="Non, pour des raisons de sécurité et de droits d'auteur, les musiques sont uniquement disponibles en streaming sécurisé dans votre bibliothèque." />
-                </p>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-lg mb-2">
-                  <TranslatedText text="Que comprend le support prioritaire ?" />
-                </h4>
-                <p className="text-muted-foreground">
-                  <TranslatedText text="Les abonnés premium bénéficient d'un support par email avec réponse sous 24h et d'un accès privilégié aux nouvelles fonctionnalités." />
-                </p>
-              </div>
-
-            </div>
-          </CardContent>
-        </PremiumCard>
-
-        {/* Testimonials */}
-        <PricingTestimonials />
-
-        {/* FAQ */}
-        <PricingFAQ />
+        <div className="max-w-4xl mx-auto">
+          <PricingFAQ />
+        </div>
 
         {/* Call to Action */}
         <div className="mt-12 text-center">
@@ -449,7 +401,7 @@ export const MedMngPricing = () => {
           </PremiumCard>
         </div>
       </div>
-      <MVPFooter />
+      <AppFooter />
     </PremiumBackground>
     </>
   );
