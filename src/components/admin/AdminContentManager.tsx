@@ -174,14 +174,12 @@ export const AdminContentManager = () => {
   };
 
   const handlePreviewItem = (item: EdnItem) => {
-    // Ouvrir une nouvelle fenêtre/modal pour prévisualiser l'item
-    window.open(`/edn/complete/${item.item_code}`, '_blank');
+    const slug = item.item_code.toLowerCase();
+    window.open(`/edn-complete/${slug}`, '_blank');
   };
 
   const handleEditItem = async (item: EdnItem) => {
-    // Rediriger vers la page d'édition ou ouvrir un modal d'édition
-    window.open(`/admin/content/edit/${item.item_code}`, '_blank');
-    toast.info(`Ouverture de l'éditeur pour ${item.item_code}`);
+    toast.info(`Éditeur bientôt disponible pour ${item.item_code}`);
   };
 
   const handleDeleteItem = async (itemId: string, itemCode: string) => {

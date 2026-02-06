@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Play, Sparkles, ArrowRight, Headphones } from 'lucide-react';
+import { Play, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Button } from '@/components/ui/button';
@@ -101,7 +101,7 @@ export const AppleFinalCTA = () => {
             onClick={() => navigate(ROUTE_PATHS.ednComplete)}
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
           >
-            <Headphones className="h-5 w-5" />
+            <BookOpen className="h-5 w-5" />
             <span>Ou explore les items EDN d'abord</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
