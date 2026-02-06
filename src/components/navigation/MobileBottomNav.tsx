@@ -20,7 +20,7 @@ const navItems: BottomNavItem[] = [
     label: 'Accueil'
   },
   {
-    to: ROUTE_PATHS.medMngLibrary,
+    to: ROUTE_PATHS.medMngMusicLibrary,
     icon: <Library className="h-5 w-5" />,
     label: 'Bibliothèque'
   },

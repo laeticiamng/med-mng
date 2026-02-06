@@ -44,7 +44,11 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
   const handleStyleSelect = async (style: MusicStyle) => {
     setMusicStyle(style);
     
-    // Fermer immédiatement la modale pour une meilleure UX
+    // Passer à l'étape action au lieu de fermer immédiatement
+    setStep('action');
+  };
+
+  const handleStartAction = () => {
     onComplete();
     
     // Log the onboarding completion en arrière-plan
@@ -54,7 +58,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       metadata: { 
         action: 'music_onboarding_complete',
         revisionType,
-        musicStyle: style
+        musicStyle: _musicStyle
       }
     });
 
@@ -65,21 +69,14 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
           user_id: user.id,
           onboarding_completed: true,
           revision_type: revisionType,
-          music_style: style,
+          music_style: _musicStyle,
           completed_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       } else {
-      sessionStorage.setItem('med-mng-onboarding-seen', 'true');
+        sessionStorage.setItem('med-mng-onboarding-seen', 'true');
       }
     });
     
-    // ✅ FIX: Naviguer vers l'accueil au lieu du générateur (meilleure UX pour nouveaux utilisateurs)
-    navigate(ROUTE_PATHS.home);
-  };
-
-  const handleStartAction = () => {
-    onComplete();
-    // ✅ FIX: Naviguer vers l'accueil pour une meilleure découverte
     navigate(ROUTE_PATHS.home);
   };
 
