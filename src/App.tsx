@@ -89,6 +89,7 @@ const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(m => ({ de
 const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(m => ({ default: m.MedMngSubscribe })));
 const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(m => ({ default: m.MedMngSuccess })));
 const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(m => ({ default: m.MedMngCreate })));
+const MedMngResetPassword = lazy(() => import("./pages/MedMngResetPassword").then(m => ({ default: m.MedMngResetPassword })));
 const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(m => ({ default: m.MedMngLibrary })));
 const MedMngItemsLibrary = lazy(() => import("./pages/MedMngItemsLibrary").then(m => ({ default: m.MedMngItemsLibrary })));
 const MedMngItemDetail = lazy(() => import("./pages/MedMngItemDetail").then(m => ({ default: m.MedMngItemDetail })));
@@ -155,11 +156,10 @@ const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
+      retry: 1,
       staleTime: 10 * 60 * 1000,
       gcTime: 15 * 60 * 1000,
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
     },
   },
 });
@@ -271,6 +271,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngLogin} element={<S><MedMngLogin /></S>} />
                                     <Route path={ROUTE_PATHS.medMngSignup} element={<S><MedMngSignup /></S>} />
                                     <Route path={ROUTE_PATHS.medMngPricing} element={<S><MedMngPricing /></S>} />
+                                    <Route path={ROUTE_PATHS.medMngResetPassword} element={<S><MedMngResetPassword /></S>} />
 
                                     {/* Med-MNG (protected) */}
                                     <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><S><MedMngSubscribe /></S></ProtectedRoute>} />

@@ -329,7 +329,7 @@ export default function EdnComplete() {
         {/* Wrapper Tabs Principal */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         {/* Header simplifié - responsive */}
-        <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
+        <div className="bg-card/80 backdrop-blur-sm border-b sticky top-16 z-40">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
             {/* Mobile: Stack layout / Desktop: Row layout */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">

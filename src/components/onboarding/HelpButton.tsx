@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { HelpCircle, Book, MessageCircle, Video } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { toast } from 'sonner';
 
 export const HelpButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +47,8 @@ export const HelpButton: React.FC = () => {
           count: 1,
           metadata: { component: 'help_button', action: 'open_help_center' }
         });
-        window.open('/help', '_blank');
+        toast.info('Centre d\'aide bientôt disponible', { description: 'Cette fonctionnalité arrive prochainement.' });
+        setIsOpen(false);
       }
     },
     {
@@ -59,7 +61,8 @@ export const HelpButton: React.FC = () => {
           count: 1,
           metadata: { component: 'help_button', action: 'open_tutorials' }
         });
-        window.open('/tutorials', '_blank');
+        toast.info('Vidéos tutorielles bientôt disponibles', { description: 'Cette fonctionnalité arrive prochainement.' });
+        setIsOpen(false);
       }
     }
   ];
@@ -70,7 +73,7 @@ export const HelpButton: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 z-50"
+          className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 z-50 hidden md:flex"
         >
           <HelpCircle className="h-6 w-6" />
         </Button>

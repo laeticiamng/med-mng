@@ -150,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/med-mng/library`,
+          emailRedirectTo: `${window.location.origin}/med-mng/music-library`,
           data: {
             name,
           },
@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/med-mng/library`,
+          redirectTo: `${window.location.origin}/med-mng/music-library`,
         },
       });
       return { error };
@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}/med-mng/library`,
+          redirectTo: `${window.location.origin}/med-mng/music-library`,
         },
       });
       return { error };
@@ -205,7 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
-          redirectTo: `${window.location.origin}/med-mng/library`,
+          redirectTo: `${window.location.origin}/med-mng/music-library`,
         },
       });
       return { error };

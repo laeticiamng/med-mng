@@ -1,6 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
-  Headphones, 
   Play, 
   Sparkles, 
   Music, 
@@ -110,20 +109,20 @@ export const AppleHero = () => {
         >
           <Button 
             size="lg"
-            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
             className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
           >
             <Play className="h-5 w-5 mr-2" />
-            Commencer gratuitement
+            Découvrir les items EDN
           </Button>
           <Button 
             variant="outline"
             size="lg"
-            onClick={() => navigate(ROUTE_PATHS.generator)}
+            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
             className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105"
           >
-            <Headphones className="h-5 w-5 mr-2" />
-            Écouter un extrait
+            <Sparkles className="h-5 w-5 mr-2" />
+            Créer un compte gratuit
           </Button>
         </motion.div>
 

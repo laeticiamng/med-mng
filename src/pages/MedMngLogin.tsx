@@ -7,18 +7,22 @@ import { Label } from '@/components/ui/label';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { RateLimitPresets, useRateLimiting } from '@/hooks/useRateLimiting';
-import { AlertTriangle, Clock, Music } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Clock, Music } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export const MedMngLogin = () => {
-  const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
+  const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
   const [loading, setLoading] = useState(false);
   const [blockTimeDisplay, setBlockTimeDisplay] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   const { logActivity } = useActivityTracking();
 
   // Rate limiting pour les tentatives de connexion
@@ -46,7 +50,7 @@ export const MedMngLogin = () => {
   }, [isBlocked, formatBlockTime]);
 
   if (user) {
-    return <Navigate to={ROUTE_PATHS.medMngLibrary} replace />;
+    return <Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,6 +115,52 @@ export const MedMngLogin = () => {
       logActivity({ activity_type: 'study', metadata: { action: 'login_success', method: provider } });
     }
   };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+    setResetLoading(true);
+    const { error } = await resetPassword(resetEmail);
+    setResetLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Email de réinitialisation envoyé !', { description: 'Vérifiez votre boîte de réception.' });
+      setShowForgotPassword(false);
+      setResetEmail('');
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Music className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground">MED-MNG</span>
+            </div>
+            <CardDescription>Réinitialisation du mot de passe</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input id="reset-email" type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} autoComplete="email" required />
+              </div>
+              <Button type="submit" className="w-full" disabled={resetLoading}>
+                {resetLoading ? 'Envoi...' : 'Envoyer le lien'}
+              </Button>
+            </form>
+            <Button variant="ghost" className="w-full" onClick={() => setShowForgotPassword(false)}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> Retour à la connexion
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/5 px-4">
@@ -213,21 +263,21 @@ export const MedMngLogin = () => {
           </div>
           
           <div className="text-center text-sm">
-            Pas encore de compte ?{' '}
-            <Link to={ROUTE_PATHS.medMngSignup} className="text-primary hover:underline">
-              Créer un compte
-            </Link>
-          </div>
-          
-          <div className="text-center text-sm">
-            <Link to={ROUTE_PATHS.medMngPricing} className="text-primary hover:underline">
-              Voir les offres d'abonnement
-            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForgotPassword(true);
+              }}
+              className="text-primary hover:underline"
+            >
+              Mot de passe oublié ?
+            </button>
           </div>
 
           <div className="text-center text-sm">
-            <Link to={ROUTE_PATHS.medMngLibrary} className="text-primary hover:underline">
-              Accéder à l'application
+            Pas encore de compte ?{' '}
+            <Link to={ROUTE_PATHS.medMngSignup} className="text-primary hover:underline">
+              Créer un compte
             </Link>
           </div>
         </CardContent>

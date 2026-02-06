@@ -74,7 +74,7 @@ export const useOnboarding = () => {
       return;
     }
     
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from('user_onboarding')
       .select('*')
       .eq('user_id', user.id)
@@ -82,7 +82,7 @@ export const useOnboarding = () => {
     
     setState(prev => ({
       ...prev,
-      completedSteps: data?.completed_steps || [],
+      completedSteps: (Array.isArray(data?.completed_steps) ? data.completed_steps : []) as string[],
       isActive: data?.is_active || false
     }));
   };
@@ -91,7 +91,7 @@ export const useOnboarding = () => {
     setState(prev => ({ ...prev, isActive: true, currentStep: 0 }));
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await (supabase as any).from('user_onboarding').upsert({
+      await supabase.from('user_onboarding').upsert({
         user_id: user.id,
         is_active: true,
         current_step: 0,
@@ -119,7 +119,7 @@ export const useOnboarding = () => {
     setState(prev => ({ ...prev, completedSteps: updated }));
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await (supabase as any).from('user_onboarding').upsert({
+      await supabase.from('user_onboarding').upsert({
         user_id: user.id,
         completed_steps: updated,
         updated_at: new Date().toISOString()
@@ -131,7 +131,7 @@ export const useOnboarding = () => {
     setState(prev => ({ ...prev, isActive: false }));
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await (supabase as any).from('user_onboarding').upsert({
+      await supabase.from('user_onboarding').upsert({
         user_id: user.id,
         is_active: false,
         is_seen: true,
@@ -182,7 +182,7 @@ export const useOnboarding = () => {
   const resetOnboarding = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await (supabase as any).from('user_onboarding').delete().eq('user_id', user.id);
+      await supabase.from('user_onboarding').delete().eq('user_id', user.id);
     }
     setState({
       steps: state.steps,
@@ -204,16 +204,16 @@ export const useOnboarding = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from('user_onboarding')
       .select('seen_tooltips')
       .eq('user_id', user.id)
       .maybeSingle();
     
-    const seenTooltips = data?.seen_tooltips || [];
+    const seenTooltips: string[] = Array.isArray(data?.seen_tooltips) ? (data.seen_tooltips as string[]) : [];
     if (!seenTooltips.includes(tooltipKey)) {
       seenTooltips.push(tooltipKey);
-      await (supabase as any).from('user_onboarding').upsert({
+      await supabase.from('user_onboarding').upsert({
         user_id: user.id,
         seen_tooltips: seenTooltips,
         updated_at: new Date().toISOString()
