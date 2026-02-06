@@ -34,7 +34,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
   const { logActivity } = useActivityTracking();
   const [step, setStep] = useState<'welcome' | 'revision' | 'style' | 'action'>('welcome');
   const [revisionType, setRevisionType] = useState<RevisionType | null>(null);
-  const [_musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
+  const [musicStyle, setMusicStyle] = useState<MusicStyle | null>(null);
 
   const handleRevisionSelect = (type: RevisionType) => {
     setRevisionType(type);
@@ -58,7 +58,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       metadata: { 
         action: 'music_onboarding_complete',
         revisionType,
-        musicStyle: _musicStyle
+        musicStyle
       }
     });
 
@@ -69,7 +69,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
           user_id: user.id,
           onboarding_completed: true,
           revision_type: revisionType,
-          music_style: _musicStyle,
+          music_style: musicStyle,
           completed_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       } else {
@@ -77,7 +77,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
       }
     });
     
-    navigate(ROUTE_PATHS.home);
+    navigate(ROUTE_PATHS.generator);
   };
 
   return (

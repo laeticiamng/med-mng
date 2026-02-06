@@ -22,7 +22,7 @@ export const AppFooter = () => {
   }, [loadStats]);
 
   return (
-    <footer className="bg-card border-t border-border">
+    <footer className="bg-card border-t border-border pb-24 md:pb-0">
       <div className="container mx-auto px-4 py-8">
         {/* Quick Stats for logged-in users */}
         {isLoggedIn && stats && (
