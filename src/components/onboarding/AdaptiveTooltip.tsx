@@ -35,6 +35,7 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
       return;
     }
 
+    // Table 'user_feature_tracking' not in generated Supabase types; using `as any` intentionally
     const { data } = await (supabase as any)
       .from('user_feature_tracking')
       .select('visit_count, first_visited_at')
@@ -80,6 +81,7 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
       return;
     }
 
+    // Table 'user_feature_tracking' not in generated Supabase types; using `as any` intentionally
     await (supabase as any)
       .from('user_feature_tracking')
       .upsert({
@@ -99,6 +101,7 @@ export const AdaptiveTooltip: React.FC<AdaptiveTooltipProps> = ({
       return;
     }
 
+    // Table 'user_feature_tracking' not in generated Supabase types; using `as any` intentionally
     await (supabase as any)
       .from('user_feature_tracking')
       .upsert({

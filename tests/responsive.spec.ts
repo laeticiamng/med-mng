@@ -62,7 +62,7 @@ test.describe('Responsive Design Tests', () => {
   });
 
   test('should have proper grid layouts', async ({ page }) => {
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     await page.waitForLoadState('networkidle');
     
     // Test mobile grid (1 column)

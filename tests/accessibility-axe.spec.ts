@@ -41,7 +41,7 @@ test.describe('Accessibilité automatisée avec axe-core', () => {
   });
 
   test('Page bibliothèque - 0 violation', async ({ page }) => {
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -219,7 +219,7 @@ test.describe('Tests d\'accessibilité avec règles personnalisées RGAA', () =>
 
 test.describe('Tests d\'accessibilité avancés - Lecteur audio', () => {
   test('Lecteur audio - Contrôles accessibles', async ({ page }) => {
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     
     // Attendre que le lecteur soit chargé
     await page.waitForSelector('[aria-label*="Lecteur audio"]', { timeout: 10000 });
@@ -232,7 +232,7 @@ test.describe('Tests d\'accessibilité avancés - Lecteur audio', () => {
   });
 
   test('Boutons de contrôle - Labels ARIA', async ({ page }) => {
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withRules(['button-name', 'aria-command-name'])

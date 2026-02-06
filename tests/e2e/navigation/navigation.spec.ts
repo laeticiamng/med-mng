@@ -72,8 +72,8 @@ test.describe('Navigation E2E Tests', () => {
     });
 
     test('should navigate to library', async ({ page }) => {
-      await page.goto('/med-mng/library');
-      await expect(page).toHaveURL('/med-mng/library');
+      await page.goto('/med-mng/music-library');
+      await expect(page).toHaveURL('/med-mng/music-library');
       await expect(page.locator('body')).toContainText(/Bibliothèque|Library/i);
     });
 
