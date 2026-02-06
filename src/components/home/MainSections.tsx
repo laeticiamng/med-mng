@@ -47,7 +47,7 @@ const MainSections = () => {
       icon: Users,
       color: "bg-success",
       count: "Situations cliniques",
-      status: "En cours de développement",
+      status: "Entraînement clinique",
       features: [
         "Scénarios cliniques réalistes",
         "Évaluation par compétences",
@@ -55,7 +55,7 @@ const MainSections = () => {
         "Entraînement progressif"
       ],
       href: ROUTE_PATHS.ecosIndex,
-      badge: "Bientôt"
+      badge: "Disponible"
     },
     {
       id: "chat",
