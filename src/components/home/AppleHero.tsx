@@ -109,20 +109,20 @@ export const AppleHero = () => {
         >
           <Button 
             size="lg"
-            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
+            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
             className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
           >
-            <Play className="h-5 w-5 mr-2" />
-            Découvrir les items EDN
+            <Sparkles className="h-5 w-5 mr-2" />
+            Créer un compte gratuit
           </Button>
           <Button 
             variant="outline"
             size="lg"
-            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
             className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105"
           >
-            <Sparkles className="h-5 w-5 mr-2" />
-            Créer un compte gratuit
+            <Play className="h-5 w-5 mr-2" />
+            Découvrir les items EDN
           </Button>
         </motion.div>
 
