@@ -1,37 +1,32 @@
 
 
-# Audit Beta-Testeur : Resultat Final
+# Audit Beta-Testeur : Verification post-fix pricing
 
-## Verification live completee
+## Resultat de la verification live
 
-Les 3 corrections du plan precedent ont ete deployees et verifiees en live :
+Toutes les pages critiques ont ete testees en navigateur distant :
 
-| Correction | Statut | Verification |
-|---|---|---|
-| Bouton ECOS "Acceder" (plus disabled) | Applique | MainSections.tsx mis a jour |
-| /signup, /login, /pricing redirigent | Applique | Teste en navigateur : /signup redirige vers /med-mng/signup |
-| ItemSelector fallback 8s | Applique | /med-mng/create redirige vers login (comportement attendu pour anonymes) |
+| Page | Statut | Observation |
+|------|--------|-------------|
+| `/` (Accueil) | OK | Hero visible, CTAs clairs, regle 3 secondes respectee |
+| `/med-mng/pricing` | OK | Les 4 plans s'affichent immediatement (fix spinner applique) |
+| `/signup` | OK | Redirige correctement vers `/med-mng/signup` |
+| `/edn` | OK | Items EDN charges avec skeleton |
 
-## Etat actuel : 0 blocage
+## Erreurs console
 
-### Ce qui fonctionne (verifie en live)
-- Hero "Apprends la medecine en musique" visible instantanement (regle des 3 secondes respectee)
-- 2 CTAs clairs : "Creer un compte gratuit" + "Voir les 367 cours"
-- Navigation fluide entre toutes les sections
-- Page EDN charge avec skeleton puis affiche les items
-- Console : 0 erreur applicative (seuls des warnings d'infrastructure Lovable)
+Uniquement des erreurs CORS sur `manifest.webmanifest` — infrastructure Lovable, non-bloquant, invisible pour l'utilisateur. **0 erreur applicative.**
 
-### Mentions "Bientot" restantes (justifiees)
-Les 17 occurrences trouvees sont toutes contextuelles et non-bloquantes :
-- **SMS 2FA** dans ProfileSecurity : infrastructure non deployee
-- **Centre d'aide** dans HelpButton : contenu en cours de redaction
-- **PayPal** dans Subscribe : integration en attente
-- **Admin editor** : fonctionnalite interne, pas visible des utilisateurs
-- **Toasts d'information** : messages temporaires pour des fonctions secondaires
+## Conclusion : 0 correction restante
 
-Aucune de ces mentions n'est visible sur le parcours principal utilisateur (Accueil > EDN > Ecouter).
+Le fix du spinner pricing (decouplage `subscriptionLoading` du rendu des plans) etait la derniere correction identifiee. Toutes les ameliorations des audits precedents sont deployees et fonctionnelles :
 
-## Conclusion
+- Bouton ECOS actif
+- Redirections `/signup`, `/login`, `/pricing`
+- Spinner pricing resolu
+- Skeleton loading EDN
+- Recherche par specialite
+- Message quota positif
 
-La plateforme est prete a etre publiee. Aucune correction supplementaire n'est necessaire pour le parcours utilisateur critique. Les 3 fixes du plan precedent resolvent tous les problemes identifies lors de l'audit multi-roles.
+**La plateforme est prete pour publication. Aucune correction supplementaire n'est necessaire.**
 
