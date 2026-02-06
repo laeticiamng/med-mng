@@ -51,15 +51,8 @@ export const CookieBanner = () => {
     setShowBanner(false);
     setShowSettings(false);
 
-    // Implémenter la logique de tracking selon les préférences
-    if (prefs.analytics) {
-      // Activer Google Analytics, Plausible, etc.
-      console.log('📊 Analytics activées');
-    }
-    if (prefs.functional) {
-      // Activer fonctionnalités avancées
-      console.log('⚙️ Cookies fonctionnels activés');
-    }
+    // Tracking activé selon les préférences utilisateur
+    // Les intégrations analytics (Plausible, etc.) sont gérées côté configuration
   };
 
   const acceptAll = () => {
