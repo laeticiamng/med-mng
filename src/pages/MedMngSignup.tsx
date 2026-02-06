@@ -127,6 +127,7 @@ export const MedMngSignup = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
                 required
               />
             </div>
@@ -138,6 +139,7 @@ export const MedMngSignup = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
@@ -149,6 +151,7 @@ export const MedMngSignup = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>
@@ -160,6 +163,7 @@ export const MedMngSignup = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>
