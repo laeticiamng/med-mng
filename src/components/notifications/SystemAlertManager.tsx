@@ -238,7 +238,7 @@ export function SystemAlertManager() {
       oscillator.start();
       oscillator.stop(oscillator.currentTime + 0.3);
     } catch (err) {
-      console.log('Sound notification not available');
+      if (import.meta.env.DEV) console.log('Sound notification not available');
     }
   };
 

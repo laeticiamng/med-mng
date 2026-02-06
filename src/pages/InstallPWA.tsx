@@ -83,9 +83,9 @@ const InstallPWA: React.FC = () => {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      if (import.meta.env.DEV) console.log('User accepted the install prompt');
     } else {
-      console.log('User dismissed the install prompt');
+      if (import.meta.env.DEV) console.log('User dismissed the install prompt');
     }
 
     // Réinitialiser le prompt

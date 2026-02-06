@@ -66,7 +66,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItem
   const { data: dbItems, isLoading, error, isError } = useQuery({
     queryKey: ['edn-items-for-creation'],
     queryFn: async () => {
-      console.log('[ItemSelector] Fetching edn_items_complete via REST...');
+      if (import.meta.env.DEV) console.log('[ItemSelector] Fetching edn_items_complete via REST...');
       const url = `${SUPABASE_URL}/rest/v1/edn_items_complete?select=id,item_code,title,subtitle&order=item_code&limit=400`;
       const response = await fetch(url, {
         headers: {
@@ -80,7 +80,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItem
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       const data = await response.json();
-      console.log('[ItemSelector] Loaded', data?.length, 'items');
+      if (import.meta.env.DEV) console.log('[ItemSelector] Loaded', data?.length, 'items');
       return data || [];
     },
     staleTime: 5 * 60 * 1000,

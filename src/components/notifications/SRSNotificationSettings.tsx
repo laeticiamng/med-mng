@@ -81,7 +81,7 @@ export function SRSNotificationSettings({ userId }: SRSNotificationSettingsProps
         }
       } catch (e) {
         // No saved preferences, use defaults
-        console.log('Using default notification preferences');
+        if (import.meta.env.DEV) console.log('Using default notification preferences');
       }
     };
     loadPrefs();

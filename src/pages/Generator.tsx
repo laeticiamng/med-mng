@@ -103,7 +103,7 @@ const Generator = () => {
   useGenerationSuccessHandler({
     generatedSong,
     onCreditsRefreshed: () => {
-      console.log('[Generator] Crédits rafraîchis après génération');
+      if (import.meta.env.DEV) console.log('[Generator] Crédits rafraîchis après génération');
     }
   });
   

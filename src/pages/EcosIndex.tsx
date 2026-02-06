@@ -58,7 +58,7 @@ const EcosIndex = () => {
         throw error;
       }
 
-      console.log('✅ Situations ECOS chargées:', data?.length || 0);
+      if (import.meta.env.DEV) console.log('✅ Situations ECOS chargées:', data?.length || 0);
       setEcosScenarios(data || []);
 
       if (!data || data.length === 0) {
