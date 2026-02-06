@@ -41,7 +41,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.ednComplete, label: 'EDN', shortLabel: 'EDN', icon: BookOpen },
   { path: ROUTE_PATHS.ecosIndex, label: 'ECOS', shortLabel: 'ECOS', icon: Target },
   { path: ROUTE_PATHS.chat, label: 'Chat IA', shortLabel: 'Chat', icon: MessageSquare },
-  { path: ROUTE_PATHS.medMngPricing, label: 'Pricing', shortLabel: 'Pricing', icon: ShoppingBag },
+  { path: ROUTE_PATHS.medMngPricing, label: 'Tarifs', shortLabel: 'Tarifs', icon: ShoppingBag },
 ];
 
 // Navigation secondaire pour utilisateurs connectés uniquement
