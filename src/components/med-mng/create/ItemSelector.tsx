@@ -66,15 +66,19 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ selectedItem, onItem
     queryKey: ['edn-items-for-creation'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .select('id, item_code, title, subtitle, competences_count_rang_a, competences_count_rang_b')
+        .from('edn_items_complete')
+        .select('id, item_code, title, subtitle')
         .order('item_code', { ascending: true })
         .limit(400);
       
-      if (error) throw error;
+      if (error) {
+        console.error('[ItemSelector] Supabase error:', error.message);
+        throw error;
+      }
       return data || [];
     },
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   // Utiliser les items DB ou le fallback
