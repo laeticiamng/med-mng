@@ -3,6 +3,7 @@ import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { EdnItemSkeletonGrid } from "@/components/edn/EdnItemSkeleton";
 import { MVPFooter } from "@/components/layout/MVPFooter";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -284,10 +285,13 @@ export default function EdnComplete() {
 
   if (loading && ednItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Chargement des items EDN...</p>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-bold text-foreground mb-2">Chargement des items EDN...</h1>
+            <p className="text-muted-foreground text-sm">367 items en cours de récupération</p>
+          </div>
+          <EdnItemSkeletonGrid count={12} />
         </div>
       </div>
     );

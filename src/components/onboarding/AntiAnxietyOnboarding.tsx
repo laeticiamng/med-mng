@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, VisuallyHidden } from '@/components/ui/dialog';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { supabase } from '@/integrations/supabase/client';
@@ -86,6 +86,14 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md p-0 bg-card border-border/50 overflow-hidden">
+        {/* Accessible title and description for screen readers */}
+        <VisuallyHidden>
+          <DialogTitle>Personnalisation de ton expérience musicale</DialogTitle>
+          <DialogDescription>
+            Configure tes préférences de révision et ton style musical en 2 étapes rapides
+          </DialogDescription>
+        </VisuallyHidden>
+        
         {/* Step: Welcome - Identité musicale */}
         {step === 'welcome' && (
           <div className="p-8 text-center space-y-6">
