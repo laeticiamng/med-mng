@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth state change:', event, session?.user?.email);
+        if (import.meta.env.DEV) console.log('🔔 Auth state change:', event);
         
         // Gérer les erreurs de token
         if (event === 'TOKEN_REFRESHED' && !session) {
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
+          if (import.meta.env.DEV) console.log('User signed out');
         }
 
         // Send welcome email for new users
@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           if (isNewUser) {
             const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
-            console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+            if (import.meta.env.DEV) console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
             setTimeout(async () => {
               try {

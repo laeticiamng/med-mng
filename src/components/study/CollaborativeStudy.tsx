@@ -168,9 +168,9 @@ export const CollaborativeStudy: React.FC = () => {
 
   const setupRealtimeSubscription = () => {
     // Désactivé temporairement car les tables n'existent pas encore
-    console.log('Realtime subscription configurée');
+    if (import.meta.env.DEV) console.log('Realtime subscription configurée');
     return () => {
-      console.log('Subscription nettoyée');
+      if (import.meta.env.DEV) console.log('Subscription nettoyée');
     };
   };
 

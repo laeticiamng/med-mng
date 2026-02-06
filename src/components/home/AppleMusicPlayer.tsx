@@ -9,9 +9,6 @@ export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   
-  // Mode démo - pas d'audio réel disponible
-  const isDemoMode = true;
-
   return (
     <section ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-b from-muted/20 to-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

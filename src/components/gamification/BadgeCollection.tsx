@@ -67,7 +67,7 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
     } catch (e) {
-      console.log('Audio not supported');
+      if (import.meta.env.DEV) console.log('Audio not supported');
     }
   }, [soundEnabled]);
 

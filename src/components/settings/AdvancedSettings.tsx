@@ -109,7 +109,7 @@ export const AdvancedSettings = () => {
       });
 
       // Ici, vous sauvegarderiez les autres paramètres dans Supabase
-      console.log('Paramètres sauvegardés:', settings);
+      if (import.meta.env.DEV) console.log('Paramètres sauvegardés:', settings);
       
       toast({
         title: "Paramètres sauvegardés !",
