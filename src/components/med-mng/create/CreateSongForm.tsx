@@ -149,7 +149,7 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
               Rang de connaissances
             </h3>
             <RangSelector
-              selectedRang={selectedRang as 'A' | 'B' | ''}
+              selectedRang={selectedRang as 'A' | 'B' | 'A+B' | ''}
               onRangChange={onRangChange}
               disabled={isGenerating}
             />
