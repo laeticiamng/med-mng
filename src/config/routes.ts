@@ -94,6 +94,7 @@ export const ROUTE_PATHS = {
   myGoals: '/my-goals',
   moodTracker: '/mood-tracker',
   pomodoro: '/pomodoro',
+  karaoke: '/karaoke/:songId?',
   executiveDashboard: '/executive-dashboard',
   // Raccourcis publics
   createShortcut: '/create',
