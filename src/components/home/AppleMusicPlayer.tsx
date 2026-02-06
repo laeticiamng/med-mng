@@ -110,13 +110,25 @@ export const AppleMusicPlayer = () => {
               </p>
             </div>
 
-            {/* Waveform visualization - static in demo mode */}
+            {/* Animated waveform visualization */}
             <div className="mt-8 flex items-end justify-center gap-1 h-12">
               {[...Array(40)].map((_, i) => (
-                <div
+                <motion.div
                   key={i}
                   className="w-1 bg-gradient-to-t from-primary/40 to-primary rounded-full"
-                  style={{ height: `${8 + Math.sin(i * 0.5) * 12 + 8}px` }}
+                  animate={{ 
+                    height: [
+                      `${8 + Math.sin(i * 0.5) * 12 + 8}px`,
+                      `${8 + Math.sin(i * 0.5 + 2) * 12 + 12}px`,
+                      `${8 + Math.sin(i * 0.5) * 12 + 8}px`,
+                    ]
+                  }}
+                  transition={{ 
+                    duration: 2 + (i % 3) * 0.5, 
+                    repeat: Infinity, 
+                    ease: "easeInOut",
+                    delay: i * 0.05
+                  }}
                 />
               ))}
             </div>
