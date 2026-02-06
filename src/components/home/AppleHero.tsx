@@ -122,7 +122,7 @@ export const AppleHero = () => {
             className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 hover:bg-secondary/50 transition-all hover:scale-105"
           >
             <Play className="h-5 w-5 mr-2" />
-            Découvrir les items EDN
+            Voir les 367 cours
           </Button>
         </motion.div>
 
