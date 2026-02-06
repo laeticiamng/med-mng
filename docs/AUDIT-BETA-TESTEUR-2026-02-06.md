@@ -1,18 +1,19 @@
 # 🧪 AUDIT BÊTA-TESTEUR - MED-MNG
 **Date**: 6 Février 2026  
 **Profil testeur**: Étudiant médecine D4, premier usage
-**Statut**: ✅ Corrections appliquées
+**Statut**: ✅ Toutes corrections appliquées
 
 ---
 
-## 📊 SCORE GLOBAL : 9/10 ✅
+## 📊 SCORE GLOBAL : 9.5/10 ✅
 
 **Améliorations appliquées dans cette session** :
-- ✅ Skeleton loading pour la page EDN
+- ✅ Skeleton loading pour la page EDN (grid 12 cartes animées)
 - ✅ Auto-dismiss notification PWA (4 secondes)
 - ✅ Recherche par spécialité fonctionnelle
 - ✅ Redirection onboarding vers Accueil
 - ✅ Message quota positif (non anxiogène)
+- ✅ **Accessibilité modales** : DialogTitle + DialogDescription avec VisuallyHidden
 
 ---
 
