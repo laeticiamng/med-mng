@@ -17,7 +17,7 @@ const Index = () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
-          // Check onboarding status from Supabase
+          // Only show onboarding for authenticated users who haven't completed it
           const { data, error } = await supabase
             .from('user_onboarding')
             .select('onboarding_completed')
@@ -31,13 +31,8 @@ const Index = () => {
           if (!data?.onboarding_completed) {
             setShowOnboarding(true);
           }
-        } else {
-          // Anonymous users - check sessionStorage
-          const hasSeenOnboarding = sessionStorage.getItem('med-mng-onboarding-seen');
-          if (!hasSeenOnboarding) {
-            setShowOnboarding(true);
-          }
         }
+        // Anonymous visitors: NO modal — let them see the hero first
       } catch (err) {
         console.error('Error checking user:', err);
       }
