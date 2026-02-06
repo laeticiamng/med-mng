@@ -1,48 +1,44 @@
 
+# Correction du chargement infini -- ItemSelector
 
-# Audit final -- /med-mng/create (post-ajout A+B)
+## Probleme identifie
 
-## Resultat : 1 correction mineure
+Le composant `ItemSelector.tsx` (ligne 70) effectue une requete sur la table **`items`** qui **n'existe pas** dans la base de donnees. C'est la cause du spinner "Chargement des items..." bloque indefiniment.
 
-### Tests fonctionnels verifies
+Les tables disponibles sont : `edn_items`, `edn_items_immersive`, `edn_items_complete`.
 
-| Composant | Statut | Detail |
-|-----------|--------|--------|
-| ContentTypeSelector (Etape 1) | OK | Item / Situation |
-| ItemSelector (Etape 2) | OK | Recherche, filtre rang, 367 items DB + fallback |
-| RangSelector (Etape 3) | OK | A, B, A+B avec icones et descriptions |
-| StyleSelector (Etape 4) | OK | 6 styles + categories avancees + mode createur |
-| Progression (header) | OK | Compteur X/Y etapes dynamique |
-| Bouton generer | OK | Disabled tant que toutes les etapes ne sont pas remplies |
-| Quota check | OK | Redirection pricing si credits = 0 |
-| Auth guard | OK | Redirection /med-mng/login si non connecte |
-| Console errors | OK | Zero erreur applicative |
+## Correction
 
-### Audit multi-role
+Modifier `src/components/med-mng/create/ItemSelector.tsx` :
 
-| Role | Statut | Detail |
-|------|--------|--------|
-| CEO | OK | Flow clair en 4 etapes, monetisation integree |
-| CISO | OK | Auth requise, secrets en Edge Functions |
-| DPO | OK | Tracking anonymise via useActivityTracking |
-| CDO | OK | Evenement music_generation avec metadata |
-| COO | OK | Pipeline automatise (selection, generation, sauvegarde) |
-| Design | OK | Progression numerotee, responsive, feedback visuel |
-| Beta | OK | Comprehensible en 3 secondes |
+### 1. Remplacer la requete Supabase (lignes 69-80)
 
-### Correction necessaire
+- Table : `items` → `edn_items_immersive`
+- Colonnes : `code` → `item_code`, ajouter `subtitle`, `competences_count_rang_a`, `competences_count_rang_b`
+- Retirer `rang` et `keywords` (colonnes inexistantes)
+- Augmenter la limite de 100 a 400 (367 items dans la DB)
 
-**1 bug mineur** : le message d'aide (ligne 197 de `CreateSongForm.tsx`) affiche encore :
+### 2. Adapter le mapping des items (lignes 83-94)
 
-> "Choisissez un rang (A ou B)"
+- `item.code` → `item.item_code`
+- Description generee depuis `subtitle` au lieu de `keywords`
+- Supprimer la reference a `item.rang` (pas de colonne rang dans cette table)
 
-Il doit etre mis a jour en :
+### 3. Adapter les references a `item.code` dans le template (lignes 152-200)
 
-> "Choisissez un rang (A, B ou A+B)"
+- Toutes les occurrences de `item.code` → `item.item_code` dans le rendu JSX
+- Supprimer le badge "Rang" conditionnel (ligne 179-186) car le rang est selectionne a l'etape 3, pas au niveau de l'item
 
-### Plan d'implementation
+### 4. Supprimer le filtre par rang dans ItemSelector (lignes 131-140)
 
-Modifier la ligne 197 de `src/components/med-mng/create/CreateSongForm.tsx` :
-- Remplacer `'Choisissez un rang (A ou B)'` par `'Choisissez un rang (A, B ou A+B)'`
+Le filtre "Tous rangs / Rang A / Rang B" dans le selecteur d'items est redondant avec l'etape 3 (RangSelector). Le retirer simplifie l'interface et evite la confusion.
 
-C'est la seule correction. Le reste est operationnel.
+### 5. Mettre a jour le fallback (lignes 18-44)
+
+Adapter les codes du fallback de `code` a `item_code` pour coherence.
+
+## Impact
+
+- Corrige le bug bloquant de chargement infini
+- Les 367 items s'affichent correctement avec recherche
+- Le flow 4 etapes reste inchange
