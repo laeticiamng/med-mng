@@ -6,7 +6,7 @@ import { EnhancedAITutor } from '@/components/ai/EnhancedAITutor';
 import { CookieBanner } from "@/components/common/CookieBanner";
 import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary';
-import { HelpCenter } from "@/components/help/HelpCenter";
+
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
@@ -167,7 +167,7 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-  const [isHelpCenterOpen, _setIsHelpCenterOpen] = useState(false);
+  
   
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
@@ -177,7 +177,7 @@ const App = () => {
       <ThemeProvider defaultTheme="system" storageKey="med-mng-ui-theme">
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-          <HelmetProvider>
+            <HelmetProvider>
             <AuthProvider>
               <LanguageProvider>
                 <GlobalAudioProvider>
@@ -320,7 +320,7 @@ const App = () => {
                               isOpen={isNotificationCenterOpen} 
                               onClose={() => setIsNotificationCenterOpen(false)} 
                             />
-                            {isHelpCenterOpen && <HelpCenter />}
+                            
                             
                             <Button 
                               variant="outline" 
