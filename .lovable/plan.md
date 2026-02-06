@@ -1,36 +1,37 @@
 
-# Activation des modules masqués + Publication
 
-## Contexte
+# Correction : "Pricing" affiché en anglais dans la navigation
 
-Après 8 cycles d'audit complets et les corrections récentes (CTA inscription, scroll RGPD, clarification jargon), la plateforme est confirmée prête pour publication. La dernière action demandée est d'activer les **3 modules actuellement désactivés par défaut**.
+## Constat
 
-## Modules concernés
+Dans la barre de navigation principale (visible sur toutes les pages), le lien vers les tarifs affiche **"Pricing"** en anglais au lieu de **"Tarifs"** en francais. Cela casse la coherence linguistique de la plateforme francophone et nuit a la comprehension immediate.
 
-| Module | Catégorie | Statut actuel | Action |
-|--------|-----------|---------------|--------|
-| Pomodoro (Timer) | Productivité | `defaultEnabled: false` | Activer |
-| Communauté | Social | `defaultEnabled: false` | Activer |
-| Suivi humeur | Bien-être | `defaultEnabled: false` | Activer |
+## Correction
 
-Les 13 autres modules sont déjà activés par défaut.
+**Fichier unique :** `src/config/navigation.ts`, ligne 44
 
-## Modification
+Remplacer :
+```
+label: 'Pricing', shortLabel: 'Pricing'
+```
+Par :
+```
+label: 'Tarifs', shortLabel: 'Tarifs'
+```
 
-**Fichier unique :** `src/hooks/useModulePreferences.ts`
+## Impact
 
-Changer `defaultEnabled: false` en `defaultEnabled: true` pour les 3 modules suivants :
-- Ligne 34 : `pomodoro` 
-- Ligne 38 : `community`
-- Ligne 43 : `mood_tracker`
+- Navigation desktop : le lien affichera "Tarifs" au lieu de "Pricing"
+- Navigation mobile (menu hamburger) : idem
+- Aucun autre fichier a modifier (le composant `MainNavigation.tsx` lit directement le `label` de la config)
 
-Les utilisateurs existants qui avaient personnalisé leurs préférences conserveront leurs choix (le localStorage prend priorité). Seuls les nouveaux utilisateurs verront tous les modules activés par défaut.
+## Statut des audits precedents
 
-## Pas d'autres corrections nécessaires
+Toutes les corrections identifiees lors des 8 cycles d'audit ont ete implementees :
+- Hero comprehensible en 3 secondes (OK)
+- CTA inscription proéminent (OK)
+- Signup avec scroll RGPD (OK)
+- 16/16 modules actives (OK)
+- RLS 99%, securite admin, conformite RGPD (OK)
+- Cette correction "Pricing" -> "Tarifs" est le dernier detail restant
 
-Les audits précédents ont confirmé :
-- Hero compréhensible en 3 secondes (texte clarifié)
-- CTA inscription proéminent (gradient principal)
-- Signup fonctionnel avec scroll vers consentements RGPD
-- RLS 99%, sécurité admin, conformité RGPD
-- 0 bug bloquant, 22/22 routes fonctionnelles
