@@ -1,70 +1,48 @@
 
-# Audit final complet -- /edn-complete
 
-## Resultat : AUCUNE CORRECTION NECESSAIRE
+# Audit final -- /med-mng/create (post-ajout A+B)
 
-Toutes les fonctionnalites de la page `/edn-complete` ont ete testees une par une via le navigateur.
+## Resultat : 1 correction mineure
 
----
+### Tests fonctionnels verifies
 
-## Tests fonctionnels realises
+| Composant | Statut | Detail |
+|-----------|--------|--------|
+| ContentTypeSelector (Etape 1) | OK | Item / Situation |
+| ItemSelector (Etape 2) | OK | Recherche, filtre rang, 367 items DB + fallback |
+| RangSelector (Etape 3) | OK | A, B, A+B avec icones et descriptions |
+| StyleSelector (Etape 4) | OK | 6 styles + categories avancees + mode createur |
+| Progression (header) | OK | Compteur X/Y etapes dynamique |
+| Bouton generer | OK | Disabled tant que toutes les etapes ne sont pas remplies |
+| Quota check | OK | Redirection pricing si credits = 0 |
+| Auth guard | OK | Redirection /med-mng/login si non connecte |
+| Console errors | OK | Zero erreur applicative |
 
-### 5 onglets principaux
+### Audit multi-role
 
-| Onglet | Statut | Contenu verifie |
-|--------|--------|-----------------|
-| Suivi | OK | RevisionGuide + RevisionDashboard |
-| Items | OK | 367 items, stats (3083 Rang A, 2523 Rang B, 367 Musique) |
-| Approfondir | OK | Grille de cartes avec filtres |
-| Ecouter | OK | LyricsCompletionStatus |
-| Premium | OK | Quota, plan actuel, pricing |
+| Role | Statut | Detail |
+|------|--------|--------|
+| CEO | OK | Flow clair en 4 etapes, monetisation integree |
+| CISO | OK | Auth requise, secrets en Edge Functions |
+| DPO | OK | Tracking anonymise via useActivityTracking |
+| CDO | OK | Evenement music_generation avec metadata |
+| COO | OK | Pipeline automatise (selection, generation, sauvegarde) |
+| Design | OK | Progression numerotee, responsive, feedback visuel |
+| Beta | OK | Comprehensible en 3 secondes |
 
-### Modal item (IC-1 teste)
+### Correction necessaire
 
-| Onglet modal | Statut | Contenu |
-|--------------|--------|---------|
-| Apercu | OK | Badges contenu, description |
-| Rang A | OK | 16 competences OIC authentiques |
-| Rang B | OK | 1 competence authentique |
-| Quiz | OK | Configuration avec 5 questions, 3 niveaux difficulte |
-| Stats | OK | Graphiques de progression |
-| Musique | OK | Paroles + generation Suno AI |
-| Scene | OK | Scene immersive |
-| BD | OK | 9 panels avec images medicales |
-| Roman | OK | Message "en preparation" (normal) |
+**1 bug mineur** : le message d'aide (ligne 197 de `CreateSongForm.tsx`) affiche encore :
 
-### Recherche et filtres
+> "Choisissez un rang (A ou B)"
 
-| Fonction | Statut | Detail |
-|----------|--------|--------|
-| Recherche texte | OK | "cardiologie" filtre correctement |
-| Filtre categorie | OK | Tous, Complets, Rang A, Rang B, Musique, Favoris |
-| Filtre specialite | OK | 18 specialites disponibles |
-| Tri | OK | Par code, score, recents |
-| Vue grille/liste | OK | Toggle fonctionnel |
+Il doit etre mis a jour en :
 
-### Securite et conformite
+> "Choisissez un rang (A, B ou A+B)"
 
-| Critere | Statut | Detail |
-|---------|--------|--------|
-| Console errors | OK | Zero erreur applicative (seuls warnings preview Lovable) |
-| Bandeau cookies | OK | Francais, 3 options (Accepter/Essentiels/Personnaliser) |
-| Navigation | OK | "Tarifs" affiche (pas "Pricing") |
-| RLS | OK | 99% couverture |
+### Plan d'implementation
 
-### Bugs precedents (AUDIT-EDN-COMPLETE.md)
+Modifier la ligne 197 de `src/components/med-mng/create/CreateSongForm.tsx` :
+- Remplacer `'Choisissez un rang (A ou B)'` par `'Choisissez un rang (A, B ou A+B)'`
 
-| Bug signale | Statut | Resolution |
-|-------------|--------|------------|
-| Modal sur onglet vide ('competences') | CORRIGE | Default = 'overview' |
-| TabsContent orphelins | CORRIGE | Supprimes |
-| TabsContent dupliques | CORRIGE | Fusionnes |
-| Boutons Musique/Quiz sans onClick | CORRIGE | onClick present avec tab routing |
-
----
-
-## Conclusion
-
-**Score : 10/10** -- Toutes les fonctionnalites de `/edn-complete` sont operationnelles.
-
-Aucune correction n'est necessaire. La plateforme peut etre publiee immediatement.
+C'est la seule correction. Le reste est operationnel.
