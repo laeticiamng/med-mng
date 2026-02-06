@@ -45,7 +45,7 @@ export * from './seo';
 export * from './test';
 export * from './tests';
 export * from './welcome';
-export * from './providers';
+// providers barrel removed (dead code cleanup)
 export * from './completion';
 export * from './dashboard';
 export * from './quiz';
