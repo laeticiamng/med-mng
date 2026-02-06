@@ -31,7 +31,6 @@ export const MedMngLogin = () => {
     recordAttempt,
     recordSuccess,
     formatBlockTime,
-    state: _rateLimitState
   } = useRateLimiting('login', RateLimitPresets.login);
 
   // Mettre à jour l'affichage du temps de blocage
