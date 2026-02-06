@@ -40,10 +40,8 @@ double_confirm_changes = true
 enable_confirmations = false
 
 # ============================================================================
-# ROUTEURS CONSOLIDÉS (Architecture v2)
+# ROUTEURS CONSOLIDÉS (Architecture v2) - verify_jwt = false car auth interne
 # ============================================================================
-# 5 routeurs principaux remplacent ~65 fonctions legacy
-# Voir docs/ARCHITECTURE_PLATEFORME.md pour le mapping complet
 
 [functions.ai-audio]
 verify_jwt = false
@@ -61,7 +59,7 @@ verify_jwt = false
 verify_jwt = false
 
 # ============================================================================
-# FONCTIONS SPÉCIALISÉES (non migrées - cas particuliers)
+# WEBHOOKS EXTERNES - verify_jwt = false (signatures validées en code)
 # ============================================================================
 
 [functions.stripe-webhook]
@@ -73,6 +71,10 @@ verify_jwt = false
 [functions.resend-webhook]
 verify_jwt = false
 
+# ============================================================================
+# FONCTIONS AUTHENTIFIÉES - verify_jwt = false, JWT validé en code
+# ============================================================================
+
 [functions.create-checkout]
 verify_jwt = false
 
@@ -81,10 +83,6 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
-
-# ============================================================================
-# NOUVELLES INTÉGRATIONS PREMIUM (v9.4)
-# ============================================================================
 
 [functions.firecrawl-scrape]
 verify_jwt = false
@@ -98,23 +96,14 @@ verify_jwt = false
 [functions.whisper-transcribe]
 verify_jwt = false
 
-# ============================================================================
-# MEDICAL AI COPILOT (v9.5 - Révolutionnaire)
-# ============================================================================
-
 [functions.medical-ai-copilot]
 verify_jwt = false
 
 [functions.medical-ai-copilot-stream]
 verify_jwt = false
 
-# ============================================================================
-# RAG & EMBEDDINGS (v10 - Phase 3)
-# ============================================================================
-
 [functions.generate-embeddings]
 verify_jwt = false
 
 [functions.enhanced-contextual-chat]
 verify_jwt = false
-

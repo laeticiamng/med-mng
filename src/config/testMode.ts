@@ -18,6 +18,7 @@
 const isProduction = typeof window !== 'undefined' &&
   (window.location.hostname === 'med-mng.com' ||
    window.location.hostname === 'www.med-mng.com' ||
+   window.location.hostname.endsWith('.lovable.app') ||
    window.location.hostname.endsWith('.vercel.app') ||
    window.location.hostname.endsWith('.netlify.app'));
 
