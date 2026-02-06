@@ -1,138 +1,132 @@
 
-# Audit Beta-Testeur Complet - MED-MNG
+# Audit Technique Senior - MED-MNG
+
 **Date**: 6 Fevrier 2026
-**Profil testeur**: Etudiant medecine D4, premier usage
-**Score Global**: 10/10
+**Profil**: Dev Senior / Lead technique
+**Scope**: Architecture, dependencies, code quality, dead code, performance, securite
 
 ---
 
-## Resume Executif
+## 1. Dependances Production Incorrectes (Priorite HAUTE)
 
-L'application MED-MNG est **prete pour la production**. Toutes les fonctionnalites ont ete testees avec succes. L'experience utilisateur est excellente de bout en bout, du premier contact jusqu'a l'utilisation quotidienne.
+**Probleme**: 10+ packages serveur/dev sont dans `dependencies` au lieu de `devDependencies`, gonflant le bundle de production.
 
----
+Packages a deplacer vers `devDependencies`:
+- `@sentry/node` (package Node.js, seul `@sentry/react` est utilise cote client)
+- `express`, `express-rate-limit`, `helmet` (framework serveur - non importe nulle part dans `src/`)
+- `sharp` (traitement d'image Node natif - non importe)
+- `dotenv` (utilise uniquement dans `src/scripts/`, pas dans l'app React)
+- `glob` (utilitaire Node.js FS - non importe)
+- `@storybook/*` (6 packages) - deja dupliques dans `devDependencies`
 
-## Pages Testees et Validees
+**Impact**: Bundle potentiellement plus lourd, confusion sur l'architecture, erreurs de build possibles avec `sharp` (binaire natif).
 
-### Authentification et Onboarding
-| Page | Statut | Notes |
-|------|--------|-------|
-| Accueil (/) | OK | Message clair "Apprends la medecine en musique", CTA visibles |
-| Inscription (/med-mng/signup) | OK | Formulaire complet, autoComplete present, consentements RGPD |
-| Connexion (/med-mng/login) | OK | Rate limiting, OAuth (Google/Facebook/Apple), autoComplete |
-| Onboarding | OK | 2 etapes fluides, accessibilite complete, redirection vers Accueil |
-
-### Contenu Pedagogique
-| Page | Statut | Notes |
-|------|--------|-------|
-| Items EDN (/edn-complete) | OK | 367 items, skeleton loading, recherche normalisee, filtres |
-| Flashcards (/flashcards) | OK | Redirection connexion si non authentifie |
-| Mode Examen (/exam-mode) | OK | Redirection connexion avec toast informatif |
-| SRS Review (/srs-review) | OK | Redirection connexion avec toast informatif |
-| ECOS (/ecos) | OK | Simulations accessibles |
-| Cas Cliniques (/clinical-cases) | OK | Redirection connexion avec toast informatif |
-| Chat IA (/chat) | OK | Interface de discussion medicale |
-
-### Gamification et Progression
-| Page | Statut | Notes |
-|------|--------|-------|
-| Progression (/progress-dashboard) | OK | Dashboard complet accessible |
-| Leaderboard (/leaderboard) | OK | Classement visible |
-| Daily Challenges (/daily-challenges) | OK | Defis quotidiens |
-| Pomodoro (/pomodoro) | OK | Timer de revision |
-
-### Bibliotheque et Creation
-| Page | Statut | Notes |
-|------|--------|-------|
-| Bibliotheque (/med-mng/library) | OK | Liste des contenus |
-| Creation (/med-mng/create) | OK | Generateur musical |
-| Pricing (/med-mng/pricing) | OK | Plans visibles avec toggle mensuel/annuel |
-
-### Parametres et Legal
-| Page | Statut | Notes |
-|------|--------|-------|
-| Parametres (/settings) | OK | Preferences utilisateur |
-| RGPD (/mes-donnees-rgpd) | OK | Gestion des donnees personnelles |
-| Mentions Legales (/mentions-legales) | OK | Contenu complet |
-| Installation PWA (/install) | OK | Instructions par plateforme |
-| Page 404 | OK | Design soigne avec boutons Retour/Accueil |
+**Correction**: Deplacer ces packages dans `devDependencies` dans `package.json`.
 
 ---
 
-## Fonctionnalites Validees
+## 2. Dead Code et Fichiers Orphelins (Priorite MOYENNE)
 
-### Authentification
-- Formulaires avec autoComplete (email, current-password, new-password)
-- Rate limiting sur les tentatives de connexion
-- OAuth Google/Facebook/Apple
-- Consentements RGPD obligatoires a l'inscription
-- Validation des mots de passe avec criteres visibles
+### 2a. `CombinedProviders.tsx` - Module entierement inutilise
 
-### Onboarding
-- 2 etapes fluides (Specialite + Style musical)
-- Options claires avec icones descriptives
-- Bouton "Je veux juste explorer" pour les presses
-- Accessibilite complete : DialogTitle + DialogDescription avec VisuallyHidden
-- Redirection correcte vers l'Accueil apres completion
+Ce fichier exporte `CombinedProviders`, `checkProvidersHealth`, et `queryClient`, mais **aucun n'est importe dans l'application**. L'app utilise sa propre pyramide de providers dans `App.tsx`. De plus:
+- Il monkey-patch `console.time`/`console.timeEnd` globalement, ce qui peut casser des outils tiers
+- Il cree un `QueryClient` concurrent avec une config differente de celui d'`App.tsx`
+- La fonction `checkProvidersHealth` n'est jamais appelee
 
-### Page EDN
-- Skeleton loading (12 cartes animees pendant chargement)
-- Recherche normalisee (accents, casse, mots-cles)
-- Filtres par specialite fonctionnels
-- Toggle Grille/Liste pour adapter l'affichage
-- Modal de revision complete avec 8 onglets
-- Badges visuels (Musique/BD/Roman/Quiz)
+**Correction**: Supprimer `src/components/providers/CombinedProviders.tsx` et son barrel `src/components/providers/index.ts`.
 
-### PWA
-- Notification offline avec auto-dismiss (4 secondes)
-- Page d'installation avec instructions par plateforme (iOS/Android/Desktop)
-- Mode hors-ligne fonctionnel
+### 2b. `App.minimal.tsx` - Fichier de debug oublie
 
-### Navigation
-- Header avec tous les liens principaux
-- Bouton Accessibilite visible
-- Recherche globale avec raccourci clavier
-- Mode sombre/clair
-- Navigation mobile avec barre en bas
+Fichier de debugging avec `console.log('App rendering...')` - jamais reference.
+
+**Correction**: Supprimer `src/App.minimal.tsx`.
+
+### 2c. `_setIsHelpCenterOpen` - State jamais utilise
+
+Dans `App.tsx` ligne 170, `isHelpCenterOpen` est initialise a `false` et `_setIsHelpCenterOpen` n'est jamais appele. Le composant `HelpCenter` ne peut donc jamais s'afficher (ligne 323: `{isHelpCenterOpen && <HelpCenter />}` est toujours `false`).
+
+**Correction**: Soit connecter le setter a un bouton/event, soit supprimer le state et le composant conditionnel.
 
 ---
 
-## Erreurs Console (Non Bloquantes)
+## 3. Route Dupliquee (Priorite MOYENNE)
 
-Les seules erreurs detectees sont liees a l'environnement de preview Lovable :
-- CORS sur manifest.webmanifest (normal en preview)
-- postMessage cross-origin (normal en preview)
+Dans `src/config/routes.ts`:
+```
+medMngLibrary: '/med-mng/library',      // ligne 37
+medMngItemsLibrary: '/med-mng/library',  // ligne 38
+```
 
-**Ces erreurs n'apparaitront PAS en production.**
+Deux cles de route differentes pointent vers le meme chemin `/med-mng/library`, ce qui peut poser des problemes de maintenance et de navigation. L'app les monte sur deux `<Route>` distincts (lignes 260-261 d'App.tsx) ce qui signifie que seul le premier match.
 
----
-
-## Conclusion
-
-**Aucune correction necessaire.**
-
-L'application a atteint un score de **10/10** avec :
-- Accessibilite WCAG AAA complete
-- Formulaires conformes aux standards web (autoComplete)
-- UX optimisee pour les etudiants en medecine
-- Performance percue excellente (skeleton loading)
-- Gestion des erreurs conviviale
-- Toasts informatifs pour les pages protegees
-- Page 404 soignee
-- Gamification integree (streaks, badges, leaderboard)
-- PWA fonctionnelle
+**Correction**: Differencier les paths ou fusionner en une seule route.
 
 ---
 
-## Recommandations pour la suite (optionnelles)
+## 4. Architecture du Provider Tree (Priorite BASSE)
 
-Ces elements ne sont pas bloquants mais pourraient enrichir l'experience :
+`App.tsx` empile 10+ providers sans groupement:
 
-1. **Notifications push** : Pour rappeler les revisions quotidiennes
-2. **Mode examen offline** : Permettre de passer des examens sans connexion
-3. **Synchronisation cross-device** : Reprendre sa progression sur un autre appareil
-4. **Export PDF des resultats** : Pour garder une trace des performances
+```
+GlobalErrorBoundary > ThemeProvider > QueryClientProvider > BrowserRouter > HelmetProvider > AuthProvider > LanguageProvider > GlobalAudioProvider > TooltipProvider > ViewportProvider > AccessibilityProvider > InternationalizationProvider > PerformanceProvider
+```
+
+**Probleme**: `HelmetProvider` est DANS `BrowserRouter`, ce qui est correct, mais l'indentation du JSX est irreguliere (mix tabs/espaces, indentation inconsistante entre les lignes 179-190). Cela rend la maintenance risquee.
+
+**Correction**: Reformater le JSX du provider tree avec une indentation coherente. Pas de changement fonctionnel requis.
 
 ---
 
-**L'application est prete pour le deploiement en production.**
+## 5. Fallback Suspense Duplique (Priorite BASSE)
+
+Le meme spinner inline est copie-colle 60+ fois dans App.tsx:
+
+```tsx
+<div className="flex items-center justify-center p-8">
+  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+</div>
+```
+
+**Correction**: Extraire un composant `PageLoader` reutilisable et une HOC `withSuspense()` pour reduire la repetition.
+
+---
+
+## 6. Configuration TypeScript Trop Permissive (Priorite BASSE)
+
+`tsconfig.app.json` desactive plusieurs gardes de type:
+- `strict: false` - pas de null checks, pas de strict bindings
+- `noImplicitAny: false` - autorise les `any` implicites
+- `noUnusedLocals: false` - ne detecte pas les variables mortes
+- `noUnusedParameters: false` - ne detecte pas les params inutiles
+
+Pour une app en production avec 295+ composants, c'est risque.
+
+**Correction**: Pas de changement immediat (trop impactant), mais documenter comme dette technique a traiter incrementalement.
+
+---
+
+## 7. QueryClient Configs Divergentes (Priorite BASSE)
+
+Trois `QueryClient` distincts avec des configs differentes:
+- `App.tsx`: `retry: false`, `staleTime: 10min`, `refetchOnMount: false`
+- `CombinedProviders.tsx`: retry conditionnel, `staleTime: 5min`, `refetchOnMount: 'always'`
+- `App.minimal.tsx`: `retry: 1`, `staleTime: 5min`
+
+Seul celui d'`App.tsx` est actif. Les deux autres sont du dead code.
+
+**Correction**: Couverte par la suppression des fichiers en points 2a et 2b.
+
+---
+
+## Plan d'Implementation
+
+| Ordre | Action | Fichier(s) | Risque |
+|-------|--------|------------|--------|
+| 1 | Deplacer deps serveur vers devDependencies | package.json | Bas |
+| 2 | Supprimer CombinedProviders (dead code) | src/components/providers/CombinedProviders.tsx, index.ts | Bas |
+| 3 | Supprimer App.minimal.tsx (dead code) | src/App.minimal.tsx | Nul |
+| 4 | Corriger ou supprimer HelpCenter dead state | src/App.tsx | Bas |
+| 5 | Extraire composant PageLoader + helper withSuspense | src/components/common/PageLoader.tsx, src/App.tsx | Bas |
+| 6 | Corriger route dupliquee medMngItemsLibrary | src/config/routes.ts | Bas |
+| 7 | Reformater le provider tree (indentation) | src/App.tsx | Nul |
