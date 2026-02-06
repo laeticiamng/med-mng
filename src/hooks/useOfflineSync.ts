@@ -30,6 +30,8 @@ export function useOfflineSync() {
           title: '🌐 Connexion rétablie',
           description: 'Synchronisation des données en cours...',
         });
+        // Auto-sync offline progress on reconnect
+        offlineSyncService.syncOfflineProgress().catch(console.error);
       } else {
         toast({
           title: '📴 Mode hors ligne',

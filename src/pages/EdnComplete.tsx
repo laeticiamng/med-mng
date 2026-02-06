@@ -1,6 +1,7 @@
 // @refresh reset
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { OfflineStatusBar } from "@/components/edn/OfflineStatusBar";
 import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { EdnItemSkeletonGrid } from "@/components/edn/EdnItemSkeleton";
@@ -20,9 +21,11 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from "@/hooks/use-toast";
 import { useEdnFavorites } from "@/hooks/useEdnFavorites";
 import { useEdnItemsOptimized } from "@/hooks/useEdnItemsOptimized";
+import { useEdnOffline } from "@/hooks/useEdnOffline";
 import { useGamification } from "@/hooks/useGamification";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import {
     AlertTriangle,
@@ -93,8 +96,8 @@ export default function EdnComplete() {
   const { quota } = useIAQuota();
   const { subscription } = useSubscription();
   const { isFavorite, toggleFavorite } = useEdnFavorites();
-  
-  // Alias pour compatibilité
+  const { isAvailableOffline, isDownloading, downloadItem, removeItem, downloadedCount, syncProgress } = useEdnOffline();
+  const { isOnline, pendingCount } = useOfflineSync();
   const immersiveItems = ednItems as EdnItem[];
   const completeItems = ednItems as EdnItem[];
   
@@ -343,6 +346,12 @@ export default function EdnComplete() {
                   <p className="text-xs sm:text-sm text-muted-foreground">
                     {stats.total} items • {(stats.totalOicRangA || 0) + (stats.totalOicRangB || 0)} compétences
                   </p>
+                  <OfflineStatusBar
+                    isOnline={isOnline}
+                    downloadedCount={downloadedCount}
+                    pendingSync={pendingCount}
+                    onSync={syncProgress}
+                  />
                 </div>
                 {gamificationStats && gamificationStats.currentStreak !== undefined && (
                   <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 ml-2 sm:ml-4">
@@ -589,6 +598,10 @@ export default function EdnComplete() {
                       onOpen={(tab) => openItemModal(item, tab)}
                       isFavorite={isFavorite(item.item_code)}
                       onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
+                      isOfflineAvailable={isAvailableOffline(item.item_code)}
+                      isDownloading={isDownloading === item.item_code}
+                      onDownloadOffline={downloadItem}
+                      onRemoveOffline={removeItem}
                     />
                   ))}
                 </div>
@@ -639,6 +652,10 @@ export default function EdnComplete() {
                       onOpen={(tab) => openItemModal(item, tab)}
                       isFavorite={isFavorite(item.item_code)}
                       onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
+                      isOfflineAvailable={isAvailableOffline(item.item_code)}
+                      isDownloading={isDownloading === item.item_code}
+                      onDownloadOffline={downloadItem}
+                      onRemoveOffline={removeItem}
                     />
                   ))}
                 </div>
