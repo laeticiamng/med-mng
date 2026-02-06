@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Music, ExternalLink, Flame, Star, Trophy } from "lucide-react";
+import { Music, ExternalLink, Flame, Star, Trophy, Lock } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
 import { useGamification } from "@/hooks/useGamification";
 import { Badge } from "@/components/ui/badge";
@@ -59,10 +59,10 @@ export const AppFooter = () => {
             <h3 className="font-semibold mb-3 text-foreground text-sm">Apprendre</h3>
             <div className="space-y-1.5">
               <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Items EDN</Link>
-              <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Flashcards</Link>
-              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Révision espacée</Link>
-              <Link to={ROUTE_PATHS.clinicalCases} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Cas cliniques</Link>
-              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Musique médicale</Link>
+              <Link to={ROUTE_PATHS.flashcards} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Flashcards {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.srsReview} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Révision espacée {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.clinicalCases} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Cas cliniques {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.generator} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Musique médicale {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
               <Link to={ROUTE_PATHS.mngMethod} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Méthode MNG</Link>
             </div>
           </div>
@@ -71,11 +71,11 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-3 text-foreground text-sm">S'entraîner</h3>
             <div className="space-y-1.5">
-              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mode examen</Link>
+              <Link to={ROUTE_PATHS.examMode} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Mode examen {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
               <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Simulations ECOS</Link>
-              <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Chat IA</Link>
-              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Planning intelligent</Link>
-              <Link to={ROUTE_PATHS.studyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Planificateur</Link>
+              <Link to={ROUTE_PATHS.chat} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Chat IA {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.smartStudyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Planning intelligent {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.studyPlanner} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Planificateur {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
             </div>
           </div>
           
@@ -83,13 +83,13 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-3 text-foreground text-sm">Motivation</h3>
             <div className="space-y-1.5">
-              <Link to={ROUTE_PATHS.dailyChallenges} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Défis du jour</Link>
-              <Link to={ROUTE_PATHS.leaderboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Classement</Link>
-              <Link to={ROUTE_PATHS.myGoals} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mes Objectifs</Link>
-              <Link to={ROUTE_PATHS.pomodoro} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Pomodoro</Link>
-              <Link to={ROUTE_PATHS.moodTracker} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Suivi humeur</Link>
-              <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Ma progression</Link>
-              <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Succès & Badges</Link>
+              <Link to={ROUTE_PATHS.dailyChallenges} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Défis du jour {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.leaderboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Classement {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.myGoals} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Mes Objectifs {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.pomodoro} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Pomodoro {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.moodTracker} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Suivi humeur {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Ma progression {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
+              <Link to={ROUTE_PATHS.achievements} className="block text-muted-foreground hover:text-primary text-xs transition-colors flex items-center gap-1">Succès & Badges {!isLoggedIn && <Lock className="h-2.5 w-2.5" />}</Link>
             </div>
           </div>
 

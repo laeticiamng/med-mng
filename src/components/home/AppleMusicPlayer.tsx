@@ -1,9 +1,11 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Repeat, Eye } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Repeat, Eye, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
@@ -107,10 +109,10 @@ export const AppleMusicPlayer = () => {
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-4">
-              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full">
+              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full" disabled={isDemoMode}>
                 <Repeat className="h-5 w-5 text-muted-foreground" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full">
+              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full" disabled={isDemoMode}>
                 <SkipBack className="h-6 w-6" />
               </Button>
               <motion.div whileTap={isDemoMode ? {} : { scale: 0.95 }}>
@@ -118,18 +120,33 @@ export const AppleMusicPlayer = () => {
                   size="icon" 
                   disabled={isDemoMode}
                   className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={isDemoMode ? "Créez un compte pour écouter" : "Lecture"}
                 >
                   <Play className="h-8 w-8 ml-1" />
                 </Button>
               </motion.div>
-              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full">
+              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full" disabled={isDemoMode}>
                 <SkipForward className="h-6 w-6" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full">
+              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full" disabled={isDemoMode}>
                 <Volume2 className="h-5 w-5 text-muted-foreground" />
               </Button>
             </div>
+
+            {/* CTA visible pour mode démo */}
+            {isDemoMode && (
+              <div className="mt-4 text-center">
+                <p className="text-sm text-muted-foreground mb-2">
+                  <Lock className="h-3.5 w-3.5 inline mr-1" />
+                  Créez un compte pour écouter les musiques médicales
+                </p>
+                <Link 
+                  to={ROUTE_PATHS.medMngSignup}
+                  className="text-sm font-semibold text-primary hover:underline"
+                >
+                  S'inscrire gratuitement →
+                </Link>
+              </div>
+            )}
 
             {/* Waveform visualization - static in demo mode */}
             <div className="mt-8 flex items-end justify-center gap-1 h-12">

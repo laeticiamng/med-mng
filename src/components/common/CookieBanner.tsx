@@ -88,7 +88,7 @@ export const CookieBanner = () => {
   return (
     <>
       {/* Bannière principale */}
-      <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-[100] p-4 shadow-2xl border-2 border-primary/20 bg-card">
+      <Card className="fixed bottom-24 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-[100] p-4 shadow-2xl border-2 border-primary/20 bg-card">
         <div className="flex items-start gap-3">
           <Cookie className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
           <div className="flex-1 space-y-3">

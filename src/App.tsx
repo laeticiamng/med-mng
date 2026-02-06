@@ -26,8 +26,8 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Bell } from 'lucide-react';
-import { Suspense, lazy, useState } from "react";
+
+import { Suspense, lazy, useState, useEffect, useCallback } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminRoute } from "./components/auth/AdminRoute";
@@ -166,6 +166,13 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+
+  // Écouter l'événement toggle-notifications depuis la MainNavigation
+  useEffect(() => {
+    const handler = () => setIsNotificationCenterOpen(prev => !prev);
+    window.addEventListener('toggle-notifications', handler);
+    return () => window.removeEventListener('toggle-notifications', handler);
+  }, []);
 
   // Tracker les métriques PWA automatiquement
   usePWAMetrics();
@@ -334,15 +341,6 @@ const App = () => {
                                   isOpen={isNotificationCenterOpen}
                                   onClose={() => setIsNotificationCenterOpen(false)}
                                 />
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setIsNotificationCenterOpen(true)}
-                                  className="fixed bottom-4 right-4 z-40 my-[36px]"
-                                >
-                                  <Bell className="w-4 h-4 mr-2" />
-                                  Notifications
-                                </Button>
                                 <KeyboardShortcuts />
                                 <AccessibilityCenter />
                                 <CookieBanner />

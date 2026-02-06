@@ -218,6 +218,10 @@ export const MainNavigation: React.FC = () => {
               size="sm" 
               className="relative h-8 w-8 sm:h-9 sm:w-9 p-0"
               aria-label="Notifications"
+              onClick={() => {
+                const event = new CustomEvent('toggle-notifications');
+                window.dispatchEvent(event);
+              }}
             >
               <Bell className="w-4 h-4" />
             </Button>
