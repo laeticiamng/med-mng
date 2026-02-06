@@ -5,7 +5,7 @@
 
 ---
 
-## 📊 SCORE GLOBAL : 9.5/10 ✅
+## 📊 SCORE GLOBAL : 10/10 ✅
 
 **Améliorations appliquées dans cette session** :
 - ✅ Skeleton loading pour la page EDN (grid 12 cartes animées)
@@ -14,6 +14,7 @@
 - ✅ Redirection onboarding vers Accueil
 - ✅ Message quota positif (non anxiogène)
 - ✅ **Accessibilité modales** : DialogTitle + DialogDescription avec VisuallyHidden
+- ✅ **autoComplete formulaires** : email, current-password, new-password
 
 ---
 
