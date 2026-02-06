@@ -1,88 +1,68 @@
 
 
-# Audit Technique Senior #3 - MED-MNG
+# Audit Technique Senior #4 - MED-MNG
 
 **Date**: 6 Fevrier 2026
-**Focus**: Problemes restants apres les 2 audits precedents
+**Focus**: Le probleme critique non resolu (dependencies package.json) + nettoyages restants
 
 ---
 
-## Constat
+## Constat Principal
 
-Les 2 audits precedents ont corrige la majorite des problemes (dead code, route dupliquee, Suspense centralise). Cependant, **le probleme #1 (dependances production)** n'a PAS ete applique dans `package.json` -- les packages serveur sont toujours dans `dependencies`.
-
----
-
-## 1. Dependances Serveur Toujours en Production (NON CORRIGE)
-
-Les packages suivants sont dans `dependencies` mais ne sont **jamais importes dans `src/`** (confirme par recherche) :
-
-| Package | Importe dans src/ ? | Action |
-|---------|---------------------|--------|
-| `@sentry/node` | Non | Supprimer (doublon Node.js de `@sentry/react`) |
-| `express` | Non | Supprimer |
-| `express-rate-limit` | Non | Supprimer |
-| `helmet` | Non | Supprimer |
-| `sharp` | Non | Supprimer (binaire natif, casse le build) |
-| `dotenv` | Non (uniquement `src/scripts/`) | Deja en devDeps, supprimer de deps |
-| `glob` | Non | Supprimer |
-| `@storybook/*` (6 packages) | Non | Deja dupliques dans devDeps, supprimer de deps |
-
-**Correction** : Retirer ces 12 packages de `dependencies` dans `package.json`. Ils sont deja dans `devDependencies` ou inutiles.
+Les 3 audits precedents ont identifie et corrige de nombreux problemes (dead code, route dupliquee, Suspense centralise, DevTools conditionne, karaoke centralise, redirection post-login). Cependant, **le probleme #1 des 3 audits -- le nettoyage de `package.json` -- n'a jamais ete effectivement applique**. Les 13 packages serveur/inutiles sont toujours dans `dependencies`.
 
 ---
 
-## 2. Route Karaoke en Dur (Priorite MOYENNE)
+## 1. Nettoyage package.json (CRITIQUE - 3x identifie, 0x corrige)
 
-Dans `App.tsx` ligne 234, la route karaoke utilise un path en dur au lieu du systeme de routes centralise :
+Les packages suivants dans `dependencies` ne sont **jamais importes dans `src/`** (confirme par recherche grep) :
 
-```tsx
-<Route path="/karaoke/:songId?" element={<S><KaraokePage /></S>} />
-```
+| Package | Confirme absent de src/ | Action |
+|---------|------------------------|--------|
+| `@sentry/node` | Oui | Supprimer |
+| `express` | Oui | Supprimer |
+| `express-rate-limit` | Oui | Supprimer |
+| `helmet` | Oui | Supprimer |
+| `sharp` | Oui | Supprimer |
+| `dotenv` | Uniquement dans `src/scripts/` (pas le bundle) | Supprimer de deps |
+| `glob` | Oui | Supprimer |
+| `workbox-window` | Oui | Supprimer |
+| `@storybook/addon-a11y` | Deja en devDeps | Supprimer de deps |
+| `@storybook/addon-essentials` | Deja en devDeps | Supprimer de deps |
+| `@storybook/addon-interactions` | Deja en devDeps | Supprimer de deps |
+| `@storybook/addon-links` | Deja en devDeps | Supprimer de deps |
+| `@storybook/react` | Deja en devDeps | Supprimer de deps |
+| `@storybook/react-vite` | Deja en devDeps | Supprimer de deps |
+| `@storybook/test` | Deja en devDeps | Supprimer de deps |
 
-Alors que toutes les autres routes utilisent `ROUTE_PATHS.xxx`.
+De plus, `vite-plugin-pwa` est un plugin Vite (build-time only) et devrait etre dans `devDependencies`.
 
-**Correction** : Ajouter `karaoke: '/karaoke/:songId?'` dans `ROUTE_PATHS` et utiliser la constante dans `App.tsx`.
-
----
-
-## 3. `DesignSystemDevTools` Charge en Production (Priorite MOYENNE)
-
-Le composant `DesignSystemDevTools` (304 lignes, avec mouse tracking, overlay DOM) est monte inconditionnellement dans `App.tsx` ligne 348, y compris en production. C'est un outil de dev qui ne devrait jamais etre dans le bundle de production.
-
-**Correction** : Conditionner le rendu au mode development uniquement :
-
-```tsx
-{import.meta.env.DEV && <DesignSystemDevTools />}
-```
-
----
-
-## 4. `workbox-window` Non Utilise (Priorite BASSE)
-
-Le package `workbox-window` est dans `dependencies` mais n'est importe nulle part dans `src/`. La PWA utilise `vite-plugin-pwa` qui gere Workbox en interne.
-
-**Correction** : Retirer `workbox-window` de `dependencies`.
+**Correction** : Supprimer ces 16 lignes de `dependencies` dans `package.json`.
 
 ---
 
-## 5. `medMngLibrary` vs `medMngMusicLibrary` Confusion de Nommage (Priorite BASSE)
+## 2. Script `start:server` orphelin (BASSE)
 
-Apres le login/signup, l'app redirige vers `ROUTE_PATHS.medMngLibrary` (`/med-mng/library`), mais la route montee dans App.tsx utilise `ROUTE_PATHS.medMngMusicLibrary` (`/med-mng/music-library`) pour le composant `MedMngLibrary`. La route `/med-mng/library` n'est pas montee.
+`package.json` contient le script `"start:server": "node --loader ts-node/esm src/index.ts"` mais il n'y a pas de fichier `src/index.ts` correspondant a un serveur Express (l'app est un SPA Vite). C'est un artéfact du moment ou `express` etait dans les deps.
 
-Cela signifie qu'apres login, l'utilisateur atterrit sur une page 404.
+**Correction** : Supprimer le script `start:server` de `package.json`.
 
-**Correction** : Ajouter une route pour `medMngLibrary` ou rediriger `medMngLibrary` vers `medMngMusicLibrary`.
+---
+
+## 3. Bouton Notification flottant en dur (BASSE)
+
+Dans `App.tsx` lignes 337-345, un bouton "Notifications" est monte en `fixed bottom-4 right-4` directement dans le composant racine. Ce bouton devrait faire partie du composant `NotificationSystem` ou de la navigation, pas du layout global.
+
+Ce n'est pas un bug mais une impurete architecturale. Pas de correction dans cet audit -- documentee pour reference.
 
 ---
 
 ## Plan d'Implementation
 
-| Ordre | Action | Fichier(s) | Risque |
-|-------|--------|------------|--------|
-| 1 | Retirer 13 packages serveur/inutiles de dependencies | package.json | Bas |
-| 2 | Ajouter route medMngLibrary (fix redirection post-login 404) | App.tsx | Critique |
-| 3 | Ajouter karaoke dans ROUTE_PATHS + utiliser la constante | routes.ts, App.tsx | Nul |
-| 4 | Conditionner DesignSystemDevTools au mode DEV | App.tsx | Nul |
-| 5 | Retirer workbox-window des dependencies | package.json | Nul |
+| Ordre | Action | Fichier | Risque |
+|-------|--------|---------|--------|
+| 1 | Supprimer 16 packages inutiles/dupliques de dependencies | package.json | Bas |
+| 2 | Supprimer le script `start:server` orphelin | package.json | Nul |
+
+**Impact** : Bundle plus leger, zero regression fonctionnelle (aucun de ces packages n'est importe dans le code source).
 
