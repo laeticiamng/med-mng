@@ -185,32 +185,37 @@ export default function EdnComplete() {
   ];
 
   const filteredItems = useMemo(() => {
-    const searchLower = searchTerm.toLowerCase();
+    // ✅ FIX: Normaliser la recherche (accents, casse) pour trouver "cardiologie" → "Cardiologie"
+    const normalizeText = (text: string) => 
+      text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    const searchNormalized = normalizeText(searchTerm);
     
     return allItems.filter(item => {
-      // Recherche étendue : titre, code, mots-clés, spécialité, objectifs OIC
-      const matchesSearch = 
-        item.title.toLowerCase().includes(searchLower) ||
-        item.item_code.toLowerCase().includes(searchLower) ||
-        (item.specialite && item.specialite.toLowerCase().includes(searchLower)) ||
-        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(searchLower))) ||
+      // Recherche étendue : titre, code, subtitle, mots-clés, spécialité, objectifs OIC
+      const matchesSearch = !searchNormalized || 
+        normalizeText(item.title).includes(searchNormalized) ||
+        normalizeText(item.item_code).includes(searchNormalized) ||
+        (item.subtitle && normalizeText(item.subtitle).includes(searchNormalized)) ||
+        (item.specialite && normalizeText(item.specialite).includes(searchNormalized)) ||
+        (item.mots_cles && item.mots_cles.some(mot => normalizeText(mot).includes(searchNormalized))) ||
         // Recherche dans les objectifs OIC (format: "OIC-XXX" ou "objectif_id")
         (item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) && 
           item.competences_oic_rang_a.some((c: any) => 
-            c?.objectif_id?.toLowerCase().includes(searchLower) ||
-            c?.intitule?.toLowerCase().includes(searchLower)
+            (c?.objectif_id && normalizeText(c.objectif_id).includes(searchNormalized)) ||
+            (c?.intitule && normalizeText(c.intitule).includes(searchNormalized))
           )) ||
         (item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) && 
           item.competences_oic_rang_b.some((c: any) => 
-            c?.objectif_id?.toLowerCase().includes(searchLower) ||
-            c?.intitule?.toLowerCase().includes(searchLower)
+            (c?.objectif_id && normalizeText(c.objectif_id).includes(searchNormalized)) ||
+            (c?.intitule && normalizeText(c.intitule).includes(searchNormalized))
           ));
       
-      // Filtre par spécialité (recherche dans titre et mots-clés)
+      // Filtre par spécialité (utilise normalizeText défini plus haut)
       const matchesSpecialty = selectedSpecialty === 'all' || 
-        item.title.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
-        (item.specialite && item.specialite.toLowerCase().includes(selectedSpecialty.toLowerCase())) ||
-        (item.mots_cles && item.mots_cles.some(mot => mot.toLowerCase().includes(selectedSpecialty.toLowerCase())));
+        normalizeText(item.title).includes(normalizeText(selectedSpecialty)) ||
+        (item.specialite && normalizeText(item.specialite).includes(normalizeText(selectedSpecialty))) ||
+        (item.mots_cles && item.mots_cles.some(mot => normalizeText(mot).includes(normalizeText(selectedSpecialty))));
       
       if (!matchesSpecialty) return false;
       
