@@ -65,7 +65,7 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
     // Store preferences in Supabase for logged-in users en arrière-plan
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
-        await (supabase as any).from('user_onboarding').upsert({
+        await supabase.from('user_onboarding').upsert({
           user_id: user.id,
           onboarding_completed: true,
           revision_type: revisionType,

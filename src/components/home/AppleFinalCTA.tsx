@@ -82,11 +82,11 @@ export const AppleFinalCTA = () => {
         >
           <Button 
             size="lg"
-            onClick={() => navigate(ROUTE_PATHS.medMngItemsLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
             className="h-16 px-10 text-xl font-bold rounded-2xl bg-gradient-to-r from-primary via-primary-hover to-accent hover:opacity-90 shadow-xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-2xl"
           >
             <Play className="h-6 w-6 mr-3" />
-            Commencer maintenant
+            Créer mon compte gratuit
             <ArrowRight className="h-6 w-6 ml-3" />
           </Button>
         </motion.div>

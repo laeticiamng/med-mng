@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ROUTE_PATHS } from '@/config/routes';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const MedMngSignup = () => {
   const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -29,7 +31,7 @@ export const MedMngSignup = () => {
   const [showConsentErrors, setShowConsentErrors] = useState(false);
 
   if (user) {
-    return <Navigate to={ROUTE_PATHS.medMngLibrary} replace />;
+    return <Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,6 +87,15 @@ export const MedMngSignup = () => {
     }
   };
 
+  const handleResendEmail = async () => {
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Email renvoyé !', { description: 'Vérifiez votre boîte de réception.' });
+    }
+  };
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
@@ -95,10 +106,13 @@ export const MedMngSignup = () => {
               Vérifiez votre email pour confirmer votre compte
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <Link to={ROUTE_PATHS.medMngLogin}>
               <Button className="w-full">Retour à la connexion</Button>
             </Link>
+            <Button variant="outline" className="w-full" onClick={handleResendEmail}>
+              Renvoyer l'email de vérification
+            </Button>
           </CardContent>
         </Card>
       </div>
