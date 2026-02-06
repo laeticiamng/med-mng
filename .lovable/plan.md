@@ -1,82 +1,75 @@
 
 
-# Audit Post-Corrections v3 - MED-MNG
+# Audit Complet 3 Phases - MED-MNG (v4)
 **Date**: 6 Fevrier 2026
-**Contexte**: Troisieme passe d'audit apres application de toutes les corrections precedentes.
+**Contexte**: Quatrieme passe d'audit. Le codebase est en bon etat apres 3 cycles de corrections. Cette passe identifie les derniers problemes residuels.
 
 ---
 
 ## Constat General
 
-Les trois audits precedents ont corrige les problemes majeurs. Le codebase est en bon etat. Cette passe identifie uniquement des problemes residuels mineurs et des polissages de qualite de code.
+Les 3 audits precedents ont resolu tous les problemes critiques et importants. Le codebase est sain. Cette passe cible uniquement des polissages mineurs.
 
 ---
 
 ## Phase 1 : Audit Technique (Dev Senior)
 
-### 1.1 Import `Pause` inutilise dans AppleMusicPlayer.tsx (BAS)
+### 1.1 AdminContentManager : URLs hardcodees vers des routes inexistantes (MOYEN)
 
-**Probleme** : `Pause` est importe de lucide-react (ligne 3) mais n'est jamais utilise dans le composant. Le player est en mode demo permanent (`isDemoMode = true`) donc le toggle Play/Pause n'existe pas.
+**Probleme** : `AdminContentManager.tsx` contient deux `window.open` vers des routes qui n'existent pas :
+- Ligne 178 : `window.open('/edn/complete/${item.item_code}')` -- la route `/edn/complete/:code` n'existe pas. La bonne route est `/edn-complete/:slug`.
+- Ligne 183 : `window.open('/admin/content/edit/${item.item_code}')` -- la route `/admin/content/edit` n'existe pas du tout.
 
-**Correction** : Retirer `Pause` de l'import.
+**Correction** :
+- Preview : utiliser `ROUTE_PATHS.ednCompleteDetail` avec le bon slug/code
+- Edit : remplacer par un `toast.info('Editeur bientot disponible')` puisque la page n'existe pas
 
-**Fichier** : `src/components/home/AppleMusicPlayer.tsx`
+**Fichier** : `src/components/admin/AdminContentManager.tsx`
 
-### 1.2 `as any` casts sur tables non typees (BAS)
+### 1.2 Variable `_rateLimitState` inutilisee dans MedMngLogin (BAS)
 
-**Probleme** : `AdaptiveTooltip.tsx` et `ContextualHelp.tsx` utilisent `(supabase as any).from('user_feature_tracking')` et `(supabase as any).from('help_tips')`. Ces tables existent peut-etre en base mais ne sont pas dans les types generes Supabase.
+**Probleme** : `MedMngLogin.tsx` ligne 34 destructure `state: _rateLimitState` du hook `useRateLimiting`, mais la variable n'est jamais utilisee. Le prefixe underscore est correct pour signaler une variable inutilisee, mais la destructuration elle-meme est superflue.
 
-**Correction** : Ce sont des fonctionnalites secondaires (onboarding contextuel). Laisser les `as any` pour l'instant car regenerer les types Supabase est hors scope. Ajouter un commentaire explicatif.
+**Correction** : Retirer `state: _rateLimitState` de la destructuration.
 
-**Fichiers** : `src/components/onboarding/AdaptiveTooltip.tsx`, `src/components/onboarding/ContextualHelp.tsx`
+**Fichier** : `src/pages/MedMngLogin.tsx`
 
-### 1.3 Tests E2E referent `/med-mng/library` (BAS)
+### 1.3 `Headphones` importe mais semantiquement incorrect dans AppleFinalCTA (BAS)
 
-**Probleme** : 6+ fichiers de tests E2E (Playwright) referent l'ancienne route `/med-mng/library`. La redirection existe toujours dans App.tsx donc les tests passent, mais ils devraient etre mis a jour pour tester la route finale.
+**Probleme** : Le bouton secondaire dit "Ou explore les items EDN d'abord" mais utilise l'icone `Headphones`. L'exploration d'items EDN n'est pas une ecoute musicale. L'icone `BookOpen` serait plus coherente.
 
-**Correction** : Mettre a jour les URLs dans les fichiers de test pour utiliser `/med-mng/music-library`.
+**Correction** : Remplacer `Headphones` par `BookOpen` dans l'import et l'utilisation.
 
-**Fichiers** : `tests/e2e/navigation/navigation.spec.ts`, `tests/library.spec.ts`, `tests/responsive.spec.ts`, `tests/accessibility-axe.spec.ts`, `tests/e2e/user/complete-journey.spec.ts`
-
-### 1.4 Test unitaire AuthProvider refere `/med-mng/library` (BAS)
-
-**Probleme** : `src/tests/hooks/useAuth.test.ts` verifie que les redirections OAuth contiennent `/med-mng/library`. Apres les corrections, les vraies redirections pointent vers `/med-mng/music-library`. Le test est desynchronise du code reel.
-
-**Correction** : Mettre a jour les assertions du test pour verifier `/med-mng/music-library`.
-
-**Fichier** : `src/tests/hooks/useAuth.test.ts`
+**Fichier** : `src/components/home/AppleFinalCTA.tsx`
 
 ---
 
 ## Phase 2 : Audit UX (Designer Senior)
 
-### 2.1 Aucun probleme UX restant identifie
+### 2.1 Aucun probleme UX restant
 
-Toutes les corrections UX des audits precedents sont correctement appliquees :
-- CTA Hero pointe vers `ednComplete` (public)
-- CTA Final pointe vers `medMngSignup`
-- Lien secondaire pointe vers `ednComplete` avec texte coherent
-- Cookie banner a `bottom-24` sur mobile
+Tous les flux sont correctement implementes :
+- CTAs publics pointent vers du contenu public
+- Footer visible au-dessus de la bottom nav mobile (`pb-24`)
 - HelpButton masque sur mobile
-- Header EDN sticky a `top-16`
-- Footer avec `pb-24` sur mobile
-- Player demo : tous les controles desactives + CTA inscription visible
-- Indicateurs Lock sur liens proteges du footer
+- Header EDN colle sous la navbar (`sticky top-16`)
+- Mot de passe oublie fonctionnel
+- Indicateurs Lock coherents dans le footer
+- Login scrollable sur petit ecran
 
 ---
 
 ## Phase 3 : Audit Utilisateur Final (Beta Testeur)
 
-### 3.1 Aucun probleme utilisateur restant identifie
+### 3.1 Aucun probleme utilisateur restant
 
-Les flux utilisateurs critiques sont fonctionnels :
-- "Commencer gratuitement" mene au contenu EDN public
-- "Creer un compte" mene au formulaire d'inscription
-- "Mot de passe oublie" fonctionne avec page de reset dediee
-- "Renvoyer l'email" disponible apres inscription
-- Bouton d'aide affiche "Bientot disponible" au lieu de 404
-- Navigation mobile correcte sans double-redirect
-- Footer entierement visible au-dessus de la bottom nav
+Les parcours critiques sont tous fonctionnels et coherents :
+- Decouverte : Hero -> EDN public (sans login)
+- Inscription : CTA -> Signup -> Verification email (avec renvoi)
+- Connexion : Login -> OAuth ou email -> Bibliotheque
+- Reset password : Login -> "Mot de passe oublie" -> Email -> Page de reset
+- Aide : Toast "bientot disponible" au lieu de 404
+- Navigation mobile : bottom nav sans chevauchement
 
 ---
 
@@ -84,10 +77,9 @@ Les flux utilisateurs critiques sont fonctionnels :
 
 | Ordre | Phase | Correction | Fichier(s) | Impact |
 |-------|-------|-----------|------------|--------|
-| 1 | P1 | Retirer import `Pause` inutilise | AppleMusicPlayer.tsx | Bas - proprete code |
-| 2 | P1 | Mettre a jour les URLs dans les tests E2E | 5 fichiers tests | Bas - coherence tests |
-| 3 | P1 | Mettre a jour assertions test unitaire Auth | useAuth.test.ts | Bas - coherence tests |
-| 4 | P1 | Ajouter commentaire sur `as any` dans onboarding | AdaptiveTooltip.tsx, ContextualHelp.tsx | Bas - documentation |
+| 1 | P1 | Corriger URLs hardcodees dans AdminContentManager | AdminContentManager.tsx | Moyen - 404 admin |
+| 2 | P1 | Retirer `_rateLimitState` inutilise | MedMngLogin.tsx | Bas - proprete |
+| 3 | P1 | Remplacer icone `Headphones` par `BookOpen` dans CTA final | AppleFinalCTA.tsx | Bas - coherence |
 
-**Note** : Ces corrections sont toutes mineures. Le codebase est en bon etat apres les 3 audits precedents. Les problemes critiques et importants ont tous ete resolus.
+**Note** : Seulement 3 corrections mineures. Le codebase est stable et pret pour la production apres les 3 cycles precedents.
 
