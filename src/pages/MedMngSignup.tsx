@@ -52,6 +52,9 @@ export const MedMngSignup = () => {
       setError('Veuillez accepter tous les consentements obligatoires');
       setShowConsentErrors(true);
       setLoading(false);
+      setTimeout(() => {
+        document.getElementById('consent-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return;
     }
 
@@ -185,6 +188,7 @@ export const MedMngSignup = () => {
             </div>
 
             {/* Consentements RGPD obligatoires */}
+            <div id="consent-section">
             <ConsentCheckboxes
               cguAccepted={cguAccepted}
               onCguChange={setCguAccepted}
@@ -196,6 +200,7 @@ export const MedMngSignup = () => {
               onAgeChange={setAgeVerified}
               showErrors={showConsentErrors}
             />
+            </div>
             
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Création...' : 'Créer le compte'}

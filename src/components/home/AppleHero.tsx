@@ -95,7 +95,7 @@ export const AppleHero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          367 items EDN. Des simulations ECOS. 
+          Les 367 cours du programme médical.
           <br className="hidden sm:block" />
           Transformés en <span className="text-foreground font-semibold">chansons que tu retiens</span>.
         </motion.p>
