@@ -69,17 +69,18 @@ export const AntiAnxietyOnboarding: React.FC<AntiAnxietyOnboardingProps> = ({
           completed_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       } else {
-        sessionStorage.setItem('med-mng-onboarding-seen', 'true');
+      sessionStorage.setItem('med-mng-onboarding-seen', 'true');
       }
     });
     
-    // Naviguer vers le générateur
-    navigate(ROUTE_PATHS.generator);
+    // ✅ FIX: Naviguer vers l'accueil au lieu du générateur (meilleure UX pour nouveaux utilisateurs)
+    navigate(ROUTE_PATHS.home);
   };
 
   const handleStartAction = () => {
     onComplete();
-    navigate(ROUTE_PATHS.generator);
+    // ✅ FIX: Naviguer vers l'accueil pour une meilleure découverte
+    navigate(ROUTE_PATHS.home);
   };
 
   return (

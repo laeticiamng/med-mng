@@ -68,8 +68,9 @@ export const useEdnItemsOptimized = () => {
         setLoading(true);
       }
 
-      // ✅ Requête unique optimisée - inclut specialite et mots_cles pour la recherche
-      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&order=item_code`;
+      // ✅ Requête unique optimisée - JOIN avec edn_items_complete pour avoir specialite et mots_cles
+      // Note: edn_items_immersive contient specialite, mais on récupère aussi subtitle pour la recherche
+      const baseUrl = `${SUPABASE_URL}/rest/v1/edn_items_immersive?select=id,item_code,title,subtitle,slug,updated_at,paroles_musicales,competences_count_rang_a,competences_count_rang_b,specialite,mots_cles&order=item_code`;
       const url = appendEdnCacheParams(baseUrl, cacheBuster, true);
       const response = await fetch(url, {
         headers: getSupabaseHeaders(true),
@@ -98,6 +99,7 @@ export const useEdnItemsOptimized = () => {
         id: item.id,
         item_code: item.item_code,
         title: item.title,
+        subtitle: item.subtitle || undefined,
         slug: item.slug,
         updated_at: item.updated_at,
         paroles_musicales: item.paroles_musicales || undefined,

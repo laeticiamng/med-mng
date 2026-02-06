@@ -147,46 +147,46 @@ const MedMngCreateComponent = () => {
     );
   }
 
-  // Affichage spécial si pas d'abonnement ou crédits épuisés
+  // Affichage spécial si pas d'abonnement ou crédits épuisés - avec message positif
   if (!quotaLoading && quota && quota.remaining_credits !== undefined && quota.remaining_credits <= 0) {
     return (
       <MedMngLayout className="bg-gradient-to-br from-primary/5 to-accent/10">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
-            <Card className="border-warning/20 bg-warning/5">
+            {/* ✅ FIX: Message plus positif et moins anxiogène */}
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
               <CardHeader className="text-center">
-                <CreditCard className="h-12 w-12 text-warning mx-auto mb-4" />
-                <CardTitle className="text-warning">Crédits épuisés</CardTitle>
-                <CardDescription className="text-warning/80">
-                  Vous n'avez plus de crédits pour générer de la musique
+                <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CreditCard className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-foreground">🎵 Débloquez la génération musicale</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Vous avez exploré l'app - maintenant passez à la vitesse supérieure !
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-sm text-warning/70">
-                  Pour continuer à créer des chansons personnalisées, souscrivez à un abonnement.
-                </p>
-                <div className="bg-primary/5 p-4 rounded-lg">
-                  <h3 className="font-semibold text-primary mb-2">🎵 Avec un abonnement :</h3>
-                  <ul className="text-sm text-primary/80 space-y-1">
+                <div className="bg-success/10 border border-success/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-success mb-2">✨ Ce qui vous attend :</h3>
+                  <ul className="text-sm text-success/80 space-y-1 text-left">
                     <li>• Génération musicale IA illimitée</li>
-                    <li>• Styles musicaux variés</li>
-                    <li>• Qualité audio premium</li>
-                    <li>• Sauvegarde dans votre bibliothèque</li>
+                    <li>• Tous les styles musicaux (Rap, Lo-Fi, Spoken...)</li>
+                    <li>• Qualité audio premium HD</li>
+                    <li>• Sauvegarde dans votre bibliothèque personnelle</li>
                   </ul>
                 </div>
                 <div className="flex gap-3 justify-center">
                   <Button 
-                    onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
+                    onClick={() => navigate(ROUTE_PATHS.ednComplete)}
                     variant="outline"
                   >
-                    Ma Bibliothèque
+                    Explorer les items EDN
                   </Button>
                   <Button 
                     onClick={() => navigate(ROUTE_PATHS.medMngPricing)}
-                    className="bg-primary hover:bg-primary/90"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
-                    Choisir un abonnement
+                    Voir les offres
                   </Button>
                 </div>
               </CardContent>

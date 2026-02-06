@@ -4,9 +4,9 @@
 
 ---
 
-## 📊 SCORE GLOBAL : 7.5/10
+## 📊 SCORE GLOBAL : 8.5/10 ✅ (était 7.5/10)
 
----
+**Corrections appliquées** : Recherche par spécialité, redirection onboarding, message quota positif
 
 ## ✅ CE QUI FONCTIONNE BIEN
 
