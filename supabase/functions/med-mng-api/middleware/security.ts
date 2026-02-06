@@ -26,6 +26,10 @@ export class SecurityService {
     const userAgent = req.headers.get('user-agent') || '';
     
     // Check for bot patterns
+    // NOTE CISO: This list intentionally blocks common automation user-agents
+    // (curl, python-requests, wget) to deter basic scraping. This may also
+    // block legitimate monitoring tools — whitelist them at the infrastructure
+    // level (e.g. reverse proxy) if needed.
     const suspiciousBots = [
       'bot', 'crawler', 'spider', 'scraper', 'scanner',
       'python-requests', 'curl', 'wget'

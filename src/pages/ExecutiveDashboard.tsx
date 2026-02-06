@@ -77,33 +77,34 @@ const ExecutiveDashboard: React.FC = () => {
       const recentActivities = activityRes.data || [];
 
       // Calculer les KPIs
-      const activeUsers = new Set(recentActivities.map(a => a.id)).size;
+      // CDO fix: count unique user-related IDs, not activity IDs
+      const activeUsers = new Set(recentActivities.map(a => (a as any).user_id ?? a.id)).size;
       const studySessions = recentActivities.filter(a => a.activity_type === 'study').length;
 
       setKpis([
         {
           label: 'Utilisateurs totaux',
           value: totalUsers,
-          change: 12,
-          changeLabel: 'vs mois dernier',
+          change: 0,
+          changeLabel: 'Données historiques non disponibles',
           icon: Users,
-          trend: 'up',
+          trend: 'neutral',
         },
         {
           label: 'Utilisateurs actifs',
           value: activeUsers,
-          change: 8,
-          changeLabel: 'vs semaine dernière',
+          change: 0,
+          changeLabel: 'Données historiques non disponibles',
           icon: Activity,
-          trend: 'up',
+          trend: 'neutral',
         },
         {
           label: 'Sessions d\'étude',
           value: studySessions,
-          change: 15,
-          changeLabel: 'vs période précédente',
+          change: 0,
+          changeLabel: 'Données historiques non disponibles',
           icon: BookOpen,
-          trend: 'up',
+          trend: 'neutral',
         },
         {
           label: 'Items EDN couverts',
@@ -234,12 +235,13 @@ const ExecutiveDashboard: React.FC = () => {
           >
             <Card className="h-full border-border/50 bg-card/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-primary" />
                   Utilisation des modules
+                  <Badge variant="outline" className="ml-2 text-xs font-normal text-warning border-warning/30">Données simulées</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Sessions et taux de complétion par module
+                  Sessions et taux de complétion par module — données illustratives
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -272,12 +274,13 @@ const ExecutiveDashboard: React.FC = () => {
           >
             <Card className="h-full border-border/50 bg-card/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary" />
                   Progression étudiants
+                  <Badge variant="outline" className="ml-2 text-xs font-normal text-warning border-warning/30">Estimations</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Statut de l'ensemble des utilisateurs
+                  Statut estimé de l'ensemble des utilisateurs (ratios simulés)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -359,6 +362,7 @@ const ExecutiveDashboard: React.FC = () => {
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
                 Insights & Recommandations
+                <Badge variant="outline" className="ml-2 text-xs font-normal text-warning border-warning/30">Données simulées</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
