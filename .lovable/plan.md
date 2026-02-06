@@ -1,121 +1,78 @@
 
-# Audit Technique Senior - MED-MNG
+
+# Audit Technique Senior #3 - MED-MNG
 
 **Date**: 6 Fevrier 2026
-**Profil**: Dev Senior / Lead technique
-**Scope**: Architecture, dependencies, code quality, dead code, performance, securite
+**Focus**: Problemes restants apres les 2 audits precedents
 
 ---
 
-## 1. Dependances Production Incorrectes (Priorite HAUTE)
+## Constat
 
-**Probleme**: 10+ packages serveur/dev sont dans `dependencies` au lieu de `devDependencies`, gonflant le bundle de production.
-
-Packages a deplacer vers `devDependencies`:
-- `@sentry/node` (package Node.js, seul `@sentry/react` est utilise cote client)
-- `express`, `express-rate-limit`, `helmet` (framework serveur - non importe nulle part dans `src/`)
-- `sharp` (traitement d'image Node natif - non importe)
-- `dotenv` (utilise uniquement dans `src/scripts/`, pas dans l'app React)
-- `glob` (utilitaire Node.js FS - non importe)
-- `@storybook/*` (6 packages) - deja dupliques dans `devDependencies`
-
-**Impact**: Bundle potentiellement plus lourd, confusion sur l'architecture, erreurs de build possibles avec `sharp` (binaire natif).
-
-**Correction**: Deplacer ces packages dans `devDependencies` dans `package.json`.
+Les 2 audits precedents ont corrige la majorite des problemes (dead code, route dupliquee, Suspense centralise). Cependant, **le probleme #1 (dependances production)** n'a PAS ete applique dans `package.json` -- les packages serveur sont toujours dans `dependencies`.
 
 ---
 
-## 2. Dead Code et Fichiers Orphelins (Priorite MOYENNE)
+## 1. Dependances Serveur Toujours en Production (NON CORRIGE)
 
-### 2a. `CombinedProviders.tsx` - Module entierement inutilise
+Les packages suivants sont dans `dependencies` mais ne sont **jamais importes dans `src/`** (confirme par recherche) :
 
-Ce fichier exporte `CombinedProviders`, `checkProvidersHealth`, et `queryClient`, mais **aucun n'est importe dans l'application**. L'app utilise sa propre pyramide de providers dans `App.tsx`. De plus:
-- Il monkey-patch `console.time`/`console.timeEnd` globalement, ce qui peut casser des outils tiers
-- Il cree un `QueryClient` concurrent avec une config differente de celui d'`App.tsx`
-- La fonction `checkProvidersHealth` n'est jamais appelee
+| Package | Importe dans src/ ? | Action |
+|---------|---------------------|--------|
+| `@sentry/node` | Non | Supprimer (doublon Node.js de `@sentry/react`) |
+| `express` | Non | Supprimer |
+| `express-rate-limit` | Non | Supprimer |
+| `helmet` | Non | Supprimer |
+| `sharp` | Non | Supprimer (binaire natif, casse le build) |
+| `dotenv` | Non (uniquement `src/scripts/`) | Deja en devDeps, supprimer de deps |
+| `glob` | Non | Supprimer |
+| `@storybook/*` (6 packages) | Non | Deja dupliques dans devDeps, supprimer de deps |
 
-**Correction**: Supprimer `src/components/providers/CombinedProviders.tsx` et son barrel `src/components/providers/index.ts`.
-
-### 2b. `App.minimal.tsx` - Fichier de debug oublie
-
-Fichier de debugging avec `console.log('App rendering...')` - jamais reference.
-
-**Correction**: Supprimer `src/App.minimal.tsx`.
-
-### 2c. `_setIsHelpCenterOpen` - State jamais utilise
-
-Dans `App.tsx` ligne 170, `isHelpCenterOpen` est initialise a `false` et `_setIsHelpCenterOpen` n'est jamais appele. Le composant `HelpCenter` ne peut donc jamais s'afficher (ligne 323: `{isHelpCenterOpen && <HelpCenter />}` est toujours `false`).
-
-**Correction**: Soit connecter le setter a un bouton/event, soit supprimer le state et le composant conditionnel.
+**Correction** : Retirer ces 12 packages de `dependencies` dans `package.json`. Ils sont deja dans `devDependencies` ou inutiles.
 
 ---
 
-## 3. Route Dupliquee (Priorite MOYENNE)
+## 2. Route Karaoke en Dur (Priorite MOYENNE)
 
-Dans `src/config/routes.ts`:
-```
-medMngLibrary: '/med-mng/library',      // ligne 37
-medMngItemsLibrary: '/med-mng/library',  // ligne 38
-```
-
-Deux cles de route differentes pointent vers le meme chemin `/med-mng/library`, ce qui peut poser des problemes de maintenance et de navigation. L'app les monte sur deux `<Route>` distincts (lignes 260-261 d'App.tsx) ce qui signifie que seul le premier match.
-
-**Correction**: Differencier les paths ou fusionner en une seule route.
-
----
-
-## 4. Architecture du Provider Tree (Priorite BASSE)
-
-`App.tsx` empile 10+ providers sans groupement:
-
-```
-GlobalErrorBoundary > ThemeProvider > QueryClientProvider > BrowserRouter > HelmetProvider > AuthProvider > LanguageProvider > GlobalAudioProvider > TooltipProvider > ViewportProvider > AccessibilityProvider > InternationalizationProvider > PerformanceProvider
-```
-
-**Probleme**: `HelmetProvider` est DANS `BrowserRouter`, ce qui est correct, mais l'indentation du JSX est irreguliere (mix tabs/espaces, indentation inconsistante entre les lignes 179-190). Cela rend la maintenance risquee.
-
-**Correction**: Reformater le JSX du provider tree avec une indentation coherente. Pas de changement fonctionnel requis.
-
----
-
-## 5. Fallback Suspense Duplique (Priorite BASSE)
-
-Le meme spinner inline est copie-colle 60+ fois dans App.tsx:
+Dans `App.tsx` ligne 234, la route karaoke utilise un path en dur au lieu du systeme de routes centralise :
 
 ```tsx
-<div className="flex items-center justify-center p-8">
-  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-</div>
+<Route path="/karaoke/:songId?" element={<S><KaraokePage /></S>} />
 ```
 
-**Correction**: Extraire un composant `PageLoader` reutilisable et une HOC `withSuspense()` pour reduire la repetition.
+Alors que toutes les autres routes utilisent `ROUTE_PATHS.xxx`.
+
+**Correction** : Ajouter `karaoke: '/karaoke/:songId?'` dans `ROUTE_PATHS` et utiliser la constante dans `App.tsx`.
 
 ---
 
-## 6. Configuration TypeScript Trop Permissive (Priorite BASSE)
+## 3. `DesignSystemDevTools` Charge en Production (Priorite MOYENNE)
 
-`tsconfig.app.json` desactive plusieurs gardes de type:
-- `strict: false` - pas de null checks, pas de strict bindings
-- `noImplicitAny: false` - autorise les `any` implicites
-- `noUnusedLocals: false` - ne detecte pas les variables mortes
-- `noUnusedParameters: false` - ne detecte pas les params inutiles
+Le composant `DesignSystemDevTools` (304 lignes, avec mouse tracking, overlay DOM) est monte inconditionnellement dans `App.tsx` ligne 348, y compris en production. C'est un outil de dev qui ne devrait jamais etre dans le bundle de production.
 
-Pour une app en production avec 295+ composants, c'est risque.
+**Correction** : Conditionner le rendu au mode development uniquement :
 
-**Correction**: Pas de changement immediat (trop impactant), mais documenter comme dette technique a traiter incrementalement.
+```tsx
+{import.meta.env.DEV && <DesignSystemDevTools />}
+```
 
 ---
 
-## 7. QueryClient Configs Divergentes (Priorite BASSE)
+## 4. `workbox-window` Non Utilise (Priorite BASSE)
 
-Trois `QueryClient` distincts avec des configs differentes:
-- `App.tsx`: `retry: false`, `staleTime: 10min`, `refetchOnMount: false`
-- `CombinedProviders.tsx`: retry conditionnel, `staleTime: 5min`, `refetchOnMount: 'always'`
-- `App.minimal.tsx`: `retry: 1`, `staleTime: 5min`
+Le package `workbox-window` est dans `dependencies` mais n'est importe nulle part dans `src/`. La PWA utilise `vite-plugin-pwa` qui gere Workbox en interne.
 
-Seul celui d'`App.tsx` est actif. Les deux autres sont du dead code.
+**Correction** : Retirer `workbox-window` de `dependencies`.
 
-**Correction**: Couverte par la suppression des fichiers en points 2a et 2b.
+---
+
+## 5. `medMngLibrary` vs `medMngMusicLibrary` Confusion de Nommage (Priorite BASSE)
+
+Apres le login/signup, l'app redirige vers `ROUTE_PATHS.medMngLibrary` (`/med-mng/library`), mais la route montee dans App.tsx utilise `ROUTE_PATHS.medMngMusicLibrary` (`/med-mng/music-library`) pour le composant `MedMngLibrary`. La route `/med-mng/library` n'est pas montee.
+
+Cela signifie qu'apres login, l'utilisateur atterrit sur une page 404.
+
+**Correction** : Ajouter une route pour `medMngLibrary` ou rediriger `medMngLibrary` vers `medMngMusicLibrary`.
 
 ---
 
@@ -123,10 +80,9 @@ Seul celui d'`App.tsx` est actif. Les deux autres sont du dead code.
 
 | Ordre | Action | Fichier(s) | Risque |
 |-------|--------|------------|--------|
-| 1 | Deplacer deps serveur vers devDependencies | package.json | Bas |
-| 2 | Supprimer CombinedProviders (dead code) | src/components/providers/CombinedProviders.tsx, index.ts | Bas |
-| 3 | Supprimer App.minimal.tsx (dead code) | src/App.minimal.tsx | Nul |
-| 4 | Corriger ou supprimer HelpCenter dead state | src/App.tsx | Bas |
-| 5 | Extraire composant PageLoader + helper withSuspense | src/components/common/PageLoader.tsx, src/App.tsx | Bas |
-| 6 | Corriger route dupliquee medMngItemsLibrary | src/config/routes.ts | Bas |
-| 7 | Reformater le provider tree (indentation) | src/App.tsx | Nul |
+| 1 | Retirer 13 packages serveur/inutiles de dependencies | package.json | Bas |
+| 2 | Ajouter route medMngLibrary (fix redirection post-login 404) | App.tsx | Critique |
+| 3 | Ajouter karaoke dans ROUTE_PATHS + utiliser la constante | routes.ts, App.tsx | Nul |
+| 4 | Conditionner DesignSystemDevTools au mode DEV | App.tsx | Nul |
+| 5 | Retirer workbox-window des dependencies | package.json | Nul |
+
