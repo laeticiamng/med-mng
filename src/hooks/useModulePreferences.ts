@@ -31,16 +31,16 @@ export const AVAILABLE_MODULES: ModuleConfig[] = [
   
   // Productivity (désactivables)
   { id: 'study_planner', name: 'Planificateur', description: 'Planning de révision intelligent', icon: 'Calendar', category: 'productivity', isCore: false, defaultEnabled: true },
-  { id: 'pomodoro', name: 'Pomodoro', description: 'Timer de productivité', icon: 'Timer', category: 'productivity', isCore: false, defaultEnabled: false },
+  { id: 'pomodoro', name: 'Pomodoro', description: 'Timer de productivité', icon: 'Timer', category: 'productivity', isCore: false, defaultEnabled: true },
   { id: 'goals', name: 'Mes objectifs', description: 'Suivi des objectifs personnels', icon: 'Target', category: 'productivity', isCore: false, defaultEnabled: true },
   
   // Social (désactivables)
-  { id: 'community', name: 'Communauté', description: 'Échanges entre étudiants', icon: 'Users', category: 'social', isCore: false, defaultEnabled: false },
+  { id: 'community', name: 'Communauté', description: 'Échanges entre étudiants', icon: 'Users', category: 'social', isCore: false, defaultEnabled: true },
   { id: 'leaderboard', name: 'Classement', description: 'Leaderboard hebdomadaire', icon: 'Trophy', category: 'social', isCore: false, defaultEnabled: true },
   { id: 'challenges', name: 'Défis quotidiens', description: 'Défis et récompenses', icon: 'Award', category: 'social', isCore: false, defaultEnabled: true },
   
   // Wellbeing (désactivables)
-  { id: 'mood_tracker', name: 'Suivi humeur', description: 'Tracking du bien-être', icon: 'Heart', category: 'wellbeing', isCore: false, defaultEnabled: false },
+  { id: 'mood_tracker', name: 'Suivi humeur', description: 'Tracking du bien-être', icon: 'Heart', category: 'wellbeing', isCore: false, defaultEnabled: true },
   { id: 'achievements', name: 'Succès', description: 'Badges et accomplissements', icon: 'Medal', category: 'wellbeing', isCore: false, defaultEnabled: true },
 ];
 
