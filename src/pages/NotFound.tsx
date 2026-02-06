@@ -12,7 +12,9 @@ const NotFound = () => {
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    if (import.meta.env.DEV) {
+      console.error("404 Error:", location.pathname);
+    }
     logActivity({ activity_type: 'study', metadata: { action: '404_error', path: location.pathname } });
   }, [location.pathname]);
 

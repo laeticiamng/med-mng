@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 export const useEmailNotifications = () => {
   const sendWelcomeEmail = async (email: string, name: string) => {
     try {
-      console.log('📧 Envoi email de bienvenue à:', email, name);
       
       const { data, error } = await supabase.functions.invoke('send-welcome-email', {
         body: {
@@ -18,7 +17,7 @@ export const useEmailNotifications = () => {
         return { success: false, error };
       }
 
-      console.log('Email de bienvenue envoyé:', data);
+      return { success: true, data };
       return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);
@@ -53,7 +52,7 @@ export const useEmailNotifications = () => {
         return { success: false, error };
       }
 
-      console.log('Email abonnement envoyé:', data);
+      return { success: true, data };
       return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);

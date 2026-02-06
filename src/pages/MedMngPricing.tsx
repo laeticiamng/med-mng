@@ -12,7 +12,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Check, Crown, Download, Headphones, Heart, Library, Music, Shield, Star, Zap } from 'lucide-react';
+import { ArrowLeft, Check, Crown, Music, Star, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { trackConversionEvent } from '@/lib/conversionTracking';
@@ -144,41 +144,6 @@ export const MedMngPricing = () => {
     return subscription?.plan_name === planName;
   };
 
-  const freeFeatures = [
-    {
-      icon: Music,
-      title: "3 chansons gratuites",
-      description: "Testez notre générateur d'IA musicale"
-    },
-    {
-      icon: Library,
-      title: "Accès à la bibliothèque",
-      description: "Consultez les exemples disponibles"
-    }
-  ];
-
-  const premiumFeatures = [
-    {
-      icon: Heart,
-      title: "Favoris illimités",
-      description: "Organisez vos chansons préférées"
-    },
-    {
-      icon: Shield,
-      title: "Qualité premium",
-      description: "Audio haute définition garanti"
-    },
-    {
-      icon: Headphones,
-      title: "Streaming sécurisé",
-      description: "Écoute protégée sans téléchargement"
-    },
-    {
-      icon: Download,
-      title: "Sauvegarde cloud",
-      description: "Vos créations toujours accessibles - 100% streaming"
-    }
-  ];
 
   return (
     <>
