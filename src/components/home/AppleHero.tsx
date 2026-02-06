@@ -143,8 +143,15 @@ export const AppleHero = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
-              className="flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-5 py-2.5"
+              className="relative overflow-hidden flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full px-5 py-2.5"
             >
+              {/* Shine effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -skew-x-12"
+                initial={{ x: '-100%' }}
+                animate={{ x: '200%' }}
+                transition={{ duration: 3, delay: 2 + index * 0.3, repeat: Infinity, repeatDelay: 5 }}
+              />
               <item.icon className="h-4 w-4 text-primary" />
               <span className="text-base font-medium text-foreground">{item.label}</span>
             </motion.div>
@@ -162,10 +169,12 @@ export const AppleHero = () => {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="flex flex-col items-center gap-2 text-muted-foreground"
+          className="flex flex-col items-center gap-2"
         >
-          <span className="text-sm">Découvrir</span>
-          <ArrowDown className="h-5 w-5" />
+          <span className="text-base font-medium text-foreground/70">Découvrir</span>
+          <div className="w-10 h-10 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 flex items-center justify-center">
+            <ArrowDown className="h-5 w-5 text-primary" />
+          </div>
         </motion.div>
       </motion.div>
     </div>

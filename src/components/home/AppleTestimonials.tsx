@@ -46,9 +46,9 @@ export const AppleTestimonials = () => {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
-    <section ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+    <section ref={sectionRef} className="relative py-28 lg:py-36 overflow-hidden">
+      {/* Background - more marked to create visual break */}
+      <div className="absolute inset-0 bg-muted/10" />
       
       {/* Decorative elements */}
       <motion.div
