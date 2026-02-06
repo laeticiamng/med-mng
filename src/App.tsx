@@ -271,6 +271,10 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngLogin} element={<S><MedMngLogin /></S>} />
                                     <Route path={ROUTE_PATHS.medMngSignup} element={<S><MedMngSignup /></S>} />
                                     <Route path={ROUTE_PATHS.medMngPricing} element={<S><MedMngPricing /></S>} />
+                                    {/* Raccourcis publics /signup, /login, /pricing */}
+                                    <Route path="/signup" element={<Navigate to={ROUTE_PATHS.medMngSignup} replace />} />
+                                    <Route path="/login" element={<Navigate to={ROUTE_PATHS.medMngLogin} replace />} />
+                                    <Route path="/pricing" element={<Navigate to={ROUTE_PATHS.medMngPricing} replace />} />
                                     <Route path={ROUTE_PATHS.medMngResetPassword} element={<S><MedMngResetPassword /></S>} />
 
                                     {/* Med-MNG (protected) */}
