@@ -31,7 +31,7 @@ interface SubscriptionPlan {
 export const MedMngPricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription, loading: subscriptionLoading } = useSubscription();
+  const { subscription } = useSubscription();
   const { logActivity } = useActivityTracking();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -328,7 +328,7 @@ export const MedMngPricing = () => {
             <TranslatedText text="Plans d'abonnement disponibles" />
           </h2>
           
-          {loading || subscriptionLoading ? (
+          {loading ? (
             <div className="flex justify-center py-8">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
             </div>
