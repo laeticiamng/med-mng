@@ -101,7 +101,7 @@ export function AudioPlayer({
       onEnded?.()
       
       // Analytics
-      console.log('🎵 Song completed:', song.title)
+      if (import.meta.env.DEV) console.log('🎵 Song completed:', song.title)
     }
     const handleError = (e: any) => {
       console.error('❌ Audio error:', e)
@@ -151,7 +151,7 @@ export function AudioPlayer({
         onPlayStateChange?.(true)
         
         // Analytics
-        console.log('🎵 Song started:', song.title)
+        if (import.meta.env.DEV) console.log('🎵 Song started:', song.title)
         toast.success('Lecture en cours', {
           description: song.title,
           duration: 2000

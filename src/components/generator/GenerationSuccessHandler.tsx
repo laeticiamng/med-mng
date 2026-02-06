@@ -22,7 +22,7 @@ export const useGenerationSuccessHandler = ({
   // ✅ Rafraîchir automatiquement les crédits après génération réussie
   useEffect(() => {
     if (generatedSong?.audioUrl) {
-      console.log('[GenerationSuccessHandler] Génération réussie, rafraîchissement crédits...');
+      if (import.meta.env.DEV) console.log('[GenerationSuccessHandler] Génération réussie, rafraîchissement crédits...');
       refreshAfterGeneration();
       onCreditsRefreshed?.();
     }

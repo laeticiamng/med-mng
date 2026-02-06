@@ -18,7 +18,6 @@ export const useEmailNotifications = () => {
       }
 
       return { success: true, data };
-      return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);
       return { success: false, error };
@@ -52,7 +51,6 @@ export const useEmailNotifications = () => {
         return { success: false, error };
       }
 
-      return { success: true, data };
       return { success: true, data };
     } catch (error) {
       console.error('Erreur:', error);
