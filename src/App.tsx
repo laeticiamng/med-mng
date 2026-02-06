@@ -231,7 +231,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.myGoals} element={<S><MyGoals /></S>} />
                                     <Route path={ROUTE_PATHS.moodTracker} element={<S><MoodTracker /></S>} />
                                     <Route path={ROUTE_PATHS.pomodoro} element={<S><Pomodoro /></S>} />
-                                    <Route path="/karaoke/:songId?" element={<S><KaraokePage /></S>} />
+                                    <Route path={ROUTE_PATHS.karaoke} element={<S><KaraokePage /></S>} />
 
                                     {/* ECOS */}
                                     <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
@@ -269,6 +269,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><S><MedMngSubscribe /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngSuccess} element={<ProtectedRoute><S><MedMngSuccess /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><S><MedMngCreate /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngLibrary} element={<Navigate to={ROUTE_PATHS.medMngMusicLibrary} replace />} />
                                     <Route path={ROUTE_PATHS.medMngMusicLibrary} element={<ProtectedRoute><S><MedMngLibrary /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngItemsLibrary} element={<ProtectedRoute><S><MedMngItemsLibrary /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngItemDetail} element={<ProtectedRoute><S><MedMngItemDetail /></S></ProtectedRoute>} />
@@ -345,7 +346,7 @@ const App = () => {
                                 <KeyboardShortcuts />
                                 <AccessibilityCenter />
                                 <CookieBanner />
-                                <DesignSystemDevTools />
+                                {import.meta.env.DEV && <DesignSystemDevTools />}
                                 <EnhancedAITutor />
                                 <PWAPrompt />
                                 <OfflineIndicator />
