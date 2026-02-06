@@ -1,16 +1,13 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { Play, SkipForward, SkipBack, Volume2, Music, Repeat, Eye, Lock } from 'lucide-react';
+import { useRef } from 'react';
+import { Play, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 
 export const AppleMusicPlayer = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-  const [progress, setProgress] = useState(35);
   
   // Mode démo - pas d'audio réel disponible
   const isDemoMode = true;
@@ -27,7 +24,7 @@ export const AppleMusicPlayer = () => {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
             Écoute.{' '}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="text-primary">
               Apprends.
             </span>
           </h2>
@@ -49,17 +46,9 @@ export const AppleMusicPlayer = () => {
           {/* Player card */}
           <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl">
             {/* Now playing header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2 text-primary">
-                <Music className="h-5 w-5" />
-                <span className="text-sm font-medium">APERÇU</span>
-              </div>
-              {isDemoMode && (
-                <Badge variant="secondary" className="gap-1.5 bg-muted/80 text-muted-foreground">
-                  <Eye className="h-3 w-3" />
-                  Démo visuelle
-                </Badge>
-              )}
+            <div className="flex items-center gap-2 text-primary">
+              <Music className="h-5 w-5" />
+              <span className="text-sm font-medium">APERÇU</span>
             </div>
 
             {/* Track info */}
@@ -92,61 +81,34 @@ export const AppleMusicPlayer = () => {
               </div>
             </div>
 
-            {/* Progress bar */}
+            {/* Static progress bar */}
             <div className="mb-6">
-              <Slider
-                value={[progress]}
-                onValueChange={(v) => setProgress(v[0])}
-                max={100}
-                step={1}
-                className="cursor-pointer"
-              />
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full w-[35%] bg-gradient-to-r from-primary to-accent rounded-full" />
+              </div>
               <div className="flex justify-between text-xs text-muted-foreground mt-2">
                 <span>1:23</span>
                 <span>3:45</span>
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-4">
-              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full" disabled={isDemoMode}>
-                <Repeat className="h-5 w-5 text-muted-foreground" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full" disabled={isDemoMode}>
-                <SkipBack className="h-6 w-6" />
-              </Button>
-              <motion.div whileTap={isDemoMode ? {} : { scale: 0.95 }}>
-                <Button 
-                  size="icon" 
-                  disabled={isDemoMode}
-                  className="h-16 w-16 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Play className="h-8 w-8 ml-1" />
-                </Button>
-              </motion.div>
-              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-full" disabled={isDemoMode}>
-                <SkipForward className="h-6 w-6" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full" disabled={isDemoMode}>
-                <Volume2 className="h-5 w-5 text-muted-foreground" />
-              </Button>
+            {/* Single CTA instead of disabled controls */}
+            <div className="flex flex-col items-center gap-4">
+              <Link to={ROUTE_PATHS.medMngSignup}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button 
+                    size="lg"
+                    className="h-16 px-10 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/30"
+                  >
+                    <Play className="h-6 w-6 mr-2" />
+                    Écouter un extrait
+                  </Button>
+                </motion.div>
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                Créez un compte gratuit pour accéder aux 367 chansons médicales
+              </p>
             </div>
-
-            {/* CTA visible pour mode démo */}
-            {isDemoMode && (
-              <div className="mt-4 text-center">
-                <p className="text-sm text-muted-foreground mb-2">
-                  <Lock className="h-3.5 w-3.5 inline mr-1" />
-                  Créez un compte pour écouter les musiques médicales
-                </p>
-                <Link 
-                  to={ROUTE_PATHS.medMngSignup}
-                  className="text-sm font-semibold text-primary hover:underline"
-                >
-                  S'inscrire gratuitement →
-                </Link>
-              </div>
-            )}
 
             {/* Waveform visualization - static in demo mode */}
             <div className="mt-8 flex items-end justify-center gap-1 h-12">

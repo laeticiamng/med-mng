@@ -337,7 +337,7 @@ export const MedMngPricing = () => {
               {plans.map((plan) => (
                 <PremiumCard 
                   key={plan.id}
-                  variant="elevated"
+                  variant="glass"
                   className={`relative ${
                     isCurrentPlan(plan.name) ? 'ring-2 ring-primary' : ''
                   } ${plan.name.toLowerCase() === 'premium' ? 'ring-2 ring-accent' : ''}`}
@@ -354,8 +354,10 @@ export const MedMngPricing = () => {
                     </div>
                     <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
                     <CardDescription className="text-sm">{plan.description}</CardDescription>
-                    <div className="text-3xl font-bold text-foreground mt-4">
-                      {plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
+                    <div className="mt-4">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        {plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
+                      </span>
                       {plan.price > 0 && <span className="text-sm font-normal text-muted-foreground">/mois</span>}
                     </div>
                   </CardHeader>

@@ -112,7 +112,7 @@ export const AppleFeatureShowcase = () => {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
             Pourquoi ça{' '}
-            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+            <span className="text-primary">
               fonctionne
             </span>
           </h2>

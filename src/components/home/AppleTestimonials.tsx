@@ -7,33 +7,37 @@ const testimonials = [
     id: 1,
     quote: "J'ai retenu plus en 2 semaines d'écoute qu'en 2 mois de fiches. Mon cerveau s'en souvient tout seul.",
     author: "Marie L.",
-    role: "D4 - CHU Bordeaux",
+    role: "D4 - CHU Bordeaux · Bêta-testeuse",
     rating: 5,
-    avatar: "ML"
+    avatar: "ML",
+    avatarGradient: "from-primary to-accent"
   },
   {
     id: 2,
     quote: "Le concept est révolutionnaire. Je révise dans le métro, en courant, partout. Zéro effort, max résultats.",
     author: "Thomas K.",
-    role: "D3 - Paris Descartes",
+    role: "D3 - Paris Descartes · Accès anticipé",
     rating: 5,
-    avatar: "TK"
+    avatar: "TK",
+    avatarGradient: "from-accent to-warning"
   },
   {
     id: 3,
     quote: "Les refrains restent en tête pendant des jours. Parfait pour les items qui ne rentraient jamais.",
     author: "Sarah M.",
-    role: "D2 - Lyon Est",
-    rating: 5,
-    avatar: "SM"
+    role: "D2 - Lyon Est · Bêta-testeuse",
+    rating: 4,
+    avatar: "SM",
+    avatarGradient: "from-warning to-success"
   },
   {
     id: 4,
     quote: "Sceptique au début, converti après 3 jours. C'est exactement ce dont la médecine avait besoin.",
     author: "Lucas P.",
-    role: "DFASM3 - Marseille",
+    role: "DFASM3 - Marseille · Accès anticipé",
     rating: 5,
-    avatar: "LP"
+    avatar: "LP",
+    avatarGradient: "from-success to-primary"
   },
 ];
 
@@ -68,7 +72,7 @@ export const AppleTestimonials = () => {
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
             Ce qu'ils en{' '}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="text-primary">
               disent
             </span>
           </h2>
@@ -105,7 +109,7 @@ export const AppleTestimonials = () => {
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatarGradient} flex items-center justify-center text-primary-foreground font-bold`}>
                     {testimonial.avatar}
                   </div>
                   <div>
@@ -126,10 +130,10 @@ export const AppleTestimonials = () => {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
         >
           {[
-            { value: 'Gratuit', label: 'Pour commencer' },
-            { value: '⭐', label: 'Noté par nos beta-testeurs' },
+            { value: '0€', label: 'Pour commencer' },
+            { value: '4.9/5', label: 'Note bêta-testeurs' },
             { value: '367', label: 'Items EDN couverts' },
-            { value: '🧠', label: 'Basé sur la neuroscience' },
+            { value: 'x3', label: 'Rétention mémorielle' },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
