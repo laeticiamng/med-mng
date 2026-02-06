@@ -63,7 +63,7 @@ export const SECONDARY_NAV_ITEMS: NavItem[] = SECONDARY_NAV_GROUPS.flatMap(group
 // Navigation utilisateur (menu profil)
 export const USER_NAV_ITEMS: NavItem[] = [
   { path: ROUTE_PATHS.medMngProfile, label: 'Mon profil', icon: Users },
-  { path: ROUTE_PATHS.medMngLibrary, label: 'Ma bibliothèque', icon: Music },
+  { path: ROUTE_PATHS.medMngMusicLibrary, label: 'Ma bibliothèque', icon: Music },
   { path: ROUTE_PATHS.medMngPlaylists, label: 'Mes playlists', icon: Music },
   { path: ROUTE_PATHS.medMngFavorites, label: 'Mes favoris', icon: Sparkles },
   { path: ROUTE_PATHS.medMngProgress, label: 'Ma progression', icon: BarChart3 },

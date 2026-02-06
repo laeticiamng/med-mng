@@ -98,11 +98,11 @@ export const AppleFinalCTA = () => {
           transition={{ duration: 0.8, delay: 0.8 }}
         >
           <button
-            onClick={() => navigate(ROUTE_PATHS.generator)}
+            onClick={() => navigate(ROUTE_PATHS.ednComplete)}
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
           >
             <Headphones className="h-5 w-5" />
-            <span>Ou écoute d'abord un extrait</span>
+            <span>Ou explore les items EDN d'abord</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </motion.div>

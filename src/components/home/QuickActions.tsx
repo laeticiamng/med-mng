@@ -196,7 +196,7 @@ export const QuickActions: React.FC = () => {
             variant="ghost" 
             size="sm"
             className="text-muted-foreground hover:text-foreground"
-            onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}
+            onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}
           >
             <ListMusic className="h-4 w-4 mr-2" />
             Ma bibliothèque

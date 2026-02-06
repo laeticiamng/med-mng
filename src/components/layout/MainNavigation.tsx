@@ -241,7 +241,7 @@ export const MainNavigation: React.FC = () => {
                       <User className="w-4 h-4 mr-2" />
                       Mon Profil
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
+                    <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngMusicLibrary)}>
                       <Music className="w-4 h-4 mr-2" />
                       Ma Bibliothèque
                     </DropdownMenuItem>
