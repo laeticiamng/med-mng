@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, CheckCircle, Home, Music, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { trackConversionEvent } from '@/lib/conversionTracking';
 import { toast } from 'sonner';
 
 export const MedMngSuccess = () => {
@@ -20,6 +21,7 @@ export const MedMngSuccess = () => {
   useEffect(() => {
     const refreshData = async () => {
       if (sessionId && user) {
+        trackConversionEvent('checkout_complete', { sessionId });
         // Wait for webhook to process
         setTimeout(async () => {
           await fetchSubscription();

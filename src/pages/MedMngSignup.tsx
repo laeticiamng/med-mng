@@ -10,6 +10,7 @@ import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ROUTE_PATHS } from '@/config/routes';
 import { supabase } from '@/integrations/supabase/client';
+import { trackConversionEvent } from '@/lib/conversionTracking';
 import { toast } from 'sonner';
 
 export const MedMngSignup = () => {
@@ -61,6 +62,7 @@ export const MedMngSignup = () => {
     } else {
       setSuccess(true);
       logActivity({ activity_type: 'study', metadata: { action: 'signup_success' } });
+      trackConversionEvent('signup', { method: 'email' });
     }
     
     setLoading(false);

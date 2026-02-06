@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Check, Crown, Download, Headphones, Heart, Library, Music, Shield, Star, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { trackConversionEvent } from '@/lib/conversionTracking';
 import { toast } from 'sonner';
 
 interface SubscriptionPlan {
@@ -39,6 +40,7 @@ export const MedMngPricing = () => {
   useEffect(() => {
     fetchPlans();
     logActivity({ activity_type: 'study', metadata: { action: 'view_pricing' } });
+    trackConversionEvent('page_view', { page: 'pricing' });
   }, []);
 
   const fetchPlans = async () => {
@@ -84,6 +86,8 @@ export const MedMngPricing = () => {
         navigate(ROUTE_PATHS.medMngLogin);
         return;
       }
+
+      trackConversionEvent('checkout_start', { planId });
 
       const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
         body: { planId },
