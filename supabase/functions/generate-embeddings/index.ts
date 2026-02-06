@@ -34,7 +34,7 @@ serve(async (req) => {
       // Fetch EDN items to embed
       let query = supabase
         .from('edn_items_complete')
-        .select('item_code, title, rang_a, rang_b, objectifs_code, specialty');
+        .select('item_code, title, subtitle, specialite, domaine_medical, mots_cles, tableau_rang_a, tableau_rang_b, competences_oic_rang_a, competences_oic_rang_b, pitch_intro');
 
       if (item_codes.length > 0) {
         query = query.in('item_code', item_codes);
@@ -67,10 +67,15 @@ serve(async (req) => {
           const contentParts: string[] = [];
           contentParts.push(`Item ${item.item_code}: ${item.title}`);
           
-          if (item.specialty) contentParts.push(`Spécialité: ${item.specialty}`);
-          if (item.objectifs_code) contentParts.push(`Objectifs: ${item.objectifs_code}`);
-          if (item.rang_a) contentParts.push(`Rang A: ${typeof item.rang_a === 'object' ? JSON.stringify(item.rang_a) : item.rang_a}`);
-          if (item.rang_b) contentParts.push(`Rang B: ${typeof item.rang_b === 'object' ? JSON.stringify(item.rang_b) : item.rang_b}`);
+          if (item.subtitle) contentParts.push(item.subtitle);
+          if (item.specialite) contentParts.push(`Spécialité: ${item.specialite}`);
+          if (item.domaine_medical) contentParts.push(`Domaine: ${item.domaine_medical}`);
+          if (item.pitch_intro) contentParts.push(item.pitch_intro);
+          if (item.mots_cles) contentParts.push(`Mots-clés: ${Array.isArray(item.mots_cles) ? item.mots_cles.join(', ') : item.mots_cles}`);
+          if (item.competences_oic_rang_a) contentParts.push(`Compétences Rang A: ${typeof item.competences_oic_rang_a === 'object' ? JSON.stringify(item.competences_oic_rang_a) : item.competences_oic_rang_a}`);
+          if (item.competences_oic_rang_b) contentParts.push(`Compétences Rang B: ${typeof item.competences_oic_rang_b === 'object' ? JSON.stringify(item.competences_oic_rang_b) : item.competences_oic_rang_b}`);
+          if (item.tableau_rang_a) contentParts.push(`Rang A: ${typeof item.tableau_rang_a === 'object' ? JSON.stringify(item.tableau_rang_a) : item.tableau_rang_a}`);
+          if (item.tableau_rang_b) contentParts.push(`Rang B: ${typeof item.tableau_rang_b === 'object' ? JSON.stringify(item.tableau_rang_b) : item.tableau_rang_b}`);
 
           const fullContent = contentParts.join('\n\n');
           const chunks = chunkText(fullContent, CHUNK_SIZE, CHUNK_OVERLAP);
@@ -89,7 +94,8 @@ serve(async (req) => {
                   chunk_index: i,
                   embedding: embedding,
                   metadata: {
-                    specialty: item.specialty,
+                    specialty: item.specialite,
+                    domain: item.domaine_medical,
                     total_chunks: chunks.length,
                     chunk_size: chunks[i].length
                   }
