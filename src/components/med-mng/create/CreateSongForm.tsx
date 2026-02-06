@@ -194,7 +194,7 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
             <Info className="h-4 w-4" />
             <AlertDescription>
               {!selectedItem && contentType === 'item' && 'Sélectionnez un item pour continuer'}
-              {selectedItem && !selectedRang && contentType === 'item' && 'Choisissez un rang (A ou B)'}
+              {selectedItem && !selectedRang && contentType === 'item' && 'Choisissez un rang (A, B ou A+B)'}
               {!selectedSituation && contentType === 'situation' && 'Sélectionnez une situation'}
               {(selectedItem || selectedSituation) && !style && 'Choisissez un style musical'}
             </AlertDescription>
