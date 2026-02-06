@@ -18,7 +18,7 @@ test.describe('Navigation Tests', () => {
     
     // Test navigation to Library
     await page.click('[aria-label*="Bibliothèque"]');
-    await expect(page).toHaveURL(/.*\/med-mng\/library/);
+    await expect(page).toHaveURL(/.*\/med-mng\/music-library/);
     
     // Test navigation to Create
     await page.click('[aria-label*="Créer"]');

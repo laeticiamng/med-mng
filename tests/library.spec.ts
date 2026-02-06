@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Library Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to library page
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
   });
 
   test('should display library page correctly', async ({ page }) => {

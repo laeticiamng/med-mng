@@ -329,7 +329,7 @@ describe('Auth Module - Unit Tests', () => {
         email: 'test@example.com',
         password: 'password123',
         options: {
-          emailRedirectTo: 'http://localhost:3000/med-mng/library'
+          emailRedirectTo: 'http://localhost:3000/med-mng/music-library'
         }
       });
       
@@ -440,13 +440,13 @@ describe('Auth Module - Unit Tests', () => {
     it('should include correct redirect URL', async () => {
       await mockSignInWithOAuth({
         provider: 'google',
-        options: { redirectTo: 'http://localhost:3000/med-mng/library' }
+        options: { redirectTo: 'http://localhost:3000/med-mng/music-library' }
       });
       
       expect(mockSignInWithOAuth).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
-            redirectTo: expect.stringContaining('/med-mng/library')
+            redirectTo: expect.stringContaining('/med-mng/music-library')
           })
         })
       );

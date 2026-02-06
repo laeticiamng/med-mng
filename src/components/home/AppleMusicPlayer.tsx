@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Repeat, Eye, Lock } from 'lucide-react';
+import { Play, SkipForward, SkipBack, Volume2, Music, Repeat, Eye, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';

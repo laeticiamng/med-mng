@@ -7,7 +7,7 @@ test.describe('Complete User Journey', () => {
     await expect(page.locator('h1')).toBeVisible();
     
     // Navigate to library
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     await expect(page.locator('body')).toBeVisible();
     
     // Navigate to create
@@ -61,7 +61,7 @@ test.describe('Complete User Journey', () => {
     await expect(page.locator('body')).toBeVisible();
     
     // Go to library
-    await page.goto('/med-mng/library');
+    await page.goto('/med-mng/music-library');
     await expect(page.locator('body')).toBeVisible();
     
     // Go to music library
@@ -79,7 +79,7 @@ test.describe('Complete User Journey', () => {
       '/exam-mode',
       '/clinical-cases',
       '/progress-dashboard',
-      '/med-mng/library',
+      '/med-mng/music-library',
       '/med-mng/pricing',
     ];
 

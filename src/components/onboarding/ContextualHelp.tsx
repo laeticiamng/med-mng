@@ -46,6 +46,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
       return;
     }
 
+    // Table 'user_feature_tracking' not in generated Supabase types; using `as any` intentionally
     const { data } = await (supabase as any)
       .from('user_feature_tracking')
       .select('is_dismissed')
@@ -65,6 +66,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
       if (!helpKey) return;
 
       // Essayer de charger depuis Supabase (table non typée)
+      // Table 'help_tips' not in generated Supabase types; using `as any` intentionally
       const { data: helpData } = await (supabase as any)
         .from('help_tips')
         .select('*')
@@ -112,6 +114,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
       return;
     }
 
+    // Table 'user_feature_tracking' not in generated Supabase types; using `as any` intentionally
     await (supabase as any)
       .from('user_feature_tracking')
       .upsert({
