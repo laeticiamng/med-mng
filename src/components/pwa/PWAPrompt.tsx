@@ -35,6 +35,16 @@ export const PWAPrompt: React.FC = () => {
     }
   }, []);
 
+  // Auto-dismiss offline ready notification after 4 seconds
+  React.useEffect(() => {
+    if (offlineReady) {
+      const timer = setTimeout(() => {
+        dismissOfflineReady();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [offlineReady, dismissOfflineReady]);
+
   // Install prompt
   if (isInstallable && !isInstalled && !isDismissed) {
     return (
@@ -95,10 +105,10 @@ export const PWAPrompt: React.FC = () => {
     );
   }
 
-  // Offline ready notification
+  // Offline ready notification - with auto-dismiss
   if (offlineReady) {
     return (
-      <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg">
+      <Card className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 border-success/30 bg-card/95 backdrop-blur-sm shadow-lg animate-in slide-in-from-bottom-4 duration-300">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-success/10">
