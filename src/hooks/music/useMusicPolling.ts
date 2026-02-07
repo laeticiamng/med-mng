@@ -5,6 +5,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import { PollingProgress } from '@/types/music';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -246,10 +247,10 @@ export const useMusicPolling = () => {
           }
         }
 
-        // Appeler l'edge function music-status
-        const { data: pollData, error: pollError } = await supabase.functions.invoke('music-status', {
-          body: { taskId }
-        });
+        // Appeler le routeur unifié ai-audio
+        const statusResponse = await audioApi.getStatus(taskId);
+        const pollData = statusResponse.data;
+        const pollError = statusResponse.success ? null : { message: statusResponse.error };
 
         if (pollError) {
           currentState.consecutiveErrors++;
@@ -308,7 +309,7 @@ export const useMusicPolling = () => {
             status: 'error',
             elapsedMs
           });
-          onError(new Error(pollData.error || 'Génération échouée'));
+          onError(new Error((pollData as any)?.error || 'Génération échouée'));
           return;
         }
 

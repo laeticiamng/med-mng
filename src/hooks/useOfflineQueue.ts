@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 
 export interface QueuedRequest {
   id: string;
@@ -122,11 +122,10 @@ export const useOfflineQueue = () => {
     try {
       await saveToQueue({ ...item, status: 'uploading' });
       
-      const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: item.payload
-      });
+      const response = await audioApi.generateMusic(item.payload);
 
-      if (error) throw error;
+      if (!response.success) throw new Error(response.error || 'Erreur de génération');
+      const data = response.data;
 
       await removeFromQueue(item.id);
 

@@ -5,6 +5,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import { useCallback, useRef, useState } from 'react';
 import { callSunoApi } from '../musicGenerationApi';
 import {
@@ -134,10 +135,10 @@ export const useSunoMusicGeneration = () => {
             return;
           }
 
-          // 2. Sinon appeler l'edge function music-status
-          const { data, error } = await supabase.functions.invoke('music-status', {
-            body: { taskId }
-          });
+          // 2. Sinon appeler le routeur unifié ai-audio
+          const statusResponse = await audioApi.getStatus(taskId);
+          const data = statusResponse.data;
+          const error = statusResponse.success ? null : { message: statusResponse.error };
 
           if (error) {
             networkRetries++;
@@ -167,7 +168,7 @@ export const useSunoMusicGeneration = () => {
             if (data?.status === 'failed') {
               clearTimeout(absoluteTimeout);
               if (pollingRef.current) clearTimeout(pollingRef.current);
-              reject(new Error(data.error || 'Génération échouée'));
+              reject(new Error((data as any)?.error || 'Génération échouée'));
               return;
             }
           }

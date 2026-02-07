@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import { MusicGenerationStatus, MusicGenerationMetadata } from '@/types/music';
 
 export const useMusicGenerationStatus = (taskId: string | null) => {

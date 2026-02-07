@@ -80,8 +80,16 @@ serve(async (req) => {
     const { userId, isAuthenticated } = await getAuthenticatedUser(supabase, authHeader);
 
     const body = await req.json();
-    const action: AudioAction = body.action;
-    const payload = body.payload || body;
+    
+    // ✅ Auto-détection callback Suno : si body contient `code` et `data` mais pas `action`
+    let action: AudioAction = body.action;
+    let payload = body.payload || body;
+    
+    if (!action && body.code !== undefined && body.data) {
+      console.log('🔔 Auto-détection callback Suno (pas de champ action)');
+      action = 'callback';
+      payload = body;
+    }
 
     console.log(`🎵 AI-AUDIO [${action}] - User: ${userId || 'anonymous'}`);
 

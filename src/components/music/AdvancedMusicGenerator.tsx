@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import {
     Brain,
     Clock,
@@ -158,21 +159,16 @@ export const AdvancedMusicGenerator: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Appel réel à l'Edge Function de génération musicale
-      const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: {
-          prompt: generationRequest.prompt,
-          style: generationRequest.style,
-          duration: generationRequest.duration,
-          lyrics: generationRequest.lyrics,
-          itemCode: generationRequest.itemCode,
-          specialty: generationRequest.specialty,
-          binaural: generationRequest.binaural,
-          frequency: generationRequest.frequency
-        }
+      // Appel via le routeur unifié ai-audio
+      const response = await audioApi.generateMusic({
+        lyrics: generationRequest.prompt,
+        style: generationRequest.style,
+        duration: generationRequest.duration,
+        itemCode: generationRequest.itemCode,
       });
 
-      if (error) throw error;
+      if (!response.success) throw new Error(response.error || 'Erreur de génération');
+      const data = response.data;
 
       // Générer une waveform déterministe basée sur la durée
       const waveformPoints = 100;
@@ -185,7 +181,7 @@ export const AdvancedMusicGenerator: React.FC = () => {
       });
 
       const newTrack: MusicTrack = {
-        id: data?.taskId || Date.now().toString(),
+        id: data?.trackId || Date.now().toString(),
         title: `${generationRequest.prompt.slice(0, 30)}${generationRequest.prompt.length > 30 ? '...' : ''}`,
         artist: 'MED-AI',
         duration: generationRequest.duration,
@@ -200,11 +196,11 @@ export const AdvancedMusicGenerator: React.FC = () => {
       };
 
       // Sauvegarder dans Supabase si utilisateur connecté
-      if (user && data?.taskId) {
+      if (user && data?.trackId) {
         await supabase.from('med_mng_songs').insert([{
           user_id: user.id,
           title: newTrack.title,
-          suno_audio_id: data.taskId,
+          suno_audio_id: data.trackId,
           lyrics: generationRequest.lyrics?.join('\n') || '',
           meta: {
             style: generationRequest.style,
