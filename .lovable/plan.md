@@ -1,137 +1,81 @@
 
+# Audit Pricing : Incohérences critiques détectées
 
-# Audit Beta Testeur Non-Technique - Resultats Complets
+## Problème principal : les prix, quotas et noms de plans sont différents dans 5 endroits du code
 
-## 1) Test "3 secondes"
+### Source de vérité : Base de données `subscription_plans`
 
-**En 3 secondes, je crois que cette plateforme sert a** : Apprendre la medecine en ecoutant de la musique (les cours sont transformes en chansons).
+| Plan | Prix | Quota | Features |
+|------|------|-------|----------|
+| Gratuit (free) | 0 EUR | 3/mois | tableaux: non, quiz: non, BD: non, save: non |
+| Standard | 19 EUR | 30/mois | tableaux: oui, quiz: non, BD: non, save: oui |
+| Pro | 29 EUR | 300/mois | tableaux: oui, quiz: oui, BD: non, save: oui |
+| Premium | 39 EUR | 3000/mois | tableaux: oui, quiz: oui, BD: oui, save: oui |
 
-**Le public cible que j'imagine** : Etudiants en medecine preparant les EDN/ECOS en France.
+### Incohérences trouvées
 
-**Les 2 confusions possibles** :
-- Confusion avec un service de streaming musical (Spotify medical)
-- Confusion avec une simple app de podcasts medicaux
+| Fichier | Problème | Gravité |
+|---------|----------|---------|
+| `MedMngSubscribe.tsx` (ligne 14-18) | Prix FAUX : Standard=9.99, Pro=29.99, Premium=49.99 au lieu de 19/29/39 | **P0 - Bloquant** |
+| `ProfileSubscription.tsx` (ligne 18-44) | Prix FAUX : Premium=9.99/mois, Pro=19.99/mois. Quotas FAUX : Premium=50, Pro=100, Free=2 au lieu de 3000/300/3 | **P0 - Bloquant** |
+| `CGU.tsx` (ligne 152-156) | Plans FAUX : mentionne "Basic" et "Enterprise" qui n'existent pas. Quotas FAUX : Basic=10, Premium=30, Enterprise=100 | **P0 - Bloquant** |
+| `PricingPlans.tsx` (composant alternatif, ligne 23-69) | Prix correct (19/29/39) mais features hardcodées et non alignées avec la DB (ex: "QCM illimités" pour Standard alors que quiz=false en DB) | **P1 - Majeur** |
+| `PricingPlans.tsx` | Mentionne "Audio standard (MNG 3.5)", "Audio premium (MNG 4)", "Audio high premium studio (MNG 4.5)" -- ces niveaux audio n'existent nulle part dans le code | **P1 - Majeur** |
+| `PricingPlans.tsx` | "QCM entraînement test" pour Pro et Premium -- feature qui existe (ExamMode) mais pas gated par abonnement | **P1 - Moyen** |
+| `PricingPlans.tsx` | "Reset mensuel" pour Pro et Premium -- pas clair ce que cela signifie, tous les plans ont un quota mensuel | **P2 - Mineur** |
 
-**Note clarte immediate : 9/10** - Le titre "Apprends la medecine en musique" est parfaitement clair. Le sous-titre "367 cours transforms en chansons" elimine toute ambiguite. Seul point de friction : le nom "MED MNG" ne dit rien a un nouveau visiteur.
+### Fonctionnalités annoncées vs réalité
 
----
-
-## 2) Parcours utilisateur
-
-| Etape | Ce que j'ai essaye | Ce qui s'est passe | Ce que j'ai ressenti | Bloquant ? |
-|-------|--------------------|--------------------|---------------------|------------|
-| Decouverte | J'arrive sur la page, je lis le titre | Hero clair avec glassmorphism, animation fluide | Premium, professionnel | Non |
-| Premier clic | Je clique "Creer un compte gratuit" | Redirection vers /med-mng/signup, formulaire s'affiche | Confiance, c'est rapide | Non |
-| CTA secondaire | Je clique "Voir les 367 cours" | Liste EDN s'affiche avec filtres | Impressionne par le volume | Non |
-| Scroll landing | Je descends | Player demo, features, temoignages, stats, CTA final | Parcours marketing complet | Non |
-| Navigation retour | Je clique logo/retour | Retour a l'accueil | Pas perdu | Non |
-| Page 404 | J'entre une URL bidon | Page 404 avec bouton retour | OK, pas de casse | Non |
-
-**Aucun blocage detecte dans le parcours principal.**
-
----
-
-## 3) Audit confiance
-
-| Element | Statut |
-|---------|--------|
-| Liens morts / 404 | 0 detecte |
-| Boutons sans action | 0 detecte |
-| Textes coupes / chevauchements | 0 sur mobile 390x844 |
-| Lenteurs sans feedback | Non - les animations masquent le chargement |
-| Erreurs visibles | 0 erreur applicative en console |
-| Design "cheap" | Non - glassmorphism, orbes animes, waveform = premium |
-| Preuves / credibilite | Temoignages avec noms + CHU + notes variees (4 et 5 etoiles), stats (4.9/5, 367 items), mentions legales completes |
-
-**Note confiance : 9/10**
-
-Le seul point faible : les temoignages sont des prenoms + initiale (Marie L., Thomas K.) sans photos reelles. C'est standard pour un lancement beta, mais des photos ajouteraient +0.5 point de confiance.
+| Feature annoncée | Existe dans le code ? | Gated par plan ? |
+|-----------------|----------------------|-----------------|
+| Génération musicale (X chansons/mois) | Oui (generator, quotas) | Oui (quota DB) |
+| QCM illimités | Oui (ExamMode, quiz) | Non -- accessible à tous |
+| Tableaux Rang A et B | Oui (EDN tableaux) | Partiellement (feature flag DB mais pas de gate côté frontend vérifiable) |
+| Bande dessinée | Oui (EnhancedBandeDessinee, comic panels) | Partiellement (feature flag DB) |
+| Sauvegarde bibliothèque | Oui (music library) | Partiellement (feature flag DB) |
+| Support email/prioritaire/VIP | Aucune implémentation technique | Non vérifiable |
+| Audio MNG 3.5/4/4.5 | Aucune implémentation de niveaux audio | Non -- même API pour tous |
+| QCM entraînement test | Oui (ExamMode) | Non -- accessible à tous |
+| Flashcards | Oui (Flashcards page) | Non -- accessible à tous |
 
 ---
 
-## 4) Audit comprehension et guidance
+## Plan de corrections
 
-- **Premier clic evident ?** OUI - Le CTA "Creer un compte gratuit" est le plus visible, gradie, avec ombre portee.
-- **Je sais quoi faire apres ?** OUI - Le signup mene au dashboard, la navigation est claire.
-- **Ou je me sens perdu(e) ?** Nulle part sur le parcours principal.
-- **Phrases floues/inutiles ?** Aucune detectee - le copywriting est concis et oriente action.
+### 1. Aligner `MedMngSubscribe.tsx` sur les prix DB (P0)
+Corriger les prix hardcodés ligne 14-18 :
+- Standard : 9.99 -> 19
+- Pro : 29.99 -> 29
+- Premium : 49.99 -> 39
 
----
+### 2. Corriger `ProfileSubscription.tsx` (P0)
+Remplacer les prix et quotas hardcodés pour refléter la DB :
+- Premium : 39 EUR, 3000 crédits
+- Pro : 29 EUR, 300 crédits  
+- Standard : 19 EUR, 30 crédits
+- Free : 0 EUR, 3 crédits
 
-## 5) Audit visuel non technique
+### 3. Corriger `CGU.tsx` (P0)
+Remplacer les plans fictifs (Basic, Enterprise) par les vrais plans (Free, Standard, Pro, Premium) avec les bons quotas.
 
-**Ce qui fait premium** :
-- Glassmorphism (cartes translucides, blur)
-- Orbes animees en arriere-plan
-- Waveform animee dans le player
-- Boutons avec gradient + ombre + hover scale
-- Typographie large et aeree
-- Stats bar avec chiffres en degrade
+### 4. Nettoyer `PricingPlans.tsx` (P1)
+Aligner les features hardcodées avec ce qui est réellement dans la DB :
+- Standard : retirer "QCM illimités" (quiz=false en DB)
+- Retirer les mentions "MNG 3.5/4/4.5" (pas de différenciation audio réelle)
+- Clarifier "Reset mensuel" ou le retirer
 
-**Ce qui fait cheap** :
-- Rien de flagrant. Le design est coherent.
-
-**Ce qui est trop charge** :
-- Rien - chaque section a un role clair (Hero / Player / Features / Temoignages / CTA final)
-
-**Ce qui manque** :
-- Photos reelles dans les temoignages (actuellement des initiales sur fond gradie - correct pour beta)
-
-**Lisibilite mobile** : OK - Teste sur 390x844, aucun chevauchement, CTA accessibles au pouce, textes lisibles.
+### 5. Pas de changement sur `MedMngPricing.tsx`
+Ce composant lit directement la DB -- il est correct par construction.
 
 ---
 
-## 6) Liste des problemes
+## Détails techniques
 
-| Probleme constate | Ou | Gravite | Impact utilisateur | Suggestion |
-|-------------------|----|---------|-------------------|------------|
-| Aucun P0 detecte | - | - | - | - |
+### Fichiers à modifier :
+1. `src/pages/MedMngSubscribe.tsx` -- ligne 14-18 : prix
+2. `src/components/med-mng/profile/ProfileSubscription.tsx` -- ligne 18-50 : prix, quotas, features
+3. `src/pages/CGU.tsx` -- ligne 152-156 : noms plans et quotas
+4. `src/components/med-mng/PricingPlans.tsx` -- ligne 23-69 : features non alignées
 
-La plateforme ne presente aucun probleme bloquant, majeur, ou moyen detecte lors de cet audit live.
-
----
-
-## 7) Top 15 ameliorations
-
-### P0 (bloquants avant publication) : AUCUN
-La plateforme est publiable en l'etat. Les corrections precedentes (console.log conditionnes, email masque, variable morte supprimee) ont ete appliquees.
-
-### P1 (ameliore fortement conversion) :
-1. Ajouter des photos reelles aux temoignages (ou des avatars plus credibles)
-2. Ajouter un compteur "X etudiants inscrits" dans le Hero (social proof dynamique)
-3. Ajouter une video demo de 30s dans la section Player
-4. A/B tester le CTA principal ("Ecouter gratuitement" vs "Creer un compte gratuit")
-5. Ajouter un micro-formulaire email dans le Hero pour capturer sans friction
-
-### P2 (polish premium) :
-6. Ajouter des transitions de page (page transitions avec framer-motion)
-7. Ajouter un effet de particules subtil dans le Hero
-8. Integrer un "nombre de chansons ecoutees aujourd'hui" en temps reel
-9. Ajouter un mode sombre/clair toggle visible dans le header
-10. Optimiser le LCP (Largest Contentful Paint) en prechargeant les fonts
-11. Ajouter des meta Open Graph enrichis pour le partage social
-12. Ajouter un favicon anime (waveform)
-13. Integrer des micro-animations sur les badges de features
-14. Ajouter un footer "Made with love by MED MNG" avec liens sociaux
-15. Ajouter une section FAQ courte (3-4 questions) avant le CTA final
-
----
-
-## 8) Verdict final
-
-**Est-ce publiable aujourd'hui ? OUI**
-
-Aucun P0 detecte. Toutes les corrections de securite, hygiene console, RGPD ont ete appliquees. Le parcours utilisateur est fluide, le design est premium, la navigation fonctionne.
-
-**La phrase de HERO parfaite** (deja en place) :
-> Apprends la medecine en musique.
-
-**Le CTA ideal** (deja en place) :
-> Creer un compte gratuit
-
----
-
-## Conclusion : Aucune correction necessaire
-
-L'audit live confirme que la plateforme est a 20/20 effectif. Les 15 ameliorations listees sont toutes des P1/P2 (post-lancement) et ne bloquent pas la publication.
-
+### Aucun changement DB requis
+La source de vérité (table `subscription_plans`) est correcte.
