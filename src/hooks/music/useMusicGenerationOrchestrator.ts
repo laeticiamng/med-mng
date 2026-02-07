@@ -6,7 +6,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { isRetryableError, useRetryWithBackoff } from '@/hooks/useRetryWithBackoff';
-import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import { useCallback, useRef, useState } from 'react';
 import { useMusicPolling } from './useMusicPolling';
 
@@ -150,22 +150,20 @@ export const useMusicGenerationOrchestrator = () => {
 
       // Démarrer la génération avec retry automatique
       const initialData = await executeWithRetry(async () => {
-        const { data, error } = await supabase.functions.invoke('generate-music', {
-          body: requestBody
-        });
+        const response = await audioApi.generateMusic(requestBody);
 
-        if (error) {
-          console.error(`[Orchestrator] Erreur API:`, error);
-          throw new Error(error.message || 'Erreur lors du démarrage de la génération');
+        if (!response.success || response.error) {
+          console.error(`[Orchestrator] Erreur API:`, response.error);
+          throw new Error(response.error || 'Erreur lors du démarrage de la génération');
         }
 
-        return data;
+        return response.data;
       });
 
       // Si c'est déjà un succès (peu probable), on termine
-      if (initialData?.status === 'success' && initialData?.audioUrl) {
-        const validatedAudioUrl = validateAndNormalizeAudioUrl(initialData.audioUrl);
-        
+      if ((initialData as any)?.status === 'success' && (initialData as any)?.audioUrl) {
+        const validatedAudioUrl = validateAndNormalizeAudioUrl((initialData as any).audioUrl);
+
         toast({
           title: "🎵 Génération réussie !",
           description: `Musique générée avec succès pour le Rang ${rang}`,

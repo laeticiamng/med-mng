@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicLibrary } from './useMusicLibrary';
 import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 
 export type RangType = 'A' | 'B' | 'Mix';
 
@@ -52,34 +53,29 @@ export const useMusicGeneration = () => {
       
       setGenerationProgress('Génération de la musique...');
 
-      // Use Supabase edge function instead of /api endpoint
-      const { data: result, error } = await supabase.functions.invoke('generate-music', {
-        body: {
-          title: `${itemCode} Rang ${rang} - Compétences Médicales`,
-          suno_audio_id: `${itemCode}-${rang}-${Date.now()}`,
-          meta: {
-            itemCode,
-            rang,
-            prompt,
-            structure: 'couplet-refrain-couplet-refrain-couplet-refrain',
-            style: 'educatif-medical',
-            generated_at: new Date().toISOString()
-          }
-        }
+      // Use unified audioApi router
+      const response = await audioApi.generateMusic({
+        title: `${itemCode} Rang ${rang} - Compétences Médicales`,
+        lyrics: prompt,
+        style: 'educatif-medical',
+        rang,
+        itemCode,
       });
 
-      if (error) {
-        throw new Error(error.message || 'Erreur lors de la génération musicale');
+      if (!response.success || response.error) {
+        throw new Error(response.error || 'Erreur lors de la génération musicale');
       }
       
+      const result = response.data;
+
       setGenerationProgress('Ajout à votre bibliothèque...');
 
       // Add to library via Supabase directly
       const { data: { user } } = await supabase.auth.getUser();
-      if (user && result?.id) {
+      if (user && result?.trackId) {
         await supabase.from('med_mng_library' as any).insert({
           user_id: user.id,
-          song_id: result.id,
+          song_id: result.trackId,
           added_at: new Date().toISOString()
         });
       }
@@ -92,7 +88,7 @@ export const useMusicGeneration = () => {
         description: `${itemCode} Rang ${rang} ajouté à votre bibliothèque`,
       });
 
-      return { ...result, id: result.id || result.suno_audio_id };
+      return { id: result.trackId, suno_audio_id: result.trackId, title: `${itemCode} Rang ${rang}`, meta: result.metadata } as GenerationResponse;
     } catch (error) {
       toast({
         title: "Erreur de génération",

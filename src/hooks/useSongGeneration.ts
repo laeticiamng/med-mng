@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { audioApi } from '@/lib/unifiedApiClient';
 import { ROUTE_PATHS } from '@/config/routes';
 
 export const useSongGeneration = () => {
@@ -30,52 +30,47 @@ export const useSongGeneration = () => {
     try {
       console.log('🎵 Lancement génération musique via Supabase Functions...');
       
-      // Utiliser Supabase Functions pour la génération musicale
-      const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: {
-          contentType,
-          selectedItem: contentType === 'item' ? selectedItem : null,
-          selectedRang: contentType === 'item' ? selectedRang : null,
-          selectedSituation: contentType === 'situation' ? selectedSituation : null,
-          style,
-          title,
-          duration: 240,
-          fastMode: true,
-          // Ajouter des paroles par défaut basées sur le contenu sélectionné
-          lyrics: generateDefaultLyrics(contentType, selectedItem, selectedRang, selectedSituation)
-        },
+      // Utiliser le routeur unifié ai-audio
+      const response = await audioApi.generateMusic({
+        lyrics: generateDefaultLyrics(contentType, selectedItem, selectedRang, selectedSituation),
+        style,
+        title,
+        duration: 240,
+        itemCode: contentType === 'item' ? selectedItem : undefined,
+        rang: contentType === 'item' ? selectedRang : undefined,
       });
 
-      if (error) {
-        console.error('❌ Erreur Supabase Functions:', error);
+      if (!response.success || response.error) {
+        const errorMsg = response.error || '';
+        console.error('❌ Erreur audioApi:', errorMsg);
 
-        // Gestion d'erreurs spécifiques
-        if (error.message?.includes('503') || error.message?.includes('Service Temporarily Unavailable')) {
+        if (errorMsg.includes('503') || errorMsg.includes('Service Temporarily Unavailable')) {
           throw new Error('🚫 Service de génération musicale temporairement indisponible. Réessayez dans quelques minutes.');
-        } else if (error.message?.includes('401') || error.message?.includes('Authorization')) {
+        } else if (errorMsg.includes('401') || errorMsg.includes('Authorization')) {
           throw new Error('🔑 Problème d\'authentification. Veuillez vous reconnecter.');
-        } else if (error.message?.includes('429')) {
+        } else if (errorMsg.includes('429')) {
           throw new Error('💳 Limite de génération atteinte. Réessayez plus tard.');
         }
 
-        throw new Error(error.message || 'Erreur lors de la génération musicale');
+        throw new Error(errorMsg || 'Erreur lors de la génération musicale');
       }
 
-      if (!data || data.error) {
-        throw new Error(data?.error || 'Aucune donnée reçue du service de génération');
+      const data = response.data;
+      if (!data) {
+        throw new Error('Aucune donnée reçue du service de génération');
       }
 
       console.log('✅ Génération réussie:', data);
 
       // Créer la chanson en base
-      const song = await medMngApi.createSong(title, data.audioUrl || 'temp-audio-url', {
+      const song = await medMngApi.createSong(title, data.metadata?.audioUrl || 'temp-audio-url', {
         style,
         contentType,
         selectedItem: contentType === 'item' ? selectedItem : undefined,
         selectedRang: contentType === 'item' ? selectedRang : undefined,
         selectedSituation: contentType === 'situation' ? selectedSituation : undefined,
-        duration: data.duration || 240,
-        generationTime: data.generationTime || 0
+        duration: 240,
+        generationTime: 0
       });
 
       // Ajouter automatiquement à la bibliothèque
@@ -83,7 +78,7 @@ export const useSongGeneration = () => {
 
       setGeneratedSong({
         ...song,
-        audioUrl: data.audioUrl || data.audio_url
+        audioUrl: data.metadata?.audioUrl || 'pending'
       });
 
       toast.success('🎵 Chanson générée avec succès !');
