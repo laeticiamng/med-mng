@@ -22,31 +22,43 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           name: 'Premium',
           icon: <Crown className="h-5 w-5 text-warning" />,
           color: 'bg-warning/10 text-warning',
-          features: ['50 crédits/mois', 'Qualité audio premium', 'Support prioritaire'],
-          price: '9,99€/mois'
+          features: ['3 000 chansons/mois', 'Tableaux EDN', 'QCM entraînement', 'Bande dessinée', 'Sauvegarde bibliothèque', 'Support VIP'],
+          price: '39€/mois',
+          totalCredits: 3000
         };
       case 'pro':
         return {
           name: 'Pro',
           icon: <Star className="h-5 w-5 text-accent" />,
           color: 'bg-accent/10 text-accent-foreground',
-          features: ['100 crédits/mois', 'Qualité audio HD', 'API access', 'Support dédié'],
-          price: '19,99€/mois'
+          features: ['300 chansons/mois', 'Tableaux EDN', 'QCM entraînement', 'Sauvegarde bibliothèque', 'Support prioritaire'],
+          price: '29€/mois',
+          totalCredits: 300
+        };
+      case 'standard':
+        return {
+          name: 'Standard',
+          icon: <Zap className="h-5 w-5 text-primary" />,
+          color: 'bg-primary/10 text-primary',
+          features: ['30 chansons/mois', 'Tableaux EDN', 'Sauvegarde bibliothèque', 'Support email'],
+          price: '19€/mois',
+          totalCredits: 30
         };
       default:
         return {
           name: 'Gratuit',
           icon: <Zap className="h-5 w-5 text-muted-foreground" />,
           color: 'bg-muted text-muted-foreground',
-          features: ['2 crédits/mois', 'Qualité audio standard'],
-          price: 'Gratuit'
+          features: ['3 chansons/mois'],
+          price: 'Gratuit',
+          totalCredits: 3
         };
     }
   };
 
   const subscriptionDetails = getSubscriptionDetails(profile?.subscription_plan || 'free');
-  const creditsUsed = 50 - (profile?.credits_left || 0);
-  const totalCredits = 50; // Base assumption
+  const totalCredits = subscriptionDetails.totalCredits;
+  const creditsUsed = totalCredits - (profile?.credits_left || 0);
   const creditsProgress = (creditsUsed / totalCredits) * 100;
 
   return (
@@ -142,18 +154,18 @@ export const ProfileSubscription: React.FC<ProfileSubscriptionProps> = ({ profil
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-card rounded-lg border">
-                <h4 className="font-semibold text-warning mb-2">Premium</h4>
-                <p className="text-sm text-muted-foreground mb-3">50 crédits/mois + qualité premium</p>
-                <p className="text-xl font-bold mb-3">9,99€/mois</p>
+                <h4 className="font-semibold text-primary mb-2">Standard</h4>
+                <p className="text-sm text-muted-foreground mb-3">30 chansons/mois + tableaux EDN</p>
+                <p className="text-xl font-bold mb-3">19€/mois</p>
                 <Button className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
-                  Choisir Premium
+                  Choisir Standard
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
               <div className="p-4 bg-card rounded-lg border">
                 <h4 className="font-semibold text-accent-foreground mb-2">Pro</h4>
-                <p className="text-sm text-muted-foreground mb-3">100 crédits/mois + API access</p>
-                <p className="text-xl font-bold mb-3">19,99€/mois</p>
+                <p className="text-sm text-muted-foreground mb-3">300 chansons/mois + QCM entraînement</p>
+                <p className="text-xl font-bold mb-3">29€/mois</p>
                 <Button variant="outline" className="w-full" onClick={() => navigate(ROUTE_PATHS.medMngPricing)}>
                   Choisir Pro
                   <ArrowRight className="h-4 w-4 ml-2" />

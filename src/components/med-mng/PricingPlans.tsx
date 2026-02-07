@@ -27,10 +27,9 @@ const plans: PricingPlan[] = [
     price: 19,
     songs: '30 chansons/mois',
     features: [
-      'Audio standard (MNG 3.5)',
       '30 chansons/mois',
-      'QCM illimités',
-      'Tableau illimités',
+      'Tableaux EDN (Rang A & B)',
+      'Sauvegarde bibliothèque',
       'Support email'
     ]
   },
@@ -42,11 +41,10 @@ const plans: PricingPlan[] = [
     badge: 'Le plus populaire',
     popular: true,
     features: [
-      'Audio premium (MNG 4)',
       '300 chansons/mois',
-      'Reset mensuel',
-      'QCM + tableau illimités',
-      'QCM entraînement test',
+      'Tableaux EDN (Rang A & B)',
+      'QCM entraînement',
+      'Sauvegarde bibliothèque',
       'Support prioritaire'
     ]
   },
@@ -58,12 +56,11 @@ const plans: PricingPlan[] = [
     badge: 'Meilleur rapport qualité-prix',
     bestValue: true,
     features: [
-      'Audio high premium studio version (MNG 4.5)',
       '3 000 chansons/mois',
-      'Reset mensuel',
-      'QCM + tableau illimités',
-      'QCM entraînement test',
-      'Bande dessinée',
+      'Tableaux EDN (Rang A & B)',
+      'QCM entraînement',
+      'Bande dessinée éducative',
+      'Sauvegarde bibliothèque',
       'Support VIP'
     ]
   }
