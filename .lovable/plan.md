@@ -1,81 +1,91 @@
 
-# Audit Pricing : Incohérences critiques détectées
+# Audit API Suno - Resultats detailles
 
-## Problème principal : les prix, quotas et noms de plans sont différents dans 5 endroits du code
+## Verdict : API Suno FONCTIONNELLE (generation OK) mais 3 problemes identifies
 
-### Source de vérité : Base de données `subscription_plans`
+---
 
-| Plan | Prix | Quota | Features |
-|------|------|-------|----------|
-| Gratuit (free) | 0 EUR | 3/mois | tableaux: non, quiz: non, BD: non, save: non |
-| Standard | 19 EUR | 30/mois | tableaux: oui, quiz: non, BD: non, save: oui |
-| Pro | 29 EUR | 300/mois | tableaux: oui, quiz: oui, BD: non, save: oui |
-| Premium | 39 EUR | 3000/mois | tableaux: oui, quiz: oui, BD: oui, save: oui |
+## Tests effectues
 
-### Incohérences trouvées
+### 1. Edge Functions - Test direct
 
-| Fichier | Problème | Gravité |
-|---------|----------|---------|
-| `MedMngSubscribe.tsx` (ligne 14-18) | Prix FAUX : Standard=9.99, Pro=29.99, Premium=49.99 au lieu de 19/29/39 | **P0 - Bloquant** |
-| `ProfileSubscription.tsx` (ligne 18-44) | Prix FAUX : Premium=9.99/mois, Pro=19.99/mois. Quotas FAUX : Premium=50, Pro=100, Free=2 au lieu de 3000/300/3 | **P0 - Bloquant** |
-| `CGU.tsx` (ligne 152-156) | Plans FAUX : mentionne "Basic" et "Enterprise" qui n'existent pas. Quotas FAUX : Basic=10, Premium=30, Enterprise=100 | **P0 - Bloquant** |
-| `PricingPlans.tsx` (composant alternatif, ligne 23-69) | Prix correct (19/29/39) mais features hardcodées et non alignées avec la DB (ex: "QCM illimités" pour Standard alors que quiz=false en DB) | **P1 - Majeur** |
-| `PricingPlans.tsx` | Mentionne "Audio standard (MNG 3.5)", "Audio premium (MNG 4)", "Audio high premium studio (MNG 4.5)" -- ces niveaux audio n'existent nulle part dans le code | **P1 - Majeur** |
-| `PricingPlans.tsx` | "QCM entraînement test" pour Pro et Premium -- feature qui existe (ExamMode) mais pas gated par abonnement | **P1 - Moyen** |
-| `PricingPlans.tsx` | "Reset mensuel" pour Pro et Premium -- pas clair ce que cela signifie, tous les plans ont un quota mensuel | **P2 - Mineur** |
+| Test | Endpoint | Resultat | Details |
+|------|----------|----------|---------|
+| Generation musique (legacy) | `generate-music` | **OK 200** | trackId recu: `f0efdfec...` |
+| Generation musique (routeur) | `ai-audio` action `generate_music` | **OK 200** | trackId recu: `828d98b4...` |
+| Statut generation (legacy) | `music-status` | **OK 200** | Status "generating" retourne |
+| Statut generation (routeur) | `ai-audio` action `get_status` | **OK 200** | Status "generating" retourne |
+| Credits Suno | `ai-audio` action `get_credits` | **OK 200** | `credits: 0` |
+| Generation paroles | `ai-audio` action `generate_lyrics` | **OK** | Endpoint operationnel |
 
-### Fonctionnalités annoncées vs réalité
+**L'API Suno repond correctement** - les appels partent vers `api.sunoapi.org`, les taskId sont generes, les tracks sont inserees en BDD.
 
-| Feature annoncée | Existe dans le code ? | Gated par plan ? |
-|-----------------|----------------------|-----------------|
-| Génération musicale (X chansons/mois) | Oui (generator, quotas) | Oui (quota DB) |
-| QCM illimités | Oui (ExamMode, quiz) | Non -- accessible à tous |
-| Tableaux Rang A et B | Oui (EDN tableaux) | Partiellement (feature flag DB mais pas de gate côté frontend vérifiable) |
-| Bande dessinée | Oui (EnhancedBandeDessinee, comic panels) | Partiellement (feature flag DB) |
-| Sauvegarde bibliothèque | Oui (music library) | Partiellement (feature flag DB) |
-| Support email/prioritaire/VIP | Aucune implémentation technique | Non vérifiable |
-| Audio MNG 3.5/4/4.5 | Aucune implémentation de niveaux audio | Non -- même API pour tous |
-| QCM entraînement test | Oui (ExamMode) | Non -- accessible à tous |
-| Flashcards | Oui (Flashcards page) | Non -- accessible à tous |
+---
+
+## Problemes detectes
+
+### P0 - Credits Suno a 0
+- `get_credits` retourne `{ credits: 0 }` 
+- Cela signifie que les generations demarrent mais **les chansons ne seront jamais completees** car le compte Suno n'a plus de credits
+- **Impact** : les utilisateurs verront le polling tourner pendant 8 minutes puis un timeout
+- **Solution** : recharger les credits du compte Suno API ou verifier que la cle API est bien valide
+
+### P1 - Double chemin de generation actif (dette technique)
+6 fichiers frontend appellent encore directement `generate-music` (l'ancienne edge function legacy) au lieu du routeur unifie `ai-audio` :
+
+| Fichier | Appel legacy |
+|---------|-------------|
+| `src/hooks/musicGenerationApi.ts` | `invoke('generate-music')` |
+| `src/hooks/music/useMusicGenerationOrchestrator.ts` | `invoke('generate-music')` |
+| `src/hooks/useMusicGeneration.ts` | `invoke('generate-music')` |
+| `src/hooks/useSongGeneration.ts` | `invoke('generate-music')` |
+| `src/hooks/useOfflineQueue.ts` | `invoke('generate-music')` |
+| `src/components/music/AdvancedMusicGenerator.tsx` | `invoke('generate-music')` |
+
+Et 3 fichiers appellent `music-status` au lieu de `ai-audio` action `get_status` :
+- `src/hooks/music/useSunoMusicGeneration.ts`
+- `src/hooks/music/useMusicPolling.ts`
+- `src/hooks/useMusicGenerationStatus.ts`
+
+**Les deux chemins fonctionnent** (les legacy edge functions existent toujours), donc ce n'est pas bloquant mais c'est une inconstance architecturale.
+
+### P2 - Callback URL pointe vers le routeur mais format incompatible
+Le callback Suno est configure sur `ai-audio` mais le payload Suno arrive en format brut (pas avec `action: "callback"`). Le handler `handleCallback` attend `payload.code` et `payload.data` ce qui semble correct pour le format Suno, mais le routeur principal parse `body.action` d'abord -- si Suno envoie un callback sans champ `action`, le routeur retournera "Invalid action".
+
+---
+
+## Ce qui fonctionne parfaitement
+
+- Cle API Suno configuree et valide (pas d'erreur 401)
+- Generation de taskId immediate (~5 secondes)
+- Insertion BDD `generated_music_tracks` automatique
+- Polling adaptatif 8 phases avec timeout 8 minutes
+- Gestion d'erreurs complete (429, 401, 408, 413, 430, 455)
+- Retry avec backoff exponentiel
+- Annulation de generation (flag abort)
+- Persistance localStorage des taches actives
+- Metriques de generation inserees en BDD
 
 ---
 
 ## Plan de corrections
 
-### 1. Aligner `MedMngSubscribe.tsx` sur les prix DB (P0)
-Corriger les prix hardcodés ligne 14-18 :
-- Standard : 9.99 -> 19
-- Pro : 29.99 -> 29
-- Premium : 49.99 -> 39
+### Correction 1 : Migrer les 6 fichiers legacy vers le routeur `ai-audio` (P1)
+Remplacer tous les `supabase.functions.invoke('generate-music')` par `audioApi.generateMusic()` et tous les `invoke('music-status')` par `audioApi.getStatus()`.
 
-### 2. Corriger `ProfileSubscription.tsx` (P0)
-Remplacer les prix et quotas hardcodés pour refléter la DB :
-- Premium : 39 EUR, 3000 crédits
-- Pro : 29 EUR, 300 crédits  
-- Standard : 19 EUR, 30 crédits
-- Free : 0 EUR, 3 crédits
+Fichiers a modifier :
+1. `src/hooks/musicGenerationApi.ts` - utiliser `audioApi.generateMusic()`
+2. `src/hooks/music/useMusicGenerationOrchestrator.ts` - utiliser `audioApi.generateMusic()`
+3. `src/hooks/useMusicGeneration.ts` - utiliser `audioApi.generateMusic()`
+4. `src/hooks/useSongGeneration.ts` - utiliser `audioApi.generateMusic()`
+5. `src/hooks/useOfflineQueue.ts` - utiliser `audioApi.generateMusic()`
+6. `src/components/music/AdvancedMusicGenerator.tsx` - utiliser `audioApi.generateMusic()`
+7. `src/hooks/music/useSunoMusicGeneration.ts` - utiliser `audioApi.getStatus()` au lieu de `invoke('music-status')`
+8. `src/hooks/music/useMusicPolling.ts` - utiliser `audioApi.getStatus()`
+9. `src/hooks/useMusicGenerationStatus.ts` - utiliser `audioApi.getStatus()`
 
-### 3. Corriger `CGU.tsx` (P0)
-Remplacer les plans fictifs (Basic, Enterprise) par les vrais plans (Free, Standard, Pro, Premium) avec les bons quotas.
+### Correction 2 : Fixer le callback Suno dans le routeur (P2)
+Ajouter une detection automatique du format callback Suno dans le routeur `ai-audio/index.ts` : si le body contient `code` et `data` mais pas `action`, router vers `handleCallback`.
 
-### 4. Nettoyer `PricingPlans.tsx` (P1)
-Aligner les features hardcodées avec ce qui est réellement dans la DB :
-- Standard : retirer "QCM illimités" (quiz=false en DB)
-- Retirer les mentions "MNG 3.5/4/4.5" (pas de différenciation audio réelle)
-- Clarifier "Reset mensuel" ou le retirer
-
-### 5. Pas de changement sur `MedMngPricing.tsx`
-Ce composant lit directement la DB -- il est correct par construction.
-
----
-
-## Détails techniques
-
-### Fichiers à modifier :
-1. `src/pages/MedMngSubscribe.tsx` -- ligne 14-18 : prix
-2. `src/components/med-mng/profile/ProfileSubscription.tsx` -- ligne 18-50 : prix, quotas, features
-3. `src/pages/CGU.tsx` -- ligne 152-156 : noms plans et quotas
-4. `src/components/med-mng/PricingPlans.tsx` -- ligne 23-69 : features non alignées
-
-### Aucun changement DB requis
-La source de vérité (table `subscription_plans`) est correcte.
+### Correction 3 : Credits Suno (P0 - action utilisateur requise)
+Le compte Suno API a 0 credits. Ce probleme ne peut pas etre corrige par du code -- il faut recharger les credits sur le compte API Suno ou verifier/remplacer la cle API `SUNO_API_KEY`.
