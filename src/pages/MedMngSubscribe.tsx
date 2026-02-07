@@ -12,9 +12,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const plans = {
-  standard: { name: 'Standard', price: 9.99, songs: 30 },
-  pro: { name: 'Pro', price: 29.99, songs: 300 },
-  premium: { name: 'Premium', price: 49.99, songs: 3000 },
+  standard: { name: 'Standard', price: 19, songs: 30 },
+  pro: { name: 'Pro', price: 29, songs: 300 },
+  premium: { name: 'Premium', price: 39, songs: 3000 },
 };
 
 export const MedMngSubscribe = () => {

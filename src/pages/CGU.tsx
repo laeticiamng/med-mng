@@ -150,10 +150,10 @@ const CGU = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-foreground mb-2">Plans disponibles :</h4>
                 <ul className="text-sm space-y-1">
-                  <li>• <strong>Free</strong> : 3 générations/mois (gratuit)</li>
-                  <li>• <strong>Basic</strong> : 10 générations/mois (prix sur la page Tarifs)</li>
-                  <li>• <strong>Premium</strong> : 30 générations/mois + fonctionnalités avancées</li>
-                  <li>• <strong>Enterprise</strong> : 100 générations/mois + support prioritaire</li>
+                  <li>• <strong>Gratuit</strong> : 3 générations/mois (gratuit)</li>
+                  <li>• <strong>Standard</strong> : 30 générations/mois (19€/mois)</li>
+                  <li>• <strong>Pro</strong> : 300 générations/mois + QCM entraînement (29€/mois)</li>
+                  <li>• <strong>Premium</strong> : 3 000 générations/mois + bande dessinée + support VIP (39€/mois)</li>
                 </ul>
               </div>
 
