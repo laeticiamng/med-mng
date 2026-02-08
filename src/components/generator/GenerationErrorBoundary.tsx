@@ -219,7 +219,7 @@ export const GenerationErrorBoundary: React.FC<GenerationErrorBoundaryProps> = (
           {errorInfo.action === 'contact' && (
             <Button 
               variant="outline"
-              onClick={() => window.open('mailto:support@example.com', '_blank')}
+              onClick={() => window.open('mailto:contact@emotionscare.com', '_blank')}
               className="gap-2"
               aria-label="Contacter le support"
             >

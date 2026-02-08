@@ -111,7 +111,7 @@ serve(async (req) => {
     // Note: Requires VAPID keys to be configured
     const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
-    const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:contact@med-mng.com';
+    const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:contact@emotionscare.com';
 
     for (const subscription of subscriptions) {
       try {
