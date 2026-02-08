@@ -102,22 +102,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.warn('Could not log sign in activity:', e);
           }
 
-          // Upsert profile with name (deferred to avoid deadlock)
+          // Upsert profile with name immediately
           const userId = session.user.id;
           const userName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || null;
           const userEmail = session.user.email;
-          setTimeout(async () => {
-            try {
-              await supabase.from('profiles').upsert({
-                id: userId,
-                name: userName,
-                email: userEmail,
-                updated_at: new Date().toISOString(),
-              }, { onConflict: 'id' });
-            } catch (e) {
-              console.warn('Could not upsert profile:', e);
-            }
-          }, 0);
+          try {
+            await supabase.from('profiles').upsert({
+              id: userId,
+              name: userName,
+              email: userEmail,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
+          } catch (e) {
+            console.warn('Could not upsert profile:', e);
+          }
 
           // Send welcome email for new users
           const userCreatedAt = new Date(session.user.created_at);
