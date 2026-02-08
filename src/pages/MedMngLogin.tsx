@@ -13,7 +13,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export const MedMngLogin = () => {
-  const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple, resetPassword } = useAuth();
+  const { user, signIn, signInWithGoogle, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -92,21 +92,9 @@ export const MedMngLogin = () => {
     setLoading(false);
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+  const handleOAuthSignIn = async (provider: 'google') => {
     setError('');
-    let result;
-    
-    switch (provider) {
-      case 'google':
-        result = await signInWithGoogle();
-        break;
-      case 'facebook':
-        result = await signInWithFacebook();
-        break;
-      case 'apple':
-        result = await signInWithApple();
-        break;
-    }
+    const result = await signInWithGoogle();
     
     if (result.error) {
       setError(result.error.message);
