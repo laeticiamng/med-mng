@@ -38,7 +38,7 @@ export const MVPFooter = () => {
               Politique de Confidentialité
             </Link>
             <a 
-              href="mailto:contact@emotionscare.com" 
+              href="mailto:contact@emotionscare.com"
               className="hover:text-primary transition-colors"
             >
               Contact
