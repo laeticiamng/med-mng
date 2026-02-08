@@ -1,102 +1,107 @@
 
-# Audit Beta-Testeur : Creation de Compte
 
-## Resultats des tests live
+# Audit Utilisateur - Creation de Compte et Utilisation de la Plateforme
 
-### Tests effectues
+## Resume executif
 
-| Test | Resultat | Probleme |
-|------|----------|----------|
-| Chargement page `/med-mng/signup` | OK | - |
-| Validation consentements (sans cocher) | OK | Erreur affichee correctement |
-| Scroll auto vers consentements | OK | UX fluide |
-| OAuth Google | OK | Redirige vers Google login |
-| OAuth Facebook | Non teste (config requise) | Probablement non configure |
-| OAuth Apple | Non teste (config requise) | Probablement non configure |
-| Inscription email (BDD) | OK | Des utilisateurs s'inscrivent avec succes |
-| Email confirmation | Desactive (auto-confirm) | - |
-
-### Utilisateurs en base
-
-8 utilisateurs existants dont 2 recents (7 et 8 fevrier 2026). Les inscriptions email **fonctionnent techniquement**.
+J'ai simule le parcours complet d'un nouvel utilisateur : inscription, connexion, navigation sur la plateforme. Voici les resultats.
 
 ---
 
-## Problemes identifies
+## 1. Creation de compte - Test en conditions reelles
 
-### P0 - Message post-inscription trompeur (BLOQUANT UX)
+| Etape | Resultat | Commentaire |
+|-------|----------|-------------|
+| Affichage page inscription | OK | Page claire, champs visibles |
+| Remplir nom, email, mot de passe | OK | Saisie fluide |
+| Indication "min 6 caracteres" | OK | Visible sous le champ mot de passe |
+| Cases de consentement RGPD | OK | 2 cases obligatoires, claires |
+| Bouton "Creer le compte" | OK | Actif apres les consentements |
+| Redirection apres inscription | OK | Redirige vers la bibliotheque musicale |
+| Message de bienvenue | OK | Toast "Bienvenue sur MED-MNG !" affiche |
+| Boutons OAuth | OK | Seul Google visible (Facebook/Apple retires) |
 
-**Le probleme principal** : apres une inscription reussie, la page affiche :
-- "Compte cree !"
-- "Verifiez votre email pour confirmer votre compte"
-- Bouton "Retour a la connexion"
-- Bouton "Renvoyer l'email de verification"
-
-**Or, la confirmation email est DESACTIVEE** dans Supabase (auto-confirm actif). Le compte est immediatement utilisable, mais l'utilisateur pense qu'il doit attendre un email qui n'arrivera jamais.
-
-**Impact** : L'utilisateur cree son compte, voit "Verifiez votre email", attend un email, ne le recoit jamais, et conclut que "la creation de compte ne fonctionne pas".
-
-**Correction** : Remplacer le message de succes par une redirection automatique vers `/med-mng/music-library` ou la page de connexion avec un toast "Compte cree avec succes ! Connectez-vous."
-
-### P1 - Nom non sauvegarde dans les metadonnees
-
-Tous les utilisateurs recents ont `name: null` dans `raw_user_meta_data`. Le signup envoie bien `data: { name }` mais le champ semble ne pas etre stocke. Verification : les 2 derniers users (testbeta2026@yopmail.com et maugervictorine@yahoo.fr) ont `name: nil`.
-
-**Correction** : Verifier que `user_metadata.name` est bien le bon champ et non `full_name`, et/ou creer un profil dans la table `profiles` apres inscription.
-
-### P2 - OAuth Facebook et Apple probablement non configures
-
-Les boutons Facebook et Apple sont affiches mais ces providers ne sont probablement pas configures dans Supabase. Un clic generera une erreur pour l'utilisateur.
-
-**Correction** : Soit configurer les providers dans Supabase Dashboard > Authentication > Providers, soit masquer les boutons non configures.
-
-### P3 - Pas de validation de force du mot de passe
-
-Aucune indication de la longueur minimale requise (6 caracteres par defaut Supabase). Un mot de passe trop court generera une erreur Supabase cryptique.
-
-**Correction** : Ajouter une validation cote frontend avec un message clair sur les exigences.
+**Verdict inscription : 10/10** - Le flow corrige fonctionne parfaitement. Plus de message "Verifiez votre email" trompeur.
 
 ---
 
-## Plan de corrections
+## 2. Probleme residuel : le nom n'est pas sauvegarde (P1 non resolu)
 
-### Correction 1 : Fixer le flow post-inscription (P0)
+**Constat** : Les 2 derniers utilisateurs inscrits ont `name: null` dans la table `profiles`, alors que leur nom est bien present dans les metadonnees Supabase (`full_name: "Test Beta"`, `full_name: "MAUGER"`).
 
-**Fichier** : `src/pages/MedMngSignup.tsx`
+**Cause racine identifiee** : Il existe **2 triggers concurrents** sur `auth.users` qui creent le profil :
+- `on_auth_user_created` : insere `(id, email)` SANS le nom, avec `ON CONFLICT DO NOTHING`
+- `on_auth_user_created_profiles` : essaie d'inserer `(id, name, avatar_url)` AVEC le nom, mais comme le profil existe deja (cree par le 1er trigger), l'insert est **ignore silencieusement**
 
-Puisque l'email auto-confirm est actif :
-- Supprimer l'ecran "Verifiez votre email"
-- Apres `signUp` reussi, rediriger automatiquement vers la page de connexion avec un toast de succes
-- Ou mieux : puisque auto-confirm est actif, connecter automatiquement l'utilisateur et rediriger vers `/med-mng/music-library`
+Le code AuthProvider fait bien un `upsert` apres connexion pour corriger le nom, mais il semble ne pas s'executer a temps (race condition avec le `setTimeout`).
 
-Concretement :
-1. Apres `signUp` reussi (pas d'erreur), appeler `signIn(email, password)` immediatement
-2. Si le signIn reussit, la redirection vers music-library se fait automatiquement (via le `if (user) return Navigate`)
-3. Si le signIn echoue (cas rare), afficher un toast "Compte cree ! Connectez-vous" et rediriger vers login
-
-### Correction 2 : Sauvegarder le nom dans le profil (P1)
-
-**Fichier** : `src/components/med-mng/AuthProvider.tsx`
-
-Dans le handler `onAuthStateChange`, quand `event === 'SIGNED_IN'` et que c'est un nouvel utilisateur, inserer/upsert dans la table `profiles` avec le nom depuis `user_metadata.name`.
-
-### Correction 3 : Masquer les boutons OAuth non configures (P2)
-
-**Fichier** : `src/pages/MedMngSignup.tsx` et `src/pages/MedMngLogin.tsx`
-
-Retirer les boutons Facebook et Apple, ou les marquer "Bientot disponible", en attendant que les providers soient configures dans Supabase.
-
-### Correction 4 : Validation mot de passe (P3)
-
-**Fichier** : `src/pages/MedMngSignup.tsx`
-
-Ajouter une validation frontend : minimum 6 caracteres, afficher un message d'aide sous le champ.
+**Correction requise** :
+1. Supprimer le trigger `on_auth_user_created` (celui qui n'insere pas le nom) OU le modifier pour inclure le nom
+2. Garder uniquement `on_auth_user_created_profiles` qui gere correctement le nom
+3. Renforcer l'upsert AuthProvider en retirant le `setTimeout` pour garantir l'execution
 
 ---
 
-## Ordre d'implementation
+## 3. Navigation plateforme apres inscription
 
-1. **P0** - Fixer le message post-inscription (impact direct sur les plaintes utilisateurs)
-2. **P2** - Retirer Facebook/Apple (eviter les erreurs)
-3. **P3** - Validation mot de passe (prevenir les erreurs cryptiques)
-4. **P1** - Sauvegarde du nom (amelioration)
+| Page | Resultat | Experience utilisateur |
+|------|----------|----------------------|
+| Bibliotheque musicale (`/med-mng/music-library`) | OK | Contenu affiche, navigation claire |
+| Creer une chanson (`/med-mng/create`) | OK | Formulaire de generation visible |
+| Items EDN (`/edn-complete`) | OK | 367 items charges avec filtres |
+| Tableau de bord progression (`/progress-dashboard`) | OK | Stats, heatmap, badges visibles |
+| Flashcards (`/flashcards`) | OK | Interface de creation de decks |
+| Mode examen (`/exam-mode`) | OK | Parametres d'examen accessibles |
+| Tarifs (`/med-mng/pricing`) | OK | 3 plans affiches clairement |
+| Page de connexion (`/med-mng/login`) | OK | Google seul, "Mot de passe oublie" present |
+
+**Verdict navigation : 10/10** - Toutes les pages principales sont accessibles et fonctionnelles.
+
+---
+
+## 4. Securite et UX de la page de connexion
+
+| Fonctionnalite | Statut |
+|----------------|--------|
+| Rate limiting (anti-brute force) | OK - Bloque apres trop de tentatives |
+| Message d'erreur clair | OK |
+| Lien "Mot de passe oublie" | OK |
+| Lien "Creer un compte" | OK |
+| Redirection si deja connecte | OK |
+
+---
+
+## 5. Point de code mineur a nettoyer
+
+La page de connexion (`MedMngLogin.tsx` ligne 16) importe encore `signInWithFacebook` et `signInWithApple` meme si les boutons ont ete retires. Ce n'est pas bloquant mais c'est du code mort.
+
+---
+
+## Score global
+
+| Categorie | Score |
+|-----------|-------|
+| Inscription | 10/10 |
+| Connexion | 10/10 |
+| Navigation post-inscription | 10/10 |
+| Sauvegarde du nom | 5/10 (bug trigger) |
+| **Total** | **35/40** |
+
+---
+
+## Corrections a implementer
+
+### Correction 1 : Fixer la sauvegarde du nom (prioritaire)
+
+**Probleme** : Deux triggers SQL concurrents empechent le nom d'etre sauvegarde.
+
+**Actions** :
+- Supprimer le trigger `on_auth_user_created` (celui sans nom) via SQL
+- Garder `on_auth_user_created_profiles` qui insere correctement le nom
+- Dans `AuthProvider.tsx`, retirer le `setTimeout` autour de l'upsert profil pour garantir son execution immediate
+
+### Correction 2 : Nettoyer les imports morts (mineur)
+
+**Actions** :
+- Retirer `signInWithFacebook` et `signInWithApple` de la destructuration dans `MedMngLogin.tsx` ligne 16
+
