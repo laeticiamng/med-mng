@@ -69,7 +69,11 @@ export const MedMngSignup = () => {
     const { error: signUpError } = await signUp(email, password, name);
     
     if (signUpError) {
-      setError(signUpError.message);
+      if (signUpError.message?.includes('already') || signUpError.status === 422) {
+        setError('already_registered');
+      } else {
+        setError(signUpError.message);
+      }
       setLoading(false);
       return;
     }
@@ -110,7 +114,22 @@ export const MedMngSignup = () => {
         <CardContent className="space-y-4">
           {error && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {error === 'already_registered' ? (
+                  <div className="space-y-2">
+                    <p>Un compte existe déjà avec cet email.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => navigate(ROUTE_PATHS.medMngLogin)}
+                    >
+                      Se connecter
+                    </Button>
+                  </div>
+                ) : error}
+              </AlertDescription>
             </Alert>
           )}
           
