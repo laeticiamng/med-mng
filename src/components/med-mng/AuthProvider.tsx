@@ -86,8 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Log auth events to activity log
+        // Log auth events & upsert profile
         if (event === 'SIGNED_IN' && session?.user) {
+          // Log activity
           try {
             await supabase.from('user_activity_log').insert({
               user_id: session.user.id,
@@ -100,21 +101,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (e) {
             console.warn('Could not log sign in activity:', e);
           }
-        }
 
-        if (event === 'SIGNED_OUT') {
-          if (import.meta.env.DEV) console.log('User signed out');
-        }
+          // Upsert profile with name (deferred to avoid deadlock)
+          const userId = session.user.id;
+          const userName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || null;
+          const userEmail = session.user.email;
+          setTimeout(async () => {
+            try {
+              await supabase.from('profiles').upsert({
+                id: userId,
+                name: userName,
+                email: userEmail,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: 'id' });
+            } catch (e) {
+              console.warn('Could not upsert profile:', e);
+            }
+          }, 0);
 
-        // Send welcome email for new users
-        if (event === 'SIGNED_IN' && session?.user) {
+          // Send welcome email for new users
           const userCreatedAt = new Date(session.user.created_at);
           const now = new Date();
           const timeDiff = now.getTime() - userCreatedAt.getTime();
           const isNewUser = timeDiff < 60000;
           
           if (isNewUser) {
-            const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
+            const name = userName || userEmail?.split('@')[0] || '';
             if (import.meta.env.DEV) console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
             setTimeout(async () => {
@@ -125,6 +137,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
             }, 2000);
           }
+
+        }
+
+        if (event === 'SIGNED_OUT') {
+          if (import.meta.env.DEV) console.log('User signed out');
         }
       }
     );

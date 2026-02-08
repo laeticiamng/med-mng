@@ -237,29 +237,13 @@ export const MedMngLogin = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('google')}
-              className="w-full"
-            >
-              Google
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('facebook')}
-              className="w-full"
-            >
-              Facebook
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('apple')}
-              className="w-full"
-            >
-              Apple
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => handleOAuthSignIn('google')}
+            className="w-full"
+          >
+            Google
+          </Button>
           
           <div className="text-center text-sm">
             <button
