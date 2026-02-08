@@ -170,7 +170,7 @@ const CGU = () => {
                   pleinement exécutée).
                 </p>
                 <p className="text-sm mt-2 text-muted-foreground">
-                  Pour toute demande de remboursement : <strong>medmng@emotionscare.com</strong> avec objet "Remboursement - [Numéro de commande]"
+                  Pour toute demande de remboursement : <strong>contact@emotionscare.com</strong> avec objet "Remboursement - [Numéro de commande]"
                 </p>
               </div>
 
@@ -291,7 +291,7 @@ const CGU = () => {
               <div className="bg-card p-4 rounded-lg border border-border">
                 <h4 className="font-semibold text-foreground mb-2">Comment exercer vos garanties ?</h4>
                 <ol className="text-sm space-y-1">
-                  <li>1. Contactez-nous à <strong>medmng@emotionscare.com</strong> avec description du défaut</li>
+                  <li>1. Contactez-nous à <strong>contact@emotionscare.com</strong> avec description du défaut</li>
                   <li>2. Nous analysons sous 5 jours ouvrés</li>
                   <li>3. Mise en conformité (correction bug, amélioration service) sous 30 jours</li>
                   <li>4. Si impossibilité technique : remboursement proportionnel de l'abonnement</li>
@@ -403,7 +403,7 @@ const CGU = () => {
                   </li>
                   <li>
                     <strong>Droit à l'export :</strong> Durant ces 90 jours, vous pouvez demander un export complet de vos 
-                    données au format JSON via medmng@emotionscare.com.
+                    données au format JSON via contact@emotionscare.com.
                   </li>
                   <li>
                     <strong>Suppression définitive :</strong> Après 90 jours, tous vos contenus personnels sont 
@@ -458,7 +458,7 @@ const CGU = () => {
                   <li>
                     <strong>1. Médiation amiable :</strong> Vous pouvez contacter notre médiateur de la consommation :
                     <br />
-                    <span className="ml-4">📧 Email : mediation@emotionscare.com</span>
+                    <span className="ml-4">📧 Email : contact@emotionscare.com</span>
                     <br />
                     <span className="ml-4">🔗 Plateforme européenne : https://ec.europa.eu/consumers/odr</span>
                   </li>
@@ -477,9 +477,8 @@ const CGU = () => {
             <div className="space-y-2 text-sm text-muted-foreground">
               <p><strong>EmotionsCare SASU</strong></p>
               <p>5 rue Caudron, 80000 Amiens, France</p>
-              <p>Email : medmng@emotionscare.com</p>
-              <p>Support technique : support@emotionscare.com</p>
-              <p>SIRET : 981 065 820 00013</p>
+              <p>Email : contact@emotionscare.com</p>
+              <p>SIRET : 944 505 445 00011</p>
             </div>
           </Card>
 

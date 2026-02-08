@@ -245,7 +245,7 @@ https://formulaire.defenseurdesdroits.fr/
 https://www.cnil.fr/fr/plaintes
 
 **Assistance juridique interne:**  
-medmng@emotionscare.com (objet: "Conformité juridique")
+contact@emotionscare.com (objet: "Conformité juridique")
 
 ---
 

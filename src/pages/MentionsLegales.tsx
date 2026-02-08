@@ -51,19 +51,12 @@ const MentionsLegales = () => {
               <p>Le site medmng.com est édité par la société :</p>
               <div className="bg-primary/10 p-4 rounded-lg space-y-2">
                 <p><strong className="text-foreground">EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
-                <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">981 065 820</strong></p>
-                <p>N° SIRET : <strong className="text-foreground">981 065 820 00013</strong></p>
-                <p>TVA intracommunautaire : <strong className="text-foreground">FR20981065820</strong></p>
-                <p>Siège social : <strong className="text-foreground">5 rue Caudron, 80000 Amiens, France</strong></p>
-                <div className="flex items-center space-x-4 pt-2">
-                  <div className="flex items-center space-x-1">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <span>contact@emotionscare.com</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <span>medmng@emotionscare.com</span>
-                  </div>
+                <p>Immatriculée au Registre du Commerce et des Sociétés (RCS) d'Amiens sous le numéro <strong className="text-foreground">944 505 445</strong></p>
+                <p>N° SIRET : <strong className="text-foreground">944 505 445 00011</strong></p>
+                <p>TVA intracommunautaire : <strong className="text-foreground">FR89944505445</strong></p>
+                <div className="flex items-center space-x-1 pt-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span>contact@emotionscare.com</span>
                 </div>
                 <p className="pt-2"><strong className="text-foreground">Responsable de la publication :</strong> Laëticia Motongane (Présidente d'EMOTIONSCARE)</p>
               </div>
@@ -193,7 +186,7 @@ const MentionsLegales = () => {
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p><strong className="text-foreground">Médiateur :</strong> Plateforme européenne de règlement des litiges en ligne</p>
                 <p className="text-sm mt-2">🔗 <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" className="text-primary hover:underline">https://ec.europa.eu/consumers/odr</a></p>
-                <p className="text-sm mt-2">📧 Email : mediation@emotionscare.com</p>
+                <p className="text-sm mt-2">📧 Email : contact@emotionscare.com</p>
               </div>
             </div>
           </Card>

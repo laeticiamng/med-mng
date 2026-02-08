@@ -65,7 +65,7 @@
 | Portabilité | Art. 20 | Export JSON structuré | Immédiat |
 | Effacement | Art. 17 | Bouton "Supprimer compte" | Immédiat + 30j purge |
 | Rectification | Art. 16 | Page profil | Immédiat |
-| Opposition | Art. 21 | Email medmng@emotionscare.com | 5 jours |
+| Opposition | Art. 21 | Email contact@emotionscare.com | 5 jours |
 
 ---
 
@@ -192,9 +192,9 @@
 ### Conformité interne
 | Contact | Email | Usage |
 |---------|-------|-------|
-| RGPD général | medmng@emotionscare.com | Droits RGPD |
-| Accessibilité | accessibilite@emotionscare.com | RGAA 4.1 |
-| Médiation | mediation@emotionscare.com | Litiges |
+| RGPD général | contact@emotionscare.com | Droits RGPD |
+| Accessibilité | contact@emotionscare.com | RGAA 4.1 |
+| Médiation | contact@emotionscare.com | Litiges |
 
 ### Autorités externes
 - **CNIL:** https://www.cnil.fr/fr/plaintes (violations RGPD)

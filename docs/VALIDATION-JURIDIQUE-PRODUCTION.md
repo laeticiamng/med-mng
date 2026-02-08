@@ -154,11 +154,11 @@ MED MNG a été **entièrement sécurisé juridiquement** avec l'implémentation
 **Droit de rétractation 14 jours:**
 - ✅ Visible AVANT le paiement (page Pricing)
 - ✅ Exception documentée (utilisation crédits = renoncement)
-- ✅ Email remboursement: medmng@emotionscare.com
+- ✅ Email remboursement: contact@emotionscare.com
 - ✅ Délai réponse: 5 jours ouvrés
 
 **Process remboursement:**
-1. Email à medmng@emotionscare.com
+1. Email à contact@emotionscare.com
 2. Objet: "Remboursement - [Numéro commande]"
 3. Analyse sous 5 jours
 4. Remboursement intégral si aucun crédit utilisé
@@ -230,10 +230,10 @@ MED MNG a été **entièrement sécurisé juridiquement** avec l'implémentation
 ### Conformité interne:
 | Type | Email | Délai réponse |
 |------|-------|---------------|
-| Général | medmng@emotionscare.com | 5 jours |
-| RGPD/DPO | medmng@emotionscare.com | 5 jours |
-| Accessibilité | accessibilite@emotionscare.com | 5 jours |
-| Médiation | mediation@emotionscare.com | 30 jours |
+| Général | contact@emotionscare.com | 5 jours |
+| RGPD/DPO | contact@emotionscare.com | 5 jours |
+| Accessibilité | contact@emotionscare.com | 5 jours |
+| Médiation | contact@emotionscare.com | 30 jours |
 
 ### Autorités externes:
 - **CNIL:** https://www.cnil.fr/fr/plaintes
