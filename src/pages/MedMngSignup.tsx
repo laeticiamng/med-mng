@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,12 +9,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { ROUTE_PATHS } from '@/config/routes';
-import { supabase } from '@/integrations/supabase/client';
 import { trackConversionEvent } from '@/lib/conversionTracking';
 import { toast } from 'sonner';
 
+const MIN_PASSWORD_LENGTH = 6;
+
 export const MedMngSignup = () => {
-  const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
+  const { user, signUp, signIn, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
   const { logActivity } = useActivityTracking();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,7 +24,6 @@ export const MedMngSignup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   
   // Consentements RGPD
   const [cguAccepted, setCguAccepted] = useState(false);
@@ -41,6 +42,13 @@ export const MedMngSignup = () => {
     setError('');
     setShowConsentErrors(false);
 
+    // Validation mot de passe
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`);
+      setLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
       setLoading(false);
@@ -58,71 +66,39 @@ export const MedMngSignup = () => {
       return;
     }
 
-    const { error } = await signUp(email, password, name);
+    const { error: signUpError } = await signUp(email, password, name);
     
-    if (error) {
-      setError(error.message);
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Auto-confirm est actif : on connecte directement l'utilisateur
+    logActivity({ activity_type: 'study', metadata: { action: 'signup_success' } });
+    trackConversionEvent('signup', { method: 'email' });
+
+    const { error: signInError } = await signIn(email, password);
+    
+    if (signInError) {
+      // Cas rare : le signup a réussi mais le signIn échoue
+      toast.success('Compte créé avec succès !', { description: 'Connectez-vous avec vos identifiants.' });
+      navigate(ROUTE_PATHS.medMngLogin);
     } else {
-      setSuccess(true);
-      logActivity({ activity_type: 'study', metadata: { action: 'signup_success' } });
-      trackConversionEvent('signup', { method: 'email' });
+      toast.success('Bienvenue sur MED-MNG ! 🎵');
+      // La redirection se fait automatiquement via le `if (user) return Navigate`
     }
     
     setLoading(false);
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+  const handleOAuthSignIn = async (provider: 'google') => {
     setError('');
-    let result;
-    
-    switch (provider) {
-      case 'google':
-        result = await signInWithGoogle();
-        break;
-      case 'facebook':
-        result = await signInWithFacebook();
-        break;
-      case 'apple':
-        result = await signInWithApple();
-        break;
-    }
-    
+    const result = await signInWithGoogle();
     if (result.error) {
       setError(result.error.message);
     }
   };
-
-  const handleResendEmail = async () => {
-    const { error } = await supabase.auth.resend({ type: 'signup', email });
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Email renvoyé !', { description: 'Vérifiez votre boîte de réception.' });
-    }
-  };
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-success">Compte créé !</CardTitle>
-            <CardDescription>
-              Vérifiez votre email pour confirmer votre compte
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Link to={ROUTE_PATHS.medMngLogin}>
-              <Button className="w-full">Retour à la connexion</Button>
-            </Link>
-            <Button variant="outline" className="w-full" onClick={handleResendEmail}>
-              Renvoyer l'email de vérification
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
@@ -172,7 +148,16 @@ export const MedMngSignup = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
                 required
+                minLength={MIN_PASSWORD_LENGTH}
               />
+              <p className="text-xs text-muted-foreground">
+                Minimum {MIN_PASSWORD_LENGTH} caractères
+              </p>
+              {password.length > 0 && password.length < MIN_PASSWORD_LENGTH && (
+                <p className="text-xs text-destructive">
+                  {MIN_PASSWORD_LENGTH - password.length} caractère(s) restant(s)
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -216,29 +201,13 @@ export const MedMngSignup = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('google')}
-              className="w-full"
-            >
-              Google
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('facebook')}
-              className="w-full"
-            >
-              Facebook
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthSignIn('apple')}
-              className="w-full"
-            >
-              Apple
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => handleOAuthSignIn('google')}
+            className="w-full"
+          >
+            Google
+          </Button>
           
           <div className="text-center text-sm">
             Déjà un compte ?{' '}
