@@ -140,7 +140,7 @@
 **Ajout:**
 - Section dédiée médiateur de la consommation
 - Lien plateforme européenne ODR: https://ec.europa.eu/consumers/odr
-- Email médiation: mediation@emotionscare.com
+- Email médiation: contact@emotionscare.com
 
 **Conformité:** Article L612-1 Code de la consommation ✅
 
@@ -232,7 +232,7 @@
 - Consentements explicites Article 9 (données sensibles)
 - Transferts internationaux Article 44-50 documentés
 - Droits utilisateurs Article 15-21 implémentés
-- DPO/Contact: medmng@emotionscare.com
+- DPO/Contact: contact@emotionscare.com
 
 ### ✅ Conformité Code de la Consommation
 - CGU accessibles et acceptées (L221-9)
@@ -322,7 +322,7 @@
 - [x] Consentements explicites à l'inscription
 - [x] Politique de confidentialité accessible
 - [x] Droits utilisateurs documentés
-- [x] Contact DPO: medmng@emotionscare.com
+- [x] Contact DPO: contact@emotionscare.com
 - [x] Transferts internationaux documentés
 
 #### Consommation:
@@ -375,10 +375,10 @@
 ## 📞 CONTACTS JURIDIQUES
 
 ### Conformité interne:
-- **Email général:** medmng@emotionscare.com
-- **DPO/RGPD:** medmng@emotionscare.com
-- **Accessibilité:** accessibilite@emotionscare.com
-- **Médiation:** mediation@emotionscare.com
+- **Email général:** contact@emotionscare.com
+- **DPO/RGPD:** contact@emotionscare.com
+- **Accessibilité:** contact@emotionscare.com
+- **Médiation:** contact@emotionscare.com
 
 ### Autorités externes:
 - **CNIL (RGPD):** https://www.cnil.fr/fr/plaintes

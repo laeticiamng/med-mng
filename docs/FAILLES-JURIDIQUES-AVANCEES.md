@@ -128,7 +128,7 @@
 **RGPD Article 37:** DPO obligatoire si traitement à grande échelle de données sensibles
 
 **Problème actuel:**
-- Email générique: medmng@emotionscare.com
+- Email générique: contact@emotionscare.com
 - Pas de mention explicite "DPO" ou "Délégué Protection Données"
 
 **Correction:**

@@ -64,16 +64,9 @@ const PolitiqueConfidentialite = () => {
               <div className="bg-success/10 p-4 rounded-lg mt-3 space-y-2">
                 <p><strong>EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
                 <p>Siège social : <strong>5 rue Caudron, 80000 Amiens, France</strong></p>
-                <div className="flex items-center space-x-4 pt-2">
-                  <div className="flex items-center space-x-1">
-                    <Mail className="h-4 w-4 text-success" />
-                    <span>medmng@emotionscare.com</span>
-                  </div>
-                  <span className="text-muted-foreground">ou</span>
-                  <div className="flex items-center space-x-1">
-                    <Mail className="h-4 w-4 text-success" />
-                    <span>contact@emotionscare.com</span>
-                  </div>
+                <div className="flex items-center space-x-1 pt-2">
+                  <Mail className="h-4 w-4 text-success" />
+                  <span>contact@emotionscare.com</span>
                 </div>
                 <p className="pt-2"><strong>Représentée par :</strong> Laëticia Motongane, Présidente et responsable de la publication</p>
               </div>
