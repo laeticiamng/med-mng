@@ -14,6 +14,7 @@ import {
     Accessibility,
     AlertTriangle,
     Bell,
+    CreditCard,
     Database,
     Download,
     Flame,
@@ -41,6 +42,9 @@ import { AccessibilityPreferencesPanel } from '@/components/settings/Accessibili
 import { ModulePreferencesPanel } from '@/components/settings/ModulePreferencesPanel';
 import { SupportTicketSystem } from '@/components/support/SupportTicketSystem';
 import { DataExportManager } from '@/components/export/DataExportManager';
+import { lazy, Suspense } from 'react';
+
+const BillingDashboard = lazy(() => import('@/components/settings/BillingDashboard').then(m => ({ default: m.BillingDashboard })));
 
 const UserSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -209,6 +213,7 @@ const UserSettings: React.FC = () => {
 
   const sections = [
     { id: 'profile', label: 'Profil', icon: User },
+    { id: 'billing', label: 'Abonnement', icon: CreditCard },
     { id: 'modules', label: 'Modules', icon: Layers },
     { id: 'accessibility', label: 'Accessibilité', icon: Accessibility },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -566,6 +571,13 @@ const UserSettings: React.FC = () => {
                     </CardContent>
                   </Card>
                 </div>
+              )}
+
+              {/* Billing Section */}
+              {activeSection === 'billing' && (
+                <Suspense fallback={<div className="animate-pulse h-64 bg-muted rounded-lg" />}>
+                  <BillingDashboard />
+                </Suspense>
               )}
 
               {/* Modules Section */}

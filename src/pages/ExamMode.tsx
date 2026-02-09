@@ -1,4 +1,5 @@
 import { ExamResultsPDF } from '@/components/exam/ExamResultsPDF';
+import { ExamRanking } from '@/components/exam/ExamRanking';
 import { QuizResultsCard } from '@/components/quiz/QuizResultsCard';
 import { MedicalDisclaimerFooter } from '@/components/legal';
 import { Badge } from '@/components/ui/badge';
@@ -30,11 +31,15 @@ import {
     Timer,
     TrendingUp,
     Trophy,
+    Users,
     XCircle
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+
+const ExamConfig = lazy(() => import('@/components/exam/ExamConfig').then(m => ({ default: m.ExamConfig })));
+const ExamHistory = lazy(() => import('@/components/exam/ExamHistory').then(m => ({ default: m.ExamHistory })));
 
 export default function ExamMode() {
   const navigate = useNavigate();
@@ -285,14 +290,22 @@ export default function ExamMode() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
+          <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-6">
             <TabsTrigger value="exam" className="gap-2">
               <Brain className="h-4 w-4" />
               Examen
             </TabsTrigger>
             <TabsTrigger value="stats" className="gap-2">
               <BarChart3 className="h-4 w-4" />
-              Statistiques
+              Stats
+            </TabsTrigger>
+            <TabsTrigger value="history" className="gap-2">
+              <Clock className="h-4 w-4" />
+              Historique
+            </TabsTrigger>
+            <TabsTrigger value="ranking" className="gap-2">
+              <Users className="h-4 w-4" />
+              Classement
             </TabsTrigger>
           </TabsList>
 
@@ -674,6 +687,18 @@ export default function ExamMode() {
                 )}
               </div>
             )}
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <Suspense fallback={<div className="animate-pulse space-y-4"><div className="h-48 bg-muted rounded-lg" /><div className="h-64 bg-muted rounded-lg" /></div>}>
+              {user && <ExamHistory userId={user.id} />}
+            </Suspense>
+          </TabsContent>
+
+          {/* Ranking Tab */}
+          <TabsContent value="ranking">
+            {user && <ExamRanking userId={user.id} />}
           </TabsContent>
         </Tabs>
 

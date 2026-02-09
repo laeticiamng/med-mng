@@ -88,7 +88,7 @@ serve(async (req) => {
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        
+
         const { error } = await supabase
           .from('user_subscriptions')
           .update({ status: 'cancelled' })
@@ -98,6 +98,66 @@ serve(async (req) => {
           console.error("Error cancelling subscription:", error);
         } else {
           console.log(`Cancelled subscription ${subscription.id}`);
+        }
+        break;
+      }
+
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = invoice.subscription as string;
+
+        if (subscriptionId) {
+          // Store invoice record
+          const { error } = await supabase
+            .from('subscription_invoices')
+            .insert({
+              stripe_invoice_id: invoice.id,
+              stripe_subscription_id: subscriptionId,
+              amount: invoice.amount_paid,
+              currency: invoice.currency,
+              status: 'paid',
+              invoice_url: invoice.hosted_invoice_url,
+              created_at: new Date(invoice.created * 1000).toISOString(),
+            });
+
+          if (error) {
+            console.error("Error storing invoice:", error);
+          } else {
+            console.log(`Stored invoice ${invoice.id} for subscription ${subscriptionId}`);
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = invoice.subscription as string;
+
+        if (subscriptionId) {
+          // Update subscription status to past_due
+          const { error } = await supabase
+            .from('user_subscriptions')
+            .update({ status: 'past_due' })
+            .eq('stripe_subscription_id', subscriptionId);
+
+          if (error) {
+            console.error("Error updating subscription to past_due:", error);
+          } else {
+            console.log(`Marked subscription ${subscriptionId} as past_due`);
+          }
+
+          // Store failed invoice
+          await supabase
+            .from('subscription_invoices')
+            .insert({
+              stripe_invoice_id: invoice.id,
+              stripe_subscription_id: subscriptionId,
+              amount: invoice.amount_due,
+              currency: invoice.currency,
+              status: 'failed',
+              invoice_url: invoice.hosted_invoice_url,
+              created_at: new Date(invoice.created * 1000).toISOString(),
+            });
         }
         break;
       }
