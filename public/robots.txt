@@ -1,8 +1,51 @@
+# MED-MNG Robots.txt
+# Protège les routes admin et app privées
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin*
+Disallow: /admin-panel
+Disallow: /app*
+Disallow: /med-mng/create
+Disallow: /med-mng/music-library
+Disallow: /med-mng/items-library
+Disallow: /med-mng/profile
+Disallow: /med-mng/playlists
+Disallow: /med-mng/analytics
+Disallow: /med-mng/progress
+Disallow: /med-mng/favorites
+Disallow: /med-mng/player*
+Disallow: /med-mng/items/*
+Disallow: /med-mng/success
+Disallow: /med-mng/subscribe*
+Disallow: /med-mng/reset-password
+Disallow: /settings
+Disallow: /mes-donnees-rgpd
+Disallow: /diagnostics
+Disallow: /pwa-analytics
+Disallow: /design-system
+Disallow: /monitoring
+Disallow: /system-management
+Disallow: /platform-settings
+Disallow: /security-monitoring
+Disallow: /rls-documentation
+Disallow: /migration-dashboard
+Disallow: /executive-dashboard
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin*
+Disallow: /admin-panel
+Disallow: /app*
+Disallow: /med-mng/create
+Disallow: /med-mng/music-library
+Disallow: /med-mng/profile
+Disallow: /med-mng/player*
+Disallow: /med-mng/items/*
+Disallow: /settings
+Disallow: /diagnostics
+Disallow: /monitoring
+Disallow: /system-management
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +55,13 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin*
+Disallow: /admin-panel
+Disallow: /app*
+Disallow: /monitoring
+Disallow: /system-management
+Disallow: /platform-settings
+Disallow: /diagnostics
+
+# Sitemap
+Sitemap: https://med-mng.lovable.app/sitemap.xml

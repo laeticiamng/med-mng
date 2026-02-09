@@ -20,6 +20,8 @@ import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ROUTE_PATHS } from '@/config/routes';
+import { AutoSEO } from '@/components/seo/AutoSEO';
+import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -192,6 +194,8 @@ const App = () => {
                           <InternationalizationProvider>
                             <PerformanceProvider>
                               <SkipLinks />
+                              <AutoSEO />
+                              <GlobalJsonLd />
                               <div id="app-root" className="min-h-screen bg-background">
                                 <MainNavigation />
                                 <main id="main-content" tabIndex={-1} className="pt-16">
