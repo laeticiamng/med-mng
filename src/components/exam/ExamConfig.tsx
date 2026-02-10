@@ -132,24 +132,36 @@ const EXAM_TYPE_PRESETS: Record<ExamType, ExamTypePreset> = {
 
 const QUESTION_TYPE_INFO: Record<
   QuestionType,
-  { label: string; description: string }
+  { label: string; description: string; timerSeconds: number }
 > = {
   QCM: {
     label: 'QCM',
-    description: 'Questions à Choix Multiples — plusieurs réponses correctes',
+    description: 'Questions à Choix Multiples — 1min30 par question',
+    timerSeconds: 90,
   },
   QRU: {
     label: 'QRU',
-    description: 'Question à Réponse Unique — une seule réponse correcte',
+    description: 'Question à Réponse Unique — 1min30 par question',
+    timerSeconds: 90,
   },
   QROC: {
     label: 'QROC',
-    description: 'Question à Réponse Ouverte Courte — réponse libre courte',
+    description: 'Question à Réponse Ouverte Courte — 3min par question',
+    timerSeconds: 180,
   },
   Mixte: {
     label: 'Mixte',
-    description: 'Tous les types de questions combinés',
+    description: 'QCM (1min30) + QRU (1min30) + QROC (3min) combinés',
+    timerSeconds: 120,
   },
+};
+
+/** Per-question timer in seconds based on question type */
+export const QUESTION_TYPE_TIMERS: Record<QuestionType, number> = {
+  QCM: 90,
+  QRU: 90,
+  QROC: 180,
+  Mixte: 120,
 };
 
 const DIFFICULTY_INFO: Record<
