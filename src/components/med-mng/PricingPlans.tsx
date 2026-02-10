@@ -22,6 +22,18 @@ interface PricingPlan {
 
 const plans: PricingPlan[] = [
   {
+    id: 'free',
+    name: 'Gratuit',
+    price: 0,
+    songs: '3 générations/mois',
+    features: [
+      'EDN basique (items Rang A)',
+      '10 flashcards/jour',
+      '3 générations musicales/mois',
+      'Cas cliniques découverte',
+    ]
+  },
+  {
     id: 'standard',
     name: 'Standard',
     price: 19,
@@ -52,16 +64,32 @@ const plans: PricingPlan[] = [
     id: 'premium',
     name: 'Premium',
     price: 39,
-    songs: '3 000 chansons/mois',
+    songs: 'Musique IA illimitée',
     badge: 'Meilleur rapport qualité-prix',
     bestValue: true,
     features: [
-      '3 000 chansons/mois',
-      'Tableaux EDN (Rang A & B)',
-      'QCM entraînement',
+      'Musique IA illimitée',
+      'ECOS complets',
+      'Cas cliniques avancés',
+      'Mode examen EDN complet',
       'Bande dessinée éducative',
-      'Sauvegarde bibliothèque',
       'Support VIP'
+    ]
+  },
+  {
+    id: 'institution',
+    name: 'Institution',
+    price: 99,
+    songs: 'Multi-utilisateurs',
+    badge: 'Universités & CHU',
+    features: [
+      'Tout Premium inclus',
+      'Multi-utilisateurs (jusqu\'à 500)',
+      'Analytics RH & progression',
+      'Import bulk items',
+      'Dashboard administrateur',
+      'API dédiée',
+      'Support dédié & onboarding'
     ]
   }
 ];
@@ -183,8 +211,13 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
               ))}
             </ul>
             
-            <Button 
+            <Button
               onClick={() => {
+                if (plan.id === 'free') return;
+                if (plan.id === 'institution') {
+                  window.open('mailto:contact@med-mng.lovable.app?subject=Demande Institution', '_blank');
+                  return;
+                }
                 if (onSelectPlan) {
                   onSelectPlan(plan.id);
                 } else {
@@ -193,9 +226,11 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
               }}
               className="w-full"
               variant={plan.popular ? 'default' : 'outline'}
-              disabled={loading || processingPlan === plan.id || currentPlan === plan.id}
+              disabled={loading || processingPlan === plan.id || currentPlan === plan.id || plan.id === 'free'}
             >
-              {processingPlan === plan.id ? 'Redirection...' : 
+              {plan.id === 'free' ? 'Plan actuel' :
+               plan.id === 'institution' ? 'Nous contacter' :
+               processingPlan === plan.id ? 'Redirection...' :
                currentPlan === plan.id ? 'Plan actuel' :
                loading ? 'Chargement...' : 'S\'abonner'}
             </Button>

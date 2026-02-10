@@ -5,6 +5,7 @@ import {
   createEducationalApplicationSchema,
   createOrganizationSchemaFull,
   createFAQPageSchema,
+  createProductSchema,
 } from './jsonLdSchemas';
 
 /**
@@ -46,6 +47,13 @@ export const GlobalJsonLd: React.FC = () => {
       {(isHome || isPricing) && (
         <script type="application/ld+json">
           {JSON.stringify(createFAQPageSchema())}
+        </script>
+      )}
+
+      {/* Product - page pricing */}
+      {isPricing && (
+        <script type="application/ld+json">
+          {JSON.stringify(createProductSchema())}
         </script>
       )}
     </Helmet>

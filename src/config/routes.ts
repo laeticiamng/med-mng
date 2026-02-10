@@ -97,6 +97,8 @@ export const ROUTE_PATHS = {
   pomodoro: '/pomodoro',
   karaoke: '/karaoke/:songId?',
   executiveDashboard: '/executive-dashboard',
+  // Démo publique
+  demo: '/demo',
   // Raccourcis publics
   createShortcut: '/create',
   notFound: '*',

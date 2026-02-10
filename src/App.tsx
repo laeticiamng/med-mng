@@ -136,6 +136,9 @@ const UserSettings = lazy(() => import("./pages/UserSettings"));
 const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 
+// 🎯 DEMO PAGE
+const Demo = lazy(() => import("./pages/Demo"));
+
 // 🛒 STORE PAGES
 const Store = lazy(() => import("./pages/Store"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
@@ -296,6 +299,9 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><S><MusicAnalytics /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><S><MedMngProgress /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
+
+                                    {/* Demo (public) */}
+                                    <Route path={ROUTE_PATHS.demo} element={<S><Demo /></S>} />
 
                                     {/* Raccourci /create */}
                                     <Route path={ROUTE_PATHS.createShortcut} element={<Navigate to={ROUTE_PATHS.medMngCreate} replace />} />

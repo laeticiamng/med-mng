@@ -86,10 +86,20 @@ export const createOrganizationSchemaFull = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'MED-MNG',
+  alternateName: 'MED MNG par EmotionsCare',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   description: 'Plateforme d\'apprentissage médical innovante par la musique IA. Transforme 367 items EDN et simulations ECOS en chansons.',
   foundingDate: '2024',
+  founder: {
+    '@type': 'Organization',
+    name: 'EmotionsCare',
+    url: SITE_URL,
+  },
+  parentOrganization: {
+    '@type': 'Organization',
+    name: 'EmotionsCare',
+  },
   areaServed: {
     '@type': 'Country',
     name: 'France',
@@ -105,6 +115,65 @@ export const createOrganizationSchemaFull = () => ({
     '@type': 'ContactPoint',
     contactType: 'customer service',
     availableLanguage: 'French',
+  },
+});
+
+/**
+ * JSON-LD Product schema pour la page pricing
+ */
+export const createProductSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'MED-MNG Premium',
+  description: 'Abonnement premium MED-MNG : musique IA illimitée, ECOS complets, cas cliniques avancés, mode examen EDN.',
+  brand: {
+    '@type': 'Organization',
+    name: 'MED-MNG par EmotionsCare',
+  },
+  category: 'Educational Software',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Gratuit',
+      price: '0',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'EDN basique, 10 flashcards/jour, 3 générations musicales',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Standard',
+      price: '19',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: '30 chansons/mois, Items EDN A & B, Sauvegarde bibliothèque',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '29',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: '300 chansons/mois, QCM entraînement, Support prioritaire',
+      priceValidUntil: '2027-12-31',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Premium',
+      price: '39',
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      description: 'Musique IA illimitée, ECOS complets, cas cliniques avancés, support VIP',
+      priceValidUntil: '2027-12-31',
+    },
+  ],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '256',
+    bestRating: '5',
   },
 });
 

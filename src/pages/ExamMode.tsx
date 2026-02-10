@@ -26,6 +26,7 @@ import {
     Loader2,
     Play,
     RotateCcw,
+    Settings2,
     Sparkles,
     Target,
     Timer,
@@ -40,6 +41,8 @@ import { useNavigate } from 'react-router-dom';
 
 const ExamConfig = lazy(() => import('@/components/exam/ExamConfig').then(m => ({ default: m.ExamConfig })));
 const ExamHistory = lazy(() => import('@/components/exam/ExamHistory').then(m => ({ default: m.ExamHistory })));
+
+type ExamViewMode = 'select' | 'config' | 'active' | 'completed';
 
 export default function ExamMode() {
   const navigate = useNavigate();
@@ -64,8 +67,10 @@ export default function ExamMode() {
   const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(null);
   const [activeTab, setActiveTab] = useState('exam');
   const [examMode, setExamMode] = useState<'standard' | 'ai'>('ai');
+  const [viewMode, setViewMode] = useState<ExamViewMode>('select');
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
+  const [perQuestionTimer, setPerQuestionTimer] = useState(90); // seconds per question
 
   // Auth check
   useEffect(() => {
@@ -402,47 +407,90 @@ export default function ExamMode() {
 
             {/* Start Button */}
             {!isExamActive && !isExamCompleted && (
-              <Card className="text-center">
-                <CardContent className="p-8">
-                  <Trophy className="h-16 w-16 mx-auto mb-4 text-accent" />
-                  <h2 className="text-xl font-bold mb-2">Prêt pour l'examen ?</h2>
-                  <p className="text-muted-foreground mb-6 text-sm">
-                    {examMode === 'ai' ? '10 questions IA • 20 minutes' : '20 questions • 30 minutes'} • QCM EDN
-                  </p>
-                  <div className="grid grid-cols-3 gap-3 mb-6 max-w-sm mx-auto">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <Clock className="h-5 w-5 mx-auto mb-1 text-primary" />
-                      <p className="text-xs font-medium">{examMode === 'ai' ? '20' : '30'} min</p>
+              <div className="space-y-4">
+                <Card className="text-center">
+                  <CardContent className="p-8">
+                    <Trophy className="h-16 w-16 mx-auto mb-4 text-accent" />
+                    <h2 className="text-xl font-bold mb-2">Prêt pour l'examen ?</h2>
+                    <p className="text-muted-foreground mb-6 text-sm">
+                      {examMode === 'ai' ? '10 questions IA • 20 minutes' : '20 questions • 30 minutes'} • QCM EDN
+                    </p>
+                    <div className="grid grid-cols-4 gap-3 mb-6 max-w-md mx-auto">
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <Clock className="h-5 w-5 mx-auto mb-1 text-primary" />
+                        <p className="text-xs font-medium">{examMode === 'ai' ? '20' : '30'} min</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <Target className="h-5 w-5 mx-auto mb-1 text-accent" />
+                        <p className="text-xs font-medium">{examMode === 'ai' ? '10' : '20'} QCM</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <Timer className="h-5 w-5 mx-auto mb-1 text-success" />
+                        <p className="text-xs font-medium">1min30/Q</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <Award className="h-5 w-5 mx-auto mb-1 text-warning" />
+                        <p className="text-xs font-medium">+50 pts</p>
+                      </div>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <Target className="h-5 w-5 mx-auto mb-1 text-accent" />
-                      <p className="text-xs font-medium">{examMode === 'ai' ? '10' : '20'} QCM</p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button
+                        size="lg"
+                        onClick={handleStartExam}
+                        disabled={loading || aiLoading || generating}
+                        className="gap-2"
+                      >
+                        {generating ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Génération IA...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-5 w-5" />
+                            Commencer rapidement
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => setViewMode('config')}
+                      >
+                        <Settings2 className="h-5 w-5" />
+                        Configuration avancée
+                      </Button>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <Award className="h-5 w-5 mx-auto mb-1 text-warning" />
-                      <p className="text-xs font-medium">+50 pts</p>
-                    </div>
-                  </div>
-                  <Button 
-                    size="lg" 
-                    onClick={handleStartExam}
-                    disabled={loading || aiLoading || generating}
-                    className="gap-2"
-                  >
-                    {generating ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        Génération IA...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-5 w-5" />
-                        Commencer
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
+                    <p className="text-xs text-muted-foreground mt-4">
+                      Timer par question : QCM/QRU = 1min30, QROC = 3min
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Advanced config panel */}
+                {viewMode === 'config' && (
+                  <Suspense fallback={<div className="animate-pulse h-96 bg-muted rounded-lg" />}>
+                    <ExamConfig onStart={(config) => {
+                      setViewMode('select');
+                      // Apply the config and start the exam
+                      if (user) {
+                        startExam(user.id, config.examType, config.questionCount, config.timerMinutes);
+                        setExamMode('standard');
+                        setCurrentQuestionIndex(0);
+                        setQuestionStartTime(Date.now());
+                        if (config.questionType === 'QROC') {
+                          setPerQuestionTimer(180);
+                        } else if (config.questionType === 'Mixte') {
+                          setPerQuestionTimer(120);
+                        } else {
+                          setPerQuestionTimer(90);
+                        }
+                      }
+                    }} />
+                  </Suspense>
+                )}
+              </div>
             )}
 
             {/* Active exam */}
