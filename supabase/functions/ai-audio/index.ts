@@ -60,6 +60,15 @@ interface AudioRequest {
   payload?: any;
 }
 
+interface CachedTrack {
+  taskId: string;
+  title: string;
+  audioUrl: string;
+  streamUrl?: string;
+  imageUrl?: string;
+  metadata: Record<string, any>;
+}
+
 // ============================================================================
 // MAIN HANDLER
 // ============================================================================
@@ -173,7 +182,8 @@ async function handleGenerateMusic(supabase: any, payload: any, userId: string |
     vocalGender,
     styleWeight,
     weirdnessConstraint,
-    audioWeight
+    audioWeight,
+    forceGeneration = false
   } = payload;
 
   const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
@@ -200,6 +210,17 @@ async function handleGenerateMusic(supabase: any, payload: any, userId: string |
     enhancedTitle = enhancedTitle.substring(0, modelLimits.titleMax - 3) + '...';
   }
 
+  // 1) Cache lookup (SWR fallback) - évite de dépendre d'une génération à la volée.
+  if (!forceGeneration) {
+    const cachedTrack = await findBestCachedTrack(supabase, { itemCode, style, rang });
+    if (cachedTrack) {
+      return buildCachedTrackResponse(cachedTrack, {
+        cacheSource: 'item_match',
+        fallbackReason: 'cache_hit'
+      });
+    }
+  }
+
   const sunoClient = new SunoAPIClient(SUNO_API_KEY);
   const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-audio`;
 
@@ -219,7 +240,24 @@ async function handleGenerateMusic(supabase: any, payload: any, userId: string |
     ...(typeof audioWeight === 'number' && { audioWeight })
   };
 
-  const taskId = await sunoClient.generateMusic(sunoPayload);
+  let taskId: string;
+
+  try {
+    taskId = await sunoClient.generateMusic(sunoPayload);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const fallbackTrack = await findBestCachedTrack(supabase, { itemCode, style, rang, allowGlobalFallback: true });
+
+    if (fallbackTrack) {
+      console.warn('⚠️ Suno indisponible, fallback cache activé:', errorMessage);
+      return buildCachedTrackResponse(fallbackTrack, {
+        cacheSource: 'global_fallback',
+        fallbackReason: errorMessage
+      });
+    }
+
+    throw error;
+  }
   const apiResponseTime = Date.now() - startTime;
 
   const trackData: MusicTrackInsertData = {
@@ -252,6 +290,106 @@ async function handleGenerateMusic(supabase: any, payload: any, userId: string |
       generatedAt: new Date().toISOString(),
       status: 'generating',
       estimated_duration: '2-3 minutes'
+    }
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
+}
+
+async function findBestCachedTrack(
+  supabase: any,
+  options: {
+    itemCode: string;
+    style: string;
+    rang: string;
+    allowGlobalFallback?: boolean;
+  }
+): Promise<CachedTrack | null> {
+  const { itemCode, style, rang, allowGlobalFallback = false } = options;
+
+  const selectColumns = 'task_id,title,audio_url,stream_url,image_url,metadata';
+
+  const { data: exactTrack } = await supabase
+    .from('generated_music_tracks')
+    .select(selectColumns)
+    .contains('metadata', { itemCode, style, rang })
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (exactTrack?.audio_url) return mapCachedTrack(exactTrack);
+
+  const { data: itemTrack } = await supabase
+    .from('generated_music_tracks')
+    .select(selectColumns)
+    .contains('metadata', { itemCode })
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (itemTrack?.audio_url) return mapCachedTrack(itemTrack);
+
+  if (!allowGlobalFallback) return null;
+
+  // Fallback global: chansons les plus récentes marquées cache_priority, sinon n'importe quelle chanson complète.
+  const { data: prioritizedTrack } = await supabase
+    .from('generated_music_tracks')
+    .select(selectColumns)
+    .contains('metadata', { cache_priority: true })
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (prioritizedTrack?.audio_url) return mapCachedTrack(prioritizedTrack);
+
+  const { data: latestTrack } = await supabase
+    .from('generated_music_tracks')
+    .select(selectColumns)
+    .eq('generation_status', 'completed')
+    .not('audio_url', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return latestTrack?.audio_url ? mapCachedTrack(latestTrack) : null;
+}
+
+function mapCachedTrack(rawTrack: any): CachedTrack {
+  return {
+    taskId: rawTrack.task_id,
+    title: rawTrack.title,
+    audioUrl: rawTrack.audio_url,
+    streamUrl: rawTrack.stream_url,
+    imageUrl: rawTrack.image_url,
+    metadata: rawTrack.metadata || {}
+  };
+}
+
+function buildCachedTrackResponse(
+  cachedTrack: CachedTrack,
+  options: { cacheSource: 'item_match' | 'global_fallback'; fallbackReason: string }
+) {
+  return new Response(JSON.stringify({
+    success: true,
+    trackId: cachedTrack.taskId,
+    fromCache: true,
+    status: 'completed',
+    audioUrl: cachedTrack.audioUrl,
+    streamUrl: cachedTrack.streamUrl,
+    imageUrl: cachedTrack.imageUrl,
+    metadata: {
+      ...cachedTrack.metadata,
+      title: cachedTrack.title,
+      status: 'completed',
+      cacheSource: options.cacheSource,
+      fallbackReason: options.fallbackReason,
+      generatedAt: cachedTrack.metadata?.generatedAt || null
     }
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
