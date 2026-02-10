@@ -50,7 +50,7 @@ const SEMANTIC_SUGGESTIONS = {
   'border-yellow-200': 'border-warning/20',
 };
 
-module.exports = {
+const noHardcodedColorsRule = {
   meta: {
     type: 'suggestion',
     docs: {
@@ -116,3 +116,5 @@ module.exports = {
     };
   },
 };
+
+export default noHardcodedColorsRule;
