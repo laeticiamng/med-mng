@@ -9,6 +9,7 @@ export const SUBSCRIPTION_TIERS = {
   standard: { name: 'Standard', price: 19, generations: 30, price_id: 'price_1RqGSeDFa5Y9NR1IbOwa1TGy' },
   pro: { name: 'Pro', price: 29, generations: 300, price_id: 'price_1RqGT0DFa5Y9NR1IegoELBi8' },
   premium: { name: 'Premium', price: 39, generations: 3000, price_id: 'price_1RqGTHDFa5Y9NR1IcGxsiIP8' },
+  institution: { name: 'Institution', price: 99, generations: 10000, price_id: 'price_institution_contact' },
 } as const;
 
 interface SubscriptionPlan {

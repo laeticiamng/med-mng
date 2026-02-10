@@ -37,6 +37,7 @@ const PLAN_DETAILS: Record<string, { label: string; price: string; color: string
   standard: { label: 'Standard', price: '19\u20AC/mois', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
   pro: { label: 'Pro', price: '29\u20AC/mois', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
   premium: { label: 'Premium', price: '39\u20AC/mois', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
+  institution: { label: 'Institution', price: '99\u20AC/mois', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' },
 };
 
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'success' | 'warning' | 'destructive' }> = {
