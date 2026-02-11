@@ -39,9 +39,8 @@ export const CookieBanner = () => {
     }
 
     if (!consent) {
-      // Afficher après 2 secondes pour ne pas être intrusif
-      const timer = setTimeout(() => setShowBanner(true), 2000);
-      return () => clearTimeout(timer);
+      // Affichage immédiat (obligation CNIL : recueil du consentement avant tout dépôt de cookie non essentiel)
+      setShowBanner(true);
     }
   }, []);
 

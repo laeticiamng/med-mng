@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const FAQ = () => {
@@ -16,6 +17,13 @@ const FAQ = () => {
   }, []);
 
   return (
+    <>
+    <SEOHead
+      title="FAQ - Questions Fréquentes - MED MNG"
+      description="Toutes les réponses à vos questions sur MED MNG : fonctionnement, tarifs, fiabilité médicale, révisions, application mobile et sécurité."
+      keywords="FAQ, questions fréquentes, MED MNG, apprentissage médecine, musique IA, EDN"
+      canonical="/faq"
+    />
     <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -415,6 +423,7 @@ const FAQ = () => {
         </div>
       </div>
     </PremiumPageLayout>
+    </>
   );
 };
 

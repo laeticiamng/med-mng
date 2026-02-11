@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const CookiesPolicy = () => {
   const { logActivity } = useActivityTracking();
@@ -15,6 +16,13 @@ const CookiesPolicy = () => {
   }, []);
 
   return (
+    <>
+    <SEOHead
+      title="Politique de Cookies - MED MNG"
+      description="Politique de cookies de MED MNG. Cookies essentiels, fonctionnels et analytiques. Conforme RGPD et directive ePrivacy."
+      keywords="cookies, RGPD, confidentialité, MED MNG"
+      canonical="/legal/cookies"
+    />
     <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -301,6 +309,7 @@ const CookiesPolicy = () => {
         </div>
       </div>
     </PremiumPageLayout>
+    </>
   );
 };
 

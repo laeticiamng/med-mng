@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const B2B = () => {
   const { logActivity } = useActivityTracking();
@@ -15,6 +16,13 @@ const B2B = () => {
   }, []);
 
   return (
+    <>
+    <SEOHead
+      title="MED MNG pour les institutions - Offre B2B"
+      description="Intégrez MED MNG dans votre université, CHU ou faculté de médecine. Licences en volume, dashboard administrateur, SSO et support dédié."
+      keywords="B2B, université, CHU, faculté médecine, licence institutionnelle, MED MNG, apprentissage médical"
+      canonical="/b2b"
+    />
     <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -312,6 +320,7 @@ const B2B = () => {
         </div>
       </div>
     </PremiumPageLayout>
+    </>
   );
 };
 

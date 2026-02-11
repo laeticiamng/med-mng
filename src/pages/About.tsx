@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const About = () => {
   const { logActivity } = useActivityTracking();
@@ -15,6 +16,13 @@ const About = () => {
   }, []);
 
   return (
+    <>
+    <SEOHead
+      title="A propos - MED MNG par EmotionsCare"
+      description="Découvrez MED MNG : la première plateforme d'apprentissage médical par la musique IA. Mission, méthode MNG, équipe et EmotionsCare SASU."
+      keywords="à propos, MED MNG, EmotionsCare, méthode MNG, apprentissage médical, musique IA"
+      canonical="/about"
+    />
     <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -251,6 +259,7 @@ const About = () => {
         </div>
       </div>
     </PremiumPageLayout>
+    </>
   );
 };
 

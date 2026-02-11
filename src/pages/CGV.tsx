@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { PremiumPageLayout } from '@/components/layout/PremiumPageLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const CGV = () => {
   const { logActivity } = useActivityTracking();
@@ -15,6 +16,13 @@ const CGV = () => {
   }, []);
 
   return (
+    <>
+    <SEOHead
+      title="Conditions Générales de Vente - MED MNG"
+      description="CGV de MED MNG par EmotionsCare SASU. Tarifs, abonnements, droit de rétractation, garanties légales et modalités de paiement."
+      keywords="CGV, conditions générales de vente, abonnement, tarifs, MED MNG"
+      canonical="/legal/cgv"
+    />
     <PremiumPageLayout gradient="default" showOrbs={true}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -327,6 +335,7 @@ const CGV = () => {
         </div>
       </div>
     </PremiumPageLayout>
+    </>
   );
 };
 
