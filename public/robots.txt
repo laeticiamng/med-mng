@@ -19,6 +19,7 @@ Disallow: /med-mng/items/*
 Disallow: /med-mng/success
 Disallow: /med-mng/subscribe*
 Disallow: /med-mng/reset-password
+Disallow: /med-mng/billing
 Disallow: /settings
 Disallow: /mes-donnees-rgpd
 Disallow: /diagnostics

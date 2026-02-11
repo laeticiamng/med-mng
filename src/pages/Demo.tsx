@@ -72,7 +72,20 @@ const DEMO_QCM = [
   },
 ];
 
-type DemoStep = 'intro' | 'edn-browse' | 'edn-detail' | 'flashcard' | 'music' | 'qcm' | 'results';
+// Demo clinical case (mini)
+const DEMO_CLINICAL_CASE = {
+  title: 'Douleur thoracique aux urgences',
+  patient: 'M. Dupont, 62 ans, tabagique (30 PA), diabétique type 2, se présente aux urgences pour une douleur thoracique rétrosternale constrictive irradiant au bras gauche, apparue il y a 45 minutes au repos. PA 145/90 mmHg, FC 95 bpm, SpO2 96%.',
+  question: 'Quelle est votre première action ?',
+  options: [
+    { id: 'a', text: 'Réaliser un ECG 12 dérivations dans les 10 minutes', isCorrect: true, feedback: 'L\'ECG est l\'examen clé à réaliser en urgence (<10 min) devant toute suspicion de SCA.' },
+    { id: 'b', text: 'Demander une radiographie thoracique', isCorrect: false, feedback: 'La radiographie peut être utile mais n\'est pas prioritaire. L\'ECG doit être fait en premier.' },
+    { id: 'c', text: 'Administrer de la morphine IV', isCorrect: false, feedback: 'L\'antalgie est importante mais l\'ECG doit précéder toute thérapeutique pour orienter la prise en charge.' },
+    { id: 'd', text: 'Doser la troponine et attendre le résultat', isCorrect: false, feedback: 'La troponine sera dosée mais son résultat ne doit pas retarder l\'ECG et la prise en charge initiale.' },
+  ],
+};
+
+type DemoStep = 'intro' | 'edn-browse' | 'edn-detail' | 'flashcard' | 'music' | 'clinical-case' | 'qcm' | 'results';
 
 export default function Demo() {
   const navigate = useNavigate();
@@ -82,9 +95,11 @@ export default function Demo() {
   const [flashcardFlipped, setFlashcardFlipped] = useState(false);
   const [qcmAnswer, setQcmAnswer] = useState<number | null>(null);
   const [qcmSubmitted, setQcmSubmitted] = useState(false);
+  const [clinicalAnswer, setClinicalAnswer] = useState<string | null>(null);
+  const [clinicalSubmitted, setClinicalSubmitted] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<DemoStep[]>([]);
 
-  const STEP_ORDER: DemoStep[] = ['intro', 'edn-browse', 'edn-detail', 'flashcard', 'music', 'qcm', 'results'];
+  const STEP_ORDER: DemoStep[] = ['intro', 'edn-browse', 'edn-detail', 'flashcard', 'music', 'clinical-case', 'qcm', 'results'];
   const stepIndex = STEP_ORDER.indexOf(currentStep);
   const progressPercent = (stepIndex / (STEP_ORDER.length - 1)) * 100;
 
@@ -106,6 +121,7 @@ export default function Demo() {
       case 'edn-detail': return 'Détail item';
       case 'flashcard': return 'Flashcards';
       case 'music': return 'Musique IA';
+      case 'clinical-case': return 'Cas Clinique';
       case 'qcm': return 'Mode Examen';
       case 'results': return 'Résultats';
     }
@@ -187,7 +203,7 @@ export default function Demo() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <Card className="text-center">
                 <CardContent className="pt-6">
                   <BookOpen className="h-8 w-8 mx-auto mb-3 text-primary" />
@@ -207,6 +223,13 @@ export default function Demo() {
                   <Music className="h-8 w-8 mx-auto mb-3 text-success" />
                   <h3 className="font-semibold">1 Musique IA</h3>
                   <p className="text-sm text-muted-foreground">Écoutez un item transformé en chanson</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <Stethoscope className="h-8 w-8 mx-auto mb-3 text-orange-500" />
+                  <h3 className="font-semibold">1 Cas Clinique</h3>
+                  <p className="text-sm text-muted-foreground">Résolvez un cas interactif</p>
                 </CardContent>
               </Card>
             </div>
@@ -436,11 +459,101 @@ export default function Demo() {
             </Card>
 
             <div className="flex justify-center">
-              <Button className="gap-2" onClick={() => goToStep('qcm')}>
-                Tester le mode examen
+              <Button className="gap-2" onClick={() => goToStep('clinical-case')}>
+                Essayer un cas clinique
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* STEP: Clinical Case (Mini) */}
+        {currentStep === 'clinical-case' && (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Cas Clinique Interactif</h2>
+              <p className="text-muted-foreground">
+                Prenez des décisions médicales comme en conditions réelles.
+              </p>
+            </div>
+
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge>Urgences</Badge>
+                  <Badge variant="outline">Item #228</Badge>
+                </div>
+                <CardTitle className="text-lg">{DEMO_CLINICAL_CASE.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <Stethoscope className="h-4 w-4" />
+                    Présentation du patient
+                  </h4>
+                  <p className="text-sm">{DEMO_CLINICAL_CASE.patient}</p>
+                </div>
+
+                <p className="font-semibold">{DEMO_CLINICAL_CASE.question}</p>
+
+                {DEMO_CLINICAL_CASE.options.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => !clinicalSubmitted && setClinicalAnswer(option.id)}
+                    disabled={clinicalSubmitted}
+                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                      clinicalSubmitted
+                        ? option.isCorrect
+                          ? 'border-success bg-success/10'
+                          : clinicalAnswer === option.id
+                            ? 'border-destructive bg-destructive/10'
+                            : 'border-muted'
+                        : clinicalAnswer === option.id
+                          ? 'border-primary bg-primary/10'
+                          : 'border-muted hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex-1 text-sm">{option.text}</span>
+                      {clinicalSubmitted && option.isCorrect && (
+                        <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+                      )}
+                      {clinicalSubmitted && clinicalAnswer === option.id && !option.isCorrect && (
+                        <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+
+                {clinicalSubmitted && (
+                  <div className={`p-4 rounded-lg ${
+                    DEMO_CLINICAL_CASE.options.find(o => o.id === clinicalAnswer)?.isCorrect
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-destructive/10 border border-destructive/20'
+                  }`}>
+                    <p className="text-sm">
+                      {DEMO_CLINICAL_CASE.options.find(o => o.id === clinicalAnswer)?.feedback}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end pt-2">
+                  {!clinicalSubmitted ? (
+                    <Button
+                      onClick={() => setClinicalSubmitted(true)}
+                      disabled={clinicalAnswer === null}
+                    >
+                      Valider
+                    </Button>
+                  ) : (
+                    <Button className="gap-2" onClick={() => goToStep('qcm')}>
+                      Tester le mode examen
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 

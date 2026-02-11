@@ -103,6 +103,7 @@ const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics"
 const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.MedChat })));
 const MedMngProgress = lazy(() => import("./pages/MedMngProgress").then(m => ({ default: m.MedMngProgress })));
 const MedMngFavorites = lazy(() => import("./pages/MedMngFavorites").then(m => ({ default: m.MedMngFavorites })));
+const BillingPage = lazy(() => import("./pages/BillingPage"));
 
 // 📊 AUDIT PAGES
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
@@ -299,6 +300,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.medMngAnalytics} element={<ProtectedRoute><S><MusicAnalytics /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngProgress} element={<ProtectedRoute><S><MedMngProgress /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.medMngFavorites} element={<ProtectedRoute><S><MedMngFavorites /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.medMngBilling} element={<ProtectedRoute><S><BillingPage /></S></ProtectedRoute>} />
 
                                     {/* Demo (public) */}
                                     <Route path={ROUTE_PATHS.demo} element={<S><Demo /></S>} />
