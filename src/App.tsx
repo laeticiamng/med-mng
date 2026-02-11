@@ -148,10 +148,17 @@ const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const CGU = lazy(() => import("./pages/CGU"));
+const CGV = lazy(() => import("./pages/CGV"));
+const CookiesPolicy = lazy(() => import("./pages/CookiesPolicy"));
 const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
+
+// 📢 PUBLIC PAGES
+const FAQ = lazy(() => import("./pages/FAQ"));
+const About = lazy(() => import("./pages/About"));
+const B2B = lazy(() => import("./pages/B2B"));
 
 // ⚡ Helper: Suspense wrapper for lazy routes
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -273,6 +280,11 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.mentionsLegales} element={<S><MentionsLegales /></S>} />
                                     <Route path={ROUTE_PATHS.politiqueConfidentialite} element={<S><PolitiqueConfidentialite /></S>} />
                                     <Route path={ROUTE_PATHS.cgu} element={<S><CGU /></S>} />
+                                    <Route path={ROUTE_PATHS.cgv} element={<S><CGV /></S>} />
+                                    <Route path={ROUTE_PATHS.cookies} element={<S><CookiesPolicy /></S>} />
+                                    <Route path={ROUTE_PATHS.faq} element={<S><FAQ /></S>} />
+                                    <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
+                                    <Route path={ROUTE_PATHS.b2b} element={<S><B2B /></S>} />
                                     <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
 
                                     {/* Auth (public) */}

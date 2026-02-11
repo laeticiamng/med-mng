@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Music, ExternalLink, Flame, Star, Trophy } from "lucide-react";
+import { Music, ExternalLink, Flame, Star, Trophy, Building2 } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
 import { useGamification } from "@/hooks/useGamification";
 import { Badge } from "@/components/ui/badge";
@@ -70,8 +70,9 @@ export const AppFooter = () => {
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.library} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Bibliothèque</Link>
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
-                <Link to={ROUTE_PATHS.progressDashboard} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Ma progression</Link>
-                <Link to={ROUTE_PATHS.settings} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Paramètres</Link>
+                <Link to={ROUTE_PATHS.faq} className="block text-muted-foreground hover:text-primary text-xs transition-colors">FAQ</Link>
+                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">A propos</Link>
+                <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
               </div>
             </div>
 
@@ -81,6 +82,8 @@ export const AppFooter = () => {
                 <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mentions Légales</Link>
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Confidentialité</Link>
                 <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-xs transition-colors">CGU</Link>
+                <Link to={ROUTE_PATHS.cgv} className="block text-muted-foreground hover:text-primary text-xs transition-colors">CGV</Link>
+                <Link to={ROUTE_PATHS.cookies} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Cookies</Link>
                 <a href="mailto:contact@emotionscare.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-xs transition-colors">
                   Contact <ExternalLink className="w-2.5 h-2.5" />
                 </a>
@@ -106,6 +109,7 @@ export const AppFooter = () => {
                 <Link to={ROUTE_PATHS.ednComplete} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Les 367 Items EDN</Link>
                 <Link to={ROUTE_PATHS.ecosIndex} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Simulations ECOS</Link>
                 <Link to={ROUTE_PATHS.mngMethod} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Méthode MNG</Link>
+                <Link to={ROUTE_PATHS.faq} className="block text-muted-foreground hover:text-primary text-xs transition-colors">FAQ</Link>
               </div>
             </div>
 
@@ -113,6 +117,8 @@ export const AppFooter = () => {
               <h3 className="font-semibold mb-3 text-foreground text-sm">Ressources</h3>
               <div className="space-y-1.5">
                 <Link to={ROUTE_PATHS.medMngPricing} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Tarifs</Link>
+                <Link to={ROUTE_PATHS.about} className="block text-muted-foreground hover:text-primary text-xs transition-colors">A propos</Link>
+                <Link to={ROUTE_PATHS.b2b} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Universités & CHU</Link>
                 <Link to={ROUTE_PATHS.medMngSignup} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Créer un compte</Link>
                 <Link to={ROUTE_PATHS.installPwa} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Installer l'app</Link>
               </div>
@@ -124,6 +130,8 @@ export const AppFooter = () => {
                 <Link to={ROUTE_PATHS.mentionsLegales} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Mentions Légales</Link>
                 <Link to={ROUTE_PATHS.politiqueConfidentialite} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Confidentialité</Link>
                 <Link to={ROUTE_PATHS.cgu} className="block text-muted-foreground hover:text-primary text-xs transition-colors">CGU</Link>
+                <Link to={ROUTE_PATHS.cgv} className="block text-muted-foreground hover:text-primary text-xs transition-colors">CGV</Link>
+                <Link to={ROUTE_PATHS.cookies} className="block text-muted-foreground hover:text-primary text-xs transition-colors">Cookies</Link>
                 <a href="mailto:contact@emotionscare.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-xs transition-colors">
                   Contact <ExternalLink className="w-2.5 h-2.5" />
                 </a>
