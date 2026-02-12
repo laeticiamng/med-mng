@@ -303,7 +303,9 @@ export const MedMngPricing = () => {
                           <div className="mb-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
                             <p className="text-xs text-foreground">
                               <strong>✓ J'accepte les</strong>{' '}
-                              <Link to={ROUTE_PATHS.cgu} target="_blank" className="text-primary hover:underline font-semibold">CGU</Link>
+                              <Link to={ROUTE_PATHS.cgu} className="text-primary hover:underline font-semibold">CGU</Link>
+                              {', les '}
+                              <Link to={ROUTE_PATHS.cgv} className="text-primary hover:underline font-semibold">CGV</Link>
                               {' '}et le{' '}
                               <strong>droit de rétractation (14 jours)</strong> sauf utilisation crédits.
                             </p>

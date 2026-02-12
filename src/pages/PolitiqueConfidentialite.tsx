@@ -255,6 +255,57 @@ const PolitiqueConfidentialite = () => {
             </div>
           </Card>
 
+          {/* 8bis. Délégué à la Protection des Données (DPO) */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Shield className="h-5 w-5 text-primary" />
+              <h3 className="text-xl font-semibold text-foreground">8bis. DÉLÉGUÉ À LA PROTECTION DES DONNÉES (DPO)</h3>
+            </div>
+            <div className="text-muted-foreground space-y-3">
+              <p>Conformément à l'article 37 du RGPD, EMOTIONSCARE a désigné un Délégué à la Protection des Données :</p>
+              <div className="bg-primary/10 p-4 rounded-lg space-y-2">
+                <p><strong className="text-foreground">DPO :</strong> Laëticia Motongane</p>
+                <div className="flex items-center space-x-1">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span>dpo@emotionscare.com</span>
+                </div>
+                <p className="text-sm">EMOTIONSCARE – DPO, 5 rue Caudron, 80000 Amiens, France</p>
+              </div>
+              <p className="text-sm">Le DPO est votre point de contact pour toute question relative à la protection de vos données personnelles et pour l'exercice de vos droits RGPD.</p>
+            </div>
+          </Card>
+
+          {/* 8ter. Notification de violation de données */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <h3 className="text-xl font-semibold text-foreground">8ter. NOTIFICATION DE VIOLATION DE DONNÉES</h3>
+            </div>
+            <div className="text-muted-foreground space-y-3">
+              <p>Conformément aux articles 33 et 34 du RGPD, en cas de violation de données personnelles :</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-destructive/10 p-4 rounded-lg">
+                  <h4 className="font-semibold text-destructive mb-2">Notification à la CNIL</h4>
+                  <p className="text-sm">EMOTIONSCARE notifiera la CNIL dans un délai de <strong>72 heures</strong> après avoir pris connaissance de toute violation de données susceptible d'engendrer un risque pour les droits et libertés des personnes concernées.</p>
+                </div>
+                <div className="bg-warning/10 p-4 rounded-lg">
+                  <h4 className="font-semibold text-warning mb-2">Information des utilisateurs</h4>
+                  <p className="text-sm">Si la violation est susceptible d'engendrer un <strong>risque élevé</strong> pour vos droits, vous serez informé(e) dans les meilleurs délais par email, avec description de la nature de la violation, des conséquences probables et des mesures prises.</p>
+                </div>
+              </div>
+              <div className="bg-success/10 p-4 rounded-lg">
+                <h4 className="font-semibold text-success mb-2">Mesures préventives en place</h4>
+                <ul className="text-sm space-y-1">
+                  <li>• Chiffrement AES-256 au repos et en transit (TLS 1.3)</li>
+                  <li>• Row Level Security (RLS) sur toutes les tables Supabase</li>
+                  <li>• Monitoring temps réel via Sentry</li>
+                  <li>• Sauvegardes automatisées chiffrées</li>
+                  <li>• Tests de pénétration réguliers</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+
           {/* 9. Droits des utilisateurs */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
@@ -275,10 +326,10 @@ const PolitiqueConfidentialite = () => {
               </div>
               <div className="bg-primary/10 p-4 rounded-lg">
                 <p className="font-semibold text-primary">Pour exercer vos droits :</p>
-                <div className="flex items-center space-x-4 mt-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:space-x-4 mt-2">
                   <div className="flex items-center space-x-1">
                     <Mail className="h-4 w-4 text-primary" />
-                    <span>medmng@emotionscare.com</span>
+                    <span>dpo@emotionscare.com</span>
                   </div>
                   <span className="text-muted-foreground">ou</span>
                   <div className="flex items-center space-x-1">
@@ -286,6 +337,16 @@ const PolitiqueConfidentialite = () => {
                     <span>contact@emotionscare.com</span>
                   </div>
                 </div>
+                <p className="text-sm mt-3">Délai de réponse : <strong>30 jours</strong> maximum conformément au RGPD.</p>
+              </div>
+              <div className="bg-success/10 p-4 rounded-lg mt-3">
+                <p className="font-semibold text-success">Autorité de contrôle :</p>
+                <p className="text-sm mt-1">Vous disposez du droit d'introduire une réclamation auprès de la CNIL :</p>
+                <ul className="text-sm space-y-1 mt-1">
+                  <li>• CNIL – 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
+                  <li>• Téléphone : +33 (0)1 53 73 22 22</li>
+                  <li>• Site : <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.cnil.fr</a></li>
+                </ul>
               </div>
             </div>
           </Card>

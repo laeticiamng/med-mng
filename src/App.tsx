@@ -31,7 +31,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Suspense, lazy, useState, useEffect, useCallback } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AdminRoute } from "./components/auth/AdminRoute";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -148,15 +148,28 @@ const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const CGU = lazy(() => import("./pages/CGU"));
+const CGV = lazy(() => import("./pages/CGV"));
+const CookiesPolicy = lazy(() => import("./pages/CookiesPolicy"));
 const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
 
+// 📢 PUBLIC PAGES
+const FAQ = lazy(() => import("./pages/FAQ"));
+const About = lazy(() => import("./pages/About"));
+const B2B = lazy(() => import("./pages/B2B"));
+
 // ⚡ Helper: Suspense wrapper for lazy routes
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
 );
+
+// 🔄 Redirect /edn/:slug → /edn-complete/:slug with param forwarding
+const EdnSlugRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/edn-complete/${slug}`} replace />;
+};
 
 // ⚡ QueryClient Configuration
 const queryClient = new QueryClient({
@@ -206,13 +219,13 @@ const App = () => {
                                   <Routes>
                                     {/* Platform */}
                                     <Route path={ROUTE_PATHS.home} element={<Index />} />
-                                    <Route path={ROUTE_PATHS.modularDashboard} element={<S><ModularDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.dashboard} element={<S><Dashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.learningDashboard} element={<S><LearningDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.platformStatus} element={<S><PlatformStatusPage /></S>} />
-                                    <Route path={ROUTE_PATHS.monitoring} element={<S><Monitoring /></S>} />
-                                    <Route path={ROUTE_PATHS.systemManagement} element={<S><SystemManagement /></S>} />
-                                    <Route path={ROUTE_PATHS.platformSettings} element={<S><PlatformSettings /></S>} />
+                                    <Route path={ROUTE_PATHS.modularDashboard} element={<AdminRoute><S><ModularDashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.dashboard} element={<AdminRoute><S><Dashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.learningDashboard} element={<AdminRoute><S><LearningDashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.platformStatus} element={<AdminRoute><S><PlatformStatusPage /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.monitoring} element={<AdminRoute><S><Monitoring /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.systemManagement} element={<AdminRoute><S><SystemManagement /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.platformSettings} element={<AdminRoute><S><PlatformSettings /></S></AdminRoute>} />
 
                                     {/* Redirects */}
                                     <Route path={ROUTE_PATHS.optimizedIndex} element={<Navigate to={ROUTE_PATHS.home} replace />} />
@@ -227,7 +240,7 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
                                     <Route path={ROUTE_PATHS.ednCompleteDetail} element={<S><EdnComplete /></S>} />
                                     <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
-                                    <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<Navigate to={ROUTE_PATHS.ednCompleteDetail} replace />} />
+                                    <Route path={ROUTE_PATHS.ednLegacyWithSlug} element={<EdnSlugRedirect />} />
                                     <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
                                     <Route path={ROUTE_PATHS.ednImmersive} element={<S><EdnImmersive /></S>} />
                                     <Route path={ROUTE_PATHS.ednMusicLibrary} element={<S><EdnMusicLibrary /></S>} />
@@ -257,9 +270,9 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.productDetail} element={<S><ProductDetail /></S>} />
 
                                     {/* Audit */}
-                                    <Route path={ROUTE_PATHS.audit} element={<S><AuditComplete /></S>} />
-                                    <Route path={ROUTE_PATHS.auditCompleteness} element={<S><AuditCompleteness /></S>} />
-                                    <Route path={ROUTE_PATHS.migrationDashboard} element={<S><MigrationDashboardPage /></S>} />
+                                    <Route path={ROUTE_PATHS.audit} element={<AdminRoute><S><AuditComplete /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.auditCompleteness} element={<AdminRoute><S><AuditCompleteness /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.migrationDashboard} element={<AdminRoute><S><MigrationDashboardPage /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.auditGeneral} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
                                     <Route path={ROUTE_PATHS.auditEdn} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
                                     <Route path={ROUTE_PATHS.auditUnified} element={<Navigate to={ROUTE_PATHS.audit} replace />} />
@@ -273,6 +286,11 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.mentionsLegales} element={<S><MentionsLegales /></S>} />
                                     <Route path={ROUTE_PATHS.politiqueConfidentialite} element={<S><PolitiqueConfidentialite /></S>} />
                                     <Route path={ROUTE_PATHS.cgu} element={<S><CGU /></S>} />
+                                    <Route path={ROUTE_PATHS.cgv} element={<S><CGV /></S>} />
+                                    <Route path={ROUTE_PATHS.cookies} element={<S><CookiesPolicy /></S>} />
+                                    <Route path={ROUTE_PATHS.faq} element={<S><FAQ /></S>} />
+                                    <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
+                                    <Route path={ROUTE_PATHS.b2b} element={<S><B2B /></S>} />
                                     <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
 
                                     {/* Auth (public) */}
@@ -310,7 +328,7 @@ const App = () => {
 
                                     {/* Chat & Audit */}
                                     <Route path={ROUTE_PATHS.chat} element={<S><MedChat /></S>} />
-                                    <Route path={ROUTE_PATHS.ednAudit} element={<S><EdnAuditDashboard /></S>} />
+                                    <Route path={ROUTE_PATHS.ednAudit} element={<AdminRoute><S><EdnAuditDashboard /></S></AdminRoute>} />
 
                                     {/* Admin */}
                                     <Route path={ROUTE_PATHS.adminImport} element={<AdminRoute><S><AdminImport /></S></AdminRoute>} />
@@ -324,23 +342,25 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.adminPanel} element={<AdminRoute><S><AdminPanel /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.executiveDashboard} element={<AdminRoute><S><ExecutiveDashboard /></S></AdminRoute>} />
 
-                                    {/* Misc pages */}
+                                    {/* Misc pages (admin) */}
                                     <Route path={ROUTE_PATHS.library} element={<S><LibraryPage /></S>} />
-                                    <Route path={ROUTE_PATHS.accessibilityDashboard} element={<S><AccessibilityDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.effectivenessDashboard} element={<S><EffectivenessDashboard /></S>} />
-                                    <Route path={ROUTE_PATHS.rlsDocumentation} element={<S><RLSDocumentation /></S>} />
-                                    <Route path={ROUTE_PATHS.securityMonitoring} element={<S><SecurityMonitoring /></S>} />
+                                    <Route path={ROUTE_PATHS.accessibilityDashboard} element={<AdminRoute><S><AccessibilityDashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.effectivenessDashboard} element={<AdminRoute><S><EffectivenessDashboard /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.rlsDocumentation} element={<AdminRoute><S><RLSDocumentation /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.statistics} element={<S><Statistics /></S>} />
                                     <Route path={ROUTE_PATHS.studyPlanner} element={<S><StudyPlanner /></S>} />
                                     <Route path={ROUTE_PATHS.community} element={<S><CommunityHub /></S>} />
-                                    <Route path={ROUTE_PATHS.achievements} element={<S><Achievements /></S>} />
-                                    <Route path={ROUTE_PATHS.favorites} element={<S><Favorites /></S>} />
-                                    <Route path={ROUTE_PATHS.settings} element={<S><UserSettings /></S>} />
-                                    <Route path={ROUTE_PATHS.designSystem} element={<S><DesignSystemPage /></S>} />
+                                    {/* Misc pages (user-protected) */}
+                                    <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
+                                    <Route path={ROUTE_PATHS.settings} element={<ProtectedRoute><S><UserSettings /></S></ProtectedRoute>} />
+                                    {/* Misc pages (admin) */}
+                                    <Route path={ROUTE_PATHS.designSystem} element={<AdminRoute><S><DesignSystemPage /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<S><MesDonneesRGPD /></S>} />
                                     <Route path={ROUTE_PATHS.installPwa} element={<S><InstallPWA /></S>} />
-                                    <Route path={ROUTE_PATHS.pwaAnalytics} element={<S><PWAAnalytics /></S>} />
-                                    <Route path={ROUTE_PATHS.diagnostics} element={<S><Diagnostics /></S>} />
+                                    <Route path={ROUTE_PATHS.pwaAnalytics} element={<AdminRoute><S><PWAAnalytics /></S></AdminRoute>} />
+                                    <Route path={ROUTE_PATHS.diagnostics} element={<AdminRoute><S><Diagnostics /></S></AdminRoute>} />
 
                                     {/* 404 */}
                                     <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
