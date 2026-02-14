@@ -118,8 +118,8 @@ jobs:
       - name: 🎭 Run E2E tests
         run: pnpm test:e2e
         env:
-          E2E_BASE_URL: https://yaincoxihiqdksxgrsrk.supabase.co
-          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU
+          E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           
       - name: 📤 Upload E2E results
         uses: actions/upload-artifact@v3

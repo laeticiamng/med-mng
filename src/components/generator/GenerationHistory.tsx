@@ -38,7 +38,7 @@ interface GeneratedTrack {
 
 const ITEMS_PER_PAGE = 10;
 
-export const GenerationHistory: React.FC = () => {
+export const GenerationHistory: React.FC = React.memo(() => {
   const { user } = useAuth();
   const { play, currentTrack, isPlaying, pause } = useGlobalAudio();
   const [history, setHistory] = useState<GeneratedTrack[]>([]);
@@ -902,4 +902,6 @@ export const GenerationHistory: React.FC = () => {
       )}
     </PremiumCard>
   );
-};
+});
+
+GenerationHistory.displayName = 'GenerationHistory';

@@ -24,6 +24,12 @@ dist-ssr
 *.sw?
 coverage
 __pycache__/
+
+# Lock files - pnpm only (keep pnpm-lock.yaml)
+package-lock.json
+bun.lockb
+yarn.lock
+
 .env*
 !.env.example
 !.env.development.example

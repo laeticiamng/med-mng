@@ -311,12 +311,16 @@ async function persistAlert(alert: Alert): Promise<boolean> {
 export async function notifyIncident(incident: Incident): Promise<Alert | null> {
   // Vérifications préliminaires
   if (isDuplicate(incident)) {
-    console.log('Duplicate alert suppressed:', incident.type);
+    if (import.meta.env.DEV) {
+      console.log('Duplicate alert suppressed:', incident.type);
+    }
     return null;
   }
 
   if (!checkRateLimit()) {
-    console.warn('Alert rate limit exceeded');
+    if (import.meta.env.DEV) {
+      console.warn('Alert rate limit exceeded');
+    }
     return null;
   }
 
@@ -367,7 +371,9 @@ export async function notifyIncident(incident: Incident): Promise<Alert | null> 
   }
 
   // Log console
-  console.log(`[ALERT] [${severity.toUpperCase()}] ${incident.type}: ${incident.message}`);
+  if (import.meta.env.DEV) {
+    console.log(`[ALERT] [${severity.toUpperCase()}] ${incident.type}: ${incident.message}`);
+  }
 
   return alert;
 }

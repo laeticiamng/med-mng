@@ -90,9 +90,9 @@ export default function Flashcards() {
       }
       setUser(user);
       loadDecks(user.id);
-      getStats(user.id).then(setStats);
+      getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
     };
-    checkAuth();
+    checkAuth().catch(() => {});
   }, [navigate, toast, loadDecks, getStats]);
 
   const handleCreateDeck = async () => {
@@ -104,14 +104,14 @@ export default function Flashcards() {
     setNewDeckCategory('');
     setShowNewDeckDialog(false);
     loadDecks(user.id);
-    getStats(user.id).then(setStats);
+    getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
   };
 
   const handleDeleteDeck = async (deckId: string) => {
     await deleteDeck(deckId);
     if (user) {
       loadDecks(user.id);
-      getStats(user.id).then(setStats);
+      getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
     }
   };
 
@@ -128,7 +128,7 @@ export default function Flashcards() {
     setNewCardBack('');
     setShowNewCardDialog(false);
     loadCards(currentDeck.id);
-    if (user) getStats(user.id).then(setStats);
+    if (user) getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
   };
 
   const handleGenerateFromItem = async () => {
@@ -138,7 +138,7 @@ export default function Flashcards() {
     setItemCodeToGenerate('');
     setShowAIDialog(false);
     loadCards(currentDeck.id);
-    if (user) getStats(user.id).then(setStats);
+    if (user) getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
   };
 
   const handleStartReview = () => {
@@ -172,7 +172,7 @@ export default function Flashcards() {
       await checkAndUnlockBadges(user.id);
       
       // Refresh stats to update totalReviews from DB
-      getStats(user.id).then(setStats);
+      getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
     }
     
     setReviewStats(prev => ({
@@ -201,7 +201,7 @@ export default function Flashcards() {
         await unlockBadge(user.id, 'perfect_exam');
       }
       
-      if (user) getStats(user.id).then(setStats);
+      if (user) getStats(user.id).then(setStats).catch(() => { /* stats load failed silently */ });
     }
   };
 

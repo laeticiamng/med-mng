@@ -73,7 +73,7 @@ const CATEGORIES = [
   { value: 'aide', label: 'Aide', color: 'bg-yellow-500' }
 ];
 
-export const ForumDiscussion: React.FC = () => {
+export const ForumDiscussion: React.FC = React.memo(() => {
   const [topics, setTopics] = useState<ForumTopic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<ForumTopic | null>(null);
   const [replies, setReplies] = useState<ForumReply[]>([]);
@@ -825,4 +825,6 @@ export const ForumDiscussion: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+ForumDiscussion.displayName = 'ForumDiscussion';

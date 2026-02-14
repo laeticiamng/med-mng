@@ -2,25 +2,29 @@ version: '3.8'
 services:
   db:
     image: postgres:14-alpine
+    env_file:
+      - .env.docker
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medmng
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env.docker}
+      POSTGRES_DB: ${POSTGRES_DB:-medmng}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
   backend:
     build: .
+    env_file:
+      - .env.docker
     environment:
       DB_HOST: db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: medmng
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env.docker}
+      DB_NAME: ${POSTGRES_DB:-medmng}
       SUPABASE_URL: http://supabase-mock:8000
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - db
       - supabase-mock
@@ -29,6 +33,6 @@ services:
     image: supabase/cli:latest
     command: start
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
 volumes:
   db_data:

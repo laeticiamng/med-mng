@@ -25,7 +25,7 @@ import {
     TrendingUp,
     Users
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface ExtractionLog {
@@ -81,7 +81,7 @@ interface FilterState {
   search: string;
 }
 
-export function ExtractionMonitoringDashboard() {
+export const ExtractionMonitoringDashboard = React.memo(function ExtractionMonitoringDashboard() {
   const [stats, setStats] = useState<ExtractionStats | null>(null);
   const [recentExtractions, setRecentExtractions] = useState<ExtractionLog[]>([]);
   const [runningExtractions, setRunningExtractions] = useState<ExtractionLog[]>([]);
@@ -867,4 +867,6 @@ export function ExtractionMonitoringDashboard() {
       </Tabs>
     </div>
   );
-}
+});
+
+ExtractionMonitoringDashboard.displayName = 'ExtractionMonitoringDashboard';

@@ -21,7 +21,8 @@ export { GenerationFilters } from './GenerationFilters';
 export { GenerationFiltersPanel } from './GenerationFiltersPanel';
 export { GenerationHistory } from './GenerationHistory';
 export { GenerationHistoryFilters } from './GenerationHistoryFilters';
-export { GenerationNotification } from './GenerationNotification';
+// GenerationNotification consolidated into GenerationNotificationHandler
+// Both files now export useGenerationNotifications from GenerationNotificationHandler
 export { useGenerationNotifications } from './GenerationNotificationHandler';
 export { GenerationProgress } from './GenerationProgress';
 export { GenerationStats } from './GenerationStats';

@@ -250,7 +250,7 @@ const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question, index
 // Main component
 // ---------------------------------------------------------------------------
 
-export const ExamHistory: React.FC = () => {
+export const ExamHistory: React.FC = React.memo(() => {
   const { toast } = useToast();
 
   // Data state
@@ -799,6 +799,8 @@ export const ExamHistory: React.FC = () => {
       </Tabs>
     </div>
   );
-};
+});
+
+ExamHistory.displayName = 'ExamHistory';
 
 export default ExamHistory;
