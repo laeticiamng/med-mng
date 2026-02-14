@@ -154,12 +154,36 @@ export const AdvancedSettings = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+      toast({
+        title: "Type de fichier invalide",
+        description: "Seuls les fichiers JSON sont acceptés.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "Fichier trop volumineux",
+        description: "La taille maximale autorisée est de 5 Mo.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const importedData = JSON.parse(e.target?.result as string);
+        if (!importedData.settings || !importedData.version) {
+          throw new Error('Invalid settings format');
+        }
         setSettings(importedData.settings);
-        
+
         toast({
           title: "Import réussi !",
           description: "Vos paramètres ont été importés. N'oubliez pas de sauvegarder."
@@ -167,7 +191,7 @@ export const AdvancedSettings = () => {
       } catch (error) {
         toast({
           title: "Erreur d'import",
-          description: "Le fichier n'est pas valide.",
+          description: "Le fichier n'est pas un fichier de paramètres valide.",
           variant: "destructive"
         });
       }

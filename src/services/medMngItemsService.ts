@@ -345,10 +345,12 @@ export const fetchProgressOverview = async (
     totalProgressItems > 0 ? deletedItemsCount / totalProgressItems : 0;
 
   if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
-    console.warn(
-      `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
-        'reference deleted content. Progress overview stats are based only on existing items.'
-    );
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
+          'reference deleted content. Progress overview stats are based only on existing items.'
+      );
+    }
   }
   const validProgressItems = progressItems.filter(
     (item: any): item is ProgressItem => Boolean(item)

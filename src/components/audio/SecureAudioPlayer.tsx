@@ -41,14 +41,12 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       // Bloquer le clic droit
       audio.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        console.warn('Download blocked: Right-click disabled');
       });
 
       // Bloquer les raccourcis de téléchargement
       audio.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
           e.preventDefault();
-          console.warn('Download blocked: Ctrl+S disabled');
         }
       });
 
@@ -68,7 +66,6 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
             if (audio.src && !audio.src.startsWith('blob:')) {
-              console.warn('Source modification blocked');
               audio.src = '';
             }
           }
@@ -123,32 +120,31 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
 
   // Bloquer les tentatives de téléchargement via DevTools
   useEffect(() => {
-    const blockDevTools = () => {
-      // Détecter l'ouverture des DevTools
-      let devtools = { open: false, orientation: null };
-      
-      setInterval(() => {
-        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-          if (!devtools.open) {
-            devtools.open = true;
-            console.clear();
-            console.warn('🚫 Téléchargement bloqué - Contenu protégé');
-          }
-        } else {
-          devtools.open = false;
-        }
-      }, 500);
+    let devtools = { open: false };
 
-      // Bloquer les tentatives de copie d'URL
-      document.addEventListener('copy', (e) => {
-        if (window.getSelection()?.toString().includes('blob:')) {
-          e.clipboardData?.setData('text/plain', 'Contenu protégé - Téléchargement non autorisé');
-          e.preventDefault();
+    const intervalId = setInterval(() => {
+      if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        if (!devtools.open) {
+          devtools.open = true;
         }
-      });
+      } else {
+        devtools.open = false;
+      }
+    }, 500);
+
+    const handleCopy = (e: ClipboardEvent) => {
+      if (window.getSelection()?.toString().includes('blob:')) {
+        e.clipboardData?.setData('text/plain', 'Contenu protégé - Téléchargement non autorisé');
+        e.preventDefault();
+      }
     };
 
-    blockDevTools();
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('copy', handleCopy);
+    };
   }, []);
 
   return (
@@ -175,8 +171,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         onDragStart={(e) => e.preventDefault()}
         style={{
           // CSS pour masquer les boutons de téléchargement
-          //@ts-ignore
-          '--webkit-media-controls-download-button': 'none'
+          ...({ '--webkit-media-controls-download-button': 'none' } as React.CSSProperties)
         }}
       />
       
@@ -279,7 +274,6 @@ export const DownloadBlocker: React.FC = () => {
         (e.ctrlKey && e.key === 'u')
       ) {
         e.preventDefault();
-        console.warn('Action bloquée - Contenu protégé');
       }
     };
 

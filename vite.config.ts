@@ -159,6 +159,17 @@ export default defineConfig(({ mode }) => ({
       onwarn(warning, warn) {
         if (warning.code === 'TS6305') return;
         warn(warning);
+      },
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
+          'vendor-query': ['@tanstack/react-query', 'zustand'],
+          'vendor-charts': ['recharts'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-forms': ['react-hook-form', 'zod'],
+          'vendor-pdf': ['jspdf', 'html2canvas'],
+        }
       }
     }
   }
