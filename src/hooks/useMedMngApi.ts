@@ -1,7 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 
-const API_BASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/med-mng-api';
+const API_BASE_URL = `${SUPABASE_URL}/functions/v1/med-mng-api`;
 
 class MedMngApi {
   private csrfToken: string | null = null;

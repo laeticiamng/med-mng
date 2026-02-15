@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 import { AlertCircle, ChevronDown, Code, ExternalLink, HelpCircle, Search } from 'lucide-react';
 import { useState } from 'react';
 
@@ -46,7 +47,7 @@ const faqData: FAQItem[] = [
 - Vérifier les logs dans \`playwright-report/\`
 
 **Variables critiques:**
-- \`E2E_BASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co\`
+- \`E2E_BASE_URL=\${SUPABASE_URL}\`
 - \`SUPABASE_ANON_KEY=[voir .env.test]\`
 `,
     category: 'debugging',
@@ -211,7 +212,7 @@ src/stories/
 **Debug local:**
 \`\`\`bash
 # Tester directement l'edge function
-curl -X POST "https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music" \\
+curl -X POST "${SUPABASE_URL}/functions/v1/generate-music" \\
   -H "Authorization: Bearer [ANON_KEY]" \\
   -H "Content-Type: application/json" \\
   -d '{"lyrics": "test", "style": "pop", "rang": "A", "duration": 120}'

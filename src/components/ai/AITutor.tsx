@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
 import { Bot, Loader2, Maximize2, MessageCircle, Minimize2, Send, User, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -29,7 +30,7 @@ export function AITutor({ itemContext }: AITutorProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const CHAT_URL = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/ai-tutor`;
+  const CHAT_URL = `${SUPABASE_URL}/functions/v1/ai-tutor`;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -42,7 +43,7 @@ export function AITutor({ itemContext }: AITutorProps) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({ messages: userMessages, itemContext }),
     });

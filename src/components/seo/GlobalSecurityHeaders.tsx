@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 
 interface GlobalSecurityHeadersProps {
   title: string;
@@ -28,14 +29,15 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
   const fullTitle = title.includes('MED-MNG') ? title : `${title} | MED-MNG`;
 
   // CSP stricte pour grade A sécurité
+  const wssUrl = SUPABASE_URL.replace('https://', 'wss://');
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://yaincoxihiqdksxgrsrk.supabase.co https://cdn.jsdelivr.net https://js.stripe.com",
+    `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${SUPABASE_URL} https://cdn.jsdelivr.net https://js.stripe.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
     "media-src 'self' https: blob:",
-    "connect-src 'self' https://yaincoxihiqdksxgrsrk.supabase.co wss://yaincoxihiqdksxgrsrk.supabase.co https://api.sentry.io https://api.stripe.com https://api.openai.com https://api.perplexity.ai https://api.suno.ai",
+    `connect-src 'self' ${SUPABASE_URL} ${wssUrl} https://api.sentry.io https://api.stripe.com https://api.openai.com https://api.perplexity.ai https://api.suno.ai`,
     "frame-src 'self' https://js.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
@@ -89,10 +91,10 @@ export const GlobalSecurityHeaders: React.FC<GlobalSecurityHeadersProps> = ({
       <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
       {/* Preconnect for performance */}
-      <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossOrigin="anonymous" />
+      <link rel="preconnect" href={SUPABASE_URL} crossOrigin="anonymous" />
       <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co" />
+      <link rel="dns-prefetch" href={SUPABASE_URL.replace('https:', '//')} />
 
       {/* Favicon */}
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />

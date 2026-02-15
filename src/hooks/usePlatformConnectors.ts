@@ -82,12 +82,12 @@ export function usePlatformConnectors() {
       return null;
     }
 
-    // Stocker l'API key de manière sécurisée (en prod, utiliser Supabase secrets)
+    // Store API key in sessionStorage (cleared on browser close, safer than localStorage)
     const apiKeyStorageKey = `med-mng-connector-key-${type}`;
-    localStorage.setItem(apiKeyStorageKey, apiKey);
+    sessionStorage.setItem(apiKeyStorageKey, apiKey);
     if (additionalConfig) {
       Object.entries(additionalConfig).forEach(([key, value]) => {
-        localStorage.setItem(`med-mng-connector-${type}-${key}`, value);
+        sessionStorage.setItem(`med-mng-connector-${type}-${key}`, value);
       });
     }
 
@@ -281,7 +281,7 @@ export function usePlatformConnectors() {
     if (!connector) return;
 
     // Supprimer les clés stockées
-    localStorage.removeItem(`med-mng-connector-key-${connector.type}`);
+    sessionStorage.removeItem(`med-mng-connector-key-${connector.type}`);
 
     const updatedConnectors = connectors.map(c => {
       if (c.id === connectorId) {

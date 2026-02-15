@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 import { AlertTriangle, CheckCircle, Clock, RefreshCw, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -23,13 +24,13 @@ export const UptimeMonitor = () => {
     },
     {
       name: 'Supabase API',
-      url: 'https://yaincoxihiqdksxgrsrk.supabase.co',
+      url: SUPABASE_URL,
       status: 'checking',
       lastCheck: new Date(),
     },
     {
       name: 'Edge Functions',
-      url: 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1',
+      url: `${SUPABASE_URL}/functions/v1`,
       status: 'checking',
       lastCheck: new Date(),
     },

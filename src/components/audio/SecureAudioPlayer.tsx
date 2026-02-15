@@ -38,30 +38,24 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
 
     // Sécuriser l'élément audio
     const secureAudio = () => {
-      // Bloquer le clic droit
-      audio.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-      });
-
-      // Bloquer les raccourcis de téléchargement
-      audio.addEventListener('keydown', (e) => {
+      const handleContextMenu = (e: Event) => e.preventDefault();
+      const handleKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
           e.preventDefault();
         }
-      });
+      };
 
-      // Masquer l'URL source dans le DOM
+      audio.addEventListener('contextmenu', handleContextMenu);
+      audio.addEventListener('keydown', handleKeyDown);
+
       audio.removeAttribute('src');
-      
-      // Utiliser un Blob URL sécurisé
+
       createSecureSource(src).then(blobUrl => {
         audio.src = blobUrl;
-      }).catch(error => {
-        console.error('Error creating secure source:', error);
+      }).catch(() => {
         onError?.('Erreur de chargement audio sécurisé');
       });
 
-      // Bloquer l'inspection de l'élément
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
@@ -74,7 +68,11 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
 
       observer.observe(audio, { attributes: true });
 
-      return () => observer.disconnect();
+      return () => {
+        audio.removeEventListener('contextmenu', handleContextMenu);
+        audio.removeEventListener('keydown', handleKeyDown);
+        observer.disconnect();
+      };
     };
 
     // Event listeners
@@ -220,7 +218,6 @@ const createSecureSource = async (originalSrc: string): Promise<string> => {
     
     return blobUrl;
   } catch (error) {
-    console.error('Error creating secure audio source:', error);
     throw error;
   }
 };

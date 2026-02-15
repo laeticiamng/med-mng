@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client"
+import { SUPABASE_URL } from '@/lib/supabaseConstants'
 
 export interface TableauRang {
   title?: string
@@ -34,7 +35,7 @@ export interface CompletenessAuditResult {
 }
 
 class EdnTableauxService {
-  private baseUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/edn-tableaux-api`
+  private baseUrl = `${SUPABASE_URL}/functions/v1/edn-tableaux-api`
 
   async getTableauRangA(_itemId: string) {
     try {

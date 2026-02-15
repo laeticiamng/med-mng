@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 
 export interface APIClientConfig {
   baseURL?: string;
@@ -37,7 +38,7 @@ export class APIClient {
   private validateResponse: boolean;
 
   constructor(config: APIClientConfig = {}) {
-    this.baseURL = config.baseURL || 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1';
+    this.baseURL = config.baseURL || `${SUPABASE_URL}/functions/v1`;
     this.timeout = config.timeout || 30000;
     this.retries = config.retries || 3;
     this.validateRequest = config.validateRequest || false;

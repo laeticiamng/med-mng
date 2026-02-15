@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ArrowLeft, GripVertical, Music, Pause, Play, X } from 'lucide-react';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -146,7 +147,7 @@ export const PlaylistDetail = () => {
   };
 
   const handlePlay = (song: PlaylistSong) => {
-    const audioUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/secure-audio-stream?audioId=${song.suno_audio_id}`;
+    const audioUrl = `${SUPABASE_URL}/functions/v1/secure-audio-stream?audioId=${song.suno_audio_id}`;
     
     if (currentTrack?.url === audioUrl) {
       if (isPlaying) {
@@ -295,7 +296,7 @@ export const PlaylistDetail = () => {
           >
             <SortableContext items={songs.map(s => s.song_id)} strategy={verticalListSortingStrategy}>
               {songs.map((song) => {
-                const audioUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/secure-audio-stream?audioId=${song.suno_audio_id}`;
+                const audioUrl = `${SUPABASE_URL}/functions/v1/secure-audio-stream?audioId=${song.suno_audio_id}`;
                 const isCurrentlyPlaying = currentTrack?.url === audioUrl && isPlaying;
                 
                 return (

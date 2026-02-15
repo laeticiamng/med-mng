@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabaseConstants';
 
 interface OicCompetence {
   objectif_id: string;
@@ -12,9 +13,6 @@ interface TableauCompetencesOICWithRealDataProps {
   itemCode: string;
   rang: 'A' | 'B';
 }
-
-const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
 
 export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWithRealDataProps> = ({ 
   itemCode, 

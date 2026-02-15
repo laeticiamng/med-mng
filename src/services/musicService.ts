@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client"
+import { SUPABASE_URL } from '@/lib/supabaseConstants'
 
 export interface MusicGenerationRequest {
   item_id: string
@@ -53,7 +54,7 @@ export interface PlaylistSong {
 }
 
 class MusicService {
-  private baseUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/music-generation`
+  private baseUrl = `${SUPABASE_URL}/functions/v1/music-generation`
 
   // ===== GÉNÉRATION MUSICALE =====
   async generateSong(request: MusicGenerationRequest): Promise<{

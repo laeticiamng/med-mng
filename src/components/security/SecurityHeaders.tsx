@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 
 interface SecurityHeadersProps {
   title?: string;
@@ -15,14 +16,15 @@ export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
   children
 }) => {
   // Configuration CSP stricte pour grade A sécurité
+  const wssUrl = SUPABASE_URL.replace('https://', 'wss://');
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://yaincoxihiqdksxgrsrk.supabase.co https://cdn.jsdelivr.net",
+    `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${SUPABASE_URL} https://cdn.jsdelivr.net`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
     "media-src 'self' https: blob:",
-    "connect-src 'self' https://yaincoxihiqdksxgrsrk.supabase.co wss://yaincoxihiqdksxgrsrk.supabase.co https://api.sentry.io",
+    `connect-src 'self' ${SUPABASE_URL} ${wssUrl} https://api.sentry.io`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -64,12 +66,12 @@ export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
       <meta name="twitter:description" content={description} />
       
       {/* Préconnexions sécurisées */}
-      <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossOrigin="anonymous" />
+      <link rel="preconnect" href={SUPABASE_URL} crossOrigin="anonymous" />
       <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       
       {/* DNS Prefetch pour optimisation */}
-      <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co" />
+      <link rel="dns-prefetch" href={SUPABASE_URL.replace('https:', '//')} />
       
       {/* Favicon sécurisé */}
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />

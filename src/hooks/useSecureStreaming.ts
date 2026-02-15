@@ -1,5 +1,6 @@
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL } from '@/lib/supabaseConstants';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -86,7 +87,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
       }, session.expiresAt - Date.now());
 
       // Construire l'URL de stream sécurisée
-      const streamUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/secure-streaming-proxy${session.streamUrl}`;
+      const streamUrl = `${SUPABASE_URL}/functions/v1/secure-streaming-proxy${session.streamUrl}`;
       
       return streamUrl;
 
