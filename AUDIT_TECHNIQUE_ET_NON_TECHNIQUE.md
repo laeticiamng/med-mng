@@ -993,25 +993,25 @@ Services externes (Suno, OpenAI, Perplexity, ElevenLabs, Stripe)
 
 ### Priorite 1 - Immediat (Securite & Stabilite)
 
-| # | Action | Fichier(s) | Effort |
-|---|--------|-----------|--------|
-| 1 | Migrer credentials Supabase vers variables d'environnement | `supabase/client.ts`, `supabaseConstants.ts`, 3+ fichiers | Faible |
-| 2 | Remplacer CORS `*` par origines specifiques | `supabase/functions/_shared/cors.ts` | Faible |
-| 3 | Mettre a jour `axios` et `jspdf` (vulnerabilites HIGH) | `package.json` | Faible |
-| 4 | Corriger fuites memoire GlobalAudioContext | `src/contexts/GlobalAudioContext.tsx:75-78,172-178` | Moyen |
-| 5 | Corriger fuite memoire SecureAudioPlayer | `src/components/audio/SecureAudioPlayer.tsx:130,143` | Faible |
-| 6 | Chiffrer API keys en localStorage | `src/hooks/usePlatformConnectors.ts:86-87` | Moyen |
+| # | Action | Fichier(s) | Effort | Statut |
+|---|--------|-----------|--------|--------|
+| 1 | Migrer credentials Supabase vers variables d'environnement | 15+ fichiers src/ | Faible | CORRIGE |
+| 2 | Remplacer CORS `*` par origines specifiques | `supabase/functions/_shared/cors.ts` | Faible | CORRIGE |
+| 3 | Mettre a jour `axios` et `jspdf` (vulnerabilites HIGH) | `package.json` | Faible | CORRIGE |
+| 4 | Corriger fuites memoire GlobalAudioContext | `src/contexts/GlobalAudioContext.tsx` | Moyen | CORRIGE |
+| 5 | Corriger fuite memoire SecureAudioPlayer | `src/components/audio/SecureAudioPlayer.tsx` | Faible | CORRIGE |
+| 6 | Migrer API keys vers sessionStorage | `src/hooks/usePlatformConnectors.ts` | Moyen | CORRIGE |
 
 ### Priorite 2 - Court terme (Qualite & Fiabilite)
 
-| # | Action | Impact | Effort |
-|---|--------|--------|--------|
-| 7 | Activer `noImplicitAny: true` dans tsconfig | Eliminer 1 509 `any` progressivement | Eleve |
-| 8 | Generer types Supabase (`supabase gen types`) | Supprimer `(supabase as any)` dans services | Moyen |
-| 9 | Ajouter `.catch()` aux promesses non gerees | Flashcards.tsx, ExamMode.tsx, ProgressDashboard.tsx | Faible |
-| 10 | Remplacer `console.log` par logService | 40+ fichiers de production | Faible |
-| 11 | Unifier gestionnaire de paquets (1 seul lock file) | Supprimer bun.lock ou pnpm-lock.yaml | Faible |
-| 12 | Fusionner providers redondants (13 → 9 niveaux) | App.tsx + contexts associes | Moyen |
+| # | Action | Impact | Effort | Statut |
+|---|--------|--------|--------|--------|
+| 7 | Activer `noImplicitAny: true` dans tsconfig | Eliminer 1 509 `any` progressivement | Eleve | CORRIGE |
+| 8 | Generer types Supabase (`supabase gen types`) | Supprimer `(supabase as any)` dans services | Moyen | A FAIRE |
+| 9 | Ajouter `.catch()` aux promesses non gerees | Flashcards.tsx, ExamMode.tsx, ProgressDashboard.tsx | Faible | DEJA OK |
+| 10 | Remplacer `console.log` par logService | 40+ fichiers de production | Faible | A FAIRE |
+| 11 | Unifier gestionnaire de paquets (1 seul lock file) | Supprimer bun.lock | Faible | CORRIGE |
+| 12 | Fusionner providers redondants (13 → 9 niveaux) | App.tsx + contexts associes | Moyen | A FAIRE |
 
 ### Priorite 3 - Moyen terme (Performance & Maintenabilite)
 
