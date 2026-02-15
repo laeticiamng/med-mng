@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logService } from '@/services/logService';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { TEST_MODE_ENABLED, TEST_USER } from '@/config/testMode';
 
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error?.code === 'refresh_token_not_found' || 
         error?.message?.includes('Refresh Token Not Found') ||
         error?.message?.includes('Invalid Refresh Token')) {
-      console.warn('🔄 Token de rafraîchissement invalide, nettoyage de la session...');
+      logService.warn('auth', 'Token de rafraîchissement invalide, nettoyage de la session...');
       // Nettoyer la session locale sans appeler signOut (qui pourrait échouer)
       supabase.auth.signOut({ scope: 'local' }).catch(() => {
         // Ignorer les erreurs de déconnexion locale
@@ -46,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (TEST_MODE_ENABLED) {
       // Log unique pour éviter le spam console
       if (!sessionStorage.getItem('test-mode-logged')) {
-        console.log('🧪 Mode test actif - Authentification simulée');
+        logService.info('auth', 'Mode test actif - Authentification simulée');
         sessionStorage.setItem('test-mode-logged', 'true');
       }
       setUser(TEST_USER as unknown as User);
@@ -65,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Erreur lors de la récupération de session:', error);
+        logService.error('auth', 'Erreur lors de la récupération de session', { error });
         handleAuthError(error);
         setLoading(false);
       });
@@ -73,11 +74,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (import.meta.env.DEV) console.log('🔔 Auth state change:', event);
+        if (import.meta.env.DEV) logService.debug('auth', 'Auth state change', { event });
         
         // Gérer les erreurs de token
         if (event === 'TOKEN_REFRESHED' && !session) {
-          console.warn('⚠️ Échec du rafraîchissement du token');
+          logService.warn('auth', 'Échec du rafraîchissement du token');
           setUser(null);
           setLoading(false);
           return;
@@ -99,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               metadata: { event: 'signed_in' }
             });
           } catch (e) {
-            console.warn('Could not log sign in activity:', e);
+            logService.warn('auth', 'Could not log sign in activity', { error: e });
           }
 
           // Upsert profile with name immediately
@@ -114,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               updated_at: new Date().toISOString(),
             }, { onConflict: 'id' });
           } catch (e) {
-            console.warn('Could not upsert profile:', e);
+            logService.warn('auth', 'Could not upsert profile', { error: e });
           }
 
           // Send welcome email for new users
@@ -125,13 +126,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           if (isNewUser) {
             const name = userName || userEmail?.split('@')[0] || '';
-            if (import.meta.env.DEV) console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+            if (import.meta.env.DEV) logService.info('auth', 'Nouvel utilisateur inscrit, envoi email de bienvenue...');
             
             setTimeout(async () => {
               try {
                 await sendWelcomeEmail(session.user.email!, name);
               } catch (e) {
-                console.warn('Échec envoi email de bienvenue:', e);
+                logService.warn('auth', 'Échec envoi email de bienvenue', { error: e });
               }
             }, 2000);
           }
@@ -139,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (event === 'SIGNED_OUT') {
-          if (import.meta.env.DEV) console.log('User signed out');
+          if (import.meta.env.DEV) logService.info('auth', 'User signed out');
         }
       }
     );
@@ -181,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.warn('Erreur lors de la déconnexion:', error);
+      logService.warn('auth', 'Erreur lors de la déconnexion', { error });
       // Forcer la déconnexion locale même si l'appel API échoue
       setUser(null);
     }

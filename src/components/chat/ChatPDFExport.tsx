@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -40,6 +39,7 @@ export const ChatPDFExport: React.FC<ChatPDFExportProps> = ({
     setExporting(true);
 
     try {
+      const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF();
       let yPosition = 20;
       const pageWidth = doc.internal.pageSize.getWidth();

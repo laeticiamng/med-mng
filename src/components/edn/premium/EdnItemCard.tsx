@@ -69,7 +69,7 @@ interface EdnItemCardProps {
   onRemoveOffline?: (itemCode: string) => void;
 }
 
-export const EdnItemCard: React.FC<EdnItemCardProps> = ({
+export const EdnItemCard: React.FC<EdnItemCardProps> = React.memo(function EdnItemCard({
   item,
   completionPercentage,
   onOpen,
@@ -79,7 +79,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   isDownloading = false,
   onDownloadOffline,
   onRemoveOffline,
-}) => {
+}) {
   const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
@@ -317,4 +317,4 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
       </CardContent>
     </Card>
   );
-};
+});

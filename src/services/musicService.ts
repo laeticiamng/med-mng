@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client"
 import { SUPABASE_URL } from '@/lib/supabaseConstants'
+import { logService } from '@/services/logService'
 
 export interface MusicGenerationRequest {
   item_id: string
@@ -66,7 +67,7 @@ class MusicService {
     error?: string
   }> {
     try {
-      console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
+      logService.info('music', `Generating song for ${request.item_code} Rang ${request.rang_type}`)
       
       const { data, error } = await supabase.functions.invoke('music-generation', {
         body: request,
@@ -76,17 +77,17 @@ class MusicService {
       if (error) throw error
 
       if (data.success) {
-        console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
+        logService.info('music', `Song generated successfully in ${data.duration_seconds}s`)
         // Événement analytics
         this.trackGeneration(request, data.duration_seconds, true)
       } else {
-        console.error('❌ Song generation failed:', data.error)
+        logService.error('music', 'Song generation failed', { error: data.error })
         this.trackGeneration(request, 0, false, data.error)
       }
 
       return data
     } catch (error) {
-      console.error('❌ Error generating song:', error)
+      logService.error('music', 'Error generating song', { error })
       this.trackGeneration(request, 0, false, error.message)
       throw error
     }
@@ -105,7 +106,7 @@ class MusicService {
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching generation stats:', error)
+      logService.error('music', 'Error fetching generation stats', { error })
       throw error
     }
   }
@@ -130,7 +131,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching user library:', error)
+      logService.error('music', 'Error fetching user library', { error })
       throw error
     }
   }
@@ -150,9 +151,9 @@ class MusicService {
         })
 
       if (error) throw error
-      console.log('✅ Song added to library')
+      logService.info('music', 'Song added to library')
     } catch (error) {
-      console.error('❌ Error adding to library:', error)
+      logService.error('music', 'Error adding to library', { error })
       throw error
     }
   }
@@ -165,9 +166,9 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from library')
+      logService.info('music', 'Song removed from library')
     } catch (error) {
-      console.error('❌ Error removing from library:', error)
+      logService.error('music', 'Error removing from library', { error })
       throw error
     }
   }
@@ -177,7 +178,7 @@ class MusicService {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        console.warn('⚠️ User not authenticated for playlists')
+        logService.warn('music', 'User not authenticated for playlists')
         return []
       }
 
@@ -196,7 +197,7 @@ class MusicService {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('❌ Error fetching playlists:', error)
+        logService.error('music', 'Error fetching playlists', { error })
         return []
       }
 
@@ -216,7 +217,7 @@ class MusicService {
 
       return playlists
     } catch (error) {
-      console.error('❌ Error fetching playlists:', error)
+      logService.error('music', 'Error fetching playlists', { error })
       return []
     }
   }
@@ -244,10 +245,10 @@ class MusicService {
         songs: []
       }
 
-      console.log('✅ Playlist created:', name)
+      logService.info('music', 'Playlist created', { name })
       return newPlaylist
     } catch (error) {
-      console.error('❌ Error creating playlist:', error)
+      logService.error('music', 'Error creating playlist', { error })
       throw error
     }
   }
@@ -273,9 +274,9 @@ class MusicService {
         })
 
       if (error) throw error
-      console.log('✅ Song added to playlist')
+      logService.info('music', 'Song added to playlist')
     } catch (error) {
-      console.error('❌ Error adding song to playlist:', error)
+      logService.error('music', 'Error adding song to playlist', { error })
       throw error
     }
   }
@@ -289,9 +290,9 @@ class MusicService {
         .eq('song_id', songId)
 
       if (error) throw error
-      console.log('✅ Song removed from playlist')
+      logService.info('music', 'Song removed from playlist')
     } catch (error) {
-      console.error('❌ Error removing song from playlist:', error)
+      logService.error('music', 'Error removing song from playlist', { error })
       throw error
     }
   }
@@ -311,9 +312,9 @@ class MusicService {
         .eq('id', playlistId)
 
       if (error) throw error
-      console.log('✅ Playlist deleted')
+      logService.info('music', 'Playlist deleted')
     } catch (error) {
-      console.error('❌ Error deleting playlist:', error)
+      logService.error('music', 'Error deleting playlist', { error })
       throw error
     }
   }
@@ -338,7 +339,7 @@ class MusicService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('❌ Error fetching favorites:', error)
+      logService.error('music', 'Error fetching favorites', { error })
       throw error
     }
   }
@@ -360,7 +361,7 @@ class MusicService {
           .eq('song_id', songId)
 
         if (error) throw error
-        console.log('✅ Removed from favorites')
+        logService.info('music', 'Removed from favorites')
         return false
       } else {
         // Ajouter aux favoris
@@ -376,11 +377,11 @@ class MusicService {
           })
 
         if (error) throw error
-        console.log('✅ Added to favorites')
+        logService.info('music', 'Added to favorites')
         return true
       }
     } catch (error) {
-      console.error('❌ Error toggling favorite:', error)
+      logService.error('music', 'Error toggling favorite', { error })
       throw error
     }
   }
@@ -411,7 +412,7 @@ class MusicService {
       timestamp: new Date().toISOString()
     }
     
-    console.log('📊 Music generation event:', event)
+    logService.info('music', 'Music generation event', { event })
     
     // Stocker dans Supabase pour analytics persistants
     try {
@@ -424,7 +425,7 @@ class MusicService {
         })
       }
     } catch (err) {
-      console.warn('Failed to save music analytics:', err)
+      logService.warn('music', 'Failed to save music analytics', { error: err })
     }
   }
 
@@ -475,7 +476,7 @@ class MusicService {
         item.item_code?.toLowerCase().includes(queryLower)
       )
     } catch (error) {
-      console.error('Error searching library:', error)
+      logService.error('music', 'Error searching library', { error })
       return []
     }
   }
@@ -516,7 +517,7 @@ class MusicService {
         byRang
       }
     } catch (error) {
-      console.error('Error getting library stats:', error)
+      logService.error('music', 'Error getting library stats', { error })
       return {
         totalSongs: 0,
         totalPlaylists: 0,
@@ -535,7 +536,7 @@ class MusicService {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, limit)
     } catch (error) {
-      console.error('Error getting recent songs:', error)
+      logService.error('music', 'Error getting recent songs', { error })
       return []
     }
   }
@@ -559,10 +560,10 @@ class MusicService {
         await this.addSongToPlaylist(newPlaylist.id, song.song_id)
       }
 
-      console.log('Playlist duplicated successfully')
+      logService.info('music', 'Playlist duplicated successfully')
       return newPlaylist
     } catch (error) {
-      console.error('Error duplicating playlist:', error)
+      logService.error('music', 'Error duplicating playlist', { error })
       return null
     }
   }
@@ -586,7 +587,7 @@ class MusicService {
 
       return JSON.stringify(exportData, null, 2)
     } catch (error) {
-      console.error('Error exporting playlist:', error)
+      logService.error('music', 'Error exporting playlist', { error })
       return null
     }
   }
@@ -621,7 +622,7 @@ class MusicService {
       const playlists = await this.getUserPlaylists()
       return playlists.filter(p => p.songs.some(s => s.song_id === songId))
     } catch (error) {
-      console.error('Error getting playlists containing song:', error)
+      logService.error('music', 'Error getting playlists containing song', { error })
       return []
     }
   }
@@ -642,7 +643,7 @@ class MusicService {
     if (typeof window !== 'undefined') {
       (window as any).__musicAnalyticsQueue = [];
     }
-    console.log('Music analytics cleared')
+    logService.info('music', 'Music analytics cleared')
   }
 }
 

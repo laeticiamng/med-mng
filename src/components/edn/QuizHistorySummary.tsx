@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuizHistory } from '@/hooks/useQuizHistory';
 import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import jsPDF from 'jspdf';
 import { Clock, FileDown, Loader2, Minus, Target, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
 import React, { useCallback } from 'react';
 import { Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -16,10 +15,11 @@ interface QuizHistorySummaryProps {
 export const QuizHistorySummary: React.FC<QuizHistorySummaryProps> = ({ itemCode }) => {
   const { summary, loading } = useQuizHistory(itemCode);
 
-  const exportToPDF = useCallback(() => {
+  const exportToPDF = useCallback(async () => {
     if (!summary) return;
-    
+
     try {
+      const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       

@@ -10,7 +10,6 @@ import {
   BookOpen, Music, Brain, Award, Settings
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
 
 interface ExportOptions {
   includeProgress: boolean;
@@ -57,6 +56,7 @@ export const PDFExportService: React.FC = () => {
     setExportProgress(0);
 
     try {
+      const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF();
       let yPosition = 20;
 

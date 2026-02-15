@@ -15,7 +15,6 @@ import { ScheduledReports } from './ScheduledReports';
 import { UnifiedAlertsPanel } from './UnifiedAlertsPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
 
 export const SecurityDashboard = () => {
   const { validation, loading, revalidate, exportReport } = useSecurityValidation();
@@ -30,6 +29,7 @@ export const SecurityDashboard = () => {
       if (error) throw error;
 
       // Generate PDF from HTML using jsPDF
+      const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF();
 
       // Add content to PDF

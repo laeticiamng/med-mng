@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { LanguageProvider, useLanguage } from './LanguageContext';
 
-// Types pour l'internationalisation
+// Types pour l'internationalisation - extended to include all LanguageContext languages
 export type Language = 'fr' | 'en' | 'es' | 'de' | 'it';
 
 export interface TranslationData {
@@ -633,73 +634,58 @@ interface InternationalizationProviderProps {
   children: ReactNode;
 }
 
-export const InternationalizationProvider: React.FC<InternationalizationProviderProps> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Détecter la langue du navigateur
-    const browserLanguage = navigator.language.split('-')[0] as Language;
-    const savedLanguage = localStorage.getItem('med-mng-language') as Language;
-    
-    // Vérifier si la langue est supportée
-    const supportedLanguages = ['fr', 'en', 'es', 'de', 'it'];
-    
-    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
-      return savedLanguage;
-    }
-    
-    if (supportedLanguages.includes(browserLanguage)) {
-      return browserLanguage;
-    }
-    
-    return 'fr'; // Langue par défaut
-  });
+// Inner component that consumes LanguageContext and provides InternationalizationContext
+const InternationalizationInner: React.FC<InternationalizationProviderProps> = ({ children }) => {
+  const { currentLanguage, setCurrentLanguage } = useLanguage();
 
-  const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    localStorage.setItem('med-mng-language', newLanguage);
+  // Map LanguageContext language to our supported set
+  const language = (['fr', 'en', 'es', 'de', 'it'].includes(currentLanguage)
+    ? currentLanguage
+    : 'fr') as Language;
+
+  const setLanguage = useCallback((newLanguage: Language) => {
+    setCurrentLanguage(newLanguage as any);
     document.documentElement.lang = newLanguage;
-    
-    // Mettre à jour la direction du texte si nécessaire
-    document.documentElement.dir = 'ltr'; // Toutes nos langues sont LTR pour l'instant
-  };
+    document.documentElement.dir = 'ltr';
+  }, [setCurrentLanguage]);
 
   // Fonction de traduction avec support des clés imbriquées
-  const t = (key: string): string => {
+  const t = useCallback((key: string): string => {
     const keys = key.split('.');
     let value: any = translations[language];
-    
+
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key} for language: ${language}`);
-        return key; // Retourne la clé si la traduction n'existe pas
+        return key;
       }
     }
-    
+
     return typeof value === 'string' ? value : key;
-  };
+  }, [language]);
 
   // Formatage des nombres selon la locale
-  const formatNumber = (number: number): string => {
+  const formatNumber = useCallback((number: number): string => {
     return new Intl.NumberFormat(language === 'en' ? 'en-US' : language).format(number);
-  };
+  }, [language]);
 
   // Formatage des dates selon la locale
-  const formatDate = (date: Date): string => {
+  const formatDate = useCallback((date: Date): string => {
     return new Intl.DateTimeFormat(language === 'en' ? 'en-US' : language, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     }).format(date);
-  };
+  }, [language]);
 
   // Formatage de l'heure selon la locale
-  const formatTime = (date: Date): string => {
+  const formatTime = useCallback((date: Date): string => {
     return new Intl.DateTimeFormat(language === 'en' ? 'en-US' : language, {
       hour: '2-digit',
       minute: '2-digit',
     }).format(date);
-  };
+  }, [language]);
 
   // Liste des langues supportées
   const languages = [
@@ -731,5 +717,14 @@ export const InternationalizationProvider: React.FC<InternationalizationProvider
     <InternationalizationContext.Provider value={value}>
       {children}
     </InternationalizationContext.Provider>
+  );
+};
+
+// Merged provider: wraps LanguageProvider + InternationalizationContext
+export const InternationalizationProvider: React.FC<InternationalizationProviderProps> = ({ children }) => {
+  return (
+    <LanguageProvider>
+      <InternationalizationInner>{children}</InternationalizationInner>
+    </LanguageProvider>
   );
 };

@@ -13,7 +13,7 @@ import {
   Award,
   X
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+
 
 interface Achievement {
   id: string;
@@ -89,16 +89,19 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({
       
       // Confetti pour les achievements rares+
       if (achievement.rarity !== 'common') {
-        confetti({
-          particleCount: achievement.rarity === 'legendary' ? 150 : achievement.rarity === 'epic' ? 100 : 50,
-          spread: 70,
-          origin: { y: 0.3 },
-          colors: achievement.rarity === 'legendary' 
-            ? ['#FFD700', '#FFA500', '#FF6347'] 
-            : achievement.rarity === 'epic'
-            ? ['#9370DB', '#8A2BE2', '#DDA0DD']
-            : ['#4169E1', '#00CED1', '#87CEEB'],
-        });
+        (async () => {
+          const confetti = (await import('canvas-confetti')).default;
+          confetti({
+            particleCount: achievement.rarity === 'legendary' ? 150 : achievement.rarity === 'epic' ? 100 : 50,
+            spread: 70,
+            origin: { y: 0.3 },
+            colors: achievement.rarity === 'legendary'
+              ? ['#FFD700', '#FFA500', '#FF6347']
+              : achievement.rarity === 'epic'
+              ? ['#9370DB', '#8A2BE2', '#DDA0DD']
+              : ['#4169E1', '#00CED1', '#87CEEB'],
+          });
+        })();
       }
 
       // Auto-close

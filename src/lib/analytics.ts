@@ -1,5 +1,6 @@
 // Unified Analytics Service - Google Analytics + Sentry integration
 
+import { logService } from '@/services/logService';
 import { captureError, addBreadcrumb } from './sentry';
 
 // Google Analytics 4 configuration
@@ -126,7 +127,7 @@ export function trackPerformance(
 // Initialize GA4 script
 export function initGoogleAnalytics() {
   if (!GA_MEASUREMENT_ID || typeof window === 'undefined') {
-    console.debug('Google Analytics not configured');
+    logService.debug('performance', 'Google Analytics not configured');
     return;
   }
 
@@ -149,7 +150,7 @@ export function initGoogleAnalytics() {
     send_page_view: false // We'll track manually
   });
 
-  console.debug('Google Analytics initialized');
+  logService.debug('performance', 'Google Analytics initialized');
 }
 
 // Internal event logging - uploads to Supabase when possible

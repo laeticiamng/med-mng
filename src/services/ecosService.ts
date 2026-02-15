@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logService } from '@/services/logService';
 
 export interface EcosSituation {
   id: string;
@@ -65,7 +66,7 @@ class EcosService {
     });
 
     if (error) {
-      console.error('Error fetching ECOS situations:', error);
+      logService.error('system', 'Error fetching ECOS situations', { error });
       throw new Error('Erreur lors de la récupération des situations ECOS');
     }
 
@@ -79,7 +80,7 @@ class EcosService {
     });
 
     if (error) {
-      console.error('Error fetching ECOS situation:', error);
+      logService.error('system', 'Error fetching ECOS situation', { error });
       throw new Error('Erreur lors de la récupération de la situation ECOS');
     }
 
@@ -93,7 +94,7 @@ class EcosService {
     });
 
     if (error) {
-      console.error('Error fetching ECOS competences:', error);
+      logService.error('system', 'Error fetching ECOS competences', { error });
       throw new Error('Erreur lors de la récupération des compétences');
     }
 
@@ -107,7 +108,7 @@ class EcosService {
     });
 
     if (error) {
-      console.error('Error fetching ECOS analytics:', error);
+      logService.error('system', 'Error fetching ECOS analytics', { error });
       throw new Error('Erreur lors de la récupération des analytics ECOS');
     }
 
@@ -129,7 +130,7 @@ class EcosService {
     });
 
     if (error) {
-      console.error('Error in advanced ECOS search:', error);
+      logService.error('system', 'Error in advanced ECOS search', { error });
       throw new Error('Erreur lors de la recherche avancée ECOS');
     }
 
@@ -213,7 +214,7 @@ class EcosService {
       });
       return true;
     } catch (error) {
-      console.error('Error marking situation as studied:', error);
+      logService.error('system', 'Error marking situation as studied', { error });
       return false;
     }
   }
@@ -233,7 +234,7 @@ class EcosService {
         .filter(d => d.metadata && (d.metadata as any).sd_id)
         .map(d => (d.metadata as any).sd_id);
     } catch (error) {
-      console.error('Error getting studied situations:', error);
+      logService.error('system', 'Error getting studied situations', { error });
       return [];
     }
   }
@@ -281,7 +282,7 @@ class EcosService {
         .filter(s => !studiedIds.includes(s.sd_id))
         .slice(0, count);
     } catch (error) {
-      console.error('Error getting recommended situations:', error);
+      logService.error('system', 'Error getting recommended situations', { error });
       return [];
     }
   }
@@ -350,7 +351,7 @@ class EcosService {
         studyStreak: streak
       };
     } catch (error) {
-      console.error('Error getting user ECOS stats:', error);
+      logService.error('system', 'Error getting user ECOS stats', { error });
       return {
         totalStudied: 0,
         lastStudied: null,

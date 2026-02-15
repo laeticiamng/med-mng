@@ -24,7 +24,7 @@ import { AutoSEO } from '@/components/seo/AutoSEO';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
-import { LanguageProvider } from "@/contexts/LanguageContext";
+// LanguageProvider is now embedded inside InternationalizationProvider
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -203,13 +203,12 @@ const App = () => {
           <BrowserRouter>
             <HelmetProvider>
               <AuthProvider>
-                <LanguageProvider>
-                  <GlobalAudioProvider>
-                    <TooltipProvider>
-                      <ViewportProvider>
-                        <AccessibilityProvider>
-                          <InternationalizationProvider>
-                            <PerformanceProvider>
+                <GlobalAudioProvider>
+                  <TooltipProvider>
+                    <ViewportProvider>
+                      <AccessibilityProvider>
+                        <InternationalizationProvider>
+                          <PerformanceProvider>
                               <SkipLinks />
                               <AutoSEO />
                               <GlobalJsonLd />
@@ -388,13 +387,12 @@ const App = () => {
                               </div>
                               <Toaster />
                               <Sonner />
-                            </PerformanceProvider>
-                          </InternationalizationProvider>
-                        </AccessibilityProvider>
-                      </ViewportProvider>
-                    </TooltipProvider>
-                  </GlobalAudioProvider>
-                </LanguageProvider>
+                          </PerformanceProvider>
+                        </InternationalizationProvider>
+                      </AccessibilityProvider>
+                    </ViewportProvider>
+                  </TooltipProvider>
+                </GlobalAudioProvider>
               </AuthProvider>
             </HelmetProvider>
           </BrowserRouter>

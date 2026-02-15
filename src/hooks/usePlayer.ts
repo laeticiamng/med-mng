@@ -1,4 +1,5 @@
 import { useToast } from '@/hooks/use-toast';
+import { logService } from '@/services/logService';
 import { Track } from '@/types/music';
 import { useEffect, useRef, useState } from 'react';
 
@@ -126,7 +127,7 @@ export const usePlayer = () => {
       setState(prev => ({ ...prev, isPlaying: true }));
 
     } catch (error) {
-      console.error('Erreur lecture:', error);
+      logService.error('music', 'Erreur lecture', { error });
       setState(prev => ({ ...prev, isLoading: false, isPlaying: false }));
       toast({
         title: "Erreur de lecture",
@@ -249,7 +250,7 @@ export const usePlayer = () => {
         await audioRef.current.play();
         setState(prev => ({ ...prev, isPlaying: true }));
       } catch (error) {
-        console.error('Erreur replay:', error);
+        logService.error('music', 'Erreur replay', { error });
       }
     }
   };

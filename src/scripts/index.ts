@@ -1,7 +1,7 @@
 // Scripts Central Index
 
 // Audit Module
-export * from './audit/types';
+export type { AuditResult, AuditReport } from './audit/types';
 
 // Individual Scripts (documented entry points)
 // Note: Most scripts are CLI tools, not library exports

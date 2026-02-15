@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logService } from '@/services/logService';
 
 export interface QcmQuestion {
   id: string;
@@ -85,7 +86,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error generating QCM:', error);
+      logService.error('system', 'Error generating QCM', { error });
       throw new Error('Erreur lors de la génération du QCM');
     }
 
@@ -106,7 +107,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error starting QCM session:', error);
+      logService.error('system', 'Error starting QCM session', { error });
       throw new Error('Erreur lors du démarrage de la session QCM');
     }
 
@@ -137,7 +138,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error submitting QCM response:', error);
+      logService.error('system', 'Error submitting QCM response', { error });
       throw new Error('Erreur lors de la soumission de la réponse');
     }
 
@@ -159,7 +160,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error completing QCM session:', error);
+      logService.error('system', 'Error completing QCM session', { error });
       throw new Error('Erreur lors de la finalisation de la session');
     }
 
@@ -182,7 +183,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error generating error song:', error);
+      logService.error('music', 'Error generating error song', { error });
       throw new Error('Erreur lors de la génération de la chanson d\'erreurs');
     }
 
@@ -196,7 +197,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error fetching QCM history:', error);
+      logService.error('system', 'Error fetching QCM history', { error });
       throw new Error('Erreur lors de la récupération de l\'historique QCM');
     }
 
@@ -215,13 +216,13 @@ class QcmService {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching quotas:', error);
+        logService.error('system', 'Error fetching quotas', { error });
         return null;
       }
 
       return data as UserQuota;
     } catch (error) {
-      console.error('Error in getUserQuotas:', error);
+      logService.error('system', 'Error in getUserQuotas', { error });
       return null;
     }
   }
@@ -243,7 +244,7 @@ class QcmService {
       .maybeSingle();
 
     if (error) {
-      console.error('Error creating default quotas:', error);
+      logService.error('system', 'Error creating default quotas', { error });
       throw new Error('Erreur lors de la création des quotas');
     }
 

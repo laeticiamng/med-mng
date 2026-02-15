@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { logService } from '@/services/logService';
 import { useInternationalization } from './InternationalizationContext';
 
 interface PerformanceContextType {
@@ -122,7 +123,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
         }
 
       } catch (error) {
-        console.warn('Performance measurement not supported:', error);
+        logService.warn('performance', 'Performance measurement not supported', { error });
       }
     };
 
@@ -210,7 +211,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       });
     }
     
-    console.log(`📊 Performance Metric - ${name}: ${value}`);
+    logService.info('performance', `Performance Metric - ${name}: ${value}`);
   };
 
   const getPerformanceScore = (): number => {
@@ -249,7 +250,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       suggestions.push(t('performance.suggestions.optimizeMemory'));
     }
     
-    console.log('🔧 Optimizations suggérées:', suggestions);
+    logService.info('performance', 'Optimizations suggérées', { suggestions });
     return suggestions;
   };
 

@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useBadgeUnlockTrigger } from '@/hooks/useBadgeUnlockTrigger';
 import type { Badge as BadgeType } from '@/hooks/useGamification';
-import canvasConfetti from 'canvas-confetti';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Clock, Lock, Share2, Sparkles, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -72,13 +72,14 @@ export function BadgeCollection({ unlockedBadges, allBadges, showStats = true }:
   }, [soundEnabled]);
 
   // Fire confetti on unlock
-  const fireConfetti = useCallback((rarity: string) => {
+  const fireConfetti = useCallback(async (rarity: string) => {
     const colors = {
       common: ['#64748b', '#94a3b8'],
       rare: ['#3b82f6', '#60a5fa'],
       epic: ['#8b5cf6', '#a78bfa'],
       legendary: ['#eab308', '#fde047', '#f59e0b'],
     };
+    const canvasConfetti = (await import('canvas-confetti')).default;
     canvasConfetti({
       particleCount: rarity === 'legendary' ? 150 : rarity === 'epic' ? 100 : 50,
       spread: 70,

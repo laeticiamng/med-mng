@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client"
 import { SUPABASE_URL } from '@/lib/supabaseConstants'
+import { logService } from '@/services/logService'
 
 export interface TableauRang {
   title?: string
@@ -47,7 +48,7 @@ class EdnTableauxService {
       if (error) throw error
       return data
     } catch (error) {
-      console.error('❌ Error fetching tableau Rang A:', error)
+      logService.error('database', 'Error fetching tableau Rang A', { error })
       throw error
     }
   }
@@ -68,7 +69,7 @@ class EdnTableauxService {
 
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching tableau Rang B:', error)
+      logService.error('database', 'Error fetching tableau Rang B', { error })
       throw error
     }
   }
@@ -89,7 +90,7 @@ class EdnTableauxService {
 
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching both tableaux:', error)
+      logService.error('database', 'Error fetching both tableaux', { error })
       throw error
     }
   }
@@ -109,11 +110,11 @@ class EdnTableauxService {
       }
 
       const result = await response.json()
-      console.log('📊 Completeness audit results:', result.summary)
+      logService.info('database', 'Completeness audit results', { summary: result.summary })
       
       return result
     } catch (error) {
-      console.error('❌ Error running completeness audit:', error)
+      logService.error('database', 'Error running completeness audit', { error })
       throw error
     }
   }
@@ -170,7 +171,7 @@ class EdnTableauxService {
         }
       })
     } catch (error) {
-      console.error('Error fetching all items completeness:', error)
+      logService.error('database', 'Error fetching all items completeness', { error })
       return []
     }
   }
@@ -201,7 +202,7 @@ class EdnTableauxService {
         averageScore
       }
     } catch (error) {
-      console.error('Error getting completeness stats:', error)
+      logService.error('database', 'Error getting completeness stats', { error })
       return {
         totalItems: 0,
         completeItems: 0,
@@ -261,7 +262,7 @@ class EdnTableauxService {
 
       return results
     } catch (error) {
-      console.error('Error searching in tableaux:', error)
+      logService.error('database', 'Error searching in tableaux', { error })
       return []
     }
   }
@@ -289,7 +290,7 @@ class EdnTableauxService {
       )
       return `${headers.join(',')}\n${values.join(',')}`
     } catch (error) {
-      console.error('Error exporting item data:', error)
+      logService.error('database', 'Error exporting item data', { error })
       throw error
     }
   }
@@ -385,7 +386,7 @@ class EdnTableauxService {
         .order('updated_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching daily progress:', error)
+        logService.error('database', 'Error fetching daily progress', { error })
         return {
           completedToday: 0,
           targetReached: false,
@@ -420,7 +421,7 @@ class EdnTableauxService {
         recentActivity
       }
     } catch (error) {
-      console.error('Error calculating daily progress:', error)
+      logService.error('database', 'Error calculating daily progress', { error })
       return {
         completedToday: 0,
         targetReached: false,

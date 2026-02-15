@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import type { AuditResult } from '@/scripts/audit/types';
@@ -8,7 +9,7 @@ interface AuditItemCardProps {
   item: AuditResult;
 }
 
-export const AuditItemCard = ({ item }: AuditItemCardProps) => {
+export const AuditItemCard = React.memo(function AuditItemCard({ item }: AuditItemCardProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'valid':
@@ -123,4 +124,4 @@ export const AuditItemCard = ({ item }: AuditItemCardProps) => {
       </div>
     </Card>
   );
-};
+});

@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { MusicLoadingIndicator } from './MusicLoadingIndicator';
 import { MusicGenerationProgress } from './MusicGenerationProgress';
 import { MusicCardContent } from './MusicCardContent';
@@ -36,7 +37,7 @@ interface MusicCardProps {
   };
 }
 
-export const MusicCard = ({
+export const MusicCard = React.memo(function MusicCard({
   rang,
   title,
   paroles,
@@ -58,7 +59,7 @@ export const MusicCard = ({
   onMinimize,
   itemCode,
   generationProgress
-}: MusicCardProps) => {
+}: MusicCardProps) {
   const { isClicked, handleGenerateClick } = useMusicCardState(isGenerating);
 
   const onGenerateClick = () => {
@@ -127,4 +128,4 @@ export const MusicCard = ({
       </MusicCardContent>
     </div>
   );
-};
+});

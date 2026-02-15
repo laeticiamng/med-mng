@@ -33,7 +33,7 @@ interface CompetencesBadgesProps {
   };
 }
 
-export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) => {
+export const CompetencesBadges: React.FC<CompetencesBadgesProps> = React.memo(function CompetencesBadges({ item }) {
   const isMobile = useIsMobile();
   const { logActivity } = useActivityTracking();
   const { stats, loadStats } = useGamification();
@@ -263,4 +263,4 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       )}
     </div>
   );
-};
+});

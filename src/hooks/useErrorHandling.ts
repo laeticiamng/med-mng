@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import { logService } from '@/services/logService';
 import {
     AppError,
     ErrorCategory,
@@ -142,11 +143,11 @@ export function useErrorHandling() {
 
     // Log to browser console in development
     if (import.meta.env.DEV) {
-      console.group(`🚨 Error in ${context}`);
-      console.error('AppError:', appError);
-      console.error('Original error:', error);
-      console.error('Context:', appError.context);
-      console.groupEnd();
+      logService.error('system', `Error in ${context}`, {
+        appError,
+        originalError: error,
+        errorContext: appError.context,
+      });
     }
 
     return appError;

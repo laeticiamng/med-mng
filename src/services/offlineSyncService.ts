@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { logService } from '@/services/logService';
 
 interface SyncQueueItem {
   id: string;
@@ -77,7 +78,7 @@ class OfflineSyncService {
     try {
       localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(this.syncQueue));
     } catch (error) {
-      console.error('[OfflineSync] Failed to save queue:', error);
+      logService.error('system', 'OfflineSync: Failed to save queue', { error });
     }
   }
 
@@ -135,7 +136,7 @@ class OfflineSyncService {
         this.syncQueue = this.syncQueue.filter(i => i.id !== item.id);
         success++;
       } catch (error) {
-        console.error(`[OfflineSync] Failed to sync item ${item.id}:`, error);
+        logService.error('system', `OfflineSync: Failed to sync item ${item.id}`, { error });
 
         // Increment retries
         const queueItem = this.syncQueue.find(i => i.id === item.id);
@@ -200,7 +201,7 @@ class OfflineSyncService {
       try {
         localStorage.setItem(`${CACHE_PREFIX}${key}`, JSON.stringify(cacheItem));
       } catch {
-        console.error('[OfflineSync] Failed to cache data:', error);
+        logService.error('system', 'OfflineSync: Failed to cache data', { error });
       }
     }
   }

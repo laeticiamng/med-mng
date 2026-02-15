@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { logService } from '@/services/logService';
 import { toast } from 'sonner';
 import {
   PlatformConnector,
@@ -36,7 +37,7 @@ export function usePlatformConnectors() {
       try {
         setConnectors(JSON.parse(stored));
       } catch (e) {
-        console.error('Failed to load connectors:', e);
+        logService.error('api', 'Failed to load connectors', { error: e });
       }
     }
 
@@ -45,7 +46,7 @@ export function usePlatformConnectors() {
       try {
         setSyncLogs(JSON.parse(storedLogs));
       } catch (e) {
-        console.error('Failed to load sync logs:', e);
+        logService.error('api', 'Failed to load sync logs', { error: e });
       }
     }
   }, []);

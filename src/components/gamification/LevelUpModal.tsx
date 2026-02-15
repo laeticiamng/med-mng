@@ -8,7 +8,7 @@ import {
     DialogTitle
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import confetti from 'canvas-confetti';
+
 import { Gift, Sparkles, Star, Trophy, Zap } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -36,12 +36,15 @@ export const LevelUpModal: React.FC<LevelUpModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       // Déclencher le confetti
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB']
-      });
+      (async () => {
+        const confetti = (await import('canvas-confetti')).default;
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB']
+        });
+      })();
 
       // Animation par étapes
       const timer1 = setTimeout(() => setAnimationStep(1), 300);

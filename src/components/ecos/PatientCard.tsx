@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 import { useGamification } from '@/hooks/useGamification';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Stethoscope, Flame } from 'lucide-react';
 
@@ -17,7 +17,7 @@ interface PatientCardProps {
   patient: Patient;
 }
 
-export const PatientCard = ({ patient }: PatientCardProps) => {
+export const PatientCard = React.memo(function PatientCard({ patient }: PatientCardProps) {
   const { logActivity } = useActivityTracking();
   const { stats, loadStats, addPoints } = useGamification();
   const hasTrackedRef = useRef(false);
@@ -72,4 +72,4 @@ export const PatientCard = ({ patient }: PatientCardProps) => {
       </div>
     </Card>
   );
-};
+});

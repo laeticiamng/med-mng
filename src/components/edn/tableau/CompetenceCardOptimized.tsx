@@ -98,12 +98,12 @@ const CompetenceSection: React.FC<{
     </div>
   );
 };
-export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = ({ 
-  competence, 
-  index, 
-  rang, 
-  isPlaceholder = false 
-}) => {
+export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = React.memo(function CompetenceCardOptimized({
+  competence,
+  index,
+  rang,
+  isPlaceholder = false
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   const themeColors = rang === 'A' 
@@ -334,4 +334,4 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
       )}
     </Card>
   );
-};
+});

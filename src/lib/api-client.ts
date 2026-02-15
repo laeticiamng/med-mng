@@ -3,6 +3,7 @@
  * Type-safe API client generated from OpenAPI specification
  */
 
+import { logService } from '@/services/logService';
 import { supabase } from '@/integrations/supabase/client';
 import { SUPABASE_URL } from '@/lib/supabaseConstants';
 
@@ -119,7 +120,7 @@ export class APIClient {
             try {
               validateSchema.parse(responseData);
             } catch (validationError) {
-              console.warn('Response validation failed:', validationError.message);
+              logService.warn('api', 'Response validation failed', { message: validationError.message });
             }
           }
 
@@ -366,7 +367,7 @@ export async function withAPIErrorHandling<T>(
           timestamp: new Date().toISOString(),
         });
       } catch (loggingError) {
-        console.error('Failed to log API error:', loggingError);
+        logService.error('api', 'Failed to log API error', { error: loggingError });
       }
 
       throw error;

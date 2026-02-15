@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logService } from '@/services/logService';
 
 export interface ContentMetadata {
   total_contents: number;
@@ -57,7 +58,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      console.error('Error fetching pedagogical content:', error);
+      logService.error('system', 'Error fetching pedagogical content', { error });
       throw new Error('Failed to fetch content');
     }
 
@@ -71,7 +72,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      console.error('Error generating missing content:', error);
+      logService.error('system', 'Error generating missing content', { error });
       throw new Error('Failed to generate content');
     }
 
@@ -85,7 +86,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      console.error('Error fetching content analytics:', error);
+      logService.error('system', 'Error fetching content analytics', { error });
       throw new Error('Failed to fetch analytics');
     }
 
@@ -100,13 +101,13 @@ class PedagogicalContentService {
         .eq('item_id', itemCode);
 
       if (error) {
-        console.error('Error fetching item content:', error);
+        logService.error('system', 'Error fetching item content', { error });
         return null;
       }
 
       return data;
     } catch (err) {
-      console.error('Exception fetching item content:', err);
+      logService.error('system', 'Exception fetching item content', { error: err });
       return null;
     }
   }
@@ -135,9 +136,9 @@ class PedagogicalContentService {
           .eq('id', existing.id);
       }
 
-      console.log('Progress updated:', { itemId, contentType, progress });
+      logService.info('system', 'Progress updated', { itemId, contentType, progress });
     } catch (error) {
-      console.error('Error updating content progress:', error);
+      logService.error('system', 'Error updating content progress', { error });
     }
   }
 
@@ -153,7 +154,7 @@ class PedagogicalContentService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching content by type:', error);
+      logService.error('system', 'Error fetching content by type', { error });
       return [];
     }
   }
@@ -169,7 +170,7 @@ class PedagogicalContentService {
       if (error) throw error;
       return data || [];
     } catch (err) {
-      console.error('Error searching content:', err);
+      logService.error('system', 'Error searching content', { error: err });
       return [];
     }
   }
@@ -184,7 +185,7 @@ class PedagogicalContentService {
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Error deleting content:', err);
+      logService.error('system', 'Error deleting content', { error: err });
       return false;
     }
   }
@@ -200,7 +201,7 @@ class PedagogicalContentService {
       if (error) throw error;
       return data || [];
     } catch (err) {
-      console.error('Error fetching recent generations:', err);
+      logService.error('system', 'Error fetching recent generations', { error: err });
       return [];
     }
   }

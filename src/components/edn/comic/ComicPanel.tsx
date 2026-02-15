@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -13,7 +14,7 @@ interface ComicPanelProps {
   };
 }
 
-export const ComicPanel = ({ panel }: ComicPanelProps) => {
+export const ComicPanel = React.memo(function ComicPanel({ panel }: ComicPanelProps) {
   const isPlaceholder = panel.imageUrl.startsWith('placeholder-') || panel.imageUrl.startsWith('data:image/svg+xml');
   
   return (
@@ -103,4 +104,4 @@ export const ComicPanel = ({ panel }: ComicPanelProps) => {
       <div className="absolute -bottom-2 -right-2 w-full h-full bg-primary/20 rounded-lg -z-10 opacity-30"></div>
     </Card>
   );
-};
+});

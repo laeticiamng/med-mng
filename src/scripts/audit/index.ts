@@ -1,17 +1,21 @@
 // Scripts Audit Module Index
 
 // Types
-export * from './types';
-export * from './types/ic1Types';
-export * from './types/ic2Types';
+export type { AuditResult, AuditReport } from './types';
+export type { IC1CompletenessReport } from './types/ic1Types';
+export type {
+  IC2ConceptAnalysis,
+  IC2RangReport,
+  IC2Report,
+} from './types/ic2Types';
 
 // Validators
-export * from './validators';
+export { AuditValidators } from './validators';
 
 // Analyzers
 // Note: Import directly from analyzers/ for specific analyzer files
 
-// Generators  
+// Generators
 // Note: Import directly from generators/ for specific generator files
 
 // Utils
@@ -21,7 +25,15 @@ export * from './validators';
 // Note: Import directly from constants/ for specific constant files
 
 // Main entry points
-export * from './auditor';
-export * from './comprehensiveAudit';
-export * from './comprehensiveAuditor';
-export * from './reportGenerators';
+export { EDNItemsAuditor } from './auditor';
+
+export type {
+  AuditIssue,
+  ComprehensiveAuditReport,
+} from './comprehensiveAudit';
+export { ComprehensivePlatformAuditor } from './comprehensiveAudit';
+
+export type { ComprehensiveAuditResult } from './comprehensiveAuditor';
+export { ComprehensiveSystemAuditor } from './comprehensiveAuditor';
+
+export { AuditReportGenerators } from './reportGenerators';

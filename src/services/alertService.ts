@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { supabase } from '@/integrations/supabase/client';
+import { logService } from '@/services/logService';
 
 // Types d'incidents
 export type IncidentType =
@@ -260,7 +261,7 @@ async function sendToDiscord(incident: Incident, severity: AlertSeverity): Promi
     });
     return true;
   } catch (err) {
-    console.error('Discord alert failed:', err);
+    logService.error('system', 'Discord alert failed', { error: err });
     return false;
   }
 }
@@ -277,7 +278,7 @@ async function sendToSlack(incident: Incident, severity: AlertSeverity): Promise
     });
     return true;
   } catch (err) {
-    console.error('Slack alert failed:', err);
+    logService.error('system', 'Slack alert failed', { error: err });
     return false;
   }
 }
@@ -297,12 +298,12 @@ async function persistAlert(alert: Alert): Promise<boolean> {
     });
 
     if (error) {
-      console.error('Failed to persist alert:', error);
+      logService.error('system', 'Failed to persist alert', { error });
       return false;
     }
     return true;
   } catch (err) {
-    console.error('Error persisting alert:', err);
+    logService.error('system', 'Error persisting alert', { error: err });
     return false;
   }
 }
@@ -312,14 +313,14 @@ export async function notifyIncident(incident: Incident): Promise<Alert | null> 
   // Vérifications préliminaires
   if (isDuplicate(incident)) {
     if (import.meta.env.DEV) {
-      console.log('Duplicate alert suppressed:', incident.type);
+      logService.debug('system', 'Duplicate alert suppressed', { type: incident.type });
     }
     return null;
   }
 
   if (!checkRateLimit()) {
     if (import.meta.env.DEV) {
-      console.warn('Alert rate limit exceeded');
+      logService.warn('system', 'Alert rate limit exceeded');
     }
     return null;
   }
@@ -372,7 +373,7 @@ export async function notifyIncident(incident: Incident): Promise<Alert | null> 
 
   // Log console
   if (import.meta.env.DEV) {
-    console.log(`[ALERT] [${severity.toUpperCase()}] ${incident.type}: ${incident.message}`);
+    logService.info('system', `[ALERT] [${severity.toUpperCase()}] ${incident.type}: ${incident.message}`);
   }
 
   return alert;
@@ -396,7 +397,7 @@ export async function acknowledgeAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to acknowledge alert:', error);
+      logService.error('system', 'Failed to acknowledge alert', { error, alertId });
       return false;
     }
 
@@ -412,7 +413,7 @@ export async function acknowledgeAlert(
 
     return true;
   } catch (err) {
-    console.error('Error acknowledging alert:', err);
+    logService.error('system', 'Error acknowledging alert', { error: err });
     return false;
   }
 }
@@ -436,7 +437,7 @@ export async function resolveAlert(
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to resolve alert:', error);
+      logService.error('system', 'Failed to resolve alert', { error, alertId });
       return false;
     }
 
@@ -454,7 +455,7 @@ export async function resolveAlert(
 
     return true;
   } catch (err) {
-    console.error('Error resolving alert:', err);
+    logService.error('system', 'Error resolving alert', { error: err });
     return false;
   }
 }
@@ -496,7 +497,7 @@ export async function getAlerts(filter?: {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Failed to get alerts:', error);
+      logService.error('system', 'Failed to get alerts', { error });
       return alertHistory;
     }
 
@@ -523,7 +524,7 @@ export async function getAlerts(filter?: {
       notificationsSent: row.notifications_sent || []
     }));
   } catch (err) {
-    console.error('Error getting alerts:', err);
+    logService.error('system', 'Error getting alerts', { error: err });
     return alertHistory;
   }
 }
@@ -546,7 +547,7 @@ export async function getAlertStats(
     const { data, error } = await query;
 
     if (error || !data) {
-      console.error('Failed to get alert stats:', error);
+      logService.error('system', 'Failed to get alert stats', { error });
       return null;
     }
 
@@ -597,7 +598,7 @@ export async function getAlertStats(
       openAlerts: byStatus.open + byStatus.acknowledged + byStatus.investigating
     };
   } catch (err) {
-    console.error('Error getting alert stats:', err);
+    logService.error('system', 'Error getting alert stats', { error: err });
     return null;
   }
 }
@@ -623,13 +624,13 @@ export async function addAlertNote(alertId: string, note: string): Promise<boole
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to add note:', error);
+      logService.error('system', 'Failed to add note', { error, alertId });
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('Error adding note:', err);
+    logService.error('system', 'Error adding note', { error: err });
     return false;
   }
 }
@@ -655,13 +656,13 @@ export async function escalateAlert(alertId: string): Promise<boolean> {
       .eq('id', alertId);
 
     if (error) {
-      console.error('Failed to escalate alert:', error);
+      logService.error('system', 'Failed to escalate alert', { error, alertId });
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('Error escalating alert:', err);
+    logService.error('system', 'Error escalating alert', { error: err });
     return false;
   }
 }
@@ -690,13 +691,13 @@ export async function cleanupOldAlerts(daysToKeep: number = 90): Promise<number>
       .select('id');
 
     if (error) {
-      console.error('Failed to cleanup old alerts:', error);
+      logService.error('system', 'Failed to cleanup old alerts', { error });
       return 0;
     }
 
     return data?.length || 0;
   } catch (err) {
-    console.error('Error cleaning up alerts:', err);
+    logService.error('system', 'Error cleaning up alerts', { error: err });
     return 0;
   }
 }

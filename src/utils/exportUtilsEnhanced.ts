@@ -1,4 +1,3 @@
-import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 
 export interface EnhancedExportOptions {
@@ -38,6 +37,7 @@ export const exportEnhancedPDF = async (options: EnhancedExportOptions): Promise
   } = options;
   
   try {
+    const { default: jsPDF } = await import('jspdf');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();

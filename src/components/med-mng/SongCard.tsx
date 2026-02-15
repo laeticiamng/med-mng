@@ -39,12 +39,12 @@ interface SongCardProps {
   onToggleLike: () => void;
 }
 
-export const SongCard: React.FC<SongCardProps> = ({ 
-  song, 
-  onPlay, 
-  onRemove, 
-  onToggleLike 
-}) => {
+export const SongCard: React.FC<SongCardProps> = React.memo(function SongCard({
+  song,
+  onPlay,
+  onRemove,
+  onToggleLike
+}) {
   const medMngApi = useMedMngApi();
   const { playlists, addSongToPlaylist } = usePlaylists();
   const { logActivity } = useActivityTracking();
@@ -333,4 +333,4 @@ export const SongCard: React.FC<SongCardProps> = ({
       </CardContent>
     </Card>
   );
-};
+});

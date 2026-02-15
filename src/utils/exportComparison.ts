@@ -1,5 +1,3 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { exportToXlsx } from './excelExport';
 interface ComparisonData {
@@ -24,6 +22,8 @@ export const exportComparisonToPDF = async (
   period2Label: string,
   chartElement?: HTMLElement
 ) => {
+  const { default: jsPDF } = await import('jspdf');
+  const { default: autoTable } = await import('jspdf-autotable');
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   

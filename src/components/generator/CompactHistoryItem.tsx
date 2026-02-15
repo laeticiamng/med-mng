@@ -28,7 +28,7 @@ interface CompactHistoryItemProps {
   onDelete: () => void;
 }
 
-export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = ({
+export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = React.memo(function CompactHistoryItem({
   title,
   item_code,
   rang,
@@ -41,7 +41,7 @@ export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = ({
   onToggleFavorite,
   onDownload,
   onDelete
-}) => {
+}) {
   const displayTitle = title || `${item_code} - ${music_style}`;
   const timeAgo = formatDistanceToNow(new Date(created_at), { addSuffix: true, locale: fr });
 
@@ -113,4 +113,4 @@ export const CompactHistoryItem: React.FC<CompactHistoryItemProps> = ({
       </div>
     </div>
   );
-};
+});

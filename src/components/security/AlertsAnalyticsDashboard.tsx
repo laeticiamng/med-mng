@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { ArrowDown, ArrowUp, Calendar, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -191,6 +190,7 @@ export const AlertsAnalyticsDashboard = () => {
       });
 
       const imgData = canvas.toDataURL('image/png');
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;

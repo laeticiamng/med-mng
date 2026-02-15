@@ -3,6 +3,7 @@ import {
   itemDetailSchema,
   itemSummariesSchema,
 } from '@/schemas/medMngItemSchema';
+import { logService } from '@/services/logService';
 import type {
   ItemDetail,
   ItemStatus,
@@ -43,7 +44,7 @@ export const fetchItemsWithMeta = async (userId?: string): Promise<ItemSummary[]
 
   const parsedItems = itemSummariesSchema.safeParse(itemsData ?? []);
   if (!parsedItems.success) {
-    console.error('Invalid items payload', parsedItems.error.flatten());
+    logService.error('database', 'Invalid items payload', { validationErrors: parsedItems.error.flatten() });
     return [];
   }
 
@@ -120,7 +121,7 @@ export const fetchItemDetail = async (
 
   const parsed = itemDetailSchema.safeParse(data);
   if (!parsed.success) {
-    console.error('Invalid item detail payload', parsed.error.flatten());
+    logService.error('database', 'Invalid item detail payload', { validationErrors: parsed.error.flatten() });
     throw new Error('Invalid item detail payload');
   }
 
@@ -346,10 +347,7 @@ export const fetchProgressOverview = async (
 
   if (deletedItemsCount > 0 && deletedItemsRatio >= 0.5) {
     if (import.meta.env.DEV) {
-      console.warn(
-        `[medMngItemsService] ${deletedItemsCount} of ${totalProgressItems} progress items ` +
-          'reference deleted content. Progress overview stats are based only on existing items.'
-      );
+      logService.warn('database', `${deletedItemsCount} of ${totalProgressItems} progress items reference deleted content. Progress overview stats are based only on existing items.`);
     }
   }
   const validProgressItems = progressItems.filter(

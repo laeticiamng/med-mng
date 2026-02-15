@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
 import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -34,6 +33,7 @@ export const SRSStatsExport = ({ stats, userName }: SRSStatsExportProps) => {
     setIsGenerating(true);
 
     try {
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const margin = 20;

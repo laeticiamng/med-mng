@@ -5,7 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {
     Award,
     Calendar,
@@ -147,6 +146,7 @@ export const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({ user
         backgroundColor: '#ffffff'
       });
 
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
