@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { logService } from '@/services/logService';
 
 export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
 export type SupportedLanguage = Language; // Alias pour compatibilité
@@ -69,13 +70,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         }
         setTranslations(translationModule.default || translationModule);
       } catch (error) {
-        console.warn(`Erreur lors du chargement des traductions pour ${currentLanguage}:`, error);
+        logService.warn('system', `Erreur lors du chargement des traductions pour ${currentLanguage}`, { metadata: { error } });
         // Fallback vers le français
         try {
           const fallbackModule = await import('../locales/fr/common.json');
           setTranslations(fallbackModule.default || fallbackModule);
         } catch (fallbackError) {
-          console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
+          logService.error('system', 'Erreur lors du chargement des traductions de fallback', { error: fallbackError instanceof Error ? fallbackError : undefined, metadata: { fallbackError } });
           setTranslations({});
         }
       }
@@ -102,13 +103,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         value = value[k];
       } else {
         // Fallback : retourner la clé si pas de traduction
-        console.warn(`Traduction manquante pour la clé: ${key} (langue: ${currentLanguage})`);
+        logService.warn('system', `Traduction manquante pour la clé: ${key} (langue: ${currentLanguage})`);
         return key;
       }
     }
     
     if (typeof value !== 'string') {
-      console.warn(`Valeur de traduction invalide pour: ${key}`);
+      logService.warn('system', `Valeur de traduction invalide pour: ${key}`);
       return key;
     }
     
@@ -136,7 +137,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     try {
       // Pour l'instant, on retourne le texte tel quel
       // Plus tard, on pourra intégrer une vraie API de traduction
-      console.log(`Traduction simulée de "${text}" vers ${target}`);
+      logService.debug('system', `Traduction simulée de "${text}" vers ${target}`);
       return text;
     } catch (error) {
       console.error('Erreur de traduction:', error);

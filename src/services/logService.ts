@@ -520,6 +520,26 @@ export async function cleanup(): Promise<void> {
   await flushBuffer();
 }
 
+// Namespace export for convenient usage: import { logService } from '@/services/logService'
+export const logService = {
+  log,
+  debug,
+  info,
+  warn,
+  error,
+  critical,
+  auditLog,
+  performanceLog,
+  getLogs,
+  getLogStats,
+  deleteOldLogs,
+  exportLogs,
+  exportLogsCSV,
+  cleanup,
+  stopFlushTimer,
+  logOperation,
+};
+
 // Démarrage automatique
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', cleanup);
