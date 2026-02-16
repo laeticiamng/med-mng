@@ -247,7 +247,7 @@ class AudioCacheManager {
           }
         };
       } catch (e) {
-        logService.error('music', 'Error freeing cache space', { error: e });
+        logService.error('music', 'Error freeing cache space', { error: e instanceof Error ? e : undefined, metadata: { error: String(e) } });
       }
     }
   }

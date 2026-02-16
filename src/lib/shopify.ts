@@ -262,7 +262,7 @@ export async function createStorefrontCheckout(items: CartItem[]): Promise<strin
     const checkoutUrl = url.toString();
     return checkoutUrl;
   } catch (error) {
-    logService.error('payment', 'Error creating storefront checkout', { error });
+    logService.error('payment', 'Error creating storefront checkout', { error: error instanceof Error ? error : undefined, metadata: { error: String(error) } });
     throw error;
   }
 }
