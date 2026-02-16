@@ -12,6 +12,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { audioApi, coreApi } from './unifiedApiClient';
+import { logService } from '@/services/logService';
 
 export interface ChatCompletionRequest {
   model: string;
@@ -156,7 +157,7 @@ export class SecureSunoClient {
     const result = await audioApi.getCredits();
 
     if (!result.success) {
-      console.warn('Credits check not available:', result.error);
+      logService.warn('api', 'Credits check not available', { error: result.error });
       return { credits: -1 };
     }
 

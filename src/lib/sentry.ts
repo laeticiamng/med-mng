@@ -1,5 +1,6 @@
 // Sentry error tracking configuration
 import * as Sentry from '@sentry/react';
+import { logService } from '@/services/logService';
 
 // Sentry DSN from environment or secrets
 const SENTRY_DSN: string | undefined = import.meta.env.VITE_SENTRY_DSN;
@@ -22,7 +23,7 @@ const getRelease = (): string => {
 
 export function initSentry() {
   if (!SENTRY_DSN) {
-    console.debug('Sentry DSN not configured - error tracking disabled');
+    logService.debug('system', 'Sentry DSN not configured - error tracking disabled');
     return;
   }
 
@@ -58,7 +59,7 @@ export const SentryErrorBoundary = Sentry.ErrorBoundary;
 // Manual error capture
 export function captureError(error: Error, context?: Record<string, any>) {
   if (!SENTRY_DSN) {
-    console.error('Error (Sentry disabled):', error, context);
+    logService.error('system', 'Error (Sentry disabled)', { error, metadata: context });
     return;
   }
   

@@ -1,5 +1,7 @@
 // IndexedDB Audio Cache for PWA offline support with quota management
 
+import { logService } from '@/services/logService';
+
 const DB_NAME = 'medmng_offline';
 const DB_VERSION = 2;
 const AUDIO_STORE = 'offline_content';
@@ -245,7 +247,7 @@ class AudioCacheManager {
           }
         };
       } catch (e) {
-        console.error('Error freeing cache space:', e);
+        logService.error('music', 'Error freeing cache space', { error: e });
       }
     }
   }

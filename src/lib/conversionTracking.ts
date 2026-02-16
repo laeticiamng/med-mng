@@ -3,6 +3,7 @@
  * Events: page_view, signup, checkout_start, checkout_complete
  */
 import { supabase } from '@/integrations/supabase/client';
+import { logService } from '@/services/logService';
 
 type ConversionEvent = 'page_view' | 'signup' | 'checkout_start' | 'checkout_complete';
 
@@ -32,6 +33,6 @@ export async function trackConversionEvent(
     });
   } catch (err) {
     // Non-blocking — don't break the user flow
-    console.debug('[analytics] tracking error:', err);
+    logService.debug('performance', 'Conversion tracking error', { error: err });
   }
 }

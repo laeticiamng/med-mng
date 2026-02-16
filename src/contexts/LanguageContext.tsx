@@ -140,7 +140,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       logService.debug('system', `Traduction simulée de "${text}" vers ${target}`);
       return text;
     } catch (error) {
-      console.error('Erreur de traduction:', error);
+      logService.error('system', 'Erreur de traduction', { error: error instanceof Error ? error : undefined, metadata: { error } });
       return text;
     } finally {
       setIsTranslating(false);

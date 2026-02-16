@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import type { CartItem } from '@/stores/cartStore';
+import { logService } from '@/services/logService';
 
 const SHOPIFY_API_VERSION = '2025-07';
 const SHOPIFY_STORE_PERMANENT_DOMAIN = 'med-mng-7ndc8.myshopify.com';
@@ -261,7 +262,7 @@ export async function createStorefrontCheckout(items: CartItem[]): Promise<strin
     const checkoutUrl = url.toString();
     return checkoutUrl;
   } catch (error) {
-    console.error('Error creating storefront checkout:', error);
+    logService.error('payment', 'Error creating storefront checkout', { error });
     throw error;
   }
 }

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { logService } from '@/services/logService';
 
 type NotificationType = 'success' | 'error' | 'warning' | 'info' | 'generation';
 
@@ -268,7 +269,7 @@ export const useQuotaMonitoring = () => {
         // const { data } = await supabase.from('subscriptions').select('credits_left, plan');
         // notifyQuota(data.credits_left, getPlanCredits(data.plan));
       } catch (error) {
-        console.error('Error checking quota:', error);
+        logService.error('system', 'Error checking quota', { error: error instanceof Error ? error : undefined, metadata: { error } });
       }
     };
 
