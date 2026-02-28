@@ -49,7 +49,7 @@ serve(async (req) => {
     } = options;
 
     // Recherche dans multiple tables selon les catégories
-    const results = [];
+    const results: any[] = [];
     
     // 1. Rechercher dans EDN items si pas de catégorie spécifiée ou si category = 'edn'
     if (!filters.category || filters.category === 'edn') {
@@ -216,7 +216,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Search failed',
-        details: error.message 
+        details: error instanceof Error ? error.message : String(error) 
       }),
       { 
         status: 500,

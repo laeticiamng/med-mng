@@ -307,14 +307,15 @@ export class SunoAPIClient {
         console.log(`⏳ Status en cours: ${statusData.status}, attente 5 secondes...`);
         await new Promise(resolve => setTimeout(resolve, 5000));
         
-      } catch (error) {
-        if (error.message.includes('Génération échouée')) {
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        if (errMsg.includes('Génération échouée')) {
           throw error; // Erreur définitive
         }
         console.error(`❌ Erreur temporaire lors de la vérification (tentative ${attempts}):`, error);
         
         if (attempts >= maxAttempts) {
-          throw new Error(`Échec après ${maxAttempts} tentatives: ${error.message}`);
+          throw new Error(`Échec après ${maxAttempts} tentatives: ${errMsg}`);
         }
         
         // Attendre avant de réessayer

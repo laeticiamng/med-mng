@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
         if (fetchError) throw fetchError;
 
-        const old_value = currentData[field_name];
+        const old_value = (currentData as Record<string, unknown>)[field_name];
 
         // 2. Effectuer la mise à jour
         const { error: updateError } = await supabase
@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         error: 'Erreur lors de l\'opération',
-        details: error.message
+        details: error instanceof Error ? error.message : String(error)
       }),
       {
         status: 500,

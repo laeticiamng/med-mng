@@ -47,9 +47,10 @@ export async function insertMusicTrack(
     console.log('✅ Track enregistrée en BDD:', insertedTrack?.id);
     return { success: true, trackId: insertedTrack?.id };
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique BDD:', error);
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
   }
 }
 
@@ -85,9 +86,10 @@ export async function updateTrackStatus(
     console.log('✅ Statut mis à jour:', taskId, '->', status);
     return { success: true };
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique mise à jour:', error);
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
   }
 }
 
@@ -135,9 +137,10 @@ export async function insertGenerationMetric(
     console.log('✅ Métrique enregistrée');
     return { success: true };
     
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('⚠️ Erreur critique métrique (non bloquant):', error);
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
   }
 }
 
