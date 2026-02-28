@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   Maximize2,
   X,
+  Target,
 } from 'lucide-react';
 import { MedicalDisclaimer } from '@/components/legal';
 
@@ -536,6 +537,48 @@ const CaseSummary: React.FC<{
             );
           })}
         </ul>
+      </CardContent>
+    </Card>
+
+    {/* ECOS Competency Grid */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Target className="h-5 w-5 text-primary" />
+          Grille de competences ECOS
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {(() => {
+            const competences = [
+              { label: 'Raisonnement clinique', steps: ['hypotheses', 'diagnostic'] as ClinicalStepType[], poids: 30 },
+              { label: 'Examen clinique', steps: ['examen_clinique'] as ClinicalStepType[], poids: 20 },
+              { label: 'Examens complementaires', steps: ['examens_complementaires'] as ClinicalStepType[], poids: 15 },
+              { label: 'Prise en charge', steps: ['traitement'] as ClinicalStepType[], poids: 25 },
+              { label: 'Communication', steps: ['presentation'] as ClinicalStepType[], poids: 10 },
+            ];
+            return competences.map((comp) => {
+              const relevant = score.breakdown.filter(b => comp.steps.includes(b.stepType));
+              const earned = relevant.reduce((a, b) => a + b.pointsEarned, 0);
+              const max = relevant.reduce((a, b) => a + b.pointsMax, 0);
+              const pct = max > 0 ? Math.round((earned / max) * 100) : 0;
+              return (
+                <div key={comp.label} className="flex items-center gap-4 text-sm">
+                  <Badge variant="outline" className="min-w-[50px] justify-center text-xs">{comp.poids}%</Badge>
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-medium text-foreground">{comp.label}</span>
+                      <span className={`text-xs font-semibold ${pct >= 70 ? 'text-emerald-600' : pct >= 40 ? 'text-warning' : 'text-destructive'}`}>{pct}%</span>
+                    </div>
+                    <Progress value={pct} className="h-1.5" />
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+        <p className="text-xs text-muted-foreground mt-4">Pondération basée sur les grilles UNESS officielles.</p>
       </CardContent>
     </Card>
 
