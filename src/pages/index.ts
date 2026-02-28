@@ -34,8 +34,6 @@ export { default as EcosScenario } from './EcosScenario';
 export { default as Leaderboard } from './Leaderboard';
 export { default as DailyChallenges } from './DailyChallenges';
 export { default as MyGoals } from './MyGoals';
-export { default as MoodTracker } from './MoodTracker';
-export { default as Pomodoro } from './Pomodoro';
 export { default as Achievements } from './Achievements';
 
 // ────────────────────────────────────────────
@@ -53,9 +51,6 @@ export { default as StudyPlanner } from './StudyPlanner';
 // 🎵 MUSIC PAGES
 // ────────────────────────────────────────────
 export { default as Generator } from './Generator';
-export { default as SharedMusic } from './SharedMusic';
-export { default as SharedMusicIndex } from './SharedMusicIndex';
-export { default as KaraokePage } from './KaraokePage';
 
 // ────────────────────────────────────────────
 // 🔐 AUTH PAGES
@@ -83,8 +78,6 @@ export { default as UserSettings } from './UserSettings';
 export { MedMngPricing } from './MedMngPricing';
 export { MedMngSubscribe } from './MedMngSubscribe';
 export { MedMngSuccess } from './MedMngSuccess';
-export { default as Store } from './Store';
-export { default as ProductDetail } from './ProductDetail';
 
 // ────────────────────────────────────────────
 // 🤖 AI & CHAT
@@ -94,7 +87,7 @@ export { MedChat } from './MedChat';
 // ────────────────────────────────────────────
 // 👥 COMMUNITY
 // ────────────────────────────────────────────
-export { default as CommunityHub } from './CommunityHub';
+
 
 // ────────────────────────────────────────────
 // 📚 RESOURCES
