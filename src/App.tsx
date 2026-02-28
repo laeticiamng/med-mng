@@ -160,6 +160,13 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const About = lazy(() => import("./pages/About"));
 const B2B = lazy(() => import("./pages/B2B"));
 
+// 📈 SEO PILLAR PAGES
+const PreparationEcos2026 = lazy(() => import("./pages/seo/PreparationEcos2026"));
+const ReussirEdn = lazy(() => import("./pages/seo/ReussirEdn"));
+const FichesEcosInteractives = lazy(() => import("./pages/seo/FichesEcosInteractives"));
+const SimulationExamenEdn = lazy(() => import("./pages/seo/SimulationExamenEdn"));
+const CasCliniqueEdn = lazy(() => import("./pages/seo/CasCliniqueEdn"));
+
 // ⚡ Helper: Suspense wrapper for lazy routes
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
@@ -291,6 +298,13 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.faq} element={<S><FAQ /></S>} />
                                     <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
                                     <Route path={ROUTE_PATHS.b2b} element={<S><B2B /></S>} />
+
+                                    {/* SEO Pillar Pages */}
+                                    <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2026 /></S>} />
+                                    <Route path={ROUTE_PATHS.seoReussirEdn} element={<S><ReussirEdn /></S>} />
+                                    <Route path={ROUTE_PATHS.seoFichesEcos} element={<S><FichesEcosInteractives /></S>} />
+                                    <Route path={ROUTE_PATHS.seoSimulationEdn} element={<S><SimulationExamenEdn /></S>} />
+                                    <Route path={ROUTE_PATHS.seoCasCliniqueEdn} element={<S><CasCliniqueEdn /></S>} />
                                     <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
 
                                     {/* Auth (public) */}
