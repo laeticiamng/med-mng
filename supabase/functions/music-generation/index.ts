@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
+import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { corsHeaders } from '../_shared/cors.ts'
 
@@ -162,11 +163,12 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`❌ Generation failed:`, error)
         
         const endTime = new Date()
         const durationSeconds = Math.round((endTime.getTime() - startTime.getTime()) / 1000)
+        const errMsg = getErrorMessage(error)
 
         // Logger l'échec
         await supabase
@@ -175,7 +177,7 @@ serve(async (req) => {
             status: 'failed',
             generation_end: endTime.toISOString(),
             duration_seconds: durationSeconds,
-            error_message: error.message
+            error_message: errMsg
           })
           .eq('id', generationId)
 
@@ -183,18 +185,18 @@ serve(async (req) => {
         await createPerformanceAlert(supabase, {
           type: 'music_generation_error',
           severity: 'critical',
-          message: `Erreur génération: ${error.message}`,
+          message: `Erreur génération: ${errMsg}`,
           metadata: {
             generation_id: generationId,
             item_code: request.item_code,
-            error: error.message
+            error: errMsg
           }
         })
 
         return new Response(
           JSON.stringify({
             success: false,
-            error: error.message,
+            error: errMsg,
             generation_id: generationId
           }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -246,10 +248,10 @@ serve(async (req) => {
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error in music-generation:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
@@ -114,8 +115,8 @@ serve(async (req) => {
           // Rate limit: small delay between items
           await new Promise(resolve => setTimeout(resolve, 200));
           
-        } catch (itemError) {
-          errors.push(`${item.item_code}: ${itemError.message}`);
+        } catch (itemError: unknown) {
+          errors.push(`${item.item_code}: ${getErrorMessage(itemError)}`);
         }
       }
 
@@ -156,11 +157,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Generate embeddings error:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Embedding generation failed'
+      error: getErrorMessage(error) || 'Embedding generation failed'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

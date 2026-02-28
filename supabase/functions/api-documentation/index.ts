@@ -1,5 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { join } from "https://deno.land/std@0.168.0/path/mod.ts"
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
+import { join } from "https://deno.land/std@0.190.0/path/mod.ts"
+import { getErrorMessage } from '../_shared/error-utils.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 // Serve OpenAPI documentation and Swagger UI
@@ -114,14 +115,14 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ API docs error:', error);
     
     return new Response(
       JSON.stringify({ 
         error: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to serve API documentation',
-        details: error.message 
+        details: getErrorMessage(error) 
       }),
       { 
         status: 500,
@@ -401,12 +402,12 @@ async function handleValidation(req: Request): Promise<Response> {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     return new Response(
       JSON.stringify({ 
         error: 'VALIDATION_ERROR',
         message: 'Failed to validate request',
-        details: error.message 
+        details: getErrorMessage(error) 
       }),
       { 
         status: 400,
