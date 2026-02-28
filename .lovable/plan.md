@@ -1,131 +1,105 @@
 
 
-# Plan: Nettoyage complet Edge Functions + Monetisation (8 tickets)
+# Plan: Tickets restants — Trial/Subscription + Stripe Webhook + Nettoyage final
 
-## Diagnostic complet
+## Etat des lieux apres diagnostic
 
-### Etat actuel des Edge Functions
+### Deja fait (sessions precedentes)
+- Tickets 1, 2, 3 (P0) : COMPLETS. Tous les appels front vers les 36 fonctions fantomes sont desactives ou migres.
+- Documentation (`supabase-functions-flow.md`) : a jour.
+- `create-subscription-checkout` : zero reference restante.
+- `useMusicGenerationStatus` et `secureApiClient` : migres vers `ai-audio`.
 
-**97 dossiers** existent dans `supabase/functions/` (incluant `_shared` et `lib`).
-
-### Fonctions fantomes (listees dans docs mais N'EXISTENT PAS comme dossiers)
-
-En comparant `docs/supabase-functions-flow.md` avec le contenu reel de `supabase/functions/`, ces fonctions sont documentees mais **n'existent plus** :
-
-1. `activate-simulation`
-2. `create-subscription-checkout`
-3. `ecos-enrich-ai`
-4. `generate-cas-cookie`
-5. `debug-oic-extraction`
-6. `debug-uness-auth`
-7. `edn-fix`
-8. `shopify-webhook`
-9. `test-batch-50`
-10. `test-cas-simple`
-11. `test-edn-extraction`
-12. `test-extraction-sample`
-13. `test-insertion-directe`
-14. `test-login`
-15. `test-oic-curl`
-16. `test-webhook`
-17. `extract-edn-objectifs`
-18. `extract-edn-uness-auth`
-19. `extract-edn-uness-complete`
-20. `extract-edn-uness-production`
-21. `unified-alerts`
-22. `send-weekly-alerts-report`
-23. `process-ab-tests`
-24. `get-rls-policies`
-25. `openai-image`
-26. `generate-missing-content`
-27. `sync-edn-tables`
-28. `update-edn-unique-content`
-29. `fix-oic-data-quality`
-30. `google-sheets-webhook`
-31. `music-status`
-32. `suno-extend-music`
-33. `suno-generate-lyrics`
-34. `suno-audio-processing`
-35. `spotify-medical-docs`
-36. `suno-upload-cover`
-
-Soit **36 fonctions fantomes** (pas 22). Certaines sont consolidees dans les routeurs (`ai-audio`, `ai-core`, `ai-content`, `webhooks`, `system`), d'autres sont simplement supprimees.
-
-### Appels front ACTIFS vers des fonctions inexistantes (les vrais bugs)
-
-| Fichier front | Fonction appelee | Statut |
-|---|---|---|
-| `src/pages/MedMngSubscribe.tsx:68` | `create-subscription-checkout` | BUG - doit etre `create-checkout` |
-| `src/lib/api-client.ts:288` | `create-subscription-checkout` | BUG - doit etre `create-checkout` |
-| `src/components/audit/SyncTablesPanel.tsx:32` | `sync-edn-tables` | BUG - fonction n'existe plus |
-| `src/components/audit/SyncTablesPanel.tsx:86` | `update-edn-unique-content` | BUG - fonction n'existe plus |
-| `src/pages/OicDataQualityManager.tsx:61,85` | `fix-oic-data-quality` | BUG - fonction n'existe plus |
-| `src/utils/oicFixLauncher.ts:7` | `fix-oic-data-quality` | BUG - fonction n'existe plus |
-| `src/utils/generateAllLyrics.ts:27,52` | `update-edn-unique-content` | BUG - fonction n'existe plus |
-| `src/components/admin/AdminDashboard.tsx:163` | `extract-edn-uness-production` | BUG - fonction n'existe plus |
-| `src/hooks/useMusicGenerationStatus.ts:61` | `music-status` | Migre vers `ai-audio` action `get_status` |
-| `src/lib/secureApiClient.ts:200` | `suno-upload-cover` | Migre vers `ai-audio` action `upload_cover` |
-| `src/components/accessibility/WebhookManager.tsx:102` | `test-webhook` | BUG - fonction n'existe plus |
-| `src/scripts/direct-extraction-launch.ts` | `extract-edn-objectifs` | BUG - fonction n'existe plus |
-| `src/scripts/launch-edn-objectifs-extraction.ts` | `extract-edn-objectifs` | BUG - fonction n'existe plus |
-| `supabase/functions/auto-extract-oic/index.ts:15,45,61` | `extract-edn-objectifs` (via fetch) | BUG - fonction n'existe plus |
+### Problemes restants identifies (3 bugs reels + nettoyage)
 
 ---
 
-## Plan d'execution (4 blocs, priorite decroissante)
+## Bug 1 (CRITIQUE) : `check-subscription` ignore les users en trial
 
-### Bloc 1 (P0) : Fix appels front critiques (monetisation)
+**Fichier** : `supabase/functions/check-subscription/index.ts` (ligne 69-72)
 
-**Objectif** : Le flow checkout Stripe doit fonctionner.
+Le code actuel ne cherche que `status: "active"`. Or, `create-checkout` cree un abonnement avec `trial_period_days: 7`, ce qui donne un statut Stripe `trialing` — pas `active`.
 
-**Fichiers a modifier** :
-- `src/pages/MedMngSubscribe.tsx` : remplacer `create-subscription-checkout` par `create-checkout` et adapter le payload (`planId` vers `plan`)
-- `src/lib/api-client.ts` : remplacer `/create-subscription-checkout` par `/create-checkout`
+**Resultat** : un utilisateur qui vient de s'abonner avec trial 7 jours est vu comme "non abonne" par le front.
 
-### Bloc 2 (P0) : Fix appels front vers EF supprimees
-
-**Objectif** : Eliminer les 404 silencieux.
-
-**Fichiers a modifier** :
-
-| Fichier | Action |
-|---|---|
-| `src/hooks/useMusicGenerationStatus.ts` | Remplacer `music-status` par appel a `ai-audio` avec `action: "get_status"` |
-| `src/lib/secureApiClient.ts` | Remplacer `suno-upload-cover` par appel a `ai-audio` avec `action: "upload_cover"` |
-| `src/components/audit/SyncTablesPanel.tsx` | Desactiver/retirer les appels `sync-edn-tables` et `update-edn-unique-content` (ajouter TODO ou message "fonctionnalite en cours de migration") |
-| `src/pages/OicDataQualityManager.tsx` | Desactiver les appels `fix-oic-data-quality` |
-| `src/utils/oicFixLauncher.ts` | Desactiver l'appel `fix-oic-data-quality` |
-| `src/utils/generateAllLyrics.ts` | Desactiver les appels `update-edn-unique-content` |
-| `src/components/admin/AdminDashboard.tsx` | Desactiver l'appel `extract-edn-uness-production` |
-| `src/components/accessibility/WebhookManager.tsx` | Desactiver l'appel `test-webhook` |
-
-### Bloc 3 (P1) : Nettoyage scripts morts + references back-to-back
-
-**Fichiers a modifier** :
-- `src/scripts/direct-extraction-launch.ts` : supprimer (appelle `extract-edn-objectifs` qui n'existe plus)
-- `src/scripts/launch-edn-objectifs-extraction.ts` : supprimer
-- `supabase/functions/auto-extract-oic/index.ts` : retirer les appels fetch vers `extract-edn-objectifs` ou desactiver la fonction entiere
-
-### Bloc 4 (P1) : Mise a jour documentation
-
-**Fichiers a modifier** :
-- `docs/supabase-functions-flow.md` : retirer les 36 fonctions supprimees, ajouter section "Fonctions consolidees" indiquant les mappings (ex: `music-status` est maintenant dans `ai-audio` action `get_status`)
+**Correction** :
+- Modifier la requete Stripe pour inclure `trialing` : `status: "all"` puis filtrer `active` + `trialing`
+- Retourner un champ `is_trialing: true/false` dans la reponse
+- Ajouter le status `trialing` dans `normalizeStatus` cote front (`useSubscription.ts`)
 
 ---
 
-## Tests de non-regression
+## Bug 2 (CRITIQUE) : `stripe-webhook` desynchronise avec `create-checkout`
 
-1. **TypeScript** : `tsc --noEmit` doit passer
-2. **Vitest** : ~700 tests doivent rester verts
-3. **Edge Functions** : 10/10 tests Deno existants
-4. **Verification manuelle** : flow Pricing -> Checkout (create-checkout) fonctionne
-5. **Smoke** : aucun `Failed to fetch /functions/v1/` dans la console
+**Fichier** : `supabase/functions/stripe-webhook/index.ts`
 
-## Estimation totale
+3 problemes :
+1. **Version Stripe SDK** : utilise `stripe@14.21.0` + `apiVersion: "2023-10-16"` alors que tout le reste est sur `stripe@18.5.0` + `2025-08-27.basil`
+2. **Metadata mismatch** : le webhook lit `session.metadata?.plan_id` (ligne 43) mais `create-checkout` envoie `metadata.plan` (pas `plan_id`)
+3. **Version Supabase** : utilise `@supabase/supabase-js@2.45.0` alors que le standard est `@2.57.2`
 
-- Bloc 1 : 30 min
-- Bloc 2 : 1-2h
-- Bloc 3 : 30 min
-- Bloc 4 : 30 min
-- **Total : 2.5-3.5h**
+**Resultat** : quand un checkout Stripe se termine, le webhook ne trouve pas le plan_id → la subscription BDD n'est pas creee correctement.
+
+**Correction** :
+- Aligner versions Stripe SDK et Supabase SDK
+- Lire `session.metadata?.plan` (au lieu de `plan_id`)
+- Ajouter le support `trialing` dans les status geres
+
+---
+
+## Bug 3 (MINEUR) : `music-status` existe encore comme Edge Function standalone
+
+**Fichier** : `supabase/functions/music-status/index.ts`
+
+Cette fonction existe toujours alors que le front appelle desormais `ai-audio` avec `action: 'get_status'`. La fonction standalone est un doublon qui peut creer de la confusion.
+
+**Correction** : Pas de suppression (pas possible dans Lovable), mais ajouter un commentaire `@deprecated` et documenter dans `supabase-functions-flow.md`.
+
+---
+
+## Plan d'execution
+
+### Etape 1 : Fix `check-subscription` (support trialing)
+
+Modifier `supabase/functions/check-subscription/index.ts` :
+- Remplacer `status: "active"` par recherche des subscriptions `active` ET `trialing`
+- Ajouter `is_trialing` dans la reponse JSON
+- Deployer
+
+### Etape 2 : Fix `stripe-webhook` (versions + metadata)
+
+Modifier `supabase/functions/stripe-webhook/index.ts` :
+- Mettre a jour imports : `stripe@18.5.0`, `@supabase/supabase-js@2.57.2`, `apiVersion: "2025-08-27.basil"`
+- Corriger `session.metadata?.plan_id` en `session.metadata?.plan`
+- Gerer le statut `trialing` en plus de `active`
+
+### Etape 3 : Adapter le front (useSubscription)
+
+Modifier `src/hooks/useSubscription.ts` :
+- Ajouter `trialing` dans `normalizeStatus` et les types `SubscriptionPlan['status']`
+- Afficher un badge "Essai en cours" si `is_trialing === true`
+
+### Etape 4 : Marquer `music-status` comme deprecated
+
+Ajouter un commentaire `@deprecated` en haut de `supabase/functions/music-status/index.ts`
+
+### Etape 5 : Smoke tests
+
+- Tester `check-subscription` (curl) : verifier qu'il retourne `is_trialing` 
+- Tester `create-checkout` : verifier que le flow Stripe fonctionne
+- Executer les tests Deno existants (10/10)
+
+## Estimation
+
+- Etape 1 : 15 min
+- Etape 2 : 20 min  
+- Etape 3 : 15 min
+- Etape 4 : 5 min
+- Etape 5 : 15 min
+- **Total : ~1h**
+
+## Ce qui n'est PAS couvert (et pourquoi)
+
+- **Tickets 5-6-7-8** : les smoke tests formels, le nettoyage cron/secrets, la doc runbook et l'observabilite sont des taches P1/P2 qui peuvent etre faites apres la stabilisation des 3 bugs critiques ci-dessus
+- **Suppression de `music-status`** : la fonction reste deployee mais n'est plus appelee par le front — pas de risque
 
