@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { corsHeaders } from '../_shared/cors.ts';
 
@@ -101,9 +102,9 @@ serve(async (req) => {
           } else {
             results.push({ type: contentType, success: true, data });
           }
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(`Exception generating ${contentType}:`, err);
-          results.push({ type: contentType, success: false, error: err.message });
+          results.push({ type: contentType, success: false, error: getErrorMessage(err) });
         }
       }
 
@@ -157,9 +158,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in pedagogical-content-api:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: getErrorMessage(error) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
