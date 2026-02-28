@@ -316,8 +316,8 @@ serve(async (req) => {
         } else {
           updatedCount++;
         }
-      } catch (itemError: any) {
-        errors.push({ item_code: item.item_code, error: itemError.message });
+      } catch (itemError: unknown) {
+        errors.push({ item_code: item.item_code, error: getErrorMessage(itemError) });
       }
     }
 
@@ -341,10 +341,10 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('💥 Erreur:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: getErrorMessage(error) }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
