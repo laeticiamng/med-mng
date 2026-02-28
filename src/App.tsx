@@ -12,7 +12,7 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PWAPrompt } from "@/components/pwa/PWAPrompt";
-import { ViewportProvider } from "@/components/responsive/ViewportProvider";
+// ViewportProvider removed — using CSS media queries
 import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 import { Button } from "@/components/ui/button";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,9 +23,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { AutoSEO } from '@/components/seo/AutoSEO';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
-import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
+// InternationalizationProvider & PerformanceProvider removed — consolidated
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -57,13 +56,10 @@ const Flashcards = lazy(() => import("./pages/Flashcards"));
 const ProgressDashboard = lazy(() => import("./pages/ProgressDashboard"));
 const SmartStudyPlanner = lazy(() => import("./pages/SmartStudyPlanner"));
 
-// 🆕 NOUVELLES PAGES PRIORITAIRES
+// 🆕 PAGES PRIORITAIRES (actives)
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
 const MyGoals = lazy(() => import("./pages/MyGoals"));
-const MoodTracker = lazy(() => import("./pages/MoodTracker"));
-const Pomodoro = lazy(() => import("./pages/Pomodoro"));
-const KaraokePage = lazy(() => import("./pages/KaraokePage"));
 
 // 🎯 ECOS PAGES
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -124,13 +120,10 @@ const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 
 // 📚 CONTENT PAGES
 const Generator = lazy(() => import("./pages/Generator"));
-const SharedMusic = lazy(() => import("./pages/SharedMusic"));
-const SharedMusicIndex = lazy(() => import("./pages/SharedMusicIndex"));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
-const CommunityHub = lazy(() => import("./pages/CommunityHub"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
@@ -140,9 +133,9 @@ const Diagnostics = lazy(() => import("./pages/Diagnostics"));
 // 🎯 DEMO PAGE
 const Demo = lazy(() => import("./pages/Demo"));
 
-// 🛒 STORE PAGES
-const Store = lazy(() => import("./pages/Store"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+// 🛒 STORE PAGES — désactivés (pas de boutique active)
+// const Store = lazy(() => import("./pages/Store"));
+// const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 
 // 📄 LEGAL PAGES
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
@@ -158,7 +151,6 @@ const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
 // 📢 PUBLIC PAGES
 const FAQ = lazy(() => import("./pages/FAQ"));
 const About = lazy(() => import("./pages/About"));
-const B2B = lazy(() => import("./pages/B2B"));
 
 // 📈 SEO PILLAR PAGES
 const PreparationEcos2026 = lazy(() => import("./pages/seo/PreparationEcos2026"));
@@ -210,13 +202,10 @@ const App = () => {
           <BrowserRouter>
             <HelmetProvider>
               <AuthProvider>
-                <LanguageProvider>
+              <LanguageProvider>
                   <GlobalAudioProvider>
                     <TooltipProvider>
-                      <ViewportProvider>
                         <AccessibilityProvider>
-                          <InternationalizationProvider>
-                            <PerformanceProvider>
                               <SkipLinks />
                               <AutoSEO />
                               <GlobalJsonLd />
@@ -240,8 +229,6 @@ const App = () => {
 
                                     {/* Content */}
                                     <Route path={ROUTE_PATHS.generator} element={<S><Generator /></S>} />
-                                    <Route path={ROUTE_PATHS.sharedMusic} element={<S><SharedMusic /></S>} />
-                                    <Route path={ROUTE_PATHS.sharedMusicIndex} element={<S><SharedMusicIndex /></S>} />
 
                                     {/* EDN */}
                                     <Route path={ROUTE_PATHS.ednComplete} element={<S><EdnComplete /></S>} />
@@ -264,17 +251,12 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.leaderboard} element={<S><Leaderboard /></S>} />
                                     <Route path={ROUTE_PATHS.dailyChallenges} element={<S><DailyChallenges /></S>} />
                                     <Route path={ROUTE_PATHS.myGoals} element={<S><MyGoals /></S>} />
-                                    <Route path={ROUTE_PATHS.moodTracker} element={<S><MoodTracker /></S>} />
-                                    <Route path={ROUTE_PATHS.pomodoro} element={<S><Pomodoro /></S>} />
-                                    <Route path={ROUTE_PATHS.karaoke} element={<S><KaraokePage /></S>} />
 
                                     {/* ECOS */}
                                     <Route path={ROUTE_PATHS.ecosIndex} element={<S><EcosIndex /></S>} />
                                     <Route path={ROUTE_PATHS.ecosScenario} element={<S><EcosScenario /></S>} />
 
-                                    {/* Store */}
-                                    <Route path={ROUTE_PATHS.store} element={<S><Store /></S>} />
-                                    <Route path={ROUTE_PATHS.productDetail} element={<S><ProductDetail /></S>} />
+                                    {/* Store — désactivé */}
 
                                     {/* Audit */}
                                     <Route path={ROUTE_PATHS.audit} element={<AdminRoute><S><AuditComplete /></S></AdminRoute>} />
@@ -297,7 +279,6 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.cookies} element={<S><CookiesPolicy /></S>} />
                                     <Route path={ROUTE_PATHS.faq} element={<S><FAQ /></S>} />
                                     <Route path={ROUTE_PATHS.about} element={<S><About /></S>} />
-                                    <Route path={ROUTE_PATHS.b2b} element={<S><B2B /></S>} />
 
                                     {/* SEO Pillar Pages */}
                                     <Route path={ROUTE_PATHS.seoPreparationEcos} element={<S><PreparationEcos2026 /></S>} />
@@ -364,7 +345,6 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.securityMonitoring} element={<AdminRoute><S><SecurityMonitoring /></S></AdminRoute>} />
                                     <Route path={ROUTE_PATHS.statistics} element={<S><Statistics /></S>} />
                                     <Route path={ROUTE_PATHS.studyPlanner} element={<S><StudyPlanner /></S>} />
-                                    <Route path={ROUTE_PATHS.community} element={<S><CommunityHub /></S>} />
                                     {/* Misc pages (user-protected) */}
                                     <Route path={ROUTE_PATHS.achievements} element={<ProtectedRoute><S><Achievements /></S></ProtectedRoute>} />
                                     <Route path={ROUTE_PATHS.favorites} element={<ProtectedRoute><S><Favorites /></S></ProtectedRoute>} />
@@ -402,10 +382,7 @@ const App = () => {
                               </div>
                               <Toaster />
                               <Sonner />
-                            </PerformanceProvider>
-                          </InternationalizationProvider>
                         </AccessibilityProvider>
-                      </ViewportProvider>
                     </TooltipProvider>
                   </GlobalAudioProvider>
                 </LanguageProvider>
