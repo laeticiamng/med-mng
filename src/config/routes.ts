@@ -107,6 +107,12 @@ export const ROUTE_PATHS = {
   demo: '/demo',
   // Raccourcis publics
   createShortcut: '/create',
+  // 📈 SEO Pillar Pages
+  seoPreparationEcos: '/preparation-ecos-2026',
+  seoReussirEdn: '/reussir-edn',
+  seoFichesEcos: '/fiches-ecos-interactives',
+  seoSimulationEdn: '/simulation-examen-edn',
+  seoCasCliniqueEdn: '/cas-cliniques-edn',
   notFound: '*',
 } as const;
 
