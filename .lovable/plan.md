@@ -1,178 +1,97 @@
 
+# Phase 5-8 : Execution Continue de la Roadmap Strategique
 
-# Roadmap Strategique MED-MNG : Plan d'Execution en 8 Phases
-
-## Etat des lieux technique actuel
-
-- **91 pages** dans App.tsx (dont ~35 utiles pour les utilisateurs)
-- **120+ Edge Functions** (dont ~40 sont des fonctions test/debug/extraction)
-- **~100 erreurs de build TypeScript** dans les Edge Functions, toutes du meme type
-- **11 niveaux de providers** imbriques dans App.tsx
-- **724 tables** Supabase (pour 12 utilisateurs beta)
+## Recap des phases completees
+- Phase 1 : Build fix (erreurs TS corrigees)
+- Phase 2 : Nettoyage (14 Edge Functions supprimees)
+- Phase 3 : Monetisation (3 tiers, pricing simplifie)
+- Phase 4 : SEO (5 pages piliers creees)
 
 ---
 
-## PHASE 1 : Correction du build (Priorite absolue)
+## Phase 5 : Mode Examen Focus (cette session)
 
-**Duree estimee : 1 session Lovable**
+Le mode examen actuel (`ExamMode.tsx`, 758 lignes) est fonctionnel mais trop complexe. L'objectif est de le simplifier pour une experience "EDN Blanc" professionnelle.
 
-Le build est casse par 3 categories d'erreurs repetees dans ~50 edge functions :
+### 5.1 — Simplifier l'interface de lancement
+- Supprimer le bouton "Configuration avancee" et le composant `ExamConfig` du flow principal
+- Remplacer par 2 modes clairs : "EDN Blanc" (20 QCM, 30 min, timer strict) et "ECOS Rapide" (10 stations, 15 min)
+- Garder les 2 cards existantes (Mode IA / Mode Standard) mais renommer "Mode Standard" en "EDN Blanc officiel"
 
-### 1.1 — `error` is of type `unknown` (~80 occurrences)
+### 5.2 — Ajouter le Percentile National Simule
+- Creer un composant `ExamPercentile.tsx` dans `src/components/exam/`
+- Algorithme : calculer le percentile base sur l'historique des scores de tous les utilisateurs (`exam_history` table)
+- Afficher apres completion : "Vous etes dans le top X% des etudiants"
+- Afficher un badge visuel (bronze < 50%, argent 50-80%, or > 80%)
+- Integrer dans la section resultats du `ExamMode.tsx`
 
-Pattern a corriger dans chaque catch block :
-```typescript
-// Avant
-} catch (error) {
-  return { error: error.message };
-}
-
-// Apres
-} catch (error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  return { error: message };
-}
-```
-
-Fichiers concernes : `music-database.ts`, `suno-api-client.ts`, `activate-simulation`, `admin-export`, `admin-quick-edit`, `advanced-search`, `ai-audio`, `ai-content`, `ai-core`, `ai-recommendations`, `analytics-aggregator`, `analytics-engine`, `analytics-tracker`, `api-documentation`, `audit-edn-completeness`, `audit-system`, `auth-webhook`, `auto-extract-oic`, `cancel-ia-task`, `chat-with-ai`, `check-item-competences`, `check-performance-degradation`, `collect-diagnostic-results`, `compare-official-content`, `complete-missing-competences`, `content-ai-generator`, `content-master-api`, et environ 30 autres.
-
-### 1.2 — Erreurs de typage specifiques
-
-| Fichier | Erreur | Correction |
-|---------|--------|------------|
-| `admin-quick-edit/index.ts:44` | Index expression not type number | Caster `currentData` en `Record<string, unknown>` |
-| `advanced-search/index.ts:52` | `results` implicitly `any[]` | Typer `const results: any[] = []` |
-| `analytics-aggregator/index.ts:119` | Filter on `unknown[]` | Caster `Object.values(userSessions) as number[]` |
-| `api-documentation/index.ts:379-391` | Push to `never[]` | Typer `validationResult` avec `warnings: string[], errors: string[]` |
-| `auto-extract-oic/index.ts:93` | `EdgeRuntime` not found | Ajouter `declare const EdgeRuntime: any` |
-| `complete-missing-competences/index.ts:112` | Cannot assign to const | Changer `const` en `let` |
-| `content-ai-generator/index.ts:67` | Index expression type `any` | Typer `fieldMap` avec `Record<string, keyof typeof existingContent>` |
-
-### 1.3 — Imports (deja en place correctement)
-
-`send-scheduled-reports` utilise deja `https://esm.sh/resend@2.0.0` — pas de correction necessaire.
+### 5.3 — Score par competence
+- Apres examen, afficher un breakdown par specialite/item_code
+- Utiliser les donnees deja presentes dans `answers` (item_code par question)
+- Ajouter un graphique radar simple avec les 5 specialites les plus testees
 
 ---
 
-## PHASE 2 : Nettoyage strategique (Semaine 1-2)
+## Phase 6 : Cas Cliniques Premium
 
-**Objectif : Reduire la surface technique de 40%**
+Le composant `ClinicalCases.tsx` (539 lignes) existe deja avec hooks `useClinicalCases` et `useAIClinicalCases`.
 
-### 2.1 — Edge Functions a supprimer (fonctions test/debug)
+### 6.1 — Badge "Cas Expert Valide"
+- Ajouter dans `useGamification` un nouveau badge `clinical_expert`
+- Condition de deblocage : completer 10 cas cliniques avec score > 70%
+- Afficher le badge dans le profil et dans `ExamRanking`
 
-Supprimer ~20 fonctions qui sont des tests ou du debug :
-- `test-batch-50`, `test-cas-simple`, `test-edn-extraction`, `test-extraction-sample`, `test-insertion-directe`, `test-login`, `test-oic-curl`, `test-webhook`
-- `debug-oic-extraction`, `debug-uness-auth`
-- `edn-fix`, `fix-oic-data-quality` (corrections ponctuelles)
-- `sync-edn-tables`, `transform-edn-sections` (migrations ponctuelles)
-
-### 2.2 — Edge Functions a consolider
-
-Fusionner les fonctions redundantes :
-- `ai-audio` + `ai-content` + `ai-core` → une seule `ai-engine`
-- `extract-edn-uness` + `extract-edn-uness-auth` + `extract-edn-uness-complete` + `extract-edn-uness-production` → une seule `extract-edn`
-- `generate-content` + `generate-missing-content` → une seule
-- `music-generation` + `music-generation-secure` → une seule
-
-### 2.3 — Pages a desactiver (garder le code, retirer de la nav)
-
-Pages non essentielles pour la beta :
-- `/store`, `/product/:handle` (pas de boutique active)
-- `/b2b` (pas de clients B2B)
-- `/community` (pas assez d'utilisateurs)
-- `/karaoke` (feature secondaire)
-- `/mood-tracker` (non differentiant)
-- `/pomodoro` (existe partout ailleurs)
-- `/shared-music` (pas de contenu)
-
-**Garder** : Home, EDN, ECOS, Examen, Cas Cliniques, Flashcards, Progression, Chat IA, Pricing, Auth, Legal, FAQ, About, Demo
+### 6.2 — Notation par competence ECOS
+- Apres chaque cas clinique, afficher un score par competence UNESS
+- Reutiliser les grilles UNESS existantes (`EcosUNESSGrid`, `GRILLES_UNESS`)
+- Ajouter une section "Competences evaluees" dans les resultats
 
 ---
 
-## PHASE 3 : Monetisation simplifiee (Semaine 3-4)
+## Phase 7 : Performance
 
-### 3.1 — Reduire de 3 tiers a 2+1
+### 7.1 — Optimisations cles
+- Ajouter `React.memo` sur les composants lourds des resultats d'examen
+- Configurer `staleTime` et `gcTime` optimises dans React Query pour les items EDN (donnees stables)
+- Verifier que le lazy loading est bien en place sur toutes les pages non-critiques (deja fait pour ExamConfig et ExamHistory)
 
-| Plan | Prix | Contenu |
-|------|------|---------|
-| Gratuit | 0 EUR | 10 items EDN, 3 QCM/jour, demo ECOS |
-| Pro Etudiant | 19 EUR/mois | 367 items, examen illimite, cas cliniques, musique |
-| Premium | 39 EUR/mois | Tout Pro + IA avancee, planning personnalise, priorite support |
-
-Supprimer temporairement le tier "Institution".
-
-### 3.2 — Paywall intelligent
-
-Ajouter un blur + compteur sur les contenus premium avec CTA "Debloquer avec Pro".
-
-### 3.3 — Essai gratuit 7 jours
-
-Activer le trial Stripe sur le plan Pro.
+### 7.2 — Bundle audit
+- Verifier les imports lourds (framer-motion, recharts) et s'assurer qu'ils sont tree-shakes
+- Ajouter `loading="lazy"` sur les images medicales dans les cas cliniques
 
 ---
 
-## PHASE 4 : SEO offensif (Semaine 4-6)
+## Phase 8 : Cockpit CEO
 
-### 4.1 — Pages piliers a creer
+### 8.1 — Page Executive Dashboard
+La route `/executive-dashboard` existe deja dans les routes. Creer le composant avec :
+- **DAU/WAU/MAU** : requete sur `user_activity_log` groupee par jour/semaine/mois
+- **Funnel** : inscription → premier examen → completion → paiement (basee sur les tables existantes)
+- **Taux de completion** : examens completes / examens demarres
+- **Score moyen** : moyenne des scores d'examen
+- **Top specialites** : specialites les plus revisees
 
-5 pages longues (2000+ mots) ciblees SEO :
-1. `/preparation-ecos-2026` — "Comment preparer les ECOS 2026"
-2. `/reussir-edn` — "Guide complet pour reussir l'EDN"
-3. `/fiches-ecos-interactives` — "Fiches ECOS interactives gratuites"
-4. `/simulation-examen-edn` — "Simulateur d'examen EDN en ligne"
-5. `/cas-cliniques-edn` — "Cas cliniques corriges pour l'EDN"
-
-### 4.2 — Infrastructure SEO
-
-- Sitemap dynamique auto-genere
-- Schema FAQ enrichi sur chaque page pilier
-- Google Search Console + Bing Webmaster
-- Balises Open Graph optimisees
+### 8.2 — Metriques temps reel
+- Utiliser React Query avec `refetchInterval: 60000` pour rafraichir les donnees
+- Afficher avec des cartes Recharts (deja installe)
 
 ---
 
-## PHASE 5 : Mode Examen focus (Semaine 6-8)
+## Details techniques
 
-Simplifier le mode examen existant :
-- 1 mode EDN Blanc (120 dossiers, timer strict, pas de pause)
-- 1 mode ECOS (10 stations)
-- Score + percentile simule
-- Feedback structure apres examen uniquement
+### Fichiers a creer
+1. `src/components/exam/ExamPercentile.tsx` — composant percentile national
+2. `src/pages/ExecutiveDashboard.tsx` — cockpit CEO
 
----
+### Fichiers a modifier
+1. `src/pages/ExamMode.tsx` — simplifier le flow, integrer percentile
+2. `src/pages/ClinicalCases.tsx` — ajouter badge et notation ECOS
+3. `src/hooks/useGamification.ts` — ajouter badge `clinical_expert`
+4. `src/hooks/useExamMode.ts` — ajouter calcul percentile
+5. `src/App.tsx` — connecter la route executive-dashboard
 
-## PHASE 6 : Cas cliniques premium (Semaine 8-10)
-
-- Creer 10-20 cas ultra qualitatifs
-- Images medicales
-- Score detaille par competence ECOS
-- Badge "Cas expert valide"
-
----
-
-## PHASE 7 : Performance (Semaine 10-11)
-
-- Audit Lighthouse sur 5 pages cles
-- Lazy loading images
-- Bundle splitting
-- Objectif : LCP < 2.5s, Lighthouse > 90
-
----
-
-## PHASE 8 : Cockpit CEO (Semaine 12)
-
-Dashboard admin avec metriques reelles :
-- DAU / WAU / MAU
-- Funnel inscription → activation → paiement
-- Taux de completion examen
-- ARPU
-- Churn rate
-
----
-
-## Prochaine etape immediate
-
-**Corriger les ~100 erreurs de build** (Phase 1) pour debloquer le deploiement. C'est la priorite absolue avant toute autre action strategique.
-
-Voulez-vous que je commence par la Phase 1 (correction build) ?
-
+### Priorite d'execution
+1. Phase 5 (Examen) — impact utilisateur direct
+2. Phase 8 (Cockpit) — visibilite business
+3. Phase 6 (Cas cliniques badges) — gamification
+4. Phase 7 (Performance) — optimisation continue
