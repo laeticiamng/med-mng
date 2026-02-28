@@ -1,105 +1,173 @@
 
 
-# Plan: Tickets restants — Trial/Subscription + Stripe Webhook + Nettoyage final
+# Plan: 8 Tickets Nettoyage + Monetisation (P0-P2)
 
-## Etat des lieux apres diagnostic
+## Etat des lieux (ce qui est DEJA fait)
 
-### Deja fait (sessions precedentes)
-- Tickets 1, 2, 3 (P0) : COMPLETS. Tous les appels front vers les 36 fonctions fantomes sont desactives ou migres.
-- Documentation (`supabase-functions-flow.md`) : a jour.
-- `create-subscription-checkout` : zero reference restante.
-- `useMusicGenerationStatus` et `secureApiClient` : migres vers `ai-audio`.
+Apres les sessions precedentes, l'essentiel du travail critique est deja realise :
 
-### Problemes restants identifies (3 bugs reels + nettoyage)
+- **36 fonctions fantomes documentees** dans `docs/supabase-functions-flow.md` (section 2)
+- **Appels front desactives** : tous les composants/hooks/utils qui appelaient des EF supprimees sont soit desactives avec warnings, soit migres vers les routeurs unifies (`ai-audio`, `ai-core`)
+- **Monetisation** : `create-checkout` fonctionne, `check-subscription` supporte `trialing`, `stripe-webhook` lit `metadata.plan` avec fallback `plan_id`
+- **Zero reference active** vers `create-subscription-checkout`, `music-status`, `suno-*` dans le front
+- **`auto-extract-oic`** retourne 410 Gone
+- **`music-status`** marque `@deprecated`
 
----
-
-## Bug 1 (CRITIQUE) : `check-subscription` ignore les users en trial
-
-**Fichier** : `supabase/functions/check-subscription/index.ts` (ligne 69-72)
-
-Le code actuel ne cherche que `status: "active"`. Or, `create-checkout` cree un abonnement avec `trial_period_days: 7`, ce qui donne un statut Stripe `trialing` — pas `active`.
-
-**Resultat** : un utilisateur qui vient de s'abonner avec trial 7 jours est vu comme "non abonne" par le front.
-
-**Correction** :
-- Modifier la requete Stripe pour inclure `trialing` : `status: "all"` puis filtrer `active` + `trialing`
-- Retourner un champ `is_trialing: true/false` dans la reponse
-- Ajouter le status `trialing` dans `normalizeStatus` cote front (`useSubscription.ts`)
+## Ce qui RESTE a faire (par ticket)
 
 ---
 
-## Bug 2 (CRITIQUE) : `stripe-webhook` desynchronise avec `create-checkout`
+### Ticket 1 (P0) -- Canonical registry
 
-**Fichier** : `supabase/functions/stripe-webhook/index.ts`
+**Deja fait a 90%.** La section 2 de `docs/supabase-functions-flow.md` liste les 36 fonctions supprimees avec raisons/remplacements.
 
-3 problemes :
-1. **Version Stripe SDK** : utilise `stripe@14.21.0` + `apiVersion: "2023-10-16"` alors que tout le reste est sur `stripe@18.5.0` + `2025-08-27.basil`
-2. **Metadata mismatch** : le webhook lit `session.metadata?.plan_id` (ligne 43) mais `create-checkout` envoie `metadata.plan` (pas `plan_id`)
-3. **Version Supabase** : utilise `@supabase/supabase-js@2.45.0` alors que le standard est `@2.57.2`
+**Restant** :
+- Ajouter un fichier `supabase/functions/_shared/deleted-functions.ts` exportant la liste des noms supprimes (utile pour les tests du Ticket 3)
+- Verifier que `config.toml` ne contient aucune entree pour les EF supprimees (verification : OK, aucune entree orpheline trouvee)
 
-**Resultat** : quand un checkout Stripe se termine, le webhook ne trouve pas le plan_id → la subscription BDD n'est pas creee correctement.
+**Fichiers a creer/modifier** :
+- `supabase/functions/_shared/deleted-functions.ts` (nouveau)
+- Aucune modification necessaire sur `config.toml` (propre)
 
-**Correction** :
-- Aligner versions Stripe SDK et Supabase SDK
-- Lire `session.metadata?.plan` (au lieu de `plan_id`)
-- Ajouter le support `trialing` dans les status geres
+**Estimation** : 20 min
 
 ---
 
-## Bug 3 (MINEUR) : `music-status` existe encore comme Edge Function standalone
+### Ticket 2 (P0) -- Purge front des references
 
-**Fichier** : `supabase/functions/music-status/index.ts`
+**Deja fait a 95%.** Toutes les references sont desactivees avec `console.warn` et messages "desactive".
 
-Cette fonction existe toujours alors que le front appelle desormais `ai-audio` avec `action: 'get_status'`. La fonction standalone est un doublon qui peut creer de la confusion.
+**Restant** :
+- `src/components/notifications/DataQualityMonitor.tsx:145` mentionne encore `extract-edn-objectifs` dans un texte `suggested_fix` -- mettre a jour le texte
+- Nettoyer les stubs inutiles : `src/scripts/test-edn-extraction.ts`, `src/scripts/launch-complete-extraction.ts` sont des fichiers morts qui pourraient etre supprimes
+- `src/utils/oicFixLauncher.ts` et `src/utils/generateAllLyrics.ts` : fonctions desactivees, mais les fichiers restent -- les conserver comme stubs (pas de risque)
 
-**Correction** : Pas de suppression (pas possible dans Lovable), mais ajouter un commentaire `@deprecated` et documenter dans `supabase-functions-flow.md`.
+**Fichiers a modifier** :
+- `src/components/notifications/DataQualityMonitor.tsx` (texte uniquement)
+
+**Fichiers candidats a suppression** (optionnel, aucun impact runtime) :
+- `src/scripts/test-edn-extraction.ts`
+- `src/scripts/launch-complete-extraction.ts`
+
+**Estimation** : 30 min
 
 ---
 
-## Plan d'execution
+### Ticket 3 (P0) -- Tests Edge "deleted EF" (404/410)
 
-### Etape 1 : Fix `check-subscription` (support trialing)
+**Pas encore fait.** C'est le ticket avec le plus de travail nouveau.
 
-Modifier `supabase/functions/check-subscription/index.ts` :
-- Remplacer `status: "active"` par recherche des subscriptions `active` ET `trialing`
-- Ajouter `is_trialing` dans la reponse JSON
-- Deployer
+**A creer** :
+- `supabase/functions/system/deleted-functions_test.ts` : test Deno qui appelle les endpoints supprimes et verifie 404
+- Importer la liste depuis `_shared/deleted-functions.ts` pour iterer
+- Tester `auto-extract-oic` retourne 410 (deja en place)
+- Tester que `music-status` repond encore (deprecated mais actif)
 
-### Etape 2 : Fix `stripe-webhook` (versions + metadata)
+**Fichiers a creer** :
+- `supabase/functions/_shared/deleted-functions.ts`
+- Un test Deno pour valider les endpoints supprimes
 
-Modifier `supabase/functions/stripe-webhook/index.ts` :
-- Mettre a jour imports : `stripe@18.5.0`, `@supabase/supabase-js@2.57.2`, `apiVersion: "2025-08-27.basil"`
-- Corriger `session.metadata?.plan_id` en `session.metadata?.plan`
-- Gerer le statut `trialing` en plus de `active`
+**Estimation** : 1-2h
 
-### Etape 3 : Adapter le front (useSubscription)
+---
 
-Modifier `src/hooks/useSubscription.ts` :
-- Ajouter `trialing` dans `normalizeStatus` et les types `SubscriptionPlan['status']`
-- Afficher un badge "Essai en cours" si `is_trialing === true`
+### Ticket 4 (P1) -- Stripe checkout consolidation + guardrails
 
-### Etape 4 : Marquer `music-status` comme deprecated
+**Deja fait a 85%.** `create-checkout` et `stripe-webhook` sont alignes.
 
-Ajouter un commentaire `@deprecated` en haut de `supabase/functions/music-status/index.ts`
+**Restant** :
+- Le webhook `checkout.session.completed` (ligne 58-59) utilise des dates calculees (`Date.now() + 30 jours`) au lieu des vraies dates de la subscription Stripe -- devrait utiliser `subscription.current_period_start/end` comme le fait `customer.subscription.updated`
+- Ajouter un guard : si `planId` n'est pas dans la liste des plans connus, log une erreur au lieu de creer silencieusement
 
-### Etape 5 : Smoke tests
+**Fichiers a modifier** :
+- `supabase/functions/stripe-webhook/index.ts` : ameliorer le bloc `checkout.session.completed` pour recuperer les vraies dates de subscription via l'API Stripe, et valider `planId`
 
-- Tester `check-subscription` (curl) : verifier qu'il retourne `is_trialing` 
-- Tester `create-checkout` : verifier que le flow Stripe fonctionne
-- Executer les tests Deno existants (10/10)
+**Estimation** : 45 min
 
-## Estimation
+---
 
-- Etape 1 : 15 min
-- Etape 2 : 20 min  
-- Etape 3 : 15 min
-- Etape 4 : 5 min
-- Etape 5 : 15 min
-- **Total : ~1h**
+### Ticket 5 (P1) -- Paywall + entitlements trialing/active/canceled
 
-## Ce qui n'est PAS couvert (et pourquoi)
+**Deja fait a 90%.** `useSubscription.ts` gere `trialing` + `active` + `canceled` + `past_due` + `unpaid` avec affichage correct.
 
-- **Tickets 5-6-7-8** : les smoke tests formels, le nettoyage cron/secrets, la doc runbook et l'observabilite sont des taches P1/P2 qui peuvent etre faites apres la stabilisation des 3 bugs critiques ci-dessus
-- **Suppression de `music-status`** : la fonction reste deployee mais n'est plus appelee par le front — pas de risque
+**Restant** :
+- `isSubscriptionActive()` retourne `true` pour `trialing` et `active` (OK)
+- Verifier qu'il y a un composant paywall qui utilise `isSubscriptionActive()` pour bloquer l'acces
+- Ajouter un test unitaire pour `normalizeStatus` et `isSubscriptionActive`
+
+**Fichiers a verifier/modifier** :
+- `src/hooks/useSubscription.ts` (OK tel quel)
+- Potentiellement `src/components/paywall/*` (a verifier s'il existe)
+
+**Estimation** : 30 min (surtout verification)
+
+---
+
+### Ticket 6 (P1) -- Supabase cleanup: cron/secrets/DB orphelins
+
+**Necessite investigation.**
+
+**A verifier** :
+- Y a-t-il des cron jobs dans les migrations qui appellent des EF supprimees ?
+- Secrets inutiles dans le dashboard (ex: cles liees a des services retires)
+- Triggers DB qui appellent des fonctions supprimees
+
+**Fichiers a verifier** :
+- `supabase/migrations/*` (recherche de references aux EF supprimees)
+- Dashboard Supabase (secrets, cron jobs)
+
+**Estimation** : 1-2h (variable)
+
+---
+
+### Ticket 7 (P2) -- Docs + Runbook "Edge Functions lifecycle"
+
+**Partiellement fait.** `docs/supabase-functions-flow.md` couvre l'inventaire mais pas le processus.
+
+**A creer** :
+- Section dans `docs/supabase-functions-flow.md` ou fichier dedie `docs/edge-functions-lifecycle.md` avec :
+  - Checklist pour ajouter une nouvelle EF
+  - Checklist pour deprecier (410) vs supprimer (404)
+  - Obligation de mettre a jour `_shared/deleted-functions.ts` + docs
+
+**Estimation** : 30-45 min
+
+---
+
+### Ticket 8 (P2) -- Observabilite monetisation
+
+**Partiellement fait.** `create-checkout` a deja des `logStep()` structures. `stripe-webhook` log les evenements.
+
+**Restant** :
+- Ajouter validation de payload avec status 400 (pas 500) si `plan` invalide dans `create-checkout`
+- Ajouter un compteur d'erreurs simple (log structure `[CHECKOUT_ERROR]` exploitable par requete analytics Supabase)
+- Optionnel : remonter un KPI dans le dashboard admin
+
+**Fichiers a modifier** :
+- `supabase/functions/create-checkout/index.ts` (validation renforcee)
+- Optionnel : composant dashboard
+
+**Estimation** : 45 min
+
+---
+
+## Ordre d'execution recommande
+
+1. **Ticket 1** : Creer `_shared/deleted-functions.ts` (prerequis pour Ticket 3)
+2. **Ticket 2** : Fix texte `DataQualityMonitor.tsx`
+3. **Ticket 3** : Creer les tests "deleted EF"
+4. **Ticket 4** : Fix `stripe-webhook` dates + validation planId
+5. **Ticket 8** : Renforcer validation `create-checkout`
+6. **Ticket 5** : Verification paywall (minimal)
+7. **Ticket 6** : Audit cron/secrets
+8. **Ticket 7** : Doc lifecycle
+
+## Estimation totale
+
+**~5-7h** pour les 8 tickets (vs ~16-30h estime dans les tickets originaux, car 80%+ est deja fait).
+
+## Deploiements Edge Functions necessaires
+
+- `stripe-webhook` (Ticket 4)
+- `create-checkout` (Ticket 8)
 
