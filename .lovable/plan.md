@@ -1,97 +1,201 @@
 
-# Phase 5-8 : Execution Continue de la Roadmap Strategique
+# Plan d'Execution : Feuille de Route 90 Jours — De "Plateforme" a "Produit Payant"
 
-## Recap des phases completees
-- Phase 1 : Build fix (erreurs TS corrigees)
-- Phase 2 : Nettoyage (14 Edge Functions supprimees)
-- Phase 3 : Monetisation (3 tiers, pricing simplifie)
-- Phase 4 : SEO (5 pages piliers creees)
+## Diagnostic actuel
 
----
-
-## Phase 5 : Mode Examen Focus (cette session)
-
-Le mode examen actuel (`ExamMode.tsx`, 758 lignes) est fonctionnel mais trop complexe. L'objectif est de le simplifier pour une experience "EDN Blanc" professionnelle.
-
-### 5.1 — Simplifier l'interface de lancement
-- Supprimer le bouton "Configuration avancee" et le composant `ExamConfig` du flow principal
-- Remplacer par 2 modes clairs : "EDN Blanc" (20 QCM, 30 min, timer strict) et "ECOS Rapide" (10 stations, 15 min)
-- Garder les 2 cards existantes (Mode IA / Mode Standard) mais renommer "Mode Standard" en "EDN Blanc officiel"
-
-### 5.2 — Ajouter le Percentile National Simule
-- Creer un composant `ExamPercentile.tsx` dans `src/components/exam/`
-- Algorithme : calculer le percentile base sur l'historique des scores de tous les utilisateurs (`exam_history` table)
-- Afficher apres completion : "Vous etes dans le top X% des etudiants"
-- Afficher un badge visuel (bronze < 50%, argent 50-80%, or > 80%)
-- Integrer dans la section resultats du `ExamMode.tsx`
-
-### 5.3 — Score par competence
-- Apres examen, afficher un breakdown par specialite/item_code
-- Utiliser les donnees deja presentes dans `answers` (item_code par question)
-- Ajouter un graphique radar simple avec les 5 specialites les plus testees
+- **~110 Edge Functions** restantes (14 test/debug deja supprimees)
+- **11 niveaux de providers** dans App.tsx
+- **~90 pages** dont beaucoup non essentielles (Store, B2B, Karaoke, MoodTracker, Pomodoro, SharedMusic, Community)
+- **Pricing** : 3 tiers en place mais `PricingPlans.tsx` appelle `create-subscription-checkout` (qui n'existe pas) au lieu de `create-checkout` (qui existe)
+- **create-checkout** : prix Standard 19EUR/Pro 29EUR/Premium 39EUR — **ne correspond pas** aux tiers affiches (Gratuit/Pro 19EUR/Premium 39EUR)
+- **Pas d'essai 7 jours** configure dans le checkout Stripe (`subscription_data.trial_period_days` absent)
+- **Pas de preuve sociale** (compteur d'inscrits)
 
 ---
 
-## Phase 6 : Cas Cliniques Premium
+## ETAPE 1 — Reduction de Surface Technique (Semaine 1-2)
 
-Le composant `ClinicalCases.tsx` (539 lignes) existe deja avec hooks `useClinicalCases` et `useAIClinicalCases`.
+### 1.1 — Supprimer ~25 Edge Functions inutilisees ou redondantes
 
-### 6.1 — Badge "Cas Expert Valide"
-- Ajouter dans `useGamification` un nouveau badge `clinical_expert`
-- Condition de deblocage : completer 10 cas cliniques avec score > 70%
-- Afficher le badge dans le profil et dans `ExamRanking`
+Fonctions a supprimer (non referencees ou doublons) :
+- `activate-simulation` (non reference cote frontend actif)
+- `create-subscription-checkout` (doublon de `create-checkout`)
+- `ecos-enrich-ai` (non reference)
+- `extract-edn-objectifs` (migration ponctuelle)
+- `extract-edn-uness-auth`, `extract-edn-uness-complete`, `extract-edn-uness-production` (doublons de `extract-edn-uness`)
+- `generate-cas-cookie` (non reference)
+- `generate-missing-content` (doublon de `generate-content`)
+- `google-sheets-webhook` (non reference)
+- `openai-image` (doublon de `generate-image`)
+- `process-ab-tests` (non reference)
+- `send-weekly-alerts-report` (non reference)
+- `shopify-webhook` (pas de boutique active)
+- `spotify-medical-docs` (non reference)
+- `suno-audio-processing` (doublon dans ai-audio)
+- `suno-extend-music`, `suno-generate-lyrics`, `suno-upload-cover` (consolider dans ai-audio)
+- `unified-alerts` (doublon de monitoring-alerts)
+- `get-vapid-key`, `get-rls-policies` (utilitaires ponctuels)
 
-### 6.2 — Notation par competence ECOS
-- Apres chaque cas clinique, afficher un score par competence UNESS
-- Reutiliser les grilles UNESS existantes (`EcosUNESSGrid`, `GRILLES_UNESS`)
-- Ajouter une section "Competences evaluees" dans les resultats
+**Resultat** : de ~110 a ~85 Edge Functions (reduction 23%)
+
+### 1.2 — Desactiver les pages non essentielles
+
+Retirer des routes (garder le code) :
+- `/store`, `/product/:handle` — pas de boutique
+- `/b2b` — pas de clients B2B
+- `/karaoke` — feature secondaire
+- `/mood-tracker` — non differentiant
+- `/pomodoro` — existe partout
+- `/shared-music`, `/shared-music/:id` — pas de contenu
+- `/community` — pas assez d'utilisateurs
+
+**Fichier modifie** : `src/App.tsx` — commenter les routes, supprimer les imports lazy correspondants
+
+### 1.3 — Reduire les providers imbriques
+
+Fusionner ou supprimer les providers peu utilises :
+- `InternationalizationProvider` + `LanguageProvider` → garder un seul
+- `PerformanceProvider` → supprimer (metriques dans hooks)
+- `ViewportProvider` → supprimer si media queries CSS suffisent
+
+**De 11 a 7-8 niveaux**
 
 ---
 
-## Phase 7 : Performance
+## ETAPE 2 — Clarification Monetisation (Semaine 3)
 
-### 7.1 — Optimisations cles
-- Ajouter `React.memo` sur les composants lourds des resultats d'examen
-- Configurer `staleTime` et `gcTime` optimises dans React Query pour les items EDN (donnees stables)
-- Verifier que le lazy loading est bien en place sur toutes les pages non-critiques (deja fait pour ExamConfig et ExamHistory)
+### 2.1 — Corriger le flux de paiement
 
-### 7.2 — Bundle audit
-- Verifier les imports lourds (framer-motion, recharts) et s'assurer qu'ils sont tree-shakes
-- Ajouter `loading="lazy"` sur les images medicales dans les cas cliniques
+Le bug critique : `PricingPlans.tsx` appelle `create-subscription-checkout` qui n'existe pas. Corriger pour appeler `create-checkout`.
+
+**Fichier** : `src/components/med-mng/PricingPlans.tsx`
+- Changer l'appel de `create-subscription-checkout` vers `create-checkout`
+- Mapper les planIds correctement : `pro` → `standard` (19EUR), `premium` → `premium` (39EUR)
+
+### 2.2 — Ajouter l'essai gratuit 7 jours Stripe
+
+**Fichier** : `supabase/functions/create-checkout/index.ts`
+- Ajouter `subscription_data: { trial_period_days: 7 }` dans la session checkout pour le plan Pro/Standard
+
+### 2.3 — Synchroniser les tiers affiches avec Stripe
+
+Mettre a jour `create-checkout` pour avoir 2 plans payants :
+- `pro` : 19EUR (price_id existant du standard)
+- `premium` : 39EUR (price_id existant du premium)
+- Supprimer le tier "Pro" a 29EUR qui n'est plus affiche
+
+### 2.4 — Ajouter preuve sociale
+
+**Fichier** : `src/components/med-mng/PricingPlans.tsx`
+- Ajouter un compteur "37+ etudiants inscrits" au-dessus des cards
+- Query Supabase sur `profiles` count pour un nombre reel (ou semi-statique)
+
+### 2.5 — Ajouter comparaison Pro vs Premium
+
+**Fichier** : `src/pages/MedMngPricing.tsx`
+- Ajouter un tableau comparatif sous les cards pricing avec checkmarks par feature
 
 ---
 
-## Phase 8 : Cockpit CEO
+## ETAPE 3 — SEO Offensif (Semaine 4-5)
 
-### 8.1 — Page Executive Dashboard
-La route `/executive-dashboard` existe deja dans les routes. Creer le composant avec :
-- **DAU/WAU/MAU** : requete sur `user_activity_log` groupee par jour/semaine/mois
-- **Funnel** : inscription → premier examen → completion → paiement (basee sur les tables existantes)
-- **Taux de completion** : examens completes / examens demarres
-- **Score moyen** : moyenne des scores d'examen
-- **Top specialites** : specialites les plus revisees
+### 3.1 — Creer 4 articles SEO supplementaires
 
-### 8.2 — Metriques temps reel
-- Utiliser React Query avec `refetchInterval: 60000` pour rafraichir les donnees
-- Afficher avec des cartes Recharts (deja installe)
+Nouveaux fichiers dans `src/pages/seo/` :
+1. `ErreursFrquentesEcos.tsx` — "Erreurs frequentes aux ECOS"
+2. `ClassementEdnExplique.tsx` — "Comment fonctionne le classement EDN"
+3. `RangAvsRangB.tsx` — "Rang A vs Rang B : comprendre la difference"
+4. `TravaillerCasCliniques.tsx` — "Comment travailler les cas cliniques efficacement"
+
+Chaque page : 2000+ mots, JSON-LD FAQ, maillage interne vers les 5 pages piliers existantes.
+
+### 3.2 — Renforcer le maillage interne
+
+Ajouter des liens croises entre les 9 pages SEO (5 existantes + 4 nouvelles) dans les sections "Articles lies".
+
+### 3.3 — Ajouter 10 FAQ longues
+
+Enrichir `PricingFAQ.tsx` avec 10 questions supplementaires orientees conversion et SEO longue traine.
 
 ---
 
-## Details techniques
+## ETAPE 4 — Examen = Produit Coeur (Semaine 6)
 
-### Fichiers a creer
-1. `src/components/exam/ExamPercentile.tsx` — composant percentile national
-2. `src/pages/ExecutiveDashboard.tsx` — cockpit CEO
+### 4.1 — Historique des scores enrichi
 
-### Fichiers a modifier
-1. `src/pages/ExamMode.tsx` — simplifier le flow, integrer percentile
-2. `src/pages/ClinicalCases.tsx` — ajouter badge et notation ECOS
-3. `src/hooks/useGamification.ts` — ajouter badge `clinical_expert`
-4. `src/hooks/useExamMode.ts` — ajouter calcul percentile
-5. `src/App.tsx` — connecter la route executive-dashboard
+**Fichier** : `src/components/exam/ExamHistory.tsx`
+- Ajouter un graphique de progression des scores sur 30 jours
+- Afficher la tendance du percentile
 
-### Priorite d'execution
-1. Phase 5 (Examen) — impact utilisateur direct
-2. Phase 8 (Cockpit) — visibilite business
-3. Phase 6 (Cas cliniques badges) — gamification
-4. Phase 7 (Performance) — optimisation continue
+### 4.2 — Faiblesse par specialite
+
+**Fichier** : `src/components/exam/ExamCompetencyRadar.tsx`
+- Identifier automatiquement les 3 specialites les plus faibles
+- Afficher "Recommandation : revisez Cardiologie et Neurologie"
+
+### 4.3 — Recommandation automatique de revision
+
+Apres examen, generer un mini-plan de revision base sur les faiblesses detectees. Lien vers les items EDN correspondants.
+
+---
+
+## ETAPE 5 — Cas Cliniques Premium (Semaine 7-8)
+
+### 5.1 — Page publique "Exemple cas clinique"
+
+Creer `src/pages/seo/ExempleCasClinique.tsx` :
+- 1 cas clinique complet visible publiquement (teaser)
+- CTA "Debloquer les 20 cas premium"
+- Schema JSON-LD Article
+
+### 5.2 — Score comparatif et grille ECOS
+
+Enrichir la page resultats des cas cliniques avec :
+- Score par competence UNESS
+- Comparaison avec la moyenne des autres utilisateurs
+
+---
+
+## ETAPE 6 — Performance & Experience (Semaine 9)
+
+### 6.1 — Audit et optimisations
+
+- Verifier `React.memo` sur `ExamPercentile`, `ExamCompetencyRadar`, `ExamRanking`
+- Ajouter `loading="lazy"` sur les images dans les cas cliniques
+- Verifier le code splitting avec les imports lazy (deja en place)
+
+### 6.2 — Mobile intensif
+
+- Tester toutes les pages critiques en viewport 375px
+- Corriger les debordements eventuels
+
+---
+
+## Resume des fichiers impactes
+
+### A creer (7 fichiers)
+1. `src/pages/seo/ErreursFrquentesEcos.tsx`
+2. `src/pages/seo/ClassementEdnExplique.tsx`
+3. `src/pages/seo/RangAvsRangB.tsx`
+4. `src/pages/seo/TravaillerCasCliniques.tsx`
+5. `src/pages/seo/ExempleCasClinique.tsx`
+
+### A modifier (8 fichiers)
+1. `src/App.tsx` — retirer routes inutiles, reduire providers
+2. `src/components/med-mng/PricingPlans.tsx` — fix appel checkout, preuve sociale
+3. `src/pages/MedMngPricing.tsx` — tableau comparatif Pro vs Premium
+4. `supabase/functions/create-checkout/index.ts` — trial 7j, sync tiers
+5. `src/components/pricing/PricingFAQ.tsx` — +10 FAQ
+6. `src/components/exam/ExamCompetencyRadar.tsx` — recommandations faiblesses
+7. `src/config/routes.ts` — nouvelles routes SEO
+
+### A supprimer (~25 Edge Functions)
+Liste detaillee dans l'etape 1.1
+
+### Ordre d'execution
+1. **Etape 1** (surface technique) — prerequis stabilite
+2. **Etape 2** (monetisation) — bug critique checkout a corriger
+3. **Etape 3** (SEO) — contenu pour acquisition
+4. **Etape 4** (examen) — retention
+5. **Etape 5** (cas cliniques) — differenciation
+6. **Etape 6** (performance) — polish final
