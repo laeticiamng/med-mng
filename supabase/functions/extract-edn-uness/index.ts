@@ -1,4 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
+import { getErrorMessage } from '../_shared/error-utils.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
 import { corsHeaders } from '../_shared/cors.ts'
@@ -134,13 +135,13 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Erreur critique:', error)
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
-        stack: error.stack 
+        error: getErrorMessage(error),
+        stack: error instanceof Error ? error.stack : undefined 
       }),
       { 
         status: 500,

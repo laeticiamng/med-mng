@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { corsHeaders } from '../_shared/cors.ts';
 
@@ -70,10 +71,10 @@ serve(async (req) => {
         throw new Error('Invalid action');
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in synchronized-lyrics:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { 
         status: 500, 
         headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }

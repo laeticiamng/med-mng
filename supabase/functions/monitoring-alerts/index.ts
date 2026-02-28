@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
@@ -41,13 +42,13 @@ async function checkServiceHealth(url: string, serviceName: string): Promise<Hea
       lastCheck: new Date().toISOString(),
       errorMessage: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
       service: serviceName,
       status: 'unhealthy',
       responseTime: Date.now() - startTime,
       lastCheck: new Date().toISOString(),
-      errorMessage: error.message
+      errorMessage: getErrorMessage(error)
     };
   }
 }
@@ -286,12 +287,12 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Monitoring function error:', error);
     
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message,
+      message: getErrorMessage(error),
       timestamp: new Date().toISOString()
     }), {
       status: 500,

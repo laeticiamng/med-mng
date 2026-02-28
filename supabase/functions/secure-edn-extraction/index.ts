@@ -1,7 +1,8 @@
 // Edge Function pour extraction EDN sécurisée
 // Cette fonction gère les credentials côté serveur pour éviter leur exposition
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const ALLOWED_ORIGINS = [
@@ -139,13 +140,13 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Error in secure-edn-extraction:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getErrorMessage } from '../_shared/error-utils.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 serve(async (req) => {
@@ -75,12 +76,12 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in medical-chat-ai function:', error);
     
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Une erreur est survenue lors du traitement de votre demande.' 
+        error: getErrorMessage(error) || 'Une erreur est survenue lors du traitement de votre demande.' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -55,8 +55,8 @@ async function fetchCreditsWithRetry(apiKey: string, retries = MAX_RETRIES): Pro
       }
       
       return await response.json();
-    } catch (error) {
-      console.warn(`⚠️ Attempt ${attempt + 1}/${retries + 1} failed:`, error.message);
+    } catch (error: unknown) {
+      console.warn(`⚠️ Attempt ${attempt + 1}/${retries + 1} failed:`, error instanceof Error ? error.message : String(error));
       
       if (attempt < retries) {
         // Exponential backoff: 500ms, 1000ms, 2000ms...
@@ -127,8 +127,8 @@ serve(async (req) => {
 
     throw new Error(data.msg || 'Invalid API response');
 
-  } catch (error) {
-    console.error('❌ Credits check error:', error.message);
+  } catch (error: unknown) {
+    console.error('❌ Credits check error:', error instanceof Error ? error.message : String(error));
     
     // Return cached data if available, even if stale
     if (creditsCache) {
