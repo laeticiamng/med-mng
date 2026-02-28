@@ -207,11 +207,11 @@ export const ContextualChat: React.FC<ContextualChatProps> = ({
         // Créer une nouvelle conversation
         const { data: convData } = await supabase
           .from('chat_conversations')
-          .insert({
-            user_id: (await supabase.auth.getUser()).data.user?.id,
+          .insert([{
+            user_id: (await supabase.auth.getUser()).data.user?.id || '',
             title: userMessage.content.slice(0, 50) + '...',
             last_message: assistantMessage.content.slice(0, 100)
-          })
+          }])
           .select()
           .maybeSingle();
         

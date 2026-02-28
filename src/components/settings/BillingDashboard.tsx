@@ -83,18 +83,19 @@ export const BillingDashboard = () => {
       }
 
       if (subData) {
+        const sub = subData as any;
         setSubscription({
-          plan: subData.plan ?? 'gratuit',
-          status: (subData.status as SubscriptionInfo['status']) ?? 'active',
-          currentPeriodEnd: subData.current_period_end ?? null,
-          cancelAtPeriodEnd: subData.cancel_at_period_end ?? false,
+          plan: sub.plan ?? sub.plan_type ?? 'gratuit',
+          status: (sub.status as SubscriptionInfo['status']) ?? 'active',
+          currentPeriodEnd: sub.current_period_end ?? sub.expires_at ?? null,
+          cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
         });
       } else {
         setSubscription({ plan: 'gratuit', status: 'active', currentPeriodEnd: null, cancelAtPeriodEnd: false });
       }
 
       // Fetch invoices
-      const { data: invoiceData, error: invoiceError } = await supabase
+      const { data: invoiceData, error: invoiceError } = await (supabase as any)
         .from('invoices')
         .select('*')
         .eq('user_id', session.user.id)
@@ -107,7 +108,7 @@ export const BillingDashboard = () => {
 
       if (invoiceData) {
         setInvoices(
-          invoiceData.map((inv: Record<string, unknown>) => ({
+          (invoiceData as any[]).map((inv: Record<string, unknown>) => ({
             id: inv.id as string,
             amount: (inv.amount as number) ?? 0,
             currency: (inv.currency as string) ?? 'eur',

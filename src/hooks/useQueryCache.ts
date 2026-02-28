@@ -98,13 +98,13 @@ class QueryCacheManager extends QueryCache {
 
   // Statistiques du cache
   getStats() {
-    const entries = Array.from((this as any).cache.entries());
+    const entries: [any, any][] = Array.from((this as any).cache.entries());
     const now = Date.now();
 
     return {
       totalEntries: entries.length,
-      validEntries: entries.filter(([_, e]) => e.expires > now).length,
-      expiredEntries: entries.filter(([_, e]) => e.expires <= now).length,
+      validEntries: entries.filter(([_, e]: [any, any]) => e.expires > now).length,
+      expiredEntries: entries.filter(([_, e]: [any, any]) => e.expires <= now).length,
       pendingRequests: this.pendingRequests.size,
       subscriptions: this.subscriptions.size
     };
@@ -113,7 +113,7 @@ class QueryCacheManager extends QueryCache {
   // Invalider par pattern
   invalidatePattern(pattern: RegExp): number {
     let count = 0;
-    Array.from((this as any).cache.keys()).forEach((key: string) => {
+    (Array.from((this as any).cache.keys()) as string[]).forEach((key: string) => {
       if (pattern.test(key)) {
         this.invalidate(key);
         count++;

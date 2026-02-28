@@ -34,7 +34,7 @@ interface NotificationTemplate {
   name: string;
   platform: 'slack' | 'discord' | 'both';
   template_content: string;
-  is_default: boolean;
+  is_default: boolean | null;
   variables: string[];
   created_at: string;
   updated_at: string;

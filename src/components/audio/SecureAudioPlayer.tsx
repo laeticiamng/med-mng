@@ -160,7 +160,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         autoPlay={autoPlay}
         loop={loop}
         controlsList="nodownload noremoteplayback"
-        disablePictureInPicture
+        {...{ disablePictureInPicture: true } as any}
         className={cn(
           "w-full",
           // Masquer certains contrôles

@@ -20,7 +20,7 @@ interface BandeDessineeProps {
     subtitle: string;
     slug?: string;
     item_code?: string;
-    tableau_rang_a?: TableauRangData;
+    tableau_rang_a?: TableauRangData | any;
     tableau_rang_b?: TableauRangData;
   };
 }

@@ -96,7 +96,7 @@ class WebVitalsMonitor {
       }
     });
 
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+    return Math.round(scores.reduce((sum: number, score: number) => sum + score, 0) / scores.length) as number;
   }
 
   // Vérifier si les métriques sont dans les seuils acceptables

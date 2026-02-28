@@ -740,7 +740,7 @@ export default function ExamMode() {
           {/* History Tab */}
           <TabsContent value="history">
             <Suspense fallback={<div className="animate-pulse space-y-4"><div className="h-48 bg-muted rounded-lg" /><div className="h-64 bg-muted rounded-lg" /></div>}>
-              {user && <ExamHistory userId={user.id} />}
+              {user && <ExamHistory />}
             </Suspense>
           </TabsContent>
 

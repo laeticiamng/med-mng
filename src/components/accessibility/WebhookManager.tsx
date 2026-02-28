@@ -12,8 +12,8 @@ interface WebhookSettings {
   id?: string;
   slack_webhook_url: string | null;
   discord_webhook_url: string | null;
-  slack_enabled: boolean;
-  discord_enabled: boolean;
+  slack_enabled: boolean | null;
+  discord_enabled: boolean | null;
 }
 
 export function WebhookManager() {
