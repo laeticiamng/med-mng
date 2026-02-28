@@ -83,7 +83,7 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
     } catch (error) {
       console.error('❌ Test audio échoué:', error);
       setStatus('error');
-      setErrorDetails(error.message);
+      setErrorDetails(error instanceof Error ? error.message : String(error));
     }
   };
 

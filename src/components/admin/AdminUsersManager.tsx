@@ -36,8 +36,8 @@ interface User {
   role: 'user' | 'admin' | 'moderator';
   subscription_type: string;
   credits_left: number;
-  last_login: string;
-  created_at: string;
+  last_login: string | null;
+  created_at: string | null;
   is_active: boolean;
   total_usage: number;
 }

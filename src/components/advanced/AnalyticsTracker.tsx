@@ -177,7 +177,7 @@ export const AnalyticsTracker: React.FC = () => {
           returnVisits: sessions?.length || 0
         },
         learningMetrics: {
-          completionRate: sessions?.filter(s => s.completed).length / (sessions?.length || 1) * 100,
+          completionRate: (sessions?.filter(s => s.completed).length || 0) / (sessions?.length || 1) * 100,
           averageScore: avgScore,
           timeSpent: sessionDuration,
           modulesCompleted: activities?.filter(a => a.activity_type === 'item_completed').length || 0,

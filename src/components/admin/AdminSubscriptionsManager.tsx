@@ -26,7 +26,7 @@ interface Subscription {
   id: string;
   user_email: string;
   user_name?: string;
-  plan_type: string;
+  plan_type: string | null;
   status: 'active' | 'cancelled' | 'expired';
   monthly_quota: number;
   used_credits: number;
@@ -79,8 +79,8 @@ export const AdminSubscriptionsManager = () => {
 
       // Transformer les données pour l'affichage
       const transformedSubscriptions: Subscription[] = quotaData?.map(quota => {
-        const totalQuota = quota.monthly_music_quota + quota.monthly_qcm_quota + quota.monthly_chat_quota;
-        const usedCredits = quota.monthly_music_used + quota.monthly_qcm_used + quota.monthly_chat_used;
+        const totalQuota = (quota.monthly_music_quota || 0) + (quota.monthly_qcm_quota || 0) + (quota.monthly_chat_quota || 0);
+        const usedCredits = (quota.monthly_music_used || 0) + (quota.monthly_qcm_used || 0) + (quota.monthly_chat_used || 0);
         
         // Calcul approximatif du revenu basé sur le type d'abonnement
         const planPrices = {

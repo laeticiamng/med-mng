@@ -32,7 +32,7 @@ export const ExamRanking: React.FC<ExamRankingProps> = ({ userId }) => {
     const fetchRankings = async () => {
       try {
         // Fetch top 20 rankings
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from('exam_rankings')
           .select('*')
           .limit(20);
@@ -47,12 +47,12 @@ export const ExamRanking: React.FC<ExamRankingProps> = ({ userId }) => {
           setRankings(data as RankingEntry[]);
 
           // Find user's position
-          const userEntry = data.find((r: RankingEntry) => r.user_id === userId);
+          const userEntry = (data as RankingEntry[]).find((r) => r.user_id === userId);
           if (userEntry) {
             setUserRanking({
-              position: userEntry.rank_position,
+              position: (userEntry as any).rank_position,
               totalUsers: data.length,
-              percentile: Math.round(((data.length - userEntry.rank_position + 1) / data.length) * 100),
+              percentile: Math.round(((data.length - ((userEntry as any).rank_position || 0) + 1) / data.length) * 100),
             });
           }
         }

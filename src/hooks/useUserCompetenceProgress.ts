@@ -44,7 +44,7 @@ export const useUserCompetenceProgress = (itemCode: string, rang: 'A' | 'B') => 
 
       if (!error && data) {
         const map = new Map<string, boolean>();
-        data.forEach((row: CompetenceProgress) => {
+        data.forEach((row: any) => {
           map.set(row.competence_id, row.mastered);
         });
         setProgress(map);

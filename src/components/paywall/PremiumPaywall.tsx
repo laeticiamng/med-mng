@@ -32,9 +32,9 @@ export const PremiumPaywall: React.FC<PremiumPaywallProps> = ({
   const { getPlanTier, createCheckout } = useSubscription();
   const currentTier = getPlanTier();
 
-  const tierOrder = ['free', 'basic', 'pro', 'premium'] as const;
-  const currentIndex = tierOrder.indexOf(currentTier);
-  const requiredIndex = tierOrder.indexOf(requiredPlan);
+  const tierOrder = ['free', 'basic', 'standard', 'pro', 'premium'] as const;
+  const currentIndex = tierOrder.indexOf(currentTier as any);
+  const requiredIndex = tierOrder.indexOf(requiredPlan as any);
 
   // User has access - render children directly
   if (currentIndex >= requiredIndex) {

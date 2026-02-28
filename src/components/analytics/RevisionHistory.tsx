@@ -101,7 +101,7 @@ export const RevisionHistory: React.FC = () => {
         return {
           id: progress.id,
           itemCode: progress.item_code,
-          itemTitle: itemTitleMap[progress.item_code] || progress.item_code,
+          itemTitle: itemTitleMap[progress.item_code || ''] || progress.item_code,
           reviewedAt: new Date(progress.last_review_date),
           result,
           timeSpent: Math.round((progress.total_reviews || 1) * 60 + 120), // Estimation basée sur le nombre de révisions

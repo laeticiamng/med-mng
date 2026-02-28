@@ -43,7 +43,7 @@ export const MasterContentViewer: React.FC<MasterContentViewerProps> = ({
     if (masterContent) {
       const duration = Math.floor((Date.now() - viewStartTime) / 1000);
       if (duration > 5) { // Au moins 5 secondes
-        trackContentView(itemData.item_code, activeTab, duration);
+        trackContentView(itemData.item_code || '', activeTab, duration);
       }
       setViewStartTime(Date.now());
     }

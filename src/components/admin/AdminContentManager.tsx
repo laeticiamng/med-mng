@@ -36,7 +36,7 @@ interface EdnItem {
   id: string;
   item_code: string;
   title: string;
-  subtitle?: string;
+  subtitle?: string | null;
   completeness_score: number;
   is_validated: boolean;
   has_music: boolean;
