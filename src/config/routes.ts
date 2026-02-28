@@ -113,6 +113,11 @@ export const ROUTE_PATHS = {
   seoFichesEcos: '/fiches-ecos-interactives',
   seoSimulationEdn: '/simulation-examen-edn',
   seoCasCliniqueEdn: '/cas-cliniques-edn',
+  seoErreursFrquentesEcos: '/erreurs-frequentes-ecos',
+  seoClassementEdnExplique: '/classement-edn-explique',
+  seoRangAvsRangB: '/rang-a-vs-rang-b',
+  seoTravaillerCasCliniques: '/travailler-cas-cliniques',
+  seoExempleCasClinique: '/exemple-cas-clinique',
   notFound: '*',
 } as const;
 
