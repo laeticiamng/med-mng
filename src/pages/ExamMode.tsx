@@ -1,4 +1,6 @@
 import { ExamResultsPDF } from '@/components/exam/ExamResultsPDF';
+import { ExamPercentile } from '@/components/exam/ExamPercentile';
+import { ExamCompetencyRadar } from '@/components/exam/ExamCompetencyRadar';
 import { ExamRanking } from '@/components/exam/ExamRanking';
 import { QuizResultsCard } from '@/components/quiz/QuizResultsCard';
 import { MedicalDisclaimerFooter } from '@/components/legal';
@@ -26,7 +28,6 @@ import {
     Loader2,
     Play,
     RotateCcw,
-    Settings2,
     Sparkles,
     Target,
     Timer,
@@ -39,10 +40,9 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 
-const ExamConfig = lazy(() => import('@/components/exam/ExamConfig').then(m => ({ default: m.ExamConfig })));
 const ExamHistory = lazy(() => import('@/components/exam/ExamHistory').then(m => ({ default: m.ExamHistory })));
 
-type ExamViewMode = 'select' | 'config' | 'active' | 'completed';
+type ExamViewMode = 'select' | 'active' | 'completed';
 
 export default function ExamMode() {
   const navigate = useNavigate();
@@ -397,8 +397,8 @@ export default function ExamMode() {
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
                         <Brain className="h-8 w-8 text-accent" />
                       </div>
-                      <h3 className="font-bold mb-2">Mode Standard</h3>
-                      <p className="text-sm text-muted-foreground">Questions du référentiel EDN officiel</p>
+                      <h3 className="font-bold mb-2">EDN Blanc officiel</h3>
+                      <p className="text-sm text-muted-foreground">20 QCM • 30 min • Référentiel EDN officiel</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -433,63 +433,31 @@ export default function ExamMode() {
                         <p className="text-xs font-medium">+50 pts</p>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Button
-                        size="lg"
-                        onClick={handleStartExam}
-                        disabled={loading || aiLoading || generating}
-                        className="gap-2"
-                      >
-                        {generating ? (
-                          <>
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            Génération IA...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-5 w-5" />
-                            Commencer rapidement
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        className="gap-2"
-                        onClick={() => setViewMode('config')}
-                      >
-                        <Settings2 className="h-5 w-5" />
-                        Configuration avancée
-                      </Button>
-                    </div>
+                    <Button
+                      size="lg"
+                      onClick={handleStartExam}
+                      disabled={loading || aiLoading || generating}
+                      className="gap-2"
+                    >
+                      {generating ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Génération IA...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-5 w-5" />
+                          Lancer l'examen
+                        </>
+                      )}
+                    </Button>
                     <p className="text-xs text-muted-foreground mt-4">
                       Timer par question : QCM/QRU = 1min30, QROC = 3min
                     </p>
                   </CardContent>
                 </Card>
 
-                {/* Advanced config panel */}
-                {viewMode === 'config' && (
-                  <Suspense fallback={<div className="animate-pulse h-96 bg-muted rounded-lg" />}>
-                    <ExamConfig onStart={(config) => {
-                      setViewMode('select');
-                      // Apply the config and start the exam
-                      if (user) {
-                        startExam(user.id, config.examType, config.questionCount, config.timerMinutes);
-                        setExamMode('standard');
-                        setCurrentQuestionIndex(0);
-                        setQuestionStartTime(Date.now());
-                        if (config.questionType === 'QROC') {
-                          setPerQuestionTimer(180);
-                        } else if (config.questionType === 'Mixte') {
-                          setPerQuestionTimer(120);
-                        } else {
-                          setPerQuestionTimer(90);
-                        }
-                      }
-                    }} />
-                  </Suspense>
-                )}
+                {/* Config panel removed - direct start */}
               </div>
             )}
 
@@ -617,6 +585,8 @@ export default function ExamMode() {
                   onRestart={handleNewExam}
                   onViewStats={() => setActiveTab('stats')}
                 />
+                <ExamPercentile score={currentSession.score ?? 0} examType="standard" />
+                <ExamCompetencyRadar answers={currentSession.answers} questions={questions} />
                 <ExamResultsPDF
                   result={{
                     totalQuestions: getAnswerStatus(currentSession).total,
@@ -644,6 +614,11 @@ export default function ExamMode() {
                   correctAnswers={Object.values(aiSession.answers).filter(a => a.correct).length}
                   onRestart={handleNewExam}
                   onViewStats={() => setActiveTab('stats')}
+                />
+                <ExamPercentile score={aiSession.score ?? 0} examType="ai" />
+                <ExamCompetencyRadar 
+                  answers={aiSession.answers} 
+                  questions={aiSession.questions.map(q => ({ ...q, item_code: q.item_code || q.id }))} 
                 />
               </div>
             )}

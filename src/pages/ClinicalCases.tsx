@@ -145,10 +145,16 @@ export default function ClinicalCases() {
     // Award gamification points
     await addPoints(user.id, POINTS_CONFIG.clinicalCase, 'clinicalCase');
     
-    // Check for clinical master badge
+    // Check for clinical master badge (10 cases completed)
     const newStats = await getStats(user.id);
     if ((newStats?.totalCasesCompleted || 0) >= 10) {
       await unlockBadge(user.id, 'clinical_master');
+    }
+    
+    // Check for clinical expert badge (10 cases with >70%)
+    const caseScore = currentProgress ? Math.round((currentProgress.correctAnswers / currentProgress.totalAnswers) * 100) : 0;
+    if (caseScore > 70 && (newStats?.totalCasesCompleted || 0) >= 10 && (newStats?.averageScore || 0) > 70) {
+      await unlockBadge(user.id, 'clinical_expert');
     }
     
     setStats(newStats);
