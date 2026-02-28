@@ -13,18 +13,16 @@ import { HelpButton } from "@/components/onboarding/HelpButton";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PWAPrompt } from "@/components/pwa/PWAPrompt";
 // ViewportProvider removed — using CSS media queries
-import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
+import { ComposedProviders } from '@/providers/ComposedProviders';
 import { Button } from "@/components/ui/button";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
 import { ROUTE_PATHS } from '@/config/routes';
 import { AutoSEO } from '@/components/seo/AutoSEO';
 import { GlobalJsonLd } from '@/components/seo/GlobalJsonLd';
-import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
-// InternationalizationProvider & PerformanceProvider removed — consolidated
-import { LanguageProvider } from "@/contexts/LanguageContext";
+// GlobalAudioProvider, LanguageProvider, TooltipProvider, AccessibilityProvider → ComposedProviders
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -206,10 +204,7 @@ const App = () => {
           <BrowserRouter>
             <HelmetProvider>
               <AuthProvider>
-              <LanguageProvider>
-                  <GlobalAudioProvider>
-                    <TooltipProvider>
-                        <AccessibilityProvider>
+              <ComposedProviders>
                               <SkipLinks />
                               <AutoSEO />
                               <GlobalJsonLd />
@@ -391,10 +386,7 @@ const App = () => {
                               </div>
                               <Toaster />
                               <Sonner />
-                        </AccessibilityProvider>
-                    </TooltipProvider>
-                  </GlobalAudioProvider>
-                </LanguageProvider>
+              </ComposedProviders>
               </AuthProvider>
             </HelmetProvider>
           </BrowserRouter>
