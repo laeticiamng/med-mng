@@ -158,8 +158,12 @@ const ReussirEdn = lazy(() => import("./pages/seo/ReussirEdn"));
 const FichesEcosInteractives = lazy(() => import("./pages/seo/FichesEcosInteractives"));
 const SimulationExamenEdn = lazy(() => import("./pages/seo/SimulationExamenEdn"));
 const CasCliniqueEdn = lazy(() => import("./pages/seo/CasCliniqueEdn"));
+const ErreursFrquentesEcos = lazy(() => import("./pages/seo/ErreursFrquentesEcos"));
+const ClassementEdnExplique = lazy(() => import("./pages/seo/ClassementEdnExplique"));
+const RangAvsRangB = lazy(() => import("./pages/seo/RangAvsRangB"));
+const TravaillerCasCliniques = lazy(() => import("./pages/seo/TravaillerCasCliniques"));
+const ExempleCasClinique = lazy(() => import("./pages/seo/ExempleCasClinique"));
 
-// ⚡ Helper: Suspense wrapper for lazy routes
 const S: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense fallback={<PageLoader />}>{children}</Suspense>
 );
@@ -286,6 +290,11 @@ const App = () => {
                                     <Route path={ROUTE_PATHS.seoFichesEcos} element={<S><FichesEcosInteractives /></S>} />
                                     <Route path={ROUTE_PATHS.seoSimulationEdn} element={<S><SimulationExamenEdn /></S>} />
                                     <Route path={ROUTE_PATHS.seoCasCliniqueEdn} element={<S><CasCliniqueEdn /></S>} />
+                                    <Route path={ROUTE_PATHS.seoErreursFrquentesEcos} element={<S><ErreursFrquentesEcos /></S>} />
+                                    <Route path={ROUTE_PATHS.seoClassementEdnExplique} element={<S><ClassementEdnExplique /></S>} />
+                                    <Route path={ROUTE_PATHS.seoRangAvsRangB} element={<S><RangAvsRangB /></S>} />
+                                    <Route path={ROUTE_PATHS.seoTravaillerCasCliniques} element={<S><TravaillerCasCliniques /></S>} />
+                                    <Route path={ROUTE_PATHS.seoExempleCasClinique} element={<S><ExempleCasClinique /></S>} />
                                     <Route path={ROUTE_PATHS.declarationAccessibilite} element={<S><DeclarationAccessibilite /></S>} />
 
                                     {/* Auth (public) */}
