@@ -64,10 +64,8 @@ export const MedMngSubscribe = () => {
         navigate(ROUTE_PATHS.medMngMusicLibrary);
       } else if (gateway === 'stripe') {
         // Stripe réel via Edge Function
-        const { data: { session } } = await supabase.auth.getSession();
-        const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
-          body: { planId: planId, successUrl: `${window.location.origin}${ROUTE_PATHS.medMngMusicLibrary}`, cancelUrl: window.location.href },
-          headers: { Authorization: `Bearer ${session?.access_token}` }
+        const { data, error } = await supabase.functions.invoke('create-checkout', {
+          body: { plan: planId },
         });
 
         if (error) throw error;

@@ -58,9 +58,9 @@ const OicDataQualityManager = () => {
     try {
       console.log('🔍 Starting OIC data quality analysis...');
       
-      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
-        body: { action: 'analyze' }
-      });
+      // DÉSACTIVÉ: fix-oic-data-quality a été supprimée
+      const data = null;
+      const error = new Error('Fonction fix-oic-data-quality désactivée (en cours de migration)');
 
       if (error) throw error;
 
@@ -82,9 +82,9 @@ const OicDataQualityManager = () => {
     try {
       console.log('🛠️ Starting OIC data quality fixes...');
       
-      const { data, error } = await supabase.functions.invoke('fix-oic-data-quality', {
-        body: { action: 'fix' }
-      });
+      // DÉSACTIVÉ: fix-oic-data-quality a été supprimée
+      const data = null;
+      const error = new Error('Fonction fix-oic-data-quality désactivée (en cours de migration)');
 
       if (error) throw error;
 

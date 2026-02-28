@@ -58,8 +58,8 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       }
 
       // Si pas trouvé en BDD, vérifier via l'API de statut
-      const { data, error } = await supabase.functions.invoke('music-status', {
-        body: { taskId }
+      const { data, error } = await supabase.functions.invoke('ai-audio', {
+        body: { action: 'get_status', taskId }
       });
 
       if (data && !error) {

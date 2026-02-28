@@ -1,4 +1,8 @@
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * EdnObjectifsExtractor — STUB DÉSACTIVÉ
+ * L'Edge Function extract-edn-objectifs a été supprimée.
+ * Ce stub conserve l'interface pour éviter les erreurs de build.
+ */
 
 interface ExtractionResponse {
   success: boolean;
@@ -34,229 +38,43 @@ interface ExtractionStats {
 }
 
 export class EdnObjectifsExtractor {
-  private session_id: string | null = null;
-  private statusInterval: number | null = null;
-
   async startExtraction(): Promise<ExtractionResponse> {
-    console.log('🚀 Démarrage de l\'extraction des 4,872 compétences OIC...');
-    console.log('🔍 DEBUG: Avant appel supabase.functions.invoke');
-    
-    try {
-      console.log('🔍 DEBUG: Calling extract-edn-objectifs with action: start');
-      
-      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
-        body: {
-          action: 'start'
-        }
-      });
-
-      console.log('🔍 DEBUG: Response received:', { data, error });
-
-      if (error) {
-        console.error('❌ Erreur lors du démarrage:', error);
-        throw new Error(`Erreur Edge Function: ${error.message || JSON.stringify(error)}`);
-      }
-
-      if (!data) {
-        throw new Error('Aucune donnée reçue de l\'edge function');
-      }
-
-      this.session_id = data.session_id;
-      console.log('✅ Extraction démarrée avec succès!');
-      console.log('📊 Session ID:', this.session_id);
-
-      return data;
-      
-    } catch (error) {
-      console.error('❌ Échec du démarrage de l\'extraction:', error);
-      console.error('❌ DEBUG: Full error details:', error);
-      
-      // Rethrow avec un message plus clair
-      if (error instanceof Error) {
-        throw new Error(`Erreur extraction: ${error.message}`);
-      } else {
-        throw new Error(`Erreur inconnue: ${JSON.stringify(error)}`);
-      }
-    }
+    console.warn('⚠️ EdnObjectifsExtractor désactivé : extract-edn-objectifs supprimée.');
+    throw new Error('Extraction désactivée : fonction supprimée');
   }
 
-  async getStatus(session_id?: string): Promise<ExtractionStatus> {
-    const id = session_id || this.session_id;
-    if (!id) {
-      throw new Error('Aucune session active');
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
-        body: {
-          action: 'status',
-          session_id: id
-        }
-      });
-
-      if (error) throw error;
-      return data;
-      
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération du statut:', error);
-      throw error;
-    }
+  async getStatus(_session_id?: string): Promise<ExtractionStatus> {
+    throw new Error('Extraction désactivée : fonction supprimée');
   }
 
-  async resumeExtraction(session_id: string, resume_from?: number): Promise<ExtractionResponse> {
-    console.log(`🔄 Reprise de l'extraction depuis la page ${resume_from || 'dernière'}...`);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
-        body: {
-          action: 'resume',
-          session_id,
-          resume_from
-        }
-      });
-
-      if (error) throw error;
-
-      this.session_id = session_id;
-      console.log('✅ Extraction reprise avec succès!');
-
-      return data;
-      
-    } catch (error) {
-      console.error('❌ Échec de la reprise de l\'extraction:', error);
-      throw error;
-    }
+  async resumeExtraction(_session_id: string, _resume_from?: number): Promise<ExtractionResponse> {
+    throw new Error('Extraction désactivée : fonction supprimée');
   }
 
   async generateRapport(): Promise<ExtractionStats> {
-    console.log('📊 Génération du rapport de complétude...');
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
-        body: {
-          action: 'rapport'
-        }
-      });
-
-      if (error) throw error;
-
-      console.log('✅ Rapport généré avec succès!');
-      return data;
-      
-    } catch (error) {
-      console.error('❌ Erreur lors de la génération du rapport:', error);
-      throw error;
-    }
+    throw new Error('Extraction désactivée : fonction supprimée');
   }
 
-  startStatusPolling(callback: (status: ExtractionStatus) => void, interval: number = 5000) {
-    if (!this.session_id) {
-      throw new Error('Aucune session active pour le polling');
-    }
-
-    this.statusInterval = window.setInterval(async () => {
-      try {
-        const status = await this.getStatus();
-        callback(status);
-        
-        // Arrêter le polling si terminé ou en erreur
-        if (status.status === 'termine' || status.status === 'erreur') {
-          this.stopStatusPolling();
-        }
-      } catch (error) {
-        console.error('Erreur lors du polling:', error);
-      }
-    }, interval);
+  startStatusPolling(_callback: (status: ExtractionStatus) => void, _interval?: number) {
+    console.warn('⚠️ Polling désactivé : extract-edn-objectifs supprimée.');
   }
 
   stopStatusPolling() {
-    if (this.statusInterval) {
-      clearInterval(this.statusInterval);
-      this.statusInterval = null;
-    }
+    // no-op
   }
 
-  async getExtractedCompetences(item_parent?: string, rang?: 'A' | 'B', limit: number = 100) {
-    let query = supabase
-      .from('oic_competences')
-      .select('*')
-      .order('item_parent', { ascending: true })
-      .order('ordre', { ascending: true })
-      .limit(limit);
-
-    if (item_parent) {
-      query = query.eq('item_parent', item_parent);
-    }
-
-    if (rang) {
-      query = query.eq('rang', rang);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw new Error(`Erreur lors de la récupération des compétences: ${error.message}`);
-    }
-
-    return data || [];
+  async getExtractedCompetences(_item_parent?: string, _rang?: 'A' | 'B', _limit?: number) {
+    return [];
   }
 
-  async getStatsByItem(item_parent: string) {
-    const { data, error } = await supabase
-      .from('oic_competences')
-      .select('rang, rubrique')
-      .eq('item_parent', item_parent);
-
-    if (error) {
-      throw new Error(`Erreur lors de la récupération des stats: ${error.message}`);
-    }
-
-    const stats = {
-      total: data?.length || 0,
-      rang_a: data?.filter(obj => obj.rang === 'A').length || 0,
-      rang_b: data?.filter(obj => obj.rang === 'B').length || 0,
-      rubriques: {} as Record<string, number>
-    };
-
-    // Compter par rubrique
-    data?.forEach(obj => {
-      stats.rubriques[obj.rubrique] = (stats.rubriques[obj.rubrique] || 0) + 1;
-    });
-
-    return stats;
+  async getStatsByItem(_item_parent: string) {
+    return { total: 0, rang_a: 0, rang_b: 0, rubriques: {} };
   }
 }
 
-// Instance globale
 export const ednExtractor = new EdnObjectifsExtractor();
 
-// Fonctions utilitaires pour le lancement rapide
 export async function launchEdnObjectifsExtraction() {
-  const extractor = new EdnObjectifsExtractor();
-  
-  try {
-    const result = await extractor.startExtraction();
-    
-    // Démarre le polling automatique
-    extractor.startStatusPolling((status) => {
-      console.log(`📊 Progrès: ${status.items_extracted}/${status.total_expected} compétences (${Math.round((status.items_extracted/status.total_expected)*100)}%)`);
-      console.log(`📄 Page: ${status.page_number}/${status.total_pages}`);
-      console.log(`🟢 Statut: ${status.status.toUpperCase()}`);
-      
-      if (status.status === 'termine') {
-        console.log('🎉 Extraction terminée avec succès!');
-        extractor.generateRapport().then(rapport => {
-          console.log('📊 Rapport final:', rapport);
-        });
-      }
-    });
-    
-    return result;
-    
-  } catch (error) {
-    console.error('💥 Erreur critique lors de l\'extraction:', error);
-    throw error;
-  }
+  console.warn('⚠️ launchEdnObjectifsExtraction désactivé.');
+  throw new Error('Extraction désactivée : fonction supprimée');
 }
-
-// Export pour utilisation directe

@@ -196,9 +196,8 @@ export class SecureSunoClient {
     instrumental?: boolean;
     model?: SunoModel;
   }): Promise<{ taskId: string }> {
-    // Fallback direct call - non migré vers routeur
-    const { data, error } = await supabase.functions.invoke('suno-upload-cover', {
-      body: options
+    const { data, error } = await supabase.functions.invoke('ai-audio', {
+      body: { action: 'upload_cover', ...options }
     });
 
     if (error) {
