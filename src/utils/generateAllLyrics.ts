@@ -20,55 +20,18 @@ export interface LyricsGenerationOptions {
   maxConcurrent?: number
 }
 
-export async function generateAllLyrics(options?: LyricsGenerationOptions): Promise<LyricsGenerationResult> {
-  console.log('Lancement de la génération des paroles pour tous les items EDN...')
-
-  try {
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
-      body: {
-        action: 'generate_lyrics',
-        options: options || {}
-      }
-    })
-
-    if (error) {
-      console.error('Erreur lors de l\'appel de la fonction:', error)
-      throw error
-    }
-
-    console.log('Génération des paroles terminée:', data)
-    return data as LyricsGenerationResult
-
-  } catch (error) {
-    console.error('Erreur lors de la génération:', error)
-    throw error
-  }
+/**
+ * DÉSACTIVÉ — L'Edge Function update-edn-unique-content a été supprimée.
+ * TODO: Migrer vers le routeur consolidé ai-content si nécessaire.
+ */
+export async function generateAllLyrics(_options?: LyricsGenerationOptions): Promise<LyricsGenerationResult> {
+  console.warn('⚠️ generateAllLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
-export async function generateLyricsForItem(itemCode: string, options?: Omit<LyricsGenerationOptions, 'itemCodes'>): Promise<LyricsGenerationResult> {
-  console.log(`Génération des paroles pour l'item ${itemCode}...`)
-
-  try {
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
-      body: {
-        action: 'generate_lyrics',
-        options: {
-          ...options,
-          itemCodes: [itemCode]
-        }
-      }
-    })
-
-    if (error) {
-      console.error(`Erreur lors de la génération pour ${itemCode}:`, error)
-      throw error
-    }
-
-    return data as LyricsGenerationResult
-  } catch (error) {
-    console.error(`Erreur lors de la génération pour ${itemCode}:`, error)
-    throw error
-  }
+export async function generateLyricsForItem(_itemCode: string, _options?: Omit<LyricsGenerationOptions, 'itemCodes'>): Promise<LyricsGenerationResult> {
+  console.warn('⚠️ generateLyricsForItem est désactivé : update-edn-unique-content a été supprimée.')
+  return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }
 
 export async function regenerateLyrics(itemCode: string): Promise<LyricsGenerationResult> {
@@ -100,63 +63,15 @@ export async function getLyricsGenerationStatus(): Promise<{
     }
   } catch (error) {
     console.error('Erreur lors de la récupération du statut:', error)
-    return {
-      total: 0,
-      withLyrics: 0,
-      withoutLyrics: 0,
-      pendingGeneration: 0
-    }
+    return { total: 0, withLyrics: 0, withoutLyrics: 0, pendingGeneration: 0 }
   }
 }
 
 export async function batchGenerateLyrics(
-  itemCodes: string[],
-  batchSize: number = 5,
-  onProgress?: (progress: { completed: number; total: number; current: string }) => void
+  _itemCodes: string[],
+  _batchSize: number = 5,
+  _onProgress?: (progress: { completed: number; total: number; current: string }) => void
 ): Promise<LyricsGenerationResult> {
-  const results: LyricsGenerationResult = {
-    success: true,
-    generated: 0,
-    failed: 0,
-    skipped: 0,
-    details: []
-  }
-
-  for (let i = 0; i < itemCodes.length; i += batchSize) {
-    const batch = itemCodes.slice(i, i + batchSize)
-
-    try {
-      const batchResult = await generateAllLyrics({ itemCodes: batch })
-
-      results.generated += batchResult.generated
-      results.failed += batchResult.failed
-      results.skipped += batchResult.skipped
-      results.details.push(...batchResult.details)
-
-      if (onProgress) {
-        onProgress({
-          completed: Math.min(i + batchSize, itemCodes.length),
-          total: itemCodes.length,
-          current: batch[batch.length - 1]
-        })
-      }
-    } catch (error) {
-      results.failed += batch.length
-      results.success = false
-      batch.forEach(code => {
-        results.details.push({
-          itemCode: code,
-          status: 'failed',
-          error: (error as Error).message
-        })
-      })
-    }
-
-    // Pause entre les batches
-    if (i + batchSize < itemCodes.length) {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-    }
-  }
-
-  return results
+  console.warn('⚠️ batchGenerateLyrics est désactivé : update-edn-unique-content a été supprimée.')
+  return { success: false, generated: 0, failed: 0, skipped: 0, details: [] }
 }

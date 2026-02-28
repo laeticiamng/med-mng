@@ -1,204 +1,187 @@
 # Supabase Edge Functions — Inventaire & flux
 
-Ce document centralise :
-- l’inventaire **complet** de `supabase/functions/*` (hors fichiers) ;
-- une **validation logique métier** par domaine (attentes fonctionnelles) ;
-- le **flux d’exécution** standard (inputs, outputs, erreurs).
+Ce document centralise l'inventaire des Edge Functions actives et les fonctions supprimées/consolidées.
 
-## 1) Inventaire des fonctions
+## 1) Fonctions actives
 
-### Utilitaires partagés
-- `_shared` — modules communs (CORS, alerting, cache, etc.).
-- `lib` — librairies/utilitaires internes.
+### Routeurs consolidés (architecture unifiée)
+| Routeur | Rôle | Actions principales |
+|---------|------|-------------------|
+| `ai-audio` | Musique / Suno / streaming | `generate`, `get_status`, `upload_cover`, `extend`, `generate_lyrics`, `audio_processing` |
+| `ai-core` | IA / OpenAI / tuteur | `chat`, `translate`, `generate_image` |
+| `ai-content` | Contenu pédagogique | `generate_qcm`, `generate_clinical_case`, `generate_content` |
+| `system` | Diagnostics / santé | `health`, `performance`, `analytics` |
+| `webhooks` | Callbacks externes | `stripe`, `suno`, `resend` |
 
 ### Administration & API produit
-- `admin-export`
-- `admin-quick-edit`
-- `advanced-search`
-- `content-master-api`
-- `items-completeness-api`
-- `items-completeness-check`
-- `med-mng-api`
-- `pedagogical-content-api`
-- `playlist-manager`
-- `study-planner`
+- `admin-export` — Export de données admin
+- `admin-quick-edit` — Édition rapide admin
+- `advanced-search` — Recherche avancée
+- `content-master-api` — API maître de contenu
+- `items-completeness-api` — API complétude items
+- `items-completeness-check` — Vérification complétude
+- `med-mng-api` — API MED-MNG
+- `pedagogical-content-api` — API contenu pédagogique
+- `playlist-manager` — Gestion playlists
+- `study-planner` — Planificateur d'étude
 
-### IA / génération / assistance
-- `ai-recommendations`
-- `ai-tutor`
-- `chat-with-ai`
-- `contextual-ai-chat`
-- `content-ai-generator`
-- `enhanced-contextual-chat`
-- `generate-clinical-case`
-- `generate-comic-images`
-- `generate-content`
-- `generate-image`
-- `generate-lyrics-from-oic`
-- `generate-missing-content`
-- `generate-qcm`
-- `generate-recommendations`
-- `generate-voice`
-- `medical-chat-ai`
-- `openai-chat`
-- `openai-image`
-- `qcm-generator`
-- `regenerate-all-oic-content`
-- `regenerate-oic-with-ai-check`
-- `translate`
+### IA / génération
+- `ai-recommendations` — Recommandations IA
+- `ai-tutor` — Tuteur IA
+- `chat-with-ai` — Chat IA
+- `contextual-ai-chat` — Chat contextuel
+- `content-ai-generator` — Générateur de contenu IA
+- `enhanced-contextual-chat` — Chat contextuel amélioré
+- `generate-clinical-case` — Cas cliniques
+- `generate-comic-images` — Images BD
+- `generate-content` — Contenu générique
+- `generate-image` — Images
+- `generate-lyrics-from-oic` — Paroles depuis OIC
+- `generate-qcm` — QCM
+- `generate-recommendations` — Recommandations
+- `generate-voice` — Voix
+- `medical-chat-ai` — Chat médical
+- `openai-chat` — Chat OpenAI
+- `qcm-generator` — Générateur QCM
+- `regenerate-all-oic-content` — Régénération contenu OIC
+- `regenerate-oic-with-ai-check` — Régénération avec vérification IA
+- `translate` — Traduction
 
-### Extraction / EDN / OIC / données médicales
-- `auto-extract-oic`
-- `audit-edn-completeness`
-- `compare-official-content`
-- `complete-missing-competences`
-- `check-item-competences`
-- `debug-oic-extraction`
-- `edn-fix`
-- `edn-tableaux-api`
-- `extract-ecos-uness`
-- `extract-edn-objectifs`
-- `extract-edn-uness`
-- `extract-edn-uness-auth`
-- `extract-edn-uness-complete`
-- `extract-edn-uness-production`
-- `fix-oic-data-quality`
-- `import-edn-data`
-- `secure-edn-extraction`
-- `sync-edn-tables`
-- `transform-edn-sections`
+### Extraction / EDN / OIC
+- `auto-extract-oic` — ⚠️ DÉSACTIVÉ (dépendait de extract-edn-objectifs)
+- `audit-edn-completeness` — Audit complétude EDN
+- `compare-official-content` — Comparaison contenu officiel
+- `complete-missing-competences` — Complétion compétences manquantes
+- `check-item-competences` — Vérification compétences items
+- `edn-tableaux-api` — API tableaux EDN
+- `extract-ecos-uness` — Extraction ECOS UNESS
+- `extract-edn-uness` — Extraction EDN UNESS
+- `import-edn-data` — Import données EDN
+- `secure-edn-extraction` — Extraction sécurisée EDN
+- `transform-edn-sections` — Transformation sections EDN
 
-### Musique / Suno / streaming
-- `generate-music`
-- `lyrics-sync-manager`
-- `music-generation`
-- `music-generation-secure`
-- `music-metrics`
-- `music-status`
-- `secure-audio-stream`
-- `secure-streaming-proxy`
-- `spotify-ai-complete`
-- `spotify-medical-docs`
-- `suno-audio-processing`
-- `suno-callback`
-- `suno-credits`
-- `suno-extend-music`
-- `suno-generate-lyrics`
-- `suno-upload-cover`
-- `synchronized-lyrics`
+### Musique / streaming
+- `generate-music` — Génération musicale
+- `lyrics-sync-manager` — Synchronisation paroles
+- `music-generation` — Génération musique
+- `music-generation-secure` — Génération sécurisée
+- `music-metrics` — Métriques musique
+- `secure-audio-stream` — Streaming audio sécurisé
+- `secure-streaming-proxy` — Proxy streaming
+- `spotify-ai-complete` — Spotify IA
+- `suno-callback` — Callback Suno
+- `suno-credits` — Crédits Suno
+- `synchronized-lyrics` — Paroles synchronisées
 
-### Analytics / quotas / expérimentation
-- `analytics-aggregator`
-- `analytics-engine`
-- `analytics-tracker`
-- `ia-quota`
-- `process-ab-tests`
+### Paiements / abonnements
+- `create-checkout` — Checkout Stripe (Standard/Pro/Premium, trial 7j)
+- `customer-portal` — Portail client Stripe
+- `stripe-webhook` — Webhook Stripe
 
-### Monitoring / sécurité / conformité
-- `audit-system`
-- `check-performance-degradation`
-- `check-recommendation-alerts`
-- `data-integrity-check`
-- `error-handling-service`
-- `error-logger`
-- `generate-security-report`
-- `get-rls-policies`
-- `monitoring-alerts`
-- `security-metrics`
-- `security-scanner`
-- `send-accessibility-report`
-- `send-scheduled-reports`
-- `send-security-alert`
-- `send-weekly-alerts-report`
-- `unified-alerts`
+### Analytics / quotas
+- `analytics-aggregator` — Agrégation analytics
+- `analytics-engine` — Moteur analytics
+- `analytics-tracker` — Tracker analytics
+- `ia-quota` — Quotas IA
 
-### Webhooks / paiements / intégrations externes
-- `auth-webhook`
-- `create-subscription-checkout`
-- `customer-portal`
-- `google-sheets-webhook`
-- `resend-notification`
-- `resend-webhook`
-- `shopify-webhook`
-- `stripe-webhook`
+### Monitoring / sécurité
+- `audit-system` — Audit système
+- `check-performance-degradation` — Vérification dégradation
+- `check-recommendation-alerts` — Alertes recommandations
+- `data-integrity-check` — Intégrité données
+- `error-handling-service` — Service erreurs
+- `error-logger` — Logger erreurs
+- `generate-security-report` — Rapport sécurité
+- `monitoring-alerts` — Alertes monitoring
+- `security-metrics` — Métriques sécurité
+- `security-scanner` — Scanner sécurité
+- `send-accessibility-report` — Rapport accessibilité
+- `send-scheduled-reports` — Rapports planifiés
+- `send-security-alert` — Alerte sécurité
 
-### Divers / utilitaires / opérations
-- `activate-simulation`
-- `api-documentation`
-- `cancel-ia-task`
-- `collect-diagnostic-results`
-- `ecos-api`
-- `ecos-enrich-ai`
-- `extraction-monitoring`
-- `generate-cas-cookie`
-- `send-emails`
-- `send-push-notification`
-- `send-welcome-email`
+### Webhooks / intégrations
+- `auth-webhook` — Webhook auth
+- `resend-notification` — Notification Resend
+- `resend-webhook` — Webhook Resend
 
-### Tests & debug (fonctionnels)
-- `test-batch-50`
-- `test-cas-simple`
-- `test-edn-extraction`
-- `test-extraction-sample`
-- `test-insertion-directe`
-- `test-login`
-- `test-oic-curl`
-- `test-webhook`
-- `debug-uness-auth`
+### Divers / utilitaires
+- `api-documentation` — Documentation API
+- `cancel-ia-task` — Annulation tâche IA
+- `collect-diagnostic-results` — Collecte diagnostics
+- `ecos-api` — API ECOS
+- `extraction-monitoring` — Monitoring extraction
+- `send-emails` — Envoi emails
+- `send-push-notification` — Push notifications
+- `send-welcome-email` — Email bienvenue
 
-## 2) Validation logique métier (résumé par domaine)
+### Utilitaires partagés
+- `_shared` — Modules communs (CORS, alerting, cache, error-utils)
+- `lib` — Librairies internes
 
-Cette validation s’appuie sur la **cohérence entre le nom de la fonction et son rôle** attendu (flux produit, contrats de données, intégrations externes). Les contrôles ci-dessous servent de checklist fonctionnelle à maintenir :
+---
 
-- **Paiements & abonnements** (`create-subscription-checkout`, `stripe-webhook`, `customer-portal`) :
-  - création de session côté serveur ;
-  - validation des signatures webhook ;
-  - mise à jour des statuts d’abonnement côté Supabase.
-- **Extraction EDN/OIC** (`extract-*`, `secure-edn-extraction`, `transform-edn-sections`, `sync-edn-tables`) :
-  - authentification CAS/UNESS ;
-  - parsing et mapping des sections ;
-  - écriture atomique en base.
-- **IA & génération** (`generate-*`, `ai-*`, `openai-*`, `lovable`) :
-  - garde-fous sur la consommation de quota ;
-  - gestion de la latence et des timeouts ;
-  - persistance des outputs (ex. contenus générés).
-- **Musique/Suno** (`suno-*`, `music-*`, `secure-audio-stream`) :
-  - callbacks vérifiés et idempotents ;
-  - stockage des métadonnées ;
-  - streaming sécurisé (token/URL signée).
-- **Monitoring & sécurité** (`security-*`, `monitoring-*`, `unified-alerts`) :
-  - collecte d’anomalies ;
-  - alerting multi‑canal ;
-  - rapports périodiques.
+## 2) Fonctions supprimées (36)
 
-## 3) Flux complet (inputs / outputs / erreurs)
+Ces fonctions ont été supprimées ou consolidées dans les routeurs unifiés :
 
-### Inputs (requêtes)
-- **Méthodes** : principalement `GET`/`POST`, avec support `OPTIONS` pour CORS.
-- **Headers** :
-  - `Authorization: Bearer <jwt>` pour les endpoints authentifiés.
-  - `Content-Type: application/json` pour les payloads JSON.
-- **Body** : JSON structuré selon le domaine (ex. payloads IA, webhooks Stripe/Suno, paramètres d’extraction).
-- **Query params** : utilisés pour certains filtres (ex. analytics, admin export).
+| Fonction supprimée | Raison / Remplacement |
+|---|---|
+| `activate-simulation` | Supprimée (non utilisée) |
+| `create-subscription-checkout` | → `create-checkout` |
+| `ecos-enrich-ai` | Supprimée |
+| `generate-cas-cookie` | Supprimée |
+| `debug-oic-extraction` | Supprimée (debug) |
+| `debug-uness-auth` | Supprimée (debug) |
+| `edn-fix` | Supprimée |
+| `shopify-webhook` | Supprimée |
+| `test-batch-50` | Supprimée (test) |
+| `test-cas-simple` | Supprimée (test) |
+| `test-edn-extraction` | Supprimée (test) |
+| `test-extraction-sample` | Supprimée (test) |
+| `test-insertion-directe` | Supprimée (test) |
+| `test-login` | Supprimée (test) |
+| `test-oic-curl` | Supprimée (test) |
+| `test-webhook` | Supprimée (test) |
+| `extract-edn-objectifs` | Supprimée |
+| `extract-edn-uness-auth` | → `extract-edn-uness` |
+| `extract-edn-uness-complete` | → `extract-edn-uness` |
+| `extract-edn-uness-production` | → `extract-edn-uness` |
+| `unified-alerts` | → `monitoring-alerts` |
+| `send-weekly-alerts-report` | → `send-scheduled-reports` |
+| `process-ab-tests` | Supprimée |
+| `get-rls-policies` | Supprimée |
+| `openai-image` | → `ai-core` action `generate_image` |
+| `generate-missing-content` | → `ai-content` |
+| `sync-edn-tables` | Supprimée |
+| `update-edn-unique-content` | Supprimée |
+| `fix-oic-data-quality` | Supprimée |
+| `google-sheets-webhook` | Supprimée |
+| `music-status` | → `ai-audio` action `get_status` |
+| `suno-extend-music` | → `ai-audio` action `extend` |
+| `suno-generate-lyrics` | → `ai-audio` action `generate_lyrics` |
+| `suno-audio-processing` | → `ai-audio` action `audio_processing` |
+| `spotify-medical-docs` | Supprimée |
+| `suno-upload-cover` | → `ai-audio` action `upload_cover` |
 
-### Outputs (réponses)
-- **Succès** : JSON (ou HTML pour `api-documentation`) avec statut `2xx`.
-- **Exemples courants** :
-  - `{ "status": "ok", ... }`
-  - `{ "data": ... }`
+---
 
-### Erreurs (format standard recommandé)
-- **Statuts** : `400` (requête invalide), `401/403` (auth), `404` (endpoint), `500` (erreur interne).
-- **Payload type** : JSON homogène, ex. :
-  ```json
-  {
-    "error": "ERROR_CODE",
-    "message": "Description lisible",
-    "details": "Contexte optionnel",
-    "timestamp": "2024-01-01T00:00:00.000Z"
-  }
-  ```
-- **Cas particuliers** :
-  - `stripe-webhook` / `shopify-webhook` exigent une vérification de signature ;
-  - `suno-callback` attend des callbacks idempotents ;
-  - `api-documentation` renvoie du HTML.
+## 3) Flux standard (inputs / outputs / erreurs)
+
+### Inputs
+- **Méthodes** : `GET`/`POST`, avec support `OPTIONS` pour CORS
+- **Headers** : `Authorization: Bearer <jwt>`, `Content-Type: application/json`
+- **Body** : JSON structuré selon le domaine
+
+### Outputs
+- **Succès** : JSON avec statut `2xx`
+- **Format** : `{ "status": "ok", ... }` ou `{ "data": ... }`
+
+### Erreurs (format standard)
+- **Statuts** : `400`, `401/403`, `404`, `410` (gone), `500`
+- **Payload** : `{ "error": "CODE", "message": "Description" }`
+
+### Standards techniques
+- Deno `std@0.190.0`
+- CORS via `_shared/cors.ts`
+- Error handling via `_shared/error-utils.ts` (`getErrorMessage`)
+- Stripe API `2025-08-27.basil`

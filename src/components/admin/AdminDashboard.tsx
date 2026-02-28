@@ -160,10 +160,8 @@ export const AdminDashboard: React.FC = () => {
 
       switch (action) {
         case 'sync_uness':
-          await supabase.functions.invoke('extract-edn-uness-production', {
-            body: { action: 'sync_all' }
-          });
-          toast.success('Synchronisation UNESS terminée', { id: action });
+          // DÉSACTIVÉ: extract-edn-uness-production a été supprimée
+          toast.info('Synchronisation UNESS désactivée (fonction en cours de migration)', { id: action });
           break;
           
         case 'security_audit':

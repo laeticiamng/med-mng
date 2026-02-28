@@ -99,9 +99,9 @@ export function WebhookManager() {
     
     try {
       setTesting(true);
-      const { data, error } = await supabase.functions.invoke('test-webhook', {
-        body: { webhookUrl, type },
-      });
+      // DÉSACTIVÉ: test-webhook a été supprimée
+      const data = null;
+      const error = new Error('Fonction test-webhook désactivée (en cours de migration)');
 
       if (error) throw error;
 
