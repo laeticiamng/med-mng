@@ -66,20 +66,27 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Chercher les subscriptions active ET trialing (trial 7 jours)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      limit: 10,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
+    // Filtrer active + trialing
+    const validSub = subscriptions.data.find(
+      (s) => s.status === "active" || s.status === "trialing"
+    );
+
+    const hasActiveSub = !!validSub;
     let tier = null;
     let subscriptionEnd = null;
     let generationsLimit = 5; // Free tier
+    let isTrialing = false;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+    if (hasActiveSub && validSub) {
+      const subscription = validSub;
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      isTrialing = subscription.status === "trialing";
       
       const productId = subscription.items.data[0].price.product as string;
       tier = PRODUCT_TO_TIER[productId] || null;
@@ -100,6 +107,8 @@ serve(async (req) => {
       logStep("Active subscription found", { 
         subscriptionId: subscription.id, 
         tier, 
+        status: subscription.status,
+        isTrialing,
         endDate: subscriptionEnd,
         generationsLimit 
       });
@@ -110,6 +119,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       tier,
+      is_trialing: isTrialing,
       subscription_end: subscriptionEnd,
       generations_limit: generationsLimit,
     }), {

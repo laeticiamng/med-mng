@@ -1,4 +1,7 @@
-
+/**
+ * @deprecated Cette fonction standalone est remplacée par le routeur `ai-audio` avec `action: 'get_status'`.
+ * Le front appelle désormais `ai-audio` directement. Ce fichier est conservé pour référence uniquement.
+ */
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';

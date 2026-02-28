@@ -22,7 +22,8 @@ interface SubscriptionPlan {
     bande_dessinee: boolean;
     save_music: boolean;
   };
-  status: 'active' | 'canceled' | 'past_due' | 'unpaid';
+  status: 'active' | 'trialing' | 'canceled' | 'past_due' | 'unpaid';
+  is_trialing?: boolean;
 }
 
 interface MusicQuota {
@@ -48,8 +49,8 @@ const isValidSubscriptionPlan = (data: any): data is SubscriptionPlan => {
          typeof data.features.tableaux === 'boolean' &&
          typeof data.features.quiz === 'boolean' &&
          typeof data.features.bande_dessinee === 'boolean' &&
-         typeof data.features.save_music === 'boolean' &&
-         ['active', 'canceled', 'past_due', 'unpaid'].includes(data.status);
+          typeof data.features.save_music === 'boolean' &&
+         ['active', 'trialing', 'canceled', 'past_due', 'unpaid'].includes(data.status);
 };
 
 const isValidMusicQuota = (data: any): data is MusicQuota => {
@@ -62,7 +63,7 @@ const isValidMusicQuota = (data: any): data is MusicQuota => {
 
 // Helper pour normaliser le status
 const normalizeStatus = (status: string): SubscriptionPlan['status'] => {
-  const validStatuses: SubscriptionPlan['status'][] = ['active', 'canceled', 'past_due', 'unpaid'];
+  const validStatuses: SubscriptionPlan['status'][] = ['active', 'trialing', 'canceled', 'past_due', 'unpaid'];
   return validStatuses.includes(status as SubscriptionPlan['status']) 
     ? status as SubscriptionPlan['status']
     : 'active';
@@ -325,6 +326,7 @@ export const useSubscription = () => {
 
     switch (subscription.status) {
       case 'active': return 'Actif';
+      case 'trialing': return 'Essai en cours';
       case 'canceled': return 'Annulé';
       case 'past_due': return 'Paiement en retard';
       case 'unpaid': return 'Impayé';
@@ -338,6 +340,7 @@ export const useSubscription = () => {
 
     switch (subscription.status) {
       case 'active': return 'text-green-500';
+      case 'trialing': return 'text-blue-500';
       case 'canceled': return 'text-yellow-500';
       case 'past_due': return 'text-orange-500';
       case 'unpaid': return 'text-red-500';
@@ -347,7 +350,7 @@ export const useSubscription = () => {
 
   // Check if subscription is active
   const isSubscriptionActive = useCallback((): boolean => {
-    return subscription?.status === 'active';
+    return subscription?.status === 'active' || subscription?.status === 'trialing';
   }, [subscription]);
 
   // Get available upgrade options
