@@ -4,16 +4,16 @@ import { HelpCircle } from "lucide-react";
 
 const faqs = [
   {
+    question: "Comment fonctionne l'essai gratuit de 7 jours ?",
+    answer: "Inscrivez-vous au plan Pro Étudiant et profitez de 7 jours gratuits. Aucun prélèvement avant la fin de l'essai. Annulez à tout moment en 1 clic."
+  },
+  {
     question: "Puis-je changer de plan à tout moment ?",
-    answer: "Oui, vous pouvez upgrader ou downgrader votre abonnement à tout moment. Le changement prendra effet immédiatement et sera calculé au prorata."
+    answer: "Oui, vous pouvez upgrader ou downgrader votre abonnement à tout moment. Le changement prend effet immédiatement, calculé au prorata."
   },
   {
-    question: "Que se passe-t-il si j'atteins ma limite de génération ?",
-    answer: "Vous serez notifié avant d'atteindre votre limite. Vous pouvez soit attendre le renouvellement mensuel, soit passer à un plan supérieur pour générer plus de contenu."
-  },
-  {
-    question: "Les chansons générées sont-elles téléchargeables ?",
-    answer: "Non, pour protéger les droits d'auteur et la qualité, toutes les chansons sont en streaming sécurisé uniquement. Elles restent accessibles dans votre bibliothèque."
+    question: "Quelle est la différence entre Pro et Premium ?",
+    answer: "Le plan Pro donne accès à tout le contenu EDN, ECOS, cas cliniques et musique IA. Le plan Premium ajoute l'IA avancée, le planning personnalisé, le percentile national simulé et le support VIP."
   },
   {
     question: "Comment fonctionne le droit de rétractation ?",
@@ -21,17 +21,17 @@ const faqs = [
   },
   {
     question: "Puis-je annuler mon abonnement ?",
-    answer: "Oui, vous pouvez annuler à tout moment depuis votre profil. Vous conserverez l'accès jusqu'à la fin de la période payée."
+    answer: "Oui, annulation en 1 clic depuis votre profil. Vous conservez l'accès jusqu'à la fin de la période payée. Aucun engagement."
   },
   {
-    question: "Y a-t-il un engagement minimum ?",
-    answer: "Non, aucun engagement ! Tous nos plans sont mensuels sans engagement de durée."
+    question: "Le pack 6 mois est-il remboursable ?",
+    answer: "Le pack 6 mois Pro à 99€ bénéficie du même droit de rétractation de 14 jours. Après cette période, il n'est pas remboursable mais vous conservez l'accès pendant 6 mois."
   }
 ];
 
 export function PricingFAQ() {
   return (
-    <Card className="mt-12">
+    <Card>
       <CardHeader className="text-center">
         <CardTitle className="flex items-center justify-center gap-2">
           <HelpCircle className="h-5 w-5 text-primary" />

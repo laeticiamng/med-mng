@@ -3,21 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Flame, Trophy } from 'lucide-react';
+import { Check, Star, Zap, Crown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
-import { useGamification } from '@/hooks/useGamification';
 
 interface PricingPlan {
   id: string;
   name: string;
   price: number;
-  songs: string;
-  badge?: string;
+  priceBarred?: number;
+  subtitle: string;
+  icon: React.ReactNode;
   features: string[];
   popular?: boolean;
-  bestValue?: boolean;
+  trial?: string;
+  cta: string;
 }
 
 const plans: PricingPlan[] = [
@@ -25,71 +26,54 @@ const plans: PricingPlan[] = [
     id: 'free',
     name: 'Gratuit',
     price: 0,
-    songs: '3 générations/mois',
+    subtitle: 'Découverte',
+    icon: <Star className="h-6 w-6" />,
+    cta: 'Commencer gratuitement',
     features: [
-      'EDN basique (items Rang A)',
-      '10 flashcards/jour',
+      '10 items EDN accessibles',
+      '3 QCM/jour',
+      'Démo ECOS',
       '3 générations musicales/mois',
-      'Cas cliniques découverte',
-    ]
-  },
-  {
-    id: 'standard',
-    name: 'Standard',
-    price: 19,
-    songs: '30 chansons/mois',
-    features: [
-      '30 chansons/mois',
-      'Tableaux EDN (Rang A & B)',
-      'Sauvegarde bibliothèque',
-      'Support email'
+      'Flashcards limitées',
     ]
   },
   {
     id: 'pro',
-    name: 'Pro',
-    price: 29,
-    songs: '300 chansons/mois',
-    badge: 'Le plus populaire',
+    name: 'Pro Étudiant',
+    price: 19,
+    subtitle: 'Pour réussir l\'EDN',
+    icon: <Zap className="h-6 w-6" />,
     popular: true,
+    trial: '7 jours d\'essai gratuit',
+    cta: 'Essai gratuit 7 jours',
     features: [
-      '300 chansons/mois',
-      'Tableaux EDN (Rang A & B)',
-      'QCM entraînement',
-      'Sauvegarde bibliothèque',
-      'Support prioritaire'
+      '367 items EDN complets',
+      'Examen illimité (EDN + ECOS)',
+      'Cas cliniques complets',
+      'Musique IA illimitée',
+      'Tableaux Rang A & B',
+      'QCM illimité',
+      'Bibliothèque musicale',
+      'Support email prioritaire',
     ]
   },
   {
     id: 'premium',
     name: 'Premium',
     price: 39,
-    songs: 'Musique IA illimitée',
-    badge: 'Meilleur rapport qualité-prix',
-    bestValue: true,
+    priceBarred: 49,
+    subtitle: 'L\'excellence totale',
+    icon: <Crown className="h-6 w-6" />,
+    cta: 'S\'abonner',
     features: [
-      'Musique IA illimitée',
-      'ECOS complets',
-      'Cas cliniques avancés',
-      'Mode examen EDN complet',
+      'Tout le plan Pro inclus',
+      'IA avancée & chat illimité',
+      'Planning personnalisé IA',
+      'Percentile national simulé',
       'Bande dessinée éducative',
-      'Support VIP'
-    ]
-  },
-  {
-    id: 'institution',
-    name: 'Institution',
-    price: 99,
-    songs: 'Multi-utilisateurs',
-    badge: 'Universités & CHU',
-    features: [
-      'Tout Premium inclus',
-      'Multi-utilisateurs (jusqu\'à 500)',
-      'Analytics RH & progression',
-      'Import bulk items',
-      'Dashboard administrateur',
-      'API dédiée',
-      'Support dédié & onboarding'
+      'Cas cliniques premium',
+      'Support VIP prioritaire',
+      'Accès anticipé nouvelles features',
     ]
   }
 ];
@@ -103,9 +87,7 @@ interface PricingPlansProps {
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const { logActivity } = useActivityTracking();
-  const { stats } = useGamification();
 
-  // Track page view
   useEffect(() => {
     logActivity({
       activity_type: 'study',
@@ -145,7 +127,6 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       }
 
       if (data?.url) {
-        // Ouvrir Stripe dans un nouvel onglet
         window.open(data.url, '_blank');
         toast.success('Redirection vers Stripe', { id: 'stripe-checkout' });
       }
@@ -159,85 +140,86 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stats gamification */}
-      {stats && (
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <Badge variant="outline" className="gap-1">
-            <Flame className="h-3 w-3 text-warning" />
-            Série: {stats.currentStreak} jours
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <Trophy className="h-3 w-3 text-primary" />
-            Niveau {stats.level}
-          </Badge>
-        </div>
-      )}
-      
-      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
       {plans.map((plan) => (
         <Card 
           key={plan.id} 
-          className={`relative ${plan.popular ? 'ring-2 ring-primary' : ''} ${plan.bestValue ? 'ring-2 ring-success' : ''}`}
+          className={`relative flex flex-col ${
+            plan.popular ? 'ring-2 ring-primary shadow-xl scale-[1.02]' : ''
+          }`}
         >
-          {plan.badge && (
+          {plan.popular && (
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge 
-                variant={plan.popular ? 'default' : 'secondary'}
-                className={plan.popular ? 'bg-primary' : 'bg-success'}
-              >
-                {plan.badge}
+              <Badge className="bg-primary text-primary-foreground px-4">
+                Recommandé
+              </Badge>
+            </div>
+          )}
+
+          {plan.trial && (
+            <div className="absolute -top-3 right-4">
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30 px-3">
+                {plan.trial}
               </Badge>
             </div>
           )}
           
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl">{plan.name}</CardTitle>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold">{plan.price}€</div>
-              <div className="text-sm text-muted-foreground">/mois</div>
-              <div className="text-sm font-medium text-primary">{plan.songs}</div>
+            <div className={`w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center ${
+              plan.popular ? 'bg-primary text-primary-foreground' : 
+              plan.id === 'premium' ? 'bg-accent text-accent-foreground' :
+              'bg-muted text-muted-foreground'
+            }`}>
+              {plan.icon}
             </div>
-            <CardDescription>{plan.songs} inclus</CardDescription>
+            <CardTitle className="text-xl">{plan.name}</CardTitle>
+            <CardDescription>{plan.subtitle}</CardDescription>
+            <div className="mt-4">
+              {plan.priceBarred && (
+                <span className="text-lg text-muted-foreground line-through mr-2">
+                  {plan.priceBarred}€
+                </span>
+              )}
+              <span className="text-4xl font-bold text-foreground">
+                {plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
+              </span>
+              {plan.price > 0 && <span className="text-sm text-muted-foreground">/mois</span>}
+            </div>
           </CardHeader>
           
-          <CardContent className="space-y-4">
-            <ul className="space-y-3">
+          <CardContent className="flex-1 flex flex-col">
+            <ul className="space-y-3 flex-1">
               {plan.features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-success flex-shrink-0" />
+                <li key={index} className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-success flex-shrink-0 mt-0.5" />
                   <span className="text-sm">{feature}</span>
                 </li>
               ))}
             </ul>
             
-            <Button
-              onClick={() => {
-                if (plan.id === 'free') return;
-                if (plan.id === 'institution') {
-                  window.open('mailto:contact@med-mng.lovable.app?subject=Demande Institution', '_blank');
-                  return;
-                }
-                if (onSelectPlan) {
-                  onSelectPlan(plan.id);
-                } else {
-                  handleStripeCheckout(plan.id);
-                }
-              }}
-              className="w-full"
-              variant={plan.popular ? 'default' : 'outline'}
-              disabled={loading || processingPlan === plan.id || currentPlan === plan.id || plan.id === 'free'}
-            >
-              {plan.id === 'free' ? 'Plan actuel' :
-               plan.id === 'institution' ? 'Nous contacter' :
-               processingPlan === plan.id ? 'Redirection...' :
-               currentPlan === plan.id ? 'Plan actuel' :
-               loading ? 'Chargement...' : 'S\'abonner'}
-            </Button>
+            <div className="pt-6">
+              <Button
+                onClick={() => {
+                  if (plan.id === 'free') return;
+                  if (onSelectPlan) {
+                    onSelectPlan(plan.id);
+                  } else {
+                    handleStripeCheckout(plan.id);
+                  }
+                }}
+                className="w-full"
+                variant={plan.popular ? 'default' : plan.id === 'premium' ? 'secondary' : 'outline'}
+                size="lg"
+                disabled={loading || processingPlan === plan.id || currentPlan === plan.id || plan.id === 'free'}
+              >
+                {processingPlan === plan.id ? 'Redirection...' :
+                 currentPlan === plan.id ? 'Plan actuel' :
+                 plan.cta}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ))}
-      </div>
     </div>
   );
 };
