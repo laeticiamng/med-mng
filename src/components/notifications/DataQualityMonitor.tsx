@@ -142,7 +142,7 @@ export function DataQualityMonitor() {
                   field: 'tableau_rang_a',
                   description: `${nullCount} items avec tableau_rang_a manquant`,
                   count: nullCount,
-                  suggested_fix: 'Régénérer les tableaux depuis extract-edn-objectifs',
+                  suggested_fix: 'Régénérer les tableaux via le pipeline de contenu (ai-content)',
                   detected_at: new Date().toISOString(),
                   status: 'new'
                 });

@@ -185,3 +185,10 @@ Ces fonctions ont été supprimées ou consolidées dans les routeurs unifiés :
 - CORS via `_shared/cors.ts`
 - Error handling via `_shared/error-utils.ts` (`getErrorMessage`)
 - Stripe API `2025-08-27.basil`
+- Registry des fonctions supprimées : `_shared/deleted-functions.ts`
+
+---
+
+## 4) Lifecycle (ajout / dépréciation / suppression)
+
+Voir le runbook complet : [`docs/edge-functions-lifecycle.md`](./edge-functions-lifecycle.md)

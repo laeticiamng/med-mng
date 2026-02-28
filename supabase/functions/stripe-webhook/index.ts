@@ -47,22 +47,45 @@ serve(async (req) => {
           break;
         }
 
-        // Create user subscription
+        // Validate planId against known plans
+        const KNOWN_PLANS = ["standard", "pro", "premium"];
+        if (!KNOWN_PLANS.includes(planId)) {
+          console.error(`[WEBHOOK_ERROR] Unknown planId: ${planId}. Known plans: ${KNOWN_PLANS.join(", ")}`);
+        }
+
+        // Fetch real subscription dates from Stripe
+        const subscriptionId = session.subscription as string;
+        let periodStart = new Date().toISOString();
+        let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        let subStatus: string = 'active';
+
+        if (subscriptionId) {
+          try {
+            const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+            periodStart = new Date(stripeSubscription.current_period_start * 1000).toISOString();
+            periodEnd = new Date(stripeSubscription.current_period_end * 1000).toISOString();
+            subStatus = stripeSubscription.status;
+            console.log(`Retrieved real subscription dates: ${periodStart} → ${periodEnd}, status: ${subStatus}`);
+          } catch (subErr) {
+            console.error("Could not retrieve subscription from Stripe, using fallback dates:", subErr);
+          }
+        }
+
         const { error } = await supabase
           .from('user_subscriptions')
           .upsert({
             user_id: userId,
             plan_id: planId,
-            stripe_subscription_id: session.subscription as string,
-            status: 'active',
-            current_period_start: new Date().toISOString(),
-            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+            stripe_subscription_id: subscriptionId,
+            status: subStatus,
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
           }, { onConflict: 'stripe_subscription_id' });
 
         if (error) {
           console.error("Error creating subscription:", error);
         } else {
-          console.log(`Created subscription for user ${userId} with plan ${planId}`);
+          console.log(`Created subscription for user ${userId} with plan ${planId} (status: ${subStatus})`);
         }
         break;
       }
