@@ -45,7 +45,7 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlockedAt'>[] = [
   
   // Clinical badges
   { id: 'clinical_master', name: 'Clinicien', description: 'Compléter 10 cas cliniques', icon: '🏥', rarity: 'rare' },
-  { id: 'clinical_expert', name: 'Praticien', description: 'Compléter 50 cas cliniques', icon: '⚕️', rarity: 'epic' },
+  { id: 'clinical_expert', name: 'Cas Expert Validé', description: '10 cas cliniques avec score > 70%', icon: '⚕️', rarity: 'epic' },
   
   // Music badges
   { id: 'music_first', name: 'Mélomane', description: 'Générer votre première chanson', icon: '🎵', rarity: 'common' },
