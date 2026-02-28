@@ -47,11 +47,17 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { plan = "standard" } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const plan = body.plan || "standard";
     const selectedPlan = PLANS[plan as keyof typeof PLANS];
     
     if (!selectedPlan) {
-      throw new Error(`Plan invalide: ${plan}. Plans disponibles: standard, pro, premium`);
+      const errorMsg = `[CHECKOUT_ERROR] Plan invalide: ${plan}. Plans disponibles: standard, pro, premium`;
+      console.error(errorMsg);
+      return new Response(JSON.stringify({ error: errorMsg }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
     logStep("Plan selected", { plan, priceId: selectedPlan.price_id });
 
