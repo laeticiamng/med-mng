@@ -1,201 +1,80 @@
 
-# Plan d'Execution : Feuille de Route 90 Jours — De "Plateforme" a "Produit Payant"
+# Plan: Nettoyage technique Edge Functions (Build Blockers)
 
-## Diagnostic actuel
+## Diagnostic
 
-- **~110 Edge Functions** restantes (14 test/debug deja supprimees)
-- **11 niveaux de providers** dans App.tsx
-- **~90 pages** dont beaucoup non essentielles (Store, B2B, Karaoke, MoodTracker, Pomodoro, SharedMusic, Community)
-- **Pricing** : 3 tiers en place mais `PricingPlans.tsx` appelle `create-subscription-checkout` (qui n'existe pas) au lieu de `create-checkout` (qui existe)
-- **create-checkout** : prix Standard 19EUR/Pro 29EUR/Premium 39EUR — **ne correspond pas** aux tiers affiches (Gratuit/Pro 19EUR/Premium 39EUR)
-- **Pas d'essai 7 jours** configure dans le checkout Stripe (`subscription_data.trial_period_days` absent)
-- **Pas de preuve sociale** (compteur d'inscrits)
+Apres exploration du code, voici l'etat reel des 8 tickets proposes :
 
----
+| Ticket | Statut reel | Action |
+|--------|-------------|--------|
+| 1. axios version | Deja corrige (^1.7.9) | Aucune |
+| 2. Resend npm imports | Deja corrige (esm.sh) | Aucune |
+| 3. catch(error) typing | CONFIRME - ~50+ fichiers | A corriger |
+| 4. Std lib versions | CONFIRME - 34 fichiers sur 0.168.0, 13 sur 0.190.0 | A corriger |
+| 5. Node imports ban | 1 seul fichier (api-documentation) | Mineur |
+| 6. Lockfile | Hors perimetre Lovable | Aucune |
+| 7. CI pipeline | Hors perimetre Lovable | Aucune |
+| 8. Smoke tests | Possible via Deno tests | Optionnel |
 
-## ETAPE 1 — Reduction de Surface Technique (Semaine 1-2)
+## Actions a implementer (3 blocs)
 
-### 1.1 — Supprimer ~25 Edge Functions inutilisees ou redondantes
+### Bloc A : Harmoniser std lib Deno (47 fichiers)
 
-Fonctions a supprimer (non referencees ou doublons) :
-- `activate-simulation` (non reference cote frontend actif)
-- `create-subscription-checkout` (doublon de `create-checkout`)
-- `ecos-enrich-ai` (non reference)
-- `extract-edn-objectifs` (migration ponctuelle)
-- `extract-edn-uness-auth`, `extract-edn-uness-complete`, `extract-edn-uness-production` (doublons de `extract-edn-uness`)
-- `generate-cas-cookie` (non reference)
-- `generate-missing-content` (doublon de `generate-content`)
-- `google-sheets-webhook` (non reference)
-- `openai-image` (doublon de `generate-image`)
-- `process-ab-tests` (non reference)
-- `send-weekly-alerts-report` (non reference)
-- `shopify-webhook` (pas de boutique active)
-- `spotify-medical-docs` (non reference)
-- `suno-audio-processing` (doublon dans ai-audio)
-- `suno-extend-music`, `suno-generate-lyrics`, `suno-upload-cover` (consolider dans ai-audio)
-- `unified-alerts` (doublon de monitoring-alerts)
-- `get-vapid-key`, `get-rls-policies` (utilitaires ponctuels)
+Migrer toutes les Edge Functions vers `std@0.190.0` (version stable Supabase).
 
-**Resultat** : de ~110 a ~85 Edge Functions (reduction 23%)
+**34 fichiers** sur `0.168.0` et **13 fichiers** sur `0.190.0` a aligner.
 
-### 1.2 — Desactiver les pages non essentielles
+Fichiers concernes (0.168.0 a migrer) :
+- api-documentation, monitoring-alerts, complete-missing-competences, generate-clinical-case, stripe-webhook, send-scheduled-reports, translate, study-planner, extract-edn-uness, edn-tableaux-api, spotify-ai-complete, send-security-alert, generate-exam, check-item-competences, music-generation, regenerate-oic-with-ai-check, openai-chat, secure-edn-extraction, auto-extract-oic, content-ai-generator, secure-audio-stream, et 13 autres.
 
-Retirer des routes (garder le code) :
-- `/store`, `/product/:handle` — pas de boutique
-- `/b2b` — pas de clients B2B
-- `/karaoke` — feature secondaire
-- `/mood-tracker` — non differentiant
-- `/pomodoro` — existe partout
-- `/shared-music`, `/shared-music/:id` — pas de contenu
-- `/community` — pas assez d'utilisateurs
+Version cible : `std@0.190.0` (version utilisee par les fichiers les plus recents et compatibles Supabase).
 
-**Fichier modifie** : `src/App.tsx` — commenter les routes, supprimer les imports lazy correspondants
+### Bloc B : Fix catch(error) typing (~50 fichiers)
 
-### 1.3 — Reduire les providers imbriques
+Creer un helper partage dans `supabase/functions/_shared/error-utils.ts` :
 
-Fusionner ou supprimer les providers peu utilises :
-- `InternationalizationProvider` + `LanguageProvider` → garder un seul
-- `PerformanceProvider` → supprimer (metriques dans hooks)
-- `ViewportProvider` → supprimer si media queries CSS suffisent
+```text
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+```
 
-**De 11 a 7-8 niveaux**
+Puis remplacer les `error.message` directs par `getErrorMessage(error)` dans les catch blocks des Edge Functions les plus critiques (fonctions deployees et actives).
 
----
+### Bloc C : Corriger CORS headers (_shared/cors.ts)
 
-## ETAPE 2 — Clarification Monetisation (Semaine 3)
+Le fichier actuel manque les headers Supabase recommandes. Mise a jour :
 
-### 2.1 — Corriger le flux de paiement
+```text
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+}
+```
 
-Le bug critique : `PricingPlans.tsx` appelle `create-subscription-checkout` qui n'existe pas. Corriger pour appeler `create-checkout`.
+### Bloc D : Nettoyer api-documentation (import path Deno)
 
-**Fichier** : `src/components/med-mng/PricingPlans.tsx`
-- Changer l'appel de `create-subscription-checkout` vers `create-checkout`
-- Mapper les planIds correctement : `pro` → `standard` (19EUR), `premium` → `premium` (39EUR)
+Remplacer l'import `std@0.168.0/path/mod.ts` par `std@0.190.0/path/mod.ts` dans `api-documentation/index.ts`.
 
-### 2.2 — Ajouter l'essai gratuit 7 jours Stripe
+## Sequencement
 
-**Fichier** : `supabase/functions/create-checkout/index.ts`
-- Ajouter `subscription_data: { trial_period_days: 7 }` dans la session checkout pour le plan Pro/Standard
+1. Bloc C (CORS) - 1 fichier, impact global
+2. Bloc B (error-utils) - creer helper + corriger les 15-20 fonctions les plus critiques
+3. Bloc A (std lib) - migration batch des 34 fichiers
+4. Bloc D (api-documentation path import) - inclus dans Bloc A
 
-### 2.3 — Synchroniser les tiers affiches avec Stripe
+## Estimation
 
-Mettre a jour `create-checkout` pour avoir 2 plans payants :
-- `pro` : 19EUR (price_id existant du standard)
-- `premium` : 39EUR (price_id existant du premium)
-- Supprimer le tier "Pro" a 29EUR qui n'est plus affiche
+- Bloc A : ~30 remplacements mecaniques
+- Bloc B : 1 fichier nouveau + ~20 edits
+- Bloc C : 1 edit
+- Bloc D : inclus dans A
 
-### 2.4 — Ajouter preuve sociale
+Total : execution en une seule session.
 
-**Fichier** : `src/components/med-mng/PricingPlans.tsx`
-- Ajouter un compteur "37+ etudiants inscrits" au-dessus des cards
-- Query Supabase sur `profiles` count pour un nombre reel (ou semi-statique)
+## Ce qui n'est PAS fait (et pourquoi)
 
-### 2.5 — Ajouter comparaison Pro vs Premium
-
-**Fichier** : `src/pages/MedMngPricing.tsx`
-- Ajouter un tableau comparatif sous les cards pricing avec checkmarks par feature
-
----
-
-## ETAPE 3 — SEO Offensif (Semaine 4-5)
-
-### 3.1 — Creer 4 articles SEO supplementaires
-
-Nouveaux fichiers dans `src/pages/seo/` :
-1. `ErreursFrquentesEcos.tsx` — "Erreurs frequentes aux ECOS"
-2. `ClassementEdnExplique.tsx` — "Comment fonctionne le classement EDN"
-3. `RangAvsRangB.tsx` — "Rang A vs Rang B : comprendre la difference"
-4. `TravaillerCasCliniques.tsx` — "Comment travailler les cas cliniques efficacement"
-
-Chaque page : 2000+ mots, JSON-LD FAQ, maillage interne vers les 5 pages piliers existantes.
-
-### 3.2 — Renforcer le maillage interne
-
-Ajouter des liens croises entre les 9 pages SEO (5 existantes + 4 nouvelles) dans les sections "Articles lies".
-
-### 3.3 — Ajouter 10 FAQ longues
-
-Enrichir `PricingFAQ.tsx` avec 10 questions supplementaires orientees conversion et SEO longue traine.
-
----
-
-## ETAPE 4 — Examen = Produit Coeur (Semaine 6)
-
-### 4.1 — Historique des scores enrichi
-
-**Fichier** : `src/components/exam/ExamHistory.tsx`
-- Ajouter un graphique de progression des scores sur 30 jours
-- Afficher la tendance du percentile
-
-### 4.2 — Faiblesse par specialite
-
-**Fichier** : `src/components/exam/ExamCompetencyRadar.tsx`
-- Identifier automatiquement les 3 specialites les plus faibles
-- Afficher "Recommandation : revisez Cardiologie et Neurologie"
-
-### 4.3 — Recommandation automatique de revision
-
-Apres examen, generer un mini-plan de revision base sur les faiblesses detectees. Lien vers les items EDN correspondants.
-
----
-
-## ETAPE 5 — Cas Cliniques Premium (Semaine 7-8)
-
-### 5.1 — Page publique "Exemple cas clinique"
-
-Creer `src/pages/seo/ExempleCasClinique.tsx` :
-- 1 cas clinique complet visible publiquement (teaser)
-- CTA "Debloquer les 20 cas premium"
-- Schema JSON-LD Article
-
-### 5.2 — Score comparatif et grille ECOS
-
-Enrichir la page resultats des cas cliniques avec :
-- Score par competence UNESS
-- Comparaison avec la moyenne des autres utilisateurs
-
----
-
-## ETAPE 6 — Performance & Experience (Semaine 9)
-
-### 6.1 — Audit et optimisations
-
-- Verifier `React.memo` sur `ExamPercentile`, `ExamCompetencyRadar`, `ExamRanking`
-- Ajouter `loading="lazy"` sur les images dans les cas cliniques
-- Verifier le code splitting avec les imports lazy (deja en place)
-
-### 6.2 — Mobile intensif
-
-- Tester toutes les pages critiques en viewport 375px
-- Corriger les debordements eventuels
-
----
-
-## Resume des fichiers impactes
-
-### A creer (7 fichiers)
-1. `src/pages/seo/ErreursFrquentesEcos.tsx`
-2. `src/pages/seo/ClassementEdnExplique.tsx`
-3. `src/pages/seo/RangAvsRangB.tsx`
-4. `src/pages/seo/TravaillerCasCliniques.tsx`
-5. `src/pages/seo/ExempleCasClinique.tsx`
-
-### A modifier (8 fichiers)
-1. `src/App.tsx` — retirer routes inutiles, reduire providers
-2. `src/components/med-mng/PricingPlans.tsx` — fix appel checkout, preuve sociale
-3. `src/pages/MedMngPricing.tsx` — tableau comparatif Pro vs Premium
-4. `supabase/functions/create-checkout/index.ts` — trial 7j, sync tiers
-5. `src/components/pricing/PricingFAQ.tsx` — +10 FAQ
-6. `src/components/exam/ExamCompetencyRadar.tsx` — recommandations faiblesses
-7. `src/config/routes.ts` — nouvelles routes SEO
-
-### A supprimer (~25 Edge Functions)
-Liste detaillee dans l'etape 1.1
-
-### Ordre d'execution
-1. **Etape 1** (surface technique) — prerequis stabilite
-2. **Etape 2** (monetisation) — bug critique checkout a corriger
-3. **Etape 3** (SEO) — contenu pour acquisition
-4. **Etape 4** (examen) — retention
-5. **Etape 5** (cas cliniques) — differenciation
-6. **Etape 6** (performance) — polish final
+- **Tickets 1, 2** : deja corriges dans le code actuel
+- **Tickets 6, 7** : lockfile et CI sont hors perimetre Lovable (pas de terminal)
+- **Ticket 8** : smoke tests Deno possibles mais secondaires par rapport a la stabilite
