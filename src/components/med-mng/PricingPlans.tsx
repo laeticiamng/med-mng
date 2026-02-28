@@ -86,6 +86,7 @@ interface PricingPlansProps {
 
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [userCount, setUserCount] = useState<number>(37);
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
@@ -94,6 +95,11 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       count: 1,
       metadata: { type: 'view_pricing_plans' }
     });
+    // Fetch real user count
+    supabase.from('profiles').select('id', { count: 'exact', head: true })
+      .then(({ count }) => {
+        if (count && count > 10) setUserCount(count);
+      });
   }, [logActivity]);
 
   const handleStripeCheckout = async (planId: string) => {
@@ -113,8 +119,12 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
-        body: { planId },
+      // Map plan IDs to create-checkout plan names
+      const planMapping: Record<string, string> = { pro: 'standard', premium: 'premium' };
+      const stripePlan = planMapping[planId] || planId;
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan: stripePlan },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -140,6 +150,12 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
   };
 
   return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <Badge variant="secondary" className="px-4 py-1.5 text-sm">
+          🎓 Déjà {userCount}+ étudiants inscrits
+        </Badge>
+      </div>
     <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
       {plans.map((plan) => (
         <Card 
@@ -220,6 +236,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
           </CardContent>
         </Card>
       ))}
+    </div>
     </div>
   );
 };

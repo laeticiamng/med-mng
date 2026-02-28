@@ -103,8 +103,46 @@ export const MedMngPricing = () => {
             }}
           />
 
+          {/* Comparaison Pro vs Premium */}
+          <div className="mt-10 max-w-3xl mx-auto">
+            <PremiumCard variant="glass" className="p-6">
+              <h3 className="text-lg font-bold text-foreground text-center mb-6">Pro vs Premium — en détail</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-muted-foreground">Fonctionnalité</th>
+                      <th className="text-center py-2 px-3 text-foreground font-semibold">Pro 19€</th>
+                      <th className="text-center py-2 px-3 text-foreground font-semibold">Premium 39€</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-foreground">
+                    {[
+                      ['367 items EDN', true, true],
+                      ['Examens illimités', true, true],
+                      ['Cas cliniques complets', true, true],
+                      ['Musique IA', true, true],
+                      ['QCM illimité', true, true],
+                      ['IA avancée & chat illimité', false, true],
+                      ['Planning personnalisé IA', false, true],
+                      ['Percentile national simulé', false, true],
+                      ['Cas cliniques premium', false, true],
+                      ['Support VIP prioritaire', false, true],
+                    ].map(([feature, pro, premium], i) => (
+                      <tr key={i} className="border-b border-border/50">
+                        <td className="py-2 px-3">{feature as string}</td>
+                        <td className="text-center py-2 px-3">{pro ? '✅' : '—'}</td>
+                        <td className="text-center py-2 px-3">{premium ? '✅' : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </PremiumCard>
+          </div>
+
           {/* Pack 6 mois */}
-          <div className="mt-10 max-w-md mx-auto">
+          <div className="mt-8 max-w-md mx-auto">
             <PremiumCard variant="glass" className="p-6 text-center">
               <p className="text-sm font-semibold text-foreground mb-1">💡 Pack 6 mois Pro</p>
               <p className="text-2xl font-bold text-foreground">

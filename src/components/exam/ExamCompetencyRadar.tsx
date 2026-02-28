@@ -59,7 +59,7 @@ export const ExamCompetencyRadar = React.memo(function ExamCompetencyRadar({ ans
           Score par compétence
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {competencies.map((comp) => (
           <div key={comp.specialty} className="space-y-1">
             <div className="flex items-center justify-between text-sm">
@@ -81,6 +81,21 @@ export const ExamCompetencyRadar = React.memo(function ExamCompetencyRadar({ ans
             </div>
           </div>
         ))}
+
+        {/* Recommandations automatiques */}
+        {(() => {
+          const weakSpecs = competencies.filter(c => c.score < 60).sort((a, b) => a.score - b.score).slice(0, 3);
+          if (weakSpecs.length === 0) return null;
+          return (
+            <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm font-semibold text-destructive mb-1">📌 Recommandation de révision</p>
+              <p className="text-sm text-muted-foreground">
+                Concentrez vos prochaines révisions sur : {weakSpecs.map(s => s.specialty).join(', ')}.
+                {weakSpecs[0] && ` Votre score en ${weakSpecs[0].specialty} est de ${weakSpecs[0].score}% — objectif : 70%.`}
+              </p>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
