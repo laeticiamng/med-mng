@@ -64,5 +64,27 @@ Disallow: /system-management
 Disallow: /platform-settings
 Disallow: /diagnostics
 
+# Allow AI crawlers explicitly
+User-agent: GPTBot
+Allow: /
+Disallow: /admin*
+Disallow: /settings
+Disallow: /diagnostics
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 # Sitemap
 Sitemap: https://med-mng.lovable.app/sitemap.xml
+
+# LLMs.txt - Guide pour les crawlers IA
+# https://med-mng.lovable.app/llms.txt
