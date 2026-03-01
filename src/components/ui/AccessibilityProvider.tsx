@@ -25,7 +25,7 @@ interface AccessibilityProviderProps {
   children: React.ReactNode;
 }
 
-export const AccessibilityProvider = React.forwardRef<HTMLDivElement, AccessibilityProviderProps>(function AccessibilityProvider({ children }, ref) {
+export function AccessibilityProvider({ children }: AccessibilityProviderProps) {
   const [isHighContrast, setIsHighContrast] = useState(false);
   const [isFocusVisible, setIsFocusVisible] = useState(true);
   const [reducedMotion, setReducedMotionState] = useState(false);
@@ -91,5 +91,4 @@ export const AccessibilityProvider = React.forwardRef<HTMLDivElement, Accessibil
       {children}
     </AccessibilityContext.Provider>
   );
-});
-AccessibilityProvider.displayName = 'AccessibilityProvider';
+}
