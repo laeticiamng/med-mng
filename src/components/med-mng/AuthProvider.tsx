@@ -19,7 +19,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(function AuthProvider({ children }, ref) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { sendWelcomeEmail } = useEmailNotifications();
@@ -267,7 +267,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+});
+AuthProvider.displayName = 'AuthProvider';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

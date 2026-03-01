@@ -40,7 +40,7 @@ interface GlobalAudioProviderProps {
   children: React.ReactNode;
 }
 
-export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
+export const GlobalAudioProvider = React.forwardRef<HTMLDivElement, GlobalAudioProviderProps>(function GlobalAudioProvider({ children }, ref) {
   const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -272,4 +272,5 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       {children}
     </GlobalAudioContext.Provider>
   );
-};
+});
+GlobalAudioProvider.displayName = 'GlobalAudioProvider';

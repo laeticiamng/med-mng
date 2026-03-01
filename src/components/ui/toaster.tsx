@@ -8,7 +8,9 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
-export function Toaster() {
+import React from "react"
+
+export const Toaster = React.forwardRef<HTMLDivElement>(function Toaster(_, ref) {
   const { toasts } = useToast()
 
   return (
@@ -30,4 +32,5 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   )
-}
+})
+Toaster.displayName = 'Toaster'

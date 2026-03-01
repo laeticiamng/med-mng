@@ -633,7 +633,7 @@ interface InternationalizationProviderProps {
   children: ReactNode;
 }
 
-export const InternationalizationProvider: React.FC<InternationalizationProviderProps> = ({ children }) => {
+export const InternationalizationProvider = React.forwardRef<HTMLDivElement, InternationalizationProviderProps>(function InternationalizationProvider({ children }, ref) {
   const [language, setLanguageState] = useState<Language>(() => {
     // Détecter la langue du navigateur
     const browserLanguage = navigator.language.split('-')[0] as Language;
@@ -732,4 +732,5 @@ export const InternationalizationProvider: React.FC<InternationalizationProvider
       {children}
     </InternationalizationContext.Provider>
   );
-};
+});
+InternationalizationProvider.displayName = 'InternationalizationProvider';
