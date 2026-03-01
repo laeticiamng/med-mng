@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface SkipLinkProps {
@@ -40,9 +40,9 @@ const SkipLink: React.FC<SkipLinkProps> = ({ href, children }) => {
  * Provides quick navigation to main content areas for screen readers
  * and keyboard users
  */
-export const SkipLinks: React.FC = () => {
+export const SkipLinks = forwardRef<HTMLDivElement>(function SkipLinks(_, ref) {
   return (
-    <div className="sr-only focus-within:not-sr-only" role="navigation" aria-label="Liens d'accès rapide">
+    <div ref={ref} className="sr-only focus-within:not-sr-only" role="navigation" aria-label="Liens d'accès rapide">
       <SkipLink href="#main-content">
         Aller au contenu principal
       </SkipLink>
@@ -57,4 +57,5 @@ export const SkipLinks: React.FC = () => {
       </SkipLink>
     </div>
   );
-};
+});
+SkipLinks.displayName = 'SkipLinks';

@@ -41,7 +41,7 @@ interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+export const LanguageProvider = React.forwardRef<HTMLDivElement, LanguageProviderProps>(function LanguageProvider({ children }, ref) {
   const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
     // Récupérer la langue depuis localStorage ou utiliser français par défaut
     const savedLanguage = localStorage.getItem('medmng-language');
@@ -160,7 +160,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       {children}
     </LanguageContext.Provider>
   );
-};
+});
+LanguageProvider.displayName = 'LanguageProvider';
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
