@@ -3,10 +3,10 @@ import { Music, ExternalLink, Flame, Star, Trophy, Building2 } from "lucide-reac
 import { ROUTE_PATHS } from "@/config/routes";
 import { useGamification } from "@/hooks/useGamification";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const AppFooter = () => {
+export const AppFooter = forwardRef<HTMLElement>((_, ref) => {
   const { stats, loadStats } = useGamification();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -22,7 +22,7 @@ export const AppFooter = () => {
   }, [loadStats]);
 
   return (
-    <footer className="bg-card border-t border-border pb-24 md:pb-0">
+    <footer ref={ref} className="bg-card border-t border-border pb-24 md:pb-0">
       <div className="container mx-auto px-4 py-8">
         {/* Quick Stats for logged-in users */}
         {isLoggedIn && stats && (
@@ -146,4 +146,6 @@ export const AppFooter = () => {
       </div>
     </footer>
   );
-};
+});
+
+AppFooter.displayName = 'AppFooter';
