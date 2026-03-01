@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, Calendar, Stethoscope, Brain, CheckCircle, ClipboardList, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const TravaillerCasCliniques = () => {
   const jsonLd = {
@@ -211,6 +212,7 @@ const TravaillerCasCliniques = () => {
             </div>
           </section>
 
+          <SeeAlsoLinks currentPath="/travailler-cas-cliniques" />
         </article>
         <AppFooter />
       </div>

@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, Calendar, Shield, Sword, Scale, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const RangAvsRangB = () => {
   const jsonLd = {
@@ -192,6 +193,7 @@ const RangAvsRangB = () => {
             </div>
           </section>
 
+          <SeeAlsoLinks currentPath="/rang-a-vs-rang-b" />
         </article>
         <AppFooter />
       </div>

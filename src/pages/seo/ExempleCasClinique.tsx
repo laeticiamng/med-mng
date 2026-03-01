@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, Stethoscope, AlertTriangle, CheckCircle, Clock, Target, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const ExempleCasClinique = () => {
   const jsonLd = {
@@ -239,6 +240,7 @@ const ExempleCasClinique = () => {
             </div>
           </section>
 
+          <SeeAlsoLinks currentPath="/exemple-cas-clinique" />
         </article>
         <AppFooter />
       </div>

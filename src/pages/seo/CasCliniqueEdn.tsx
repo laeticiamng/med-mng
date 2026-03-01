@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, CheckCircle, Stethoscope, Brain, FileText, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const CasCliniqueEdn = () => {
   return (
@@ -161,6 +162,7 @@ const CasCliniqueEdn = () => {
               <Link to={ROUTE_PATHS.medMngPricing}><Button variant="outline" size="lg">Voir les tarifs</Button></Link>
             </div>
           </div>
+          <SeeAlsoLinks currentPath="/cas-cliniques-edn" />
         </article>
         <AppFooter />
       </div>

@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, CheckCircle, FileText, Stethoscope, MessageSquare, Pill, AlertTriangle, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const FichesEcosInteractives = () => {
   const specialties = [
@@ -154,6 +155,7 @@ const FichesEcosInteractives = () => {
               <Link to={ROUTE_PATHS.ecosIndex}><Button variant="outline" size="lg">Voir les ECOS</Button></Link>
             </div>
           </div>
+          <SeeAlsoLinks currentPath="/fiches-ecos-interactives" />
         </article>
         <AppFooter />
       </div>

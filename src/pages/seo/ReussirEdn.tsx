@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, CheckCircle, Brain, Calendar, Target, Lightbulb, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const ReussirEdn = () => {
   return (
@@ -265,6 +266,7 @@ const ReussirEdn = () => {
               { "@type": "Question", "name": "L'EDN est-il plus dur que l'ancien ECN ?", "acceptedAnswer": { "@type": "Answer", "text": "Le format est différent mais le niveau de difficulté est comparable." }},
             ]
           })}} />
+          <SeeAlsoLinks currentPath="/reussir-edn" />
         </article>
         <AppFooter />
       </div>

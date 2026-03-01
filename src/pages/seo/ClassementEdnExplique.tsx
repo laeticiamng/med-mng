@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ROUTE_PATHS } from '@/config/routes';
 import { ArrowRight, BookOpen, Calendar, BarChart3, Trophy, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SeeAlsoLinks } from '@/components/seo/SeeAlsoLinks';
 
 const ClassementEdnExplique = () => {
   const jsonLd = {
@@ -231,6 +232,7 @@ const ClassementEdnExplique = () => {
             </div>
           </section>
 
+          <SeeAlsoLinks currentPath="/classement-edn-explique" />
         </article>
         <AppFooter />
       </div>
