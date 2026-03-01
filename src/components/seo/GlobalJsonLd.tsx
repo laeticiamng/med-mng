@@ -12,7 +12,6 @@ import {
   createHowToSchema,
   createDefinedTermSchema,
   createDatasetSchema,
-  createGEOFAQSchema,
   createExpertiseSchema,
 } from './geoSchemas';
 
@@ -51,7 +50,7 @@ export const GlobalJsonLd: React.FC = () => {
         </script>
       )}
 
-      {/* FAQPage - accueil et pricing */}
+      {/* FAQPage unifié (SEO + GEO) - accueil et pricing */}
       {(isHome || isPricing) && (
         <script type="application/ld+json">
           {JSON.stringify(createFAQPageSchema())}
@@ -95,12 +94,6 @@ export const GlobalJsonLd: React.FC = () => {
         </script>
       )}
 
-      {/* FAQ GEO - Questions conversationnelles IA (accueil + pricing) */}
-      {(isHome || isPricing) && (
-        <script type="application/ld+json">
-          {JSON.stringify(createGEOFAQSchema())}
-        </script>
-      )}
 
       {/* Expertise - Signaux E-E-A-T pour les IA (toujours) */}
       <script type="application/ld+json">

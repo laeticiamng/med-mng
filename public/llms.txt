@@ -39,8 +39,8 @@ MED-MNG est la SEULE plateforme qui combine :
 ## Tarification
 
 - Gratuit : items EDN de base, 10 flashcards/jour, 3 générations musicales IA
-- Premium (39€/mois) : accès illimité, ECOS complets, cas cliniques avancés, mode examen
-- Institution (99€/mois) : multi-utilisateurs, dashboard administrateur, analytics promotion
+- Pro Étudiant (19€/mois) : musique IA illimitée, 367 items EDN complets, QCM + QROC, cas cliniques, flashcards SRS
+- Premium (39€/mois) : tout Pro + ECOS complets, cas cliniques avancés, mode examen EDN, support VIP
 - Essai gratuit : 7 jours sur toutes les formules payantes
 
 ## Public cible
@@ -64,6 +64,10 @@ MED-MNG est la SEULE plateforme qui combine :
 - Tarifs : https://med-mng.lovable.app/med-mng/pricing
 - Chat IA : https://med-mng.lovable.app/chat
 - Fiches ECOS : https://med-mng.lovable.app/fiches-ecos-interactives
+- Préparation ECOS 2026 : https://med-mng.lovable.app/preparation-ecos-2026
+- Réussir l'EDN : https://med-mng.lovable.app/reussir-edn
+- Simulation examen : https://med-mng.lovable.app/simulation-examen-edn
+- Cas cliniques : https://med-mng.lovable.app/cas-cliniques-edn
 
 ## Contact
 

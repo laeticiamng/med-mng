@@ -185,7 +185,7 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
   },
   '/med-mng/pricing': {
     title: 'Tarifs & Abonnements',
-    description: 'Choisissez votre formule MED-MNG : Standard, Pro ou Premium. De 19€ à 39€/mois pour réviser la médecine en musique.',
+    description: 'Choisissez votre formule MED-MNG : Gratuit, Pro Étudiant (19€) ou Premium (39€). Essai gratuit 7 jours pour réviser la médecine en musique.',
     keywords: `${BASE_KEYWORDS}, tarifs, prix, abonnement, premium, pro`,
     canonical: '/med-mng/pricing',
   },
@@ -436,6 +436,78 @@ export const SEO_CONFIG: Record<string, RouteSEO> = {
     keywords: `${BASE_KEYWORDS}, sécurité, monitoring, audit`,
     canonical: '/security-monitoring',
     noindex: true,
+  },
+
+  // === PILLAR PAGES SEO (contenu long-form, acquisition organique) ===
+  '/preparation-ecos-2026': {
+    title: 'Préparation ECOS 2026 - Guide Complet',
+    description: 'Guide complet pour préparer les ECOS 2026. Méthodologie, simulations interactives, grilles d\'évaluation et conseils par spécialité.',
+    keywords: `${BASE_KEYWORDS}, ECOS 2026, préparation, guide, simulation, grille évaluation`,
+    canonical: '/preparation-ecos-2026',
+    ogType: 'article',
+  },
+  '/reussir-edn': {
+    title: 'Réussir l\'EDN 2026 - Stratégies & Méthodes',
+    description: 'Stratégies éprouvées pour réussir l\'EDN. Planning de révision, priorisation des items, méthodes de mémorisation et erreurs à éviter.',
+    keywords: `${BASE_KEYWORDS}, réussir EDN, stratégie, planning révision, méthodes`,
+    canonical: '/reussir-edn',
+    ogType: 'article',
+  },
+  '/fiches-ecos-interactives': {
+    title: 'Fiches ECOS Interactives - Toutes Spécialités',
+    description: 'Fiches ECOS interactives par spécialité. Scénarios réalistes, grilles de notation et feedback détaillé pour chaque station.',
+    keywords: `${BASE_KEYWORDS}, fiches ECOS, interactives, scénarios, spécialités, grilles`,
+    canonical: '/fiches-ecos-interactives',
+    ogType: 'article',
+  },
+  '/simulation-examen-edn': {
+    title: 'Simulation Examen EDN - Entraînement Réaliste',
+    description: 'Simulez l\'examen EDN en conditions réelles. QCM, QRU, QROC chronométrés avec correction détaillée et analyse de performance.',
+    keywords: `${BASE_KEYWORDS}, simulation examen, EDN, entraînement, conditions réelles, QCM`,
+    canonical: '/simulation-examen-edn',
+    ogType: 'article',
+  },
+  '/cas-cliniques-edn': {
+    title: 'Cas Cliniques EDN - Entraînement Progressif',
+    description: 'Entraînez-vous sur des cas cliniques EDN progressifs. Arbres décisionnels, diagnostics différentiels et plans thérapeutiques.',
+    keywords: `${BASE_KEYWORDS}, cas cliniques, EDN, diagnostic, arbre décisionnel, thérapeutique`,
+    canonical: '/cas-cliniques-edn',
+    ogType: 'article',
+  },
+  '/erreurs-frequentes-ecos': {
+    title: 'Erreurs Fréquentes aux ECOS - Les Éviter',
+    description: 'Les erreurs les plus fréquentes aux ECOS et comment les éviter. Analyse par station, pièges classiques et conseils pratiques.',
+    keywords: `${BASE_KEYWORDS}, erreurs ECOS, pièges, conseils, stations, éviter`,
+    canonical: '/erreurs-frequentes-ecos',
+    ogType: 'article',
+  },
+  '/classement-edn-explique': {
+    title: 'Classement EDN Expliqué - Comprendre le Système',
+    description: 'Comprendre le classement EDN : calcul du score, pondération, rang A vs B et stratégie pour maximiser son classement.',
+    keywords: `${BASE_KEYWORDS}, classement EDN, score, pondération, rang, stratégie`,
+    canonical: '/classement-edn-explique',
+    ogType: 'article',
+  },
+  '/rang-a-vs-rang-b': {
+    title: 'Rang A vs Rang B EDN - Différences & Stratégie',
+    description: 'Différences entre Rang A et Rang B à l\'EDN. Quels items prioriser, stratégie de révision et impact sur le classement.',
+    keywords: `${BASE_KEYWORDS}, rang A, rang B, différences, priorisation, stratégie EDN`,
+    canonical: '/rang-a-vs-rang-b',
+    ogType: 'article',
+  },
+  '/travailler-cas-cliniques': {
+    title: 'Travailler les Cas Cliniques - Méthode Efficace',
+    description: 'Méthode efficace pour travailler les cas cliniques en médecine. Approche systématique, raisonnement clinique et entraînement progressif.',
+    keywords: `${BASE_KEYWORDS}, travailler cas cliniques, méthode, raisonnement clinique, progression`,
+    canonical: '/travailler-cas-cliniques',
+    ogType: 'article',
+  },
+  '/exemple-cas-clinique': {
+    title: 'Exemple de Cas Clinique Corrigé - EDN',
+    description: 'Exemple de cas clinique EDN entièrement corrigé. Démarche diagnostique, examens complémentaires et prise en charge commentée.',
+    keywords: `${BASE_KEYWORDS}, exemple cas clinique, corrigé, démarche diagnostique, prise en charge`,
+    canonical: '/exemple-cas-clinique',
+    ogType: 'article',
   },
 
   // === AUDIT (noindex) ===
