@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.enhanced-contextual-chat]
 verify_jwt = false
+
+[functions.extract-rangb-missing]
+verify_jwt = false
