@@ -30,7 +30,8 @@ const testimonials = [
 export function PricingTestimonials() {
   return (
     <div className="mt-12">
-      <h2 className="text-2xl font-bold text-center mb-8">Ce que disent nos utilisateurs</h2>
+      <h2 className="text-2xl font-bold text-center mb-2">Ce que disent nos bêta-testeurs</h2>
+      <p className="text-sm text-muted-foreground text-center mb-8">Retours basés sur notre phase de test</p>
       <div className="grid md:grid-cols-3 gap-6">
         {testimonials.map((testimonial, index) => (
           <motion.div

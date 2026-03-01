@@ -4,6 +4,7 @@ import { AppleMusicPlayer } from "@/components/home/AppleMusicPlayer";
 import { AppleFeatureShowcase } from "@/components/home/AppleFeatureShowcase";
 import { AppleTestimonials } from "@/components/home/AppleTestimonials";
 import { AppleFinalCTA } from "@/components/home/AppleFinalCTA";
+import { StickyMobileCTA } from "@/components/home/StickyMobileCTA";
 import { AntiAnxietyOnboarding } from "@/components/onboarding/AntiAnxietyOnboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -88,6 +89,9 @@ const Index = () => {
         <AppleTestimonials />
         <AppleFinalCTA />
       </div>
+      
+      {/* Sticky CTA mobile */}
+      <StickyMobileCTA />
     </>
   );
 };

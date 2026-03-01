@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { trackConversionEvent } from '@/lib/conversionTracking';
 import { useActivityTracking } from '@/hooks/useActivityTracking';
 
 interface PricingPlan {
@@ -86,7 +87,7 @@ interface PricingPlansProps {
 
 export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
-  const [userCount, setUserCount] = useState<number>(37);
+  const [userCount, setUserCount] = useState<number | null>(null);
   const { logActivity } = useActivityTracking();
 
   useEffect(() => {
@@ -95,16 +96,17 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
       count: 1,
       metadata: { type: 'view_pricing_plans' }
     });
-    // Fetch real user count
+    // Fetch real user count from profiles table
     supabase.from('profiles').select('id', { count: 'exact', head: true })
       .then(({ count }) => {
-        if (count && count > 10) setUserCount(count);
+        if (count !== null) setUserCount(count);
       });
   }, [logActivity]);
 
   const handleStripeCheckout = async (planId: string) => {
     try {
       setProcessingPlan(planId);
+      trackConversionEvent('checkout_start', { plan: planId });
       toast.loading('Redirection vers Stripe...', { id: 'stripe-checkout' });
       
       logActivity({
@@ -153,7 +155,9 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
     <div className="space-y-6">
       <div className="text-center">
         <Badge variant="secondary" className="px-4 py-1.5 text-sm">
-          🎓 Déjà {userCount}+ étudiants inscrits
+          🎓 {userCount !== null && userCount > 0 
+            ? `${userCount} étudiants nous font confiance` 
+            : '367 items EDN couverts · 100% du programme R2C'}
         </Badge>
       </div>
     <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
