@@ -41,7 +41,7 @@ import {
     Sparkles,
     Star, Target
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface EdnItem {
@@ -71,6 +71,8 @@ interface EdnItem {
   competences_oic_rang_b?: any;
 }
 
+const ITEMS_PER_PAGE = 30;
+
 export default function EdnComplete() {
   // Utiliser le hook optimisé avec cache
   const { items: ednItems, stats: optimizedStats, loading, error: loadingError, refresh } = useEdnItemsOptimized();
@@ -86,6 +88,8 @@ export default function EdnComplete() {
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
   const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const { toast: _toast } = useToast();
   const navigate = useNavigate();
@@ -263,6 +267,30 @@ export default function EdnComplete() {
       }
     });
   }, [allItems, searchTerm, selectedCategory, selectedSpecialty, sortBy]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [searchTerm, selectedCategory, selectedSpecialty, sortBy]);
+
+  // Paginated items for rendering
+  const visibleItems = useMemo(() => filteredItems.slice(0, visibleCount), [filteredItems, visibleCount]);
+  const hasMore = visibleCount < filteredItems.length;
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredItems.length));
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, filteredItems.length]);
 
   const openItemModal = useCallback(async (item: EdnItem, tab?: string) => {
     // Ouvrir la modal immédiatement avec données partielles
@@ -589,22 +617,32 @@ export default function EdnComplete() {
               )}
               
               {!loading && filteredItems.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <EdnItemCard
-                      key={item.id}
-                      item={item}
-                      completionPercentage={getCompletionPercentage(item)}
-                      onOpen={(tab) => openItemModal(item, tab)}
-                      isFavorite={isFavorite(item.item_code)}
-                      onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
-                      isOfflineAvailable={isAvailableOffline(item.item_code)}
-                      isDownloading={isDownloading === item.item_code}
-                      onDownloadOffline={downloadItem}
-                      onRemoveOffline={removeItem}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {visibleItems.map(item => (
+                      <EdnItemCard
+                        key={item.id}
+                        item={item}
+                        completionPercentage={getCompletionPercentage(item)}
+                        onOpen={(tab) => openItemModal(item, tab)}
+                        isFavorite={isFavorite(item.item_code)}
+                        onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
+                        isOfflineAvailable={isAvailableOffline(item.item_code)}
+                        isDownloading={isDownloading === item.item_code}
+                        onDownloadOffline={downloadItem}
+                        onRemoveOffline={removeItem}
+                      />
+                    ))}
+                  </div>
+                  {hasMore && (
+                    <div ref={loadMoreRef} className="flex flex-col items-center gap-2 py-6">
+                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs text-muted-foreground">
+                        {visibleCount} / {filteredItems.length} items affichés
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
               
               {loading && immersiveItems.length > 0 && (
@@ -643,22 +681,32 @@ export default function EdnComplete() {
                   Aucun item trouvé. Modifiez vos filtres.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <EdnItemCard
-                      key={item.id}
-                      item={item}
-                      completionPercentage={getCompletionPercentage(item)}
-                      onOpen={(tab) => openItemModal(item, tab)}
-                      isFavorite={isFavorite(item.item_code)}
-                      onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
-                      isOfflineAvailable={isAvailableOffline(item.item_code)}
-                      isDownloading={isDownloading === item.item_code}
-                      onDownloadOffline={downloadItem}
-                      onRemoveOffline={removeItem}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {visibleItems.map(item => (
+                      <EdnItemCard
+                        key={item.id}
+                        item={item}
+                        completionPercentage={getCompletionPercentage(item)}
+                        onOpen={(tab) => openItemModal(item, tab)}
+                        isFavorite={isFavorite(item.item_code)}
+                        onToggleFavorite={() => toggleFavorite(item.item_code, item.title)}
+                        isOfflineAvailable={isAvailableOffline(item.item_code)}
+                        isDownloading={isDownloading === item.item_code}
+                        onDownloadOffline={downloadItem}
+                        onRemoveOffline={removeItem}
+                      />
+                    ))}
+                  </div>
+                  {hasMore && (
+                    <div ref={loadMoreRef} className="flex flex-col items-center gap-2 py-6">
+                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs text-muted-foreground">
+                        {visibleCount} / {filteredItems.length} items affichés
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
               
               {loading && immersiveItems.length > 0 && (
