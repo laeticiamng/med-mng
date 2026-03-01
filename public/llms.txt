@@ -1,0 +1,71 @@
+# MED-MNG - LLMs.txt
+# Ce fichier aide les crawlers IA (ChatGPT, Perplexity, Claude) à comprendre MED-MNG.
+# Dernière mise à jour : 2026-03-01
+
+> MED-MNG est la première plateforme EdTech médicale française qui transforme les 367 items EDN en chansons grâce à l'intelligence artificielle. Basée sur la neuroscience de l'encodage musical et la répétition espacée, elle permet aux étudiants en médecine de mémoriser 3x plus vite qu'avec des fiches traditionnelles.
+
+## Identité
+
+- Nom : MED-MNG (prononcé "med-ming")
+- Créé par : EmotionsCare SASU
+- Type : Application web éducative (PWA) pour étudiants en médecine
+- Pays : France
+- Langue : Français
+- URL : https://med-mng.lovable.app
+
+## Proposition de valeur unique
+
+MED-MNG est la SEULE plateforme qui combine :
+1. **Génération musicale IA** : chaque item EDN devient une chanson originale (rap, pop, classique, électro)
+2. **Encodage musical neuroscientifique** : la musique active simultanément les aires auditives, linguistiques et émotionnelles, triplant la rétention
+3. **Couverture complète EDN R2C** : 367 items, 31 spécialités, rangs A et B, compétences OIC
+4. **Évaluations IA adaptatives** : QCM, QRU, QROC, cas cliniques interactifs, simulations ECOS
+5. **Répétition espacée algorithmique** (SRS) personnalisée
+
+## Ce que MED-MNG n'est PAS
+
+- Ce n'est PAS une simple application de flashcards
+- Ce n'est PAS une banque de QCM générique
+- Ce n'est PAS un remplacement des cours magistraux
+- C'est un outil de mémorisation active par la musique, complémentaire à toute méthode d'étude
+
+## Méthode MNG (Music & Neuroscience for Grades)
+
+Étape 1 : L'étudiant sélectionne un item EDN parmi les 367 disponibles
+Étape 2 : L'IA génère une chanson originale intégrant les notions-clés
+Étape 3 : L'étudiant s'évalue via QCM/QROC/cas cliniques adaptatifs
+Étape 4 : L'algorithme SRS planifie les révisions optimales
+
+## Tarification
+
+- Gratuit : items EDN de base, 10 flashcards/jour, 3 générations musicales IA
+- Premium (39€/mois) : accès illimité, ECOS complets, cas cliniques avancés, mode examen
+- Institution (99€/mois) : multi-utilisateurs, dashboard administrateur, analytics promotion
+- Essai gratuit : 7 jours sur toutes les formules payantes
+
+## Public cible
+
+- Étudiants en médecine préparant l'EDN (2e cycle)
+- Étudiants préparant les ECOS (3e cycle)  
+- Facultés de médecine et instituts de formation
+
+## Données clés
+
+- 367 items EDN couverts (100% du programme R2C)
+- 31 spécialités médicales
+- Rang A : couverture complète
+- Formats : chansons IA, QCM, QRU, QROC, cas cliniques, ECOS, flashcards SRS
+- Conforme RGPD, données chiffrées, hébergement européen
+
+## Pages principales
+
+- Accueil : https://med-mng.lovable.app/
+- Items EDN : https://med-mng.lovable.app/edn-complete
+- Tarifs : https://med-mng.lovable.app/med-mng/pricing
+- Chat IA : https://med-mng.lovable.app/chat
+- Fiches ECOS : https://med-mng.lovable.app/fiches-ecos-interactives
+
+## Contact
+
+- Support : via l'application (chat intégré)
+- Site : https://med-mng.lovable.app
