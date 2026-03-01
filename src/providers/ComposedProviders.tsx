@@ -9,21 +9,18 @@ import { InternationalizationProvider } from '@/contexts/InternationalizationCon
  * ComposedProviders — Consolidates 5 providers into 1 wrapper
  * Reduces provider nesting depth in App.tsx
  */
-export const ComposedProviders = React.forwardRef<HTMLDivElement, { children: React.ReactNode }>(
-  function ComposedProviders({ children }, ref) {
-    return (
-      <InternationalizationProvider>
-        <LanguageProvider>
-          <GlobalAudioProvider>
-            <TooltipProvider>
-              <AccessibilityProvider>
-                {children}
-              </AccessibilityProvider>
-            </TooltipProvider>
-          </GlobalAudioProvider>
-        </LanguageProvider>
-      </InternationalizationProvider>
-    );
-  }
-);
-ComposedProviders.displayName = 'ComposedProviders';
+export function ComposedProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <InternationalizationProvider>
+      <LanguageProvider>
+        <GlobalAudioProvider>
+          <TooltipProvider>
+            <AccessibilityProvider>
+              {children}
+            </AccessibilityProvider>
+          </TooltipProvider>
+        </GlobalAudioProvider>
+      </LanguageProvider>
+    </InternationalizationProvider>
+  );
+}
