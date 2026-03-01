@@ -1,6 +1,9 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const testimonials = [
   {
@@ -44,6 +47,7 @@ const testimonials = [
 export const AppleTestimonials = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const navigate = useNavigate();
 
   return (
     <section ref={sectionRef} className="relative py-28 lg:py-36 overflow-hidden">
@@ -77,7 +81,7 @@ export const AppleTestimonials = () => {
             </span>
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Des étudiants comme toi. Sceptiques au début. Convaincus maintenant.
+            Retours de nos bêta-testeurs. Sceptiques au début. Convaincus maintenant.
           </p>
         </motion.div>
 
@@ -122,6 +126,24 @@ export const AppleTestimonials = () => {
           ))}
         </div>
 
+        {/* CTA after testimonials - moment de conviction maximale */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="mt-14 text-center"
+        >
+          <Button 
+            size="lg"
+            onClick={() => navigate(ROUTE_PATHS.medMngSignup)}
+            className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/25 transition-all hover:scale-105"
+          >
+            <Sparkles className="h-5 w-5 mr-2" />
+            Créer mon compte gratuit
+          </Button>
+          <p className="text-sm text-muted-foreground mt-3">Gratuit pour commencer · Sans engagement</p>
+        </motion.div>
+
         {/* Stats bar */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -131,8 +153,8 @@ export const AppleTestimonials = () => {
         >
           {[
             { value: '0€', label: 'Pour commencer' },
-            { value: '4.9/5', label: 'Note bêta-testeurs' },
             { value: '367', label: 'Items EDN couverts' },
+            { value: '100%', label: 'Programme R2C' },
             { value: 'x3', label: 'Rétention mémorielle' },
           ].map((stat, index) => (
             <motion.div

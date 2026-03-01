@@ -474,6 +474,10 @@ export const useSubscription = () => {
     }
 
     try {
+      // Track checkout_start for conversion funnel analytics
+      const { trackConversionEvent } = await import('@/lib/conversionTracking');
+      trackConversionEvent('checkout_start', { plan });
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { plan },
       });
