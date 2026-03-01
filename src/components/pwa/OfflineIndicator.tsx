@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-export const OfflineIndicator: React.FC = () => {
+export const OfflineIndicator = React.forwardRef<HTMLDivElement>((_, ref) => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showReconnected, setShowReconnected] = useState(false);
 
@@ -50,4 +50,5 @@ export const OfflineIndicator: React.FC = () => {
       Hors-ligne
     </Badge>
   );
-};
+});
+OfflineIndicator.displayName = 'OfflineIndicator';
